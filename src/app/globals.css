@@ -1,0 +1,59 @@
+@import 'tailwindcss';
+
+:root {
+  /* Primary Colors - Islamic Green */
+  --primary-50: #f0fdf4;
+  --primary-100: #dcfce7;
+  --primary-500: #22c55e;
+  --primary-600: #16a34a;
+  --primary-700: #15803d;
+
+  /* Secondary Colors - Deep Blue */
+  --secondary-500: #3b82f6;
+  --secondary-600: #2563eb;
+  --secondary-700: #1d4ed8;
+
+  /* Accent Colors - Gold */
+  --accent-400: #fbbf24;
+  --accent-500: #f59e0b;
+  --accent-600: #d97706;
+
+  /* Neutral Colors */
+  --gray-50: #f9fafb;
+  --gray-100: #f3f4f6;
+  --gray-500: #6b7280;
+  --gray-700: #374151;
+  --gray-900: #111827;
+
+  --background: #ffffff;
+  --foreground: #111827;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-english);
+  line-height: 1.6;
+}
+
+/* Bengali Typography */
+.font-bengali {
+  font-family: var(--font-bengali);
+}
+
+/* English Typography */
+.font-english {
+  font-family: var(--font-english);
+}
+
+/* Islamic Calligraphy */
+.font-arabic {
+  font-family: var(--font-arabic);
+}
+
+/* Smooth transitions */
+* {
+  transition:
+    color 0.3s ease-in-out,
+    background-color 0.3s ease-in-out;
+}

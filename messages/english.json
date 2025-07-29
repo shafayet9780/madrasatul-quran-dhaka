@@ -1,0 +1,26 @@
+{
+  "navigation": {
+    "home": "Home",
+    "about": "About Us",
+    "programs": "Academic Programs",
+    "admissions": "Admissions",
+    "campus": "Campus & Facilities",
+    "news": "News & Events",
+    "contact": "Contact"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "readMore": "Read More",
+    "learnMore": "Learn More",
+    "contactUs": "Contact Us",
+    "apply": "Apply Now"
+  },
+  "homepage": {
+    "hero": {
+      "title": "Madrasatul Quran",
+      "subtitle": "Excellence in Islamic Education & Modern Learning",
+      "description": "Combining traditional Islamic values with contemporary education for holistic development"
+    }
+  }
+}
