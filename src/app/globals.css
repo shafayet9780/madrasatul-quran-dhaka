@@ -1,59 +1,495 @@
+/* Bengali Fonts Import */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@300;400;500;600;700&display=swap');
+
 @import 'tailwindcss';
 
-:root {
-  /* Primary Colors - Islamic Green */
-  --primary-50: #f0fdf4;
-  --primary-100: #dcfce7;
-  --primary-500: #22c55e;
-  --primary-600: #16a34a;
-  --primary-700: #15803d;
+@theme {
+  --color-primary-50: #f0fdf4;
+  --color-primary-100: #dcfce7;
+  --color-primary-200: #bbf7d0;
+  --color-primary-300: #86efac;
+  --color-primary-400: #4ade80;
+  --color-primary-500: #1b4332;
+  --color-primary-600: #15803d;
+  --color-primary-700: #166534;
+  --color-primary-800: #14532d;
+  --color-primary-900: #052e16;
 
-  /* Secondary Colors - Deep Blue */
-  --secondary-500: #3b82f6;
-  --secondary-600: #2563eb;
-  --secondary-700: #1d4ed8;
+  --color-secondary-50: #eff6ff;
+  --color-secondary-100: #dbeafe;
+  --color-secondary-200: #bfdbfe;
+  --color-secondary-300: #93c5fd;
+  --color-secondary-400: #60a5fa;
+  --color-secondary-500: #2d5a40;
+  --color-secondary-600: #2563eb;
+  --color-secondary-700: #1d4ed8;
+  --color-secondary-800: #1e40af;
+  --color-secondary-900: #1e3a8a;
 
-  /* Accent Colors - Gold */
-  --accent-400: #fbbf24;
-  --accent-500: #f59e0b;
-  --accent-600: #d97706;
+  --color-accent-50: #fffbeb;
+  --color-accent-100: #fef3c7;
+  --color-accent-200: #fde68a;
+  --color-accent-300: #fcd34d;
+  --color-accent-400: #fbbf24;
+  --color-accent-500: #ffd700;
+  --color-accent-600: #d97706;
+  --color-accent-700: #b45309;
+  --color-accent-800: #92400e;
+  --color-accent-900: #78350f;
 
-  /* Neutral Colors */
-  --gray-50: #f9fafb;
-  --gray-100: #f3f4f6;
-  --gray-500: #6b7280;
-  --gray-700: #374151;
-  --gray-900: #111827;
-
-  --background: #ffffff;
-  --foreground: #111827;
+  --font-family-bengali:
+    'Noto Sans Bengali', 'Kalpurush', 'SolaimanLipi', sans-serif;
+  --font-family-english: 'Inter', 'Open Sans', system-ui, sans-serif;
+  --font-family-arabic: 'Noto Sans Arabic', serif;
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-english);
-  line-height: 1.6;
+@layer base {
+  /* CSS Variables for theming */
+  :root {
+    /* Legacy Islamic colors for backward compatibility */
+    --color-islamic-primary: #1b4332;
+    --color-islamic-secondary: #2d5a40;
+    --color-islamic-accent: #ffd700;
+    --color-islamic-light: #52b788;
+    --color-islamic-dark: #081c15;
+    --color-bangladesh-green: #006a4e;
+    --color-bangladesh-red: #f42a41;
+  }
+
+  /* Dark mode variables */
+  [data-theme='dark'] {
+    /* Legacy Islamic colors for backward compatibility */
+    --color-islamic-primary: #52b788;
+    --color-islamic-secondary: #2d5a40;
+    --color-islamic-accent: #ffd700;
+    --color-islamic-light: #1b4332;
+    --color-islamic-dark: #f8fafc;
+  }
+
+  /* Base styles */
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    color: #111827;
+    background-color: #ffffff;
+    font-feature-settings:
+      'kern' 1,
+      'liga' 1;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
 }
 
-/* Bengali Typography */
-.font-bengali {
-  font-family: var(--font-bengali);
+@layer components {
+  /* Font classes for different languages */
+  html.font-bengali,
+  html.font-bengali body,
+  .font-bengali {
+    font-family:
+      'Noto Sans Bengali', 'Kalpurush', 'SolaimanLipi', sans-serif !important;
+    line-height: 1.7;
+  }
+
+  html.font-english,
+  html.font-english body,
+  .font-english {
+    font-family: 'Inter', 'Open Sans', system-ui, sans-serif !important;
+  }
+
+  .font-arabic {
+    font-family: 'Noto Sans Arabic', serif;
+    direction: rtl;
+    text-align: right;
+  } /* I
+slamic geometric pattern background */
+  .islamic-pattern::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: url('/images/islamic-pattern.svg');
+    background-repeat: repeat;
+    background-size: 100px 100px;
+    opacity: 0.05;
+    z-index: -1;
+  }
+
+  /* Focus styles for accessibility */
+  .focus-islamic:focus {
+    outline: none;
+    box-shadow:
+      0 0 0 2px var(--color-islamic-primary),
+      0 0 0 4px rgba(27, 67, 50, 0.1);
+  }
+
+  /* Button styles */
+  .btn-primary {
+    background-color: var(--color-islamic-primary);
+    color: white;
+    font-weight: 500;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    transition: background-color 0.2s;
+  }
+
+  .btn-primary:hover {
+    background-color: var(--color-islamic-secondary);
+  }
+
+  .btn-secondary {
+    background-color: white;
+    color: var(--color-islamic-primary);
+    border: 2px solid var(--color-islamic-primary);
+    font-weight: 500;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    transition: background-color 0.2s;
+  }
+
+  .btn-secondary:hover {
+    background-color: #f9fafb;
+  }
+
+  .btn-accent {
+    background-color: var(--color-islamic-accent);
+    color: var(--color-islamic-dark);
+    font-weight: 500;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    transition: background-color 0.2s;
+  }
+
+  .btn-accent:hover {
+    background-color: #eab308;
+  }
+
+  /* Card styles */
+  .card {
+    background-color: white;
+    border-radius: 0.75rem;
+    box-shadow:
+      0 1px 3px 0 rgba(0, 0, 0, 0.1),
+      0 1px 2px 0 rgba(0, 0, 0, 0.06);
+    border: 1px solid #f3f4f6;
+    padding: 1.5rem;
+    transition: box-shadow 0.2s;
+  }
+
+  .card:hover {
+    box-shadow:
+      0 4px 6px -1px rgba(27, 67, 50, 0.1),
+      0 2px 4px -1px rgba(27, 67, 50, 0.06);
+  }
+
+  .card-islamic {
+    background: linear-gradient(
+      135deg,
+      var(--color-islamic-primary),
+      var(--color-islamic-secondary)
+    );
+    color: white;
+    border-radius: 0.75rem;
+    box-shadow:
+      0 4px 6px -1px rgba(27, 67, 50, 0.1),
+      0 2px 4px -1px rgba(27, 67, 50, 0.06);
+    padding: 1.5rem;
+  }
+
+  /* Form styles */
+  .form-input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem;
+    transition:
+      border-color 0.2s,
+      box-shadow 0.2s;
+  }
+
+  .form-input:focus {
+    outline: none;
+    border-color: var(--color-islamic-primary);
+    box-shadow: 0 0 0 3px rgba(27, 67, 50, 0.1);
+  }
+
+  .form-textarea {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem;
+    resize: vertical;
+    min-height: 120px;
+    transition:
+      border-color 0.2s,
+      box-shadow 0.2s;
+  }
+
+  .form-textarea:focus {
+    outline: none;
+    border-color: var(--color-islamic-primary);
+    box-shadow: 0 0 0 3px rgba(27, 67, 50, 0.1);
+  }
+
+  .form-select {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem;
+    background-color: white;
+    transition:
+      border-color 0.2s,
+      box-shadow 0.2s;
+  }
+
+  .form-select:focus {
+    outline: none;
+    border-color: var(--color-islamic-primary);
+    box-shadow: 0 0 0 3px rgba(27, 67, 50, 0.1);
+  }
+
+  /* Hero section gradient */
+  .hero-gradient {
+    background: linear-gradient(
+      135deg,
+      var(--color-islamic-primary) 0%,
+      var(--color-islamic-secondary) 100%
+    );
+  }
+
+  /* Stats section styling */
+  .stats-card {
+    text-align: center;
+    padding: 1.5rem;
+    background-color: white;
+    border-radius: 0.75rem;
+    box-shadow:
+      0 1px 3px 0 rgba(0, 0, 0, 0.1),
+      0 1px 2px 0 rgba(0, 0, 0, 0.06);
+    border: 1px solid #f3f4f6;
+  }
+
+  .stats-number {
+    font-size: 1.875rem;
+    font-weight: 700;
+    color: var(--color-islamic-primary);
+    margin-bottom: 0.5rem;
+  }
+
+  .stats-label {
+    color: #6b7280;
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  /* Navigation styles */
+  .nav-link {
+    color: #374151;
+    font-weight: 500;
+    transition: color 0.2s;
+  }
+
+  .nav-link:hover {
+    color: var(--color-islamic-primary);
+  }
+
+  .nav-link-active {
+    color: var(--color-islamic-primary);
+    border-bottom: 2px solid var(--color-islamic-primary);
+  }
+
+  /* Mobile menu styles */
+  .mobile-menu {
+    position: fixed;
+    inset: 0;
+    background-color: white;
+    z-index: 50;
+    transform: translateX(100%);
+    transition: transform 0.3s ease-in-out;
+  }
+
+  .mobile-menu.open {
+    transform: translateX(0);
+  }
+
+  /* Section padding utility */
+  .section-padding {
+    padding-top: 4rem;
+    padding-bottom: 4rem;
+  }
+
+  @media (min-width: 1024px) {
+    .section-padding {
+      padding-top: 6rem;
+      padding-bottom: 6rem;
+    }
+  }
+
+  /* Container utility */
+  .container-custom {
+    max-width: 90rem;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  @media (min-width: 640px) {
+    .container-custom {
+      padding-left: 1.5rem;
+      padding-right: 1.5rem;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .container-custom {
+      padding-left: 2rem;
+      padding-right: 2rem;
+    }
+  }
+
+  /* Emergency banner styles */
+  .emergency-banner {
+    background-color: #dc2626;
+    color: white;
+    text-align: center;
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+
+  /* Language switcher styles */
+  .language-switcher {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.5rem;
+    border: 1px solid #d1d5db;
+    transition: border-color 0.2s;
+  }
+
+  .language-switcher:hover {
+    border-color: var(--color-islamic-primary);
+  }
+
+  /* Footer link styles */
+  .footer-link {
+    color: #9ca3af;
+    transition: color 0.2s;
+  }
+
+  .footer-link:hover {
+    color: white;
+  }
 }
 
-/* English Typography */
-.font-english {
-  font-family: var(--font-english);
-}
+@layer utilities {
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
 
-/* Islamic Calligraphy */
-.font-arabic {
-  font-family: var(--font-arabic);
-}
+  ::-webkit-scrollbar-track {
+    background-color: #f3f4f6;
+  }
 
-/* Smooth transitions */
-* {
-  transition:
-    color 0.3s ease-in-out,
-    background-color 0.3s ease-in-out;
+  ::-webkit-scrollbar-thumb {
+    background-color: var(--color-islamic-primary);
+    border-radius: 9999px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: var(--color-islamic-secondary);
+  }
+
+  /* Animation utilities */
+  .animate-fade-in {
+    animation: fadeIn 0.5s ease-in-out;
+  }
+
+  .animate-slide-up {
+    animation: slideUp 0.5s ease-out;
+  }
+
+  .animate-slide-down {
+    animation: slideDown 0.5s ease-out;
+  }
+
+  @keyframes fadeIn {
+    0% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+
+  @keyframes slideUp {
+    0% {
+      transform: translateY(20px);
+      opacity: 0;
+    }
+    100% {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  @keyframes slideDown {
+    0% {
+      transform: translateY(-20px);
+      opacity: 0;
+    }
+    100% {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  /* Loading spinner */
+  .spinner {
+    display: inline-block;
+    width: 1.5rem;
+    height: 1.5rem;
+    border: 2px solid currentColor;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  /* Responsive font adjustments */
+  @media (max-width: 640px) {
+    html.font-bengali,
+    html.font-bengali body,
+    .font-bengali {
+      font-size: 14px;
+      line-height: 1.6;
+    }
+  }
+
+  /* Print styles */
+  @media print {
+    .no-print {
+      display: none !important;
+    }
+
+    body {
+      font-size: 12pt;
+      line-height: 1.4;
+    }
+  }
 }
