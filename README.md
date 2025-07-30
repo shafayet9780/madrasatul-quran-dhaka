@@ -74,7 +74,9 @@ src/
 │   └── layout.tsx         # Root layout
 ├── components/
 │   ├── layout/            # Layout components (Header, Footer)
-│   └── ui/                # Reusable UI components
+│   ├── ui/                # Reusable UI components
+demo component
+│   └── language-toggle.tsx # Language switching component
 ├── lib/
 │   ├── sanity/            # Sanity CMS configuration
 │   ├── utils/             # Utility functions
@@ -93,6 +95,16 @@ Required environment variables (see `.env.local.example`):
 - `SANITY_API_TOKEN` - Sanity API token
 - `NEXT_PUBLIC_SITE_URL` - Site URL
 - `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` - Google Maps API key
+
+## Internationalization
+
+The website includes comprehensive bilingual support:
+
+- **Language Detection**: Automatic browser language detection
+- **Dynamic Switching**: Real-time language switching without page reload
+- **Font Support**: Optimized fonts for Bengali (Noto Sans Bengali), English (Inter), and Arabic (Amiri)
+- **RTL Support**: Right-to-left text direction for Arabic content
+- **Demo Component**: Interactive I18nDemo component showcasing all i18n features
 
 ## Design System
 

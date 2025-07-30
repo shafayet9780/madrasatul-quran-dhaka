@@ -14,13 +14,48 @@
     "readMore": "Read More",
     "learnMore": "Learn More",
     "contactUs": "Contact Us",
-    "apply": "Apply Now"
+    "apply": "Apply Now",
+    "close": "Close",
+    "open": "Open",
+    "menu": "Menu",
+    "search": "Search",
+    "submit": "Submit",
+    "cancel": "Cancel",
+    "save": "Save",
+    "edit": "Edit",
+    "delete": "Delete",
+    "confirm": "Confirm",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous"
+  },
+  "language": {
+    "bengali": "বাংলা",
+    "english": "English",
+    "changeLanguage": "Change Language",
+    "currentLanguage": "Current Language"
   },
   "homepage": {
     "hero": {
       "title": "Madrasatul Quran",
       "subtitle": "Excellence in Islamic Education & Modern Learning",
       "description": "Combining traditional Islamic values with contemporary education for holistic development"
+    },
+    "mission": {
+      "title": "Our Mission",
+      "description": "Character building of students in the light of Quran and Sunnah and achieving excellence in modern education"
+    },
+    "statistics": {
+      "students": "Students",
+      "teachers": "Teachers",
+      "years": "Years of Experience",
+      "graduates": "Graduates"
     }
+  },
+  "footer": {
+    "quickLinks": "Quick Links",
+    "contactInfo": "Contact Information",
+    "followUs": "Follow Us",
+    "copyright": "© 2025 Madrasatul Quran. All rights reserved."
   }
 }
