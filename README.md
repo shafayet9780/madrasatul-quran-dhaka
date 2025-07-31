@@ -54,6 +54,41 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000) to view the website.
 
+### Sanity Studio
+
+The project includes an embedded Sanity Studio for content management:
+
+- **Studio URL**: [http://localhost:3000/studio](http://localhost:3000/studio)
+- **Access**: Available during development and can be deployed with the main site
+- **Features**: Full content management interface with multilingual support
+- **Enhanced UX**: 
+  - Automatic redirection to structure view when accessing studio root
+  - Custom loading screen with Madrasatul Quran branding
+  - Smooth transitions and professional loading experience
+- **Authentication**:
+  - Development: Open access for easy content management
+  - Production: Optional basic authentication for security
+
+#### Studio Features
+
+**Enhanced User Experience**:
+- **Smart Navigation**: Automatically redirects from `/studio` to `/studio/structure` for immediate access to content management
+- **Custom Loading Screen**: Branded loading interface with Madrasatul Quran logo and styling
+- **Responsive Design**: Optimized studio interface that works seamlessly across devices
+- **Professional Branding**: Custom styling that reflects the institution's identity
+
+**Authentication (Production)**:
+
+For production deployments, you can enable basic authentication for the Sanity Studio by setting these environment variables:
+
+```bash
+STUDIO_AUTH_ENABLED=true
+STUDIO_USERNAME=your_username
+STUDIO_PASSWORD=your_secure_password
+```
+
+When enabled, users will need to provide credentials to access the studio at `/studio`.
+
 ### Available Scripts
 
 - `npm run dev` - Start development server with Turbopack
@@ -75,15 +110,63 @@ src/
 ├── components/
 │   ├── layout/            # Layout components (Header, Footer)
 │   ├── ui/                # Reusable UI components
-demo component
 │   └── language-toggle.tsx # Language switching component
 ├── lib/
-│   ├── sanity/            # Sanity CMS configuration
-│   ├── utils/             # Utility functions
+│   ├── sanity.ts          # Sanity client configuration
+│   ├── sanity-queries.ts  # GROQ queries for content fetching
+│   ├── sanity-utils.ts    # Sanity utility functions
+│   ├── utils/             # General utility functions
 │   └── i18n.ts            # Internationalization config
 ├── types/
-│   └── index.ts           # TypeScript type definitions
+│   ├── index.ts           # General TypeScript type definitions
+│   └── sanity.ts          # Sanity-specific type definitions
 └── middleware.ts          # Next.js middleware for i18n
+```
+
+## Content Management System
+
+The website uses Sanity CMS for content management with the following features:
+
+### Sanity Client Configuration
+
+The Sanity client is configured in `src/lib/sanity.ts` using `next-sanity` for optimal Next.js integration:
+
+- **Production Client**: Uses CDN for optimized performance in production environments
+- **Preview Client**: Dedicated client for draft content preview with API token authentication
+- **Image URL Builder**: Optimized image delivery with transformation and format conversion support
+- **Flexible Client Selection**: Helper function for automatic client switching based on preview mode
+- **Next.js Integration**: Built with `next-sanity` for better compatibility with Next.js App Router
+
+### Content Types
+
+- **Pages**: General website pages with multilingual content
+- **News & Events**: News articles, events, achievements, and announcements
+- **Academic Programs**: Islamic studies and NCTB curriculum programs
+- **Staff Members**: Faculty and administration profiles
+- **Facilities**: Campus facilities with photo galleries
+- **Site Settings**: Global site configuration and contact information
+
+### Usage Example
+
+```typescript
+import { client, previewClient, urlFor, getClient } from '@/lib/sanity';
+
+// Fetch published content using main client
+const data = await client.fetch(query);
+
+// Fetch draft content using preview client
+const draftData = await previewClient.fetch(query);
+
+// Or use helper function for automatic client selection
+const previewData = await getClient(true).fetch(query);
+
+// Generate optimized image URLs with transformations
+const imageUrl = urlFor(image)
+  .width(800)
+  .height(600)
+  .format('webp')
+  .quality(85)
+  .url();
 ```
 
 ## Environment Variables
@@ -91,20 +174,29 @@ demo component
 Required environment variables (see `.env.local.example`):
 
 - `NEXT_PUBLIC_SANITY_PROJECT_ID` - Sanity project ID
-- `NEXT_PUBLIC_SANITY_DATASET` - Sanity dataset name
-- `SANITY_API_TOKEN` - Sanity API token
-- `NEXT_PUBLIC_SITE_URL` - Site URL
-- `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` - Google Maps API key
+- `NEXT_PUBLIC_SANITY_DATASET` - Sanity dataset name (usually 'production')
+- `SANITY_API_TOKEN` - Sanity API token for preview mode and mutations
+- `NEXT_PUBLIC_SITE_URL` - Site URL for SEO and social sharing
+- `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` - Google Maps API key for location features
+
+Optional environment variables for production security:
+
+- `STUDIO_AUTH_ENABLED` - Set to 'true' to enable Sanity Studio authentication
+- `STUDIO_USERNAME` - Username for Sanity Studio access (when auth is enabled)
+- `STUDIO_PASSWORD` - Password for Sanity Studio access (when auth is enabled)
 
 ## Internationalization
 
 The website includes comprehensive bilingual support:
 
-- **Language Detection**: Automatic browser language detection
+- **Language Detection**: Automatic browser language detection with fallback to English
 - **Dynamic Switching**: Real-time language switching without page reload
+- **URL Structure**: Always includes locale prefix (e.g., `/english/about`, `/bengali/about`)
 - **Font Support**: Optimized fonts for Bengali (Noto Sans Bengali), English (Inter), and Arabic (Amiri)
 - **RTL Support**: Right-to-left text direction for Arabic content
-- **Demo Component**: Interactive I18nDemo component showcasing all i18n features
+- **CMS Integration**: All Sanity content types support Bengali and English fields
+- **SEO Optimization**: Language-specific meta tags and structured data
+- **Middleware Integration**: Custom middleware handles locale routing and Sanity Studio access
 
 ## Design System
 
