@@ -6,38 +6,41 @@
 @import 'tailwindcss';
 
 @theme {
-  --color-primary-50: #f0fdf4;
-  --color-primary-100: #dcfce7;
-  --color-primary-200: #bbf7d0;
-  --color-primary-300: #86efac;
-  --color-primary-400: #4ade80;
-  --color-primary-500: #1b4332;
-  --color-primary-600: #15803d;
-  --color-primary-700: #166534;
-  --color-primary-800: #14532d;
-  --color-primary-900: #052e16;
+  /* Vibrant Sand Beach Primary Colors - Rich Warm Sands */
+  --color-primary-50: #fefdf9;
+  --color-primary-100: #fef9f1;
+  --color-primary-200: #fcf2e3;
+  --color-primary-300: #f8e6c8;
+  --color-primary-400: #f2d7a3;
+  --color-primary-500: #e6c078;
+  --color-primary-600: #d4a862;
+  --color-primary-700: #b8924f;
+  --color-primary-800: #9a7a42;
+  --color-primary-900: #7d6235;
 
-  --color-secondary-50: #eff6ff;
-  --color-secondary-100: #dbeafe;
-  --color-secondary-200: #bfdbfe;
-  --color-secondary-300: #93c5fd;
-  --color-secondary-400: #60a5fa;
-  --color-secondary-500: #2d5a40;
-  --color-secondary-600: #2563eb;
-  --color-secondary-700: #1d4ed8;
-  --color-secondary-800: #1e40af;
-  --color-secondary-900: #1e3a8a;
+  /* Vibrant Ocean Blue Secondary Colors - Tropical Sea Blues */
+  --color-secondary-50: #f0fbff;
+  --color-secondary-100: #e0f6ff;
+  --color-secondary-200: #bae9ff;
+  --color-secondary-300: #7dd8ff;
+  --color-secondary-400: #38c4ff;
+  --color-secondary-500: #0db0f0;
+  --color-secondary-600: #0891d4;
+  --color-secondary-700: #0c7bb8;
+  --color-secondary-800: #106596;
+  --color-secondary-900: #14537a;
 
-  --color-accent-50: #fffbeb;
-  --color-accent-100: #fef3c7;
-  --color-accent-200: #fde68a;
-  --color-accent-300: #fcd34d;
-  --color-accent-400: #fbbf24;
-  --color-accent-500: #ffd700;
-  --color-accent-600: #d97706;
-  --color-accent-700: #b45309;
-  --color-accent-800: #92400e;
-  --color-accent-900: #78350f;
+  /* Vibrant Sunset Accent Colors - Tropical Sunset */
+  --color-accent-50: #fffcf0;
+  --color-accent-100: #fef6d9;
+  --color-accent-200: #fdecb3;
+  --color-accent-300: #fbdc82;
+  --color-accent-400: #f9c74f;
+  --color-accent-500: #f7b32b;
+  --color-accent-600: #e89611;
+  --color-accent-700: #c17a0f;
+  --color-accent-800: #9c6114;
+  --color-accent-900: #7e4f14;
 
   --font-family-bengali:
     'Noto Sans Bengali', 'Kalpurush', 'SolaimanLipi', sans-serif;
@@ -48,40 +51,59 @@
 @layer base {
   /* CSS Variables for theming */
   :root {
-    /* Legacy Islamic colors for backward compatibility */
-    --color-islamic-primary: #1b4332;
-    --color-islamic-secondary: #2d5a40;
-    --color-islamic-accent: #ffd700;
-    --color-islamic-light: #52b788;
-    --color-islamic-dark: #081c15;
-    --color-bangladesh-green: #006a4e;
-    --color-bangladesh-red: #f42a41;
+    /* Vibrant Sand Beach Theme Colors */
+    --color-islamic-primary: #b8924f;
+    --color-islamic-secondary: #d4a862;
+    --color-islamic-accent: #f7b32b;
+    --color-islamic-light: #fef9f1;
+    --color-islamic-dark: #7d6235;
+    --color-ocean-blue: #0891d4;
+    --color-sunset-orange: #e89611;
+    --color-sand-light: #fefdf9;
+    --color-sand-medium: #f8e6c8;
+    --color-sand-dark: #9a7a42;
+    --color-text-primary: #5a4a35;
+    --color-text-secondary: #8b7355;
+    --color-text-light: #a68b6b;
   }
 
   /* Dark mode variables */
   [data-theme='dark'] {
-    /* Legacy Islamic colors for backward compatibility */
-    --color-islamic-primary: #52b788;
-    --color-islamic-secondary: #2d5a40;
-    --color-islamic-accent: #ffd700;
-    --color-islamic-light: #1b4332;
-    --color-islamic-dark: #f8fafc;
+    /* Vibrant Sand Beach Dark Theme */
+    --color-islamic-primary: #f8e6c8;
+    --color-islamic-secondary: #f2d7a3;
+    --color-islamic-accent: #f9c74f;
+    --color-islamic-light: #7d6235;
+    --color-islamic-dark: #fefdf9;
+    --color-ocean-blue: #38c4ff;
+    --color-sunset-orange: #f9c74f;
+    --color-text-primary: #f8e6c8;
+    --color-text-secondary: #e6c078;
+    --color-text-light: #d4a862;
   }
 
   /* Base styles */
   html {
     scroll-behavior: smooth;
+    overflow-x: hidden;
   }
 
   body {
-    color: #111827;
-    background-color: #ffffff;
+    color: var(--color-text-primary);
+    background: linear-gradient(135deg, #fefdf9 0%, #fef9f1 100%);
+    min-height: 100vh;
     font-feature-settings:
       'kern' 1,
       'liga' 1;
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+    width: 100%;
+  }
+
+  * {
+    box-sizing: border-box;
   }
 }
 
@@ -131,75 +153,125 @@ slamic geometric pattern background */
 
   /* Button styles */
   .btn-primary {
-    background-color: var(--color-islamic-primary);
+    background: linear-gradient(
+      135deg,
+      var(--color-primary-600),
+      var(--color-primary-700)
+    );
     color: white;
     font-weight: 500;
-    padding: 0.75rem 1.5rem;
-    border-radius: 0.5rem;
-    transition: background-color 0.2s;
+    padding: 0.875rem 1.5rem;
+    border-radius: 0.75rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(184, 146, 79, 0.2);
+    font-size: 1rem;
+    text-align: center;
+    display: inline-block;
+    min-width: 140px;
+  }
+
+  @media (min-width: 640px) {
+    .btn-primary {
+      padding: 0.875rem 1.75rem;
+      font-size: 1.1rem;
+    }
   }
 
   .btn-primary:hover {
-    background-color: var(--color-islamic-secondary);
+    background: var(--color-primary-700);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(184, 146, 79, 0.3);
   }
 
   .btn-secondary {
-    background-color: white;
+    background-color: var(--color-sand-light);
     color: var(--color-islamic-primary);
     border: 2px solid var(--color-islamic-primary);
     font-weight: 500;
-    padding: 0.75rem 1.5rem;
-    border-radius: 0.5rem;
-    transition: background-color 0.2s;
+    padding: 0.875rem 1.5rem;
+    border-radius: 0.75rem;
+    transition: all 0.3s ease;
+    font-size: 1rem;
+    text-align: center;
+    display: inline-block;
+    min-width: 140px;
+  }
+
+  @media (min-width: 640px) {
+    .btn-secondary {
+      padding: 0.875rem 1.75rem;
+      font-size: 1.1rem;
+    }
   }
 
   .btn-secondary:hover {
-    background-color: #f9fafb;
+    background-color: var(--color-primary-600);
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(184, 146, 79, 0.15);
   }
 
   .btn-accent {
-    background-color: var(--color-islamic-accent);
-    color: var(--color-islamic-dark);
+    background: linear-gradient(
+      135deg,
+      var(--color-accent-500),
+      var(--color-accent-600)
+    );
+    color: white;
     font-weight: 500;
     padding: 0.75rem 1.5rem;
-    border-radius: 0.5rem;
-    transition: background-color 0.2s;
+    border-radius: 0.75rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(247, 179, 43, 0.2);
   }
 
   .btn-accent:hover {
-    background-color: #eab308;
+    background: var(--color-accent-600);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(247, 179, 43, 0.3);
   }
 
   /* Card styles */
   .card {
     background-color: white;
-    border-radius: 0.75rem;
+    border-radius: 1rem;
     box-shadow:
-      0 1px 3px 0 rgba(0, 0, 0, 0.1),
-      0 1px 2px 0 rgba(0, 0, 0, 0.06);
-    border: 1px solid #f3f4f6;
+      0 4px 20px rgba(184, 146, 79, 0.08),
+      0 1px 3px rgba(184, 146, 79, 0.1);
+    border: 1px solid var(--color-sand-medium);
     padding: 1.5rem;
-    transition: box-shadow 0.2s;
+    transition: all 0.3s ease;
   }
 
   .card:hover {
+    transform: translateY(-4px);
     box-shadow:
-      0 4px 6px -1px rgba(27, 67, 50, 0.1),
-      0 2px 4px -1px rgba(27, 67, 50, 0.06);
+      0 8px 30px rgba(184, 146, 79, 0.15),
+      0 4px 12px rgba(184, 146, 79, 0.1);
   }
 
   .card-islamic {
-    background: linear-gradient(
-      135deg,
-      var(--color-islamic-primary),
-      var(--color-islamic-secondary)
-    );
+    background: var(--color-primary-700);
     color: white;
-    border-radius: 0.75rem;
+    border-radius: 1rem;
     box-shadow:
-      0 4px 6px -1px rgba(27, 67, 50, 0.1),
-      0 2px 4px -1px rgba(27, 67, 50, 0.06);
+      0 8px 25px rgba(184, 146, 79, 0.2),
+      0 4px 12px rgba(184, 146, 79, 0.15);
     padding: 1.5rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card-islamic::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="sand" patternUnits="userSpaceOnUse" width="20" height="20"><circle cx="10" cy="10" r="1" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23sand)"/></svg>');
+    opacity: 0.3;
+    pointer-events: none;
   }
 
   /* Form styles */
@@ -258,51 +330,171 @@ slamic geometric pattern background */
   .hero-gradient {
     background: linear-gradient(
       135deg,
-      var(--color-islamic-primary) 0%,
-      var(--color-islamic-secondary) 100%
+      var(--color-primary-700) 0%,
+      var(--color-primary-600) 100%
     );
+    position: relative;
+  }
+
+  .hero-gradient::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><defs><pattern id="beach-pattern" patternUnits="userSpaceOnUse" width="40" height="40"><path d="M0 20c10-5 20-5 30 0s20 5 30 0v20c-10 5-20 5-30 0s-20-5-30 0z" fill="rgba(255,255,255,0.05)"/></pattern></defs><rect width="200" height="200" fill="url(%23beach-pattern)"/></svg>');
+    opacity: 0.6;
+    pointer-events: none;
   }
 
   /* Stats section styling */
   .stats-card {
     text-align: center;
-    padding: 1.5rem;
+    padding: 1rem 0.75rem;
     background-color: white;
-    border-radius: 0.75rem;
+    border-radius: 1rem;
     box-shadow:
-      0 1px 3px 0 rgba(0, 0, 0, 0.1),
-      0 1px 2px 0 rgba(0, 0, 0, 0.06);
-    border: 1px solid #f3f4f6;
+      0 10px 30px rgba(184, 146, 79, 0.12),
+      0 4px 15px rgba(184, 146, 79, 0.08);
+    border: 1px solid var(--color-sand-medium);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  @media (min-width: 640px) {
+    .stats-card {
+      padding: 1.5rem 1rem;
+      border-radius: 1.25rem;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .stats-card {
+      padding: 2rem 1.5rem;
+    }
+  }
+
+  .stats-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(
+      90deg,
+      var(--color-primary-500),
+      var(--color-primary-600)
+    );
+    border-radius: 1rem 1rem 0 0;
+  }
+
+  @media (min-width: 640px) {
+    .stats-card::before {
+      height: 5px;
+      border-radius: 1.25rem 1.25rem 0 0;
+    }
+  }
+
+  .stats-card:hover {
+    transform: translateY(-4px);
+    box-shadow:
+      0 15px 40px rgba(184, 146, 79, 0.18),
+      0 8px 25px rgba(184, 146, 79, 0.12);
+  }
+
+  @media (min-width: 1024px) {
+    .stats-card:hover {
+      transform: translateY(-8px);
+    }
   }
 
   .stats-number {
-    font-size: 1.875rem;
-    font-weight: 700;
-    color: var(--color-islamic-primary);
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--color-primary-700);
     margin-bottom: 0.5rem;
+    text-shadow: 0 2px 4px rgba(184, 146, 79, 0.1);
+    line-height: 1.1;
+  }
+
+  @media (min-width: 640px) {
+    .stats-number {
+      font-size: 2.5rem;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .stats-number {
+      font-size: 2.75rem;
+    }
   }
 
   .stats-label {
-    color: #6b7280;
-    font-size: 0.875rem;
+    color: var(--color-text-primary);
+    font-size: 0.75rem;
     text-transform: uppercase;
     letter-spacing: 0.05em;
+    font-weight: 600;
+    line-height: 1.2;
+  }
+
+  @media (min-width: 640px) {
+    .stats-label {
+      font-size: 0.85rem;
+      letter-spacing: 0.1em;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .stats-label {
+      font-size: 0.9rem;
+    }
   }
 
   /* Navigation styles */
   .nav-link {
-    color: #374151;
-    font-weight: 500;
-    transition: color 0.2s;
+    color: var(--color-text-primary);
+    font-weight: 600;
+    transition: all 0.3s ease;
+    position: relative;
+    padding: 0.75rem 0.5rem;
+    white-space: nowrap;
+    font-size: 0.95rem;
+    display: inline-block;
+  }
+
+  .nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 3px;
+    background: var(--color-primary-600);
+    border-radius: 2px;
+    transition: width 0.3s ease;
   }
 
   .nav-link:hover {
     color: var(--color-islamic-primary);
+    transform: translateY(-1px);
+  }
+
+  .nav-link:hover::after {
+    width: 80%;
   }
 
   .nav-link-active {
     color: var(--color-islamic-primary);
-    border-bottom: 2px solid var(--color-islamic-primary);
+    font-weight: 700;
+  }
+
+  .nav-link-active::after {
+    width: 80%;
   }
 
   /* Mobile menu styles */
@@ -310,13 +502,42 @@ slamic geometric pattern background */
     position: fixed;
     inset: 0;
     background-color: white;
-    z-index: 50;
+    z-index: 9999;
     transform: translateX(100%);
     transition: transform 0.3s ease-in-out;
   }
 
   .mobile-menu.open {
     transform: translateX(0);
+  }
+
+  /* Prevent body scroll when mobile menu is open */
+  body.mobile-menu-open {
+    overflow: hidden;
+    position: fixed;
+    width: 100%;
+  }
+
+  /* Ensure mobile menu overlay is above everything */
+  .mobile-menu-overlay {
+    z-index: 9998 !important;
+  }
+
+  /* Ensure mobile menu is above everything */
+  .mobile-menu-panel {
+    z-index: 9999 !important;
+  }
+
+  /* Ensure main content doesn't interfere with mobile menu */
+  main {
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Header should be below mobile menu but above main content */
+  header {
+    position: relative;
+    z-index: 9997;
   }
 
   /* Section padding utility */
@@ -337,8 +558,15 @@ slamic geometric pattern background */
     max-width: 90rem;
     margin-left: auto;
     margin-right: auto;
-    padding-left: 1rem;
-    padding-right: 1rem;
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+
+  @media (min-width: 480px) {
+    .container-custom {
+      padding-left: 1rem;
+      padding-right: 1rem;
+    }
   }
 
   @media (min-width: 640px) {
@@ -349,6 +577,13 @@ slamic geometric pattern background */
   }
 
   @media (min-width: 1024px) {
+    .container-custom {
+      padding-left: 1.5rem;
+      padding-right: 1.5rem;
+    }
+  }
+
+  @media (min-width: 1280px) {
     .container-custom {
       padding-left: 2rem;
       padding-right: 2rem;
@@ -423,6 +658,22 @@ slamic geometric pattern background */
     animation: slideDown 0.5s ease-out;
   }
 
+  .animate-slide-in-right {
+    animation: slideInRight 0.3s ease-out;
+  }
+
+  .animate-slide-out-right {
+    animation: slideOutRight 0.3s ease-in;
+  }
+
+  .animate-fade-in-fast {
+    animation: fadeIn 0.3s ease-out;
+  }
+
+  .animate-fade-out-fast {
+    animation: fadeOut 0.3s ease-in;
+  }
+
   @keyframes fadeIn {
     0% {
       opacity: 0;
@@ -454,6 +705,46 @@ slamic geometric pattern background */
     }
   }
 
+  @keyframes slideInRight {
+    0% {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+    100% {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+
+  @keyframes slideOutRight {
+    0% {
+      transform: translateX(0);
+      opacity: 1;
+    }
+    100% {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+  }
+
+  @keyframes fadeIn {
+    0% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+
+  @keyframes fadeOut {
+    0% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+    }
+  }
+
   /* Loading spinner */
   .spinner {
     display: inline-block;
@@ -472,11 +763,55 @@ slamic geometric pattern background */
   }
 
   /* Responsive font adjustments */
+  @media (max-width: 430px) {
+    html.font-bengali,
+    html.font-bengali body,
+    .font-bengali {
+      font-size: 15px;
+      line-height: 1.6;
+    }
+    
+    .nav-link {
+      font-size: 1rem;
+      padding: 0.5rem 0.25rem;
+    }
+
+    /* Ensure no horizontal overflow on very small screens */
+    .container-custom {
+      padding-left: 0.5rem;
+      padding-right: 0.5rem;
+      max-width: 100%;
+    }
+
+    /* Adjust button sizes for very small screens */
+    .btn-primary,
+    .btn-secondary {
+      padding: 0.875rem 1.5rem;
+      font-size: 1rem;
+      min-width: 140px;
+    }
+
+    /* Make stats cards more compact */
+    .stats-card {
+      padding: 0.75rem 0.5rem;
+    }
+
+    .stats-number {
+      font-size: 2rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .stats-label {
+      font-size: 0.75rem;
+      letter-spacing: 0.025em;
+    }
+  }
+
   @media (max-width: 640px) {
     html.font-bengali,
     html.font-bengali body,
     .font-bengali {
-      font-size: 14px;
+      font-size: 15px;
       line-height: 1.6;
     }
   }
