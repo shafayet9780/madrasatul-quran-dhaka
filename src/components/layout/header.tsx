@@ -238,18 +238,17 @@ export default function Header() {
     <>
       <header className="bg-white shadow-xl border-b-2 border-sand-medium sticky top-0 z-40 backdrop-blur-md bg-opacity-98">
         <div className="container-custom">
-          <div className="flex items-center justify-between h-20 md:h-24">
-            {/* Logo */}
-            <div className="flex items-center space-x-2 flex-shrink-0 min-w-0">
-              <div className="flex flex-col items-start">
-                {/* Islamic Calligraphy Logo */}
-                <div className="text-lg md:text-xl lg:text-2xl font-bold text-primary-700 font-arabic leading-none drop-shadow-md">
-                  ﷽
-                </div>
-                <div className="text-sm md:text-base lg:text-lg font-bold text-primary-700 font-bengali leading-tight">
+          <div className="flex items-center justify-between h-16 md:h-18">
+            {/* Compact Logo */}
+            <div className="flex items-center space-x-3 flex-shrink-0 min-w-0">
+              <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center">
+                <span className="text-lg font-bold text-primary-700">🏛️</span>
+              </div>
+              <div className="flex flex-col">
+                <div className="text-base md:text-lg font-bold text-primary-700 leading-tight">
                   মাদরাসাতুল কুরআন
                 </div>
-                <div className="text-xs text-primary-600 font-english hidden xl:block font-semibold">
+                <div className="text-xs text-primary-600 hidden md:block">
                   Excellence in Islamic Education
                 </div>
               </div>

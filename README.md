@@ -114,6 +114,8 @@ src/
 │   │   ├── header.tsx     # Enhanced responsive header with navigation
 │   │   ├── footer.tsx     # Footer component with contact info
 │   │   └── main-layout.tsx # Main layout wrapper
+│   ├── homepage/          # Homepage-specific components
+│   │   └── hero-section.tsx # Hero section with background image and CTAs
 │   ├── ui/                # Reusable UI components
 │   └── language-toggle.tsx # Language switching component
 ├── lib/
@@ -237,6 +239,59 @@ The website features a comprehensive navigation system built into the header com
 - **Window Resize Handling**: Automatic mobile menu closure on desktop resize
 - **Smooth Animations**: CSS transitions and transforms for all interactions
 - **Performance Optimized**: Efficient event listeners with proper cleanup
+
+## Homepage Components
+
+### Hero Section
+
+The homepage features a modern hero section (`src/components/homepage/hero-section.tsx`) with:
+
+**Visual Design**:
+- **Two-Column Grid Layout**: Full-width left content section with centered title and large image gallery, narrow right news sidebar
+- **Clean White Background**: Professional white background for better content focus
+- **Interactive Image Gallery**: Auto-rotating activity images with manual navigation indicators
+- **Vertical News Sidebar**: Tall, narrow news feed with scrolling content and compact design
+
+**Content Structure**:
+- **Compact Title Section**: Streamlined institution info with smaller badge, optimized title sizing, and refined subtitle above the image gallery
+- **Featured Image Gallery**: Large, prominent activity images (9/12 grid) with enhanced visual impact
+- **News Sidebar**: Right column (3/12 grid) with vertical scrolling news feed
+- **Centered CTA Buttons**: Action buttons positioned below the image gallery for better user flow
+- **Multilingual Support**: Dynamic content using next-intl translations
+- **Statistics Section**: Dedicated bottom section with four-column stats grid
+
+**Image Gallery System**:
+- **Auto-Rotation**: Activity images cycle every 3 seconds with smooth fade transitions
+- **Manual Navigation**: Interactive indicators allow users to jump to specific images
+- **Activity Categories**: Classroom learning, Quran recitation, science lab, sports, and cultural programs
+- **Image Overlays**: Title overlays with gradient backgrounds for better readability
+- **Error Handling**: Fallback SVG placeholders for missing images
+
+**News Feed System**:
+- **Auto-Scrolling**: News items automatically scroll every 4 seconds
+- **Date-Based Layout**: Each news item includes date box with day and month
+- **Highlight System**: Featured news items with enhanced styling
+- **Content Categories**: Admissions, achievements, events, examinations, and facility updates
+- **Quick Access**: "View All" button for complete news section
+
+**Layout Sections**:
+- **Main Hero**: Two-column grid layout with centered title section above full-width gallery, plus news sidebar
+- **Statistics Grid**: Four-column stats showcase with clean typography
+- **Responsive Design**: Stacked layout on mobile, two-column on desktop with enhanced visual hierarchy
+
+**Performance Features**:
+- **Optimized Images**: Next.js Image component with proper error handling and fallbacks
+- **Smooth Animations**: Staggered entrance animations with intersection observer
+- **Efficient State Management**: Multiple useEffect hooks for different auto-rotation timers
+- **Accessibility**: Proper alt texts, semantic HTML structure, and keyboard navigation
+
+**Technical Implementation**:
+- **Multiple State Management**: Separate state for image gallery, news feed, and visibility animations
+- **TypeScript**: Fully typed interfaces for all data structures and component props
+- **Tailwind CSS**: Utility-first styling with custom gradients and responsive grid system
+- **Auto-Rotation Logic**: Independent timers for different content sections with proper cleanup
+- **Enhanced Animations**: Smooth opacity and transform transitions for news items with directional movement
+- **Improved Navigation**: Interactive dots for both image gallery and news feed sections
 
 ## Design System
 
