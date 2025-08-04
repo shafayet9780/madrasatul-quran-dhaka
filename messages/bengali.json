@@ -52,6 +52,37 @@
       "graduates": "স্নাতক"
     }
   },
+  "about": {
+    "meta": {
+      "title": "আমাদের সম্পর্কে",
+      "description": "মাদ্রাসাতুল কুরআনের ইতিহাস, দৃষ্টিভঙ্গি, নেতৃত্ব দল এবং শিক্ষা দর্শন সম্পর্কে জানুন।"
+    },
+    "history": {
+      "title": "আমাদের ইতিহাস"
+    },
+    "vision": {
+      "title": "আমাদের দৃষ্টিভঙ্গি ও লক্ষ্য",
+      "subtitle": "দৃষ্টিভঙ্গি"
+    },
+    "mission": {
+      "subtitle": "লক্ষ্য"
+    },
+    "leadership": {
+      "title": "নেতৃত্ব দল",
+      "viewProfile": "প্রোফাইল দেখুন",
+      "experience": "বছরের অভিজ্ঞতা",
+      "qualifications": "যোগ্যতা",
+      "specializations": "বিশেষত্ব",
+      "education": "শিক্ষাগত যোগ্যতা",
+      "biography": "জীবনী"
+    },
+    "philosophy": {
+      "title": "শিক্ষা দর্শন ও স্বীকৃতি",
+      "islamicIntegration": "ইসলামী শিক্ষার সমন্বয়",
+      "nctbCurriculum": "এনসিটিবি পাঠ্যক্রম",
+      "accreditation": "স্বীকৃতি ও অনুমোদন"
+    }
+  },
   "footer": {
     "quickLinks": "দ্রুত লিংক",
     "contactInfo": "যোগাযোগের তথ্য",

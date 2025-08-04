@@ -1,12 +1,11 @@
 import { useTranslations } from 'next-intl';
-import { MainLayout } from '@/components/layout';
 import { HeroSection } from '@/components/homepage';
 import MissionStatisticsSection from '@/components/homepage/mission-statistics-section';
 import FeaturedContentSection from '@/components/homepage/featured-content-section';
 
 export default function Home() {
   return (
-    <MainLayout>
+    <>
       {/* Hero Section */}
       <HeroSection />
 
@@ -15,6 +14,6 @@ export default function Home() {
 
       {/* Featured Content and Quick Access Section */}
       <FeaturedContentSection />
-    </MainLayout>
+    </>
   );
 }

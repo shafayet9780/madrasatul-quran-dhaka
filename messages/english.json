@@ -52,6 +52,37 @@
       "graduates": "Graduates"
     }
   },
+  "about": {
+    "meta": {
+      "title": "About Us",
+      "description": "Learn about Madrasatul Quran's history, vision, leadership team, and educational philosophy."
+    },
+    "history": {
+      "title": "Our History"
+    },
+    "vision": {
+      "title": "Our Vision & Mission",
+      "subtitle": "Vision"
+    },
+    "mission": {
+      "subtitle": "Mission"
+    },
+    "leadership": {
+      "title": "Leadership Team",
+      "viewProfile": "View Profile",
+      "experience": "Years of Experience",
+      "qualifications": "Qualifications",
+      "specializations": "Specializations",
+      "education": "Educational Background",
+      "biography": "Biography"
+    },
+    "philosophy": {
+      "title": "Educational Philosophy & Accreditation",
+      "islamicIntegration": "Islamic Education Integration",
+      "nctbCurriculum": "NCTB Curriculum",
+      "accreditation": "Accreditation & Approvals"
+    }
+  },
   "footer": {
     "quickLinks": "Quick Links",
     "contactInfo": "Contact Information",

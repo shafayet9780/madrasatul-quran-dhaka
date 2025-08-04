@@ -29,6 +29,9 @@ export {
   Divider,
 } from './layout';
 
+// Rich Text Component
+export { RichText } from './rich-text';
+
 // Design System Utilities
 export {
   cn,

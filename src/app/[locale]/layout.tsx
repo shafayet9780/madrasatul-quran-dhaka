@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation';
 import { locales } from '@/lib/i18n';
 import LocaleProvider from '@/components/locale-provider';
 import { LanguageContextProvider } from '@/contexts/language-context';
+import { MainLayout } from '@/components/layout';
 
 export function generateStaticParams() {
   return locales.map(locale => ({ locale }));
@@ -29,7 +30,9 @@ export default async function LocaleLayout({
     <LocaleProvider locale={locale}>
       <NextIntlClientProvider messages={messages}>
         <LanguageContextProvider>
-          {children}
+          <MainLayout>
+            {children}
+          </MainLayout>
         </LanguageContextProvider>
       </NextIntlClientProvider>
     </LocaleProvider>

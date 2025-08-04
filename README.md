@@ -10,6 +10,7 @@ A modern, bilingual website for Madrasatul Quran, an Islamic educational institu
 - **Performance Optimized**: Built for Bangladesh's internet infrastructure
 - **Responsive Design**: Mobile-first approach with responsive layouts
 - **Advanced Navigation**: Full-featured header with dropdown menus and mobile navigation
+- **About Page**: Complete institutional information with history, leadership, and philosophy
 - **SEO Optimized**: Search engine optimization for local discovery
 
 ## Tech Stack
@@ -116,7 +117,12 @@ src/
 │   │   └── main-layout.tsx # Main layout wrapper
 │   ├── homepage/          # Homepage-specific components
 │   │   └── hero-section.tsx # Hero section with background image and CTAs
+│   ├── about/             # About page components
+│   │   ├── school-history-vision.tsx # School history and vision section
+│   │   ├── leadership-team.tsx # Leadership team with modal profiles
+│   │   └── educational-philosophy.tsx # Educational philosophy and accreditation
 │   ├── ui/                # Reusable UI components
+│   │   └── rich-text.tsx  # Rich text renderer for Sanity Portable Text
 │   └── language-toggle.tsx # Language switching component
 ├── lib/
 │   ├── sanity.ts          # Sanity client configuration
@@ -292,6 +298,106 @@ The homepage features a modern hero section (`src/components/homepage/hero-secti
 - **Auto-Rotation Logic**: Independent timers for different content sections with proper cleanup
 - **Enhanced Animations**: Smooth opacity and transform transitions for news items with directional movement
 - **Improved Navigation**: Interactive dots for both image gallery and news feed sections
+
+## About Page Components
+
+The about page provides comprehensive institutional information through three main sections:
+
+### School History and Vision
+
+The history section (`src/components/about/school-history-vision.tsx`) features:
+
+**Content Structure**:
+- **Founding Story**: Institution's establishment in 1985 with Islamic educational philosophy
+- **Mission Statement**: Integration of Islamic teachings with modern academic excellence
+- **Vision Display**: Future goals and educational objectives
+- **Quranic Integration**: Featured verses supporting educational mission
+
+**Visual Design**:
+- **Two-Column Layout**: Content and imagery side-by-side with responsive stacking
+- **Islamic Aesthetics**: Geometric patterns and gradient overlays
+- **Professional Typography**: Language-specific fonts with proper hierarchy
+- **Image Optimization**: Fallback handling for missing images
+
+### Leadership Team
+
+The leadership section (`src/components/about/leadership-team.tsx`) includes:
+
+**Team Organization**:
+- **Department Grouping**: Administration, Islamic Studies, NCTB Curriculum, Co-curricular, Support Staff
+- **Display Order**: Prioritized by department importance and individual ranking
+- **Profile Cards**: Photo, name, position, and experience summary
+- **Modal Profiles**: Detailed view with biography, qualifications, education, and specializations
+
+**Interactive Features**:
+- **Click-to-View**: Modal system for detailed staff information
+- **Responsive Grid**: Adaptive layout from single column to four columns
+- **Professional Styling**: Hover effects and smooth transitions
+- **Accessibility**: Proper ARIA labels and keyboard navigation
+
+**Data Integration**:
+- **Sanity CMS**: Dynamic content from staff member schema
+- **Multilingual Support**: Bengali and English content rendering
+- **Image Handling**: Optimized photos with fallback avatars
+- **Type Safety**: Full TypeScript integration with proper interfaces
+
+### Educational Philosophy
+
+The philosophy section (`src/components/about/educational-philosophy.tsx`) covers:
+
+**Educational Integration**:
+- **Islamic-Modern Balance**: Combination of Quranic teachings with NCTB curriculum
+- **Subject Coverage**: Comprehensive academic program overview
+- **Teaching Methodology**: Explanation of integrated educational approach
+- **Student Development**: Holistic growth philosophy
+
+**Accreditation Display**:
+- **Government Recognition**: Ministry of Education approval certificates
+- **Board Certifications**: Madrasah Education Board and NCTB recognition
+- **Certificate Modals**: Full-screen certificate viewing system
+- **Trust Indicators**: Experience, recognition, success rates, and standards
+
+**Technical Features**:
+- **Modal System**: Certificate viewing with image optimization
+- **Responsive Design**: Mobile-first approach with adaptive layouts
+- **Content Management**: Optional Sanity CMS integration for dynamic content
+- **Fallback Content**: Default content when CMS data is unavailable
+
+## Rich Text Component
+
+The website includes a comprehensive rich text renderer (`src/components/ui/rich-text.tsx`) for displaying Sanity Portable Text content:
+
+### Features
+
+- **Portable Text Support**: Full integration with Sanity's Portable Text format
+- **Multilingual Typography**: Automatic font selection based on language (Bengali/English)
+- **Rich Formatting**: Support for headings, paragraphs, blockquotes, links, and emphasis
+- **Image Rendering**: Optimized image display with Next.js Image component and responsive sizing
+- **Semantic HTML**: Proper heading hierarchy and accessible markup
+- **Custom Styling**: Islamic-inspired design with primary color scheme integration
+
+### Usage
+
+```typescript
+import { RichText } from '@/components/ui/rich-text';
+
+// Basic usage
+<RichText content={portableTextContent} />
+
+// With language-specific typography
+<RichText 
+  content={portableTextContent} 
+  language="bengali" 
+  className="custom-styles"
+/>
+```
+
+### Supported Content Types
+
+- **Text Blocks**: Paragraphs, headings (H1-H3), blockquotes
+- **Inline Formatting**: Bold, italic, and linked text
+- **Images**: Responsive images with alt text and captions
+- **Links**: Internal and external links with proper security attributes
 
 ## Design System
 
