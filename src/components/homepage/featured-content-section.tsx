@@ -252,7 +252,7 @@ export default function FeaturedContentSection({ className = '' }: FeaturedConte
               Quick Access
             </h2>
             <p className="text-lg md:text-xl text-text-secondary max-w-2xl mx-auto">
-              Find what you're looking for quickly with our most important sections
+              Find what you&apos;re looking for quickly with our most important sections
             </p>
           </div>
 

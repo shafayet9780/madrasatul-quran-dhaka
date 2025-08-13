@@ -159,10 +159,10 @@ export default function MissionStatisticsSection({ className = '' }: MissionStat
               
               {/* Decorative Quote Marks */}
               <div className="absolute -top-4 -left-2 text-6xl text-primary-200 font-serif leading-none select-none">
-                "
+                &ldquo;
               </div>
               <div className="absolute -bottom-8 -right-2 text-6xl text-primary-200 font-serif leading-none select-none">
-                "
+                &rdquo;
               </div>
             </div>
 

@@ -83,6 +83,12 @@
       "accreditation": "Accreditation & Approvals"
     }
   },
+  "programs": {
+    "meta": {
+      "title": "Academic Programs",
+      "description": "Detailed information about Islamic Studies, NCTB curriculum, and co-curricular activities."
+    }
+  },
   "footer": {
     "quickLinks": "Quick Links",
     "contactInfo": "Contact Information",

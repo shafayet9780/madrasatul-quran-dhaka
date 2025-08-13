@@ -221,6 +221,44 @@ export const allAcademicProgramsQuery = groq`
     },
     ageRange,
     duration,
+    islamicCurriculum {
+      subjects[] {
+        name {
+          ${multilingualTextFields}
+        },
+        description {
+          ${multilingualTextFields}
+        },
+        hoursPerWeek
+      }
+    },
+    nctbCurriculum {
+      subjects[] {
+        name {
+          ${multilingualTextFields}
+        },
+        description {
+          ${multilingualTextFields}
+        },
+        hoursPerWeek
+      }
+    },
+    coCurricularActivities[] {
+      name {
+        ${multilingualTextFields}
+      },
+      description {
+        ${multilingualTextFields}
+      },
+      category
+    },
+    prerequisites {
+      ${multilingualTextFields}
+    },
+    outcomes {
+      bengali,
+      english
+    },
     featuredImage {
       ${imageFields}
     },

@@ -11,6 +11,7 @@ A modern, bilingual website for Madrasatul Quran, an Islamic educational institu
 - **Responsive Design**: Mobile-first approach with responsive layouts
 - **Advanced Navigation**: Full-featured header with dropdown menus and mobile navigation
 - **About Page**: Complete institutional information with history, leadership, and philosophy
+- **Academic Programs**: Comprehensive curriculum display with Islamic studies, NCTB curriculum, and co-curricular activities
 - **SEO Optimized**: Search engine optimization for local discovery
 
 ## Tech Stack
@@ -121,6 +122,10 @@ src/
 │   │   ├── school-history-vision.tsx # School history and vision section
 │   │   ├── leadership-team.tsx # Leadership team with modal profiles
 │   │   └── educational-philosophy.tsx # Educational philosophy and accreditation
+│   ├── programs/          # Academic programs components
+│   │   ├── islamic-studies-section.tsx # Islamic curriculum display
+│   │   ├── nctb-curriculum-section.tsx # NCTB curriculum with search/filter
+│   │   └── co-curricular-section.tsx # Co-curricular activities by category
 │   ├── ui/                # Reusable UI components
 │   │   └── rich-text.tsx  # Rich text renderer for Sanity Portable Text
 │   └── language-toggle.tsx # Language switching component
@@ -154,7 +159,11 @@ The Sanity client is configured in `src/lib/sanity.ts` using `next-sanity` for o
 
 - **Pages**: General website pages with multilingual content
 - **News & Events**: News articles, events, achievements, and announcements
-- **Academic Programs**: Islamic studies and NCTB curriculum programs
+- **Academic Programs**: Comprehensive curriculum management with:
+  - Islamic Studies curriculum (Quran, Hadith, Fiqh, Arabic)
+  - NCTB curriculum integration with subject-wise breakdown
+  - Co-curricular activities with category-based organization
+  - Prerequisites and learning outcomes tracking
 - **Staff Members**: Faculty and administration profiles
 - **Facilities**: Campus facilities with photo galleries
 - **Site Settings**: Global site configuration and contact information
@@ -362,6 +371,97 @@ The philosophy section (`src/components/about/educational-philosophy.tsx`) cover
 - **Responsive Design**: Mobile-first approach with adaptive layouts
 - **Content Management**: Optional Sanity CMS integration for dynamic content
 - **Fallback Content**: Default content when CMS data is unavailable
+
+## Academic Programs Page
+
+The academic programs page (`/programs`) provides comprehensive curriculum information through three specialized sections, showcasing the institution's integrated educational approach.
+
+### Islamic Studies Section
+
+The Islamic Studies section (`src/components/programs/islamic-studies-section.tsx`) features:
+
+**Curriculum Display**:
+- **Subject Organization**: Quran memorization, Hadith studies, Fiqh (Islamic jurisprudence), and Arabic language
+- **Expandable Content**: Collapsible program and subject sections for detailed exploration
+- **Arabic Text Integration**: Proper rendering of Quranic verses and Arabic terminology with right-to-left support
+- **Visual Indicators**: Islamic symbols and color-coded subject categories
+
+**Interactive Features**:
+- **Multi-level Expansion**: Programs expand to show subjects, subjects expand to show detailed descriptions
+- **Prerequisites Display**: Entry requirements and recommended background knowledge
+- **Learning Outcomes**: Clear educational objectives and expected achievements
+- **Hours Tracking**: Weekly hour allocation for each subject
+
+**Content Integration**:
+- **Quranic Verses**: Contextual Islamic references with Arabic text and translations
+- **Subject-specific Content**: Tailored information based on subject type (Quran, Hadith, Fiqh, Arabic)
+- **Multilingual Support**: Full Bengali and English content rendering
+- **Typography**: Specialized Arabic font (Amiri) for proper Islamic text display
+
+### NCTB Curriculum Section
+
+The NCTB Curriculum section (`src/components/programs/nctb-curriculum-section.tsx`) includes:
+
+**Advanced Filtering System**:
+- **Search Functionality**: Real-time search across subjects and programs
+- **Grade Level Filters**: Primary (1-5) and Secondary (6-10) grade filtering
+- **Subject Categories**: Color-coded subjects (Mathematics, Science, English, Bengali, Social Studies)
+- **Combined Filtering**: Search and grade filters work together for precise results
+
+**Curriculum Integration Display**:
+- **Subject Breakdown**: Detailed NCTB subject information with descriptions
+- **Integration Points**: Clear explanation of how Islamic values are incorporated into secular subjects
+- **Subject-specific Examples**: Practical examples of Islamic integration (Zakat in Math, Creation in Science)
+- **Visual Categorization**: Color-coded subject cards for easy identification
+
+**Educational Philosophy Integration**:
+- **Balanced Approach**: Demonstration of Islamic-modern education balance
+- **Integration Examples**: Specific examples for different subject categories
+- **Teaching Methodology**: Explanation of how subjects are taught with Islamic perspective
+- **Academic Standards**: Alignment with national curriculum requirements
+
+### Co-curricular Activities Section
+
+The Co-curricular Activities section (`src/components/programs/co-curricular-section.tsx`) provides:
+
+**Activity Organization**:
+- **Category-based Filtering**: Islamic competitions, cultural programs, sports, academic competitions, community service
+- **Visual Categories**: Emoji icons and color-coded categories for easy navigation
+- **Activity Details**: Comprehensive descriptions with age ranges and program associations
+- **Interactive Expansion**: Click-to-expand activity details with smooth animations
+
+**Category-specific Content**:
+- **Islamic Competitions**: Quranic verses and Islamic context for religious competitions
+- **Community Service**: Hadith references emphasizing social responsibility
+- **Sports Activities**: Character building through physical fitness and teamwork
+- **Cultural Programs**: Islamic culture and tradition preservation
+- **Academic Competitions**: Intellectual development and academic excellence
+
+**Technical Features**:
+- **Dynamic Filtering**: Real-time category filtering with activity count display
+- **Cross-program Integration**: Activities from multiple programs displayed together
+- **Responsive Grid**: Adaptive layout for different screen sizes
+- **Empty State Handling**: User-friendly messages when no activities match filters
+
+### Page-level Features
+
+**Unified Design System**:
+- **Consistent Styling**: Shared design patterns across all three sections
+- **Islamic Aesthetics**: Gradient backgrounds, geometric patterns, and Islamic color scheme
+- **Typography Hierarchy**: Clear information architecture with proper heading levels
+- **Responsive Layout**: Mobile-first design with desktop enhancements
+
+**Performance Optimization**:
+- **Efficient State Management**: Optimized React state for multiple expandable sections
+- **Smooth Animations**: CSS transitions for expand/collapse interactions
+- **Image Optimization**: Next.js Image component integration where applicable
+- **Accessibility**: ARIA labels, keyboard navigation, and semantic HTML structure
+
+**Content Management Integration**:
+- **Sanity CMS**: Full integration with academic program content types
+- **Multilingual Content**: Dynamic language switching for all program content
+- **Type Safety**: Comprehensive TypeScript interfaces for all data structures
+- **Error Handling**: Graceful fallbacks for missing or incomplete data
 
 ## Rich Text Component
 
