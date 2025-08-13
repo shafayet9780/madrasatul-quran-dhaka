@@ -12,6 +12,7 @@ A modern, bilingual website for Madrasatul Quran, an Islamic educational institu
 - **Advanced Navigation**: Full-featured header with dropdown menus and mobile navigation
 - **About Page**: Complete institutional information with history, leadership, and philosophy
 - **Academic Programs**: Comprehensive curriculum display with Islamic studies, NCTB curriculum, and co-curricular activities
+- **Admissions System**: Complete enrollment process with requirements, fee calculator, and inquiry forms
 - **SEO Optimized**: Search engine optimization for local discovery
 
 ## Tech Stack
@@ -126,6 +127,10 @@ src/
 │   │   ├── islamic-studies-section.tsx # Islamic curriculum display
 │   │   ├── nctb-curriculum-section.tsx # NCTB curriculum with search/filter
 │   │   └── co-curricular-section.tsx # Co-curricular activities by category
+│   ├── admissions/        # Admissions page components
+│   │   ├── requirements-section.tsx # Admission requirements and application process
+│   │   ├── fee-structure-section.tsx # Fee structure and financial aid calculator
+│   │   └── important-dates-section.tsx # Academic calendar and inquiry form
 │   ├── ui/                # Reusable UI components
 │   │   └── rich-text.tsx  # Rich text renderer for Sanity Portable Text
 │   └── language-toggle.tsx # Language switching component
@@ -371,6 +376,89 @@ The philosophy section (`src/components/about/educational-philosophy.tsx`) cover
 - **Responsive Design**: Mobile-first approach with adaptive layouts
 - **Content Management**: Optional Sanity CMS integration for dynamic content
 - **Fallback Content**: Default content when CMS data is unavailable
+
+## Admissions Page
+
+The admissions page (`/admissions`) provides comprehensive information for prospective students and parents, featuring three main sections that guide families through the enrollment process.
+
+### Requirements and Application Process
+
+The requirements section (`src/components/admissions/requirements-section.tsx`) includes:
+
+**Admission Requirements Display**:
+- **Academic Requirements**: Grade-specific academic criteria with clear prerequisites
+- **Islamic Knowledge Requirements**: Religious education background and Quranic knowledge expectations
+- **Visual Organization**: Color-coded requirement categories with checkmark indicators
+- **Multilingual Support**: Full Bengali and English content rendering
+
+**Step-by-Step Application Process**:
+- **Interactive Progress Indicator**: Visual step tracker with clickable navigation
+- **Detailed Step Information**: Comprehensive guidance for each application phase
+- **Document Requirements**: Complete checklist of required documents with visual indicators
+- **Downloadable Forms**: PDF application forms with file size information and direct download links
+
+**Key Features**:
+- **Heroicons Integration**: Professional icons for visual enhancement
+- **Responsive Design**: Mobile-first approach with adaptive layouts
+- **Interactive Elements**: Clickable progress steps and hover effects
+- **Document Management**: Organized form downloads with size indicators
+
+### Fee Structure and Financial Information
+
+The fee structure section (`src/components/admissions/fee-structure-section.tsx`) provides:
+
+**Comprehensive Fee Display**:
+- **Program-based Fee Tables**: Detailed breakdown by academic level (Primary, Secondary, Higher)
+- **Interactive Program Selector**: Dynamic switching between different program fee structures
+- **Transparent Pricing**: Clear display of admission fees, monthly tuition, exam fees, and development costs
+- **Currency Formatting**: Proper Bengali Taka (৳) formatting with number localization
+
+**Financial Aid Calculator**:
+- **Interactive Calculator**: Real-time fee estimation based on selected criteria
+- **Sibling Discounts**: Automatic calculation for multiple children enrollment
+- **Scholarship Integration**: Merit and need-based scholarship consideration
+- **Visual Results**: Prominent display of estimated costs with explanatory notes
+
+**Scholarship Information**:
+- **Multiple Scholarship Types**: Merit-based, need-based, sibling, and orphan scholarships
+- **Discount Percentages**: Clear display of available financial assistance amounts
+- **Eligibility Criteria**: Detailed requirements for each scholarship category
+- **Visual Organization**: Color-coded scholarship cards with percentage badges
+
+**Payment Methods and Policies**:
+- **Multiple Payment Options**: Bank transfer, mobile banking, and cash payment methods
+- **Payment Details**: Account information and transaction procedures
+- **Policy Guidelines**: Clear payment deadlines and refund policies
+- **Security Information**: Safe payment practices and verification procedures
+
+### Important Dates and Inquiry System
+
+The important dates section (`src/components/admissions/important-dates-section.tsx`) features:
+
+**Academic Calendar Display**:
+- **Timeline Visualization**: Chronological display of admission milestones
+- **Date Categorization**: Color-coded event types (applications, deadlines, exams, interviews)
+- **Status Indicators**: Visual distinction between upcoming and past dates
+- **Detailed Descriptions**: Comprehensive information for each important date
+
+**Interactive Inquiry Form**:
+- **Comprehensive Form Fields**: Contact information, student details, and inquiry specifics
+- **Form Validation**: Real-time validation with required field indicators
+- **Subject Categorization**: Dropdown options for different inquiry types
+- **Submission Handling**: Loading states, success confirmation, and error handling
+- **Form Reset**: Automatic form clearing after successful submission
+
+**FAQ Section**:
+- **Expandable Questions**: Collapsible FAQ items with smooth animations
+- **Common Inquiries**: Frequently asked questions about admissions process
+- **Search-friendly Content**: Well-organized Q&A format for easy navigation
+- **Interactive Elements**: Click-to-expand functionality with visual indicators
+
+**Technical Features**:
+- **State Management**: Complex form state handling with TypeScript interfaces
+- **Date Formatting**: Proper date localization and formatting
+- **Accessibility**: ARIA labels, keyboard navigation, and semantic HTML
+- **Performance**: Efficient rendering with conditional displays and animations
 
 ## Academic Programs Page
 

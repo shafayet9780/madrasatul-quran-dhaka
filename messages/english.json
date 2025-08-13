@@ -89,6 +89,242 @@
       "description": "Detailed information about Islamic Studies, NCTB curriculum, and co-curricular activities."
     }
   },
+  "admissions": {
+    "meta": {
+      "title": "Admissions - Madrasatul Quran",
+      "description": "Learn about admission requirements, application process, fee structure, and important dates for Madrasatul Quran."
+    },
+    "requirements": {
+      "title": "Admission Requirements & Application Process",
+      "subtitle": "Everything you need to know about joining our school community",
+      "academic": {
+        "title": "Academic Requirements",
+        "requirement1": "Minimum 60% marks in previous class examination",
+        "requirement2": "Age appropriate for the applying class level",
+        "requirement3": "Basic proficiency in Bengali and English languages",
+        "requirement4": "Good conduct certificate from previous institution"
+      },
+      "islamic": {
+        "title": "Islamic Knowledge Assessment",
+        "requirement1": "Basic knowledge of Arabic alphabet and pronunciation",
+        "requirement2": "Familiarity with essential Islamic prayers (Salah)",
+        "requirement3": "Basic understanding of Islamic etiquette and values",
+        "requirement4": "Willingness to follow Islamic dress code and conduct"
+      },
+      "process": {
+        "title": "Step-by-Step Application Process"
+      },
+      "steps": {
+        "step1": {
+          "title": "Submit Application",
+          "description": "Complete and submit the admission application form along with all required documents. Applications can be submitted online or in person at our admission office."
+        },
+        "step2": {
+          "title": "Entrance Assessment",
+          "description": "Attend the entrance examination covering academic subjects and basic Islamic knowledge. The assessment is designed to evaluate the student's readiness for our integrated curriculum."
+        },
+        "step3": {
+          "title": "Interview Process",
+          "description": "Participate in a brief interview with our admission committee. This includes both student and parent/guardian interaction to ensure alignment with our educational philosophy."
+        },
+        "step4": {
+          "title": "Admission Confirmation",
+          "description": "Receive admission decision and complete enrollment formalities including fee payment and document verification. Welcome to the Madrasatul Quran family!"
+        }
+      },
+      "documents": {
+        "title": "Required Documents Checklist",
+        "document1": "Completed admission application form",
+        "document2": "Birth certificate or age verification document",
+        "document3": "Academic transcripts from previous institution",
+        "document4": "Transfer certificate (if applicable)",
+        "document5": "Medical fitness certificate",
+        "document6": "Recent passport-size photographs (4 copies)"
+      },
+      "forms": {
+        "title": "Downloadable Forms & Documents",
+        "applicationForm": "Admission Application Form",
+        "medicalForm": "Medical Certificate Form",
+        "guardianForm": "Guardian Consent Form",
+        "download": "Download PDF"
+      }
+    },
+    "feeStructure": {
+      "title": "Fee Structure & Financial Information",
+      "subtitle": "Transparent pricing and financial assistance options for all families",
+      "structure": {
+        "title": "Annual Fee Structure",
+        "feeType": "Fee Type",
+        "amount": "Amount (BDT)",
+        "admissionFee": "Admission Fee (One-time)",
+        "monthlyTuition": "Monthly Tuition (12 months)",
+        "examFee": "Examination Fee (Annual)",
+        "developmentFee": "Development Fee (Annual)",
+        "total": "Total Annual Cost"
+      },
+      "programs": {
+        "primary": {
+          "name": "Primary Level (Class I-V)"
+        },
+        "secondary": {
+          "name": "Secondary Level (Class VI-X)"
+        },
+        "higher": {
+          "name": "Higher Secondary (Class XI-XII)"
+        }
+      },
+      "calculator": {
+        "title": "Financial Aid Calculator",
+        "program": "Select Program Level",
+        "siblings": "Number of Siblings in School",
+        "scholarship": "Eligible for Merit Scholarship",
+        "estimated": "Estimated Annual Cost",
+        "note": "This is an estimate. Final fees may vary based on additional factors."
+      },
+      "scholarships": {
+        "title": "Scholarship & Financial Aid Programs",
+        "criteria": "Eligibility Criteria",
+        "merit": {
+          "name": "Merit-Based Scholarship",
+          "description": "Awarded to students with exceptional academic performance",
+          "criteria": "Minimum 85% marks in previous examination and entrance test"
+        },
+        "need": {
+          "name": "Need-Based Financial Aid",
+          "description": "Support for families facing financial hardship",
+          "criteria": "Family income verification and recommendation from local community"
+        },
+        "sibling": {
+          "name": "Sibling Discount",
+          "description": "Discount for families with multiple children enrolled",
+          "criteria": "Automatic discount for 2nd child onwards (10% per additional child)"
+        },
+        "orphan": {
+          "name": "Orphan Support Program",
+          "description": "Special assistance for orphaned students",
+          "criteria": "Valid orphan certificate and community recommendation"
+        }
+      },
+      "payment": {
+        "title": "Payment Methods & Policies",
+        "bank": {
+          "name": "Bank Transfer",
+          "description": "Direct bank transfer to school account",
+          "details": "Account: Madrasatul Quran, Bank: Islami Bank Bangladesh, A/C: 20501234567890"
+        },
+        "mobile": {
+          "name": "Mobile Banking",
+          "description": "bKash, Nagad, Rocket payments accepted",
+          "details": "bKash: 01712345678, Nagad: 01812345678 (Merchant payments)"
+        },
+        "cash": {
+          "name": "Cash Payment",
+          "description": "Direct payment at school office",
+          "details": "Office hours: Saturday-Thursday, 9:00 AM - 4:00 PM"
+        },
+        "policies": {
+          "title": "Payment Policies",
+          "policy1": "Tuition fees must be paid by the 10th of each month",
+          "policy2": "Late payment incurs a 5% penalty after 15 days",
+          "policy3": "Annual fees are non-refundable after admission confirmation",
+          "policy4": "Scholarship applications must be submitted before admission"
+        }
+      }
+    },
+    "importantDates": {
+      "title": "Important Dates & Inquiry System",
+      "subtitle": "Stay informed about admission deadlines and get your questions answered",
+      "calendar": {
+        "title": "Admission Calendar 2025",
+        "application": "Application",
+        "deadline": "Deadline",
+        "exam": "Examination",
+        "interview": "Interview",
+        "result": "Result",
+        "confirmation": "Confirmation"
+      },
+      "dates": {
+        "applicationOpen": "Application Period Opens",
+        "applicationOpenDesc": "Online and offline admission applications begin for all programs",
+        "applicationDeadline": "Application Deadline",
+        "applicationDeadlineDesc": "Last date to submit completed admission applications",
+        "entranceExam": "Entrance Examination",
+        "entranceExamDesc": "Written test covering academic subjects and Islamic knowledge",
+        "interview": "Student & Parent Interview",
+        "interviewDesc": "Personal interview with admission committee and school leadership",
+        "resultPublication": "Admission Results",
+        "resultPublicationDesc": "Publication of admission results and merit list",
+        "admissionConfirmation": "Admission Confirmation",
+        "admissionConfirmationDesc": "Final deadline for fee payment and admission confirmation"
+      },
+      "inquiry": {
+        "title": "Admission Inquiry Form",
+        "form": {
+          "name": "Parent/Guardian Name",
+          "namePlaceholder": "Enter your full name",
+          "email": "Email Address",
+          "emailPlaceholder": "your.email@example.com",
+          "phone": "Phone Number",
+          "phonePlaceholder": "+880 1XXX-XXXXXX",
+          "studentAge": "Student Age",
+          "studentAgePlaceholder": "Age in years",
+          "program": "Interested Program",
+          "programPlaceholder": "Select program level",
+          "programs": {
+            "primary": "Primary Level (Class I-V)",
+            "secondary": "Secondary Level (Class VI-X)",
+            "higher": "Higher Secondary (Class XI-XII)"
+          },
+          "subject": "Inquiry Subject",
+          "subjectPlaceholder": "Select inquiry topic",
+          "subjects": {
+            "admission": "Admission Process",
+            "curriculum": "Academic Programs",
+            "fees": "Fee Structure",
+            "facilities": "Campus Facilities",
+            "other": "Other Questions"
+          },
+          "message": "Your Message",
+          "messagePlaceholder": "Please describe your inquiry in detail...",
+          "note": "We will respond within 24 hours during business days",
+          "submit": "Send Inquiry",
+          "submitting": "Sending..."
+        },
+        "success": {
+          "title": "Inquiry Sent Successfully!",
+          "message": "Thank you for your interest in Madrasatul Quran. Our admission team will contact you within 24 hours.",
+          "newInquiry": "Send Another Inquiry"
+        }
+      },
+      "faq": {
+        "title": "Frequently Asked Questions",
+        "q1": {
+          "question": "What is the minimum age requirement for admission?",
+          "answer": "Students must be at least 5 years old for Class I admission. Age requirements vary by class level, and we follow the national education board guidelines for age-appropriate enrollment."
+        },
+        "q2": {
+          "question": "Is there an entrance examination for all classes?",
+          "answer": "Yes, all students must take an entrance examination covering basic academic subjects and Islamic knowledge appropriate to their applying class level. The exam helps us assess the student's readiness for our integrated curriculum."
+        },
+        "q3": {
+          "question": "What documents are required for the admission process?",
+          "answer": "Required documents include: completed application form, birth certificate, academic transcripts, transfer certificate (if applicable), medical certificate, and recent photographs. All documents must be original with photocopies."
+        },
+        "q4": {
+          "question": "Are scholarships available for deserving students?",
+          "answer": "Yes, we offer merit-based scholarships (up to 25% discount), need-based financial aid (up to 50% discount), sibling discounts (10% per additional child), and special support for orphaned students (up to 75% discount)."
+        },
+        "q5": {
+          "question": "Can I visit the campus before applying?",
+          "answer": "Absolutely! We encourage prospective families to visit our campus. Please contact our admission office to schedule a guided tour. Campus visits are available Saturday through Thursday from 9:00 AM to 4:00 PM."
+        },
+        "q6": {
+          "question": "What is the medium of instruction?",
+          "answer": "Our primary medium of instruction is Bengali, following the NCTB curriculum. English is taught as a subject, and Islamic studies are conducted in Arabic with Bengali explanations. We ensure students develop proficiency in all three languages."
+        }
+      }
+    }
+  },
   "footer": {
     "quickLinks": "Quick Links",
     "contactInfo": "Contact Information",
