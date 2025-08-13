@@ -1,0 +1,15 @@
+# Campus Images Directory
+
+This directory contains campus facility images for the virtual tour.
+In a real implementation, these would be high-quality photos of:
+
+- classroom-1.jpg - Modern classroom with smart board
+- prayer-hall.jpg - Beautiful prayer hall with Islamic architecture  
+- library.jpg - Well-stocked library with reading areas
+- science-lab.jpg - Modern science laboratory
+- quran-room.jpg - Quran memorization room
+- playground.jpg - Sports playground and facilities
+- computer-lab.jpg - Computer laboratory with modern PCs
+- admin-office.jpg - Administrative office building
+
+For development, you can add placeholder images or use a service like Unsplash for sample images.

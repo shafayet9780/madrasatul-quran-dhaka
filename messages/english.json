@@ -325,6 +325,57 @@
       }
     }
   },
+  "campus": {
+    "meta": {
+      "title": "Campus & Facilities - Madrasatul Quran",
+      "description": "Explore our modern Islamic educational facilities including classrooms, prayer halls, library, science labs, and sports facilities."
+    },
+    "virtualTour": {
+      "title": "Virtual Campus Tour",
+      "subtitle": "Explore our beautiful campus and world-class facilities",
+      "description": "Take a comprehensive virtual tour of our campus featuring modern classrooms, dedicated Islamic facilities, and state-of-the-art amenities designed for holistic education.",
+      "categories": {
+        "all": "All Facilities",
+        "academic": "Academic Facilities",
+        "islamic": "Islamic Facilities",
+        "recreational": "Recreational Facilities",
+        "administrative": "Administrative Areas"
+      },
+      "viewGallery": "View Photo Gallery",
+      "startTour": "Start Virtual Tour"
+    },
+    "facilities": {
+      "title": "Our Facilities",
+      "subtitle": "Modern amenities supporting Islamic education and holistic development",
+      "islamic": {
+        "title": "Islamic Facilities",
+        "subtitle": "Dedicated spaces for spiritual growth and Islamic learning"
+      },
+      "modern": {
+        "title": "Modern Amenities",
+        "subtitle": "Contemporary facilities for comprehensive education"
+      },
+      "filterBy": "Filter by Category",
+      "searchPlaceholder": "Search facilities..."
+    },
+    "safety": {
+      "title": "Safety & Security",
+      "subtitle": "Ensuring a safe and secure learning environment for all students",
+      "measures": {
+        "title": "Safety Measures",
+        "security": "Security Systems",
+        "medical": "Medical Facilities",
+        "emergency": "Emergency Protocols"
+      },
+      "policies": {
+        "title": "Student Welfare Policies"
+      },
+      "emergency": {
+        "title": "Emergency Contacts",
+        "subtitle": "24/7 emergency support for students and parents"
+      }
+    }
+  },
   "footer": {
     "quickLinks": "Quick Links",
     "contactInfo": "Contact Information",

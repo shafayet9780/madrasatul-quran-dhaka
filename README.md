@@ -131,6 +131,10 @@ src/
 │   │   ├── requirements-section.tsx # Admission requirements and application process
 │   │   ├── fee-structure-section.tsx # Fee structure and financial aid calculator
 │   │   └── important-dates-section.tsx # Academic calendar and inquiry form
+│   ├── campus/            # Campus and facilities page components
+│   │   ├── virtual-tour-section.tsx # Virtual campus tour with image gallery
+│   │   ├── facilities-showcase.tsx # Facilities display with search and filtering
+│   │   └── safety-security-section.tsx # Safety measures and emergency contacts
 │   ├── ui/                # Reusable UI components
 │   │   └── rich-text.tsx  # Rich text renderer for Sanity Portable Text
 │   └── language-toggle.tsx # Language switching component
@@ -267,12 +271,14 @@ The website features a comprehensive navigation system built into the header com
 The homepage features a modern hero section (`src/components/homepage/hero-section.tsx`) with:
 
 **Visual Design**:
+
 - **Two-Column Grid Layout**: Full-width left content section with centered title and large image gallery, narrow right news sidebar
 - **Clean White Background**: Professional white background for better content focus
 - **Interactive Image Gallery**: Auto-rotating activity images with manual navigation indicators
 - **Vertical News Sidebar**: Tall, narrow news feed with scrolling content and compact design
 
 **Content Structure**:
+
 - **Compact Title Section**: Streamlined institution info with smaller badge, optimized title sizing, and refined subtitle above the image gallery
 - **Featured Image Gallery**: Large, prominent activity images (9/12 grid) with enhanced visual impact
 - **News Sidebar**: Right column (3/12 grid) with vertical scrolling news feed
@@ -281,6 +287,7 @@ The homepage features a modern hero section (`src/components/homepage/hero-secti
 - **Statistics Section**: Dedicated bottom section with four-column stats grid
 
 **Image Gallery System**:
+
 - **Auto-Rotation**: Activity images cycle every 3 seconds with smooth fade transitions
 - **Manual Navigation**: Interactive indicators allow users to jump to specific images
 - **Activity Categories**: Classroom learning, Quran recitation, science lab, sports, and cultural programs
@@ -288,6 +295,7 @@ The homepage features a modern hero section (`src/components/homepage/hero-secti
 - **Error Handling**: Fallback SVG placeholders for missing images
 
 **News Feed System**:
+
 - **Auto-Scrolling**: News items automatically scroll every 4 seconds
 - **Date-Based Layout**: Each news item includes date box with day and month
 - **Highlight System**: Featured news items with enhanced styling
@@ -295,17 +303,20 @@ The homepage features a modern hero section (`src/components/homepage/hero-secti
 - **Quick Access**: "View All" button for complete news section
 
 **Layout Sections**:
+
 - **Main Hero**: Two-column grid layout with centered title section above full-width gallery, plus news sidebar
 - **Statistics Grid**: Four-column stats showcase with clean typography
 - **Responsive Design**: Stacked layout on mobile, two-column on desktop with enhanced visual hierarchy
 
 **Performance Features**:
+
 - **Optimized Images**: Next.js Image component with proper error handling and fallbacks
 - **Smooth Animations**: Staggered entrance animations with intersection observer
 - **Efficient State Management**: Multiple useEffect hooks for different auto-rotation timers
 - **Accessibility**: Proper alt texts, semantic HTML structure, and keyboard navigation
 
 **Technical Implementation**:
+
 - **Multiple State Management**: Separate state for image gallery, news feed, and visibility animations
 - **TypeScript**: Fully typed interfaces for all data structures and component props
 - **Tailwind CSS**: Utility-first styling with custom gradients and responsive grid system
@@ -322,12 +333,14 @@ The about page provides comprehensive institutional information through three ma
 The history section (`src/components/about/school-history-vision.tsx`) features:
 
 **Content Structure**:
+
 - **Founding Story**: Institution's establishment in 1985 with Islamic educational philosophy
 - **Mission Statement**: Integration of Islamic teachings with modern academic excellence
 - **Vision Display**: Future goals and educational objectives
 - **Quranic Integration**: Featured verses supporting educational mission
 
 **Visual Design**:
+
 - **Two-Column Layout**: Content and imagery side-by-side with responsive stacking
 - **Islamic Aesthetics**: Geometric patterns and gradient overlays
 - **Professional Typography**: Language-specific fonts with proper hierarchy
@@ -338,18 +351,21 @@ The history section (`src/components/about/school-history-vision.tsx`) features:
 The leadership section (`src/components/about/leadership-team.tsx`) includes:
 
 **Team Organization**:
+
 - **Department Grouping**: Administration, Islamic Studies, NCTB Curriculum, Co-curricular, Support Staff
 - **Display Order**: Prioritized by department importance and individual ranking
 - **Profile Cards**: Photo, name, position, and experience summary
 - **Modal Profiles**: Detailed view with biography, qualifications, education, and specializations
 
 **Interactive Features**:
+
 - **Click-to-View**: Modal system for detailed staff information
 - **Responsive Grid**: Adaptive layout from single column to four columns
 - **Professional Styling**: Hover effects and smooth transitions
 - **Accessibility**: Proper ARIA labels and keyboard navigation
 
 **Data Integration**:
+
 - **Sanity CMS**: Dynamic content from staff member schema
 - **Multilingual Support**: Bengali and English content rendering
 - **Image Handling**: Optimized photos with fallback avatars
@@ -360,18 +376,21 @@ The leadership section (`src/components/about/leadership-team.tsx`) includes:
 The philosophy section (`src/components/about/educational-philosophy.tsx`) covers:
 
 **Educational Integration**:
+
 - **Islamic-Modern Balance**: Combination of Quranic teachings with NCTB curriculum
 - **Subject Coverage**: Comprehensive academic program overview
 - **Teaching Methodology**: Explanation of integrated educational approach
 - **Student Development**: Holistic growth philosophy
 
 **Accreditation Display**:
+
 - **Government Recognition**: Ministry of Education approval certificates
 - **Board Certifications**: Madrasah Education Board and NCTB recognition
 - **Certificate Modals**: Full-screen certificate viewing system
 - **Trust Indicators**: Experience, recognition, success rates, and standards
 
 **Technical Features**:
+
 - **Modal System**: Certificate viewing with image optimization
 - **Responsive Design**: Mobile-first approach with adaptive layouts
 - **Content Management**: Optional Sanity CMS integration for dynamic content
@@ -386,18 +405,21 @@ The admissions page (`/admissions`) provides comprehensive information for prosp
 The requirements section (`src/components/admissions/requirements-section.tsx`) includes:
 
 **Admission Requirements Display**:
+
 - **Academic Requirements**: Grade-specific academic criteria with clear prerequisites
 - **Islamic Knowledge Requirements**: Religious education background and Quranic knowledge expectations
 - **Visual Organization**: Color-coded requirement categories with checkmark indicators
 - **Multilingual Support**: Full Bengali and English content rendering
 
 **Step-by-Step Application Process**:
+
 - **Interactive Progress Indicator**: Visual step tracker with clickable navigation
 - **Detailed Step Information**: Comprehensive guidance for each application phase
 - **Document Requirements**: Complete checklist of required documents with visual indicators
 - **Downloadable Forms**: PDF application forms with file size information and direct download links
 
 **Key Features**:
+
 - **Heroicons Integration**: Professional icons for visual enhancement
 - **Responsive Design**: Mobile-first approach with adaptive layouts
 - **Interactive Elements**: Clickable progress steps and hover effects
@@ -408,24 +430,28 @@ The requirements section (`src/components/admissions/requirements-section.tsx`) 
 The fee structure section (`src/components/admissions/fee-structure-section.tsx`) provides:
 
 **Comprehensive Fee Display**:
+
 - **Program-based Fee Tables**: Detailed breakdown by academic level (Primary, Secondary, Higher)
 - **Interactive Program Selector**: Dynamic switching between different program fee structures
 - **Transparent Pricing**: Clear display of admission fees, monthly tuition, exam fees, and development costs
 - **Currency Formatting**: Proper Bengali Taka (৳) formatting with number localization
 
 **Financial Aid Calculator**:
+
 - **Interactive Calculator**: Real-time fee estimation based on selected criteria
 - **Sibling Discounts**: Automatic calculation for multiple children enrollment
 - **Scholarship Integration**: Merit and need-based scholarship consideration
 - **Visual Results**: Prominent display of estimated costs with explanatory notes
 
 **Scholarship Information**:
+
 - **Multiple Scholarship Types**: Merit-based, need-based, sibling, and orphan scholarships
 - **Discount Percentages**: Clear display of available financial assistance amounts
 - **Eligibility Criteria**: Detailed requirements for each scholarship category
 - **Visual Organization**: Color-coded scholarship cards with percentage badges
 
 **Payment Methods and Policies**:
+
 - **Multiple Payment Options**: Bank transfer, mobile banking, and cash payment methods
 - **Payment Details**: Account information and transaction procedures
 - **Policy Guidelines**: Clear payment deadlines and refund policies
@@ -436,12 +462,14 @@ The fee structure section (`src/components/admissions/fee-structure-section.tsx`
 The important dates section (`src/components/admissions/important-dates-section.tsx`) features:
 
 **Academic Calendar Display**:
+
 - **Timeline Visualization**: Chronological display of admission milestones
 - **Date Categorization**: Color-coded event types (applications, deadlines, exams, interviews)
 - **Status Indicators**: Visual distinction between upcoming and past dates
 - **Detailed Descriptions**: Comprehensive information for each important date
 
 **Interactive Inquiry Form**:
+
 - **Comprehensive Form Fields**: Contact information, student details, and inquiry specifics
 - **Form Validation**: Real-time validation with required field indicators
 - **Subject Categorization**: Dropdown options for different inquiry types
@@ -449,12 +477,14 @@ The important dates section (`src/components/admissions/important-dates-section.
 - **Form Reset**: Automatic form clearing after successful submission
 
 **FAQ Section**:
+
 - **Expandable Questions**: Collapsible FAQ items with smooth animations
 - **Common Inquiries**: Frequently asked questions about admissions process
 - **Search-friendly Content**: Well-organized Q&A format for easy navigation
 - **Interactive Elements**: Click-to-expand functionality with visual indicators
 
 **Technical Features**:
+
 - **State Management**: Complex form state handling with TypeScript interfaces
 - **Date Formatting**: Proper date localization and formatting
 - **Accessibility**: ARIA labels, keyboard navigation, and semantic HTML
@@ -469,18 +499,21 @@ The academic programs page (`/programs`) provides comprehensive curriculum infor
 The Islamic Studies section (`src/components/programs/islamic-studies-section.tsx`) features:
 
 **Curriculum Display**:
+
 - **Subject Organization**: Quran memorization, Hadith studies, Fiqh (Islamic jurisprudence), and Arabic language
 - **Expandable Content**: Collapsible program and subject sections for detailed exploration
 - **Arabic Text Integration**: Proper rendering of Quranic verses and Arabic terminology with right-to-left support
 - **Visual Indicators**: Islamic symbols and color-coded subject categories
 
 **Interactive Features**:
+
 - **Multi-level Expansion**: Programs expand to show subjects, subjects expand to show detailed descriptions
 - **Prerequisites Display**: Entry requirements and recommended background knowledge
 - **Learning Outcomes**: Clear educational objectives and expected achievements
 - **Hours Tracking**: Weekly hour allocation for each subject
 
 **Content Integration**:
+
 - **Quranic Verses**: Contextual Islamic references with Arabic text and translations
 - **Subject-specific Content**: Tailored information based on subject type (Quran, Hadith, Fiqh, Arabic)
 - **Multilingual Support**: Full Bengali and English content rendering
@@ -491,18 +524,21 @@ The Islamic Studies section (`src/components/programs/islamic-studies-section.ts
 The NCTB Curriculum section (`src/components/programs/nctb-curriculum-section.tsx`) includes:
 
 **Advanced Filtering System**:
+
 - **Search Functionality**: Real-time search across subjects and programs
 - **Grade Level Filters**: Primary (1-5) and Secondary (6-10) grade filtering
 - **Subject Categories**: Color-coded subjects (Mathematics, Science, English, Bengali, Social Studies)
 - **Combined Filtering**: Search and grade filters work together for precise results
 
 **Curriculum Integration Display**:
+
 - **Subject Breakdown**: Detailed NCTB subject information with descriptions
 - **Integration Points**: Clear explanation of how Islamic values are incorporated into secular subjects
 - **Subject-specific Examples**: Practical examples of Islamic integration (Zakat in Math, Creation in Science)
 - **Visual Categorization**: Color-coded subject cards for easy identification
 
 **Educational Philosophy Integration**:
+
 - **Balanced Approach**: Demonstration of Islamic-modern education balance
 - **Integration Examples**: Specific examples for different subject categories
 - **Teaching Methodology**: Explanation of how subjects are taught with Islamic perspective
@@ -513,12 +549,14 @@ The NCTB Curriculum section (`src/components/programs/nctb-curriculum-section.ts
 The Co-curricular Activities section (`src/components/programs/co-curricular-section.tsx`) provides:
 
 **Activity Organization**:
+
 - **Category-based Filtering**: Islamic competitions, cultural programs, sports, academic competitions, community service
 - **Visual Categories**: Emoji icons and color-coded categories for easy navigation
 - **Activity Details**: Comprehensive descriptions with age ranges and program associations
 - **Interactive Expansion**: Click-to-expand activity details with smooth animations
 
 **Category-specific Content**:
+
 - **Islamic Competitions**: Quranic verses and Islamic context for religious competitions
 - **Community Service**: Hadith references emphasizing social responsibility
 - **Sports Activities**: Character building through physical fitness and teamwork
@@ -526,6 +564,7 @@ The Co-curricular Activities section (`src/components/programs/co-curricular-sec
 - **Academic Competitions**: Intellectual development and academic excellence
 
 **Technical Features**:
+
 - **Dynamic Filtering**: Real-time category filtering with activity count display
 - **Cross-program Integration**: Activities from multiple programs displayed together
 - **Responsive Grid**: Adaptive layout for different screen sizes
@@ -534,22 +573,134 @@ The Co-curricular Activities section (`src/components/programs/co-curricular-sec
 ### Page-level Features
 
 **Unified Design System**:
+
 - **Consistent Styling**: Shared design patterns across all three sections
 - **Islamic Aesthetics**: Gradient backgrounds, geometric patterns, and Islamic color scheme
 - **Typography Hierarchy**: Clear information architecture with proper heading levels
 - **Responsive Layout**: Mobile-first design with desktop enhancements
 
 **Performance Optimization**:
+
 - **Efficient State Management**: Optimized React state for multiple expandable sections
 - **Smooth Animations**: CSS transitions for expand/collapse interactions
 - **Image Optimization**: Next.js Image component integration where applicable
 - **Accessibility**: ARIA labels, keyboard navigation, and semantic HTML structure
 
 **Content Management Integration**:
+
 - **Sanity CMS**: Full integration with academic program content types
 - **Multilingual Content**: Dynamic language switching for all program content
 - **Type Safety**: Comprehensive TypeScript interfaces for all data structures
 - **Error Handling**: Graceful fallbacks for missing or incomplete data
+
+## Campus and Facilities Page
+
+The campus and facilities page (`/campus`) provides a comprehensive virtual tour and detailed information about the institution's facilities, safety measures, and security protocols.
+
+### Virtual Campus Tour Section
+
+The virtual tour section (`src/components/campus/virtual-tour-section.tsx`) features:
+
+**Interactive Image Gallery**:
+
+- **Category-based Filtering**: Academic, Islamic, recreational, and administrative facility categories
+- **Lightbox Functionality**: Full-screen image viewing with keyboard navigation support
+- **Image Metadata**: Detailed descriptions, titles, and facility information for each image
+- **Responsive Grid Layout**: Adaptive layout from single column to four columns based on screen size
+
+**Advanced User Experience**:
+
+- **Keyboard Navigation**: Arrow keys for image navigation, Escape key to close lightbox
+- **Smooth Animations**: Hover effects, image scaling, and transition animations
+- **Touch-friendly Interface**: Optimized for mobile devices with touch interactions
+- **Accessibility Features**: Proper ARIA labels, semantic HTML, and keyboard navigation support
+
+**Technical Features**:
+
+- **Body Scroll Lock**: Prevents background scrolling when lightbox is open
+- **Image Optimization**: Next.js Image component with proper sizing and lazy loading
+- **State Management**: Complex state handling for gallery, lightbox, and category filtering
+- **Performance Optimized**: Efficient rendering with conditional displays and cleanup
+
+### Facilities Showcase Section
+
+The facilities showcase section (`src/components/campus/facilities-showcase.tsx`) includes:
+
+**Comprehensive Facility Display**:
+
+- **Dual Category System**: Islamic facilities and modern amenities with separate showcases
+- **Advanced Search and Filtering**: Real-time search across facility names, descriptions, and features
+- **Detailed Facility Cards**: Images, descriptions, capacity information, and feature lists
+- **Category-based Organization**: Islamic, academic, recreational, administrative, and medical facilities
+
+**Interactive Features**:
+
+- **Real-time Search**: Instant filtering based on facility names, descriptions, and features
+- **Multi-level Filtering**: Category filters with facility counts and combined search functionality
+- **Responsive Cards**: Hover effects, image scaling, and detailed feature displays
+- **Capacity Indicators**: Visual display of facility capacity and usage information
+
+**Content Organization**:
+
+- **Feature Highlighting**: Key facility features with visual badges and indicators
+- **Modern vs Traditional**: Clear distinction between Islamic facilities and modern amenities
+- **Visual Categories**: Color-coded facility types with appropriate icons and styling
+- **Empty State Handling**: User-friendly messages when no facilities match search criteria
+
+### Safety and Security Section
+
+The safety and security section (`src/components/campus/safety-security-section.tsx`) provides:
+
+**Comprehensive Safety Information**:
+
+- **Safety Measures Grid**: Four main categories - security systems, medical facilities, emergency protocols, and child protection
+- **Detailed Feature Lists**: Specific safety features and capabilities for each measure
+- **Visual Indicators**: Icons and color coding for different types of safety measures
+- **Trust Building Elements**: Statistics and certifications to build parent confidence
+
+**Policy Documentation**:
+
+- **Student Welfare Policies**: Comprehensive guidelines for student well-being and development
+- **Campus Safety Protocols**: Detailed safety procedures and security measures
+- **Digital Safety Guidelines**: Technology use policies and privacy protection measures
+- **Emergency Procedures**: Step-by-step emergency response protocols
+
+**Emergency Contact System**:
+
+- **24/7 Contact Information**: Multiple emergency contact numbers with availability indicators
+- **Role-specific Contacts**: Principal, medical, security, and general emergency contacts
+- **Click-to-call Functionality**: Direct phone links for immediate contact
+- **Response Time Indicators**: Clear information about availability and response times
+
+**Trust and Credibility Indicators**:
+
+- **Security Statistics**: 24/7 monitoring, staff background checks, response times
+- **Safety Record**: Years of incident-free operation and safety achievements
+- **Certification Display**: Safety certifications and compliance indicators
+- **Parent Communication**: Clear communication channels and notification procedures
+
+### Page-level Features
+
+**Unified Design System**:
+
+- **Consistent Styling**: Shared design patterns across all three campus sections
+- **Islamic-Modern Balance**: Visual representation of both traditional and contemporary facilities
+- **Responsive Layout**: Mobile-first design with desktop enhancements
+- **Performance Optimization**: Efficient image loading and state management
+
+**Content Management Integration**:
+
+- **Sanity CMS Ready**: Components designed for easy integration with dynamic content
+- **Multilingual Support**: Full Bengali and English content rendering capability
+- **Type Safety**: Comprehensive TypeScript interfaces for all data structures
+- **Fallback Content**: Default content and error handling for missing data
+
+**Technical Implementation**:
+
+- **Advanced State Management**: Complex filtering, search, and gallery state handling
+- **Image Optimization**: Next.js Image component with proper sizing and formats
+- **Accessibility Compliance**: ARIA labels, keyboard navigation, and semantic HTML
+- **Performance Features**: Lazy loading, efficient rendering, and smooth animations
 
 ## Rich Text Component
 
@@ -573,9 +724,9 @@ import { RichText } from '@/components/ui/rich-text';
 <RichText content={portableTextContent} />
 
 // With language-specific typography
-<RichText 
-  content={portableTextContent} 
-  language="bengali" 
+<RichText
+  content={portableTextContent}
+  language="bengali"
   className="custom-styles"
 />
 ```
