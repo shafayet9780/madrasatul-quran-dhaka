@@ -24,6 +24,7 @@ A modern, bilingual website for Madrasatul Quran, an Islamic educational institu
 - **Content Management**: Sanity CMS
 - **Typography**: Inter (English), Noto Sans Bengali, Amiri (Arabic)
 - **Development**: TypeScript, ESLint, Prettier
+- **Performance**: Optimized images with WebP/AVIF, SWC minification, compression enabled
 
 ## Getting Started
 
@@ -228,6 +229,38 @@ Optional environment variables for production security:
 - `STUDIO_AUTH_ENABLED` - Set to 'true' to enable Sanity Studio authentication
 - `STUDIO_USERNAME` - Username for Sanity Studio access (when auth is enabled)
 - `STUDIO_PASSWORD` - Password for Sanity Studio access (when auth is enabled)
+
+## Performance Optimization
+
+The website is optimized for Bangladesh's internet infrastructure with comprehensive performance enhancements:
+
+### Image Optimization
+- **Next.js Image Component**: Automatic optimization with WebP and AVIF format support
+- **Responsive Images**: Multiple device sizes (640px to 3840px) for optimal loading
+- **Long-term Caching**: 1-year cache TTL for static images
+- **Sanity CDN Integration**: Optimized image delivery with transformation support
+- **SVG Support**: Safe SVG rendering with Content Security Policy
+
+### Performance Features
+- **SWC Minification**: Fast Rust-based JavaScript/TypeScript compilation
+- **Compression**: Gzip/Brotli compression enabled for all assets
+- **Bundle Optimization**: Tree-shaking and code splitting for minimal bundle sizes
+- **Font Optimization**: Preloaded fonts with display swap for better loading experience
+- **Lazy Loading**: Images and components load on demand
+
+### Configuration
+```typescript
+// next.config.ts - Image optimization settings
+images: {
+  domains: ['cdn.sanity.io'],
+  formats: ['image/webp', 'image/avif'],
+  deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
+  imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+  minimumCacheTTL: 31536000, // 1 year
+  dangerouslyAllowSVG: true,
+  contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
+}
+```
 
 ## Internationalization
 

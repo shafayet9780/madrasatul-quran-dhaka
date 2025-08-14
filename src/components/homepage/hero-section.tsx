@@ -1,7 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import Image from 'next/image';
+import { HeroImage } from '@/components/ui/optimized-image';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 
@@ -152,8 +152,8 @@ export default function HeroSection({ className = '' }: HeroSectionProps) {
                     index === currentImageIndex ? 'opacity-100' : 'opacity-0'
                   }`}
                 >
-                  <Image
-                    src={image.src}
+                  <HeroImage
+                    image={image.src}
                     alt={image.alt}
                     fill
                     className="object-cover"

@@ -2,7 +2,7 @@
 
 import { useTranslations } from 'next-intl';
 import { useState, useEffect, useRef } from 'react';
-import Image from 'next/image';
+import { OptimizedImage } from '@/components/ui/optimized-image';
 
 interface StatisticCardProps {
   number: number;
@@ -169,8 +169,8 @@ export default function MissionStatisticsSection({ className = '' }: MissionStat
             {/* Campus Image */}
             <div className="mt-12 relative">
               <div className="relative w-full max-w-2xl mx-auto rounded-2xl overflow-hidden shadow-2xl">
-                <Image
-                  src="/images/campus-mission.jpg"
+                <OptimizedImage
+                  image="/images/campus-mission.jpg"
                   alt="Madrasatul Quran Campus - Islamic Education Excellence"
                   width={800}
                   height={400}

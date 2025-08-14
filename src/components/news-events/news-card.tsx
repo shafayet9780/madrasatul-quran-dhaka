@@ -1,6 +1,6 @@
 'use client';
 
-import Image from 'next/image';
+import { CardImage } from '@/components/ui/optimized-image';
 import Link from 'next/link';
 import { useLocale, useTranslations } from 'next-intl';
 import { NewsEvent } from '@/types/sanity';
@@ -47,8 +47,8 @@ export function NewsCard({ event }: NewsCardProps) {
     <article className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
       {/* Featured Image */}
       <div className="relative h-48 w-full">
-        <Image
-          src={urlFor(event.featuredImage).width(400).height(200).url()}
+        <CardImage
+          image={event.featuredImage}
           alt={event.featuredImage.alt}
           fill
           className="object-cover"

@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useLocale, useTranslations } from 'next-intl'
-import Image from 'next/image'
+import { AvatarImage } from '@/components/ui/optimized-image'
 import { urlFor } from '@/lib/sanity'
 import { getLocalizedText, getLocalizedArray } from '@/lib/sanity-utils'
 import type { StaffMember } from '@/types/sanity'
@@ -43,8 +43,8 @@ function LeadershipModal({ leader, isOpen, onClose, language }: LeadershipModalP
             <div className="mb-4 sm:mb-0 sm:mr-6">
               {leader.photo ? (
                 <div className="relative h-32 w-32 overflow-hidden rounded-full">
-                  <Image
-                    src={urlFor(leader.photo).width(200).height(200).url()}
+                  <AvatarImage
+                    image={leader.photo}
                     alt={getLocalizedText(leader.name, language)}
                     fill
                     className="object-cover"
@@ -224,8 +224,8 @@ export function LeadershipTeam({ leaders }: LeadershipTeamProps) {
                   <div className="mb-4 flex justify-center">
                     {leader.photo ? (
                       <div className="relative h-24 w-24 overflow-hidden rounded-full ring-4 ring-primary-100 transition-all duration-300 group-hover:ring-primary-200">
-                        <Image
-                          src={urlFor(leader.photo).width(150).height(150).url()}
+                        <AvatarImage
+                          image={leader.photo}
                           alt={getLocalizedText(leader.name, locale)}
                           fill
                           className="object-cover"
