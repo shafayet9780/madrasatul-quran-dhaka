@@ -457,6 +457,155 @@
       "noImages": "No images available for slideshow."
     }
   },
+  "contact": {
+    "meta": {
+      "title": "Contact Us - Madrasatul Quran",
+      "description": "Get in touch with Madrasatul Quran. Find our contact information, location, and send us your inquiries."
+    },
+    "title": "Contact Us",
+    "subtitle": "We're here to help and answer any questions you may have",
+    "contactInfo": {
+      "title": "Contact Information",
+      "subtitle": "Reach out to us through any of the following channels",
+      "mainOffice": {
+        "title": "Main Office",
+        "phone": "+880 2-9876543",
+        "email": "info@madrasatulquran.edu.bd",
+        "hours": "Saturday - Thursday: 9:00 AM - 4:00 PM",
+        "address": "123 Islamic Education Street, Dhanmondi, Dhaka-1205, Bangladesh"
+      },
+      "admissionOffice": {
+        "title": "Admission Office",
+        "phone": "+880 2-9876544",
+        "email": "admission@madrasatulquran.edu.bd",
+        "hours": "Saturday - Thursday: 9:00 AM - 5:00 PM",
+        "address": "Ground Floor, Main Building"
+      },
+      "principal": {
+        "title": "Principal's Office",
+        "phone": "+880 2-9876545",
+        "email": "principal@madrasatulquran.edu.bd",
+        "hours": "Saturday - Thursday: 10:00 AM - 3:00 PM"
+      }
+    },
+    "departments": {
+      "title": "Department Contacts",
+      "subtitle": "Connect with specific departments for specialized assistance",
+      "academic": {
+        "title": "Academic Affairs",
+        "head": "Dr. Mohammad Rahman",
+        "phone": "+880 2-9876546",
+        "email": "academic@madrasatulquran.edu.bd"
+      },
+      "islamic": {
+        "title": "Islamic Studies Department",
+        "head": "Maulana Abdul Karim",
+        "phone": "+880 2-9876547",
+        "email": "islamic@madrasatulquran.edu.bd"
+      },
+      "student": {
+        "title": "Student Affairs",
+        "head": "Mrs. Fatima Begum",
+        "phone": "+880 2-9876548",
+        "email": "students@madrasatulquran.edu.bd"
+      },
+      "finance": {
+        "title": "Finance Office",
+        "head": "Mr. Ahmed Hassan",
+        "phone": "+880 2-9876549",
+        "email": "finance@madrasatulquran.edu.bd"
+      }
+    },
+    "location": {
+      "title": "Our Location",
+      "subtitle": "Visit us at our campus in the heart of Dhaka",
+      "address": "123 Islamic Education Street, Dhanmondi, Dhaka-1205, Bangladesh",
+      "landmarks": {
+        "title": "Nearby Landmarks",
+        "landmark1": "Dhanmondi Lake (5 minutes walk)",
+        "landmark2": "Dhaka University (10 minutes drive)",
+        "landmark3": "Dhanmondi 27 Bus Stop (2 minutes walk)",
+        "landmark4": "Islami Bank Hospital (3 minutes walk)"
+      },
+      "transportation": {
+        "title": "Public Transportation",
+        "bus": "Bus Routes: 7, 9, 25, 49 (Dhanmondi 27 Stop)",
+        "rickshaw": "Auto-rickshaw and CNG available",
+        "uber": "Uber and Pathao services available",
+        "parking": "Limited parking available on campus"
+      },
+      "directions": {
+        "title": "Directions",
+        "fromAirport": "From Hazrat Shahjalal International Airport: 45 minutes by car",
+        "fromStation": "From Kamalapur Railway Station: 30 minutes by car",
+        "fromBusTerminal": "From Gabtali Bus Terminal: 40 minutes by car"
+      }
+    },
+    "forms": {
+      "general": {
+        "title": "General Inquiry Form",
+        "subtitle": "Send us your questions and we'll get back to you soon"
+      },
+      "admission": {
+        "title": "Admission Inquiry",
+        "subtitle": "Get information about our admission process"
+      },
+      "feedback": {
+        "title": "Feedback Form",
+        "subtitle": "Share your thoughts and suggestions with us"
+      },
+      "fields": {
+        "name": "Full Name",
+        "namePlaceholder": "Enter your full name",
+        "email": "Email Address",
+        "emailPlaceholder": "your.email@example.com",
+        "phone": "Phone Number",
+        "phonePlaceholder": "+880 1XXX-XXXXXX",
+        "subject": "Subject",
+        "subjectPlaceholder": "What is this regarding?",
+        "category": "Inquiry Category",
+        "categoryPlaceholder": "Select category",
+        "categories": {
+          "general": "General Information",
+          "admission": "Admission Process",
+          "academic": "Academic Programs",
+          "facilities": "Campus Facilities",
+          "fees": "Fee Structure",
+          "events": "Events & Activities",
+          "other": "Other"
+        },
+        "message": "Your Message",
+        "messagePlaceholder": "Please describe your inquiry in detail...",
+        "submit": "Send Message",
+        "submitting": "Sending...",
+        "required": "This field is required"
+      },
+      "success": {
+        "title": "Message Sent Successfully!",
+        "message": "Thank you for contacting us. We will respond within 24 hours during business days.",
+        "newMessage": "Send Another Message"
+      }
+    },
+    "emergency": {
+      "title": "Emergency Contacts",
+      "subtitle": "24/7 emergency support for urgent matters",
+      "security": {
+        "title": "Campus Security",
+        "phone": "+880 1712-345678",
+        "available": "24/7 Available"
+      },
+      "medical": {
+        "title": "Medical Emergency",
+        "phone": "+880 1812-345679",
+        "available": "During School Hours"
+      },
+      "principal": {
+        "title": "Principal (Emergency)",
+        "phone": "+880 1912-345680",
+        "available": "After Hours Only"
+      }
+    }
+  },
   "footer": {
     "quickLinks": "Quick Links",
     "contactInfo": "Contact Information",

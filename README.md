@@ -848,6 +848,108 @@ The event RSVP component (`src/components/news-events/event-rsvp.tsx`) includes:
 - **Optimized Queries**: Efficient GROQ queries for different content needs
 - **Category Filtering**: Server-side filtering by category and date
 - **Search Functionality**: Full-text search across multilingual content
+
+## Contact and Location Page
+
+The contact page (`/contact`) provides comprehensive contact information, location details, and inquiry forms to facilitate communication between the school and prospective families, current students, and the community.
+
+### Contact Information Display
+
+The contact information component (`src/components/contact/contact-info-display.tsx`) features:
+
+**Primary Contact Cards**:
+- **Main Office**: Complete contact details with phone, email, hours, and address
+- **Admission Office**: Dedicated admission contact information with extended hours
+- **Principal's Office**: Direct access to school leadership with specific availability
+- **Click-to-Contact**: Interactive phone and email links for immediate communication
+
+**Department Directory**:
+- **Academic Affairs**: Contact information for curriculum and academic matters
+- **Islamic Studies Department**: Specialized contact for religious education inquiries
+- **Student Affairs**: Student support services and welfare contacts
+- **Finance Office**: Fee payment and financial assistance inquiries
+
+**Emergency Contacts**:
+- **24/7 Campus Security**: Round-the-clock security contact information
+- **Medical Emergency**: On-campus medical support during school hours
+- **Principal Emergency Line**: After-hours emergency contact for urgent matters
+- **Visual Hierarchy**: Color-coded emergency section with prominent display
+
+### Location and Maps Integration
+
+The location maps component (`src/components/contact/location-maps.tsx`) provides:
+
+**Interactive Mapping**:
+- **Google Maps Integration**: Embedded interactive map with school location
+- **Direction Services**: Direct integration with Google Maps for turn-by-turn directions
+- **Printable Directions**: Print-friendly direction guide for offline use
+- **External Map Links**: Quick access to Google Maps app for mobile users
+
+**Location Information**:
+- **Complete Address**: Full postal address with proper formatting
+- **Nearby Landmarks**: Key landmarks for easy navigation and reference
+- **Public Transportation**: Detailed bus routes, stops, and transportation options
+- **Parking Information**: On-campus parking availability and restrictions
+
+**Transportation Guide**:
+- **Bus Routes**: Specific bus numbers and stops serving the school area
+- **Ride Sharing**: Uber, Pathao, and local ride-sharing service information
+- **Auto-rickshaw/CNG**: Local transportation options with pickup points
+- **Travel Times**: Estimated travel times from major locations in Dhaka
+
+**Directional Information**:
+- **From Airport**: Detailed directions from Hazrat Shahjalal International Airport
+- **From Railway Station**: Route guidance from Kamalapur Railway Station
+- **From Bus Terminal**: Directions from major bus terminals including Gabtali
+- **Time Estimates**: Realistic travel time estimates for different transportation modes
+
+### Contact Forms System
+
+The contact forms component (`src/components/contact/contact-forms.tsx`) includes:
+
+**Multi-Form Interface**:
+- **Form Type Selection**: Choose between General Inquiry, Admission Inquiry, and Feedback forms
+- **Visual Form Selector**: Icon-based form type selection with descriptions
+- **Dynamic Form Content**: Form fields and validation adapt based on selected type
+- **Smooth Transitions**: Animated transitions between different form types
+
+**Comprehensive Form Fields**:
+- **Personal Information**: Name, email, and phone number with validation
+- **Inquiry Categorization**: Dropdown selection for inquiry type and subject
+- **Message Composition**: Rich text area for detailed inquiries and feedback
+- **Required Field Validation**: Real-time validation with clear error messages
+
+**Advanced Features**:
+- **Spam Protection**: Honeypot field implementation for automated spam prevention
+- **Form Validation**: Client-side validation with comprehensive error handling
+- **Submission States**: Loading indicators, success confirmations, and error messages
+- **Form Reset**: Automatic form clearing after successful submission
+
+**User Experience**:
+- **Responsive Design**: Mobile-optimized forms with touch-friendly inputs
+- **Accessibility**: ARIA labels, keyboard navigation, and screen reader support
+- **Visual Feedback**: Clear success and error states with appropriate messaging
+- **Multi-language Support**: Full Bengali and English form labels and messages
+
+### Page Integration
+
+**Route Implementation**:
+- **Next.js App Router**: Proper route structure at `/[locale]/contact`
+- **Metadata Generation**: Dynamic SEO metadata with language-specific titles and descriptions
+- **TypeScript Integration**: Full type safety with proper interface definitions
+- **Internationalization**: Complete i18n support with next-intl integration
+
+**Component Architecture**:
+- **Modular Design**: Separate components for different page sections
+- **Reusable Components**: Contact cards and form elements designed for reusability
+- **State Management**: Efficient React state handling for form interactions
+- **Performance Optimization**: Lazy loading and efficient rendering patterns
+
+**SEO and Accessibility**:
+- **Structured Data**: Proper schema markup for contact information
+- **Meta Tags**: Comprehensive meta tags for social sharing and search engines
+- **Semantic HTML**: Proper HTML structure for accessibility and SEO
+- **Mobile Optimization**: Mobile-first responsive design with touch interactions
 - **Performance**: Cached queries and optimized data fetching
 
 **Content Types**:
