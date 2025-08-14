@@ -1,13 +1,15 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
+import { draftMode } from 'next/headers';
 import { getTranslations } from 'next-intl/server';
-import { sanityFetch } from '@/lib/sanity-fetch';
-import { leadershipTeamQuery, pageBySlugQuery } from '@/lib/sanity-queries';
 import {
   SchoolHistoryVision,
   LeadershipTeam,
   EducationalPhilosophy,
 } from '@/components/about';
+import { getContentService } from '@/lib/content-service';
+import { getPreviewContext } from '@/lib/preview';
+import { PreviewBanner } from '@/components/preview/preview-banner';
 import type { StaffMember, Page } from '@/types/sanity';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -20,61 +22,42 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function AboutPage() {
+  const draft = await draftMode();
+  const isPreview = draft.isEnabled;
+  const contentService = getContentService(isPreview);
+  const previewContext = await getPreviewContext();
+
   try {
     // Fetch leadership team data
-    const leaders = await sanityFetch<StaffMember[]>({
-      query: leadershipTeamQuery,
-      tags: ['staffMember'],
-    });
+    const leaders = await contentService.getLeadershipTeam();
 
     // Fetch page content for history and philosophy (optional - can be managed through CMS)
-    let historyContent: Page | undefined = undefined;
-    let visionContent: Page | undefined = undefined;
-    let philosophyContent: Page | undefined = undefined;
-
-    try {
-      historyContent = await sanityFetch<Page>({
-        query: pageBySlugQuery,
-        params: { slug: 'school-history' },
-        tags: ['page'],
-      });
-    } catch {
-      // History content is optional - will use default content
-    }
-
-    try {
-      visionContent = await sanityFetch<Page>({
-        query: pageBySlugQuery,
-        params: { slug: 'school-vision' },
-        tags: ['page'],
-      });
-    } catch {
-      // Vision content is optional - will use default content
-    }
-
-    try {
-      philosophyContent = await sanityFetch<Page>({
-        query: pageBySlugQuery,
-        params: { slug: 'educational-philosophy' },
-        tags: ['page'],
-      });
-    } catch {
-      // Philosophy content is optional - will use default content
-    }
+    const [historyContent, visionContent, philosophyContent, siteSettings] = await Promise.all([
+      contentService.getPageBySlug('school-history'),
+      contentService.getPageBySlug('school-vision'),
+      contentService.getPageBySlug('educational-philosophy'),
+      contentService.getSiteSettings(),
+    ]);
 
     return (
       <>
+        {previewContext.isPreview && <PreviewBanner exitUrl={previewContext.exitUrl} />}
+        
         {/* School History and Vision Section */}
         <SchoolHistoryVision
           historyContent={historyContent}
           visionContent={visionContent}
+          siteSettings={siteSettings}
         />
 
         {/* Leadership Team Section */}
         <LeadershipTeam leaders={leaders} />
 
         {/* Educational Philosophy and Accreditation Section */}
-        <EducationalPhilosophy philosophyContent={philosophyContent} />
+        <EducationalPhilosophy 
+          philosophyContent={philosophyContent}
+          siteSettings={siteSettings}
+        />
       </>
     );
   } catch (error) {

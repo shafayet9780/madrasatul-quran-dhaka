@@ -611,5 +611,70 @@
     "contactInfo": "যোগাযোগের তথ্য",
     "followUs": "আমাদের অনুসরণ করুন",
     "copyright": "© ২০২৫ মাদরাসাতুল কুরআন। সকল অধিকার সংরক্ষিত।"
+  },
+  "preview": {
+    "banner": {
+      "title": "প্রিভিউ মোড সক্রিয়",
+      "description": "আপনি অপ্রকাশিত কন্টেন্ট দেখছেন",
+      "exitButton": "প্রিভিউ থেকে বের হন",
+      "hideButton": "ব্যানার লুকান"
+    }
+  },
+  "translation": {
+    "dashboard": {
+      "title": "অনুবাদ ড্যাশবোর্ড",
+      "description": "বহুভাষিক কন্টেন্ট অনুবাদ পর্যবেক্ষণ ও পরিচালনা করুন"
+    },
+    "stats": {
+      "total": "মোট কাজ",
+      "completed": "সম্পন্ন",
+      "inProgress": "চলমান",
+      "pending": "অপেক্ষমান",
+      "bengali": "বাংলা অনুবাদ",
+      "english": "ইংরেজি অনুবাদ"
+    },
+    "workflow": {
+      "title": "অনুবাদ কর্মপ্রবাহ",
+      "description": "অনুবাদের মনোযোগ প্রয়োজন এমন কন্টেন্ট আইটেম",
+      "noItems": "সকল অনুবাদ সম্পন্ন!",
+      "noItemsDescription": "সকল কন্টেন্ট উভয় ভাষায় অনুবাদ করা হয়েছে।"
+    },
+    "documentTypes": {
+      "newsEvent": "সংবাদ ও ইভেন্ট",
+      "page": "পৃষ্ঠা",
+      "academicProgram": "একাডেমিক প্রোগ্রাম",
+      "staffMember": "কর্মী সদস্য",
+      "facility": "সুবিধা"
+    },
+    "languages": {
+      "bengali": "বাংলা",
+      "english": "ইংরেজি"
+    },
+    "actions": {
+      "createTask": "কাজ তৈরি করুন"
+    },
+    "bulkActions": {
+      "selected": "{count}টি আইটেম নির্বাচিত",
+      "createTasks": "কাজ তৈরি করুন",
+      "clear": "নির্বাচন পরিষ্কার করুন"
+    },
+    "filters": {
+      "title": "ফিল্টার",
+      "clear": "সব পরিষ্কার করুন",
+      "documentType": "ডকুমেন্ট টাইপ",
+      "language": "ভাষা",
+      "priority": "অগ্রাধিকার",
+      "status": "অবস্থা",
+      "all": "সব"
+    },
+    "priority": {
+      "high": "উচ্চ",
+      "medium": "মধ্যম",
+      "low": "নিম্ন"
+    },
+    "status": {
+      "complete": "সম্পন্ন",
+      "incomplete": "অসম্পূর্ণ"
+    }
   }
 }

@@ -611,5 +611,70 @@
     "contactInfo": "Contact Information",
     "followUs": "Follow Us",
     "copyright": "© 2025 Madrasatul Quran. All rights reserved."
+  },
+  "preview": {
+    "banner": {
+      "title": "Preview Mode Active",
+      "description": "You are viewing unpublished content",
+      "exitButton": "Exit Preview",
+      "hideButton": "Hide banner"
+    }
+  },
+  "translation": {
+    "dashboard": {
+      "title": "Translation Dashboard",
+      "description": "Monitor and manage multilingual content translations"
+    },
+    "stats": {
+      "total": "Total Tasks",
+      "completed": "Completed",
+      "inProgress": "In Progress",
+      "pending": "Pending",
+      "bengali": "Bengali Translations",
+      "english": "English Translations"
+    },
+    "workflow": {
+      "title": "Translation Workflow",
+      "description": "Content items requiring translation attention",
+      "noItems": "All translations complete!",
+      "noItemsDescription": "All content has been translated to both languages."
+    },
+    "documentTypes": {
+      "newsEvent": "News & Events",
+      "page": "Page",
+      "academicProgram": "Academic Program",
+      "staffMember": "Staff Member",
+      "facility": "Facility"
+    },
+    "languages": {
+      "bengali": "Bengali",
+      "english": "English"
+    },
+    "actions": {
+      "createTask": "Create Task"
+    },
+    "bulkActions": {
+      "selected": "{count} items selected",
+      "createTasks": "Create Tasks",
+      "clear": "Clear Selection"
+    },
+    "filters": {
+      "title": "Filters",
+      "clear": "Clear all",
+      "documentType": "Document Type",
+      "language": "Language",
+      "priority": "Priority",
+      "status": "Status",
+      "all": "All"
+    },
+    "priority": {
+      "high": "High",
+      "medium": "Medium",
+      "low": "Low"
+    },
+    "status": {
+      "complete": "Complete",
+      "incomplete": "Incomplete"
+    }
   }
 }
