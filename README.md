@@ -13,6 +13,7 @@ A modern, bilingual website for Madrasatul Quran, an Islamic educational institu
 - **About Page**: Complete institutional information with history, leadership, and philosophy
 - **Academic Programs**: Comprehensive curriculum display with Islamic studies, NCTB curriculum, and co-curricular activities
 - **Admissions System**: Complete enrollment process with requirements, fee calculator, and inquiry forms
+- **News and Events**: Comprehensive news system with calendar view, photo galleries, and event RSVP
 - **SEO Optimized**: Search engine optimization for local discovery
 
 ## Tech Stack
@@ -135,6 +136,16 @@ src/
 │   │   ├── virtual-tour-section.tsx # Virtual campus tour with image gallery
 │   │   ├── facilities-showcase.tsx # Facilities display with search and filtering
 │   │   └── safety-security-section.tsx # Safety measures and emergency contacts
+│   ├── news-events/       # News and events page components
+│   │   ├── news-events-page.tsx # Main news and events page with tabs
+│   │   ├── news-card.tsx  # Individual news/event card component
+│   │   ├── events-calendar.tsx # Calendar view for events
+│   │   ├── photo-gallery.tsx # Photo gallery with lightbox
+│   │   ├── media-slideshow.tsx # Featured media slideshow
+│   │   ├── search-bar.tsx # Real-time search functionality
+│   │   ├── news-filters.tsx # Category filtering component
+│   │   ├── news-article-page.tsx # Individual article page
+│   │   └── event-rsvp.tsx # Event registration component
 │   ├── ui/                # Reusable UI components
 │   │   └── rich-text.tsx  # Rich text renderer for Sanity Portable Text
 │   └── language-toggle.tsx # Language switching component
@@ -142,6 +153,8 @@ src/
 │   ├── sanity.ts          # Sanity client configuration
 │   ├── sanity-queries.ts  # GROQ queries for content fetching
 │   ├── sanity-utils.ts    # Sanity utility functions
+│   ├── queries/           # Specialized query modules
+│   │   └── news-events.ts # News and events GROQ queries
 │   ├── utils/             # General utility functions
 │   └── i18n.ts            # Internationalization config
 ├── types/
@@ -701,6 +714,167 @@ The safety and security section (`src/components/campus/safety-security-section.
 - **Image Optimization**: Next.js Image component with proper sizing and formats
 - **Accessibility Compliance**: ARIA labels, keyboard navigation, and semantic HTML
 - **Performance Features**: Lazy loading, efficient rendering, and smooth animations
+
+## News and Events Page
+
+The news and events page (`/news`) provides comprehensive coverage of school activities, achievements, and upcoming events through a modern, interactive interface with multiple viewing modes.
+
+### Main Features
+
+The news and events page (`src/components/news-events/news-events-page.tsx`) includes:
+
+**Multi-Tab Interface**:
+- **News List View**: Grid-based display of all news articles and events with filtering and search
+- **Events Calendar**: Calendar view for upcoming events with date-based navigation
+- **Photo Gallery**: Visual showcase of event photos and media with slideshow functionality
+
+**Advanced Filtering System**:
+- **Category Filtering**: Filter by achievements, news, events, and announcements
+- **Real-time Search**: Instant search across titles and content in both languages
+- **Combined Filtering**: Search and category filters work together for precise results
+- **Dynamic Results**: Live updating of results with smooth transitions
+
+**Responsive Design**:
+- **Mobile-first Approach**: Optimized for mobile devices with touch-friendly interactions
+- **Adaptive Layouts**: Grid layouts adjust from single column to three columns based on screen size
+- **Tab Navigation**: Horizontal tab system with active state indicators
+- **Loading States**: Professional loading animations and skeleton screens
+
+### News Card Component
+
+The news card component (`src/components/news-events/news-card.tsx`) features:
+
+**Visual Design**:
+- **Featured Images**: Optimized images with fallback handling and aspect ratio preservation
+- **Category Badges**: Color-coded category indicators for quick identification
+- **Date Display**: Formatted publication dates with proper localization
+- **Hover Effects**: Smooth transitions and interactive states for better user experience
+
+**Content Structure**:
+- **Multilingual Titles**: Dynamic title display based on selected language
+- **Excerpt Preview**: Brief content preview with proper text truncation
+- **Read More Links**: Navigation to full article pages with smooth transitions
+- **Event Dates**: Special handling for events with date and time information
+
+### Events Calendar
+
+The events calendar component (`src/components/news-events/events-calendar.tsx`) provides:
+
+**Calendar Functionality**:
+- **Monthly View**: Full calendar display with event indicators on relevant dates
+- **Event Details**: Click-to-view event information with modal or expanded view
+- **Navigation Controls**: Month/year navigation with smooth transitions
+- **Event Filtering**: Filter events by category within the calendar view
+
+**Event Integration**:
+- **Date Highlighting**: Visual indicators for dates with scheduled events
+- **Multiple Events**: Support for multiple events on the same date
+- **Event Categories**: Color-coded events based on category type
+- **Responsive Layout**: Mobile-optimized calendar with touch navigation
+
+### Photo Gallery System
+
+The photo gallery components provide comprehensive media display:
+
+#### Media Slideshow (`src/components/news-events/media-slideshow.tsx`)
+
+**Featured Content Display**:
+- **Auto-rotating Slideshow**: Featured event photos with automatic progression
+- **Manual Navigation**: Arrow controls and dot indicators for user control
+- **Full-screen Mode**: Lightbox functionality for detailed image viewing
+- **Caption Support**: Image captions and descriptions with proper typography
+
+#### Photo Gallery (`src/components/news-events/photo-gallery.tsx`)
+
+**Comprehensive Gallery**:
+- **Grid Layout**: Responsive photo grid with masonry-style arrangement
+- **Category Filtering**: Filter photos by event type or category
+- **Lightbox Integration**: Full-screen photo viewing with keyboard navigation
+- **Lazy Loading**: Performance-optimized image loading with intersection observer
+
+### Search and Filter Components
+
+#### Search Bar (`src/components/news-events/search-bar.tsx`)
+
+**Advanced Search**:
+- **Real-time Results**: Instant search results as user types
+- **Multilingual Search**: Search across both Bengali and English content
+- **Search Highlighting**: Visual indication of search terms in results
+- **Clear Functionality**: Easy search reset with clear button
+
+#### News Filters (`src/components/news-events/news-filters.tsx`)
+
+**Category Management**:
+- **Visual Filter Buttons**: Color-coded category buttons with active states
+- **Result Counts**: Display number of items in each category
+- **All Categories**: Option to view all content without filtering
+- **Smooth Transitions**: Animated filter changes with loading states
+
+### Individual Article Pages
+
+The news article page component (`src/components/news-events/news-article-page.tsx`) provides:
+
+**Full Article Display**:
+- **Rich Content Rendering**: Full article content with proper typography and formatting
+- **Featured Images**: Large hero images with caption support
+- **Social Sharing**: Integration with social media sharing capabilities
+- **Related Articles**: Suggestions for similar or related content
+
+**Interactive Features**:
+- **Photo Galleries**: Embedded photo galleries within articles
+- **Event RSVP**: Registration functionality for events with form handling
+- **Print Friendly**: Optimized layouts for printing and PDF generation
+- **Navigation**: Previous/next article navigation with smooth transitions
+
+### Event RSVP System
+
+The event RSVP component (`src/components/news-events/event-rsvp.tsx`) includes:
+
+**Registration Functionality**:
+- **Form Validation**: Comprehensive form validation with error handling
+- **Confirmation System**: Email confirmations and registration tracking
+- **Capacity Management**: Event capacity tracking and waitlist functionality
+- **User Experience**: Loading states, success messages, and error handling
+
+### Data Management
+
+**Sanity CMS Integration**:
+- **Dynamic Content**: All news and events content managed through Sanity CMS
+- **Multilingual Support**: Full Bengali and English content management
+- **Image Optimization**: Sanity's image pipeline for responsive images
+- **Preview Mode**: Content preview functionality for editors
+
+**Query System** (`src/lib/queries/news-events.ts`):
+- **Optimized Queries**: Efficient GROQ queries for different content needs
+- **Category Filtering**: Server-side filtering by category and date
+- **Search Functionality**: Full-text search across multilingual content
+- **Performance**: Cached queries and optimized data fetching
+
+**Content Types**:
+- **News Articles**: General news and announcements with rich content
+- **Events**: Scheduled events with date, time, and RSVP functionality
+- **Achievements**: Student and institutional achievements with photo galleries
+- **Announcements**: Important notices and updates for the community
+
+### Technical Features
+
+**Performance Optimization**:
+- **Lazy Loading**: Images and content load as needed for better performance
+- **Efficient State Management**: Optimized React state for complex filtering and search
+- **Smooth Animations**: CSS transitions and transforms for all interactions
+- **Error Boundaries**: Graceful error handling with user-friendly messages
+
+**Accessibility**:
+- **Keyboard Navigation**: Full keyboard support for all interactive elements
+- **Screen Reader Support**: Proper ARIA labels and semantic HTML structure
+- **Focus Management**: Logical focus flow and visual focus indicators
+- **Color Contrast**: High contrast ratios for better readability
+
+**SEO and Social**:
+- **Meta Tags**: Dynamic meta tags for individual articles and events
+- **Open Graph**: Social media sharing optimization with proper images and descriptions
+- **Structured Data**: Schema markup for events and articles
+- **Sitemap Integration**: Automatic inclusion in XML sitemap
 
 ## Rich Text Component
 

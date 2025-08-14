@@ -376,6 +376,87 @@
       }
     }
   },
+  "news": {
+    "meta": {
+      "title": "News & Events - Madrasatul Quran",
+      "description": "Stay updated with the latest news, events, achievements, and announcements from Madrasatul Quran."
+    },
+    "title": "News & Events",
+    "subtitle": "Stay connected with our school community and latest updates",
+    "loading": "Loading news and events...",
+    "noResults": "No news or events found matching your criteria.",
+    "tabs": {
+      "list": "News List",
+      "calendar": "Events Calendar",
+      "gallery": "Photo Gallery"
+    },
+    "filters": {
+      "filterBy": "Filter by",
+      "all": "All",
+      "achievements": "Achievements",
+      "news": "News",
+      "events": "Events",
+      "announcements": "Announcements"
+    },
+    "search": {
+      "placeholder": "Search news and events..."
+    },
+    "card": {
+      "readMore": "Read More",
+      "categories": {
+        "achievement": "Achievement",
+        "news": "News",
+        "event": "Event",
+        "announcement": "Announcement"
+      }
+    },
+    "calendar": {
+      "upcomingEvents": "Upcoming Events",
+      "noUpcomingEvents": "No upcoming events scheduled.",
+      "more": "more",
+      "rsvp": "RSVP"
+    },
+    "rsvp": {
+      "title": "Event Registration",
+      "form": {
+        "name": "Full Name",
+        "namePlaceholder": "Enter your full name",
+        "email": "Email Address",
+        "emailPlaceholder": "your.email@example.com",
+        "phone": "Phone Number",
+        "phonePlaceholder": "+880 1XXX-XXXXXX",
+        "attendees": "Number of Attendees",
+        "person": "person",
+        "people": "people",
+        "message": "Additional Message",
+        "messagePlaceholder": "Any special requirements or questions...",
+        "cancel": "Cancel",
+        "submit": "Register",
+        "submitting": "Registering..."
+      },
+      "success": {
+        "title": "Registration Successful!",
+        "message": "Thank you for registering. We will contact you with event details soon.",
+        "close": "Close"
+      }
+    },
+    "gallery": {
+      "categories": {
+        "all": "All Photos",
+        "achievement": "Achievements",
+        "news": "News",
+        "event": "Events",
+        "announcement": "Announcements"
+      },
+      "noImages": "No photos available for the selected category.",
+      "share": "Share Photo",
+      "featured": "Featured Media",
+      "allPhotos": "All Photos"
+    },
+    "slideshow": {
+      "noImages": "No images available for slideshow."
+    }
+  },
   "footer": {
     "quickLinks": "Quick Links",
     "contactInfo": "Contact Information",
