@@ -143,8 +143,8 @@ export function OptimizedImage({
     onError: handleError,
     priority,
     quality,
-    placeholder: placeholder as any,
-    blurDataURL: getBlurDataURL(),
+    placeholder: typeof image === 'string' ? 'empty' : (placeholder as any),
+    blurDataURL: typeof image === 'string' ? undefined : getBlurDataURL(),
     loading: priority ? 'eager' : loading,
   };
 
