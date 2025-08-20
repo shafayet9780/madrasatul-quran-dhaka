@@ -21,10 +21,39 @@ A modern, bilingual website for Madrasatul Quran, an Islamic educational institu
 - **Framework**: Next.js 15+ with App Router
 - **Styling**: Tailwind CSS with custom Islamic design tokens
 - **Internationalization**: next-intl for Bengali/English support
-- **Content Management**: Sanity CMS
+- **Content Management**: Sanity CMS with multilingual support
 - **Typography**: Inter (English), Noto Sans Bengali, Amiri (Arabic)
-- **Development**: TypeScript, ESLint, Prettier
+- **Development**: TypeScript, ESLint, Prettier, tsx (TypeScript execution)
 - **Performance**: Optimized images with WebP/AVIF, SWC minification, compression enabled
+
+## Content Management System
+
+This website features a comprehensive content management system built on Sanity CMS with full multilingual support.
+
+### Content Types
+
+- **Site Settings**: Global configuration, contact info, statistics
+- **Pages**: Static content pages (About, History, Vision, etc.)
+- **News & Events**: Dynamic content with categories, featured items, and galleries
+- **Academic Programs**: Educational programs with Islamic and NCTB curricula
+- **Staff Members**: Faculty and administration with leadership team
+- **Facilities**: Campus facilities with categories and features
+
+### Multilingual Content Management
+
+- **Dual Language Support**: All content supports Bengali and English
+- **Translation Workflow**: Built-in translation task management
+- **Content Validation**: Language-specific quality checks
+- **Translation Dashboard**: React components for managing translations
+- **Progress Tracking**: Statistics and reporting for translation completeness
+
+### Content Features
+
+- **Preview Mode**: Live preview of unpublished content
+- **Publishing Workflow**: Draft → Review → Approved → Published states
+- **Media Management**: Optimized image handling with Sanity CDN
+- **Content Validation**: Comprehensive validation with error reporting
+- **SEO Integration**: Meta tags and structured data support
 
 ## Getting Started
 
@@ -46,6 +75,22 @@ A modern, bilingual website for Madrasatul Quran, an Islamic educational institu
 
    ```bash
    cp .env.local.example .env.local
+   ```
+
+4. Configure Sanity CMS:
+   - Set up your Sanity project at [sanity.io](https://sanity.io)
+   - Add your project ID and dataset to `.env.local`
+   - Generate an API token with write permissions
+   - Add the token to `.env.local` as `SANITY_API_TOKEN`
+
+5. Populate sample data (optional):
+
+   ```bash
+   npm run populate-sanity populate
+   # Or use TypeScript version
+   npm run populate-sanity:ts populate
+   # Or run directly with tsx
+   npx tsx scripts/populate-sanity-data.ts populate
    ```
 
 4. Update environment variables in `.env.local` with your Sanity project details
@@ -98,6 +143,9 @@ When enabled, users will need to provide credentials to access the studio at `/s
 
 ### Available Scripts
 
+**Note**: The project provides both JavaScript and TypeScript versions of key scripts. JavaScript versions are used by default for faster execution and broader compatibility, while TypeScript versions (with `:ts` suffix) provide full type checking.
+
+#### Development
 - `npm run dev` - Start development server with Turbopack
 - `npm run build` - Build for production
 - `npm run start` - Start production server
@@ -105,6 +153,31 @@ When enabled, users will need to provide credentials to access the studio at `/s
 - `npm run lint:fix` - Fix ESLint issues
 - `npm run format` - Format code with Prettier
 - `npm run format:check` - Check code formatting
+
+#### TypeScript Execution
+The project includes `tsx` for direct TypeScript execution without compilation:
+- `npx tsx <script.ts>` - Run any TypeScript file directly
+- `npx tsx scripts/populate-sanity-data.ts populate` - Run data population script (TypeScript)
+- `npx tsx scripts/test-content-integration.ts` - Run content integration tests (TypeScript)
+
+#### Script Versions
+Both JavaScript and TypeScript versions of key scripts are available:
+- **JavaScript versions** (default): Faster execution, no TypeScript dependencies required
+- **TypeScript versions** (`:ts` suffix): Full type checking and modern syntax support
+
+#### Content Management
+- `npm run populate-sanity populate` - Populate Sanity with sample data (JavaScript version)
+- `npm run populate-sanity:ts populate` - Populate Sanity with sample data (TypeScript version)
+- `npm run populate-sanity cleanup` - Remove all test data from Sanity
+- `npm run populate-sanity test-connection` - Test Sanity connection
+- `npm run test-content` - Test content management integration (JavaScript version)
+- `npm run test-content:ts` - Test content management integration (TypeScript version)
+- `npx tsx scripts/populate-sanity-data.ts [command]` - Direct script execution with tsx
+
+#### Sanity Studio
+- `npm run sanity` - Start Sanity Studio development server
+- `npm run sanity:build` - Build Sanity Studio for production
+- `npm run sanity:deploy` - Deploy Sanity Studio
 
 ## Project Structure
 
@@ -120,7 +193,9 @@ src/
 │   │   ├── footer.tsx     # Footer component with contact info
 │   │   └── main-layout.tsx # Main layout wrapper
 │   ├── homepage/          # Homepage-specific components
-│   │   └── hero-section.tsx # Hero section with background image and CTAs
+│   │   ├── hero-section.tsx # Hero section with dynamic content integration
+│   │   ├── mission-statistics-section.tsx # Mission statement and statistics
+│   │   └── featured-content-section.tsx # Featured content and quick access
 │   ├── about/             # About page components
 │   │   ├── school-history-vision.tsx # School history and vision section
 │   │   ├── leadership-team.tsx # Leadership team with modal profiles
@@ -134,8 +209,8 @@ src/
 │   │   ├── fee-structure-section.tsx # Fee structure and financial aid calculator
 │   │   └── important-dates-section.tsx # Academic calendar and inquiry form
 │   ├── campus/            # Campus and facilities page components
-│   │   ├── virtual-tour-section.tsx # Virtual campus tour with image gallery
-│   │   ├── facilities-showcase.tsx # Facilities display with search and filtering
+│   │   ├── virtual-tour-section.tsx # Self-contained virtual tour with curated gallery
+│   │   ├── facilities-showcase.tsx # Dynamic facilities display with CMS integration
 │   │   └── safety-security-section.tsx # Safety measures and emergency contacts
 │   ├── news-events/       # News and events page components
 │   │   ├── news-events-page.tsx # Main news and events page with tabs
@@ -332,6 +407,14 @@ The homepage features a modern hero section (`src/components/homepage/hero-secti
 - **Multilingual Support**: Dynamic content using next-intl translations
 - **Statistics Section**: Dedicated bottom section with four-column stats grid
 
+**Dynamic Content Integration**:
+
+- **Sanity CMS Integration**: Component now accepts `siteSettings` and `featuredNews` props for dynamic content
+- **Site Settings**: Institution information, contact details, and statistics from Sanity CMS
+- **Featured News**: Real-time news feed populated from Sanity's news and events content
+- **Multilingual Content**: Uses `getLocalizedText` utility for proper Bengali/English content rendering
+- **Type Safety**: Full TypeScript integration with Sanity content types
+
 **Image Gallery System**:
 
 - **Auto-Rotation**: Activity images cycle every 3 seconds with smooth fade transitions
@@ -369,6 +452,103 @@ The homepage features a modern hero section (`src/components/homepage/hero-secti
 - **Auto-Rotation Logic**: Independent timers for different content sections with proper cleanup
 - **Enhanced Animations**: Smooth opacity and transform transitions for news items with directional movement
 - **Improved Navigation**: Interactive dots for both image gallery and news feed sections
+
+**Component Interface**:
+
+```typescript
+interface HeroSectionProps {
+  className?: string;
+  siteSettings?: SiteSettings | null;
+  featuredNews?: NewsEvent[];
+}
+```
+
+**Usage Example**:
+
+```typescript
+// In page component
+const [siteSettings, featuredNews] = await Promise.all([
+  contentService.getSiteSettings(),
+  contentService.getFeaturedNewsEvents(3),
+]);
+
+// Render with dynamic content
+<HeroSection 
+  siteSettings={siteSettings}
+  featuredNews={featuredNews}
+/>
+```
+
+### Mission Statement and Statistics Section
+
+The mission statement section (`src/components/homepage/mission-statistics-section.tsx`) provides:
+
+**Content Integration**:
+
+- **Dynamic Mission Statement**: Institution mission and vision from Sanity CMS
+- **Statistics Display**: Key institutional metrics (students, teachers, years of service, success rate)
+- **Multilingual Support**: Bengali and English content rendering with proper typography
+- **Animated Counters**: Progressive number animation for statistical data
+
+**Component Interface**:
+
+```typescript
+interface MissionStatisticsSectionProps {
+  className?: string;
+  siteSettings?: SiteSettings | null;
+}
+```
+
+### Featured Content Section
+
+The featured content section (`src/components/homepage/featured-content-section.tsx`) includes:
+
+**Quick Access Navigation**:
+
+- **Key Page Links**: Direct access to Admissions, Programs, and Contact pages with animated cards
+- **Featured News Display**: Latest news and events from Sanity CMS with intelligent fallback system
+- **Interactive Elements**: Hover effects, smooth transitions, and staggered animations
+- **Call-to-Action Integration**: Strategic placement of enrollment and inquiry buttons
+
+**Dynamic Content Integration**:
+
+- **Sanity CMS Integration**: Component accepts `featuredNews` and `featuredFacilities` props for dynamic content
+- **Intelligent Fallback System**: Automatically uses hardcoded content when CMS data is unavailable
+- **Multilingual Support**: Proper Bengali/English content rendering with locale-aware formatting
+- **Dynamic Image Handling**: Processes Sanity image assets with SVG fallback placeholders
+- **Date Localization**: Proper date formatting based on selected language (Bengali: bn-BD, English: en-US)
+- **SEO-Friendly URLs**: Generates localized URLs from Sanity slug data with proper fallback handling
+
+**Enhanced Features**:
+
+- **Intersection Observer**: Smooth scroll-triggered animations for better user experience
+- **Image Preloading**: Performance optimization with hidden preload links
+- **Error Handling**: Graceful SVG fallbacks for missing images
+- **TypeScript Safety**: Full type checking with proper Sanity content type integration
+
+**Component Interface**:
+
+```typescript
+interface FeaturedContentSectionProps {
+  className?: string;
+  featuredNews?: NewsEvent[];
+  featuredFacilities?: Facility[];
+}
+
+// Usage with dynamic content
+<FeaturedContentSection 
+  featuredNews={featuredNews}
+  featuredFacilities={featuredFacilities}
+/>
+```
+
+**Technical Improvements**:
+
+- **Fixed TypeScript Issues**: Resolved slug handling and data mapping inconsistencies
+- **Performance Optimization**: Efficient content loading and image handling with lazy loading
+- **Responsive Design**: Mobile-first approach with adaptive grid layouts
+- **Animation System**: Staggered entrance animations with intersection observer
+- **Accessibility**: Proper ARIA labels and semantic HTML structure
 
 ## About Page Components
 
@@ -643,9 +823,37 @@ The Co-curricular Activities section (`src/components/programs/co-curricular-sec
 
 The campus and facilities page (`/campus`) provides a comprehensive virtual tour and detailed information about the institution's facilities, safety measures, and security protocols.
 
+**Component Architecture**:
+- **Virtual Tour Section**: Dynamic CMS integration with intelligent fallback to curated gallery images
+- **Facilities Showcase**: Dynamic content integration with Sanity CMS for real-time facility information
+- **Safety Section**: Static content with institutional safety policies and procedures
+
+**CMS Integration**:
+- Both Virtual Tour and Facilities Showcase components now integrate with Sanity CMS
+- Facilities data is fetched from Sanity and passed to both components for consistent content
+- Automatic fallback to hardcoded data ensures reliability when CMS is unavailable
+- Multilingual content support with proper locale-aware rendering
+
 ### Virtual Campus Tour Section
 
 The virtual tour section (`src/components/campus/virtual-tour-section.tsx`) features:
+
+**Dynamic Content Integration**:
+- **Sanity CMS Integration**: Component accepts `facilities` prop for dynamic content from Sanity CMS
+- **Intelligent Fallback System**: Automatically uses hardcoded gallery when CMS data is unavailable
+- **Multilingual Support**: Proper Bengali/English content rendering with locale-aware text
+- **Dynamic Image Processing**: Converts Sanity facility data to gallery format with optimized images
+- **Type Safety**: Full TypeScript integration with Sanity content types
+
+**Component Interface**:
+```typescript
+interface VirtualTourSectionProps {
+  facilities?: Facility[];
+}
+
+// Usage with dynamic content
+<VirtualTourSection facilities={facilities} />
+```
 
 **Interactive Image Gallery**:
 
@@ -671,6 +879,11 @@ The virtual tour section (`src/components/campus/virtual-tour-section.tsx`) feat
 ### Facilities Showcase Section
 
 The facilities showcase section (`src/components/campus/facilities-showcase.tsx`) includes:
+
+**Dynamic Content Integration**:
+- Accepts facilities data from Sanity CMS as props
+- Intelligent fallback to hardcoded data when CMS content unavailable
+- Real-time content updates through CMS integration
 
 **Comprehensive Facility Display**:
 
@@ -736,10 +949,42 @@ The safety and security section (`src/components/campus/safety-security-section.
 
 **Content Management Integration**:
 
-- **Sanity CMS Ready**: Components designed for easy integration with dynamic content
-- **Multilingual Support**: Full Bengali and English content rendering capability
+- **Dynamic Facility Data**: Both Virtual Tour and Facilities Showcase components receive facility data from Sanity CMS
+- **Consistent Content**: Same facility data used across multiple components for content consistency
+- **Fallback Reliability**: Automatic fallback to hardcoded data when CMS is unavailable
+- **Multilingual Support**: Proper locale-aware content rendering throughout all components
 - **Type Safety**: Comprehensive TypeScript interfaces for all data structures
-- **Fallback Content**: Default content and error handling for missing data
+
+### Campus Page Implementation
+
+The campus page route (`src/app/[locale]/campus/page.tsx`) demonstrates full CMS integration:
+
+**Data Fetching**:
+```typescript
+export default async function CampusPage() {
+  const draft = await draftMode();
+  const isPreview = draft.isEnabled;
+  const contentService = getContentService(isPreview);
+  
+  // Fetch facilities data from Sanity
+  const facilities = await contentService.getAllFacilities();
+
+  return (
+    <main>
+      {/* Pass facilities to both components */}
+      <VirtualTourSection facilities={facilities} />
+      <FacilitiesShowcase facilities={facilities} />
+      <SafetySecuritySection />
+    </main>
+  );
+}
+```
+
+**Key Features**:
+- **Preview Mode Support**: Automatic draft content loading for content editors
+- **Shared Data**: Single facility fetch shared across multiple components
+- **SEO Optimization**: Dynamic metadata generation with internationalization
+- **Error Handling**: Graceful fallback when CMS data is unavailable
 
 **Technical Implementation**:
 

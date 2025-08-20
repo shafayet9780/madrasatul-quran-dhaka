@@ -12,7 +12,13 @@
     "format:check": "prettier --check .",
     "sanity": "sanity dev",
     "sanity:build": "sanity build",
-    "sanity:deploy": "sanity deploy"
+    "sanity:deploy": "sanity deploy",
+    "populate-sanity": "node scripts/populate-sanity-data.js",
+    "populate-sanity:ts": "tsx scripts/populate-sanity-data.ts",
+    "test-content": "node scripts/test-content-integration.js",
+    "test-content:ts": "tsx scripts/test-content-integration.ts",
+    "populate-sanity:node": "node -r ts-node/register scripts/populate-sanity-data.ts",
+    "test-content:node": "node -r ts-node/register scripts/test-content-integration.ts"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
@@ -23,6 +29,7 @@
     "@sanity/ui": "^3.0.3",
     "@sanity/vision": "^4.2.0",
     "clsx": "^2.1.1",
+    "dotenv": "^16.4.5",
     "lucide-react": "^0.532.0",
     "next": "15.4.4",
     "next-intl": "^4.3.4",
@@ -48,6 +55,8 @@
     "eslint-plugin-prettier": "^5.5.3",
     "prettier": "^3.6.2",
     "tailwindcss": "^4",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.7.0",
     "typescript": "^5"
   }
 }

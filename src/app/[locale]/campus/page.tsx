@@ -1,9 +1,12 @@
 import { Metadata } from 'next';
-import { useTranslations } from 'next-intl';
+import { draftMode } from 'next/headers';
 import { getTranslations } from 'next-intl/server';
 import VirtualTourSection from '@/components/campus/virtual-tour-section';
 import FacilitiesShowcase from '@/components/campus/facilities-showcase';
 import SafetySecuritySection from '@/components/campus/safety-security-section';
+import { getContentService } from '@/lib/content-service';
+import { getPreviewContext } from '@/lib/preview';
+import { PreviewBanner } from '@/components/preview/preview-banner';
 
 export async function generateMetadata({
   params,
@@ -19,15 +22,27 @@ export async function generateMetadata({
   };
 }
 
-export default function CampusPage() {
+export default async function CampusPage() {
+  const draft = await draftMode();
+  const isPreview = draft.isEnabled;
+  const contentService = getContentService(isPreview);
+  const previewContext = await getPreviewContext();
+
+  // Fetch facilities data from Sanity
+  const facilities = await contentService.getAllFacilities();
+
   return (
     <main className="min-h-screen bg-gradient-to-br from-sand-light via-white to-sand-light">
+      {previewContext.isPreview && (
+        <PreviewBanner exitUrl={previewContext.exitUrl} />
+      )}
+
       {/* Virtual Campus Tour Section */}
-      <VirtualTourSection />
-      
+      <VirtualTourSection facilities={facilities} />
+
       {/* Facilities Showcase Section */}
-      <FacilitiesShowcase />
-      
+      <FacilitiesShowcase facilities={facilities} />
+
       {/* Safety and Security Section */}
       <SafetySecuritySection />
     </main>

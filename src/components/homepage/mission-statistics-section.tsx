@@ -82,12 +82,21 @@ function StatisticCard({ number, label, suffix = '', icon, delay = 0 }: Statisti
   );
 }
 
+import type { SiteSettings } from '@/types/sanity';
+import { getLocalizedText } from '@/lib/multilingual-content';
+import { useLocale } from 'next-intl';
+
 interface MissionStatisticsSectionProps {
   className?: string;
+  siteSettings?: SiteSettings | null;
 }
 
-export default function MissionStatisticsSection({ className = '' }: MissionStatisticsSectionProps) {
+export default function MissionStatisticsSection({ 
+  className = '', 
+  siteSettings 
+}: MissionStatisticsSectionProps) {
   const t = useTranslations('homepage');
+  const locale = useLocale() as 'bengali' | 'english';
   const [missionVisible, setMissionVisible] = useState(false);
   const missionRef = useRef<HTMLDivElement>(null);
 
@@ -109,10 +118,34 @@ export default function MissionStatisticsSection({ className = '' }: MissionStat
   }, []);
 
   const statistics = [
-    { number: 500, label: t('statistics.students'), suffix: '+', icon: '👨‍🎓', delay: 0 },
-    { number: 25, label: t('statistics.teachers'), suffix: '+', icon: '👨‍🏫', delay: 200 },
-    { number: 15, label: t('statistics.years'), suffix: '+', icon: '🏛️', delay: 400 },
-    { number: 1000, label: t('statistics.graduates'), suffix: '+', icon: '🎓', delay: 600 },
+    { 
+      number: siteSettings?.statistics?.totalStudents || 500, 
+      label: t('statistics.students'), 
+      suffix: '+', 
+      icon: '👨‍🎓', 
+      delay: 0 
+    },
+    { 
+      number: siteSettings?.statistics?.teacherCount || 25, 
+      label: t('statistics.teachers'), 
+      suffix: '+', 
+      icon: '👨‍🏫', 
+      delay: 200 
+    },
+    { 
+      number: siteSettings?.statistics?.yearsOfService || 15, 
+      label: t('statistics.years'), 
+      suffix: '+', 
+      icon: '🏛️', 
+      delay: 400 
+    },
+    { 
+      number: siteSettings?.statistics?.graduationRate || 95, 
+      label: t('statistics.successRate'), 
+      suffix: '%', 
+      icon: '🎓', 
+      delay: 600 
+    },
   ];
 
   return (

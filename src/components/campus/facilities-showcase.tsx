@@ -1,9 +1,15 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import Image from 'next/image';
 import { Search, Filter, MapPin, Users, Clock, Wifi, BookOpen, Microscope, Dumbbell, Shield } from 'lucide-react';
+import type { Facility as SanityFacility } from '@/types/sanity';
+import { getLocalizedText } from '@/lib/multilingual-content';
+
+interface FacilitiesShowcaseProps {
+  facilities?: SanityFacility[];
+}
 
 interface Facility {
   id: string;
@@ -147,10 +153,42 @@ const facilities: Facility[] = [
   }
 ];
 
-export default function FacilitiesShowcase() {
+export default function FacilitiesShowcase({ facilities: sanityFacilities = [] }: FacilitiesShowcaseProps) {
   const t = useTranslations('campus.facilities');
+  const locale = useLocale() as 'bengali' | 'english';
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchTerm, setSearchTerm] = useState('');
+
+  // Convert Sanity facilities to component format
+  const sanityFacilitiesConverted: Facility[] = sanityFacilities.map((facility) => ({
+    id: facility._id,
+    name: getLocalizedText(facility.name, locale),
+    description: getLocalizedText(facility.description, locale) || '',
+    category: facility.category as any,
+    image: facility.images?.[0] ? `/api/image/${facility.images[0].asset._ref}?w=400&h=300` : '/images/campus/default-facility.jpg',
+    capacity: facility.capacity,
+    features: facility.features?.[locale] || [],
+    icon: getCategoryIcon(facility.category),
+    isModern: true
+  }));
+
+  // Helper function to get category icons
+  function getCategoryIcon(category: string): React.ReactNode {
+    switch (category) {
+      case 'islamic':
+        return <div className="w-6 h-6 text-green-600">🕌</div>;
+      case 'academic':
+        return <BookOpen className="w-6 h-6 text-blue-600" />;
+      case 'recreational':
+        return <Dumbbell className="w-6 h-6 text-orange-600" />;
+      case 'administrative':
+        return <Shield className="w-6 h-6 text-purple-600" />;
+      case 'support':
+        return <Wifi className="w-6 h-6 text-gray-600" />;
+      default:
+        return <MapPin className="w-6 h-6 text-gray-600" />;
+    }
+  }
   const [showFilters, setShowFilters] = useState(false);
 
   const categories = [
@@ -163,7 +201,9 @@ export default function FacilitiesShowcase() {
   ];
 
   const filteredFacilities = useMemo(() => {
-    let filtered = facilities;
+    // Use Sanity data if available, otherwise fallback to hardcoded data
+    const allFacilities = sanityFacilitiesConverted.length > 0 ? sanityFacilitiesConverted : facilities;
+    let filtered = allFacilities;
 
     // Filter by category
     if (selectedCategory !== 'all') {

@@ -5,14 +5,25 @@ import { HeroImage } from '@/components/ui/optimized-image';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 
+import type { SiteSettings, NewsEvent } from '@/types/sanity';
+import { getLocalizedText } from '@/lib/multilingual-content';
+import { useLocale } from 'next-intl';
+
 interface HeroSectionProps {
   className?: string;
+  siteSettings?: SiteSettings | null;
+  featuredNews?: NewsEvent[];
 }
 
-export default function HeroSection({ className = '' }: HeroSectionProps) {
+export default function HeroSection({
+  className = '',
+  siteSettings,
+  featuredNews = [],
+}: HeroSectionProps) {
   const t = useTranslations('homepage');
   const tNav = useTranslations('navigation');
   const tCommon = useTranslations('common');
+  const locale = useLocale() as 'bengali' | 'english';
   const [isVisible, setIsVisible] = useState(false);
 
   // Animation on mount for better UX
@@ -61,44 +72,44 @@ export default function HeroSection({ className = '' }: HeroSectionProps) {
     return () => clearInterval(interval);
   }, [activityImages.length]);
 
-  // Latest news data
-  const latestNews = [
-    {
-      date: '18',
-      month: 'Jan',
-      title:
-        'Alhamdulillah, admission for the Session 2025-2026 is open for the children of age 4 to 6 years at Preschool',
-      isHighlight: true,
-    },
-    {
-      date: '16',
-      month: 'Jan',
-      title:
-        'Classes of Session 2025-2026 will start on 15 July 2025, Insha Allah',
-      isHighlight: false,
-    },
-    {
-      date: '15',
-      month: 'Jan',
-      title:
-        'Annual Quran Competition Results - Our students achieved remarkable success',
-      isHighlight: false,
-    },
-    {
-      date: '12',
-      month: 'Jan',
-      title:
-        'New Science Laboratory inaugurated with modern equipment for better learning',
-      isHighlight: false,
-    },
-    {
-      date: '10',
-      month: 'Jan',
-      title:
-        'Mid-term examinations schedule announced - Preparation guidelines released',
-      isHighlight: false,
-    },
-  ];
+  // Latest news data from Sanity or fallback
+  const latestNews =
+    featuredNews.length > 0
+      ? featuredNews.slice(0, 5).map((news, index) => {
+          const publishDate = new Date(news.publishedAt);
+          return {
+            date: publishDate.getDate().toString(),
+            month: publishDate.toLocaleDateString(
+              locale === 'bengali' ? 'bn-BD' : 'en-US',
+              { month: 'short' }
+            ),
+            title: getLocalizedText(news.title, locale),
+            isHighlight: index === 0 || news.featured,
+          };
+        })
+      : [
+          {
+            date: '18',
+            month: 'Jan',
+            title:
+              'Alhamdulillah, admission for the Session 2025-2026 is open for the children of age 4 to 6 years at Preschool',
+            isHighlight: true,
+          },
+          {
+            date: '16',
+            month: 'Jan',
+            title:
+              'Classes of Session 2025-2026 will start on 15 July 2025, Insha Allah',
+            isHighlight: false,
+          },
+          {
+            date: '15',
+            month: 'Jan',
+            title:
+              'Annual Quran Competition Results - Our students achieved remarkable success',
+            isHighlight: false,
+          },
+        ];
 
   const [currentNewsIndex, setCurrentNewsIndex] = useState(0);
 
@@ -134,12 +145,16 @@ export default function HeroSection({ className = '' }: HeroSectionProps) {
 
               {/* Main Title */}
               <h1 className="text-xl lg:text-2xl xl:text-3xl font-bold text-gray-900 leading-tight">
-                {t('hero.title')}
+                {siteSettings
+                  ? getLocalizedText(siteSettings.title, locale)
+                  : t('hero.title')}
               </h1>
 
               {/* Subtitle */}
               <h2 className="text-sm lg:text-base text-gray-600 leading-tight max-w-lg mx-auto">
-                {t('hero.subtitle')}
+                {siteSettings
+                  ? getLocalizedText(siteSettings.description, locale)
+                  : t('hero.subtitle')}
               </h2>
             </div>
 
@@ -157,9 +172,8 @@ export default function HeroSection({ className = '' }: HeroSectionProps) {
                     alt={image.alt}
                     fill
                     className="object-cover"
-                    onError={e => {
-                      const target = e.target as HTMLImageElement;
-                      target.src = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 400'%3E%3Crect width='800' height='400' fill='%23f8e6c8'/%3E%3Ctext x='400' y='200' text-anchor='middle' dy='0.3em' font-family='Arial' font-size='24' fill='%23b8924f'%3E${image.title}%3C/text%3E%3C/svg%3E`;
+                    onError={() => {
+                      console.log(`Failed to load image: ${image.src}`);
                     }}
                   />
                   {/* Image Overlay with Title */}
@@ -324,27 +338,35 @@ export default function HeroSection({ className = '' }: HeroSectionProps) {
           >
             <div className="text-center">
               <div className="text-4xl font-bold text-primary-700 mb-2">
-                500+
+                {siteSettings?.statistics?.totalStudents || 500}+
               </div>
-              <div className="text-gray-600 font-medium">Students</div>
+              <div className="text-gray-600 font-medium">
+                {t('statistics.students')}
+              </div>
             </div>
             <div className="text-center">
               <div className="text-4xl font-bold text-primary-700 mb-2">
-                25+
+                {siteSettings?.statistics?.teacherCount || 25}+
               </div>
-              <div className="text-gray-600 font-medium">Teachers</div>
+              <div className="text-gray-600 font-medium">
+                {t('statistics.teachers')}
+              </div>
             </div>
             <div className="text-center">
               <div className="text-4xl font-bold text-primary-700 mb-2">
-                15+
+                {siteSettings?.statistics?.yearsOfService || 15}+
               </div>
-              <div className="text-gray-600 font-medium">Years</div>
+              <div className="text-gray-600 font-medium">
+                {t('statistics.years')}
+              </div>
             </div>
             <div className="text-center">
               <div className="text-4xl font-bold text-primary-700 mb-2">
-                95%
+                {siteSettings?.statistics?.graduationRate || 95}%
               </div>
-              <div className="text-gray-600 font-medium">Success Rate</div>
+              <div className="text-gray-600 font-medium">
+                {t('statistics.successRate')}
+              </div>
             </div>
           </div>
         </div>

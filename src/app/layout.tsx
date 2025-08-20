@@ -34,6 +34,7 @@ const amiri = Amiri({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://madrasatul-quran.edu.bd'),
   title: {
     template: '%s | Madrasatul Quran',
     default: 'Madrasatul Quran - Excellence in Islamic Education',

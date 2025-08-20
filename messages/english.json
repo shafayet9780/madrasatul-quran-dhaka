@@ -55,7 +55,8 @@
       "students": "Students",
       "teachers": "Teachers",
       "years": "Years of Experience",
-      "graduates": "Graduates"
+      "graduates": "Graduates",
+      "successRate": "Success Rate"
     }
   },
   "about": {

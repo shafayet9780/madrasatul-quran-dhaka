@@ -14,8 +14,8 @@ interface GalleryImage {
   description?: string;
 }
 
-// Mock data for campus images - in real implementation, this would come from Sanity CMS
-const campusImages: GalleryImage[] = [
+// Fallback data for campus images when Sanity data is not available
+const fallbackCampusImages: GalleryImage[] = [
   {
     id: '1',
     src: '/images/campus/classroom-1.jpg',
@@ -82,9 +82,31 @@ const campusImages: GalleryImage[] = [
   }
 ];
 
-export default function VirtualTourSection() {
+import type { Facility } from '@/types/sanity';
+import { getLocalizedText } from '@/lib/multilingual-content';
+import { useLocale } from 'next-intl';
+
+interface VirtualTourSectionProps {
+  facilities?: Facility[];
+}
+
+export default function VirtualTourSection({ facilities = [] }: VirtualTourSectionProps) {
   const t = useTranslations('campus.virtualTour');
+  const locale = useLocale() as 'bengali' | 'english';
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
+
+  // Convert Sanity facilities to gallery images
+  const sanityImages: GalleryImage[] = facilities.map((facility) => ({
+    id: facility._id,
+    src: facility.images?.[0] ? `/api/image/${facility.images[0].asset._ref}?w=800&h=600` : '/images/campus/default-facility.jpg',
+    alt: facility.images?.[0]?.alt || getLocalizedText(facility.name, locale),
+    title: getLocalizedText(facility.name, locale),
+    category: facility.category as any,
+    description: getLocalizedText(facility.description, locale) || ''
+  }));
+
+  // Use Sanity data if available, otherwise fallback
+  const campusImages = sanityImages.length > 0 ? sanityImages : fallbackCampusImages;
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [mounted, setMounted] = useState(false);
