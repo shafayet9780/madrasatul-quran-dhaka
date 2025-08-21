@@ -207,6 +207,13 @@ export interface SiteSettings {
   title: MultilingualText
   description?: MultilingualText
   logo?: SanityImage
+  heroImages?: Array<{
+    image: SanityImage
+    alt: string
+    title?: MultilingualText
+    description?: MultilingualText
+    order?: number
+  }>
   favicon?: SanityImage
   contactInfo?: ContactInfo
   socialMedia?: SocialMedia

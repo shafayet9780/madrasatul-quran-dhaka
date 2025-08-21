@@ -2,6 +2,18 @@ import { client, getClient } from './sanity';
 import type { QueryParams } from '@sanity/client';
 
 /**
+ * Get revalidation time based on environment
+ * In development, use 0 (no cache) to ensure fresh content
+ * In production, use the provided revalidate time
+ */
+function getRevalidateTime(revalidate: number | false): number | false {
+  if (process.env.NODE_ENV === 'development') {
+    return 0; // No cache in development
+  }
+  return revalidate;
+}
+
+/**
  * Fetch data from Sanity with error handling and caching
  */
 export async function sanityFetch<T>({
@@ -18,7 +30,7 @@ export async function sanityFetch<T>({
   try {
     const data = await client.fetch<T>(query, params, {
       next: {
-        revalidate: revalidate === false ? false : revalidate,
+        revalidate: getRevalidateTime(revalidate),
         tags,
       },
     });
@@ -52,7 +64,7 @@ export async function sanityFetchWithPreview<T>({
       next: preview
         ? { revalidate: 0 } // No caching in preview mode
         : {
-            revalidate: revalidate === false ? false : revalidate,
+            revalidate: getRevalidateTime(revalidate),
             tags,
           },
     });
@@ -64,12 +76,38 @@ export async function sanityFetchWithPreview<T>({
 }
 
 /**
+ * Force refresh content in development mode
+ * This function can be called to manually trigger a refresh
+ */
+export async function forceRefreshContent<T>({
+  query,
+  params = {},
+  tags = [],
+}: {
+  query: string;
+  params?: QueryParams;
+  tags?: string[];
+}): Promise<T> {
+  try {
+    const data = await client.fetch<T>(query, params, {
+      next: {
+        revalidate: 0, // Force no cache
+        tags,
+      },
+    });
+    return data;
+  } catch (error) {
+    console.error('Sanity force refresh error:', error);
+    throw new Error(`Failed to force refresh data: ${error}`);
+  }
+}
+
+/**
  * Revalidate specific tags
  */
 export function revalidateTags(tags: string[]) {
   // This would be used with Next.js revalidateTag function
   // Implementation depends on the specific Next.js setup
-  console.log('Revalidating tags:', tags);
 }
 
 /**

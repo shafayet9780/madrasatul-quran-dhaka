@@ -6,10 +6,10 @@ const builder = imageUrlBuilder(client);
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { ref: string } }
+  { params }: { params: Promise<{ ref: string }> }
 ) {
   try {
-    const { ref } = params;
+    const { ref } = await params;
     const { searchParams } = new URL(request.url);
     
     // Get query parameters for image transformations

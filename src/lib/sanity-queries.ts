@@ -44,6 +44,19 @@ export const siteSettingsQuery = groq`
     logo {
       ${imageFields}
     },
+    heroImages[] {
+      image {
+        ${imageFields}
+      },
+      alt,
+      title {
+        ${multilingualTextFields}
+      },
+      description {
+        ${multilingualTextFields}
+      },
+      order
+    },
     favicon {
       ${imageFields}
     },

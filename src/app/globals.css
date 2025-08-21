@@ -1,17 +1,17 @@
 @import 'tailwindcss';
 
 @theme {
-  /* Vibrant Sand Beach Primary Colors - Rich Warm Sands */
-  --color-primary-50: #fefdf9;
-  --color-primary-100: #fef9f1;
-  --color-primary-200: #fcf2e3;
-  --color-primary-300: #f8e6c8;
-  --color-primary-400: #f2d7a3;
-  --color-primary-500: #e6c078;
-  --color-primary-600: #d4a862;
-  --color-primary-700: #b8924f;
-  --color-primary-800: #9a7a42;
-  --color-primary-900: #7d6235;
+  /* Rich Brown Primary Colors - #8a5e3d Theme */
+  --color-primary-50: #fdfbf8;
+  --color-primary-100: #faf6f0;
+  --color-primary-200: #f4ede3;
+  --color-primary-300: #ecdfd0;
+  --color-primary-400: #e0cbb5;
+  --color-primary-500: #d1b394;
+  --color-primary-600: #c19a73;
+  --color-primary-700: #a87f5a;
+  --color-primary-800: #8a5e3d;
+  --color-primary-900: #6f4c31;
 
   /* Vibrant Ocean Blue Secondary Colors - Tropical Sea Blues */
   --color-secondary-50: #f0fbff;
@@ -46,17 +46,17 @@
 @layer base {
   /* CSS Variables for theming */
   :root {
-    /* Vibrant Sand Beach Theme Colors */
-    --color-islamic-primary: #b8924f;
-    --color-islamic-secondary: #d4a862;
+    /* Rich Brown Theme Colors - #8a5e3d */
+    --color-islamic-primary: #8a5e3d;
+    --color-islamic-secondary: #a87f5a;
     --color-islamic-accent: #f7b32b;
-    --color-islamic-light: #fef9f1;
-    --color-islamic-dark: #7d6235;
+    --color-islamic-light: #faf6f0;
+    --color-islamic-dark: #6f4c31;
     --color-ocean-blue: #0891d4;
     --color-sunset-orange: #e89611;
-    --color-sand-light: #fefdf9;
-    --color-sand-medium: #f8e6c8;
-    --color-sand-dark: #9a7a42;
+    --color-sand-light: #fdfbf8;
+    --color-sand-medium: #ecdfd0;
+    --color-sand-dark: #8a5e3d;
     --color-text-primary: #5a4a35;
     --color-text-secondary: #8b7355;
     --color-text-light: #a68b6b;
@@ -64,17 +64,17 @@
 
   /* Dark mode variables */
   [data-theme='dark'] {
-    /* Vibrant Sand Beach Dark Theme */
-    --color-islamic-primary: #f8e6c8;
-    --color-islamic-secondary: #f2d7a3;
+    /* Rich Brown Dark Theme */
+    --color-islamic-primary: #ecdfd0;
+    --color-islamic-secondary: #e0cbb5;
     --color-islamic-accent: #f9c74f;
-    --color-islamic-light: #7d6235;
-    --color-islamic-dark: #fefdf9;
+    --color-islamic-light: #6f4c31;
+    --color-islamic-dark: #fdfbf8;
     --color-ocean-blue: #38c4ff;
     --color-sunset-orange: #f9c74f;
-    --color-text-primary: #f8e6c8;
-    --color-text-secondary: #e6c078;
-    --color-text-light: #d4a862;
+    --color-text-primary: #ecdfd0;
+    --color-text-secondary: #d1b394;
+    --color-text-light: #c19a73;
   }
 
   /* Base styles */
@@ -85,7 +85,7 @@
 
   body {
     color: var(--color-text-primary);
-    background: linear-gradient(135deg, #fefdf9 0%, #fef9f1 100%);
+    background: linear-gradient(135deg, #fdfbf8 0%, #faf6f0 100%);
     min-height: 100vh;
     font-feature-settings:
       'kern' 1,

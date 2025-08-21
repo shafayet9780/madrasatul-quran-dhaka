@@ -61,6 +61,84 @@ export const siteSettings = defineType({
       ],
     }),
     defineField({
+      name: 'heroImages',
+      title: 'Homepage Hero Images',
+      description: 'Images for the homepage hero section gallery (recommended: 5 images)',
+      type: 'array',
+      of: [
+        {
+          type: 'object',
+          fields: [
+            {
+              name: 'image',
+              title: 'Image',
+              type: 'image',
+              options: {
+                hotspot: true,
+              },
+              validation: (Rule) => Rule.required(),
+            },
+            {
+              name: 'alt',
+              title: 'Alternative Text',
+              type: 'string',
+              validation: (Rule) => Rule.required(),
+            },
+            {
+              name: 'title',
+              title: 'Image Title',
+              type: 'object',
+              fields: [
+                {
+                  name: 'bengali',
+                  title: 'Bengali Title',
+                  type: 'string',
+                },
+                {
+                  name: 'english',
+                  title: 'English Title',
+                  type: 'string',
+                },
+              ],
+            },
+            {
+              name: 'description',
+              title: 'Description',
+              type: 'object',
+              fields: [
+                {
+                  name: 'bengali',
+                  title: 'Bengali Description',
+                  type: 'text',
+                  rows: 2,
+                },
+                {
+                  name: 'english',
+                  title: 'English Description',
+                  type: 'text',
+                  rows: 2,
+                },
+              ],
+            },
+            {
+              name: 'order',
+              title: 'Display Order',
+              type: 'number',
+              description: 'Order in which this image appears in the gallery (1, 2, 3, etc.)',
+            },
+          ],
+          preview: {
+            select: {
+              title: 'title.english',
+              subtitle: 'title.bengali',
+              media: 'image',
+            },
+          },
+        },
+      ],
+      validation: (Rule) => Rule.max(10).min(1),
+    }),
+    defineField({
       name: 'favicon',
       title: 'Favicon',
       type: 'image',

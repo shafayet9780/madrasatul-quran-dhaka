@@ -7,8 +7,14 @@ import Link from 'next/link';
 import { Menu, X, ChevronDown, Phone } from 'lucide-react';
 import LanguageToggle from '@/components/language-toggle';
 import { type Locale } from '@/lib/i18n';
+import type { SiteSettings } from '@/types/sanity';
+import { getLocalizedText } from '@/lib/multilingual-content';
 
-export default function Header() {
+interface HeaderProps {
+  siteSettings?: SiteSettings | null;
+}
+
+export default function Header({ siteSettings }: HeaderProps) {
   const t = useTranslations('navigation');
   const tCommon = useTranslations('common');
   const locale = useLocale() as Locale;
@@ -16,6 +22,20 @@ export default function Header() {
   const [isProgramsDropdownOpen, setIsProgramsDropdownOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Get site title from settings or fallback
+  const siteTitle = siteSettings?.title 
+    ? getLocalizedText(siteSettings.title, locale)
+    : (locale === 'bengali' ? 'মাদরাসাতুল কুরআন' : 'Madrasatul Quran');
+
+  const siteSubtitle = locale === 'bengali' 
+    ? 'ইসলামী শিক্ষায় উৎকর্ষতা' 
+    : 'Excellence in Islamic Education';
+
+  // Get logo URL from settings
+  const logoUrl = siteSettings?.logo 
+    ? `/api/image/${siteSettings.logo.asset._ref}?w=80&h=80`
+    : null;
 
   // Handle mounting for portal
   useEffect(() => {
@@ -241,15 +261,23 @@ export default function Header() {
           <div className="flex items-center justify-between h-16 md:h-18">
             {/* Compact Logo */}
             <div className="flex items-center space-x-3 flex-shrink-0 min-w-0">
-              <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center">
-                <span className="text-lg font-bold text-primary-700">🏛️</span>
+              <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center overflow-hidden">
+                {logoUrl ? (
+                  <img 
+                    src={logoUrl} 
+                    alt={siteSettings?.logo?.alt || 'Institution Logo'}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <span className="text-lg font-bold text-primary-700">🏛️</span>
+                )}
               </div>
               <div className="flex flex-col">
                 <div className="text-base md:text-lg font-bold text-primary-700 leading-tight">
-                  মাদরাসাতুল কুরআন
+                  {siteTitle}
                 </div>
                 <div className="text-xs text-primary-600 hidden md:block">
-                  Excellence in Islamic Education
+                  {siteSubtitle}
                 </div>
               </div>
             </div>

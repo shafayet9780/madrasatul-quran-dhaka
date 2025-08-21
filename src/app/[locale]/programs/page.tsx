@@ -28,6 +28,7 @@ export default async function ProgramsPage({ params }: ProgramsPageProps) {
   const programs = await sanityFetch<AcademicProgram[]>({
     query: allAcademicProgramsQuery,
     tags: ['academicProgram'],
+    revalidate: process.env.NODE_ENV === 'development' ? 0 : 60, // No cache in development
   });
 
   return (

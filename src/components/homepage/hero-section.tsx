@@ -33,33 +33,50 @@ export default function HeroSection({
   }, []);
 
   // Activity images for the gallery
-  const activityImages = [
+  const sanityImages = siteSettings?.heroImages && siteSettings.heroImages.length > 0
+    ? siteSettings.heroImages
+        .sort((a, b) => (a.order || 0) - (b.order || 0))
+        .map((heroImage) => ({
+          image: heroImage.image, // Pass the Sanity image object directly
+          alt: heroImage.alt,
+          title: getLocalizedText(heroImage.title, locale) || 'Activity Image',
+        }))
+    : null;
+
+  const fallbackImages = [
     {
-      src: '/images/activities/classroom-learning.jpg',
+      image: '/images/activities/classroom-learning.jpg',
       alt: 'Students in classroom learning session',
       title: 'Interactive Learning',
     },
     {
-      src: '/images/activities/quran-recitation.jpg',
+      image: '/images/activities/quran-recitation.jpg',
       alt: 'Students reciting Quran',
       title: 'Quran Recitation',
     },
     {
-      src: '/images/activities/science-lab.jpg',
+      image: '/images/activities/science-lab.jpg',
       alt: 'Students in science laboratory',
       title: 'Science Laboratory',
     },
     {
-      src: '/images/activities/sports-activities.jpg',
+      image: '/images/activities/sports-activities.jpg',
       alt: 'Students participating in sports',
       title: 'Sports & Recreation',
     },
     {
-      src: '/images/activities/cultural-program.jpg',
+      image: '/images/activities/cultural-program.jpg',
       alt: 'Cultural program performance',
       title: 'Cultural Programs',
     },
   ];
+
+  // Use Sanity images if available (even if just 1), otherwise use fallback
+  const activityImages = sanityImages && sanityImages.length > 0 
+    ? sanityImages 
+    : fallbackImages;
+
+
 
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
@@ -168,12 +185,12 @@ export default function HeroSection({
                   }`}
                 >
                   <HeroImage
-                    image={image.src}
+                    image={image.image}
                     alt={image.alt}
                     fill
                     className="object-cover"
                     onError={() => {
-                      console.log(`Failed to load image: ${image.src}`);
+                      // Image failed to load
                     }}
                   />
                   {/* Image Overlay with Title */}

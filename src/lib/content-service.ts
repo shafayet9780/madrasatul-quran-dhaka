@@ -1,4 +1,5 @@
 import { client, previewClient } from './sanity';
+import { sanityFetch } from './sanity-fetch';
 import { 
   siteSettingsQuery,
   allPagesQuery,
@@ -29,9 +30,11 @@ import type {
  */
 export class ContentService {
   private client;
+  private isPreview: boolean;
 
   constructor(preview = false) {
     this.client = preview ? previewClient : client;
+    this.isPreview = preview;
   }
 
   /**
@@ -39,7 +42,14 @@ export class ContentService {
    */
   async getSiteSettings(): Promise<SiteSettings | null> {
     try {
-      return await this.client.fetch(siteSettingsQuery);
+      if (this.isPreview) {
+        return await this.client.fetch(siteSettingsQuery);
+      }
+      return await sanityFetch({
+        query: siteSettingsQuery,
+        tags: ['siteSettings'],
+        revalidate: process.env.NODE_ENV === 'development' ? 0 : 60, // No cache in development
+      });
     } catch (error) {
       console.error('Error fetching site settings:', error);
       return null;
@@ -51,7 +61,14 @@ export class ContentService {
    */
   async getAllPages(): Promise<Page[]> {
     try {
-      return await this.client.fetch(allPagesQuery);
+      if (this.isPreview) {
+        return await this.client.fetch(allPagesQuery);
+      }
+      return await sanityFetch({
+        query: allPagesQuery,
+        tags: ['page'],
+        revalidate: process.env.NODE_ENV === 'development' ? 0 : 60,
+      });
     } catch (error) {
       console.error('Error fetching pages:', error);
       return [];
@@ -60,7 +77,15 @@ export class ContentService {
 
   async getPageBySlug(slug: string): Promise<Page | null> {
     try {
-      return await this.client.fetch(pageBySlugQuery, { slug });
+      if (this.isPreview) {
+        return await this.client.fetch(pageBySlugQuery, { slug });
+      }
+      return await sanityFetch({
+        query: pageBySlugQuery,
+        params: { slug },
+        tags: ['page'],
+        revalidate: process.env.NODE_ENV === 'development' ? 0 : 60,
+      });
     } catch (error) {
       console.error(`Error fetching page with slug ${slug}:`, error);
       return null;
@@ -72,7 +97,14 @@ export class ContentService {
    */
   async getAllNewsEvents(): Promise<NewsEvent[]> {
     try {
-      return await this.client.fetch(allNewsEventsQuery);
+      if (this.isPreview) {
+        return await this.client.fetch(allNewsEventsQuery);
+      }
+      return await sanityFetch({
+        query: allNewsEventsQuery,
+        tags: ['newsEvent'],
+        revalidate: process.env.NODE_ENV === 'development' ? 0 : 60,
+      });
     } catch (error) {
       console.error('Error fetching news events:', error);
       return [];
@@ -82,7 +114,14 @@ export class ContentService {
   async getFeaturedNewsEvents(limit = 6): Promise<NewsEvent[]> {
     try {
       const query = featuredNewsEventsQuery.replace('[0...6]', `[0...${limit}]`);
-      return await this.client.fetch(query);
+      if (this.isPreview) {
+        return await this.client.fetch(query);
+      }
+      return await sanityFetch({
+        query,
+        tags: ['newsEvent'],
+        revalidate: process.env.NODE_ENV === 'development' ? 0 : 60,
+      });
     } catch (error) {
       console.error('Error fetching featured news events:', error);
       return [];
@@ -91,7 +130,15 @@ export class ContentService {
 
   async getNewsEventBySlug(slug: string): Promise<NewsEvent | null> {
     try {
-      return await this.client.fetch(newsEventBySlugQuery, { slug });
+      if (this.isPreview) {
+        return await this.client.fetch(newsEventBySlugQuery, { slug });
+      }
+      return await sanityFetch({
+        query: newsEventBySlugQuery,
+        params: { slug },
+        tags: ['newsEvent'],
+        revalidate: process.env.NODE_ENV === 'development' ? 0 : 60,
+      });
     } catch (error) {
       console.error(`Error fetching news event with slug ${slug}:`, error);
       return null;
@@ -167,7 +214,15 @@ export class ContentService {
           publishedAt
         }
       `;
-      return await this.client.fetch(query, { today });
+      if (this.isPreview) {
+        return await this.client.fetch(query, { today });
+      }
+      return await sanityFetch({
+        query,
+        params: { today },
+        tags: ['newsEvent'],
+        revalidate: process.env.NODE_ENV === 'development' ? 0 : 60,
+      });
     } catch (error) {
       console.error('Error fetching upcoming events:', error);
       return [];
@@ -207,7 +262,15 @@ export class ContentService {
           publishedAt
         }
       `;
-      return await this.client.fetch(query, { searchTerm });
+      if (this.isPreview) {
+        return await this.client.fetch(query, { searchTerm });
+      }
+      return await sanityFetch({
+        query,
+        params: { searchTerm },
+        tags: ['newsEvent'],
+        revalidate: process.env.NODE_ENV === 'development' ? 0 : 60,
+      });
     } catch (error) {
       console.error(`Error searching news events with term ${searchTerm}:`, error);
       return [];
@@ -219,7 +282,14 @@ export class ContentService {
    */
   async getAllAcademicPrograms(): Promise<AcademicProgram[]> {
     try {
-      return await this.client.fetch(allAcademicProgramsQuery);
+      if (this.isPreview) {
+        return await this.client.fetch(allAcademicProgramsQuery);
+      }
+      return await sanityFetch({
+        query: allAcademicProgramsQuery,
+        tags: ['academicProgram'],
+        revalidate: process.env.NODE_ENV === 'development' ? 0 : 60,
+      });
     } catch (error) {
       console.error('Error fetching academic programs:', error);
       return [];
@@ -228,7 +298,15 @@ export class ContentService {
 
   async getAcademicProgramBySlug(slug: string): Promise<AcademicProgram | null> {
     try {
-      return await this.client.fetch(academicProgramBySlugQuery, { slug });
+      if (this.isPreview) {
+        return await this.client.fetch(academicProgramBySlugQuery, { slug });
+      }
+      return await sanityFetch({
+        query: academicProgramBySlugQuery,
+        params: { slug },
+        tags: ['academicProgram'],
+        revalidate: process.env.NODE_ENV === 'development' ? 0 : 60,
+      });
     } catch (error) {
       console.error(`Error fetching academic program with slug ${slug}:`, error);
       return null;
@@ -240,7 +318,14 @@ export class ContentService {
    */
   async getAllStaff(): Promise<StaffMember[]> {
     try {
-      return await this.client.fetch(allStaffQuery);
+      if (this.isPreview) {
+        return await this.client.fetch(allStaffQuery);
+      }
+      return await sanityFetch({
+        query: allStaffQuery,
+        tags: ['staffMember'],
+        revalidate: process.env.NODE_ENV === 'development' ? 0 : 60,
+      });
     } catch (error) {
       console.error('Error fetching staff:', error);
       return [];
@@ -249,7 +334,14 @@ export class ContentService {
 
   async getLeadershipTeam(): Promise<StaffMember[]> {
     try {
-      return await this.client.fetch(leadershipTeamQuery);
+      if (this.isPreview) {
+        return await this.client.fetch(leadershipTeamQuery);
+      }
+      return await sanityFetch({
+        query: leadershipTeamQuery,
+        tags: ['staffMember'],
+        revalidate: process.env.NODE_ENV === 'development' ? 0 : 60,
+      });
     } catch (error) {
       console.error('Error fetching leadership team:', error);
       return [];
@@ -282,7 +374,15 @@ export class ContentService {
           isLeadership
         }
       `;
-      return await this.client.fetch(query, { department });
+      if (this.isPreview) {
+        return await this.client.fetch(query, { department });
+      }
+      return await sanityFetch({
+        query,
+        params: { department },
+        tags: ['staffMember'],
+        revalidate: process.env.NODE_ENV === 'development' ? 0 : 60,
+      });
     } catch (error) {
       console.error(`Error fetching staff by department ${department}:`, error);
       return [];
@@ -294,7 +394,14 @@ export class ContentService {
    */
   async getAllFacilities(): Promise<Facility[]> {
     try {
-      return await this.client.fetch(allFacilitiesQuery);
+      if (this.isPreview) {
+        return await this.client.fetch(allFacilitiesQuery);
+      }
+      return await sanityFetch({
+        query: allFacilitiesQuery,
+        tags: ['facility'],
+        revalidate: process.env.NODE_ENV === 'development' ? 0 : 60,
+      });
     } catch (error) {
       console.error('Error fetching facilities:', error);
       return [];
@@ -303,7 +410,14 @@ export class ContentService {
 
   async getFeaturedFacilities(): Promise<Facility[]> {
     try {
-      return await this.client.fetch(featuredFacilitiesQuery);
+      if (this.isPreview) {
+        return await this.client.fetch(featuredFacilitiesQuery);
+      }
+      return await sanityFetch({
+        query: featuredFacilitiesQuery,
+        tags: ['facility'],
+        revalidate: process.env.NODE_ENV === 'development' ? 0 : 60,
+      });
     } catch (error) {
       console.error('Error fetching featured facilities:', error);
       return [];
@@ -312,7 +426,15 @@ export class ContentService {
 
   async getFacilityBySlug(slug: string): Promise<Facility | null> {
     try {
-      return await this.client.fetch(facilityBySlugQuery, { slug });
+      if (this.isPreview) {
+        return await this.client.fetch(facilityBySlugQuery, { slug });
+      }
+      return await sanityFetch({
+        query: facilityBySlugQuery,
+        params: { slug },
+        tags: ['facility'],
+        revalidate: process.env.NODE_ENV === 'development' ? 0 : 60,
+      });
     } catch (error) {
       console.error(`Error fetching facility with slug ${slug}:`, error);
       return null;
@@ -350,7 +472,15 @@ export class ContentService {
           featured
         }
       `;
-      return await this.client.fetch(query, { category });
+      if (this.isPreview) {
+        return await this.client.fetch(query, { category });
+      }
+      return await sanityFetch({
+        query,
+        params: { category },
+        tags: ['facility'],
+        revalidate: process.env.NODE_ENV === 'development' ? 0 : 60,
+      });
     } catch (error) {
       console.error(`Error fetching facilities by category ${category}:`, error);
       return [];

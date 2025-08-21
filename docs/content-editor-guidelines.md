@@ -282,6 +282,105 @@ For each content item, provide:
 - Maintain consistent naming conventions
 - Back up important media assets
 
+## Managing Institution Logo and Hero Images
+
+### Adding Institution Logo
+
+1. **Navigate to Site Settings:**
+   - Go to your Sanity Studio
+   - Click on **"Site Settings"** in the left sidebar
+   - This is where you manage global site configuration
+
+2. **Upload Logo:**
+   - Find the **"Logo"** field
+   - Click to upload your institution logo
+   - **Recommended size:** 200x80px or similar aspect ratio
+   - **Format:** PNG or SVG for best quality
+   - Add **Alternative Text** for accessibility
+
+3. **Use Hotspot Feature:**
+   - After uploading, you can adjust the focus area using the hotspot tool
+   - This ensures the logo displays correctly at different sizes
+
+4. **Publish Changes:**
+   - Click **"Publish"** to make the logo live on your website
+
+### Managing Homepage Hero Images
+
+1. **Access Hero Images Section:**
+   - In **Site Settings**, scroll down to **"Homepage Hero Images"**
+   - This section manages the rotating image gallery on your homepage
+
+2. **Add Hero Images:**
+   - Click **"Add item"** to add a new hero image
+   - **Recommended:** 5-10 images for variety
+   - **Image size:** 1200x800px or 16:9 aspect ratio
+   - **Format:** JPG or PNG
+
+3. **Configure Each Image:**
+   - **Image:** Upload the main image
+   - **Alternative Text:** Describe the image for accessibility
+   - **Title:** Add bilingual titles (Bengali and English)
+   - **Description:** Optional bilingual descriptions
+   - **Display Order:** Set the order (1, 2, 3, etc.)
+
+4. **Image Categories to Include:**
+   - Classroom learning activities
+   - Quran recitation sessions
+   - Science laboratory work
+   - Sports and recreation
+   - Cultural programs
+   - Campus facilities
+   - Student achievements
+
+5. **Best Practices:**
+   - Use high-quality, well-lit images
+   - Ensure images represent your institution's values
+   - Include diverse student activities
+   - Keep file sizes reasonable (under 2MB per image)
+   - Use consistent aspect ratios for uniform display
+
+6. **Publish Changes:**
+   - Click **"Publish"** to update the homepage gallery
+
+### Image Guidelines
+
+**Logo Requirements:**
+- Clear, professional design
+- Works well on light and dark backgrounds
+- Scalable without losing quality
+- Represents your institution's identity
+
+**Hero Image Requirements:**
+- High resolution (minimum 1200px wide)
+- Good lighting and composition
+- Shows active learning environments
+- Represents your educational philosophy
+- Includes students and teachers in action
+
+**Accessibility:**
+- Always provide meaningful alternative text
+- Describe what's happening in the image
+- Include context about the activity or location
+
+### Troubleshooting
+
+**Images not appearing:**
+1. Ensure images are published in Sanity
+2. Check that the development server is running
+3. Clear browser cache and refresh
+4. Verify image file formats are supported
+
+**Logo display issues:**
+1. Check image dimensions and aspect ratio
+2. Ensure logo has transparent background if needed
+3. Test on different screen sizes
+
+**Hero gallery not rotating:**
+1. Verify multiple images are added
+2. Check that images have proper titles
+3. Ensure images are published and accessible
+
 ## Publishing Workflow
 
 ### Content States
