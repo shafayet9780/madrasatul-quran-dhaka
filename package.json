@@ -18,7 +18,10 @@
     "test-content": "node scripts/test-content-integration.js",
     "test-content:ts": "tsx scripts/test-content-integration.ts",
     "populate-sanity:node": "node -r ts-node/register scripts/populate-sanity-data.ts",
-    "test-content:node": "node -r ts-node/register scripts/test-content-integration.ts"
+    "test-content:node": "node -r ts-node/register scripts/test-content-integration.ts",
+    "populate:footer": "tsx scripts/populate-footer-data.ts",
+    "populate:footer:js": "node scripts/populate-footer-data.js",
+    "populate:centralized": "node scripts/populate-centralized-data.js"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",

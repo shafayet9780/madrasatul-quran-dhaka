@@ -241,7 +241,27 @@ src/
 
 ## Content Management System
 
-The website uses Sanity CMS for content management with the following features:
+The website uses Sanity CMS for comprehensive content management with enhanced multilingual support and structured data organization:
+
+### Enhanced Type System
+
+The project features a comprehensive TypeScript type system (`src/types/sanity.ts`) with:
+
+**Contact Information Management**:
+- **Structured Phone Numbers**: Categorized by type (main, admission, principal, emergency, department) with primary/active flags
+- **Organized Email Addresses**: Typed by purpose (info, admission, principal, academic, support) with status management
+- **Department Contacts**: Role-based contact organization with head assignments and contact details
+
+**Social Media & Communication**:
+- **Social Media Links**: Platform-specific configuration with icons, ordering, and active status
+- **Prayer Times**: Multilingual prayer names with time management and display ordering
+- **Office Hours**: Multilingual scheduling information
+
+**Content Structure**:
+- **Multilingual Text**: Consistent Bengali/English content support across all content types
+- **Portable Text**: Rich content editing with Sanity's block editor
+- **Image Management**: Advanced image handling with hotspot, crop, and caption support
+- **SEO Integration**: Structured metadata and Open Graph support
 
 ### Sanity Client Configuration
 
@@ -255,6 +275,13 @@ The Sanity client is configured in `src/lib/sanity.ts` using `next-sanity` for o
 
 ### Content Types
 
+- **Site Settings**: Global site configuration with enhanced contact management
+  - Multilingual title, description, and SEO settings
+  - Advanced contact information with categorized phone/email entries
+  - Social media links with platform icons and ordering
+  - Prayer times management with multilingual names
+  - Department contacts with role-based organization
+  - School statistics and achievements tracking
 - **Pages**: General website pages with multilingual content
 - **News & Events**: News articles, events, achievements, and announcements
 - **Academic Programs**: Comprehensive curriculum management with:
@@ -262,17 +289,85 @@ The Sanity client is configured in `src/lib/sanity.ts` using `next-sanity` for o
   - NCTB curriculum integration with subject-wise breakdown
   - Co-curricular activities with category-based organization
   - Prerequisites and learning outcomes tracking
-- **Staff Members**: Faculty and administration profiles
-- **Facilities**: Campus facilities with photo galleries
-- **Site Settings**: Global site configuration and contact information
+- **Staff Members**: Faculty and administration profiles with department categorization
+- **Facilities**: Campus facilities with photo galleries and safety features
+- **Footer Settings**: Dedicated footer content management with global settings integration
+
+### Footer System with Global Settings Integration
+
+The footer system has been redesigned to use global settings references instead of duplicating content:
+
+**Global Settings Integration**:
+- **Contact Information**: Footer references Site Settings contact info via `useGlobalContactInfo` flag
+- **Social Media Links**: Footer uses Site Settings social media via `useGlobalSocialLinks` flag  
+- **Prayer Times**: Footer displays Site Settings prayer times via `useGlobalPrayerTimes` flag
+
+**Footer-Specific Content**:
+- **Quick Links**: Navigation links specific to footer (About, Programs, Contact, etc.)
+- **Legal Links**: Privacy policy, terms of service, and other legal pages
+- **Copyright Text**: Multilingual copyright information
+- **Title & Description**: Footer-specific branding and description text
+
+**TypeScript Integration**:
+- **Enhanced Types**: `FooterSettings` interface now includes centralized data types
+- **Type Safety**: Proper typing for contact info, social links, and prayer times
+- **Custom Icons**: Social media icons use custom SVG components instead of deprecated Lucide icons
+- **Smart Fallbacks**: Graceful fallback to hardcoded data when CMS data is unavailable
+
+**Benefits**:
+- **Consistency**: Contact info, social links, and prayer times stay synchronized across the site
+- **Maintainability**: Update contact information once in Site Settings, reflects everywhere
+- **Flexibility**: Can still override with custom footer content by setting flags to false
+- **Performance**: Reduces data duplication and query complexity
+- **Type Safety**: Full TypeScript support with proper error handling
+
+**Footer Query Structure**:
+```typescript
+// Footer query now uses boolean flags instead of duplicating data
+const footerQuery = groq`
+  *[_type == "footer" && isActive == true][0] {
+    title { bengali, english },
+    useGlobalContactInfo,    // References Site Settings
+    useGlobalSocialLinks,    // References Site Settings  
+    useGlobalPrayerTimes,    // References Site Settings
+    quickLinks[] { ... },    // Footer-specific links
+    legalLinks[] { ... },    // Footer-specific legal links
+    copyright { bengali, english }
+  }
+`
+```
+
+**TypeScript Enhancements**:
+```typescript
+// Enhanced FooterSettings interface with centralized data support
+export interface FooterSettings {
+  // ... other fields
+  contactInfo?: ContactInfo        // Populated from Site Settings
+  socialLinks?: SocialMediaLink[]  // Populated from Site Settings
+  prayerTimes?: PrayerTime[]      // Populated from Site Settings
+}
+
+// Smart contact info handling with proper typing
+const contactInfo = {
+  phone: footerSettings?.contactInfo?.phone?.find(p => p.isPrimary)?.number || 
+         footerSettings?.contactInfo?.phone?.[0]?.number || 
+         '+880 1234 567890',
+  // ... other fields with proper fallbacks
+};
+```
 
 ### Usage Example
 
 ```typescript
 import { client, previewClient, urlFor, getClient } from '@/lib/sanity';
+import type { SiteSettings, ContactInfo, SocialMediaLink } from '@/types/sanity';
 
 // Fetch published content using main client
-const data = await client.fetch(query);
+const siteSettings: SiteSettings = await client.fetch('*[_type == "siteSettings"][0]');
+
+// Access structured contact information
+const primaryPhone = siteSettings.contactInfo?.phone?.find(p => p.isPrimary && p.isActive);
+const admissionEmail = siteSettings.contactInfo?.email?.find(e => e.type === 'admission' && e.isActive);
 
 // Fetch draft content using preview client
 const draftData = await previewClient.fetch(query);
@@ -287,6 +382,9 @@ const imageUrl = urlFor(image)
   .format('webp')
   .quality(85)
   .url();
+
+// Access social media links with proper typing
+const activeSocialLinks: SocialMediaLink[] = siteSettings.socialMedia?.filter(link => link.isActive) || [];
 ```
 
 ## Environment Variables

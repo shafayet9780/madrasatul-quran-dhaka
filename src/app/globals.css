@@ -1,17 +1,17 @@
 @import 'tailwindcss';
 
 @theme {
-  /* Rich Brown Primary Colors - #8a5e3d Theme */
-  --color-primary-50: #fdfbf8;
-  --color-primary-100: #faf6f0;
-  --color-primary-200: #f4ede3;
-  --color-primary-300: #ecdfd0;
-  --color-primary-400: #e0cbb5;
-  --color-primary-500: #d1b394;
-  --color-primary-600: #c19a73;
-  --color-primary-700: #a87f5a;
-  --color-primary-800: #8a5e3d;
-  --color-primary-900: #6f4c31;
+  /* Warm Brown Primary Colors - #a97c50 Theme */
+  --color-primary-50: #fefcf9;
+  --color-primary-100: #fdf8f2;
+  --color-primary-200: #f9f0e4;
+  --color-primary-300: #f3e4d1;
+  --color-primary-400: #ebd2b5;
+  --color-primary-500: #dfbb91;
+  --color-primary-600: #d09e6b;
+  --color-primary-700: #bc8654;
+  --color-primary-800: #a97c50;
+  --color-primary-900: #8a6441;
 
   /* Vibrant Ocean Blue Secondary Colors - Tropical Sea Blues */
   --color-secondary-50: #f0fbff;
@@ -46,35 +46,35 @@
 @layer base {
   /* CSS Variables for theming */
   :root {
-    /* Rich Brown Theme Colors - #8a5e3d */
-    --color-islamic-primary: #8a5e3d;
-    --color-islamic-secondary: #a87f5a;
+    /* Warm Brown Theme Colors - #a97c50 */
+    --color-islamic-primary: #a97c50;
+    --color-islamic-secondary: #bc8654;
     --color-islamic-accent: #f7b32b;
-    --color-islamic-light: #faf6f0;
-    --color-islamic-dark: #6f4c31;
+    --color-islamic-light: #fdf8f2;
+    --color-islamic-dark: #8a6441;
     --color-ocean-blue: #0891d4;
     --color-sunset-orange: #e89611;
-    --color-sand-light: #fdfbf8;
-    --color-sand-medium: #ecdfd0;
-    --color-sand-dark: #8a5e3d;
-    --color-text-primary: #5a4a35;
-    --color-text-secondary: #8b7355;
-    --color-text-light: #a68b6b;
+    --color-sand-light: #fefcf9;
+    --color-sand-medium: #f3e4d1;
+    --color-sand-dark: #a97c50;
+    --color-text-primary: #5c4d3a;
+    --color-text-secondary: #8f7a5e;
+    --color-text-light: #b39478;
   }
 
   /* Dark mode variables */
   [data-theme='dark'] {
-    /* Rich Brown Dark Theme */
-    --color-islamic-primary: #ecdfd0;
-    --color-islamic-secondary: #e0cbb5;
+    /* Warm Brown Dark Theme */
+    --color-islamic-primary: #f3e4d1;
+    --color-islamic-secondary: #ebd2b5;
     --color-islamic-accent: #f9c74f;
-    --color-islamic-light: #6f4c31;
-    --color-islamic-dark: #fdfbf8;
+    --color-islamic-light: #8a6441;
+    --color-islamic-dark: #fefcf9;
     --color-ocean-blue: #38c4ff;
     --color-sunset-orange: #f9c74f;
-    --color-text-primary: #ecdfd0;
-    --color-text-secondary: #d1b394;
-    --color-text-light: #c19a73;
+    --color-text-primary: #f3e4d1;
+    --color-text-secondary: #dfbb91;
+    --color-text-light: #d09e6b;
   }
 
   /* Base styles */
@@ -85,7 +85,7 @@
 
   body {
     color: var(--color-text-primary);
-    background: linear-gradient(135deg, #fdfbf8 0%, #faf6f0 100%);
+    background: linear-gradient(135deg, #fefcf9 0%, #fdf8f2 100%);
     min-height: 100vh;
     font-feature-settings:
       'kern' 1,
@@ -158,7 +158,7 @@ slamic geometric pattern background */
     padding: 0.875rem 1.5rem;
     border-radius: 0.75rem;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 12px rgba(184, 146, 79, 0.2);
+    box-shadow: 0 4px 12px rgba(169, 124, 80, 0.2);
     font-size: 1rem;
     text-align: center;
     display: inline-block;
@@ -175,7 +175,7 @@ slamic geometric pattern background */
   .btn-primary:hover {
     background: var(--color-primary-700);
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(184, 146, 79, 0.3);
+    box-shadow: 0 6px 20px rgba(169, 124, 80, 0.3);
   }
 
   .btn-secondary {
@@ -203,7 +203,7 @@ slamic geometric pattern background */
     background-color: var(--color-primary-600);
     color: white;
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(184, 146, 79, 0.15);
+    box-shadow: 0 4px 12px rgba(169, 124, 80, 0.15);
   }
 
   .btn-accent {
@@ -231,8 +231,8 @@ slamic geometric pattern background */
     background-color: white;
     border-radius: 1rem;
     box-shadow:
-      0 4px 20px rgba(184, 146, 79, 0.08),
-      0 1px 3px rgba(184, 146, 79, 0.1);
+      0 4px 20px rgba(169, 124, 80, 0.08),
+      0 1px 3px rgba(169, 124, 80, 0.1);
     border: 1px solid var(--color-sand-medium);
     padding: 1.5rem;
     transition: all 0.3s ease;
@@ -241,8 +241,8 @@ slamic geometric pattern background */
   .card:hover {
     transform: translateY(-4px);
     box-shadow:
-      0 8px 30px rgba(184, 146, 79, 0.15),
-      0 4px 12px rgba(184, 146, 79, 0.1);
+      0 8px 30px rgba(169, 124, 80, 0.15),
+      0 4px 12px rgba(169, 124, 80, 0.1);
   }
 
   .card-islamic {
@@ -250,8 +250,8 @@ slamic geometric pattern background */
     color: white;
     border-radius: 1rem;
     box-shadow:
-      0 8px 25px rgba(184, 146, 79, 0.2),
-      0 4px 12px rgba(184, 146, 79, 0.15);
+      0 8px 25px rgba(169, 124, 80, 0.2),
+      0 4px 12px rgba(169, 124, 80, 0.15);
     padding: 1.5rem;
     position: relative;
     overflow: hidden;
@@ -350,8 +350,8 @@ slamic geometric pattern background */
     background-color: white;
     border-radius: 1rem;
     box-shadow:
-      0 10px 30px rgba(184, 146, 79, 0.12),
-      0 4px 15px rgba(184, 146, 79, 0.08);
+      0 10px 30px rgba(169, 124, 80, 0.12),
+      0 4px 15px rgba(169, 124, 80, 0.08);
     border: 1px solid var(--color-sand-medium);
     transition: all 0.3s ease;
     position: relative;
@@ -396,8 +396,8 @@ slamic geometric pattern background */
   .stats-card:hover {
     transform: translateY(-4px);
     box-shadow:
-      0 15px 40px rgba(184, 146, 79, 0.18),
-      0 8px 25px rgba(184, 146, 79, 0.12);
+      0 15px 40px rgba(169, 124, 80, 0.18),
+      0 8px 25px rgba(169, 124, 80, 0.12);
   }
 
   @media (min-width: 1024px) {
@@ -411,7 +411,7 @@ slamic geometric pattern background */
     font-weight: 800;
     color: var(--color-primary-700);
     margin-bottom: 0.5rem;
-    text-shadow: 0 2px 4px rgba(184, 146, 79, 0.1);
+    text-shadow: 0 2px 4px rgba(169, 124, 80, 0.1);
     line-height: 1.1;
   }
 
@@ -794,7 +794,7 @@ slamic geometric pattern background */
       font-size: 15px;
       line-height: 1.6;
     }
-    
+
     .nav-link {
       font-size: 1rem;
       padding: 0.5rem 0.25rem;

@@ -68,19 +68,51 @@ export const siteSettingsQuery = groq`
         label {
           ${multilingualTextFields}
         },
-        number
+        number,
+        type,
+        isPrimary,
+        isActive
       },
       email[] {
         label {
           ${multilingualTextFields}
         },
-        address
+        address,
+        type,
+        isPrimary,
+        isActive
       },
       officeHours {
         ${multilingualTextFields}
       }
     },
-    socialMedia,
+    socialMedia[] {
+      platform,
+      url,
+      icon,
+      isActive,
+      order
+    },
+    prayerTimes[] {
+      prayerName {
+        ${multilingualTextFields}
+      },
+      time,
+      isActive,
+      order
+    },
+    departments[] {
+      name {
+        ${multilingualTextFields}
+      },
+      head {
+        ${multilingualTextFields}
+      },
+      phone,
+      email,
+      type,
+      isActive
+    },
     admissionInfo {
       admissionPhone,
       admissionEmail,
@@ -477,5 +509,43 @@ export const facilityBySlugQuery = groq`
     },
     displayOrder,
     featured
+  }
+`
+
+// Footer Query
+export const footerQuery = groq`
+  *[_type == "footer" && isActive == true][0] {
+    _id,
+    title {
+      ${multilingualTextFields}
+    },
+    subtitle {
+      ${multilingualTextFields}
+    },
+    description {
+      ${multilingualTextFields}
+    },
+    useGlobalContactInfo,
+    useGlobalSocialLinks,
+    useGlobalPrayerTimes,
+    quickLinks[] {
+      label {
+        ${multilingualTextFields}
+      },
+      url,
+      isActive,
+      order
+    },
+    legalLinks[] {
+      label {
+        ${multilingualTextFields}
+      },
+      url,
+      isActive
+    },
+    copyright {
+      ${multilingualTextFields}
+    },
+    isActive
   }
 `

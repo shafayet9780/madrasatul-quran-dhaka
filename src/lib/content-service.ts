@@ -13,7 +13,8 @@ import {
   leadershipTeamQuery,
   allFacilitiesQuery,
   featuredFacilitiesQuery,
-  facilityBySlugQuery
+  facilityBySlugQuery,
+  footerQuery
 } from './sanity-queries';
 import type {
   SiteSettings,
@@ -21,7 +22,8 @@ import type {
   NewsEvent,
   AcademicProgram,
   StaffMember,
-  Facility
+  Facility,
+  FooterSettings
 } from '@/types/sanity';
 
 /**
@@ -484,6 +486,55 @@ export class ContentService {
     } catch (error) {
       console.error(`Error fetching facilities by category ${category}:`, error);
       return [];
+    }
+  }
+
+  /**
+   * Footer Settings with centralized data
+   */
+  async getFooterSettings(): Promise<FooterSettings | null> {
+    try {
+      const [footerData, siteSettings] = await Promise.all([
+        this.isPreview 
+          ? this.client.fetch(footerQuery)
+          : sanityFetch({
+              query: footerQuery,
+              tags: ['footer'],
+              revalidate: process.env.NODE_ENV === 'development' ? 0 : 60,
+            }),
+        this.getSiteSettings()
+      ]);
+
+      if (!footerData) return null;
+
+      // Merge centralized data based on footer preferences
+      const mergedFooter: FooterSettings = {
+        ...footerData,
+        // Add centralized contact info if footer uses global settings
+        contactInfo: footerData.useGlobalContactInfo && siteSettings?.contactInfo 
+          ? {
+              address: siteSettings.contactInfo.address,
+              phone: siteSettings.contactInfo.phone?.find(p => p.isPrimary)?.number || 
+                     siteSettings.contactInfo.phone?.[0]?.number || '',
+              email: siteSettings.contactInfo.email?.find(e => e.isPrimary)?.address || 
+                     siteSettings.contactInfo.email?.[0]?.address || '',
+              officeHours: siteSettings.contactInfo.officeHours
+            }
+          : undefined,
+        // Add centralized social links if footer uses global settings
+        socialLinks: footerData.useGlobalSocialLinks && siteSettings?.socialMedia
+          ? siteSettings.socialMedia.filter(s => s.isActive).sort((a, b) => (a.order || 0) - (b.order || 0))
+          : undefined,
+        // Add centralized prayer times if footer uses global settings
+        prayerTimes: footerData.useGlobalPrayerTimes && siteSettings?.prayerTimes
+          ? siteSettings.prayerTimes.filter(p => p.isActive).sort((a, b) => (a.order || 0) - (b.order || 0))
+          : undefined
+      };
+
+      return mergedFooter;
+    } catch (error) {
+      console.error('Error fetching footer settings:', error);
+      return null;
     }
   }
 

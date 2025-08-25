@@ -199,7 +199,42 @@ export const siteSettings = defineType({
                   type: 'string',
                   validation: (Rule) => Rule.required(),
                 },
+                {
+                  name: 'type',
+                  title: 'Phone Type',
+                  type: 'string',
+                  options: {
+                    list: [
+                      { title: 'Main Office', value: 'main' },
+                      { title: 'Admission Office', value: 'admission' },
+                      { title: 'Principal Office', value: 'principal' },
+                      { title: 'Emergency', value: 'emergency' },
+                      { title: 'Department', value: 'department' }
+                    ]
+                  },
+                  initialValue: 'main'
+                },
+                {
+                  name: 'isPrimary',
+                  title: 'Primary Contact',
+                  type: 'boolean',
+                  description: 'Mark as primary contact number for display in header/footer',
+                  initialValue: false
+                },
+                {
+                  name: 'isActive',
+                  title: 'Active',
+                  type: 'boolean',
+                  initialValue: true
+                }
               ],
+              preview: {
+                select: {
+                  title: 'label.english',
+                  subtitle: 'number',
+                  description: 'type'
+                }
+              }
             },
           ],
         },
@@ -234,7 +269,42 @@ export const siteSettings = defineType({
                   type: 'email',
                   validation: (Rule) => Rule.required(),
                 },
+                {
+                  name: 'type',
+                  title: 'Email Type',
+                  type: 'string',
+                  options: {
+                    list: [
+                      { title: 'General Info', value: 'info' },
+                      { title: 'Admissions', value: 'admission' },
+                      { title: 'Principal', value: 'principal' },
+                      { title: 'Academic', value: 'academic' },
+                      { title: 'Support', value: 'support' }
+                    ]
+                  },
+                  initialValue: 'info'
+                },
+                {
+                  name: 'isPrimary',
+                  title: 'Primary Contact',
+                  type: 'boolean',
+                  description: 'Mark as primary email for display in header/footer',
+                  initialValue: false
+                },
+                {
+                  name: 'isActive',
+                  title: 'Active',
+                  type: 'boolean',
+                  initialValue: true
+                }
               ],
+              preview: {
+                select: {
+                  title: 'label.english',
+                  subtitle: 'address',
+                  description: 'type'
+                }
+              }
             },
           ],
         },
@@ -261,30 +331,35 @@ export const siteSettings = defineType({
     }),
     defineField({
       name: 'socialMedia',
-      title: 'Social Media',
-      type: 'object',
-      fields: [
+      title: 'Social Media Links',
+      type: 'array',
+      of: [
         {
-          name: 'facebook',
-          title: 'Facebook URL',
-          type: 'url',
-        },
-        {
-          name: 'youtube',
-          title: 'YouTube URL',
-          type: 'url',
-        },
-        {
-          name: 'instagram',
-          title: 'Instagram URL',
-          type: 'url',
-        },
-        {
-          name: 'twitter',
-          title: 'Twitter URL',
-          type: 'url',
-        },
-      ],
+          type: 'object',
+          fields: [
+            { name: 'platform', title: 'Platform Name', type: 'string', validation: (Rule) => Rule.required() },
+            { name: 'url', title: 'URL', type: 'url', validation: (Rule) => Rule.required() },
+            { name: 'icon', title: 'Icon Name', type: 'string', options: {
+              list: [
+                { title: 'Facebook', value: 'facebook' },
+                { title: 'YouTube', value: 'youtube' },
+                { title: 'Twitter', value: 'twitter' },
+                { title: 'Instagram', value: 'instagram' },
+                { title: 'LinkedIn', value: 'linkedin' }
+              ]
+            }},
+            { name: 'isActive', title: 'Active', type: 'boolean', initialValue: true },
+            { name: 'order', title: 'Display Order', type: 'number' }
+          ],
+          preview: {
+            select: {
+              title: 'platform',
+              subtitle: 'url',
+              media: 'icon'
+            }
+          }
+        }
+      ]
     }),
     defineField({
       name: 'admissionInfo',
@@ -321,6 +396,107 @@ export const siteSettings = defineType({
           ],
         },
       ],
+    }),
+    defineField({
+      name: 'prayerTimes',
+      title: 'Prayer Times',
+      description: 'Daily prayer times displayed across the site',
+      type: 'array',
+      of: [
+        {
+          type: 'object',
+          fields: [
+            { 
+              name: 'prayerName', 
+              title: 'Prayer Name', 
+              type: 'object', 
+              fields: [
+                { name: 'bengali', title: 'Bengali Name', type: 'string' },
+                { name: 'english', title: 'English Name', type: 'string' }
+              ]
+            },
+            { name: 'time', title: 'Time', type: 'string', validation: (Rule) => Rule.required() },
+            { name: 'isActive', title: 'Active', type: 'boolean', initialValue: true },
+            { name: 'order', title: 'Display Order', type: 'number' }
+          ],
+          preview: {
+            select: {
+              title: 'prayerName.english',
+              subtitle: 'time'
+            }
+          }
+        }
+      ],
+      validation: (Rule) => Rule.max(5)
+    }),
+    defineField({
+      name: 'departments',
+      title: 'Department Contacts',
+      description: 'Contact information for different departments',
+      type: 'array',
+      of: [
+        {
+          type: 'object',
+          fields: [
+            {
+              name: 'name',
+              title: 'Department Name',
+              type: 'object',
+              fields: [
+                { name: 'bengali', title: 'Bengali Name', type: 'string' },
+                { name: 'english', title: 'English Name', type: 'string' }
+              ],
+              validation: (Rule) => Rule.required()
+            },
+            {
+              name: 'head',
+              title: 'Department Head',
+              type: 'object',
+              fields: [
+                { name: 'bengali', title: 'Bengali Name', type: 'string' },
+                { name: 'english', title: 'English Name', type: 'string' }
+              ]
+            },
+            {
+              name: 'phone',
+              title: 'Phone Number',
+              type: 'string'
+            },
+            {
+              name: 'email',
+              title: 'Email Address',
+              type: 'email'
+            },
+            {
+              name: 'type',
+              title: 'Department Type',
+              type: 'string',
+              options: {
+                list: [
+                  { title: 'Academic', value: 'academic' },
+                  { title: 'Islamic Studies', value: 'islamic' },
+                  { title: 'Student Affairs', value: 'student' },
+                  { title: 'Finance', value: 'finance' },
+                  { title: 'Administration', value: 'administration' }
+                ]
+              }
+            },
+            {
+              name: 'isActive',
+              title: 'Active',
+              type: 'boolean',
+              initialValue: true
+            }
+          ],
+          preview: {
+            select: {
+              title: 'name.english',
+              subtitle: 'head.english',
+              description: 'type'
+            }
+          }
+        }
+      ]
     }),
     defineField({
       name: 'seo',

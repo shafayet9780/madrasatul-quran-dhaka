@@ -377,6 +377,138 @@ For each content item, provide:
 3. Test on different screen sizes
 
 **Hero gallery not rotating:**
+
+## Managing Footer Content
+
+### Footer Settings Overview
+
+The footer content is managed through a dedicated **"Footer Settings"** section in Sanity Studio. This allows you to customize all footer content including contact information, social media links, prayer times, and legal links.
+
+### Accessing Footer Settings
+
+1. **Navigate to Footer Settings:**
+   - Go to your Sanity Studio
+   - Click on **"Footer Settings"** in the left sidebar
+   - This is where you manage all footer content
+
+### Basic Footer Information
+
+1. **Title and Subtitle:**
+   - **Title:** Add the main footer title in Bengali and English
+   - **Subtitle:** Add a subtitle in Bengali and English
+   - **Description:** Add a description about your institution in Bengali and English
+
+2. **Contact Information:**
+   - **Address:** Add your institution's address in Bengali and English
+   - **Phone:** Add your contact phone number
+   - **Email:** Add your contact email address
+   - **Office Hours:** Add office hours in Bengali and English
+
+### Social Media Links
+
+1. **Adding Social Media:**
+   - Click **"Add item"** in the Social Media Links section
+   - **Platform:** Select from Facebook, YouTube, Twitter, Instagram, LinkedIn
+   - **URL:** Add the complete URL to your social media profile
+   - **Active:** Toggle to show/hide the link
+
+2. **Best Practices:**
+   - Ensure all URLs are correct and working
+   - Keep social media links up to date
+   - Use official social media handles
+
+### Prayer Times
+
+1. **Adding Prayer Times:**
+   - Click **"Add item"** in the Prayer Times section
+   - **Prayer Name:** Add prayer names in Bengali and English
+   - **Time:** Add the prayer time (e.g., "5:15 AM")
+   - **Active:** Toggle to show/hide the prayer time
+
+2. **Prayer Times to Include:**
+   - Fajr (ফজর)
+   - Dhuhr (যুহর)
+   - Asr (আসর)
+   - Maghrib (মাগরিব)
+   - Isha (ইশা)
+
+3. **Best Practices:**
+   - Update prayer times regularly
+   - Use consistent time format
+   - Ensure accuracy for your location
+
+### Quick Links
+
+1. **Adding Quick Links:**
+   - Click **"Add item"** in the Quick Links section
+   - **Label:** Add link labels in Bengali and English
+   - **URL:** Add the page URL
+   - **Display Order:** Set the order (optional)
+   - **Active:** Toggle to show/hide the link
+
+2. **Common Quick Links:**
+   - Home (হোম)
+   - About (আমাদের সম্পর্কে)
+   - Programs (প্রোগ্রাম)
+   - Admissions (ভর্তি)
+   - Campus (ক্যাম্পাস)
+   - News (সংবাদ)
+   - Contact (যোগাযোগ)
+
+### Legal Links
+
+1. **Adding Legal Links:**
+   - Click **"Add item"** in the Legal Links section
+   - **Label:** Add link labels in Bengali and English
+   - **URL:** Add the page URL
+   - **Active:** Toggle to show/hide the link
+
+2. **Common Legal Links:**
+   - Privacy Policy (গোপনীয়তা নীতি)
+   - Terms of Service (ব্যবহারের শর্তাবলী)
+   - Sitemap (সাইটম্যাপ)
+
+### Copyright Text
+
+1. **Adding Copyright:**
+   - Add copyright text in Bengali and English
+   - Include the current year
+   - Example: "© 2024 Madrasatul Quran. All rights reserved."
+
+### Publishing Footer Changes
+
+1. **Review Content:**
+   - Check all text in both languages
+   - Verify all links are working
+   - Ensure contact information is accurate
+
+2. **Publish:**
+   - Click **"Publish"** to make footer content live
+   - Changes will appear immediately on the website
+
+### Footer Content Best Practices
+
+1. **Content Quality:**
+   - Keep contact information up to date
+   - Ensure all social media links are working
+   - Update prayer times regularly
+   - Use clear, descriptive labels for links
+
+2. **Multilingual Consistency:**
+   - Maintain consistency between Bengali and English content
+   - Ensure translations are accurate and culturally appropriate
+   - Use proper Bengali typography
+
+3. **Accessibility:**
+   - Use descriptive link text
+   - Ensure sufficient color contrast
+   - Provide clear contact information
+
+4. **Maintenance:**
+   - Regularly review and update footer content
+   - Check for broken links
+   - Update prayer times as needed
+   - Keep social media links current
 1. Verify multiple images are added
 2. Check that images have proper titles
 3. Ensure images are published and accessible

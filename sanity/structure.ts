@@ -14,6 +14,12 @@ export const structure: StructureResolver = (S) =>
             .documentId('siteSettings')
         ),
       
+      // Footer Settings
+      S.listItem()
+        .title('Footer Settings')
+        .id('footer')
+        .child(S.documentTypeList('footer').title('Footer Settings')),
+      
       S.divider(),
       
       // Pages

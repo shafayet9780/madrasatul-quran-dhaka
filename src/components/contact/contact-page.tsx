@@ -5,7 +5,11 @@ import ContactInfoDisplay from './contact-info-display';
 import LocationMaps from './location-maps';
 import ContactForms from './contact-forms';
 
-export default function ContactPage() {
+interface ContactPageProps {
+  siteSettings?: any; // We'll add proper typing later
+}
+
+export default function ContactPage({ siteSettings }: ContactPageProps) {
   const t = useTranslations('contact');
 
   return (
@@ -23,7 +27,7 @@ export default function ContactPage() {
       </section>
 
       {/* Contact Information Display */}
-      <ContactInfoDisplay />
+      <ContactInfoDisplay siteSettings={siteSettings} />
 
       {/* Location and Maps */}
       <LocationMaps />

@@ -169,19 +169,42 @@ export interface ContactInfo {
   phone?: Array<{
     label?: MultilingualText
     number: string
+    type: 'main' | 'admission' | 'principal' | 'emergency' | 'department'
+    isPrimary: boolean
+    isActive: boolean
   }>
   email?: Array<{
     label?: MultilingualText
     address: string
+    type: 'info' | 'admission' | 'principal' | 'academic' | 'support'
+    isPrimary: boolean
+    isActive: boolean
   }>
   officeHours?: MultilingualText
 }
 
-export interface SocialMedia {
-  facebook?: string
-  youtube?: string
-  instagram?: string
-  twitter?: string
+export interface SocialMediaLink {
+  platform: string
+  url: string
+  icon: 'facebook' | 'youtube' | 'twitter' | 'instagram' | 'linkedin'
+  isActive: boolean
+  order?: number
+}
+
+export interface PrayerTime {
+  prayerName: MultilingualText
+  time: string
+  isActive: boolean
+  order?: number
+}
+
+export interface DepartmentContact {
+  name: MultilingualText
+  head?: MultilingualText
+  phone?: string
+  email?: string
+  type: 'academic' | 'islamic' | 'student' | 'finance' | 'administration'
+  isActive: boolean
 }
 
 export interface AdmissionInfo {
@@ -201,6 +224,39 @@ export interface SchoolStatistics {
   }>
 }
 
+export interface FooterSettings {
+  _id: string
+  _type: 'footer'
+  title: MultilingualText
+  subtitle?: MultilingualText
+  description?: MultilingualText
+  useGlobalContactInfo: boolean
+  useGlobalSocialLinks: boolean
+  useGlobalPrayerTimes: boolean
+  // Centralized data from Site Settings (populated by content service)
+  contactInfo?: {
+    address?: MultilingualText
+    phone: string
+    email: string
+    officeHours?: MultilingualText
+  }
+  socialLinks?: SocialMediaLink[]
+  prayerTimes?: PrayerTime[]
+  quickLinks?: Array<{
+    label: MultilingualText
+    url: string
+    isActive: boolean
+    order?: number
+  }>
+  legalLinks?: Array<{
+    label: MultilingualText
+    url: string
+    isActive: boolean
+  }>
+  copyright?: MultilingualText
+  isActive: boolean
+}
+
 export interface SiteSettings {
   _id: string
   _type: 'siteSettings'
@@ -216,7 +272,9 @@ export interface SiteSettings {
   }>
   favicon?: SanityImage
   contactInfo?: ContactInfo
-  socialMedia?: SocialMedia
+  socialMedia?: SocialMediaLink[]
+  prayerTimes?: PrayerTime[]
+  departments?: DepartmentContact[]
   admissionInfo?: AdmissionInfo
   seo?: {
     metaTitle?: MultilingualText

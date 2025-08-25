@@ -240,13 +240,17 @@ export default function Header({ siteSettings }: HeaderProps) {
             >
               <Phone className="w-5 h-5" />
               <span className="font-medium">
-                {locale === 'bengali' ? '+৮৮০ ১২৩৪ ৫৬৭৮৯০' : '+880 1234 567890'}
+                {siteSettings?.contactInfo?.phone?.find(p => p.isPrimary)?.number || 
+                 siteSettings?.contactInfo?.phone?.[0]?.number || 
+                 (locale === 'bengali' ? '+৮৮০ ১২৩৪ ৫৬৭৮৯০' : '+880 1234 567890')}
               </span>
             </a>
             <div className="text-sm text-gray-600">
-              {locale === 'bengali'
-                ? 'ইসলামী শিক্ষায় উৎকর্ষতা'
-                : 'Excellence in Islamic Education'}
+              {siteSettings?.description 
+                ? getLocalizedText(siteSettings.description, locale)
+                : (locale === 'bengali'
+                  ? 'ইসলামী শিক্ষায় উৎকর্ষতা'
+                  : 'Excellence in Islamic Education')}
             </div>
           </div>
         </div>
@@ -341,7 +345,9 @@ export default function Header({ siteSettings }: HeaderProps) {
             <div className="flex items-center space-x-2 md:space-x-3 flex-shrink-0">
               {/* Contact Button - Hidden on mobile */}
               <a
-                href="tel:+8801234567890"
+                href={`tel:${siteSettings?.contactInfo?.phone?.find(p => p.isPrimary)?.number || 
+                           siteSettings?.contactInfo?.phone?.[0]?.number || 
+                           '+8801234567890'}`}
                 className="hidden xl:flex items-center space-x-2 px-3 py-2 rounded-full bg-accent-600 text-white hover:bg-accent-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 font-semibold text-sm whitespace-nowrap"
                 aria-label="Call us"
               >

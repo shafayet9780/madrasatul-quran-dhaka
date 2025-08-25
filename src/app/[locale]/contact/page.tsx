@@ -23,6 +23,10 @@ export async function generateMetadata({ params }: ContactPageProps): Promise<Me
   };
 }
 
-export default function Contact({ params }: ContactPageProps) {
-  return <ContactPage />;
+export default async function Contact({ params }: ContactPageProps) {
+  const { getContentService } = await import('@/lib/content-service');
+  const contentService = getContentService(false);
+  const siteSettings = await contentService.getSiteSettings();
+  
+  return <ContactPage siteSettings={siteSettings} />;
 }
