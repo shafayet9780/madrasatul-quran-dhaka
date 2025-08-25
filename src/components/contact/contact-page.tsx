@@ -4,9 +4,10 @@ import { useTranslations } from 'next-intl';
 import ContactInfoDisplay from './contact-info-display';
 import LocationMaps from './location-maps';
 import ContactForms from './contact-forms';
+import type { SiteSettings } from '@/types/sanity';
 
 interface ContactPageProps {
-  siteSettings?: any; // We'll add proper typing later
+  siteSettings?: SiteSettings | null;
 }
 
 export default function ContactPage({ siteSettings }: ContactPageProps) {

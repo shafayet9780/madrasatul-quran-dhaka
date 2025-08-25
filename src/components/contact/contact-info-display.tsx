@@ -2,6 +2,9 @@
 
 import { useTranslations } from 'next-intl';
 import { Phone, Mail, Clock, MapPin, User } from 'lucide-react';
+import type { SiteSettings } from '@/types/sanity';
+import { getLocalizedText } from '@/lib/multilingual-content';
+import { useLocale } from 'next-intl';
 
 interface ContactInfoProps {
   title: string;
@@ -117,11 +120,12 @@ const DepartmentContactCard = ({ title, head, phone, email }: DepartmentContactP
 };
 
 interface ContactInfoDisplayProps {
-  siteSettings?: any; // We'll add proper typing later
+  siteSettings?: SiteSettings | null;
 }
 
 export default function ContactInfoDisplay({ siteSettings }: ContactInfoDisplayProps) {
   const t = useTranslations('contact');
+  const locale = useLocale() as 'bengali' | 'english';
 
   return (
     <section className="py-12 bg-gray-50">
@@ -141,31 +145,41 @@ export default function ContactInfoDisplay({ siteSettings }: ContactInfoDisplayP
           {/* Main Office */}
           <ContactInfoCard
             title={t('contactInfo.mainOffice.title')}
-            phone={siteSettings?.contactInfo?.phone?.find((p: any) => p.type === 'main')?.number || t('contactInfo.mainOffice.phone')}
-            email={siteSettings?.contactInfo?.email?.find((e: any) => e.type === 'info')?.address || t('contactInfo.mainOffice.email')}
-            hours={siteSettings?.contactInfo?.officeHours?.english || t('contactInfo.mainOffice.hours')}
-            address={siteSettings?.contactInfo?.address?.english || t('contactInfo.mainOffice.address')}
+            phone={siteSettings?.contactInfo?.phone?.find(p => p.type === 'main')?.number || t('contactInfo.mainOffice.phone')}
+            email={siteSettings?.contactInfo?.email?.find(e => e.type === 'info')?.address || t('contactInfo.mainOffice.email')}
+            hours={siteSettings?.contactInfo?.officeHours
+              ? getLocalizedText(siteSettings.contactInfo.officeHours, locale)
+              : t('contactInfo.mainOffice.hours')}
+            address={siteSettings?.contactInfo?.address
+              ? getLocalizedText(siteSettings.contactInfo.address, locale)
+              : t('contactInfo.mainOffice.address')}
           />
           
           {/* Admission Office */}
           <ContactInfoCard
             title={t('contactInfo.admissionOffice.title')}
-            phone={siteSettings?.contactInfo?.phone?.find((p: any) => p.type === 'admission')?.number || 
+            phone={siteSettings?.contactInfo?.phone?.find(p => p.type === 'admission')?.number || 
                    siteSettings?.admissionInfo?.admissionPhone || 
                    t('contactInfo.admissionOffice.phone')}
-            email={siteSettings?.contactInfo?.email?.find((e: any) => e.type === 'admission')?.address || 
+            email={siteSettings?.contactInfo?.email?.find(e => e.type === 'admission')?.address || 
                    siteSettings?.admissionInfo?.admissionEmail || 
                    t('contactInfo.admissionOffice.email')}
-            hours={siteSettings?.admissionInfo?.admissionHours?.english || t('contactInfo.admissionOffice.hours')}
-            address={siteSettings?.contactInfo?.address?.english || t('contactInfo.admissionOffice.address')}
+            hours={siteSettings?.admissionInfo?.admissionHours
+              ? getLocalizedText(siteSettings.admissionInfo.admissionHours, locale)
+              : t('contactInfo.admissionOffice.hours')}
+            address={siteSettings?.contactInfo?.address
+              ? getLocalizedText(siteSettings.contactInfo.address, locale)
+              : t('contactInfo.admissionOffice.address')}
           />
           
           {/* Principal Office */}
           <ContactInfoCard
             title={t('contactInfo.principal.title')}
-            phone={siteSettings?.contactInfo?.phone?.find((p: any) => p.type === 'principal')?.number || t('contactInfo.principal.phone')}
-            email={siteSettings?.contactInfo?.email?.find((e: any) => e.type === 'principal')?.address || t('contactInfo.principal.email')}
-            hours={siteSettings?.contactInfo?.officeHours?.english || t('contactInfo.principal.hours')}
+            phone={siteSettings?.contactInfo?.phone?.find(p => p.type === 'principal')?.number || t('contactInfo.principal.phone')}
+            email={siteSettings?.contactInfo?.email?.find(e => e.type === 'principal')?.address || t('contactInfo.principal.email')}
+            hours={siteSettings?.contactInfo?.officeHours
+              ? getLocalizedText(siteSettings.contactInfo.officeHours, locale)
+              : t('contactInfo.principal.hours')}
           />
         </div>
 
@@ -181,11 +195,11 @@ export default function ContactInfoDisplay({ siteSettings }: ContactInfoDisplayP
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {siteSettings?.departments?.filter((dept: any) => dept.isActive).map((dept: any, index: number) => (
+            {siteSettings?.departments?.filter(dept => dept.isActive).map((dept, index) => (
               <DepartmentContactCard
                 key={index}
-                title={dept.name?.english || `Department ${index + 1}`}
-                head={dept.head?.english || 'Department Head'}
+                title={dept.name ? getLocalizedText(dept.name, locale) : `Department ${index + 1}`}
+                head={dept.head ? getLocalizedText(dept.head, locale) : 'Department Head'}
                 phone={dept.phone || t(`departments.${dept.type}.phone`)}
                 email={dept.email || t(`departments.${dept.type}.email`)}
               />

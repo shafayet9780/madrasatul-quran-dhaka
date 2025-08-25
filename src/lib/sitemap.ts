@@ -13,7 +13,7 @@ export interface SitemapEntry {
 }
 
 /**
- * Generate sitemap for static pages
+ * Generate sitemap for static pages - MVP version
  */
 export function generateStaticSitemap(): MetadataRoute.Sitemap {
   const staticPages = [
@@ -23,35 +23,36 @@ export function generateStaticSitemap(): MetadataRoute.Sitemap {
       changeFrequency: 'weekly' as const,
     },
     {
-      path: '/about',
-      priority: 0.9,
-      changeFrequency: 'monthly' as const,
-    },
-    {
-      path: '/programs',
-      priority: 0.9,
-      changeFrequency: 'monthly' as const,
-    },
-    {
-      path: '/admissions',
-      priority: 0.8,
-      changeFrequency: 'monthly' as const,
-    },
-    {
-      path: '/campus',
-      priority: 0.7,
-      changeFrequency: 'monthly' as const,
-    },
-    {
-      path: '/news',
-      priority: 0.8,
-      changeFrequency: 'daily' as const,
-    },
-    {
       path: '/contact',
-      priority: 0.6,
-      changeFrequency: 'yearly' as const,
+      priority: 0.8,
+      changeFrequency: 'monthly' as const,
     },
+    // Temporarily hidden for MVP launch - uncomment when ready
+    // {
+    //   path: '/about',
+    //   priority: 0.9,
+    //   changeFrequency: 'monthly' as const,
+    // },
+    // {
+    //   path: '/programs',
+    //   priority: 0.9,
+    //   changeFrequency: 'monthly' as const,
+    // },
+    // {
+    //   path: '/admissions',
+    //   priority: 0.8,
+    //   changeFrequency: 'monthly' as const,
+    // },
+    // {
+    //   path: '/campus',
+    //   priority: 0.7,
+    //   changeFrequency: 'monthly' as const,
+    // },
+    // {
+    //   path: '/news',
+    //   priority: 0.8,
+    //   changeFrequency: 'daily' as const,
+    // },
   ];
 
   const sitemap: MetadataRoute.Sitemap = [];

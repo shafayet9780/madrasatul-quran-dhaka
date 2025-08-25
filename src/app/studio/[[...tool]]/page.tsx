@@ -10,15 +10,15 @@ export default function StudioPage() {
   const params = useParams()
 
   useEffect(() => {
-    // If no tool is specified, redirect to structure
+    // If no tool is specified (empty array or undefined), redirect to structure
     if (!params.tool || params.tool.length === 0) {
       router.replace('/studio/structure')
+      return
     }
   }, [params.tool, router])
 
-  // Check if we have a valid tool parameter or if it's the structure tool
+  // Check if we have a valid tool parameter
   const hasValidTool = params.tool && params.tool.length > 0
-  const isStructureTool = hasValidTool && params.tool && params.tool[0] === 'structure'
   
   // Show loading only when redirecting from empty studio path
   if (!hasValidTool) {
@@ -55,7 +55,7 @@ export default function StudioPage() {
               MQ
             </div>
           </div>
-          <div>Loading Madrasatul Quran CMS...</div>
+          <div>Redirecting to Madrasatul Quran CMS...</div>
         </div>
       </div>
     )

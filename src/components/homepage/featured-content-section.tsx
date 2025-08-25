@@ -225,24 +225,26 @@ export default function FeaturedContentSection({
   }, []);
 
   const quickAccessItems = [
-    {
-      title: tNav('admissions'),
-      description:
-        'Start your journey with us. Learn about admission requirements, application process, and important dates.',
-      href: '/admissions',
-      icon: '📝',
-      color: 'border-l-primary-500',
-      delay: 0,
-    },
-    {
-      title: tNav('programs'),
-      description:
-        'Explore our comprehensive Islamic and NCTB curriculum designed for holistic education.',
-      href: '/programs',
-      icon: '📚',
-      color: 'border-l-secondary-500',
-      delay: 200,
-    },
+    // Temporarily showing only contact for MVP launch
+    // Uncomment below when other pages are ready to launch
+    // {
+    //   title: tNav('admissions'),
+    //   description:
+    //     'Start your journey with us. Learn about admission requirements, application process, and important dates.',
+    //   href: '/admissions',
+    //   icon: '📝',
+    //   color: 'border-l-primary-500',
+    //   delay: 0,
+    // },
+    // {
+    //   title: tNav('programs'),
+    //   description:
+    //     'Explore our comprehensive Islamic and NCTB curriculum designed for holistic education.',
+    //   href: '/programs',
+    //   icon: '📚',
+    //   color: 'border-l-secondary-500',
+    //   delay: 200,
+    // },
     {
       title: tNav('contact'),
       description:
@@ -250,7 +252,7 @@ export default function FeaturedContentSection({
       href: '/contact',
       icon: '📞',
       color: 'border-l-accent-500',
-      delay: 400,
+      delay: 0,
     },
   ];
 
@@ -324,38 +326,40 @@ export default function FeaturedContentSection({
       </div>
 
       <div className="container-custom relative z-10">
-        {/* Quick Access Section */}
-        <div className="mb-20">
-          <div
-            className={`text-center mb-12 transition-all duration-1000 ${
-              sectionVisible
-                ? 'opacity-100 translate-y-0'
-                : 'opacity-0 translate-y-8'
-            }`}
-          >
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-primary-700 mb-4">
-              Quick Access
-            </h2>
-            <p className="text-lg md:text-xl text-text-secondary max-w-2xl mx-auto">
-              Find what you&apos;re looking for quickly with our most important
-              sections
-            </p>
-          </div>
+        {/* Quick Access Section - Conditional rendering based on available items */}
+        {quickAccessItems.length > 0 && (
+          <div className="mb-20">
+            <div
+              className={`text-center mb-12 transition-all duration-1000 ${
+                sectionVisible
+                  ? 'opacity-100 translate-y-0'
+                  : 'opacity-0 translate-y-8'
+              }`}
+            >
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-primary-700 mb-4">
+                Quick Access
+              </h2>
+              <p className="text-lg md:text-xl text-text-secondary max-w-2xl mx-auto">
+                Find what you&apos;re looking for quickly with our most important
+                sections
+              </p>
+            </div>
 
-          <div className="grid md:grid-cols-3 gap-6 lg:gap-8">
-            {quickAccessItems.map((item, index) => (
-              <QuickAccessCard
-                key={index}
-                title={item.title}
-                description={item.description}
-                href={item.href}
-                icon={item.icon}
-                color={item.color}
-                delay={item.delay}
-              />
-            ))}
+            <div className={`grid ${quickAccessItems.length === 1 ? 'justify-center' : 'md:grid-cols-3'} gap-6 lg:gap-8`}>
+              {quickAccessItems.map((item, index) => (
+                <QuickAccessCard
+                  key={index}
+                  title={item.title}
+                  description={item.description}
+                  href={item.href}
+                  icon={item.icon}
+                  color={item.color}
+                  delay={item.delay}
+                />
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Featured News Section */}
         <div>
@@ -389,8 +393,8 @@ export default function FeaturedContentSection({
             ))}
           </div>
 
-          {/* View All News Button */}
-          <div
+          {/* View All News Button - Hidden for MVP */}
+          {/* <div
             className={`text-center mt-12 transition-all duration-1000 delay-1000 ${
               sectionVisible
                 ? 'opacity-100 translate-y-0'
@@ -416,7 +420,7 @@ export default function FeaturedContentSection({
                 />
               </svg>
             </Link>
-          </div>
+          </div> */}
         </div>
       </div>
 

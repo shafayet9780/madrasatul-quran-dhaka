@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslations, useLocale } from 'next-intl';
 import Link from 'next/link';
-import { Menu, X, ChevronDown, Phone } from 'lucide-react';
+import { Menu, X, Phone } from 'lucide-react';
 import LanguageToggle from '@/components/language-toggle';
 import { type Locale } from '@/lib/i18n';
 import type { SiteSettings } from '@/types/sanity';
@@ -19,9 +19,7 @@ export default function Header({ siteSettings }: HeaderProps) {
   const tCommon = useTranslations('common');
   const locale = useLocale() as Locale;
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isProgramsDropdownOpen, setIsProgramsDropdownOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Get site title from settings or fallback
   const siteTitle = siteSettings?.title 
@@ -40,21 +38,6 @@ export default function Header({ siteSettings }: HeaderProps) {
   // Handle mounting for portal
   useEffect(() => {
     setMounted(true);
-  }, []);
-
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node)
-      ) {
-        setIsProgramsDropdownOpen(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   // Close mobile menu when window is resized to desktop
@@ -88,36 +71,15 @@ export default function Header({ siteSettings }: HeaderProps) {
     };
   }, [isMobileMenuOpen]);
 
-  const programsSubMenu = [
-    {
-      key: 'islamic-studies',
-      label: locale === 'bengali' ? 'ইসলামী শিক্ষা' : 'Islamic Studies',
-    },
-    {
-      key: 'nctb-curriculum',
-      label: locale === 'bengali' ? 'এনসিটিবি পাঠ্যক্রম' : 'NCTB Curriculum',
-    },
-    {
-      key: 'co-curricular',
-      label:
-        locale === 'bengali'
-          ? 'সহ-পাঠক্রমিক কার্যক্রম'
-          : 'Co-curricular Activities',
-    },
-    {
-      key: 'academic-calendar',
-      label:
-        locale === 'bengali' ? 'একাডেমিক ক্যালেন্ডার' : 'Academic Calendar',
-    },
-  ];
-
+  // Navigation items for MVP - only Home and Contact
   const navigationItems = [
     { key: 'home', href: '/' },
-    { key: 'about', href: '/about' },
-    { key: 'programs', href: '/programs', hasDropdown: true },
-    { key: 'admissions', href: '/admissions' },
-    { key: 'campus', href: '/campus' },
-    { key: 'news', href: '/news' },
+    // Temporarily hidden for MVP launch - uncomment when ready to launch full site
+    // { key: 'about', href: '/about' },
+    // { key: 'programs', href: '/programs', hasDropdown: true },
+    // { key: 'admissions', href: '/admissions' },
+    // { key: 'campus', href: '/campus' },
+    // { key: 'news', href: '/news' },
     { key: 'contact', href: '/contact' },
   ];
 
@@ -175,52 +137,14 @@ export default function Header({ siteSettings }: HeaderProps) {
             <div className="space-y-2 px-4 md:px-6">
               {navigationItems.map(item => (
                 <div key={item.key}>
-                  {item.hasDropdown ? (
-                    <div>
-                      <button
-                        onClick={() =>
-                          setIsProgramsDropdownOpen(!isProgramsDropdownOpen)
-                        }
-                        className="w-full flex items-center justify-between py-3 text-left text-gray-700 hover:text-primary-700 transition-colors"
-                      >
-                        <span className="font-medium">
-                          {t(item.key as keyof typeof t)}
-                        </span>
-                        <ChevronDown
-                          className={`w-4 h-4 transition-transform duration-200 ${
-                            isProgramsDropdownOpen ? 'rotate-180' : ''
-                          }`}
-                        />
-                      </button>
-
-                      {/* Mobile Programs Submenu */}
-                      {isProgramsDropdownOpen && (
-                        <div className="ml-4 mt-2 space-y-2 animate-slide-down">
-                          {programsSubMenu.map(subItem => (
-                            <Link
-                              key={subItem.key}
-                              href={`/programs#${subItem.key}`}
-                              className="block py-2 text-sm text-gray-600 hover:text-primary-700 transition-colors"
-                              onClick={() => {
-                                setIsMobileMenuOpen(false);
-                                setIsProgramsDropdownOpen(false);
-                              }}
-                            >
-                              {subItem.label}
-                            </Link>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  ) : (
-                    <Link
-                      href={item.href}
-                      className="block py-3 text-gray-700 hover:text-primary-700 transition-colors font-medium"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                    >
-                      {t(item.key as keyof typeof t)}
-                    </Link>
-                  )}
+                  {/* Temporarily all items are simple links for MVP */}
+                  <Link
+                    href={item.href}
+                    className="block py-3 text-gray-700 hover:text-primary-700 transition-colors font-medium"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    {t(item.key as keyof typeof t)}
+                  </Link>
                 </div>
               ))}
             </div>
@@ -290,52 +214,11 @@ export default function Header({ siteSettings }: HeaderProps) {
             <nav className="hidden xl:flex items-center justify-center flex-1 max-w-4xl mx-8">
               <div className="flex items-center space-x-4">
                 {navigationItems.map(item => (
-                  <div
-                    key={item.key}
-                    className="relative"
-                    ref={item.hasDropdown ? dropdownRef : undefined}
-                  >
-                    {item.hasDropdown ? (
-                      <div>
-                        <button
-                          onClick={() =>
-                            setIsProgramsDropdownOpen(!isProgramsDropdownOpen)
-                          }
-                          className="nav-link flex items-center space-x-1"
-                          aria-expanded={isProgramsDropdownOpen}
-                          aria-haspopup="true"
-                        >
-                          <span>{t(item.key as keyof typeof t)}</span>
-                          <ChevronDown
-                            className={`w-3 h-3 transition-transform duration-200 ${
-                              isProgramsDropdownOpen ? 'rotate-180' : ''
-                            }`}
-                          />
-                        </button>
-
-                        {/* Programs Dropdown */}
-                        {isProgramsDropdownOpen && (
-                          <div className="absolute top-full left-0 mt-2 w-64 bg-white border-2 border-sand-medium rounded-xl shadow-2xl z-50 animate-slide-down backdrop-blur-md">
-                            <div className="py-2">
-                              {programsSubMenu.map(subItem => (
-                                <Link
-                                  key={subItem.key}
-                                  href={`/programs#${subItem.key}`}
-                                  className="block px-4 py-3 text-sm text-text-primary hover:bg-sand-light hover:text-primary-700 transition-all duration-300 rounded-lg mx-2 my-1 font-medium"
-                                  onClick={() => setIsProgramsDropdownOpen(false)}
-                                >
-                                  {subItem.label}
-                                </Link>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    ) : (
-                      <Link href={item.href} className="nav-link">
-                        {t(item.key as keyof typeof t)}
-                      </Link>
-                    )}
+                  <div key={item.key} className="relative">
+                    {/* All items are simple links for MVP */}
+                    <Link href={item.href} className="nav-link">
+                      {t(item.key as keyof typeof t)}
+                    </Link>
                   </div>
                 ))}
               </div>
