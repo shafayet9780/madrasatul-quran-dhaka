@@ -18,7 +18,7 @@ export default async function MainLayout({ children }: MainLayoutProps) {
       <main className="flex-1">
         {children}
       </main>
-      <Footer footerSettings={footerSettings} />
+      <Footer footerSettings={footerSettings} siteSettings={siteSettings} />
     </div>
   );
 }

@@ -233,15 +233,6 @@ export interface FooterSettings {
   useGlobalContactInfo: boolean
   useGlobalSocialLinks: boolean
   useGlobalPrayerTimes: boolean
-  // Centralized data from Site Settings (populated by content service)
-  contactInfo?: {
-    address?: MultilingualText
-    phone: string
-    email: string
-    officeHours?: MultilingualText
-  }
-  socialLinks?: SocialMediaLink[]
-  prayerTimes?: PrayerTime[]
   quickLinks?: Array<{
     label: MultilingualText
     url: string

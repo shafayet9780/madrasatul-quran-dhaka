@@ -16,8 +16,12 @@ export default function StudioPage() {
     }
   }, [params.tool, router])
 
-  // Show loading while redirecting
-  if (!params.tool || params.tool.length === 0) {
+  // Check if we have a valid tool parameter or if it's the structure tool
+  const hasValidTool = params.tool && params.tool.length > 0
+  const isStructureTool = hasValidTool && params.tool && params.tool[0] === 'structure'
+  
+  // Show loading only when redirecting from empty studio path
+  if (!hasValidTool) {
     return (
       <div style={{ 
         display: 'flex', 
@@ -57,6 +61,7 @@ export default function StudioPage() {
     )
   }
 
+  // Render the studio for any valid tool (including structure)
   return <NextStudio config={config} />
 }
 

@@ -4,14 +4,15 @@ import { useTranslations, useLocale } from 'next-intl';
 import Link from 'next/link';
 import { MapPin, Phone, Mail, Clock, Calendar } from 'lucide-react';
 import { type Locale } from '@/lib/i18n';
-import type { FooterSettings } from '@/types/sanity';
+import type { FooterSettings, SiteSettings } from '@/types/sanity';
 import { getLocalizedText } from '@/lib/multilingual-content';
 
 interface FooterProps {
   footerSettings?: FooterSettings | null;
+  siteSettings?: SiteSettings | null;
 }
 
-export default function Footer({ footerSettings }: FooterProps) {
+export default function Footer({ footerSettings, siteSettings }: FooterProps) {
   const t = useTranslations('footer');
   const locale = useLocale() as Locale;
 
@@ -63,22 +64,24 @@ export default function Footer({ footerSettings }: FooterProps) {
     },
   ];
 
+  // Use centralized contact info from siteSettings or fallback
+  const siteContactInfo = siteSettings?.contactInfo;
   const contactInfo = {
-    address: footerSettings?.contactInfo?.address
-      ? getLocalizedText(footerSettings.contactInfo.address, locale)
+    address: siteContactInfo?.address
+      ? getLocalizedText(siteContactInfo.address, locale)
       : locale === 'bengali'
         ? 'ঢাকা, বাংলাদেশ'
         : 'Dhaka, Bangladesh',
     phone:
-      footerSettings?.contactInfo?.phone?.find(p => p.isPrimary)?.number ||
-      footerSettings?.contactInfo?.phone?.[0]?.number ||
+      siteContactInfo?.phone?.find(p => p.isPrimary)?.number ||
+      siteContactInfo?.phone?.[0]?.number ||
       '+880 1234 567890',
     email:
-      footerSettings?.contactInfo?.email?.find(e => e.isPrimary)?.address ||
-      footerSettings?.contactInfo?.email?.[0]?.address ||
+      siteContactInfo?.email?.find(e => e.isPrimary)?.address ||
+      siteContactInfo?.email?.[0]?.address ||
       'info@madrasatulquran.edu.bd',
-    officeHours: footerSettings?.contactInfo?.officeHours
-      ? getLocalizedText(footerSettings.contactInfo.officeHours, locale)
+    officeHours: siteContactInfo?.officeHours
+      ? getLocalizedText(siteContactInfo.officeHours, locale)
       : locale === 'bengali'
         ? 'রবি - বৃহস্পতি: সকাল ৮টা - বিকাল ৫টা'
         : 'Sun - Thu: 8:00 AM - 5:00 PM',
@@ -145,7 +148,8 @@ export default function Footer({ footerSettings }: FooterProps) {
     }
   };
 
-  const socialLinks = footerSettings?.socialLinks
+  // Use centralized social links from siteSettings or fallback
+  const socialLinks = siteSettings?.socialMedia
     ?.filter(s => s.isActive)
     ?.sort((a, b) => (a.order || 0) - (b.order || 0)) || [
     {
@@ -162,8 +166,8 @@ export default function Footer({ footerSettings }: FooterProps) {
     },
   ];
 
-  // Prayer times from centralized data or fallback
-  const prayerTimes = footerSettings?.prayerTimes
+  // Use centralized prayer times from siteSettings or fallback
+  const prayerTimes = siteSettings?.prayerTimes
     ?.filter(p => p.isActive)
     ?.sort((a, b) => (a.order || 0) - (b.order || 0)) || [
     {
