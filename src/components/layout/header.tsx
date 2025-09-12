@@ -184,12 +184,12 @@ export default function Header({ siteSettings }: HeaderProps) {
 
   return (
     <>
-      <header className="bg-white shadow-xl border-b-2 border-sand-medium sticky top-0 z-40 backdrop-blur-md bg-opacity-98">
+      <header className="bg-white/90 shadow-xl border-b border-secondary-200 sticky top-0 z-40 backdrop-blur-md">
         <div className="container-custom">
           <div className="flex items-center justify-between h-16 md:h-18">
             {/* Compact Logo */}
             <div className="flex items-center space-x-3 flex-shrink-0 min-w-0">
-              <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center overflow-hidden">
+              <div className="w-10 h-10 bg-secondary-50 border border-secondary-200 rounded-full flex items-center justify-center overflow-hidden">
                 {logoUrl ? (
                   <img 
                     src={logoUrl} 
@@ -197,14 +197,14 @@ export default function Header({ siteSettings }: HeaderProps) {
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <span className="text-lg font-bold text-primary-700">🏛️</span>
+                  <span className="text-lg font-bold text-primary-700">🕋</span>
                 )}
               </div>
               <div className="flex flex-col">
-                <div className="text-base md:text-lg font-bold text-primary-700 leading-tight">
+                <div className="text-base md:text-lg font-extrabold text-primary-800 leading-tight">
                   {siteTitle}
                 </div>
-                <div className="text-xs text-primary-600 hidden md:block">
+                <div className="text-xs text-secondary-800 hidden md:block">
                   {siteSubtitle}
                 </div>
               </div>
@@ -231,7 +231,7 @@ export default function Header({ siteSettings }: HeaderProps) {
                 href={`tel:${siteSettings?.contactInfo?.phone?.find(p => p.isPrimary)?.number || 
                            siteSettings?.contactInfo?.phone?.[0]?.number || 
                            '+8801234567890'}`}
-                className="hidden xl:flex items-center space-x-2 px-3 py-2 rounded-full bg-accent-600 text-white hover:bg-accent-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 font-semibold text-sm whitespace-nowrap"
+                className="hidden xl:flex items-center space-x-2 px-3 py-2 rounded-full bg-primary-700 text-white hover:bg-primary-800 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 font-semibold text-sm whitespace-nowrap"
                 aria-label="Call us"
               >
                 <Phone className="w-4 h-4" />

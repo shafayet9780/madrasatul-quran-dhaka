@@ -5,7 +5,7 @@ import createMiddleware from 'next-intl/middleware'
 // Create the internationalization middleware
 const intlMiddleware = createMiddleware({
   locales: ['bengali', 'english'],
-  defaultLocale: 'english',
+  defaultLocale: 'bengali',
   localePrefix: 'always',
 })
 

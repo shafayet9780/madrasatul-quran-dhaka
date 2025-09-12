@@ -26,7 +26,7 @@ export function EventsCalendar({ events }: EventsCalendarProps) {
   const daysInMonth = lastDayOfMonth.getDate();
 
   // Generate calendar days
-  const calendarDays = [];
+  const calendarDays: (number | null)[] = [];
   
   // Add empty cells for days before the first day of the month
   for (let i = 0; i < firstDayWeekday; i++) {

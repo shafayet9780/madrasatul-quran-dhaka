@@ -143,7 +143,7 @@ export function OptimizedImage({
     onError: handleError,
     priority,
     quality,
-    placeholder: typeof image === 'string' ? 'empty' : (placeholder as any),
+    placeholder: typeof image === 'string' ? 'empty' : placeholder,
     blurDataURL: typeof image === 'string' ? undefined : getBlurDataURL(),
     loading: priority ? 'eager' : loading,
   };
@@ -152,6 +152,7 @@ export function OptimizedImage({
     return (
       <Image
         {...imageProps}
+        alt={alt}
         fill
         sizes={getResponsiveSizes()}
       />
@@ -161,6 +162,7 @@ export function OptimizedImage({
   return (
     <Image
       {...imageProps}
+      alt={alt}
       width={width}
       height={height}
       sizes={getResponsiveSizes()}

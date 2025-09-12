@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
       message: 'Content refreshed successfully',
       revalidatedTags: tags,
     });
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { message: 'Failed to refresh content' },
       { status: 500 }

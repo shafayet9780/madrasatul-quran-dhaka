@@ -1,5 +1,6 @@
 import { client, previewClient } from './sanity';
 import { sanityFetch } from './sanity-fetch';
+import type { SanityDocument } from '@sanity/client';
 import { 
   siteSettingsQuery,
   allPagesQuery,
@@ -555,7 +556,7 @@ export class ContentService {
   /**
    * Content publishing workflow helpers
    */
-  async getUnpublishedContent(contentType: string): Promise<any[]> {
+  async getUnpublishedContent(contentType: string): Promise<SanityDocument<Record<string, unknown>>[]> {
     try {
       const query = `*[_type == $contentType && !defined(publishedAt)] | order(_createdAt desc)`;
       return await this.client.fetch(query, { contentType });
@@ -565,7 +566,7 @@ export class ContentService {
     }
   }
 
-  async getRecentlyUpdatedContent(contentType: string, days = 7): Promise<any[]> {
+  async getRecentlyUpdatedContent(contentType: string, days = 7): Promise<SanityDocument<Record<string, unknown>>[]> {
     try {
       const cutoffDate = new Date();
       cutoffDate.setDate(cutoffDate.getDate() - days);

@@ -4,8 +4,8 @@
 
 declare global {
   interface Window {
-    gtag: (...args: any[]) => void;
-    dataLayer: any[];
+    gtag: (...args: unknown[]) => void;
+    dataLayer: unknown[];
   }
 }
 
@@ -14,7 +14,7 @@ export interface AnalyticsEvent {
   category: string;
   label?: string;
   value?: number;
-  custom_parameters?: Record<string, any>;
+  custom_parameters?: Record<string, unknown>;
 }
 
 export interface ConversionEvent {
@@ -48,8 +48,8 @@ export function initializeAnalytics() {
 
   // Initialize dataLayer and gtag
   window.dataLayer = window.dataLayer || [];
-  window.gtag = function gtag() {
-    window.dataLayer.push(arguments);
+  window.gtag = function gtag(...args: unknown[]) {
+    window.dataLayer.push(args);
   };
 
   // Configure Google Analytics
@@ -133,7 +133,7 @@ export function trackFormSubmission(formName: string, success: boolean, errorMes
 /**
  * Track user interactions
  */
-export function trackUserInteraction(interactionType: string, element: string, details?: Record<string, any>) {
+export function trackUserInteraction(interactionType: string, element: string, details?: Record<string, unknown>) {
   trackEvent({
     action: 'user_interaction',
     category: 'engagement',

@@ -79,10 +79,10 @@ export async function generateMetadata(
     // Additional meta tags
     other: {
       'og:locale:alternate': locale === 'bengali' ? 'en_US' : 'bn_BD',
-      'article:author': seoData.author,
-      'article:section': seoData.section,
-      'article:published_time': seoData.publishedTime,
-      'article:modified_time': seoData.modifiedTime,
+      'article:author': seoData.author || '',
+      'article:section': seoData.section || '',
+      'article:published_time': seoData.publishedTime || '',
+      'article:modified_time': seoData.modifiedTime || '',
     },
 
     // Canonical URL

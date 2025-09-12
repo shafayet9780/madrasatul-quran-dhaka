@@ -164,7 +164,7 @@ export default function FacilitiesShowcase({ facilities: sanityFacilities = [] }
     id: facility._id,
     name: getLocalizedText(facility.name, locale),
     description: getLocalizedText(facility.description, locale) || '',
-    category: facility.category as any,
+    category: facility.category as Facility['category'],
     image: facility.images?.[0] ? `/api/image/${facility.images[0].asset._ref}?w=400&h=300` : '/images/campus/default-facility.jpg',
     capacity: facility.capacity,
     features: facility.features?.[locale] || [],
@@ -222,7 +222,7 @@ export default function FacilitiesShowcase({ facilities: sanityFacilities = [] }
     }
 
     return filtered;
-  }, [selectedCategory, searchTerm]);
+  }, [selectedCategory, searchTerm, sanityFacilitiesConverted]);
 
   const islamicFacilities = facilities.filter(f => f.category === 'islamic');
   const modernFacilities = facilities.filter(f => f.isModern);

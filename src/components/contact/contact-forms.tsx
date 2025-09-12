@@ -390,7 +390,7 @@ export default function ContactForms() {
             Get in Touch
           </h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Choose the type of inquiry below and fill out the form. We'll get back to you as soon as possible.
+            Choose the type of inquiry below and fill out the form. We&apos;ll get back to you as soon as possible.
           </p>
         </div>
 

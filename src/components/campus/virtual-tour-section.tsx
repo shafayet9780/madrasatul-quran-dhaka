@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 import { X, ChevronLeft, ChevronRight, ZoomIn, Camera, MapPin } from 'lucide-react';
@@ -101,7 +101,7 @@ export default function VirtualTourSection({ facilities = [] }: VirtualTourSecti
     src: facility.images?.[0] ? `/api/image/${facility.images[0].asset._ref}?w=800&h=600` : '/images/campus/default-facility.jpg',
     alt: facility.images?.[0]?.alt || getLocalizedText(facility.name, locale),
     title: getLocalizedText(facility.name, locale),
-    category: facility.category as any,
+    category: facility.category as GalleryImage['category'],
     description: getLocalizedText(facility.description, locale) || ''
   }));
 
@@ -135,24 +135,24 @@ export default function VirtualTourSection({ facilities = [] }: VirtualTourSecti
     }
   };
 
-  const closeLightbox = () => {
+  const closeLightbox = useCallback(() => {
     setLightboxOpen(false);
     if (mounted) {
       document.body.style.overflow = '';
     }
-  };
+  }, [mounted]);
 
-  const nextImage = () => {
-    setCurrentImageIndex((prev) => 
+  const nextImage = useCallback(() => {
+    setCurrentImageIndex((prev) =>
       prev === filteredImages.length - 1 ? 0 : prev + 1
     );
-  };
+  }, [filteredImages.length]);
 
-  const prevImage = () => {
-    setCurrentImageIndex((prev) => 
+  const prevImage = useCallback(() => {
+    setCurrentImageIndex((prev) =>
       prev === 0 ? filteredImages.length - 1 : prev - 1
     );
-  };
+  }, [filteredImages.length]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -173,7 +173,7 @@ export default function VirtualTourSection({ facilities = [] }: VirtualTourSecti
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [lightboxOpen]);
+  }, [lightboxOpen, closeLightbox, nextImage, prevImage]);
 
   // Cleanup on unmount
   useEffect(() => {

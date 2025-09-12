@@ -44,12 +44,12 @@ export function getOptimizedImageUrl(
   if (options.width) urlBuilder = urlBuilder.width(options.width);
   if (options.height) urlBuilder = urlBuilder.height(options.height);
   if (options.quality) urlBuilder = urlBuilder.quality(options.quality);
-  if (options.format) urlBuilder = urlBuilder.format(options.format);
+  if (options.format && options.format !== 'auto') urlBuilder = urlBuilder.format(options.format as any);
   if (options.fit) urlBuilder = urlBuilder.fit(options.fit);
   if (options.crop) urlBuilder = urlBuilder.crop(options.crop);
   if (options.blur) urlBuilder = urlBuilder.blur(options.blur);
   if (options.sharpen) urlBuilder = urlBuilder.sharpen(options.sharpen);
-  if (options.auto) urlBuilder = urlBuilder.auto(options.auto);
+  if (options.auto && options.auto === 'format') urlBuilder = urlBuilder.auto(options.auto as any);
 
   // Apply hotspot and crop if available
   if (image.hotspot) {

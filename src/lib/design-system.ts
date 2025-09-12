@@ -14,41 +14,44 @@ export function cn(...inputs: ClassValue[]) {
 export const DESIGN_TOKENS = {
   // Color palette
   colors: {
+    // Luxe Monochrome (Primary)
     primary: {
-      50: '#f0fdf4',
-      100: '#dcfce7',
-      200: '#bbf7d0',
-      300: '#86efac',
-      400: '#4ade80',
-      500: '#22c55e', // Main Islamic Green
-      600: '#16a34a',
-      700: '#15803d',
-      800: '#166534',
-      900: '#14532d',
+      50: '#DEB887',
+      100: '#C49963',
+      200: '#B8956A',
+      300: '#A97C50', // Brand
+      400: '#9B6E47',
+      500: '#8B5A3C',
+      600: '#7A4D32',
+      700: '#654321',
+      800: '#4A3018',
+      900: '#2F1E0F',
     },
+    // Sophisticated Neutrals (Secondary)
     secondary: {
-      50: '#eff6ff',
-      100: '#dbeafe',
-      200: '#bfdbfe',
-      300: '#93c5fd',
-      400: '#60a5fa',
-      500: '#3b82f6', // Deep Blue
-      600: '#2563eb',
-      700: '#1d4ed8',
-      800: '#1e40af',
-      900: '#1e3a8a',
+      50: '#F5EFDE',
+      100: '#E8D3B8',
+      200: '#DDC4A4',
+      300: '#C2956A',
+      400: '#B68A5A',
+      500: '#A97C50', // Brand Primary
+      600: '#9C7349',
+      700: '#7A6F5D',
+      800: '#635E52',
+      900: '#4B453D',
     },
+    // Rose Gold Elegance (Accent)
     accent: {
-      50: '#fffbeb',
-      100: '#fef3c7',
-      200: '#fde68a',
-      300: '#fcd34d',
-      400: '#fbbf24', // Gold
-      500: '#f59e0b',
-      600: '#d97706',
-      700: '#b45309',
-      800: '#92400e',
-      900: '#78350f',
+      50: '#F2E5D7',
+      100: '#E8D1C1',
+      200: '#D4A084',
+      300: '#C1896F',
+      400: '#A97C50', // Brand
+      500: '#B8999C',
+      600: '#A0858A',
+      700: '#8D6B6B',
+      800: '#755A5A',
+      900: '#5C4848',
     },
   },
   
@@ -99,10 +102,10 @@ export const DESIGN_TOKENS = {
   
   // Shadows
   shadows: {
-    islamic: '0 4px 6px -1px rgba(34, 197, 94, 0.1), 0 2px 4px -1px rgba(34, 197, 94, 0.06)',
-    islamicLg: '0 10px 15px -3px rgba(34, 197, 94, 0.1), 0 4px 6px -2px rgba(34, 197, 94, 0.05)',
-    gold: '0 4px 6px -1px rgba(245, 158, 11, 0.1), 0 2px 4px -1px rgba(245, 158, 11, 0.06)',
-    soft: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
+    islamic: '0 4px 12px rgba(101, 67, 33, 0.12), 0 2px 6px rgba(101, 67, 33, 0.08)',
+    islamicLg: '0 12px 24px rgba(101, 67, 33, 0.16), 0 6px 12px rgba(101, 67, 33, 0.10)',
+    gold: '0 4px 12px rgba(169, 124, 80, 0.18), 0 2px 6px rgba(169, 124, 80, 0.12)',
+    soft: '0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.06)',
   },
 } as const;
 

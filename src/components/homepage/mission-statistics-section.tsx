@@ -3,6 +3,10 @@
 import { useTranslations } from 'next-intl';
 import { useState, useEffect, useRef } from 'react';
 import { OptimizedImage } from '@/components/ui/optimized-image';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+gsap.registerPlugin(ScrollTrigger);
 
 interface StatisticCardProps {
   number: number;
@@ -91,30 +95,113 @@ interface MissionStatisticsSectionProps {
   siteSettings?: SiteSettings | null;
 }
 
-export default function MissionStatisticsSection({ 
-  className = '', 
-  siteSettings 
+export default function MissionStatisticsSection({
+  className = '',
+  siteSettings
 }: MissionStatisticsSectionProps) {
   const t = useTranslations('homepage');
   const locale = useLocale() as 'bengali' | 'english';
-  const [missionVisible, setMissionVisible] = useState(false);
   const missionRef = useRef<HTMLDivElement>(null);
+  const titleRef = useRef<HTMLDivElement>(null);
+  const descriptionRef = useRef<HTMLParagraphElement>(null);
+  const imageRef = useRef<HTMLDivElement>(null);
+  const statsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setMissionVisible(true);
+    const ctx = gsap.context(() => {
+      // Mission section animations
+      gsap.fromTo(titleRef.current,
+        { y: 30, opacity: 0 },
+        {
+          y: 0,
+          opacity: 1,
+          duration: 0.8,
+          ease: 'power2.out',
+          scrollTrigger: {
+            trigger: titleRef.current,
+            start: 'top 85%',
+            toggleActions: 'play none none none'
+          }
         }
-      },
-      { threshold: 0.2 }
-    );
+      );
 
-    if (missionRef.current) {
-      observer.observe(missionRef.current);
-    }
+      gsap.fromTo(descriptionRef.current,
+        { y: 20, opacity: 0 },
+        {
+          y: 0,
+          opacity: 1,
+          duration: 0.6,
+          delay: 0.2,
+          ease: 'power2.out',
+          scrollTrigger: {
+            trigger: descriptionRef.current,
+            start: 'top 85%',
+            toggleActions: 'play none none none'
+          }
+        }
+      );
 
-    return () => observer.disconnect();
+      gsap.fromTo(imageRef.current,
+        { scale: 0.95, opacity: 0 },
+        {
+          scale: 1,
+          opacity: 1,
+          duration: 1,
+          delay: 0.4,
+          ease: 'power2.out',
+          scrollTrigger: {
+            trigger: imageRef.current,
+            start: 'top 85%',
+            toggleActions: 'play none none none'
+          }
+        }
+      );
+
+      // Statistics section animations
+      const statsCards = gsap.utils.toArray('.stats-card');
+      statsCards.forEach((card, index) => {
+        gsap.fromTo(card as gsap.TweenTarget,
+          { y: 30, opacity: 0 },
+          {
+            y: 0,
+            opacity: 1,
+            duration: 0.6,
+            delay: index * 0.1,
+            ease: 'power2.out',
+            scrollTrigger: {
+              trigger: statsRef.current,
+              start: 'top 85%',
+              toggleActions: 'play none none none'
+            }
+          }
+        );
+      });
+
+      // Hover animations for stats cards
+      statsCards.forEach((card) => {
+        const element = card as HTMLElement;
+        element.addEventListener('mouseenter', () => {
+          gsap.to(element, {
+            y: -5,
+            scale: 1.02,
+            duration: 0.3,
+            ease: 'power2.out'
+          });
+        });
+
+        element.addEventListener('mouseleave', () => {
+          gsap.to(element, {
+            y: 0,
+            scale: 1,
+            duration: 0.3,
+            ease: 'power2.out'
+          });
+        });
+      });
+
+    }, []);
+
+    return () => ctx.revert();
   }, []);
 
   const statistics = [
@@ -149,7 +236,7 @@ export default function MissionStatisticsSection({
   ];
 
   return (
-    <section className={`bg-sand-light relative overflow-hidden ${className}`}>
+    <section className={`bg-white relative overflow-hidden ${className}`}>
       {/* Background Pattern */}
       <div className="absolute inset-0 opacity-5">
         <div 
@@ -164,15 +251,10 @@ export default function MissionStatisticsSection({
 
       <div className="container-custom py-12 md:py-20 relative z-10">
         {/* Mission Section */}
-        <div 
-          ref={missionRef}
-          className={`text-center mb-16 md:mb-20 transition-all duration-1000 ${
-            missionVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-          }`}
-        >
+        <div className="text-center mb-16 md:mb-20">
           <div className="max-w-4xl mx-auto">
             {/* Mission Title with Islamic Decoration */}
-            <div className="flex items-center justify-center mb-8">
+            <div ref={titleRef} className="flex items-center justify-center mb-8">
               <div className="hidden sm:block w-16 h-px bg-gradient-to-r from-transparent to-primary-400"></div>
               <div className="mx-4 text-center">
                 <div className="w-2 h-2 bg-primary-500 rounded-full mx-auto mb-2"></div>
@@ -186,49 +268,49 @@ export default function MissionStatisticsSection({
 
             {/* Mission Description */}
             <div className="relative">
-              <p className="text-lg md:text-xl lg:text-2xl text-text-secondary leading-relaxed px-4 mb-8">
+              <p ref={descriptionRef} className="text-lg md:text-xl lg:text-2xl text-secondary-900 leading-relaxed px-4 mb-8">
                 {t('mission.description')}
               </p>
-              
+
               {/* Decorative Quote Marks */}
-              <div className="absolute -top-4 -left-2 text-6xl text-primary-200 font-serif leading-none select-none">
+              <div className="absolute -top-4 -left-2 text-6xl text-primary-100 font-serif leading-none select-none">
                 &ldquo;
               </div>
-              <div className="absolute -bottom-8 -right-2 text-6xl text-primary-200 font-serif leading-none select-none">
+              <div className="absolute -bottom-8 -right-2 text-6xl text-primary-100 font-serif leading-none select-none">
                 &rdquo;
               </div>
             </div>
 
             {/* Campus Image */}
-            <div className="mt-12 relative">
+            <div ref={imageRef} className="mt-12 relative">
               <div className="relative w-full max-w-2xl mx-auto rounded-2xl overflow-hidden shadow-2xl">
                 <OptimizedImage
                   image="/images/campus-mission.jpg"
                   alt="Madrasatul Quran Campus - Islamic Education Excellence"
                   width={800}
                   height={400}
-                  className="w-full h-64 md:h-80 object-cover"
+                  className="w-full h-64 md:h-80 object-cover mission-image"
                   loading="lazy"
-                  onError={(e) => {
+                  onError={() => {
                     // Fallback to a placeholder if image doesn't exist
-                    const target = e.target as HTMLImageElement;
-                    target.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 400'%3E%3Crect width='800' height='400' fill='%23f8e6c8'/%3E%3Ctext x='400' y='200' text-anchor='middle' dy='0.3em' font-family='Arial' font-size='24' fill='%23b8924f'%3EMadrasatul Quran Campus%3C/text%3E%3C/svg%3E";
+                    const target = document.querySelector('.mission-image') as HTMLImageElement;
+                    if (target) {
+                      target.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 400'%3E%3Crect width='800' height='400' fill='%23f8e6c8'/%3E%3Ctext x='400' y='200' text-anchor='middle' dy='0.3em' font-family='Arial' font-size='24' fill='%23b8924f'%3EMadrasatul Quran Campus%3C/text%3E%3C/svg%3E";
+                    }
                   }}
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-primary-900/20 to-transparent"></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-primary-900/10 to-transparent"></div>
               </div>
             </div>
           </div>
         </div>
 
         {/* Statistics Section */}
-        <div className="text-center">
-          <h3 className={`text-2xl sm:text-3xl md:text-4xl font-bold text-primary-700 mb-12 transition-all duration-1000 delay-300 ${
-            missionVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-          }`}>
+        <div ref={statsRef} className="text-center">
+          <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold text-primary-700 mb-12">
             Our Achievements
           </h3>
-          
+
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 md:gap-8">
             {statistics.map((stat, index) => (
               <StatisticCard
@@ -244,7 +326,7 @@ export default function MissionStatisticsSection({
         </div>
 
         {/* Additional Visual Elements */}
-        <div className="mt-16 flex justify-center space-x-8 opacity-30">
+        <div className="mt-16 flex justify-center space-x-8 opacity-20">
           <div className="w-3 h-3 bg-primary-400 rounded-full animate-pulse"></div>
           <div className="w-3 h-3 bg-primary-500 rounded-full animate-pulse" style={{ animationDelay: '0.5s' }}></div>
           <div className="w-3 h-3 bg-primary-600 rounded-full animate-pulse" style={{ animationDelay: '1s' }}></div>

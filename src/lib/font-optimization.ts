@@ -115,7 +115,7 @@ export const fontSubsets = {
  * Get optimal font subset for language
  */
 export function getOptimalFontSubset(language: keyof typeof fontSubsets): string[] {
-  return fontSubsets[language];
+  return [...fontSubsets[language]];
 }
 
 /**

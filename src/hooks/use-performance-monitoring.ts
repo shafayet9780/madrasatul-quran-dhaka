@@ -108,8 +108,8 @@ export function usePerformanceMonitoring() {
     if (navigationEntries.length > 0) {
       const nav = navigationEntries[0];
       const ttfbValue = nav.responseStart - nav.requestStart;
-      const loadTimeValue = nav.loadEventEnd - nav.navigationStart;
-      const domContentLoadedValue = nav.domContentLoadedEventEnd - nav.navigationStart;
+      const loadTimeValue = nav.loadEventEnd - (nav.activationStart || nav.fetchStart);
+      const domContentLoadedValue = nav.domContentLoadedEventEnd - (nav.activationStart || nav.fetchStart);
 
       setMetrics(prev => ({
         ...prev,

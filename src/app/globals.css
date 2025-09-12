@@ -1,80 +1,80 @@
 @import 'tailwindcss';
 
+/* Tailwind CSS v4 @theme directive */
+/* eslint-disable-next-line */
+/* stylelint-disable at-rule-no-unknown */
 @theme {
-  /* Warm Brown Primary Colors - #a97c50 Theme */
-  --color-primary-50: #fefcf9;
-  --color-primary-100: #fdf8f2;
-  --color-primary-200: #f9f0e4;
-  --color-primary-300: #f3e4d1;
-  --color-primary-400: #ebd2b5;
-  --color-primary-500: #dfbb91;
-  --color-primary-600: #d09e6b;
-  --color-primary-700: #bc8654;
-  --color-primary-800: #a97c50;
-  --color-primary-900: #8a6441;
+  /* Primary Scale (Luxe Monochrome) */
+  --color-primary-50: #DEB887;
+  --color-primary-100: #C49963;
+  --color-primary-200: #B8956A;
+  --color-primary-300: #A97C50; /* Brand */
+  --color-primary-400: #9B6E47;
+  --color-primary-500: #8B5A3C;
+  --color-primary-600: #7A4D32;
+  --color-primary-700: #654321;
+  --color-primary-800: #4A3018;
+  --color-primary-900: #2F1E0F;
 
-  /* Vibrant Ocean Blue Secondary Colors - Tropical Sea Blues */
-  --color-secondary-50: #f0fbff;
-  --color-secondary-100: #e0f6ff;
-  --color-secondary-200: #bae9ff;
-  --color-secondary-300: #7dd8ff;
-  --color-secondary-400: #38c4ff;
-  --color-secondary-500: #0db0f0;
-  --color-secondary-600: #0891d4;
-  --color-secondary-700: #0c7bb8;
-  --color-secondary-800: #106596;
-  --color-secondary-900: #14537a;
+  /* Secondary Scale (Sophisticated Neutrals) */
+  --color-secondary-50: #F5EFDE;
+  --color-secondary-100: #E8D3B8;
+  --color-secondary-200: #DDC4A4;
+  --color-secondary-300: #C2956A;
+  --color-secondary-400: #B68A5A;
+  --color-secondary-500: #A97C50; /* Brand Primary */
+  --color-secondary-600: #9C7349;
+  --color-secondary-700: #7A6F5D;
+  --color-secondary-800: #635E52;
+  --color-secondary-900: #4B453D;
 
-  /* Vibrant Sunset Accent Colors - Tropical Sunset */
-  --color-accent-50: #fffcf0;
-  --color-accent-100: #fef6d9;
-  --color-accent-200: #fdecb3;
-  --color-accent-300: #fbdc82;
-  --color-accent-400: #f9c74f;
-  --color-accent-500: #f7b32b;
-  --color-accent-600: #e89611;
-  --color-accent-700: #c17a0f;
-  --color-accent-800: #9c6114;
-  --color-accent-900: #7e4f14;
+  /* Accent Scale (Rose Gold Elegance) */
+  --color-accent-50: #F2E5D7;
+  --color-accent-100: #E8D1C1;
+  --color-accent-200: #D4A084;
+  --color-accent-300: #C1896F;
+  --color-accent-400: #A97C50; /* Brand */
+  --color-accent-500: #B8999C;
+  --color-accent-600: #A0858A;
+  --color-accent-700: #8D6B6B;
+  --color-accent-800: #755A5A;
+  --color-accent-900: #5C4848;
 
   --font-family-bengali:
     'Noto Sans Bengali', 'Kalpurush', 'SolaimanLipi', sans-serif;
   --font-family-english: 'Inter', 'Open Sans', system-ui, sans-serif;
   --font-family-arabic: 'Noto Sans Arabic', serif;
 }
+/* stylelint-enable at-rule-no-unknown */
+/* eslint-enable */
 
 @layer base {
   /* CSS Variables for theming */
   :root {
-    /* Warm Brown Theme Colors - #a97c50 */
-    --color-islamic-primary: #a97c50;
-    --color-islamic-secondary: #bc8654;
-    --color-islamic-accent: #f7b32b;
-    --color-islamic-light: #fdf8f2;
-    --color-islamic-dark: #8a6441;
-    --color-ocean-blue: #0891d4;
-    --color-sunset-orange: #e89611;
-    --color-sand-light: #fefcf9;
-    --color-sand-medium: #f3e4d1;
-    --color-sand-dark: #a97c50;
-    --color-text-primary: #5c4d3a;
-    --color-text-secondary: #8f7a5e;
-    --color-text-light: #b39478;
+    /* Brand tokens */
+    --color-islamic-primary: #A97C50;
+    --color-islamic-secondary: #7A6F5D;
+    --color-islamic-accent: #B8999C; /* rose-gold accent */
+    --color-islamic-light: #F5EFDE;
+    --color-islamic-dark: #2F1E0F;
+    --color-sand-light: #F4E4C1;
+    --color-sand-medium: #DDC4A4;
+    --color-sand-dark: #654321;
+    --color-text-primary: #4B453D;
+    --color-text-secondary: #7A6F5D;
+    --color-text-light: #A0858A;
   }
 
   /* Dark mode variables */
   [data-theme='dark'] {
-    /* Warm Brown Dark Theme */
-    --color-islamic-primary: #f3e4d1;
-    --color-islamic-secondary: #ebd2b5;
-    --color-islamic-accent: #f9c74f;
-    --color-islamic-light: #8a6441;
-    --color-islamic-dark: #fefcf9;
-    --color-ocean-blue: #38c4ff;
-    --color-sunset-orange: #f9c74f;
-    --color-text-primary: #f3e4d1;
-    --color-text-secondary: #dfbb91;
-    --color-text-light: #d09e6b;
+    --color-islamic-primary: #DEB887;
+    --color-islamic-secondary: #C2956A;
+    --color-islamic-accent: #D4A084;
+    --color-islamic-light: #4A3018;
+    --color-islamic-dark: #F2E5D7;
+    --color-text-primary: #F4E4C1;
+    --color-text-secondary: #DEB887;
+    --color-text-light: #C1896F;
   }
 
   /* Base styles */
@@ -85,7 +85,8 @@
 
   body {
     color: var(--color-text-primary);
-    background: linear-gradient(135deg, #fefcf9 0%, #fdf8f2 100%);
+    /* Brand background gradients */
+    background: linear-gradient(135deg, #A97C50 0%, #D4A574 50%, #F4E4C1 100%);
     min-height: 100vh;
     font-feature-settings:
       'kern' 1,
@@ -148,11 +149,7 @@ slamic geometric pattern background */
 
   /* Button styles */
   .btn-primary {
-    background: linear-gradient(
-      135deg,
-      var(--color-primary-600),
-      var(--color-primary-700)
-    );
+    background: linear-gradient(135deg, var(--color-primary-500), var(--color-primary-700));
     color: white;
     font-weight: 500;
     padding: 0.875rem 1.5rem;
@@ -179,8 +176,8 @@ slamic geometric pattern background */
   }
 
   .btn-secondary {
-    background-color: var(--color-sand-light);
-    color: var(--color-islamic-primary);
+    background-color: var(--color-islamic-light);
+    color: var(--color-islamic-dark);
     border: 2px solid var(--color-islamic-primary);
     font-weight: 500;
     padding: 0.875rem 1.5rem;
@@ -207,11 +204,7 @@ slamic geometric pattern background */
   }
 
   .btn-accent {
-    background: linear-gradient(
-      135deg,
-      var(--color-accent-500),
-      var(--color-accent-600)
-    );
+    background: linear-gradient(135deg, var(--color-accent-500), var(--color-accent-700));
     color: white;
     font-weight: 500;
     padding: 0.75rem 1.5rem;
@@ -323,11 +316,7 @@ slamic geometric pattern background */
 
   /* Hero section gradient */
   .hero-gradient {
-    background: linear-gradient(
-      135deg,
-      var(--color-primary-700) 0%,
-      var(--color-primary-600) 100%
-    );
+    background: linear-gradient(135deg, var(--color-primary-700) 0%, var(--color-primary-500) 50%, var(--color-secondary-50) 100%);
     position: relative;
   }
 
@@ -646,6 +635,7 @@ slamic geometric pattern background */
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
+    line-clamp: 2;
   }
 
   .line-clamp-3 {
@@ -653,6 +643,7 @@ slamic geometric pattern background */
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
+    line-clamp: 3;
   }
 
   /* Notice ticker animation */

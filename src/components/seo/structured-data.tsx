@@ -12,7 +12,7 @@ import { generateLocalBusinessStructuredData as generateLocalSEOData } from '@/l
 
 interface StructuredDataProps {
   type: 'organization' | 'local-business' | 'breadcrumb' | 'faq' | 'article';
-  data?: any;
+  data?: Record<string, unknown>;
 }
 
 export function StructuredData({ type, data }: StructuredDataProps) {
@@ -27,18 +27,18 @@ export function StructuredData({ type, data }: StructuredDataProps) {
         return generateLocalSEOData(locale);
       
       case 'breadcrumb':
-        return generateBreadcrumbStructuredData(data.breadcrumbs, locale);
+        return generateBreadcrumbStructuredData(data?.breadcrumbs as any, locale);
       
       case 'faq':
-        return generateFAQStructuredData(data.faqs, locale);
+        return generateFAQStructuredData(data?.faqs as any, locale);
       
       case 'article':
         return {
           '@context': 'https://schema.org',
           '@type': 'Article',
-          headline: data.title,
-          description: data.description,
-          image: data.image,
+          headline: data?.title,
+          description: data?.description,
+          image: data?.image,
           author: {
             '@type': 'Organization',
             name: locale === 'bengali' ? 'মাদরাসাতুল কুরআন' : 'Madrasatul Quran',
@@ -51,11 +51,11 @@ export function StructuredData({ type, data }: StructuredDataProps) {
               url: '/images/logo.png',
             },
           },
-          datePublished: data.publishedAt,
-          dateModified: data.modifiedAt || data.publishedAt,
+          datePublished: data?.publishedAt,
+          dateModified: data?.modifiedAt || data?.publishedAt,
           mainEntityOfPage: {
             '@type': 'WebPage',
-            '@id': data.url,
+            '@id': data?.url,
           },
         };
       

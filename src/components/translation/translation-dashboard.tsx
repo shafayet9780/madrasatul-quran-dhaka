@@ -17,7 +17,7 @@ interface TranslationDashboardProps {
 
 export function TranslationDashboard({ userRole = 'editor' }: TranslationDashboardProps) {
   const t = useTranslations('translation');
-  const [statistics, setStatistics] = useState<any>(null);
+  const [statistics, setStatistics] = useState<Record<string, unknown> | null>(null);
   const [workflowItems, setWorkflowItems] = useState<TranslationWorkflowItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState({
@@ -90,22 +90,22 @@ export function TranslationDashboard({ userRole = 'editor' }: TranslationDashboa
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <TranslationStatusCard
             title={t('stats.total', { defaultValue: 'Total Tasks' })}
-            value={statistics.total}
+            value={statistics.total as number}
             color="blue"
           />
           <TranslationStatusCard
             title={t('stats.completed', { defaultValue: 'Completed' })}
-            value={statistics.completed}
+            value={statistics.completed as number}
             color="green"
           />
           <TranslationStatusCard
             title={t('stats.inProgress', { defaultValue: 'In Progress' })}
-            value={statistics.inProgress}
+            value={statistics.inProgress as number}
             color="yellow"
           />
           <TranslationStatusCard
             title={t('stats.pending', { defaultValue: 'Pending' })}
-            value={statistics.pending}
+            value={statistics.pending as number}
             color="red"
           />
         </div>
@@ -124,7 +124,7 @@ export function TranslationDashboard({ userRole = 'editor' }: TranslationDashboa
                   {t('stats.completed', { defaultValue: 'Completed' })}
                 </span>
                 <span className="text-sm font-medium text-green-600">
-                  {statistics.byLanguage.bengali.completed}
+                  {(statistics.byLanguage as any).bengali.completed}
                 </span>
               </div>
               <div className="flex justify-between">
@@ -132,7 +132,7 @@ export function TranslationDashboard({ userRole = 'editor' }: TranslationDashboa
                   {t('stats.pending', { defaultValue: 'Pending' })}
                 </span>
                 <span className="text-sm font-medium text-red-600">
-                  {statistics.byLanguage.bengali.pending}
+                  {(statistics.byLanguage as any).bengali.pending}
                 </span>
               </div>
             </div>
@@ -148,7 +148,7 @@ export function TranslationDashboard({ userRole = 'editor' }: TranslationDashboa
                   {t('stats.completed', { defaultValue: 'Completed' })}
                 </span>
                 <span className="text-sm font-medium text-green-600">
-                  {statistics.byLanguage.english.completed}
+                  {(statistics.byLanguage as any).english.completed}
                 </span>
               </div>
               <div className="flex justify-between">
@@ -156,7 +156,7 @@ export function TranslationDashboard({ userRole = 'editor' }: TranslationDashboa
                   {t('stats.pending', { defaultValue: 'Pending' })}
                 </span>
                 <span className="text-sm font-medium text-red-600">
-                  {statistics.byLanguage.english.pending}
+                  {(statistics.byLanguage as any).english.pending}
                 </span>
               </div>
             </div>

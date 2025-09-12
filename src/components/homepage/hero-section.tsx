@@ -4,6 +4,7 @@ import { useTranslations } from 'next-intl';
 import { HeroImage } from '@/components/ui/optimized-image';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
+import { SplitText } from '@/components/ui';
 
 import type { SiteSettings, NewsEvent } from '@/types/sanity';
 import { getLocalizedText } from '@/lib/multilingual-content';
@@ -22,7 +23,6 @@ export default function HeroSection({
 }: HeroSectionProps) {
   const t = useTranslations('homepage');
   const tNav = useTranslations('navigation');
-  const tCommon = useTranslations('common');
   const locale = useLocale() as 'bengali' | 'english';
   const [isVisible, setIsVisible] = useState(false);
 
@@ -142,7 +142,7 @@ export default function HeroSection({
   return (
     <section className={`relative bg-white ${className}`}>
       {/* Main Hero Section */}
-      <div className="container-custom py-6 lg:py-8">
+      <div className="container-custom py-8 lg:py-12">
         <div className="grid grid-cols-12 gap-6 lg:gap-8">
           {/* Left - Full Image Section with Title Above */}
           <div
@@ -153,30 +153,28 @@ export default function HeroSection({
             }`}
           >
             {/* Ultra Compact Title Section */}
-            <div className="text-center space-y-1">
+            <div className="text-center space-y-2">
               {/* Institution Badge */}
-              <div className="inline-flex items-center bg-primary-50 text-primary-700 rounded-full px-2 py-0.5 text-xs font-medium">
-                <span className="mr-1">🏛️</span>
-                Est. 2010
+              <div className="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold text-primary-900 bg-secondary-50 border border-secondary-200" aria-label="Bismillah">
+                <span className="font-arabic text-sm mr-1">﷽</span>
+                {locale === 'bengali' ? 'মিশন-চালিত ইসলামী শিক্ষা' : 'Mission-driven Islamic Education'}
               </div>
 
               {/* Main Title */}
-              <h1 className="text-xl lg:text-2xl xl:text-3xl font-bold text-gray-900 leading-tight">
-                {siteSettings
-                  ? getLocalizedText(siteSettings.title, locale)
-                  : t('hero.title')}
+              <h1 className="text-2xl lg:text-4xl xl:text-5xl font-extrabold leading-tight text-primary-800">
+                <SplitText mode="words" stagger={0.06}>
+                  {siteSettings ? getLocalizedText(siteSettings.title, locale) : t('hero.title')}
+                </SplitText>
               </h1>
 
               {/* Subtitle */}
-              <h2 className="text-sm lg:text-base text-gray-600 leading-tight max-w-lg mx-auto">
-                {siteSettings
-                  ? getLocalizedText(siteSettings.description, locale)
-                  : t('hero.subtitle')}
+              <h2 className="text-base lg:text-lg text-secondary-800 leading-relaxed max-w-2xl mx-auto">
+                {siteSettings ? getLocalizedText(siteSettings.description, locale) : t('hero.subtitle')}
               </h2>
             </div>
 
             {/* Full Width Image Gallery */}
-            <div className="relative h-96 lg:h-[420px] xl:h-[480px] rounded-2xl overflow-hidden shadow-xl">
+            <div className="relative h-96 lg:h-[420px] xl:h-[480px] rounded-2xl overflow-hidden shadow-xl ring-1 ring-secondary-200 bg-secondary-50">
               {activityImages.map((image, index) => (
                 <div
                   key={index}
@@ -194,8 +192,8 @@ export default function HeroSection({
                     }}
                   />
                   {/* Image Overlay with Title */}
-                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-6">
-                    <h3 className="text-white font-semibold text-xl lg:text-2xl">
+                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-primary-900/70 to-transparent p-6">
+                    <h3 className="text-secondary-50 font-semibold text-xl lg:text-2xl">
                       {image.title}
                     </h3>
                   </div>
@@ -275,12 +273,12 @@ export default function HeroSection({
             }`}
           >
             {/* Latest News Sidebar - Height matches title + image gallery */}
-            <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden h-[480px] lg:h-[520px] xl:h-[580px]">
+            <div className="bg-white rounded-2xl shadow-lg border border-secondary-200 overflow-hidden h-[480px] lg:h-[520px] xl:h-[580px]">
               {/* News Header */}
-              <div className="bg-green-600 text-white px-4 py-3">
+              <div className="bg-secondary-50 text-primary-900 px-4 py-3 border-b border-secondary-200">
                 <h3 className="text-sm font-semibold flex items-center">
-                  <span className="mr-2">📰</span>
-                  Latest News
+                  <span className="mr-2">🕋</span>
+                  {locale === 'bengali' ? 'সংবাদ ও ঘোষণা' : 'News & Announcements'}
                 </h3>
               </div>
 
@@ -295,15 +293,15 @@ export default function HeroSection({
                   {latestNews.map((news, index) => (
                     <div
                       key={index}
-                      className="flex p-3 border-b border-gray-100 min-h-[80px]"
+                      className="flex p-3 border-b border-secondary-100 min-h-[80px]"
                     >
                       {/* Compact Date Box */}
                       <div className="flex-shrink-0 mr-3">
                         <div
                           className={`w-10 h-10 rounded-lg flex flex-col items-center justify-center text-xs font-bold ${
                             news.isHighlight
-                              ? 'bg-green-100 text-green-700'
-                              : 'bg-gray-100 text-gray-600'
+                              ? 'bg-primary-100 text-primary-700'
+                              : 'bg-secondary-100 text-secondary-800'
                           }`}
                         >
                           <div className="text-sm leading-none">
@@ -315,13 +313,7 @@ export default function HeroSection({
 
                       {/* News Content */}
                       <div className="flex-1">
-                        <p
-                          className={`text-xs leading-relaxed ${
-                            news.isHighlight
-                              ? 'text-gray-900 font-medium'
-                              : 'text-gray-700'
-                          }`}
-                        >
+                        <p className={`text-xs leading-relaxed ${news.isHighlight ? 'text-primary-900 font-medium' : 'text-secondary-900'}`}>
                           {news.title}
                         </p>
                       </div>
@@ -345,7 +337,7 @@ export default function HeroSection({
       </div>
 
       {/* Stats Section */}
-      <div className="bg-gray-50 py-16">
+      <div className="bg-secondary-50 py-16">
         <div className="container-custom">
           <div
             className={`grid grid-cols-2 lg:grid-cols-4 gap-8 transition-all duration-1000 delay-600 ${
@@ -358,7 +350,7 @@ export default function HeroSection({
               <div className="text-4xl font-bold text-primary-700 mb-2">
                 {siteSettings?.statistics?.totalStudents || 500}+
               </div>
-              <div className="text-gray-600 font-medium">
+              <div className="text-secondary-900 font-medium">
                 {t('statistics.students')}
               </div>
             </div>
@@ -366,7 +358,7 @@ export default function HeroSection({
               <div className="text-4xl font-bold text-primary-700 mb-2">
                 {siteSettings?.statistics?.teacherCount || 25}+
               </div>
-              <div className="text-gray-600 font-medium">
+              <div className="text-secondary-900 font-medium">
                 {t('statistics.teachers')}
               </div>
             </div>
@@ -374,7 +366,7 @@ export default function HeroSection({
               <div className="text-4xl font-bold text-primary-700 mb-2">
                 {siteSettings?.statistics?.yearsOfService || 15}+
               </div>
-              <div className="text-gray-600 font-medium">
+              <div className="text-secondary-900 font-medium">
                 {t('statistics.years')}
               </div>
             </div>
@@ -382,7 +374,7 @@ export default function HeroSection({
               <div className="text-4xl font-bold text-primary-700 mb-2">
                 {siteSettings?.statistics?.graduationRate || 95}%
               </div>
-              <div className="text-gray-600 font-medium">
+              <div className="text-secondary-900 font-medium">
                 {t('statistics.successRate')}
               </div>
             </div>

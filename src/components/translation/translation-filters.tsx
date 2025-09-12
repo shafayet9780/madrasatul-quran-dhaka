@@ -9,7 +9,7 @@ interface TranslationFiltersProps {
     priority: string;
     status: string;
   };
-  onFiltersChange: (filters: any) => void;
+  onFiltersChange: (filters: TranslationFiltersProps['filters']) => void;
   documentTypes: string[];
 }
 

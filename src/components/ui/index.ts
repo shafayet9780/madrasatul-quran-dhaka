@@ -32,6 +32,10 @@ export {
 // Rich Text Component
 export { RichText } from './rich-text';
 
+// Reactbits-inspired micro-components
+export { SplitText } from './SplitText';
+export { ClickSpark } from './ClickSpark';
+
 // Design System Utilities
 export {
   cn,

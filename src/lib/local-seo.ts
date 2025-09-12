@@ -65,7 +65,7 @@ export const localBusinessInfo: LocalBusinessInfo = {
     wednesday: { open: '08:00', close: '15:00' },
     thursday: { open: '08:00', close: '15:00' },
     friday: { open: '08:00', close: '11:30' },
-    saturday: { closed: true },
+    saturday: { open: 'Closed', close: 'Closed', closed: true },
   },
 };
 

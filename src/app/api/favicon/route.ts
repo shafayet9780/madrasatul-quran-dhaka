@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
     const response = NextResponse.redirect(new URL('/favicon.ico', request.url));
     response.headers.set('Cache-Control', 'public, max-age=86400');
     return response;
-  } catch (error) {
+  } catch {
     // Fallback to default favicon on error
     const response = NextResponse.redirect(new URL('/favicon.ico', request.url));
     response.headers.set('Cache-Control', 'public, max-age=86400');

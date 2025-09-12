@@ -79,7 +79,7 @@ export function Grid({
   const getResponsiveClasses = () => {
     if (!responsive) return '';
     
-    const classes = [];
+    const classes: string[] = [];
     
     if (responsive.sm) classes.push(`sm:grid-cols-${responsive.sm}`);
     if (responsive.md) classes.push(`md:grid-cols-${responsive.md}`);

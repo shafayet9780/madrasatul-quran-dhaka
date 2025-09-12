@@ -24,6 +24,7 @@
     "populate:centralized": "node scripts/populate-centralized-data.js"
   },
   "dependencies": {
+    "@gsap/react": "^2.1.2",
     "@heroicons/react": "^2.2.0",
     "@sanity/cli": "^4.2.0",
     "@sanity/client": "^7.8.1",
@@ -33,6 +34,7 @@
     "@sanity/vision": "^4.2.0",
     "clsx": "^2.1.1",
     "dotenv": "^16.4.5",
+    "gsap": "^3.13.0",
     "lucide-react": "^0.532.0",
     "next": "15.4.4",
     "next-intl": "^4.3.4",

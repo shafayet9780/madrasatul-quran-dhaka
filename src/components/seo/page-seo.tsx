@@ -1,7 +1,8 @@
 'use client';
 
 import Head from 'next/head';
-import { useLocale, usePathname } from 'next-intl';
+import { useLocale } from 'next-intl';
+import { usePathname } from 'next/navigation';
 import { generateLocalSEOTags, generateHreflangTags } from '@/lib/local-seo';
 
 interface PageSEOProps {

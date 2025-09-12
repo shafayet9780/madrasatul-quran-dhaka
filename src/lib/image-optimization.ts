@@ -35,10 +35,10 @@ export function getOptimizedImageUrl(
   if (blur) imageBuilder = imageBuilder.blur(blur);
 
   return imageBuilder
-    .format(format)
+    .format(format as any)
     .quality(quality)
     .fit(fit)
-    .crop(crop)
+    .crop(crop as any)
     .url();
 }
 
@@ -57,10 +57,10 @@ export function getResponsiveImageSrcSet(
     .map(size => {
       const url = urlFor(image)
         .width(size)
-        .format(format)
+        .format(format as any)
         .quality(quality)
         .fit(fit)
-        .crop(crop)
+        .crop(crop as any)
         .url();
       return `${url} ${size}w`;
     })

@@ -1,7 +1,7 @@
 'use client';
 
 import Script from 'next/script';
-import { useEffect } from 'react';
+import { useEffect, Suspense } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { initializeAllAnalytics, trackPageView } from '@/lib/analytics';
 
@@ -9,7 +9,7 @@ interface GoogleAnalyticsProps {
   measurementId?: string;
 }
 
-export function GoogleAnalytics({ measurementId }: GoogleAnalyticsProps) {
+function GoogleAnalyticsInner({ measurementId }: GoogleAnalyticsProps) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   
@@ -71,12 +71,12 @@ export function PerformanceMonitoring() {
     if (typeof window === 'undefined') return;
 
     // Monitor Core Web Vitals
-    import('web-vitals').then(({ getCLS, getFID, getFCP, getLCP, getTTFB }) => {
-      getCLS(console.log);
-      getFID(console.log);
-      getFCP(console.log);
-      getLCP(console.log);
-      getTTFB(console.log);
+    import('web-vitals').then((webVitals: any) => {
+      const { getCLS, getFCP, getLCP, getTTFB } = webVitals;
+      if (getCLS) getCLS(console.log);
+      if (getFCP) getFCP(console.log);
+      if (getLCP) getLCP(console.log);
+      if (getTTFB) getTTFB(console.log);
     }).catch(() => {
       // Fallback if web-vitals is not available
       console.log('Web Vitals library not available');
@@ -260,4 +260,12 @@ export function InteractionTracker({ children }: { children: React.ReactNode }) 
   }, []);
 
   return <>{children}</>;
+}
+
+export function GoogleAnalytics({ measurementId }: GoogleAnalyticsProps) {
+  return (
+    <Suspense fallback={null}>
+      <GoogleAnalyticsInner measurementId={measurementId} />
+    </Suspense>
+  );
 }

@@ -4,6 +4,10 @@ import { useTranslations } from 'next-intl';
 import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+gsap.registerPlugin(ScrollTrigger);
 
 interface QuickAccessCardProps {
   title: string;
@@ -50,9 +54,9 @@ function QuickAccessCard({
       }`}
       style={{ transitionDelay: `${delay}ms` }}
     >
-      <Link href={href} className="block group">
+      <Link href={href} className="quick-access-item block group">
         <div
-          className={`card hover:shadow-2xl transition-all duration-300 group-hover:scale-105 border-l-4 ${color}`}
+          className={`hover-card card hover:shadow-2xl transition-all duration-300 border-l-4 ${color}`}
         >
           <div className="flex items-start space-x-4">
             <div
@@ -136,8 +140,8 @@ function FeaturedNewsCard({
       }`}
       style={{ transitionDelay: `${delay}ms` }}
     >
-      <Link href={href} className="block group">
-        <div className="card hover:shadow-2xl transition-all duration-300 group-hover:scale-105 overflow-hidden p-0">
+      <Link href={href} className="news-item block group">
+        <div className="hover-card card hover:shadow-2xl transition-all duration-300 overflow-hidden p-0">
           <div className="relative h-48 overflow-hidden">
             <Image
               src={image}
@@ -199,29 +203,125 @@ interface FeaturedContentSectionProps {
 
 export default function FeaturedContentSection({
   className = '',
-  featuredNews = [],
+  featuredNews,
   featuredFacilities = [],
 }: FeaturedContentSectionProps) {
   const tNav = useTranslations('navigation');
   const locale = useLocale() as 'bengali' | 'english';
-  const [sectionVisible, setSectionVisible] = useState(false);
   const sectionRef = useRef<HTMLDivElement>(null);
+  const quickAccessRef = useRef<HTMLDivElement>(null);
+  const newsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setSectionVisible(true);
+    const ctx = gsap.context(() => {
+      // Quick access section animations
+      if (quickAccessRef.current) {
+        const quickAccessTitle = quickAccessRef.current.querySelector('.quick-access-title');
+        const quickAccessItems = gsap.utils.toArray('.quick-access-item');
+
+        if (quickAccessTitle) {
+          gsap.fromTo(quickAccessTitle,
+            { y: 30, opacity: 0 },
+            {
+              y: 0,
+              opacity: 1,
+              duration: 0.8,
+              ease: 'power2.out',
+              scrollTrigger: {
+                trigger: quickAccessRef.current,
+                start: 'top 85%',
+                toggleActions: 'play none none none'
+              }
+            }
+          );
         }
-      },
-      { threshold: 0.1 }
-    );
 
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current);
-    }
+        quickAccessItems.forEach((item, index) => {
+          gsap.fromTo(item as any,
+            { y: 30, opacity: 0 },
+            {
+              y: 0,
+              opacity: 1,
+              duration: 0.6,
+              delay: index * 0.1,
+              ease: 'power2.out',
+              scrollTrigger: {
+                trigger: quickAccessRef.current,
+                start: 'top 85%',
+                toggleActions: 'play none none none'
+              }
+            }
+          );
+        });
+      }
 
-    return () => observer.disconnect();
+      // News section animations
+      if (newsRef.current) {
+        const newsTitle = newsRef.current.querySelector('.news-title');
+        const newsItems = gsap.utils.toArray('.news-item');
+
+        if (newsTitle) {
+          gsap.fromTo(newsTitle,
+            { y: 30, opacity: 0 },
+            {
+              y: 0,
+              opacity: 1,
+              duration: 0.8,
+              ease: 'power2.out',
+              scrollTrigger: {
+                trigger: newsRef.current,
+                start: 'top 85%',
+                toggleActions: 'play none none none'
+              }
+            }
+          );
+        }
+
+        newsItems.forEach((item, index) => {
+          gsap.fromTo(item as any,
+            { y: 30, opacity: 0 },
+            {
+              y: 0,
+              opacity: 1,
+              duration: 0.6,
+              delay: index * 0.15,
+              ease: 'power2.out',
+              scrollTrigger: {
+                trigger: newsRef.current,
+                start: 'top 85%',
+                toggleActions: 'play none none none'
+              }
+            }
+          );
+        });
+      }
+
+      // Hover animations for cards
+      const allCards = gsap.utils.toArray('.hover-card');
+      allCards.forEach((card) => {
+        const element = card as HTMLElement;
+        element.addEventListener('mouseenter', () => {
+          gsap.to(element, {
+            y: -8,
+            scale: 1.02,
+            duration: 0.3,
+            ease: 'power2.out'
+          });
+        });
+
+        element.addEventListener('mouseleave', () => {
+          gsap.to(element, {
+            y: 0,
+            scale: 1,
+            duration: 0.3,
+            ease: 'power2.out'
+          });
+        });
+      });
+
+    }, []);
+
+    return () => ctx.revert();
   }, []);
 
   const quickAccessItems = [
@@ -258,7 +358,7 @@ export default function FeaturedContentSection({
 
   // Use Sanity data or fallback to hardcoded data
   const newsData =
-    featuredNews.length > 0
+    featuredNews && featuredNews.length > 0
       ? featuredNews.slice(0, 3).map((news, index) => ({
           title: getLocalizedText(news.title, locale),
           excerpt:
@@ -328,24 +428,18 @@ export default function FeaturedContentSection({
       <div className="container-custom relative z-10">
         {/* Quick Access Section - Conditional rendering based on available items */}
         {quickAccessItems.length > 0 && (
-          <div className="mb-20">
-            <div
-              className={`text-center mb-12 transition-all duration-1000 ${
-                sectionVisible
-                  ? 'opacity-100 translate-y-0'
-                  : 'opacity-0 translate-y-8'
-              }`}
-            >
-              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-primary-700 mb-4">
+          <div ref={quickAccessRef} className="mb-20">
+            <div className="text-center mb-12">
+              <h2 className="quick-access-title text-3xl sm:text-4xl md:text-5xl font-bold text-primary-700 mb-4">
                 Quick Access
               </h2>
-              <p className="text-lg md:text-xl text-text-secondary max-w-2xl mx-auto">
+              <p className="text-lg md:text-xl text-secondary-900 max-w-2xl mx-auto">
                 Find what you&apos;re looking for quickly with our most important
                 sections
               </p>
             </div>
 
-            <div className={`grid ${quickAccessItems.length === 1 ? 'justify-center' : 'md:grid-cols-3'} gap-6 lg:gap-8`}>
+            <div className="grid ${quickAccessItems.length === 1 ? 'justify-center' : 'md:grid-cols-3'} gap-6 lg:gap-8">
               {quickAccessItems.map((item, index) => (
                 <QuickAccessCard
                   key={index}
@@ -358,22 +452,32 @@ export default function FeaturedContentSection({
                 />
               ))}
             </div>
+
+            {/* Admissions CTA */}
+            <div className="mt-10">
+              <div className="card-islamic">
+                <div className="relative z-10">
+                  <h3 className="text-2xl font-extrabold mb-2">{`Admission ${new Date().getFullYear()}–${new Date().getFullYear() + 1}`}</h3>
+                  <p className="opacity-90 mb-4">আমাদের অনন্য কারিকুলামে ভর্তি হতে আজই আবেদন করুন।</p>
+                  <Link href="/admissions" className="inline-flex items-center px-5 py-3 rounded-xl bg-accent-400 text-white font-semibold shadow-lg hover:shadow-xl transition-all">
+                    ভর্তি আবেদন করুন
+                    <svg className="w-4 h-4 ml-2" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                  </Link>
+                </div>
+              </div>
+            </div>
           </div>
         )}
 
         {/* Featured News Section */}
-        <div>
-          <div
-            className={`text-center mb-12 transition-all duration-1000 delay-500 ${
-              sectionVisible
-                ? 'opacity-100 translate-y-0'
-                : 'opacity-0 translate-y-8'
-            }`}
-          >
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-primary-700 mb-4">
+        <div ref={newsRef}>
+          <div className="text-center mb-12">
+            <h2 className="news-title text-3xl sm:text-4xl md:text-5xl font-bold text-primary-700 mb-4">
               Latest News & Events
             </h2>
-            <p className="text-lg md:text-xl text-text-secondary max-w-2xl mx-auto">
+            <p className="text-lg md:text-xl text-secondary-900 max-w-2xl mx-auto">
               Stay updated with our latest achievements, events, and
               announcements
             </p>

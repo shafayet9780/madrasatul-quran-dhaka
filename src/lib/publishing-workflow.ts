@@ -1,6 +1,7 @@
 import { client } from './sanity';
 import { validatePage, validateNewsEvent, validateAcademicProgram, validateStaffMember, validateFacility } from './content-validation';
 import type { ValidationResult } from './content-validation';
+import type { Page, NewsEvent, AcademicProgram, StaffMember, Facility } from '@/types/sanity';
 
 /**
  * Publishing workflow utilities for Sanity CMS content
@@ -46,19 +47,19 @@ export async function publishDocument(
     
     switch (documentType) {
       case 'page':
-        validation = validatePage(document);
+        validation = validatePage(document as unknown as Page);
         break;
       case 'newsEvent':
-        validation = validateNewsEvent(document);
+        validation = validateNewsEvent(document as unknown as NewsEvent);
         break;
       case 'academicProgram':
-        validation = validateAcademicProgram(document);
+        validation = validateAcademicProgram(document as unknown as AcademicProgram);
         break;
       case 'staffMember':
-        validation = validateStaffMember(document);
+        validation = validateStaffMember(document as unknown as StaffMember);
         break;
       case 'facility':
-        validation = validateFacility(document);
+        validation = validateFacility(document as unknown as Facility);
         break;
       default:
         return {

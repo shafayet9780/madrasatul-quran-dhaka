@@ -2,10 +2,15 @@
 
 import { useTranslations, useLocale } from 'next-intl';
 import Link from 'next/link';
+import { useEffect, useRef } from 'react';
 import { MapPin, Phone, Mail, Clock, Calendar } from 'lucide-react';
 import { type Locale } from '@/lib/i18n';
 import type { FooterSettings, SiteSettings } from '@/types/sanity';
 import { getLocalizedText } from '@/lib/multilingual-content';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+gsap.registerPlugin(ScrollTrigger);
 
 interface FooterProps {
   footerSettings?: FooterSettings | null;
@@ -15,6 +20,127 @@ interface FooterProps {
 export default function Footer({ footerSettings, siteSettings }: FooterProps) {
   const t = useTranslations('footer');
   const locale = useLocale() as Locale;
+
+  const footerRef = useRef<HTMLElement>(null);
+  const logoRef = useRef<HTMLDivElement>(null);
+  const linksRef = useRef<HTMLDivElement>(null);
+  const contactRef = useRef<HTMLDivElement>(null);
+  const socialRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      // Main footer sections animations
+      gsap.fromTo(logoRef.current,
+        { y: 30, opacity: 0 },
+        {
+          y: 0,
+          opacity: 1,
+          duration: 0.8,
+          ease: 'power2.out',
+          scrollTrigger: {
+            trigger: footerRef.current,
+            start: 'top 90%',
+            toggleActions: 'play none none none'
+          }
+        }
+      );
+
+      gsap.fromTo(linksRef.current,
+        { y: 30, opacity: 0 },
+        {
+          y: 0,
+          opacity: 1,
+          duration: 0.8,
+          delay: 0.2,
+          ease: 'power2.out',
+          scrollTrigger: {
+            trigger: footerRef.current,
+            start: 'top 90%',
+            toggleActions: 'play none none none'
+          }
+        }
+      );
+
+      gsap.fromTo(contactRef.current,
+        { y: 30, opacity: 0 },
+        {
+          y: 0,
+          opacity: 1,
+          duration: 0.8,
+          delay: 0.4,
+          ease: 'power2.out',
+          scrollTrigger: {
+            trigger: footerRef.current,
+            start: 'top 90%',
+            toggleActions: 'play none none none'
+          }
+        }
+      );
+
+      gsap.fromTo(socialRef.current,
+        { y: 30, opacity: 0 },
+        {
+          y: 0,
+          opacity: 1,
+          duration: 0.8,
+          delay: 0.6,
+          ease: 'power2.out',
+          scrollTrigger: {
+            trigger: footerRef.current,
+            start: 'top 90%',
+            toggleActions: 'play none none none'
+          }
+        }
+      );
+
+      // Social media icons hover animations
+      const socialIcons = gsap.utils.toArray('.social-icon');
+      socialIcons.forEach((icon) => {
+        const element = icon as HTMLElement;
+        element.addEventListener('mouseenter', () => {
+          gsap.to(element, {
+            y: -5,
+            scale: 1.1,
+            duration: 0.3,
+            ease: 'power2.out'
+          });
+        });
+
+        element.addEventListener('mouseleave', () => {
+          gsap.to(element, {
+            y: 0,
+            scale: 1,
+            duration: 0.3,
+            ease: 'power2.out'
+          });
+        });
+      });
+
+      // Quick links hover animations
+      const quickLinks = gsap.utils.toArray('.footer-link');
+      quickLinks.forEach((link) => {
+        const element = link as HTMLElement;
+        element.addEventListener('mouseenter', () => {
+          gsap.to(element, {
+            x: 5,
+            duration: 0.2,
+            ease: 'power2.out'
+          });
+        });
+
+        element.addEventListener('mouseleave', () => {
+          gsap.to(element, {
+            x: 0,
+            duration: 0.2,
+            ease: 'power2.out'
+          });
+        });
+      });
+
+    }, []);
+
+    return () => ctx.revert();
+  }, []);
 
   // Use Sanity data or fallback to hardcoded data
   const quickLinks = footerSettings?.quickLinks?.filter(
@@ -198,7 +324,7 @@ export default function Footer({ footerSettings, siteSettings }: FooterProps) {
   ];
 
   return (
-    <footer className="bg-primary-800 text-white relative overflow-hidden">
+    <footer ref={footerRef} className="bg-primary-700 text-white relative overflow-hidden">
       {/* Beach Wave Pattern */}
       <div className="absolute top-0 left-0 w-full h-20 bg-sand-light opacity-10"></div>
 
@@ -206,7 +332,7 @@ export default function Footer({ footerSettings, siteSettings }: FooterProps) {
       <div className="container-custom py-12 relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* School Information */}
-          <div className="space-y-4">
+          <div ref={logoRef} className="space-y-4">
             <div className="flex flex-col items-start space-y-2">
               <div className="text-2xl font-bold font-arabic text-white drop-shadow-lg">
                 ﷽
@@ -232,7 +358,7 @@ export default function Footer({ footerSettings, siteSettings }: FooterProps) {
             </p>
 
             {/* Social Media Links */}
-            <div className="flex space-x-4 pt-2">
+            <div ref={socialRef} className="flex space-x-4 pt-2">
               {socialLinks.map(social => {
                 const iconElement = getSocialIcon(social.icon);
                 const colorClass = getSocialColor(social.icon);
@@ -242,7 +368,7 @@ export default function Footer({ footerSettings, siteSettings }: FooterProps) {
                     href={social.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className={`p-3 rounded-full bg-white/10 text-white ${colorClass} transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 hover:scale-110`}
+                    className={`social-icon p-3 rounded-full bg-white/10 text-white ${colorClass} transition-all duration-300 shadow-lg hover:shadow-xl`}
                     aria-label={`Follow us on ${social.platform}`}
                   >
                     {iconElement}
@@ -253,29 +379,27 @@ export default function Footer({ footerSettings, siteSettings }: FooterProps) {
           </div>
 
           {/* Quick Links */}
-          <div className="space-y-4">
+          <div ref={linksRef} className="space-y-4">
             <h3 className="text-lg font-bold text-white mb-1">
               {t('quickLinks')}
             </h3>
             <div className="w-12 h-1 bg-white/30 rounded-full mb-3"></div>
             <ul className="space-y-2">
-              {quickLinks
-                .sort((a, b) => (a.order || 0) - (b.order || 0))
-                .map(link => (
-                  <li key={link.url}>
-                    <Link
-                      href={link.url}
-                      className="text-white text-sm block py-1 hover:text-white/80 transition-colors"
-                    >
-                      {getLocalizedText(link.label, locale)}
-                    </Link>
-                  </li>
-                ))}
+              {quickLinks.map(link => (
+                <li key={link.url}>
+                  <Link
+                    href={link.url}
+                    className="footer-link text-white/80 hover:text-white transition-colors duration-300 text-sm"
+                  >
+                    {getLocalizedText(link.label, locale)}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 
           {/* Contact Information */}
-          <div className="space-y-4">
+          <div ref={contactRef} className="space-y-4">
             <h3 className="text-lg font-bold text-white mb-1">
               {t('contactInfo')}
             </h3>
@@ -369,7 +493,7 @@ export default function Footer({ footerSettings, siteSettings }: FooterProps) {
       </div>
 
       {/* Bottom Footer */}
-      <div className="border-t border-white/20 bg-primary-900/50 backdrop-blur-sm">
+      <div className="border-t border-white/20 bg-primary-800/40 backdrop-blur-sm">
         <div className="container-custom py-6">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             <div className="text-sm text-white/80">

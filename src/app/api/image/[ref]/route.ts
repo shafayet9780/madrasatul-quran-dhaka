@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import imageUrlBuilder from '@sanity/image-url';
 import { client } from '@/lib/sanity';
 
+type ImageFormat = 'webp' | 'jpg' | 'png' | 'avif' | 'auto';
+
 const builder = imageUrlBuilder(client);
 
 export async function GET(
@@ -16,11 +18,14 @@ export async function GET(
     const width = searchParams.get('w') ? parseInt(searchParams.get('w')!) : undefined;
     const height = searchParams.get('h') ? parseInt(searchParams.get('h')!) : undefined;
     const quality = searchParams.get('q') ? parseInt(searchParams.get('q')!) : 80;
-    const format = searchParams.get('f') || 'webp';
+    const formatParam = searchParams.get('f') || 'webp';
+    const format: ImageFormat = ['webp', 'jpg', 'png', 'avif', 'auto'].includes(formatParam)
+      ? formatParam as ImageFormat
+      : 'webp';
 
     // Build the image URL
     let urlBuilder = builder.image({ _ref: ref, _type: 'reference' });
-    
+
     if (width) urlBuilder = urlBuilder.width(width);
     if (height) urlBuilder = urlBuilder.height(height);
     urlBuilder = urlBuilder.quality(quality).format(format as any);
