@@ -156,8 +156,8 @@ export default function HeroSection({
             <div className="text-center space-y-2">
               {/* Institution Badge */}
               <div className="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold text-primary-900 bg-secondary-50 border border-secondary-200" aria-label="Bismillah">
-                <span className="font-arabic text-sm mr-1">﷽</span>
-                {locale === 'bengali' ? 'মিশন-চালিত ইসলামী শিক্ষা' : 'Mission-driven Islamic Education'}
+                <span className="font-arabic text-lg mr-1">﷽</span>
+                {/* {locale === 'bengali' ? 'মিশন-চালিত ইসলামী শিক্ষা' : 'Mission-driven Islamic Education'} */}
               </div>
 
               {/* Main Title */}

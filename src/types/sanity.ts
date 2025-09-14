@@ -224,6 +224,21 @@ export interface SchoolStatistics {
   }>
 }
 
+export interface AdmissionBanner {
+  isEnabled: boolean
+  title: MultilingualText
+  subtitle?: MultilingualText
+  buttonText: MultilingualText
+  buttonLink: string
+  backgroundColor: 'primary' | 'secondary' | 'accent' | 'custom'
+  customGradient?: {
+    from?: string
+    to?: string
+  }
+  showCloseButton: boolean
+  autoHide: number
+}
+
 export interface FooterSettings {
   _id: string
   _type: 'footer'
@@ -277,4 +292,5 @@ export interface SiteSettings {
     }
   }
   statistics?: SchoolStatistics
+  admissionBanner?: AdmissionBanner
 }

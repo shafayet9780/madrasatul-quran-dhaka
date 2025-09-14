@@ -632,6 +632,131 @@ export const siteSettings = defineType({
         },
       ],
     }),
+    defineField({
+      name: 'admissionBanner',
+      title: 'Admission Banner',
+      type: 'object',
+      fields: [
+        {
+          name: 'isEnabled',
+          title: 'Show Banner',
+          type: 'boolean',
+          description: 'Toggle to show/hide the admission banner across the website',
+          initialValue: true,
+        },
+        {
+          name: 'title',
+          title: 'Banner Title',
+          type: 'object',
+          fields: [
+            {
+              name: 'bengali',
+              title: 'Bengali Title',
+              type: 'string',
+              validation: (Rule) => Rule.required(),
+            },
+            {
+              name: 'english',
+              title: 'English Title',
+              type: 'string',
+              validation: (Rule) => Rule.required(),
+            },
+          ],
+        },
+        {
+          name: 'subtitle',
+          title: 'Banner Subtitle',
+          type: 'object',
+          fields: [
+            {
+              name: 'bengali',
+              title: 'Bengali Subtitle',
+              type: 'string',
+            },
+            {
+              name: 'english',
+              title: 'English Subtitle',
+              type: 'string',
+            },
+          ],
+        },
+        {
+          name: 'buttonText',
+          title: 'Button Text',
+          type: 'object',
+          fields: [
+            {
+              name: 'bengali',
+              title: 'Bengali Button Text',
+              type: 'string',
+              validation: (Rule) => Rule.required(),
+            },
+            {
+              name: 'english',
+              title: 'English Button Text',
+              type: 'string',
+              validation: (Rule) => Rule.required(),
+            },
+          ],
+        },
+        {
+          name: 'buttonLink',
+          title: 'Button Link',
+          type: 'string',
+          description: 'URL where the button should link to (e.g., /contact, /admissions)',
+          validation: (Rule) => Rule.required(),
+        },
+        {
+          name: 'backgroundColor',
+          title: 'Background Color',
+          type: 'string',
+          options: {
+            list: [
+              { title: 'Forest Green (Attention-grabbing)', value: 'primary' },
+              { title: 'Golden Brown (Warm)', value: 'secondary' },
+              { title: 'Crimson Red (Urgent)', value: 'accent' },
+              { title: 'Custom Gradient', value: 'custom' },
+            ],
+          },
+          initialValue: 'primary',
+        },
+        {
+          name: 'customGradient',
+          title: 'Custom Gradient Colors',
+          type: 'object',
+          fields: [
+            {
+              name: 'from',
+              title: 'From Color',
+              type: 'string',
+              description: 'Hex color code (e.g., #8B5A3C)',
+            },
+            {
+              name: 'to',
+              title: 'To Color',
+              type: 'string',
+              description: 'Hex color code (e.g., #DEB887)',
+            },
+          ],
+          hidden: ({ parent }) => parent?.backgroundColor !== 'custom',
+        },
+        {
+          name: 'showCloseButton',
+          title: 'Show Close Button',
+          type: 'boolean',
+          description: 'Allow users to dismiss the banner',
+          initialValue: true,
+        },
+        {
+          name: 'autoHide',
+          title: 'Auto Hide After',
+          type: 'number',
+          description: 'Auto hide banner after specified seconds (0 = never auto hide)',
+          initialValue: 0,
+          validation: (Rule) => Rule.min(0).max(300),
+        },
+      ],
+    }),
   ],
   preview: {
     select: {

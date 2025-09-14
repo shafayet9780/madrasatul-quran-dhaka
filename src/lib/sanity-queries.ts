@@ -134,6 +134,26 @@ export const siteSettingsQuery = groq`
         },
         value
       }
+    },
+    admissionBanner {
+      isEnabled,
+      title {
+        ${multilingualTextFields}
+      },
+      subtitle {
+        ${multilingualTextFields}
+      },
+      buttonText {
+        ${multilingualTextFields}
+      },
+      buttonLink,
+      backgroundColor,
+      customGradient {
+        from,
+        to
+      },
+      showCloseButton,
+      autoHide
     }
   }
 `

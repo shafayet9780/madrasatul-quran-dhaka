@@ -1,5 +1,6 @@
 import Header from './header';
 import Footer from './footer';
+import AdmissionBanner from './admission-banner';
 import { getContentService } from '@/lib/content-service';
 
 interface MainLayoutProps {
@@ -14,6 +15,7 @@ export default async function MainLayout({ children }: MainLayoutProps) {
 
   return (
     <div className="min-h-screen flex flex-col">
+      <AdmissionBanner bannerConfig={siteSettings?.admissionBanner} />
       <Header siteSettings={siteSettings} />
       <main className="flex-1">
         {children}
