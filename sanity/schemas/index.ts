@@ -5,6 +5,7 @@ import { staffMember } from './staffMember'
 import { facility } from './facility'
 import { siteSettings } from './siteSettings'
 import { footer } from './footer'
+import { preAdmissionForm } from './preAdmissionForm'
 
 export const schemaTypes = [
   page,
@@ -14,4 +15,5 @@ export const schemaTypes = [
   facility,
   siteSettings,
   footer,
+  preAdmissionForm,
 ]

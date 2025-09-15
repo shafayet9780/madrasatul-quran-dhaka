@@ -19,7 +19,13 @@ export const structure: StructureResolver = (S) =>
         .title('Footer Settings')
         .id('footer')
         .child(S.documentTypeList('footer').title('Footer Settings')),
-      
+
+      // Pre-Admission Form Configuration
+      S.listItem()
+        .title('Pre-Admission Form')
+        .id('preAdmissionForm')
+        .child(S.documentTypeList('preAdmissionForm').title('Pre-Admission Form Configuration')),
+
       S.divider(),
       
       // Pages

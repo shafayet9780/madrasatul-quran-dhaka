@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react';
 import { useLocale } from 'next-intl';
 import { X, ArrowRight } from 'lucide-react';
-import type { AdmissionBanner as AdmissionBannerType, Locale } from '@/types';
+import type { AdmissionBanner as AdmissionBannerType } from '@/types/sanity';
+import type { Language } from '@/types';
 import { getLocalizedText } from '@/lib/multilingual-content';
 
 interface AdmissionBannerProps {
@@ -11,7 +12,7 @@ interface AdmissionBannerProps {
 }
 
 export default function AdmissionBanner({ bannerConfig }: AdmissionBannerProps) {
-  const locale = useLocale() as Locale;
+  const locale = useLocale() as Language;
   const [isVisible, setIsVisible] = useState(true);
   const [isAnimating, setIsAnimating] = useState(false);
 
@@ -30,7 +31,7 @@ export default function AdmissionBanner({ bannerConfig }: AdmissionBannerProps) 
       bengali: 'আবেদন করুন',
       english: 'Apply Now'
     },
-    buttonLink: '/contact',
+    buttonLink: '/pre-admission', // Link to pre-admission form page
     backgroundColor: 'primary', // Forest Green - attention-grabbing
     showCloseButton: true,
     autoHide: 0
@@ -39,8 +40,7 @@ export default function AdmissionBanner({ bannerConfig }: AdmissionBannerProps) 
   // Use CMS config if available, otherwise use default
   const config = bannerConfig || defaultConfig;
 
-  // Don't show banner if not enabled
-  if (!config.isEnabled) return null;
+  // NOTE: Do not return before hooks; gate later by visibility
 
   const handleClose = () => {
     if (!config.showCloseButton) return;
@@ -60,9 +60,10 @@ export default function AdmissionBanner({ bannerConfig }: AdmissionBannerProps) 
 
       return () => clearTimeout(timer);
     }
-  }, [config.autoHide]);
+  }, [config.autoHide, handleClose]);
 
-  if (!isVisible) return null;
+  // Gate rendering after hooks
+  if (!config.isEnabled || !isVisible) return null;
 
   // Get localized content
   const title = getLocalizedText(config.title, locale);

@@ -239,6 +239,42 @@ export interface AdmissionBanner {
   autoHide: number
 }
 
+export interface FormFieldOption {
+  label: MultilingualText
+  value: string
+}
+
+export interface FormField {
+  fieldName: string
+  label: MultilingualText
+  fieldType: 'text' | 'textarea' | 'select' | 'radio' | 'checkbox' | 'date' | 'time' | 'email' | 'tel' | 'number' | 'boolean'
+  options?: FormFieldOption[]
+  isRequired: boolean
+  placeholder?: MultilingualText
+  helpText?: MultilingualText
+}
+
+export interface PreAdmissionForm {
+  _id: string
+  _type: 'preAdmissionForm'
+  formSettings: {
+    isEnabled: boolean
+    formTitle: MultilingualText
+    formDescription?: MultilingualText
+    submissionDate: string
+    googleSheetsId: string
+  }
+  generalQuestions: FormField[]
+  studentInfoFields: FormField[]
+  parentInfoFields: {
+    fatherFields: FormField[]
+    motherFields: FormField[]
+  }
+  contactInfoFields: FormField[]
+  declarationText: MultilingualText
+  successMessage: MultilingualText
+}
+
 export interface FooterSettings {
   _id: string
   _type: 'footer'

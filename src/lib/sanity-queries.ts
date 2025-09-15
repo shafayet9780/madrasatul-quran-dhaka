@@ -569,3 +569,110 @@ export const footerQuery = groq`
     isActive
   }
 `
+
+// Pre-Admission Form Query
+export const preAdmissionFormQuery = groq`
+  *[_type == "preAdmissionForm"][0] {
+    _id,
+    formSettings {
+      isEnabled,
+      formTitle {
+        ${multilingualTextFields}
+      },
+      formDescription {
+        ${multilingualTextFields}
+      },
+      submissionDate,
+      googleSheetsId
+    },
+    generalQuestions[] {
+      question {
+        ${multilingualTextFields}
+      },
+      fieldType,
+      options[] {
+        label {
+          ${multilingualTextFields}
+        },
+        value
+      },
+      isRequired,
+      placeholder {
+        ${multilingualTextFields}
+      },
+      helpText {
+        ${multilingualTextFields}
+      }
+    },
+    studentInfoFields[] {
+      fieldName,
+      label {
+        ${multilingualTextFields}
+      },
+      fieldType,
+      options[] {
+        label {
+          ${multilingualTextFields}
+        },
+        value
+      },
+      isRequired,
+      placeholder {
+        ${multilingualTextFields}
+      }
+    },
+    parentInfoFields {
+      fatherFields[] {
+        fieldName,
+        label {
+          ${multilingualTextFields}
+        },
+        fieldType,
+        options[] {
+          label {
+            ${multilingualTextFields}
+          },
+          value
+        },
+        isRequired,
+        placeholder {
+          ${multilingualTextFields}
+        }
+      },
+      motherFields[] {
+        fieldName,
+        label {
+          ${multilingualTextFields}
+        },
+        fieldType,
+        options[] {
+          label {
+            ${multilingualTextFields}
+          },
+          value
+        },
+        isRequired,
+        placeholder {
+          ${multilingualTextFields}
+        }
+      }
+    },
+    contactInfoFields[] {
+      fieldName,
+      label {
+        ${multilingualTextFields}
+      },
+      fieldType,
+      isRequired,
+      placeholder {
+        ${multilingualTextFields}
+      }
+    },
+    declarationText {
+      ${multilingualTextFields}
+    },
+    successMessage {
+      ${multilingualTextFields}
+    }
+  }
+`

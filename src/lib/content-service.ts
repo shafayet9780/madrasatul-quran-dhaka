@@ -15,7 +15,8 @@ import {
   allFacilitiesQuery,
   featuredFacilitiesQuery,
   facilityBySlugQuery,
-  footerQuery
+  footerQuery,
+  preAdmissionFormQuery
 } from './sanity-queries';
 import type {
   SiteSettings,
@@ -24,7 +25,8 @@ import type {
   AcademicProgram,
   StaffMember,
   Facility,
-  FooterSettings
+  FooterSettings,
+  PreAdmissionForm
 } from '@/types/sanity';
 
 /**
@@ -550,6 +552,25 @@ export class ContentService {
     } catch (error) {
       console.error(`Error validating content ${contentType}:${id}:`, error);
       return false;
+    }
+  }
+
+  /**
+   * Pre-Admission Form
+   */
+  async getPreAdmissionForm(): Promise<PreAdmissionForm | null> {
+    try {
+      if (this.isPreview) {
+        return await this.client.fetch(preAdmissionFormQuery);
+      }
+      return await sanityFetch({
+        query: preAdmissionFormQuery,
+        tags: ['preAdmissionForm'],
+        revalidate: process.env.NODE_ENV === 'development' ? 0 : 60,
+      });
+    } catch (error) {
+      console.error('Error fetching pre-admission form:', error);
+      return null;
     }
   }
 
