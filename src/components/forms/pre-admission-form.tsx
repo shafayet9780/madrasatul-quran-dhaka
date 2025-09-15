@@ -58,8 +58,11 @@ export default function PreAdmissionForm({ formConfig }: PreAdmissionFormProps) 
     return true;
   };
 
+  const getFieldKey = (field: any): string => field.fieldName || field._key || '';
+
   const completedFields = allFormFields.reduce((acc, field) => {
-    const value = formData[field.fieldName];
+    const key = getFieldKey(field);
+    const value = key ? formData[key] : undefined;
     return acc + (isValueFilled(value) ? 1 : 0);
   }, 0);
 
@@ -119,11 +122,14 @@ export default function PreAdmissionForm({ formConfig }: PreAdmissionFormProps) 
 
     allFields.forEach(field => {
       if (field.isRequired) {
-        const value = formData[field.fieldName];
+        const key = getFieldKey(field);
+        const value = key ? formData[key] : undefined;
         if (!value || (Array.isArray(value) && value.length === 0)) {
-          newErrors[field.fieldName] = locale === 'bengali' 
+          if (key) {
+            newErrors[key] = locale === 'bengali' 
             ? 'এই ক্ষেত্রটি আবশ্যক' 
             : 'This field is required';
+          }
         }
       }
     });
@@ -176,19 +182,22 @@ export default function PreAdmissionForm({ formConfig }: PreAdmissionFormProps) 
         {title}
       </h3>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-        {fields.map((field, index) => (
-          <div
-            key={`${sectionKey}-${index}`}
-            className={field.fieldType === 'textarea' ? 'md:col-span-2' : ''}
-          >
-            <DynamicFormField
-              field={field}
-              value={formData[field.fieldName]}
-              onChange={(value) => handleFieldChange(field.fieldName, value)}
-              error={errors[field.fieldName]}
-            />
-          </div>
-        ))}
+        {fields.map((field, index) => {
+          const key = getFieldKey(field);
+          return (
+            <div
+              key={`${sectionKey}-${index}`}
+              className={field.fieldType === 'textarea' ? 'md:col-span-2' : ''}
+            >
+              <DynamicFormField
+                field={field}
+                value={key ? formData[key] : undefined}
+                onChange={(value) => key && handleFieldChange(key, value)}
+                error={key ? errors[key] : ''}
+              />
+            </div>
+          );
+        })}
       </div>
     </div>
   );
