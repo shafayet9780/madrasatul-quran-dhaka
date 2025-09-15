@@ -245,8 +245,12 @@ export interface FormFieldOption {
 }
 
 export interface FormField {
-  fieldName: string
-  label: MultilingualText
+  fieldName?: string
+  label?: MultilingualText
+  // Some collections (e.g., generalQuestions) use 'question' instead of 'label'
+  question?: MultilingualText
+  // Sanity array items carry a stable _key we can use as fallback name
+  _key?: string
   fieldType: 'text' | 'textarea' | 'select' | 'radio' | 'checkbox' | 'date' | 'time' | 'email' | 'tel' | 'number' | 'boolean'
   options?: FormFieldOption[]
   isRequired: boolean

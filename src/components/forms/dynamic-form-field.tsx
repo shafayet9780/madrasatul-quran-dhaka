@@ -22,7 +22,12 @@ export default function DynamicFormField({
   const locale = useLocale() as Language;
   const [isFocused, setIsFocused] = useState(false);
 
-  const label = getLocalizedText(field.label, locale);
+  const label = field.label
+    ? getLocalizedText(field.label, locale)
+    : field.question
+      ? getLocalizedText(field.question, locale)
+      : '';
+  const effectiveName = field.fieldName || field._key || '';
   const placeholder = field.placeholder ? getLocalizedText(field.placeholder, locale) : '';
   const helpText = field.helpText ? getLocalizedText(field.helpText, locale) : '';
 
@@ -38,8 +43,8 @@ export default function DynamicFormField({
         return (
           <input
             type={field.fieldType}
-            id={field.fieldName}
-            name={field.fieldName}
+            id={effectiveName}
+            name={effectiveName}
             value={value || ''}
             onChange={(e) => handleChange(e.target.value)}
             onFocus={() => setIsFocused(true)}
@@ -59,8 +64,8 @@ export default function DynamicFormField({
       case 'textarea':
         return (
           <textarea
-            id={field.fieldName}
-            name={field.fieldName}
+            id={effectiveName}
+            name={effectiveName}
             value={value || ''}
             onChange={(e) => handleChange(e.target.value)}
             onFocus={() => setIsFocused(true)}
@@ -81,8 +86,8 @@ export default function DynamicFormField({
       case 'select':
         return (
           <select
-            id={field.fieldName}
-            name={field.fieldName}
+            id={effectiveName}
+            name={effectiveName}
             value={value || ''}
             onChange={(e) => handleChange(e.target.value)}
             onFocus={() => setIsFocused(true)}
@@ -112,7 +117,7 @@ export default function DynamicFormField({
               <label key={index} className="flex items-center space-x-3 cursor-pointer">
                 <input
                   type="radio"
-                  name={field.fieldName}
+                  name={effectiveName}
                   value={option.value}
                   checked={value === option.value}
                   onChange={(e) => handleChange(e.target.value)}
@@ -133,7 +138,7 @@ export default function DynamicFormField({
               <label key={index} className="flex items-center space-x-3 cursor-pointer">
                 <input
                   type="checkbox"
-                  name={field.fieldName}
+                  name={effectiveName}
                   value={option.value}
                   checked={Array.isArray(value) ? value.includes(option.value) : false}
                   onChange={(e) => {
@@ -158,8 +163,8 @@ export default function DynamicFormField({
         return (
           <input
             type="date"
-            id={field.fieldName}
-            name={field.fieldName}
+            id={effectiveName}
+            name={effectiveName}
             value={value || ''}
             onChange={(e) => handleChange(e.target.value)}
             onFocus={() => setIsFocused(true)}
@@ -179,8 +184,8 @@ export default function DynamicFormField({
         return (
           <input
             type="time"
-            id={field.fieldName}
-            name={field.fieldName}
+            id={effectiveName}
+            name={effectiveName}
             value={value || ''}
             onChange={(e) => handleChange(e.target.value)}
             onFocus={() => setIsFocused(true)}
@@ -200,8 +205,8 @@ export default function DynamicFormField({
         return (
           <input
             type="number"
-            id={field.fieldName}
-            name={field.fieldName}
+            id={effectiveName}
+            name={effectiveName}
             value={value || ''}
             onChange={(e) => handleChange(e.target.value)}
             onFocus={() => setIsFocused(true)}
@@ -224,7 +229,7 @@ export default function DynamicFormField({
             <label className="flex items-center space-x-3 cursor-pointer">
               <input
                 type="radio"
-                name={field.fieldName}
+                name={effectiveName}
                 value="yes"
                 checked={value === 'yes'}
                 onChange={(e) => handleChange(e.target.value)}
@@ -237,7 +242,7 @@ export default function DynamicFormField({
             <label className="flex items-center space-x-3 cursor-pointer">
               <input
                 type="radio"
-                name={field.fieldName}
+                name={effectiveName}
                 value="no"
                 checked={value === 'no'}
                 onChange={(e) => handleChange(e.target.value)}
@@ -254,8 +259,8 @@ export default function DynamicFormField({
         return (
           <input
             type="text"
-            id={field.fieldName}
-            name={field.fieldName}
+            id={effectiveName}
+            name={effectiveName}
             value={value || ''}
             onChange={(e) => handleChange(e.target.value)}
             placeholder={placeholder}
@@ -269,7 +274,7 @@ export default function DynamicFormField({
   return (
     <div className="space-y-2">
       <label 
-        htmlFor={field.fieldName}
+        htmlFor={effectiveName}
         className="block text-sm font-semibold text-gray-700"
       >
         {label}
