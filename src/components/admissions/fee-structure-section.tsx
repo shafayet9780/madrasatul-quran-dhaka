@@ -1,100 +1,109 @@
 'use client';
 
-import { useTranslations } from 'next-intl';
+import { useLocale } from 'next-intl';
 import { useState } from 'react';
-import { CalculatorIcon, CreditCardIcon } from '@heroicons/react/24/outline';
+import { Calculator, CreditCard, Users, Heart } from 'lucide-react';
 
-export function FeeStructure() {
-  const t = useTranslations('admissions.feeStructure');
-  const [selectedProgram, setSelectedProgram] = useState('primary');
+interface FeeStructureProps {
+  data?: any;
+}
+
+export function FeeStructure({ data }: FeeStructureProps) {
+  const locale = useLocale() as 'bengali' | 'english';
+  const isBengali = locale === 'bengali';
+  
+  const [selectedProgram, setSelectedProgram] = useState('preHifz');
   const [calculatorValues, setCalculatorValues] = useState({
-    program: 'primary',
+    program: 'preHifz',
     siblings: 0,
     scholarship: false,
   });
 
+  // Actual fees from curriculum
   const feeStructure = {
-    primary: {
-      name: t('programs.primary.name'),
-      admissionFee: 15000,
-      monthlyTuition: 8000,
-      examFee: 2000,
-      developmentFee: 5000,
-      total: 30000,
-    },
-    secondary: {
-      name: t('programs.secondary.name'),
+    preHifz: {
+      name: isBengali ? 'প্রি হিফজ' : 'Pre-Hifz',
       admissionFee: 20000,
-      monthlyTuition: 12000,
-      examFee: 3000,
-      developmentFee: 7000,
-      total: 42000,
+      sessionFee: 15000,
+      monthlyTuition: 6000,
+      monthlyFood: 1500,
+      total: 20000 + 15000 + (6000 * 12) + (1500 * 12), // Annual total
     },
-    higher: {
-      name: t('programs.higher.name'),
-      admissionFee: 25000,
-      monthlyTuition: 15000,
-      examFee: 4000,
-      developmentFee: 10000,
-      total: 54000,
+    hifz: {
+      name: isBengali ? 'হিফজ' : 'Hifz',
+      admissionFee: 23000,
+      sessionFee: 15000,
+      monthlyTuition: 10000,
+      monthlyFood: 4000,
+      total: 23000 + 15000 + (10000 * 12) + (4000 * 12), // Annual total
     },
   };
 
   const scholarships = [
     {
-      name: t('scholarships.merit.name'),
-      description: t('scholarships.merit.description'),
+      name: isBengali ? 'মেধা ভিত্তিক' : 'Merit-based',
+      description: isBengali ? 'উচ্চ ফলাফলের জন্য ছাড়' : 'Discount for high performance',
       discount: '25%',
-      criteria: t('scholarships.merit.criteria'),
+      criteria: isBengali ? '৯০% এর বেশি নম্বর' : 'Above 90% marks',
     },
     {
-      name: t('scholarships.need.name'),
-      description: t('scholarships.need.description'),
+      name: isBengali ? 'অর্থনৈতিক সহায়তা' : 'Financial Aid',
+      description: isBengali ? 'অর্থনৈতিক অসুবিধার জন্য ছাড়' : 'Discount for financial hardship',
       discount: '50%',
-      criteria: t('scholarships.need.criteria'),
+      criteria: isBengali ? 'আয়ের প্রমাণপত্র প্রয়োজন' : 'Income certificate required',
     },
     {
-      name: t('scholarships.sibling.name'),
-      description: t('scholarships.sibling.description'),
+      name: isBengali ? 'ভাইবোন ছাড়' : 'Sibling Discount',
+      description: isBengali ? 'একাধিক সন্তানের জন্য ছাড়' : 'Discount for multiple children',
       discount: '15%',
-      criteria: t('scholarships.sibling.criteria'),
+      criteria: isBengali ? 'দ্বিতীয় সন্তান থেকে' : 'From second child onwards',
     },
     {
-      name: t('scholarships.orphan.name'),
-      description: t('scholarships.orphan.description'),
+      name: isBengali ? 'এতিম ছাড়' : 'Orphan Discount',
+      description: isBengali ? 'এতিম শিশুদের জন্য বিশেষ ছাড়' : 'Special discount for orphan children',
       discount: '75%',
-      criteria: t('scholarships.orphan.criteria'),
+      criteria: isBengali ? 'এতিম সনদ প্রয়োজন' : 'Orphan certificate required',
     },
   ];
 
   const paymentMethods = [
     {
-      name: t('payment.bank.name'),
-      description: t('payment.bank.description'),
-      details: t('payment.bank.details'),
+      name: isBengali ? 'ব্যাংক ট্রান্সফার' : 'Bank Transfer',
+      description: isBengali ? 'ব্যাংক একাউন্টে সরাসরি টাকা পাঠান' : 'Direct transfer to bank account',
+      details: isBengali ? 'আমাদের ব্যাংক একাউন্টে টাকা পাঠান' : 'Transfer to our bank account',
     },
     {
-      name: t('payment.mobile.name'),
-      description: t('payment.mobile.description'),
-      details: t('payment.mobile.details'),
+      name: isBengali ? 'মোবাইল ব্যাংকিং' : 'Mobile Banking',
+      description: isBengali ? 'বিকাশ, নগদ, রকেটের মাধ্যমে' : 'Through bKash, Nagad, Rocket',
+      details: isBengali ? 'মোবাইল ব্যাংকিং নম্বর: ০১৭১১-১১১১১১' : 'Mobile Banking: 01711-111111',
     },
     {
-      name: t('payment.cash.name'),
-      description: t('payment.cash.description'),
-      details: t('payment.cash.details'),
+      name: isBengali ? 'নগদ' : 'Cash',
+      description: isBengali ? 'স্কুল অফিসে সরাসরি' : 'Direct at school office',
+      details: isBengali ? 'স্কুল অফিসে এসে নগদ প্রদান করুন' : 'Visit school office for cash payment',
     },
   ];
+
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('bn-BD', {
+      style: 'currency',
+      currency: 'BDT',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(amount);
+  };
 
   const calculateEstimatedFee = () => {
     const baseFee = feeStructure[calculatorValues.program as keyof typeof feeStructure];
     let total = baseFee.total;
     
-    // Sibling discount
+    // Sibling discount (15% per sibling, max 2 siblings)
     if (calculatorValues.siblings > 0) {
-      total = total * (1 - (calculatorValues.siblings * 0.1));
+      const siblingDiscount = Math.min(calculatorValues.siblings, 2) * 0.15;
+      total = total * (1 - siblingDiscount);
     }
     
-    // Scholarship discount
+    // Scholarship discount (25% for merit-based)
     if (calculatorValues.scholarship) {
       total = total * 0.75; // 25% scholarship
     }
@@ -103,21 +112,33 @@ export function FeeStructure() {
   };
 
   return (
-    <section className="bg-white rounded-lg shadow-lg overflow-hidden">
-      <div className="bg-gradient-to-r from-green-50 to-blue-50 px-8 py-6 border-b">
-        <h2 className="text-3xl font-bold text-gray-900 mb-2">
-          {t('title')}
-        </h2>
-        <p className="text-gray-600">
-          {t('subtitle')}
+    <div>
+      {/* Section Title */}
+      <div className="text-center mb-12">
+        <div className="flex items-center justify-center space-x-4 mb-6">
+          <div className="w-16 h-16 bg-gradient-to-br from-primary-500 to-primary-600 rounded-full flex items-center justify-center shadow-lg">
+            <Calculator className="w-8 h-8 text-white" />
+          </div>
+          <h2 className="text-3xl md:text-4xl font-bold text-primary-400 mb-0">
+            {isBengali ? 'টিউশন ফি ক্যালকুলেটর' : 'Tuition Fee Calculator'}
+          </h2>
+          <div className="w-16 h-16 bg-gradient-to-br from-primary-500 to-primary-600 rounded-full flex items-center justify-center shadow-lg">
+            <Heart className="w-8 h-8 text-white" />
+          </div>
+        </div>
+        <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+          {isBengali 
+            ? 'আপনার সন্তানের জন্য সঠিক ফি গণনা করুন এবং উপলব্ধ ছাড় সম্পর্কে জানুন'
+            : 'Calculate the correct fee for your child and learn about available discounts'
+          }
         </p>
       </div>
 
-      <div className="p-8">
+      <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-8">
         {/* Fee Structure Tables */}
         <div className="mb-12">
-          <h3 className="text-2xl font-bold text-gray-900 mb-6">
-            {t('structure.title')}
+          <h3 className="text-2xl font-bold text-primary-600 mb-6">
+            {isBengali ? 'ফি কাঠামো' : 'Fee Structure'}
           </h3>
           
           {/* Program Selector */}
@@ -143,27 +164,41 @@ export function FeeStructure() {
               <thead className="bg-primary-600 text-white">
                 <tr>
                   <th className="px-6 py-4 text-left font-semibold">
-                    {t('structure.feeType')}
+                    {isBengali ? 'ফি ধরণ' : 'Fee Type'}
                   </th>
                   <th className="px-6 py-4 text-right font-semibold">
-                    {t('structure.amount')}
+                    {isBengali ? 'পরিমাণ' : 'Amount'}
                   </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
                 {Object.entries(feeStructure[selectedProgram as keyof typeof feeStructure]).map(([key, value]) => {
-                  if (key === 'name') return null;
+                  if (key === 'name' || key === 'total') return null;
+                  const feeLabels = {
+                    admissionFee: isBengali ? 'ভর্তি ফি (এককালীন)' : 'Admission Fee (One-time)',
+                    sessionFee: isBengali ? 'সেশন ফি (বাৎসরিক)' : 'Session Fee (Annual)',
+                    monthlyTuition: isBengali ? 'বেতন (মাসিক)' : 'Tuition (Monthly)',
+                    monthlyFood: isBengali ? 'খাবার খরচ (মাসিক)' : 'Food Cost (Monthly)',
+                  };
                   return (
                     <tr key={key} className="hover:bg-gray-100">
                       <td className="px-6 py-4 text-gray-900">
-                        {t(`structure.${key}`)}
+                        {feeLabels[key as keyof typeof feeLabels]}
                       </td>
                       <td className="px-6 py-4 text-right font-semibold text-gray-900">
-                        ৳{typeof value === 'number' ? value.toLocaleString() : value}
+                        {formatCurrency(value as number)}
                       </td>
                     </tr>
                   );
                 })}
+                <tr className="bg-primary-50 font-bold">
+                  <td className="px-6 py-4 text-primary-800">
+                    {isBengali ? 'বাৎসরিক মোট (আনুমানিক)' : 'Annual Total (Estimated)'}
+                  </td>
+                  <td className="px-6 py-4 text-right text-primary-800">
+                    {formatCurrency(feeStructure[selectedProgram as keyof typeof feeStructure].total)}
+                  </td>
+                </tr>
               </tbody>
             </table>
           </div>
@@ -171,15 +206,15 @@ export function FeeStructure() {
 
         {/* Financial Aid Calculator */}
         <div className="mb-12">
-          <h3 className="text-2xl font-bold text-gray-900 mb-6">
-            {t('calculator.title')}
+          <h3 className="text-2xl font-bold text-primary-600 mb-6">
+            {isBengali ? 'ফি ক্যালকুলেটর' : 'Fee Calculator'}
           </h3>
-          <div className="bg-blue-50 rounded-lg p-6">
+          <div className="bg-primary-50 rounded-lg p-6">
             <div className="grid md:grid-cols-2 gap-6">
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {t('calculator.program')}
+                    {isBengali ? 'প্রোগ্রাম' : 'Program'}
                   </label>
                   <select
                     value={calculatorValues.program}
@@ -194,7 +229,7 @@ export function FeeStructure() {
                 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {t('calculator.siblings')}
+                    {isBengali ? 'ভাইবোন সংখ্যা' : 'Number of Siblings'}
                   </label>
                   <input
                     type="number"
@@ -215,7 +250,7 @@ export function FeeStructure() {
                       className="mr-2 h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
                     />
                     <span className="text-sm font-medium text-gray-700">
-                      {t('calculator.scholarship')}
+                      {isBengali ? 'মেধা ভিত্তিক ছাড় (২৫%)' : 'Merit-based Scholarship (25%)'}
                     </span>
                   </label>
                 </div>
@@ -223,16 +258,19 @@ export function FeeStructure() {
               
               <div className="bg-white rounded-lg p-4 border-2 border-primary-200">
                 <div className="flex items-center mb-3">
-                  <CalculatorIcon className="h-6 w-6 text-primary-600 mr-2" />
+                  <Calculator className="h-6 w-6 text-primary-600 mr-2" />
                   <h4 className="text-lg font-semibold text-gray-900">
-                    {t('calculator.estimated')}
+                    {isBengali ? 'আনুমানিক বাৎসরিক ফি' : 'Estimated Annual Fee'}
                   </h4>
                 </div>
                 <div className="text-3xl font-bold text-primary-600">
-                  ৳{calculateEstimatedFee().toLocaleString()}
+                  {formatCurrency(calculateEstimatedFee())}
                 </div>
                 <p className="text-sm text-gray-600 mt-2">
-                  {t('calculator.note')}
+                  {isBengali 
+                    ? 'ছাড় সহ আনুমানিক ফি। সঠিক ফি জানতে অফিসে যোগাযোগ করুন।'
+                    : 'Estimated fee with discounts. Contact office for exact fee.'
+                  }
                 </p>
               </div>
             </div>
@@ -241,8 +279,8 @@ export function FeeStructure() {
 
         {/* Scholarship Information */}
         <div className="mb-12">
-          <h3 className="text-2xl font-bold text-gray-900 mb-6">
-            {t('scholarships.title')}
+          <h3 className="text-2xl font-bold text-primary-600 mb-6">
+            {isBengali ? 'উপলব্ধ ছাড়' : 'Available Discounts'}
           </h3>
           <div className="grid md:grid-cols-2 gap-6">
             {scholarships.map((scholarship, index) => (
@@ -260,7 +298,7 @@ export function FeeStructure() {
                 </p>
                 <div className="bg-white rounded-md p-3">
                   <p className="text-sm text-gray-600">
-                    <strong>{t('scholarships.criteria')}:</strong> {scholarship.criteria}
+                    <strong>{isBengali ? 'শর্তাবলী' : 'Criteria'}:</strong> {scholarship.criteria}
                   </p>
                 </div>
               </div>
@@ -270,14 +308,14 @@ export function FeeStructure() {
 
         {/* Payment Methods */}
         <div>
-          <h3 className="text-2xl font-bold text-gray-900 mb-6">
-            {t('payment.title')}
+          <h3 className="text-2xl font-bold text-primary-600 mb-6">
+            {isBengali ? 'পেমেন্ট পদ্ধতি' : 'Payment Methods'}
           </h3>
           <div className="grid md:grid-cols-3 gap-6">
             {paymentMethods.map((method, index) => (
               <div key={index} className="bg-gray-50 border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
                 <div className="flex items-center mb-4">
-                  <CreditCardIcon className="h-8 w-8 text-primary-600 mr-3" />
+                  <CreditCard className="h-8 w-8 text-primary-600 mr-3" />
                   <h4 className="text-lg font-semibold text-gray-900">
                     {method.name}
                   </h4>
@@ -297,17 +335,17 @@ export function FeeStructure() {
           {/* Payment Policies */}
           <div className="mt-8 bg-red-50 border border-red-200 rounded-lg p-6">
             <h4 className="text-lg font-semibold text-red-800 mb-3">
-              {t('policies.title')}
+              {isBengali ? 'পেমেন্ট নীতি' : 'Payment Policies'}
             </h4>
             <ul className="space-y-2 text-red-700">
-              <li>• {t('policies.policy1')}</li>
-              <li>• {t('policies.policy2')}</li>
-              <li>• {t('policies.policy3')}</li>
-              <li>• {t('policies.policy4')}</li>
+              <li>• {isBengali ? 'ভর্তি ফি ভর্তির সময় এককালীন প্রদান করতে হবে' : 'Admission fee must be paid one-time during admission'}</li>
+              <li>• {isBengali ? 'মাসিক বেতন প্রতি মাসের ১০ তারিখের মধ্যে প্রদান করতে হবে' : 'Monthly tuition must be paid by 10th of each month'}</li>
+              <li>• {isBengali ? 'বিলম্বিত পেমেন্টের জন্য অতিরিক্ত ফি লাগতে পারে' : 'Late payment may incur additional fees'}</li>
+              <li>• {isBengali ? 'রিফান্ড নীতি স্কুল কর্তৃপক্ষের সিদ্ধান্তের উপর নির্ভরশীল' : 'Refund policy depends on school authority decision'}</li>
             </ul>
           </div>
         </div>
       </div>
-    </section>
+    </div>
   );
 }

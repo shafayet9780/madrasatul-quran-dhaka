@@ -25,71 +25,109 @@ export async function generateMetadata({ params }: AdmissionsPageProps): Promise
 
 export default async function AdmissionsPage({ params }: AdmissionsPageProps) {
   const { locale } = await params;
+  const isBengali = locale === 'bn' || locale === 'bengali';
   
-  // Fetch pre-admission form configuration to check if it's available
+  // Fetch CMS data for admissions page
   const contentService = getContentService(false);
   const preAdmissionFormConfig = await contentService.getPreAdmissionForm();
+  const siteSettings = await contentService.getSiteSettings();
+  
   const isFormAvailable = preAdmissionFormConfig && preAdmissionFormConfig.formSettings.isEnabled;
   
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Page Header */}
-      <div className="bg-gradient-to-r from-primary-200 to-primary-300 text-white py-16">
-        <div className="container mx-auto px-4">
+    <div className="min-h-screen bg-white">
+      {/* Hero Section */}
+      <section className="relative py-20 md:py-28 bg-gradient-to-r from-primary-200 to-secondary-300 text-white overflow-hidden">
+        {/* Background Pattern */}
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-20 left-20 w-32 h-32 bg-white rounded-full blur-3xl"></div>
+          <div className="absolute bottom-20 right-20 w-40 h-40 bg-white rounded-full blur-3xl"></div>
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-60 h-60 bg-white rounded-full blur-3xl"></div>
+        </div>
+        
+        <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-4xl mx-auto text-center">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">
-              {locale === 'bn' ? 'ভর্তি তথ্য' : 'Admissions'}
+            <div className="inline-flex items-center justify-center w-20 h-20 bg-white/20 backdrop-blur-sm rounded-full mb-8">
+              <Users className="w-10 h-10 text-white" />
+            </div>
+            
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
+              {isBengali ? 'ভর্তি তথ্য' : 'Admissions'}
             </h1>
-            <p className="text-xl text-white">
-              {locale === 'bn' 
+            
+            <p className="text-xl md:text-2xl text-white/90 mb-8 leading-relaxed max-w-3xl mx-auto">
+              {isBengali 
                 ? 'মাদরাসাতুল কুরআনে আপনার সন্তানের ভবিষ্যৎ গড়ুন'
                 : 'Build your child\'s future at Madrasatul Quran'
               }
             </p>
+            
+            <div className="flex flex-wrap justify-center gap-6 text-white/80">
+              <div className="flex items-center gap-2">
+                <Calendar className="w-5 h-5" />
+                <span className="text-sm font-medium">{isBengali ? 'ভর্তি প্রক্রিয়া' : 'Admission Process'}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <DollarSign className="w-5 h-5" />
+                <span className="text-sm font-medium">{isBengali ? 'ফি ক্যালকুলেটর' : 'Fee Calculator'}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <FileText className="w-5 h-5" />
+                <span className="text-sm font-medium">{isBengali ? 'অনলাইন ফর্ম' : 'Online Form'}</span>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
+      </section>
 
       {/* Main Content */}
-      <div className="container mx-auto px-4 py-12">
-        <div className="max-w-6xl mx-auto space-y-16">
+      <div className="container mx-auto px-4 py-16">
+        <div className="max-w-6xl mx-auto space-y-20">
           {/* Pre-Admission Form CTA */}
           {isFormAvailable && (
-            <div className="bg-gradient-to-r from-slate-400 to-slate-500 text-white rounded-2xl shadow-xl p-6 md:p-8">
-              <div className="text-center">
-                <div className="inline-flex items-center justify-center w-12 h-12 bg-white/20 rounded-full mb-4">
-                  <FileText className="w-8 h-8" />
+            <section className="text-center">
+              <div className="bg-white rounded-3xl p-8 md:p-12 border border-primary-200">
+                <div className="flex items-center justify-center space-x-4 mb-6">
+                  <div className="w-16 h-16 bg-gradient-to-br from-primary-500 to-primary-600 rounded-full flex items-center justify-center shadow-lg">
+                    <FileText className="w-8 h-8 text-white" />
+                  </div>
+                  <h2 className="text-3xl md:text-4xl font-bold text-primary-400 mb-0">
+                    {isBengali ? 'প্রি-অ্যাডমিশন ফর্ম' : 'Pre-Admission Form'}
+                  </h2>
                 </div>
-                <h2 className="text-2xl md:text-3xl font-bold mb-3">
-                  {locale === 'bn' ? 'প্রি-অ্যাডমিশন ফর্ম' : 'Pre-Admission Form'}
-                </h2>
-                <p className="text-base text-white/90 mb-6 max-w-2xl mx-auto">
-                  {locale === 'bn' 
+                <p className="text-xl text-primary-300 mb-8 max-w-2xl mx-auto">
+                  {isBengali 
                     ? 'ভর্তির জন্য প্রি-অ্যাডমিশন ফর্ম পূরণ করুন। ফর্মটি সাবধানে পূরণ করে জমা দিন।'
                     : 'Fill out the pre-admission form for enrollment. Please complete the form carefully and submit it.'
                   }
                 </p>
                 <Link 
                   href="/pre-admission"
-                  className="inline-flex items-center space-x-2 bg-white text-slate-600 hover:bg-white/90 font-semibold px-6 py-3 rounded-full transition-all duration-300 transform hover:scale-105 hover:shadow-lg"
+                  className="inline-flex items-center gap-3 bg-primary-600 text-white hover:bg-primary-700 font-semibold px-8 py-4 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
                 >
-                  <span className="text-base">
-                    {locale === 'bn' ? 'ফর্ম পূরণ করুন' : 'Fill Out Form'}
+                  <span className="text-lg">
+                    {isBengali ? 'ফর্ম পূরণ করুন' : 'Fill Out Form'}
                   </span>
                   <ArrowRight className="w-5 h-5" />
                 </Link>
               </div>
-            </div>
+            </section>
           )}
           
           {/* Requirements and Application Process */}
-          <AdmissionsRequirements />
+          <section className="mb-20">
+            <AdmissionsRequirements />
+          </section>
           
           {/* Fee Structure and Financial Information */}
-          <FeeStructure />
+          <section className="mb-20">
+            <FeeStructure />
+          </section>
           
           {/* Important Dates and Inquiry System */}
-          <ImportantDates />
+          <section className="mb-20">
+            <ImportantDates />
+          </section>
         </div>
       </div>
     </div>
