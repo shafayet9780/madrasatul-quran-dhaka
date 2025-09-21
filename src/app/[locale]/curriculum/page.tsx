@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { BookOpen, GraduationCap, Star, ArrowRight, Sparkles, Users, Clock, Award } from 'lucide-react';
+import ProspectusDownload from '@/components/ui/prospectus-download';
 
 interface CurriculumPageProps {
   params: Promise<{ locale: string }>;
@@ -314,15 +315,23 @@ export default async function CurriculumPage({ params }: CurriculumPageProps) {
                 : 'Create the best educational opportunity for your child'
               }
             </p>
-            <Link 
-              href="/admissions" 
-              className="group inline-flex items-center gap-3 bg-white text-primary-600 hover:bg-white/90 font-semibold px-8 py-4 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
-            >
-              <span className="text-lg">
-                {isBengali ? 'ভর্তির জন্য আবেদন করুন' : 'Apply for Admission'}
-              </span>
-              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
-            </Link>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+              <Link 
+                href="/admissions" 
+                className="group inline-flex items-center gap-3 bg-white text-primary-600 hover:bg-white/90 font-semibold px-8 py-4 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+              >
+                <span className="text-lg">
+                  {isBengali ? 'ভর্তির জন্য আবেদন করুন' : 'Apply for Admission'}
+                </span>
+                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
+              </Link>
+              
+              <ProspectusDownload 
+                locale={locale} 
+                variant="secondary"
+                size="lg"
+              />
+            </div>
           </div>
         </section>
       </div>
