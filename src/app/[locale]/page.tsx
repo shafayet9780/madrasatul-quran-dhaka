@@ -1,7 +1,7 @@
 import { Metadata } from 'next';
 import { draftMode } from 'next/headers';
 import { getTranslations } from 'next-intl/server';
-import { HeroSection, CurriculumSection } from '@/components/homepage';
+import { HeroSection, UniqueFeaturesShowcase, CurriculumShowcase } from '@/components/homepage';
 import MissionStatisticsSection from '@/components/homepage/mission-statistics-section';
 import FeaturedContentSection from '@/components/homepage/featured-content-section';
 import { getContentService } from '@/lib/content-service';
@@ -41,12 +41,15 @@ export default async function Home() {
       />
 
       {/* Mission Statement and Statistics Section */}
-      <MissionStatisticsSection
+      {/* <MissionStatisticsSection
         siteSettings={siteSettings}
-      />
+      /> */}
 
-      {/* Curriculum Section */}
-      <CurriculumSection />
+      {/* Unique Features Showcase */}
+      <UniqueFeaturesShowcase />
+
+      {/* Curriculum Showcase */}
+      <CurriculumShowcase />
 
       {/* Featured Content and Quick Access Section */}
       <FeaturedContentSection

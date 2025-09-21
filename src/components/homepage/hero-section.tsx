@@ -223,7 +223,6 @@ export default function HeroSection({
                 href="/contact"
                 className="group relative bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white font-semibold px-4 sm:px-8 py-3 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 flex items-center space-x-1 sm:space-x-2 text-sm sm:text-base"
               >
-                <span>📞</span>
                 <span className="whitespace-nowrap">{tNav('contact')}</span>
                 <svg
                   className="w-3 h-3 sm:w-4 sm:h-4 group-hover:translate-x-1 transition-transform duration-300"

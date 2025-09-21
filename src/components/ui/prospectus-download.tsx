@@ -58,7 +58,7 @@ export default function ProspectusDownload({
       case 'primary':
         return 'bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white shadow-lg hover:shadow-xl';
       case 'secondary':
-        return 'bg-gradient-to-r from-secondary-600 to-secondary-700 hover:from-secondary-700 hover:to-secondary-800 text-white shadow-lg hover:shadow-xl';
+        return 'bg-gradient-to-r from-secondary-300 to-secondary-400 hover:from-secondary-400 hover:to-secondary-500 text-white shadow-lg hover:shadow-xl';
       case 'outline':
         return 'bg-white border-2 border-primary-600 text-primary-600 hover:bg-primary-50 shadow-lg hover:shadow-xl';
       default:

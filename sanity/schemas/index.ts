@@ -6,6 +6,7 @@ import { facility } from './facility'
 import { siteSettings } from './siteSettings'
 import { footer } from './footer'
 import { preAdmissionForm } from './preAdmissionForm'
+import prospectus from './prospectus'
 
 export const schemaTypes = [
   page,
@@ -16,4 +17,5 @@ export const schemaTypes = [
   siteSettings,
   footer,
   preAdmissionForm,
+  prospectus,
 ]

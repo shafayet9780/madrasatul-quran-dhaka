@@ -1,0 +1,205 @@
+'use client';
+
+import { useLocale } from 'next-intl';
+import { CheckCircle, BookOpen, Languages, GraduationCap, Bus, Heart, History, Users } from 'lucide-react';
+
+interface UniqueFeature {
+  icon: string;
+  title: {
+    bengali: string;
+    english: string;
+  };
+  description: {
+    bengali: string;
+    english: string;
+  };
+}
+
+interface UniqueFeaturesShowcaseProps {
+  data?: UniqueFeature[];
+}
+
+export default function UniqueFeaturesShowcase({ data }: UniqueFeaturesShowcaseProps) {
+  const locale = useLocale() as 'bengali' | 'english';
+  const isBengali = locale === 'bengali' || locale === 'bengali';
+
+  // Fallback data if CMS data is not available
+  const fallbackData: UniqueFeature[] = [
+    {
+      icon: 'integration',
+      title: {
+        bengali: 'আদর্শ সমন্বয়',
+        english: 'Ideal Integration'
+      },
+      description: {
+        bengali: 'আরবি ভাষা ও ইসলামী শিক্ষার সাথে সাধারণ শিক্ষার আদর্শ সমন্বয়',
+        english: 'Ideal integration of Arabic language and Islamic education with general education'
+      }
+    },
+    {
+      icon: 'languages',
+      title: {
+        bengali: 'চারটি ভাষার দক্ষতা',
+        english: 'Four Language Skills'
+      },
+      description: {
+        bengali: 'ইংরেজি ও আরবি উভয় ভাষায় শোনা, বলা, পড়া ও লেখার দক্ষতা অর্জন',
+        english: 'Acquisition of four basic language skills (listening, speaking, reading, and writing) in both English and Arabic'
+      }
+    },
+    {
+      icon: 'arabic-medium',
+      title: {
+        bengali: 'আরবি মিডিয়াম ইসলামী শিক্ষা',
+        english: 'Arabic Medium Islamic Studies'
+      },
+      description: {
+        bengali: '৬ষ্ঠ শ্রেণি থেকে আরবি মিডিয়ামে ইসলামী শিক্ষা প্রদান',
+        english: 'Islamic studies are taught in Arabic from the 6th grade onwards'
+      }
+    },
+    {
+      icon: 'higher-education',
+      title: {
+        bengali: 'উচ্চ শিক্ষার সুযোগ',
+        english: 'Higher Education Pathway'
+      },
+      description: {
+        bengali: '৮ম শ্রেণির পর এসএসসি/দাখিল/মাদ্রাসা শিক্ষার সুযোগ',
+        english: 'Opportunity for SSC/Dakhil/Madrasa education after 8th grade'
+      }
+    },
+    {
+      icon: 'hifz',
+      title: {
+        bengali: 'ডে-কেয়ার হিফজ',
+        english: 'Day-care Hifz'
+      },
+      description: {
+        bengali: 'ডে-কেয়ার হিফজ (কুরআন মুখস্থ) প্রোগ্রামের ব্যবস্থা',
+        english: 'Provision for a Day-care Hifz (Quran memorization) program'
+      }
+    },
+    {
+      icon: 'transport',
+      title: {
+        bengali: 'নিজস্ব পরিবহন',
+        english: 'Own Transportation'
+      },
+      description: {
+        bengali: 'নিজস্ব পরিবহন ব্যবস্থা রয়েছে',
+        english: 'Own transportation system is available'
+      }
+    }
+  ];
+
+  const featuresData = data || fallbackData;
+
+  const getIcon = (iconName: string) => {
+    const iconProps = { className: 'w-6 h-6' };
+    
+    switch (iconName) {
+      case 'integration':
+        return <CheckCircle {...iconProps} />;
+      case 'languages':
+        return <Languages {...iconProps} />;
+      case 'arabic-medium':
+        return <BookOpen {...iconProps} />;
+      case 'higher-education':
+        return <GraduationCap {...iconProps} />;
+      case 'hifz':
+        return <BookOpen {...iconProps} />;
+      case 'transport':
+        return <Bus {...iconProps} />;
+      case 'hadith':
+        return <BookOpen {...iconProps} />;
+      case 'translation':
+        return <Languages {...iconProps} />;
+      case 'ethics':
+        return <Heart {...iconProps} />;
+      case 'history':
+        return <History {...iconProps} />;
+      case 'recreation':
+        return <Users {...iconProps} />;
+      default:
+        return <CheckCircle {...iconProps} />;
+    }
+  };
+
+  return (
+    <section className="py-20 bg-gradient-to-br from-white via-gray-50 to-white relative overflow-hidden">
+      {/* Background Pattern */}
+      <div className="absolute inset-0 opacity-5">
+        <div className="absolute top-20 left-20 w-40 h-40 bg-primary-500 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-20 right-20 w-32 h-32 bg-secondary-500 rounded-full blur-3xl"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-60 h-60 bg-accent-500 rounded-full blur-3xl"></div>
+      </div>
+
+      <div className="container mx-auto px-4 relative z-10">
+        {/* Enhanced Header */}
+        <div className="text-center mb-16">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-primary-500 to-primary-600 rounded-full mb-6 shadow-lg">
+            <span className="text-2xl font-bold text-white">✨</span>
+          </div>
+          <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-primary-700 to-secondary-700 bg-clip-text text-transparent mb-6">
+            {isBengali ? 'কেন মাদরাসাতুল কুরআন?' : 'Why Madrasatul Quran?'}
+          </h2>
+          <p className="text-lg text-gray-700 max-w-4xl mx-auto leading-relaxed">
+            {isBengali 
+              ? 'আমাদের স্কুলের স্বতন্ত্র বৈশিষ্ট্যগুলো যা আমাদেরকে অন্যান্য শিক্ষা প্রতিষ্ঠান থেকে আলাদা করে তোলে'
+              : 'The unique characteristics of our school that set us apart from other educational institutions'
+            }
+          </p>
+        </div>
+
+        {/* Enhanced Features Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
+          {featuresData.map((feature, index) => (
+            <div 
+              key={index}
+              className="group relative"
+            >
+              <div className="absolute inset-0 bg-gradient-to-br from-white to-gray-50 rounded-2xl shadow-lg group-hover:shadow-2xl transition-all duration-500 transform group-hover:-translate-y-2"></div>
+              <div className="relative p-8 rounded-2xl border border-gray-200 group-hover:border-primary-300 transition-all duration-300 bg-white/80 backdrop-blur-sm">
+                <div className="flex items-start space-x-5">
+                  <div className="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl flex items-center justify-center text-white group-hover:from-primary-600 group-hover:to-primary-700 transition-all duration-300 shadow-lg group-hover:shadow-xl group-hover:scale-110">
+                    {getIcon(feature.icon)}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-primary-700 transition-colors duration-300">
+                      {isBengali ? feature.title.bengali : feature.title.english}
+                    </h3>
+                    <p className="text-sm text-gray-600 leading-relaxed">
+                      {isBengali ? feature.description.bengali : feature.description.english}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Enhanced Call to Action */}
+        <div className="text-center">
+          <div className="bg-gradient-to-r from-primary-50 via-white to-secondary-50 rounded-2xl p-8 border-2 border-primary-200 shadow-lg">
+            <p className="text-gray-700 mb-6 text-lg">
+              {isBengali 
+                ? 'আরও জানতে আমাদের কারিকুলাম পেজ দেখুন'
+                : 'Learn more about our comprehensive curriculum'
+              }
+            </p>
+            <a 
+              href="/curriculum"
+              className="inline-flex items-center gap-3 bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white font-bold px-8 py-4 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+            >
+              <BookOpen className="w-6 h-6" />
+              <span className="text-lg">
+                {isBengali ? 'কারিকুলাম দেখুন' : 'View Curriculum'}
+              </span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}

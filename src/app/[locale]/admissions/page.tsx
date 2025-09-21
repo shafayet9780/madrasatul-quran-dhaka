@@ -4,7 +4,7 @@ import { getContentService } from '@/lib/content-service';
 import { AdmissionsRequirements } from '@/components/admissions/requirements-section';
 import { FeeStructure } from '@/components/admissions/fee-structure-section';
 import { ImportantDates } from '@/components/admissions/important-dates-section';
-import { ArrowRight, FileText } from 'lucide-react';
+import { ArrowRight, FileText, Users, Calendar, DollarSign } from 'lucide-react';
 import Link from 'next/link';
 
 interface AdmissionsPageProps {
