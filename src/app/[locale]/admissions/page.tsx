@@ -34,13 +34,13 @@ export default async function AdmissionsPage({ params }: AdmissionsPageProps) {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Page Header */}
-      <div className="bg-gradient-to-r from-primary-200 to-primary-300 text-primary-900 py-16">
+      <div className="bg-gradient-to-r from-primary-200 to-primary-300 text-white py-16">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto text-center">
             <h1 className="text-4xl md:text-5xl font-bold mb-4">
               {locale === 'bn' ? 'ভর্তি তথ্য' : 'Admissions'}
             </h1>
-            <p className="text-xl text-primary-700">
+            <p className="text-xl text-white">
               {locale === 'bn' 
                 ? 'মাদরাসাতুল কুরআনে আপনার সন্তানের ভবিষ্যৎ গড়ুন'
                 : 'Build your child\'s future at Madrasatul Quran'
@@ -55,15 +55,15 @@ export default async function AdmissionsPage({ params }: AdmissionsPageProps) {
         <div className="max-w-6xl mx-auto space-y-16">
           {/* Pre-Admission Form CTA */}
           {isFormAvailable && (
-            <div className="bg-gradient-to-r from-green-500 to-green-600 text-white rounded-2xl shadow-xl p-8 md:p-12">
+            <div className="bg-gradient-to-r from-slate-400 to-slate-500 text-white rounded-2xl shadow-xl p-6 md:p-8">
               <div className="text-center">
-                <div className="inline-flex items-center justify-center w-16 h-16 bg-white/20 rounded-full mb-6">
+                <div className="inline-flex items-center justify-center w-12 h-12 bg-white/20 rounded-full mb-4">
                   <FileText className="w-8 h-8" />
                 </div>
-                <h2 className="text-3xl md:text-4xl font-bold mb-4">
+                <h2 className="text-2xl md:text-3xl font-bold mb-3">
                   {locale === 'bn' ? 'প্রি-অ্যাডমিশন ফর্ম' : 'Pre-Admission Form'}
                 </h2>
-                <p className="text-lg text-white/90 mb-8 max-w-2xl mx-auto">
+                <p className="text-base text-white/90 mb-6 max-w-2xl mx-auto">
                   {locale === 'bn' 
                     ? 'ভর্তির জন্য প্রি-অ্যাডমিশন ফর্ম পূরণ করুন। ফর্মটি সাবধানে পূরণ করে জমা দিন।'
                     : 'Fill out the pre-admission form for enrollment. Please complete the form carefully and submit it.'
@@ -71,9 +71,9 @@ export default async function AdmissionsPage({ params }: AdmissionsPageProps) {
                 </p>
                 <Link 
                   href="/pre-admission"
-                  className="inline-flex items-center space-x-3 bg-white text-green-600 hover:bg-white/90 font-semibold px-8 py-4 rounded-full transition-all duration-300 transform hover:scale-105 hover:shadow-lg"
+                  className="inline-flex items-center space-x-2 bg-white text-slate-600 hover:bg-white/90 font-semibold px-6 py-3 rounded-full transition-all duration-300 transform hover:scale-105 hover:shadow-lg"
                 >
-                  <span className="text-lg">
+                  <span className="text-base">
                     {locale === 'bn' ? 'ফর্ম পূরণ করুন' : 'Fill Out Form'}
                   </span>
                   <ArrowRight className="w-5 h-5" />

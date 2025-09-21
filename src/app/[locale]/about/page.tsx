@@ -1,10 +1,10 @@
 import { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
 import ComingSoonPage from '@/components/ui/coming-soon-page';
 // Temporarily replaced with coming soon page for MVP launch
 // Original imports commented out:
 // import { notFound } from 'next/navigation';
 // import { draftMode } from 'next/headers';
-// import { getTranslations } from 'next-intl/server';
 // import {
 //   SchoolHistoryVision,
 //   LeadershipTeam,
@@ -15,18 +15,35 @@ import ComingSoonPage from '@/components/ui/coming-soon-page';
 // import { PreviewBanner } from '@/components/preview/preview-banner';
 // import type { StaffMember, Page } from '@/types/sanity';
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'about.meta' });
+
   return {
-    title: 'About Us - Madrasatul Quran',
-    description: 'Learn about our institution, mission, and educational philosophy.',
+    title: t('title'),
+    description: t('description'),
+    openGraph: {
+      title: t('title'),
+      description: t('description'),
+      type: 'website',
+    },
   };
 }
 
-export default function AboutPage() {
+interface AboutPageProps {
+  params: Promise<{
+    locale: string;
+  }>;
+}
+
+export default async function AboutPage({ params }: AboutPageProps) {
+  const { locale } = await params;
+  
   return (
     <ComingSoonPage 
-      pageTitle="About Us" 
-      expectedLaunch="Coming Soon" 
+      pageTitle={(locale === 'bn' || locale === 'bengali') ? 'আমাদের সম্পর্কে' : 'About Us'} 
+      expectedLaunch="Coming Soon"
+      locale={locale}
     />
   );
 }

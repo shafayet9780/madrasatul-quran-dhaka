@@ -41,11 +41,11 @@ export default function IslamicStudiesSection({ programs, locale }: IslamicStudi
 
   return (
     <section id="islamic-studies" className="mb-20">
-      <div className="text-center mb-12">
-        <div className="inline-flex items-center justify-center w-16 h-16 bg-primary-100 rounded-full mb-6">
-          <BookOpen className="w-8 h-8 text-primary-600" />
+      <div className="text-center mb-16">
+        <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-primary-500 to-primary-600 rounded-full mb-8 shadow-lg">
+          <BookOpen className="w-10 h-10 text-white" />
         </div>
-        <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+        <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
           {locale === 'bengali' ? 'ইসলামী শিক্ষা পাঠ্যক্রম' : 'Islamic Studies Curriculum'}
         </h2>
         <p className="text-lg text-gray-600 max-w-3xl mx-auto leading-relaxed">
@@ -66,11 +66,11 @@ export default function IslamicStudiesSection({ programs, locale }: IslamicStudi
           return (
             <div
               key={program._id}
-              className="bg-white rounded-2xl shadow-lg border border-sand-medium overflow-hidden hover:shadow-xl transition-all duration-300"
+              className="bg-white rounded-3xl shadow-xl border border-primary-100 overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1"
             >
               {/* Program Header */}
               <div
-                className="p-6 bg-gradient-to-r from-primary-50 to-primary-100 cursor-pointer"
+                className="p-8 bg-gradient-to-r from-primary-50 to-primary-100 cursor-pointer hover:from-primary-100 hover:to-primary-150 transition-all duration-300"
                 onClick={() => toggleProgram(program._id)}
               >
                 <div className="flex items-center justify-between">

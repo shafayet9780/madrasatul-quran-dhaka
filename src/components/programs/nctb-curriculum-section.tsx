@@ -91,11 +91,11 @@ export default function NCTBCurriculumSection({ programs, locale }: NCTBCurricul
 
   return (
     <section id="nctb-curriculum" className="mb-20">
-      <div className="text-center mb-12">
-        <div className="inline-flex items-center justify-center w-16 h-16 bg-secondary-100 rounded-full mb-6">
-          <GraduationCap className="w-8 h-8 text-secondary-600" />
+      <div className="text-center mb-16">
+        <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-secondary-500 to-secondary-600 rounded-full mb-8 shadow-lg">
+          <GraduationCap className="w-10 h-10 text-white" />
         </div>
-        <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+        <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
           {locale === 'bengali' ? 'এনসিটিবি পাঠ্যক্রম' : 'NCTB Curriculum'}
         </h2>
         <p className="text-lg text-gray-600 max-w-3xl mx-auto leading-relaxed">
@@ -107,7 +107,7 @@ export default function NCTBCurriculumSection({ programs, locale }: NCTBCurricul
       </div>
 
       {/* Search and Filter Controls */}
-      <div className="mb-8 bg-white p-6 rounded-xl shadow-md border border-gray-200">
+      <div className="mb-8 bg-white p-8 rounded-2xl shadow-lg border border-secondary-100">
         <div className="flex flex-col md:flex-row gap-4">
           {/* Search Input */}
           <div className="flex-1 relative">
@@ -117,7 +117,7 @@ export default function NCTBCurriculumSection({ programs, locale }: NCTBCurricul
               placeholder={locale === 'bengali' ? 'বিষয় বা প্রোগ্রাম খুঁজুন...' : 'Search subjects or programs...'}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary-500 focus:border-secondary-500 transition-colors"
+              className="w-full pl-10 pr-4 py-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-secondary-500 focus:border-secondary-500 transition-colors"
             />
           </div>
 
@@ -127,7 +127,7 @@ export default function NCTBCurriculumSection({ programs, locale }: NCTBCurricul
             <select
               value={selectedGradeFilter}
               onChange={(e) => setSelectedGradeFilter(e.target.value)}
-              className="pl-10 pr-8 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary-500 focus:border-secondary-500 transition-colors bg-white min-w-[180px]"
+              className="pl-10 pr-8 py-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-secondary-500 focus:border-secondary-500 transition-colors bg-white min-w-[180px]"
             >
               {gradeFilters.map(filter => (
                 <option key={filter.value} value={filter.value}>
@@ -163,11 +163,11 @@ export default function NCTBCurriculumSection({ programs, locale }: NCTBCurricul
             return (
               <div
                 key={program._id}
-                className="bg-white rounded-2xl shadow-lg border border-sand-medium overflow-hidden hover:shadow-xl transition-all duration-300"
+                className="bg-white rounded-3xl shadow-xl border border-secondary-100 overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1"
               >
                 {/* Program Header */}
                 <div
-                  className="p-6 bg-gradient-to-r from-secondary-50 to-secondary-100 cursor-pointer"
+                  className="p-8 bg-gradient-to-r from-secondary-50 to-secondary-100 cursor-pointer hover:from-secondary-100 hover:to-secondary-150 transition-all duration-300"
                   onClick={() => toggleProgram(program._id)}
                 >
                   <div className="flex items-center justify-between">

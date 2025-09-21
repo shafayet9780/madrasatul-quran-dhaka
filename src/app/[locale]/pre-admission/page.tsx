@@ -41,8 +41,8 @@ export default async function PreAdmissionPage({ params }: PreAdmissionPageProps
             </h1>
             <p className="text-gray-600 mb-6">
               {locale === 'bengali' 
-                ? 'প্রি-অ্যাডমিশন ফর্মটি বর্তমানে উপলব্ধ নয়। অনুগ্রহ করে পরে আবার চেষ্টা করুন।'
-                : 'The pre-admission form is currently not available. Please try again later.'
+                ? 'প্রি-অ্যাডমিশন বর্তমানে গ্রহণ করা হচ্ছে না। অনুগ্রহ করে পরে আবার চেষ্টা করুন।'
+                : 'The pre-admission form is currently not being accepted. Please try again later.'
               }
             </p>
             <Link 
@@ -61,7 +61,7 @@ export default async function PreAdmissionPage({ params }: PreAdmissionPageProps
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Page Header */}
-      <div className="bg-gradient-to-r from-primary-600 to-primary-700 text-white py-12">
+      <div className="bg-gradient-to-r from-primary-200 to-primary-300 text-white py-12">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
             {/* Back Button */}
