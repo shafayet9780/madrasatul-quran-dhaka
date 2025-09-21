@@ -51,6 +51,23 @@ const defaultFormConfig = {
   ],
   studentInfoFields: [
     {
+      fieldName: 'student_photo',
+      label: {
+        bengali: 'শিক্ষার্থীর ছবি',
+        english: 'Student Photo'
+      },
+      fieldType: 'file',
+      isRequired: true,
+      placeholder: {
+        bengali: 'ছবি আপলোড করুন',
+        english: 'Upload photo'
+      },
+      helpText: {
+        bengali: 'স্পষ্ট মুখের ছবি আপলোড করুন (সর্বোচ্চ 500KB, JPG/PNG)',
+        english: 'Upload a clear photo of your face (Max 500KB, JPG/PNG)'
+      }
+    },
+    {
       fieldName: 'student_name_english',
       label: {
         bengali: 'নাম (ইংরেজিতে)',

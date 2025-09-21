@@ -11,13 +11,15 @@ interface DynamicFormFieldProps {
   value: any;
   onChange: (value: any) => void;
   error?: string;
+  fieldKey?: string;
 }
 
 export default function DynamicFormField({ 
   field, 
   value, 
   onChange, 
-  error 
+  error,
+  fieldKey
 }: DynamicFormFieldProps) {
   const locale = useLocale() as Language;
   const [isFocused, setIsFocused] = useState(false);
@@ -27,7 +29,7 @@ export default function DynamicFormField({
     : field.question
       ? getLocalizedText(field.question, locale)
       : '';
-  const effectiveName = field.fieldName || field._key || '';
+  const effectiveName = fieldKey || field.fieldName || field._key || '';
   const placeholder = field.placeholder ? getLocalizedText(field.placeholder, locale) : '';
   const helpText = field.helpText ? getLocalizedText(field.helpText, locale) : '';
 
@@ -51,7 +53,7 @@ export default function DynamicFormField({
             onBlur={() => setIsFocused(false)}
             placeholder={placeholder}
             required={field.isRequired}
-            className={`form-input w-full px-3 py-2 rounded-lg border-2 transition-all duration-200 ${
+            className={`form-input w-full px-2.5 py-1.5 rounded-lg border-2 transition-colors duration-200 ${
               error 
                 ? 'border-red-500 focus:border-red-500' 
                 : isFocused 
@@ -72,8 +74,8 @@ export default function DynamicFormField({
             onBlur={() => setIsFocused(false)}
             placeholder={placeholder}
             required={field.isRequired}
-            rows={4}
-            className={`form-textarea w-full px-3 py-2 rounded-lg border-2 transition-all duration-200 resize-vertical ${
+            rows={3}
+            className={`form-textarea w-full px-2.5 py-1.5 rounded-lg border-2 transition-colors duration-200 resize-vertical ${
               error 
                 ? 'border-red-500 focus:border-red-500' 
                 : isFocused 
@@ -93,7 +95,7 @@ export default function DynamicFormField({
             onFocus={() => setIsFocused(true)}
             onBlur={() => setIsFocused(false)}
             required={field.isRequired}
-            className={`form-select w-full px-3 py-2 rounded-lg border-2 transition-all duration-200 ${
+            className={`form-select w-full px-2.5 py-1.5 rounded-lg border-2 transition-colors duration-200 cursor-pointer ${
               error 
                 ? 'border-red-500 focus:border-red-500' 
                 : isFocused 
@@ -121,7 +123,7 @@ export default function DynamicFormField({
                   value={option.value}
                   checked={value === option.value}
                   onChange={(e) => handleChange(e.target.value)}
-                  className="w-4 h-4 text-primary-600 border-gray-300 focus:ring-primary-500"
+                  className="w-4 h-4 text-primary-600 border-gray-300 focus:ring-primary-500 cursor-pointer"
                 />
                 <span className="text-gray-700 font-medium">
                   {getLocalizedText(option.label, locale)}
@@ -149,7 +151,7 @@ export default function DynamicFormField({
                       handleChange(currentValues.filter(v => v !== option.value));
                     }
                   }}
-                  className="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
+                  className="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500 cursor-pointer"
                 />
                 <span className="text-gray-700 font-medium">
                   {getLocalizedText(option.label, locale)}
@@ -170,7 +172,7 @@ export default function DynamicFormField({
             onFocus={() => setIsFocused(true)}
             onBlur={() => setIsFocused(false)}
             required={field.isRequired}
-            className={`form-input w-full px-3 py-2 rounded-lg border-2 transition-all duration-200 ${
+            className={`form-input w-full px-2.5 py-1.5 rounded-lg border-2 transition-colors duration-200 cursor-pointer ${
               error 
                 ? 'border-red-500 focus:border-red-500' 
                 : isFocused 
@@ -191,7 +193,7 @@ export default function DynamicFormField({
             onFocus={() => setIsFocused(true)}
             onBlur={() => setIsFocused(false)}
             required={field.isRequired}
-            className={`form-input w-full px-3 py-2 rounded-lg border-2 transition-all duration-200 ${
+            className={`form-input w-full px-2.5 py-1.5 rounded-lg border-2 transition-colors duration-200 cursor-pointer ${
               error 
                 ? 'border-red-500 focus:border-red-500' 
                 : isFocused 
@@ -213,7 +215,7 @@ export default function DynamicFormField({
             onBlur={() => setIsFocused(false)}
             placeholder={placeholder}
             required={field.isRequired}
-            className={`form-input w-full px-3 py-2 rounded-lg border-2 transition-all duration-200 ${
+            className={`form-input w-full px-2.5 py-1.5 rounded-lg border-2 transition-colors duration-200 ${
               error 
                 ? 'border-red-500 focus:border-red-500' 
                 : isFocused 
@@ -233,7 +235,7 @@ export default function DynamicFormField({
                 value="yes"
                 checked={value === 'yes'}
                 onChange={(e) => handleChange(e.target.value)}
-                className="w-4 h-4 text-primary-600 border-gray-300 focus:ring-primary-500"
+                className="w-4 h-4 text-primary-600 border-gray-300 focus:ring-primary-500 cursor-pointer"
               />
               <span className="text-gray-700 font-medium">
                 {locale === 'bengali' ? 'হ্যাঁ' : 'Yes'}
@@ -246,7 +248,7 @@ export default function DynamicFormField({
                 value="no"
                 checked={value === 'no'}
                 onChange={(e) => handleChange(e.target.value)}
-                className="w-4 h-4 text-primary-600 border-gray-300 focus:ring-primary-500"
+                className="w-4 h-4 text-primary-600 border-gray-300 focus:ring-primary-500 cursor-pointer"
               />
               <span className="text-gray-700 font-medium">
                 {locale === 'bengali' ? 'না' : 'No'}
@@ -254,6 +256,115 @@ export default function DynamicFormField({
             </label>
           </div>
         );
+
+        case 'file':
+          return (
+            <div className="space-y-3">
+              {/* Smart Profile Picture Upload */}
+              <div className="flex flex-col items-center space-y-3">
+                {/* Profile Picture Preview */}
+                <div className="relative">
+                  <div className="w-24 h-24 rounded-full border-3 border-gray-200 bg-gray-50 flex items-center justify-center overflow-hidden shadow-md">
+                    {value && value instanceof File ? (
+                      <img
+                        src={URL.createObjectURL(value)}
+                        alt="Profile Preview"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="text-center text-gray-400">
+                        <svg className="w-12 h-12 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                        <p className="text-xs">
+                          {locale === 'bengali' ? 'ছবি যোগ করুন' : 'Add Photo'}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                  
+                  {/* Upload Button Overlay */}
+                  <label
+                    htmlFor={effectiveName}
+                    className="absolute -bottom-1 -right-1 w-8 h-8 bg-primary-600 hover:bg-primary-700 text-white rounded-full flex items-center justify-center cursor-pointer shadow-md transition-colors duration-200"
+                    title={locale === 'bengali' ? 'ছবি আপলোড করুন' : 'Upload Photo'}
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                    </svg>
+                  </label>
+                </div>
+
+                {/* Hidden File Input */}
+                <input
+                  type="file"
+                  id={effectiveName}
+                  name={effectiveName}
+                  accept="image/*"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      // Validate file size (max 500KB)
+                      if (file.size > 500 * 1024) {
+                        alert(locale === 'bengali'
+                          ? 'ফাইলের আকার 500KB-এর বেশি হতে পারবে না'
+                          : 'File size cannot exceed 500KB'
+                        );
+                        e.target.value = ''; // Clear the input
+                        return;
+                      }
+                      // Validate file type
+                      if (!file.type.startsWith('image/')) {
+                        alert(locale === 'bengali'
+                          ? 'শুধুমাত্র ছবি ফাইল আপলোড করুন'
+                          : 'Please upload image files only'
+                        );
+                        e.target.value = ''; // Clear the input
+                        return;
+                      }
+                      handleChange(file);
+                    }
+                  }}
+                  // Don't use required attribute on file inputs - HTML file inputs can't be restored after re-render
+                  // File validation is handled by the parent component's validateForm() function
+                  className="hidden"
+                />
+
+                {/* File Info */}
+                {value && value instanceof File && (
+                  <div className="text-center space-y-2">
+                    <p className="text-sm font-medium text-gray-700">
+                      {value.name}
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      {(value.size / 1024).toFixed(1)} KB
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        handleChange(null);
+                        const input = document.getElementById(effectiveName) as HTMLInputElement;
+                        if (input) input.value = '';
+                      }}
+                      className="text-xs text-red-600 hover:text-red-700 underline"
+                    >
+                      {locale === 'bengali' ? 'ছবি সরান' : 'Remove Photo'}
+                    </button>
+                  </div>
+                )}
+
+                {/* Upload Instructions */}
+                <div className="text-center max-w-xs mx-auto">
+                  <p className="text-xs text-gray-600 leading-relaxed text-center">
+                    {locale === 'bengali' 
+                      ? 'স্পষ্ট মুখের ছবি আপলোড করুন (সর্বোচ্চ 500KB, JPG/PNG)'
+                      : 'Upload a clear photo of your face (Max 500KB, JPG/PNG)'
+                    }
+                  </p>
+                </div>
+              </div>
+            </div>
+          );
 
       default:
         return (
@@ -265,17 +376,17 @@ export default function DynamicFormField({
             onChange={(e) => handleChange(e.target.value)}
             placeholder={placeholder}
             required={field.isRequired}
-            className="form-input w-full px-4 py-3 rounded-lg border-2 border-gray-300 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
+            className="form-input w-full px-4 py-3 rounded-lg border-2 border-gray-300 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200 transition-colors duration-200"
           />
         );
     }
   };
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-1.5">
       <label 
         htmlFor={effectiveName}
-        className="block text-sm font-semibold text-gray-700"
+        className="block text-sm font-semibold text-gray-700 cursor-pointer"
       >
         {label}
         {field.isRequired && (
@@ -286,11 +397,11 @@ export default function DynamicFormField({
       {renderField()}
       
       {helpText && (
-        <p className="text-sm text-gray-600">{helpText}</p>
+        <p className="text-xs text-gray-600">{helpText}</p>
       )}
       
       {error && (
-        <p className="text-sm text-red-600">{error}</p>
+        <p className="text-xs text-red-600">{error}</p>
       )}
     </div>
   );

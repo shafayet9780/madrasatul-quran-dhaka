@@ -251,7 +251,7 @@ export interface FormField {
   question?: MultilingualText
   // Sanity array items carry a stable _key we can use as fallback name
   _key?: string
-  fieldType: 'text' | 'textarea' | 'select' | 'radio' | 'checkbox' | 'date' | 'time' | 'email' | 'tel' | 'number' | 'boolean'
+  fieldType: 'text' | 'textarea' | 'select' | 'radio' | 'checkbox' | 'date' | 'time' | 'email' | 'tel' | 'number' | 'boolean' | 'file'
   options?: FormFieldOption[]
   isRequired: boolean
   placeholder?: MultilingualText

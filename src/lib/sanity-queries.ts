@@ -619,6 +619,9 @@ export const preAdmissionFormQuery = groq`
       isRequired,
       placeholder {
         ${multilingualTextFields}
+      },
+      helpText {
+        ${multilingualTextFields}
       }
     },
     parentInfoFields {
@@ -637,6 +640,9 @@ export const preAdmissionFormQuery = groq`
         isRequired,
         placeholder {
           ${multilingualTextFields}
+        },
+        helpText {
+          ${multilingualTextFields}
         }
       },
       motherFields[] {
@@ -654,6 +660,9 @@ export const preAdmissionFormQuery = groq`
         isRequired,
         placeholder {
           ${multilingualTextFields}
+        },
+        helpText {
+          ${multilingualTextFields}
         }
       }
     },
@@ -665,6 +674,9 @@ export const preAdmissionFormQuery = groq`
       fieldType,
       isRequired,
       placeholder {
+        ${multilingualTextFields}
+      },
+      helpText {
         ${multilingualTextFields}
       }
     },

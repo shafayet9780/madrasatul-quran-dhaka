@@ -114,6 +114,7 @@ export const preAdmissionForm = defineType({
                   { title: 'Email', value: 'email' },
                   { title: 'Phone', value: 'tel' },
                   { title: 'Number', value: 'number' },
+                  { title: 'File Upload', value: 'file' },
                 ],
               },
               validation: (Rule) => Rule.required(),
@@ -248,6 +249,7 @@ export const preAdmissionForm = defineType({
                   { title: 'Date Picker', value: 'date' },
                   { title: 'Email', value: 'email' },
                   { title: 'Phone', value: 'tel' },
+                  { title: 'File Upload', value: 'file' },
                 ],
               },
               validation: (Rule) => Rule.required(),
@@ -306,6 +308,23 @@ export const preAdmissionForm = defineType({
                 {
                   name: 'english',
                   title: 'English Placeholder',
+                  type: 'string',
+                },
+              ],
+            },
+            {
+              name: 'helpText',
+              title: 'Help Text',
+              type: 'object',
+              fields: [
+                {
+                  name: 'bengali',
+                  title: 'Bengali Help Text',
+                  type: 'string',
+                },
+                {
+                  name: 'english',
+                  title: 'English Help Text',
                   type: 'string',
                 },
               ],
@@ -372,6 +391,7 @@ export const preAdmissionForm = defineType({
                       { title: 'Yes/No', value: 'boolean' },
                       { title: 'Time Picker', value: 'time' },
                       { title: 'Number', value: 'number' },
+                      { title: 'File Upload', value: 'file' },
                     ],
                   },
                   validation: (Rule) => Rule.required(),
@@ -430,6 +450,23 @@ export const preAdmissionForm = defineType({
                     {
                       name: 'english',
                       title: 'English Placeholder',
+                      type: 'string',
+                    },
+                  ],
+                },
+                {
+                  name: 'helpText',
+                  title: 'Help Text',
+                  type: 'object',
+                  fields: [
+                    {
+                      name: 'bengali',
+                      title: 'Bengali Help Text',
+                      type: 'string',
+                    },
+                    {
+                      name: 'english',
+                      title: 'English Help Text',
                       type: 'string',
                     },
                   ],
@@ -491,6 +528,7 @@ export const preAdmissionForm = defineType({
                       { title: 'Yes/No', value: 'boolean' },
                       { title: 'Time Picker', value: 'time' },
                       { title: 'Number', value: 'number' },
+                      { title: 'File Upload', value: 'file' },
                     ],
                   },
                   validation: (Rule) => Rule.required(),
@@ -549,6 +587,23 @@ export const preAdmissionForm = defineType({
                     {
                       name: 'english',
                       title: 'English Placeholder',
+                      type: 'string',
+                    },
+                  ],
+                },
+                {
+                  name: 'helpText',
+                  title: 'Help Text',
+                  type: 'object',
+                  fields: [
+                    {
+                      name: 'bengali',
+                      title: 'Bengali Help Text',
+                      type: 'string',
+                    },
+                    {
+                      name: 'english',
+                      title: 'English Help Text',
                       type: 'string',
                     },
                   ],
@@ -631,6 +686,23 @@ export const preAdmissionForm = defineType({
                 {
                   name: 'english',
                   title: 'English Placeholder',
+                  type: 'string',
+                },
+              ],
+            },
+            {
+              name: 'helpText',
+              title: 'Help Text',
+              type: 'object',
+              fields: [
+                {
+                  name: 'bengali',
+                  title: 'Bengali Help Text',
+                  type: 'string',
+                },
+                {
+                  name: 'english',
+                  title: 'English Help Text',
                   type: 'string',
                 },
               ],
