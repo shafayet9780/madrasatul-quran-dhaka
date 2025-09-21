@@ -1,6 +1,7 @@
 import Header from './header';
 import Footer from './footer';
 import AdmissionBanner from './admission-banner';
+import WhatsAppSupport from '@/components/ui/whatsapp-support';
 import { getContentService } from '@/lib/content-service';
 
 interface MainLayoutProps {
@@ -21,6 +22,7 @@ export default async function MainLayout({ children }: MainLayoutProps) {
         {children}
       </main>
       <Footer footerSettings={footerSettings} siteSettings={siteSettings} />
+      <WhatsAppSupport />
     </div>
   );
 }

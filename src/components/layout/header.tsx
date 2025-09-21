@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslations, useLocale } from 'next-intl';
 import Link from 'next/link';
-import { Menu, X, Phone } from 'lucide-react';
+import { Menu, X, Phone, LogIn } from 'lucide-react';
 import LanguageToggle from '@/components/language-toggle';
 import { type Locale } from '@/lib/i18n';
 import type { SiteSettings } from '@/types/sanity';
@@ -71,13 +71,13 @@ export default function Header({ siteSettings }: HeaderProps) {
     };
   }, [isMobileMenuOpen]);
 
-  // Navigation items for MVP - only Home and Contact
+  // Navigation items for MVP - Home, Admissions, and Contact
   const navigationItems = [
     { key: 'home', href: '/' },
+    { key: 'admissions', href: '/admissions' },
     // Temporarily hidden for MVP launch - uncomment when ready to launch full site
     // { key: 'about', href: '/about' },
     // { key: 'programs', href: '/programs', hasDropdown: true },
-    // { key: 'admissions', href: '/admissions' },
     // { key: 'campus', href: '/campus' },
     // { key: 'news', href: '/news' },
     { key: 'contact', href: '/contact' },
@@ -115,14 +115,14 @@ export default function Header({ siteSettings }: HeaderProps) {
         <div className="flex flex-col h-full">
           {/* Mobile Menu Header */}
           <div className="flex items-center justify-between p-4 md:p-6 border-b border-sand-medium bg-sand-light">
-            <div className="flex flex-col items-start">
+            <Link href="/" className="flex flex-col items-start hover:opacity-80 transition-opacity duration-300" onClick={() => setIsMobileMenuOpen(false)}>
               <div className="text-lg md:text-xl font-bold text-primary-700 font-arabic">
                 ﷽
               </div>
               <div className="text-base md:text-lg font-bold text-primary-700 font-bengali">
                 মাদরাসাতুল কুরআন
               </div>
-            </div>
+            </Link>
             <button
               onClick={() => setIsMobileMenuOpen(false)}
               className="p-2 rounded-lg text-primary-700 hover:text-primary-800 hover:bg-sand-light transition-all duration-300 shadow-sm hover:shadow-md"
@@ -152,6 +152,20 @@ export default function Header({ siteSettings }: HeaderProps) {
 
           {/* Mobile Menu Footer */}
           <div className="border-t border-gray-200 p-4 md:p-6">
+            {/* Login Button for Mobile */}
+            <a
+              href="https://www.eximusedu.com/go/mqd"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center space-x-3 text-white bg-gradient-to-r from-secondary-600 to-secondary-700 hover:from-secondary-700 hover:to-secondary-800 transition-all duration-300 rounded-xl px-4 py-3 mb-4 font-semibold shadow-lg"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              <LogIn className="w-5 h-5" />
+              <span>
+                {locale === 'bengali' ? 'স্কুল ম্যানেজমেন্ট সিস্টেমে লগইন' : 'Login to School Management'}
+              </span>
+            </a>
+
             {/* Language Toggle for Mobile */}
             <div className="sm:hidden mb-4">
               <LanguageToggle />
@@ -187,8 +201,8 @@ export default function Header({ siteSettings }: HeaderProps) {
       <header className="bg-white/90 shadow-xl border-b border-secondary-200 sticky top-0 z-40 backdrop-blur-md">
         <div className="container-custom">
           <div className="flex items-center justify-between h-16 md:h-18">
-            {/* Compact Logo */}
-            <div className="flex items-center space-x-3 flex-shrink-0 min-w-0">
+            {/* Compact Logo - Clickable to Homepage */}
+            <Link href="/" className="flex items-center space-x-3 flex-shrink-0 min-w-0 hover:opacity-80 transition-opacity duration-300">
               <div className="w-10 h-10 bg-secondary-50 border border-secondary-200 rounded-full flex items-center justify-center overflow-hidden">
                 {logoUrl ? (
                   <img 
@@ -208,7 +222,7 @@ export default function Header({ siteSettings }: HeaderProps) {
                   {siteSubtitle}
                 </div>
               </div>
-            </div>
+            </Link>
 
             {/* Desktop Navigation */}
             <nav className="hidden xl:flex items-center justify-center flex-1 max-w-4xl mx-8">
@@ -226,6 +240,20 @@ export default function Header({ siteSettings }: HeaderProps) {
 
             {/* Right Side Actions */}
             <div className="flex items-center space-x-2 md:space-x-3 flex-shrink-0">
+              {/* Login Button */}
+              <a
+                href="https://www.eximusedu.com/go/mqd"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hidden lg:flex items-center space-x-2 px-3 py-2 rounded-full bg-gradient-to-r from-secondary-600 to-secondary-700 text-white hover:from-secondary-700 hover:to-secondary-800 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 font-semibold text-sm whitespace-nowrap"
+                aria-label="Login to School Management System"
+              >
+                <LogIn className="w-4 h-4" />
+                <span>
+                  {locale === 'bengali' ? 'লগইন' : 'Login'}
+                </span>
+              </a>
+
               {/* Contact Button - Hidden on mobile */}
               <a
                 href={`tel:${siteSettings?.contactInfo?.phone?.find(p => p.isPrimary)?.number || 

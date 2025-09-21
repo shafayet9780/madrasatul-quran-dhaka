@@ -398,38 +398,6 @@ export const siteSettings = defineType({
       ],
     }),
     defineField({
-      name: 'prayerTimes',
-      title: 'Prayer Times',
-      description: 'Daily prayer times displayed across the site',
-      type: 'array',
-      of: [
-        {
-          type: 'object',
-          fields: [
-            { 
-              name: 'prayerName', 
-              title: 'Prayer Name', 
-              type: 'object', 
-              fields: [
-                { name: 'bengali', title: 'Bengali Name', type: 'string' },
-                { name: 'english', title: 'English Name', type: 'string' }
-              ]
-            },
-            { name: 'time', title: 'Time', type: 'string', validation: (Rule) => Rule.required() },
-            { name: 'isActive', title: 'Active', type: 'boolean', initialValue: true },
-            { name: 'order', title: 'Display Order', type: 'number' }
-          ],
-          preview: {
-            select: {
-              title: 'prayerName.english',
-              subtitle: 'time'
-            }
-          }
-        }
-      ],
-      validation: (Rule) => Rule.max(5)
-    }),
-    defineField({
       name: 'departments',
       title: 'Department Contacts',
       description: 'Contact information for different departments',

@@ -68,13 +68,6 @@ export const footer = defineType({
       initialValue: true
     }),
 
-    defineField({
-      name: 'useGlobalPrayerTimes',
-      title: 'Use Global Prayer Times',
-      description: 'Use prayer times from Site Settings instead of custom footer prayer times',
-      type: 'boolean',
-      initialValue: true
-    }),
 
     defineField({
       name: 'quickLinks',

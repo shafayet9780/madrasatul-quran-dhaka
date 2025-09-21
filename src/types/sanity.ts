@@ -191,12 +191,6 @@ export interface SocialMediaLink {
   order?: number
 }
 
-export interface PrayerTime {
-  prayerName: MultilingualText
-  time: string
-  isActive: boolean
-  order?: number
-}
 
 export interface DepartmentContact {
   name: MultilingualText
@@ -287,7 +281,6 @@ export interface FooterSettings {
   description?: MultilingualText
   useGlobalContactInfo: boolean
   useGlobalSocialLinks: boolean
-  useGlobalPrayerTimes: boolean
   quickLinks?: Array<{
     label: MultilingualText
     url: string
@@ -319,7 +312,6 @@ export interface SiteSettings {
   favicon?: SanityImage
   contactInfo?: ContactInfo
   socialMedia?: SocialMediaLink[]
-  prayerTimes?: PrayerTime[]
   departments?: DepartmentContact[]
   admissionInfo?: AdmissionInfo
   seo?: {
