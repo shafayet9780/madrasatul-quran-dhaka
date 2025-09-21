@@ -2,7 +2,6 @@ import { Metadata } from 'next';
 import { draftMode } from 'next/headers';
 import { getTranslations } from 'next-intl/server';
 import { HeroSection, UniqueFeaturesShowcase, CurriculumShowcase } from '@/components/homepage';
-import MissionStatisticsSection from '@/components/homepage/mission-statistics-section';
 import FeaturedContentSection from '@/components/homepage/featured-content-section';
 import { getContentService } from '@/lib/content-service';
 import { getPreviewContext } from '@/lib/preview';

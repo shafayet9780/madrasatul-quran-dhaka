@@ -1,5 +1,4 @@
 import { Metadata } from 'next';
-import { getTranslations } from 'next-intl/server';
 import { getContentService } from '@/lib/content-service';
 import { PreAdmissionForm } from '@/components/forms';
 import { ArrowLeft } from 'lucide-react';
@@ -13,7 +12,6 @@ interface PreAdmissionPageProps {
 
 export async function generateMetadata({ params }: PreAdmissionPageProps): Promise<Metadata> {
   const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: 'admissions.meta' });
   
   return {
     title: locale === 'bengali' ? 'প্রি-অ্যাডমিশন ফর্ম' : 'Pre-Admission Form',

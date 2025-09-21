@@ -10,11 +10,9 @@ import {
   Phone, 
   BookOpen, 
   Users, 
-  Calendar, 
   ArrowRight,
   Newspaper,
-  Clock,
-  MapPin
+  Clock
 } from 'lucide-react';
 
 gsap.registerPlugin(ScrollTrigger);

@@ -1,7 +1,8 @@
 'use client';
 
 import { useLocale } from 'next-intl';
-import { BookOpen, Languages, Heart, Scale, MessageSquare, Clock, BookMarked, ScrollText, History } from 'lucide-react';
+import Link from 'next/link';
+import { BookOpen, Languages, Heart, Scale, BookMarked, ScrollText, History } from 'lucide-react';
 
 interface CurriculumSubject {
   icon: string;
@@ -169,7 +170,7 @@ export default function CurriculumShowcase({ data }: CurriculumShowcaseProps) {
               : 'View our complete curriculum and 10-year study plan'
             }
           </p>
-          <a 
+          <Link 
             href="/curriculum"
             className="inline-flex items-center gap-2 bg-primary-600 hover:bg-primary-700 text-white font-semibold px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
           >
@@ -177,7 +178,7 @@ export default function CurriculumShowcase({ data }: CurriculumShowcaseProps) {
             <span>
               {isBengali ? 'সম্পূর্ণ কারিকুলাম দেখুন' : 'View Full Curriculum'}
             </span>
-          </a>
+          </Link>
         </div>
       </div>
     </section>

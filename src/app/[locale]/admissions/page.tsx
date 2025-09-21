@@ -30,7 +30,6 @@ export default async function AdmissionsPage({ params }: AdmissionsPageProps) {
   // Fetch CMS data for admissions page
   const contentService = getContentService(false);
   const preAdmissionFormConfig = await contentService.getPreAdmissionForm();
-  const siteSettings = await contentService.getSiteSettings();
   
   const isFormAvailable = preAdmissionFormConfig && preAdmissionFormConfig.formSettings.isEnabled;
   

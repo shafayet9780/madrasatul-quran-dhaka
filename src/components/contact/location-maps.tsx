@@ -1,26 +1,25 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { MapPin, Navigation, Bus, Car, Printer, ExternalLink } from 'lucide-react';
+import { MapPin, Navigation, Bus, Car, Printer, ExternalLink, Hospital, GraduationCap, ShoppingBag, Trees } from 'lucide-react';
 import { useState } from 'react';
+import type { SiteSettings } from '@/types/sanity';
+import { getLocalizedText } from '@/lib/multilingual-content';
+import { useLocale } from 'next-intl';
 
 interface GoogleMapEmbedProps {
+  mapEmbedUrl?: string;
   address: string;
 }
 
-const GoogleMapEmbed = ({ address }: GoogleMapEmbedProps) => {
-  // Using Google Maps Embed API with a placeholder address
-  // In production, you would use the actual school address
-  const encodedAddress = encodeURIComponent(address);
-  const mapSrc = `https://www.google.com/maps/embed/v1/place?key=YOUR_GOOGLE_MAPS_API_KEY&q=${encodedAddress}`;
-  
-  // For demo purposes, using a generic embed URL
-  const demoMapSrc = `https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3651.9073462084!2d90.37594731498!3d23.750895894586!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3755bf4a5c5b7c5b%3A0x5c5b7c5b7c5b7c5b!2sDhanmondi%2C%20Dhaka!5e0!3m2!1sen!2sbd!4v1635000000000!5m2!1sen!2sbd`;
+const GoogleMapEmbed = ({ mapEmbedUrl }: GoogleMapEmbedProps) => {
+  // Use CMS provided embed URL or fallback to demo
+  const mapSrc = mapEmbedUrl || `https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3651.9073462084!2d90.37594731498!3d23.750895894586!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3755bf4a5c5b7c5b%3A0x5c5b7c5b7c5b7c5b!2sDhanmondi%2C%20Dhaka!5e0!3m2!1sen!2sbd!4v1635000000000!5m2!1sen!2sbd`;
 
   return (
     <div className="w-full h-96 rounded-lg overflow-hidden shadow-md">
       <iframe
-        src={demoMapSrc}
+        src={mapSrc}
         width="100%"
         height="100%"
         style={{ border: 0 }}
@@ -33,7 +32,31 @@ const GoogleMapEmbed = ({ address }: GoogleMapEmbedProps) => {
   );
 };
 
-const LandmarkCard = ({ icon, title, description }: { icon: React.ReactNode; title: string; description: string }) => (
+const getLandmarkIcon = (iconType: string) => {
+  const iconProps = { className: 'w-4 h-4 text-primary-600' };
+  
+  switch (iconType) {
+    case 'bus':
+      return <Bus {...iconProps} />;
+    case 'hospital':
+      return <Hospital {...iconProps} />;
+    case 'university':
+      return <GraduationCap {...iconProps} />;
+    case 'shopping':
+      return <ShoppingBag {...iconProps} />;
+    case 'park':
+      return <Trees {...iconProps} />;
+    default:
+      return <MapPin {...iconProps} />;
+  }
+};
+
+const LandmarkCard = ({ icon, title, description, distance }: { 
+  icon: React.ReactNode; 
+  title: string; 
+  description: string;
+  distance?: string;
+}) => (
   <div className="flex items-start space-x-3 p-4 bg-white rounded-lg border border-gray-200">
     <div className="flex-shrink-0 w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center">
       {icon}
@@ -41,6 +64,9 @@ const LandmarkCard = ({ icon, title, description }: { icon: React.ReactNode; tit
     <div>
       <h4 className="font-medium text-gray-900">{title}</h4>
       <p className="text-sm text-gray-600 mt-1">{description}</p>
+      {distance && (
+        <p className="text-xs text-primary-600 mt-1 font-medium">{distance}</p>
+      )}
     </div>
   </div>
 );
@@ -55,12 +81,20 @@ const DirectionCard = ({ title, description, time }: { title: string; descriptio
   </div>
 );
 
-export default function LocationMaps() {
+interface LocationMapsProps {
+  siteSettings?: SiteSettings | null;
+}
+
+export default function LocationMaps({ siteSettings }: LocationMapsProps) {
   const t = useTranslations('contact.location');
+  const locale = useLocale() as 'bengali' | 'english';
   const [showPrintableDirections, setShowPrintableDirections] = useState(false);
 
+  const address = siteSettings?.contactInfo?.address
+    ? getLocalizedText(siteSettings.contactInfo.address, locale)
+    : t('address');
+
   const handleGetDirections = () => {
-    const address = t('address');
     const encodedAddress = encodeURIComponent(address);
     window.open(`https://www.google.com/maps/dir/?api=1&destination=${encodedAddress}`, '_blank');
   };
@@ -94,7 +128,10 @@ export default function LocationMaps() {
                 <MapPin className="w-5 h-5 text-primary-600 mr-2" />
                 Interactive Map
               </h3>
-              <GoogleMapEmbed address={t('address')} />
+              <GoogleMapEmbed 
+                mapEmbedUrl={siteSettings?.locationInfo?.mapEmbedUrl}
+                address={address} 
+              />
             </div>
 
             {/* Action Buttons */}
@@ -116,7 +153,7 @@ export default function LocationMaps() {
               </button>
               
               <a
-                href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(t('address'))}`}
+                href={siteSettings?.locationInfo?.googleMapsUrl || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
@@ -136,7 +173,7 @@ export default function LocationMaps() {
               </h3>
               <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
                 <p className="text-gray-800 leading-relaxed">
-                  {t('address')}
+                  {address}
                 </p>
               </div>
             </div>
@@ -147,26 +184,39 @@ export default function LocationMaps() {
                 {t('landmarks.title')}
               </h3>
               <div className="space-y-3">
-                <LandmarkCard
-                  icon={<MapPin className="w-4 h-4 text-primary-600" />}
-                  title="Dhanmondi Lake"
-                  description={t('landmarks.landmark1')}
-                />
-                <LandmarkCard
-                  icon={<MapPin className="w-4 h-4 text-primary-600" />}
-                  title="Dhaka University"
-                  description={t('landmarks.landmark2')}
-                />
-                <LandmarkCard
-                  icon={<Bus className="w-4 h-4 text-primary-600" />}
-                  title="Bus Stop"
-                  description={t('landmarks.landmark3')}
-                />
-                <LandmarkCard
-                  icon={<MapPin className="w-4 h-4 text-primary-600" />}
-                  title="Islami Bank Hospital"
-                  description={t('landmarks.landmark4')}
-                />
+                {siteSettings?.locationInfo?.landmarks?.map((landmark, index) => (
+                  <LandmarkCard
+                    key={index}
+                    icon={getLandmarkIcon(landmark.icon)}
+                    title={getLocalizedText(landmark.name, locale)}
+                    description={getLocalizedText(landmark.description, locale)}
+                    distance={landmark.distance}
+                  />
+                )) || (
+                  // Fallback landmarks
+                  <>
+                    <LandmarkCard
+                      icon={<MapPin className="w-4 h-4 text-primary-600" />}
+                      title="Dhanmondi Lake"
+                      description={t('landmarks.landmark1')}
+                    />
+                    <LandmarkCard
+                      icon={<MapPin className="w-4 h-4 text-primary-600" />}
+                      title="Dhaka University"
+                      description={t('landmarks.landmark2')}
+                    />
+                    <LandmarkCard
+                      icon={<Bus className="w-4 h-4 text-primary-600" />}
+                      title="Bus Stop"
+                      description={t('landmarks.landmark3')}
+                    />
+                    <LandmarkCard
+                      icon={<MapPin className="w-4 h-4 text-primary-600" />}
+                      title="Islami Bank Hospital"
+                      description={t('landmarks.landmark4')}
+                    />
+                  </>
+                )}
               </div>
             </div>
           </div>
@@ -184,7 +234,11 @@ export default function LocationMaps() {
                 <Bus className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
                 <div>
                   <h4 className="font-medium text-blue-900">Bus Routes</h4>
-                  <p className="text-sm text-blue-700 mt-1">{t('transportation.bus')}</p>
+                  <p className="text-sm text-blue-700 mt-1">
+                    {siteSettings?.locationInfo?.transportation?.busRoutes
+                      ? getLocalizedText(siteSettings.locationInfo.transportation.busRoutes, locale)
+                      : t('transportation.bus')}
+                  </p>
                 </div>
               </div>
               
@@ -192,7 +246,11 @@ export default function LocationMaps() {
                 <Car className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
                 <div>
                   <h4 className="font-medium text-green-900">Auto-rickshaw & CNG</h4>
-                  <p className="text-sm text-green-700 mt-1">{t('transportation.rickshaw')}</p>
+                  <p className="text-sm text-green-700 mt-1">
+                    {siteSettings?.locationInfo?.transportation?.rickshawInfo
+                      ? getLocalizedText(siteSettings.locationInfo.transportation.rickshawInfo, locale)
+                      : t('transportation.rickshaw')}
+                  </p>
                 </div>
               </div>
               
@@ -200,7 +258,11 @@ export default function LocationMaps() {
                 <Car className="w-5 h-5 text-purple-600 mt-0.5 flex-shrink-0" />
                 <div>
                   <h4 className="font-medium text-purple-900">Ride Sharing</h4>
-                  <p className="text-sm text-purple-700 mt-1">{t('transportation.uber')}</p>
+                  <p className="text-sm text-purple-700 mt-1">
+                    {siteSettings?.locationInfo?.transportation?.rideSharing
+                      ? getLocalizedText(siteSettings.locationInfo.transportation.rideSharing, locale)
+                      : t('transportation.uber')}
+                  </p>
                 </div>
               </div>
               
@@ -208,7 +270,11 @@ export default function LocationMaps() {
                 <Car className="w-5 h-5 text-gray-600 mt-0.5 flex-shrink-0" />
                 <div>
                   <h4 className="font-medium text-gray-900">Parking</h4>
-                  <p className="text-sm text-gray-700 mt-1">{t('transportation.parking')}</p>
+                  <p className="text-sm text-gray-700 mt-1">
+                    {siteSettings?.locationInfo?.transportation?.parking
+                      ? getLocalizedText(siteSettings.locationInfo.transportation.parking, locale)
+                      : t('transportation.parking')}
+                  </p>
                 </div>
               </div>
             </div>
@@ -220,21 +286,33 @@ export default function LocationMaps() {
               {t('directions.title')}
             </h3>
             <div className="space-y-4">
-              <DirectionCard
-                title="From Airport"
-                description={t('directions.fromAirport')}
-                time="45 min"
-              />
-              <DirectionCard
-                title="From Railway Station"
-                description={t('directions.fromStation')}
-                time="30 min"
-              />
-              <DirectionCard
-                title="From Bus Terminal"
-                description={t('directions.fromBusTerminal')}
-                time="40 min"
-              />
+              {siteSettings?.locationInfo?.directions?.map((direction, index) => (
+                <DirectionCard
+                  key={index}
+                  title={getLocalizedText(direction.from, locale)}
+                  description={getLocalizedText(direction.description, locale)}
+                  time={direction.estimatedTime || 'N/A'}
+                />
+              )) || (
+                // Fallback directions
+                <>
+                  <DirectionCard
+                    title="From Airport"
+                    description={t('directions.fromAirport')}
+                    time="45 min"
+                  />
+                  <DirectionCard
+                    title="From Railway Station"
+                    description={t('directions.fromStation')}
+                    time="30 min"
+                  />
+                  <DirectionCard
+                    title="From Bus Terminal"
+                    description={t('directions.fromBusTerminal')}
+                    time="40 min"
+                  />
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -246,7 +324,7 @@ export default function LocationMaps() {
               <h2 className="text-2xl font-bold text-gray-900">
                 Directions to Madrasatul Quran
               </h2>
-              <p className="text-gray-600 mt-2">{t('address')}</p>
+              <p className="text-gray-600 mt-2">{address}</p>
             </div>
             
             <div className="space-y-6">

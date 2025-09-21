@@ -93,14 +93,6 @@ export const siteSettingsQuery = groq`
       isActive,
       order
     },
-    prayerTimes[] {
-      prayerName {
-        ${multilingualTextFields}
-      },
-      time,
-      isActive,
-      order
-    },
     departments[] {
       name {
         ${multilingualTextFields}
@@ -547,7 +539,6 @@ export const footerQuery = groq`
     },
     useGlobalContactInfo,
     useGlobalSocialLinks,
-    useGlobalPrayerTimes,
     quickLinks[] {
       label {
         ${multilingualTextFields}

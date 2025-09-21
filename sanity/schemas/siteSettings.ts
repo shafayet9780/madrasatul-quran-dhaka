@@ -330,6 +330,244 @@ export const siteSettings = defineType({
       ],
     }),
     defineField({
+      name: 'locationInfo',
+      title: 'Location Information',
+      type: 'object',
+      fields: [
+        {
+          name: 'mapEmbedUrl',
+          title: 'Google Maps Embed URL',
+          type: 'url',
+          description: 'Google Maps embed URL for the interactive map',
+        },
+        {
+          name: 'googleMapsUrl',
+          title: 'Google Maps Link',
+          type: 'url',
+          description: 'Direct link to Google Maps location',
+        },
+        {
+          name: 'landmarks',
+          title: 'Nearby Landmarks',
+          type: 'array',
+          of: [
+            {
+              type: 'object',
+              fields: [
+                {
+                  name: 'name',
+                  title: 'Landmark Name',
+                  type: 'object',
+                  fields: [
+                    {
+                      name: 'bengali',
+                      title: 'Bengali',
+                      type: 'string',
+                    },
+                    {
+                      name: 'english',
+                      title: 'English',
+                      type: 'string',
+                    },
+                  ],
+                },
+                {
+                  name: 'description',
+                  title: 'Description',
+                  type: 'object',
+                  fields: [
+                    {
+                      name: 'bengali',
+                      title: 'Bengali',
+                      type: 'text',
+                      rows: 2,
+                    },
+                    {
+                      name: 'english',
+                      title: 'English',
+                      type: 'text',
+                      rows: 2,
+                    },
+                  ],
+                },
+                {
+                  name: 'distance',
+                  title: 'Distance from School',
+                  type: 'string',
+                  description: 'e.g., "5 minutes walk", "2 km"',
+                },
+                {
+                  name: 'icon',
+                  title: 'Icon Type',
+                  type: 'string',
+                  options: {
+                    list: [
+                      { title: 'Map Pin', value: 'mapPin' },
+                      { title: 'Bus Stop', value: 'bus' },
+                      { title: 'Hospital', value: 'hospital' },
+                      { title: 'University', value: 'university' },
+                      { title: 'Shopping', value: 'shopping' },
+                      { title: 'Park', value: 'park' },
+                    ],
+                  },
+                  initialValue: 'mapPin',
+                },
+              ],
+              preview: {
+                select: {
+                  title: 'name.english',
+                  subtitle: 'distance',
+                },
+              },
+            },
+          ],
+        },
+        {
+          name: 'transportation',
+          title: 'Transportation Information',
+          type: 'object',
+          fields: [
+            {
+              name: 'busRoutes',
+              title: 'Bus Routes',
+              type: 'object',
+              fields: [
+                {
+                  name: 'bengali',
+                  title: 'Bengali',
+                  type: 'text',
+                  rows: 3,
+                },
+                {
+                  name: 'english',
+                  title: 'English',
+                  type: 'text',
+                  rows: 3,
+                },
+              ],
+            },
+            {
+              name: 'rickshawInfo',
+              title: 'Auto-rickshaw & CNG Information',
+              type: 'object',
+              fields: [
+                {
+                  name: 'bengali',
+                  title: 'Bengali',
+                  type: 'text',
+                  rows: 2,
+                },
+                {
+                  name: 'english',
+                  title: 'English',
+                  type: 'text',
+                  rows: 2,
+                },
+              ],
+            },
+            {
+              name: 'rideSharing',
+              title: 'Ride Sharing Information',
+              type: 'object',
+              fields: [
+                {
+                  name: 'bengali',
+                  title: 'Bengali',
+                  type: 'text',
+                  rows: 2,
+                },
+                {
+                  name: 'english',
+                  title: 'English',
+                  type: 'text',
+                  rows: 2,
+                },
+              ],
+            },
+            {
+              name: 'parking',
+              title: 'Parking Information',
+              type: 'object',
+              fields: [
+                {
+                  name: 'bengali',
+                  title: 'Bengali',
+                  type: 'text',
+                  rows: 2,
+                },
+                {
+                  name: 'english',
+                  title: 'English',
+                  type: 'text',
+                  rows: 2,
+                },
+              ],
+            },
+          ],
+        },
+        {
+          name: 'directions',
+          title: 'Directions from Major Locations',
+          type: 'array',
+          of: [
+            {
+              type: 'object',
+              fields: [
+                {
+                  name: 'from',
+                  title: 'From Location',
+                  type: 'object',
+                  fields: [
+                    {
+                      name: 'bengali',
+                      title: 'Bengali',
+                      type: 'string',
+                    },
+                    {
+                      name: 'english',
+                      title: 'English',
+                      type: 'string',
+                    },
+                  ],
+                },
+                {
+                  name: 'description',
+                  title: 'Directions',
+                  type: 'object',
+                  fields: [
+                    {
+                      name: 'bengali',
+                      title: 'Bengali',
+                      type: 'text',
+                      rows: 3,
+                    },
+                    {
+                      name: 'english',
+                      title: 'English',
+                      type: 'text',
+                      rows: 3,
+                    },
+                  ],
+                },
+                {
+                  name: 'estimatedTime',
+                  title: 'Estimated Time',
+                  type: 'string',
+                  description: 'e.g., "30 min", "45 min"',
+                },
+              ],
+              preview: {
+                select: {
+                  title: 'from.english',
+                  subtitle: 'estimatedTime',
+                },
+              },
+            },
+          ],
+        },
+      ],
+    }),
+    defineField({
       name: 'socialMedia',
       title: 'Social Media Links',
       type: 'array',

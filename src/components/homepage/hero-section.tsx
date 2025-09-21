@@ -147,7 +147,7 @@ export default function HeroSection({
         <div className="grid grid-cols-12 gap-6 lg:gap-8">
           {/* Left - Full Image Section with Title Above */}
           <div
-            className={`col-span-12 lg:col-span-9 space-y-3 transition-all duration-1000 ${
+            className={`col-span-12 lg:col-span-12 space-y-3 transition-all duration-1000 ${
               isVisible
                 ? 'opacity-100 translate-x-0'
                 : 'opacity-0 -translate-x-8'
@@ -175,7 +175,7 @@ export default function HeroSection({
             </div>
 
             {/* Full Width Image Gallery */}
-            <div className="relative h-96 lg:h-[420px] xl:h-[480px] rounded-2xl overflow-hidden shadow-xl ring-1 ring-secondary-200 bg-secondary-50">
+            <div className="relative h-96 lg:h-[520px] xl:h-[580px] rounded-2xl overflow-hidden shadow-xl ring-1 ring-secondary-200 bg-secondary-50">
               {activityImages.map((image, index) => (
                 <div
                   key={index}
@@ -250,16 +250,15 @@ export default function HeroSection({
           </div>
 
           {/* Right - Narrow Tall News Sidebar */}
-          <div
+          {/* Latest News Sidebar - Height matches title + image gallery */}
+          {/* <div
             className={`col-span-12 lg:col-span-3 transition-all duration-1000 delay-600 ${
               isVisible
                 ? 'opacity-100 translate-x-0'
                 : 'opacity-0 translate-x-8'
             }`}
           >
-            {/* Latest News Sidebar - Height matches title + image gallery */}
             <div className="bg-white rounded-2xl shadow-lg border border-secondary-200 overflow-hidden h-[480px] lg:h-[520px] xl:h-[580px]">
-              {/* News Header */}
               <div className="bg-secondary-50 text-primary-900 px-4 py-3 border-b border-secondary-200">
                 <h3 className="text-sm font-semibold flex items-center">
                   <span className="mr-2">🕋</span>
@@ -267,7 +266,6 @@ export default function HeroSection({
                 </h3>
               </div>
 
-              {/* Scrolling News Content */}
               <div className="h-full overflow-hidden relative">
                 <div
                   className="transition-transform duration-500 ease-in-out"
@@ -280,7 +278,6 @@ export default function HeroSection({
                       key={index}
                       className="flex p-3 border-b border-secondary-100 min-h-[80px]"
                     >
-                      {/* Compact Date Box */}
                       <div className="flex-shrink-0 mr-3">
                         <div
                           className={`w-10 h-10 rounded-lg flex flex-col items-center justify-center text-xs font-bold ${
@@ -296,7 +293,6 @@ export default function HeroSection({
                         </div>
                       </div>
 
-                      {/* News Content */}
                       <div className="flex-1">
                         <p className={`text-xs leading-relaxed ${news.isHighlight ? 'text-primary-900 font-medium' : 'text-secondary-900'}`}>
                           {news.title}
@@ -307,17 +303,16 @@ export default function HeroSection({
                 </div>
               </div>
 
-              {/* View All News Button - Hidden for MVP */}
-              {/* <div className="absolute bottom-0 left-0 right-0 px-4 py-3 bg-gray-50 border-t border-gray-100">
+              <div className="absolute bottom-0 left-0 right-0 px-4 py-3 bg-gray-50 border-t border-gray-100">
                 <Link
                   href="/news"
                   className="text-xs text-green-600 hover:text-green-700 font-medium transition-colors duration-200 block text-center"
                 >
                   View All →
                 </Link>
-              </div> */}
+              </div>
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
 

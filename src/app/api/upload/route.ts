@@ -72,7 +72,7 @@ async function uploadToVercelBlob(file: File, fileName: string): Promise<UploadR
   try {
     // Vercel Blob upload implementation
     // You'll need to install @vercel/blob: npm install @vercel/blob
-    const { put } = require('@vercel/blob');
+    const { put } = await import('@vercel/blob');
 
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);

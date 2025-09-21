@@ -85,7 +85,6 @@ Successfully prepared the website for MVP launch with only Homepage and Contact 
 4. **Footer Component**
    - Contact info from centralized siteSettings
    - Social media links from siteSettings.socialMedia
-   - Prayer times from siteSettings.prayerTimes
    - Follows centralized settings pattern
 
 5. **Header Component**

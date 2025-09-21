@@ -299,8 +299,7 @@ The footer system has been redesigned to use global settings references instead 
 
 **Global Settings Integration**:
 - **Contact Information**: Footer references Site Settings contact info via `useGlobalContactInfo` flag
-- **Social Media Links**: Footer uses Site Settings social media via `useGlobalSocialLinks` flag  
-- **Prayer Times**: Footer displays Site Settings prayer times via `useGlobalPrayerTimes` flag
+- **Social Media Links**: Footer uses Site Settings social media via `useGlobalSocialLinks` flag
 
 **Footer-Specific Content**:
 - **Quick Links**: Navigation links specific to footer (About, Programs, Contact, etc.)
@@ -328,8 +327,7 @@ const footerQuery = groq`
   *[_type == "footer" && isActive == true][0] {
     title { bengali, english },
     useGlobalContactInfo,    // References Site Settings
-    useGlobalSocialLinks,    // References Site Settings  
-    useGlobalPrayerTimes,    // References Site Settings
+    useGlobalSocialLinks,    // References Site Settings
     quickLinks[] { ... },    // Footer-specific links
     legalLinks[] { ... },    // Footer-specific legal links
     copyright { bengali, english }
@@ -344,7 +342,6 @@ export interface FooterSettings {
   // ... other fields
   contactInfo?: ContactInfo        // Populated from Site Settings
   socialLinks?: SocialMediaLink[]  // Populated from Site Settings
-  prayerTimes?: PrayerTime[]      // Populated from Site Settings
 }
 
 // Smart contact info handling with proper typing

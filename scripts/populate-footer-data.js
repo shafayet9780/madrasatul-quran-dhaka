@@ -43,7 +43,6 @@ const footerData = {
   // Use global settings from Site Settings instead of duplicating data
   useGlobalContactInfo: true,
   useGlobalSocialLinks: true,
-  useGlobalPrayerTimes: true,
   quickLinks: [
     {
       label: {
@@ -176,7 +175,6 @@ async function populateFooterData() {
     console.log('   • Title:', footerData.title.english);
     console.log('   • Uses Global Contact Info:', footerData.useGlobalContactInfo);
     console.log('   • Uses Global Social Links:', footerData.useGlobalSocialLinks);
-    console.log('   • Uses Global Prayer Times:', footerData.useGlobalPrayerTimes);
     console.log('   • Quick Links:', footerData.quickLinks.length);
     console.log('   • Legal Links:', footerData.legalLinks.length);
 

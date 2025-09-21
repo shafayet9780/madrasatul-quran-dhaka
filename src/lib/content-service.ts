@@ -528,10 +528,6 @@ export class ContentService {
         socialLinks: footerData.useGlobalSocialLinks && siteSettings?.socialMedia
           ? siteSettings.socialMedia.filter(s => s.isActive).sort((a, b) => (a.order || 0) - (b.order || 0))
           : undefined,
-        // Add centralized prayer times if footer uses global settings
-        prayerTimes: footerData.useGlobalPrayerTimes && siteSettings?.prayerTimes
-          ? siteSettings.prayerTimes.filter(p => p.isActive).sort((a, b) => (a.order || 0) - (b.order || 0))
-          : undefined
       };
 
       return mergedFooter;

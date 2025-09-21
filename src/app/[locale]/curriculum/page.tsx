@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { BookOpen, GraduationCap, Star, ArrowRight, Sparkles, Users, Clock, Award } from 'lucide-react';
+import { BookOpen, Star, ArrowRight, Users, Award } from 'lucide-react';
 import ProspectusDownload from '@/components/ui/prospectus-download';
 import { TenYearStudyPlan, UniqueFeatures, CurriculumBreakdown, FeeStructure } from '@/components/curriculum';
 

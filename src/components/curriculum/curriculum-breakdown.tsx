@@ -6,10 +6,7 @@ import {
   Languages,
   Heart,
   Scale,
-  MessageSquare,
-  Clock,
   BookMarked,
-  GraduationCap,
   ScrollText,
   History,
 } from 'lucide-react';

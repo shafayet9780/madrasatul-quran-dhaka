@@ -1,5 +1,4 @@
 import { Metadata } from 'next';
-import { useTranslations } from 'next-intl';
 import { getTranslations } from 'next-intl/server';
 import { type Locale } from '@/lib/i18n';
 import { sanityFetch } from '@/lib/sanity-fetch';

@@ -1,6 +1,7 @@
 'use client';
 
 import { useLocale } from 'next-intl';
+import Link from 'next/link';
 import { CheckCircle, BookOpen, Languages, GraduationCap, Bus, Heart, History, Users, HelpCircle } from 'lucide-react';
 
 interface UniqueFeature {
@@ -188,7 +189,7 @@ export default function UniqueFeaturesShowcase({ data }: UniqueFeaturesShowcaseP
                 : 'Learn more about our comprehensive curriculum'
               }
             </p>
-            <a 
+            <Link 
               href="/curriculum"
               className="inline-flex items-center gap-3 bg-gradient-to-r from-primary-400 to-primary-500 hover:from-primary-500 hover:to-primary-600 text-white font-bold px-8 py-4 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
             >
@@ -196,7 +197,7 @@ export default function UniqueFeaturesShowcase({ data }: UniqueFeaturesShowcaseP
               <span className="text-lg">
                 {isBengali ? 'কারিকুলাম দেখুন' : 'View Curriculum'}
               </span>
-            </a>
+            </Link>
           </div>
         </div>
       </div>

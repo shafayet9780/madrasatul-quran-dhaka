@@ -118,38 +118,6 @@ const siteSettingsData = {
       order: 3
     }
   ],
-  prayerTimes: [
-    {
-      prayerName: { bengali: 'ফজর', english: 'Fajr' },
-      time: '5:15 AM',
-      isActive: true,
-      order: 1
-    },
-    {
-      prayerName: { bengali: 'যুহর', english: 'Dhuhr' },
-      time: '12:30 PM',
-      isActive: true,
-      order: 2
-    },
-    {
-      prayerName: { bengali: 'আসর', english: 'Asr' },
-      time: '4:15 PM',
-      isActive: true,
-      order: 3
-    },
-    {
-      prayerName: { bengali: 'মাগরিব', english: 'Maghrib' },
-      time: '6:00 PM',
-      isActive: true,
-      order: 4
-    },
-    {
-      prayerName: { bengali: 'ইশা', english: 'Isha' },
-      time: '7:30 PM',
-      isActive: true,
-      order: 5
-    }
-  ],
   departments: [
     {
       name: { bengali: 'একাডেমিক বিভাগ', english: 'Academic Department' },
@@ -227,7 +195,6 @@ const footerData = {
   },
   useGlobalContactInfo: true,
   useGlobalSocialLinks: true,
-  useGlobalPrayerTimes: true,
   quickLinks: [
     {
       label: { bengali: 'হোম', english: 'Home' },
@@ -348,7 +315,6 @@ async function populateCentralizedData() {
     console.log('   • Phone Numbers:', siteSettingsData.contactInfo.phone.length);
     console.log('   • Email Addresses:', siteSettingsData.contactInfo.email.length);
     console.log('   • Social Links:', siteSettingsData.socialMedia.length);
-    console.log('   • Prayer Times:', siteSettingsData.prayerTimes.length);
     console.log('   • Departments:', siteSettingsData.departments.length);
 
     console.log('\n🎉 Centralized data population completed successfully!');

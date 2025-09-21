@@ -183,6 +183,28 @@ export interface ContactInfo {
   officeHours?: MultilingualText
 }
 
+export interface LocationInfo {
+  mapEmbedUrl?: string
+  googleMapsUrl?: string
+  landmarks?: Array<{
+    name: MultilingualText
+    description: MultilingualText
+    distance?: string
+    icon: 'mapPin' | 'bus' | 'hospital' | 'university' | 'shopping' | 'park'
+  }>
+  transportation?: {
+    busRoutes?: MultilingualText
+    rickshawInfo?: MultilingualText
+    rideSharing?: MultilingualText
+    parking?: MultilingualText
+  }
+  directions?: Array<{
+    from: MultilingualText
+    description: MultilingualText
+    estimatedTime?: string
+  }>
+}
+
 export interface SocialMediaLink {
   platform: string
   url: string
@@ -311,6 +333,7 @@ export interface SiteSettings {
   }>
   favicon?: SanityImage
   contactInfo?: ContactInfo
+  locationInfo?: LocationInfo
   socialMedia?: SocialMediaLink[]
   departments?: DepartmentContact[]
   admissionInfo?: AdmissionInfo
