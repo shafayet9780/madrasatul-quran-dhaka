@@ -9,140 +9,145 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 /**
- * Islamic Design System Constants
+ * Tailwind v4 Design System Constants
+ * These reference the CSS variables defined in @theme directive
  */
 export const DESIGN_TOKENS = {
-  // Color palette
+  // Color palette - Using Tailwind v4 color names that map to CSS variables
   colors: {
-    // Luxe Monochrome (Primary)
+    // Primary scale (maps to --color-primary-* variables)
     primary: {
-      50: '#DEB887',
-      100: '#C49963',
-      200: '#B8956A',
-      300: '#A97C50', // Brand
-      400: '#9B6E47',
-      500: '#8B5A3C',
-      600: '#7A4D32',
-      700: '#654321',
-      800: '#4A3018',
-      900: '#2F1E0F',
+      50: 'primary-50',
+      100: 'primary-100', 
+      200: 'primary-200',
+      300: 'primary-300', // Brand
+      400: 'primary-400',
+      500: 'primary-500',
+      600: 'primary-600',
+      700: 'primary-700',
+      800: 'primary-800',
+      900: 'primary-900',
     },
-    // Sophisticated Neutrals (Secondary)
+    // Secondary scale (maps to --color-secondary-* variables)
     secondary: {
-      50: '#F5EFDE',
-      100: '#E8D3B8',
-      200: '#DDC4A4',
-      300: '#C2956A',
-      400: '#B68A5A',
-      500: '#A97C50', // Brand Primary
-      600: '#9C7349',
-      700: '#7A6F5D',
-      800: '#635E52',
-      900: '#4B453D',
+      50: 'secondary-50',
+      100: 'secondary-100',
+      200: 'secondary-200',
+      300: 'secondary-300',
+      400: 'secondary-400',
+      500: 'secondary-500', // Brand Primary
+      600: 'secondary-600',
+      700: 'secondary-700',
+      800: 'secondary-800',
+      900: 'secondary-900',
     },
-    // Rose Gold Elegance (Accent)
+    // Accent scale (maps to --color-accent-* variables)
     accent: {
-      50: '#F2E5D7',
-      100: '#E8D1C1',
-      200: '#D4A084',
-      300: '#C1896F',
-      400: '#A97C50', // Brand
-      500: '#B8999C',
-      600: '#A0858A',
-      700: '#8D6B6B',
-      800: '#755A5A',
-      900: '#5C4848',
+      50: 'accent-50',
+      100: 'accent-100',
+      200: 'accent-200',
+      300: 'accent-300',
+      400: 'accent-400', // Brand
+      500: 'accent-500',
+      600: 'accent-600',
+      700: 'accent-700',
+      800: 'accent-800',
+      900: 'accent-900',
     },
   },
   
-  // Typography
+  // Typography - Using Tailwind v4 font families from @theme
   typography: {
     fontFamilies: {
-      bengali: ['var(--font-bengali)', 'Noto Sans Bengali', 'SolaimanLipi', 'sans-serif'],
-      english: ['var(--font-english)', 'Inter', 'Roboto', 'sans-serif'],
-      arabic: ['var(--font-arabic)', 'Amiri', 'Scheherazade New', 'serif'],
+      // These map to --font-family-* variables in @theme
+      bengali: 'font-bengali',
+      english: 'font-english', 
+      arabic: 'font-arabic',
     },
     fontSizes: {
-      xs: '0.75rem',
-      sm: '0.875rem',
-      base: '1rem',
-      lg: '1.125rem',
-      xl: '1.25rem',
-      '2xl': '1.5rem',
-      '3xl': '1.875rem',
-      '4xl': '2.25rem',
-      '5xl': '3rem',
-      '6xl': '3.75rem',
+      // Using Tailwind v4 text utilities
+      xs: 'text-xs',
+      sm: 'text-sm',
+      base: 'text-base',
+      lg: 'text-lg',
+      xl: 'text-xl',
+      '2xl': 'text-2xl',
+      '3xl': 'text-3xl',
+      '4xl': 'text-4xl',
+      '5xl': 'text-5xl',
+      '6xl': 'text-6xl',
     },
   },
   
-  // Spacing
+  // Spacing - Using Tailwind v4 spacing utilities
   spacing: {
-    xs: '0.5rem',
-    sm: '1rem',
-    md: '1.5rem',
-    lg: '2rem',
-    xl: '3rem',
-    '2xl': '4rem',
-    '3xl': '6rem',
+    xs: 'p-2',
+    sm: 'p-4',
+    md: 'p-6',
+    lg: 'p-8',
+    xl: 'p-12',
+    '2xl': 'p-16',
+    '3xl': 'p-24',
   },
   
-  // Border radius
+  // Border radius - Using Tailwind v4 rounded utilities
   borderRadius: {
-    none: '0',
-    sm: '0.125rem',
-    base: '0.25rem',
-    md: '0.375rem',
-    lg: '0.5rem',
-    xl: '0.75rem',
-    '2xl': '1rem',
-    islamic: '0.5rem',
-    mosque: '1rem 1rem 0 0',
+    none: 'rounded-none',
+    sm: 'rounded-sm',
+    base: 'rounded',
+    md: 'rounded-md',
+    lg: 'rounded-lg',
+    xl: 'rounded-xl',
+    '2xl': 'rounded-2xl',
+    islamic: 'rounded-lg',
+    mosque: 'rounded-t-2xl',
   },
   
-  // Shadows
+  // Shadows - Using Tailwind v4 shadow utilities with custom values
   shadows: {
-    islamic: '0 4px 12px rgba(101, 67, 33, 0.12), 0 2px 6px rgba(101, 67, 33, 0.08)',
-    islamicLg: '0 12px 24px rgba(101, 67, 33, 0.16), 0 6px 12px rgba(101, 67, 33, 0.10)',
-    gold: '0 4px 12px rgba(169, 124, 80, 0.18), 0 2px 6px rgba(169, 124, 80, 0.12)',
-    soft: '0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.06)',
+    islamic: 'shadow-lg',
+    islamicLg: 'shadow-2xl',
+    gold: 'shadow-xl',
+    soft: 'shadow-sm',
   },
 } as const;
 
 /**
- * Component Variant Classes
+ * Component Variant Classes - Updated for Tailwind v4
  */
 export const COMPONENT_VARIANTS = {
-  // Button variants
+  // Button variants using Tailwind v4 utilities and custom CSS classes
   button: {
-    primary: 'btn-islamic',
-    secondary: 'btn-islamic-secondary',
-    outline: 'btn-islamic-outline',
-    gold: 'btn-islamic-gold',
+    primary: 'btn-primary',
+    secondary: 'btn-secondary', 
+    outline: 'border-2 border-primary-500 text-primary-500 hover:bg-primary-500 hover:text-white',
+    accent: 'btn-accent',
   },
   
-  // Card variants
+  // Card variants using Tailwind v4 utilities and custom CSS classes
   card: {
-    default: 'card-islamic',
-    gold: 'card-islamic-gold',
+    default: 'card',
+    islamic: 'card-islamic',
   },
   
-  // Input variants
+  // Input variants using Tailwind v4 utilities and custom CSS classes
   input: {
-    default: 'input-islamic',
-    textarea: 'textarea-islamic',
+    default: 'form-input',
+    textarea: 'form-textarea',
+    select: 'form-select',
   },
   
-  // Typography variants
+  // Typography variants using Tailwind v4 color utilities
   heading: {
-    primary: 'heading-primary',
-    secondary: 'heading-secondary',
-    tertiary: 'heading-tertiary',
+    primary: 'text-primary-700 font-bold',
+    secondary: 'text-secondary-700 font-semibold',
+    tertiary: 'text-accent-700 font-medium',
   },
   
   text: {
-    body: 'text-body',
-    bodyLarge: 'text-body-large',
+    body: 'text-secondary-800',
+    bodyLarge: 'text-lg text-secondary-800',
+    muted: 'text-secondary-600',
   },
 } as const;
 
@@ -203,12 +208,12 @@ export function getResponsiveClasses(
 }
 
 /**
- * Helper function to get font class based on language
+ * Helper function to get font class based on language - Updated for Tailwind v4
  */
 export function getFontClass(language: 'bengali' | 'english' | 'arabic'): string {
   const fontMap = {
     bengali: 'font-bengali',
-    english: 'font-english',
+    english: 'font-english', 
     arabic: 'font-arabic',
   };
   
@@ -223,13 +228,44 @@ export function getTextDirection(language: 'bengali' | 'english' | 'arabic'): 'l
 }
 
 /**
- * Islamic Color Palette Helper
+ * Islamic Color Palette Helper - Updated for Tailwind v4
+ * Returns Tailwind v4 color class names
  */
 export function getIslamicColor(
   color: 'primary' | 'secondary' | 'accent',
   shade: 50 | 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900 = 500
 ): string {
   return DESIGN_TOKENS.colors[color][shade];
+}
+
+/**
+ * Helper function to get background color classes
+ */
+export function getBgColor(
+  color: 'primary' | 'secondary' | 'accent',
+  shade: 50 | 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900 = 500
+): string {
+  return `bg-${DESIGN_TOKENS.colors[color][shade]}`;
+}
+
+/**
+ * Helper function to get text color classes
+ */
+export function getTextColor(
+  color: 'primary' | 'secondary' | 'accent',
+  shade: 50 | 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900 = 500
+): string {
+  return `text-${DESIGN_TOKENS.colors[color][shade]}`;
+}
+
+/**
+ * Helper function to get border color classes
+ */
+export function getBorderColor(
+  color: 'primary' | 'secondary' | 'accent',
+  shade: 50 | 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900 = 500
+): string {
+  return `border-${DESIGN_TOKENS.colors[color][shade]}`;
 }
 
 /**
@@ -244,7 +280,7 @@ export const SIZE_VARIANTS = {
 } as const;
 
 /**
- * Islamic Geometric Pattern Generator
+ * Islamic Geometric Pattern Generator - Updated for Tailwind v4
  */
 export function generateIslamicPattern(
   type: 'dots' | 'grid' | 'diagonal',
@@ -252,21 +288,22 @@ export function generateIslamicPattern(
   size: number = 20
 ): string {
   const patterns = {
-    dots: `radial-gradient(circle, var(--${color}) 1px, transparent 1px)`,
-    grid: `linear-gradient(var(--${color}) 1px, transparent 1px), linear-gradient(90deg, var(--${color}) 1px, transparent 1px)`,
-    diagonal: `repeating-linear-gradient(45deg, transparent, transparent ${size/2}px, var(--${color}) ${size/2}px, var(--${color}) ${size}px)`,
+    dots: `radial-gradient(circle, var(--color-${color}) 1px, transparent 1px)`,
+    grid: `linear-gradient(var(--color-${color}) 1px, transparent 1px), linear-gradient(90deg, var(--color-${color}) 1px, transparent 1px)`,
+    diagonal: `repeating-linear-gradient(45deg, transparent, transparent ${size/2}px, var(--color-${color}) ${size/2}px, var(--color-${color}) ${size}px)`,
   };
   
   return patterns[type];
 }
 
 /**
- * Accessibility Helpers
+ * Accessibility Helpers - Updated for Tailwind v4
  */
 export const A11Y_CLASSES = {
   srOnly: 'sr-only',
   focusVisible: 'focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2',
   skipLink: 'sr-only focus:not-sr-only focus:absolute focus:top-0 focus:left-0 bg-primary-500 text-white p-2 z-50',
+  focusIslamic: 'focus-islamic',
 } as const;
 
 /**

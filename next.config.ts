@@ -25,8 +25,6 @@ const nextConfig: NextConfig = {
   },
   // Enable compression
   compress: true,
-  // Optimize bundle
-  swcMinify: true,
 };
 
 export default withNextIntl(nextConfig);

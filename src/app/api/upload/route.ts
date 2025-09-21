@@ -75,7 +75,6 @@ async function uploadToVercelBlob(file: File, fileName: string): Promise<UploadR
     const { put } = await import('@vercel/blob');
 
     const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
 
     // Get the token from environment variables
     const token = process.env.BLOB_READ_WRITE_TOKEN;
@@ -83,7 +82,7 @@ async function uploadToVercelBlob(file: File, fileName: string): Promise<UploadR
       throw new Error('BLOB_READ_WRITE_TOKEN environment variable is not set');
     }
 
-    const blob = await put(`students/${fileName}`, buffer, {
+    const blob = await put(`students/${fileName}`, bytes, {
       access: 'public',
       contentType: file.type,
       token: token,

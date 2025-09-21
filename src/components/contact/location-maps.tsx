@@ -1,7 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { MapPin, Navigation, Bus, Car, Printer, ExternalLink, Hospital, GraduationCap, ShoppingBag, Trees } from 'lucide-react';
+import { MapPin, Navigation, Bus, Car, Printer, ExternalLink, Plus, GraduationCap, ShoppingBag, Trees } from 'lucide-react';
 import { useState } from 'react';
 import type { SiteSettings } from '@/types/sanity';
 import { getLocalizedText } from '@/lib/multilingual-content';
@@ -39,7 +39,7 @@ const getLandmarkIcon = (iconType: string) => {
     case 'bus':
       return <Bus {...iconProps} />;
     case 'hospital':
-      return <Hospital {...iconProps} />;
+      return <Plus {...iconProps} />;
     case 'university':
       return <GraduationCap {...iconProps} />;
     case 'shopping':
