@@ -249,7 +249,7 @@ export default function MissionStatisticsSection({
         />
       </div>
 
-      <div className="container-custom py-12 md:py-20 relative z-10">
+      <div className="container-custom py-8 md:py-12 relative z-10">
         {/* Mission Section */}
         <div className="text-center mb-16 md:mb-20">
           <div className="max-w-4xl mx-auto">

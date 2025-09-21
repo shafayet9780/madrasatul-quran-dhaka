@@ -1,7 +1,7 @@
 'use client';
 
 import { useLocale } from 'next-intl';
-import { CheckCircle, BookOpen, Languages, GraduationCap, Bus, Heart, History, Users } from 'lucide-react';
+import { CheckCircle, BookOpen, Languages, GraduationCap, Bus, Heart, History, Users, HelpCircle } from 'lucide-react';
 
 interface UniqueFeature {
   icon: string;
@@ -21,7 +21,7 @@ interface UniqueFeaturesShowcaseProps {
 
 export default function UniqueFeaturesShowcase({ data }: UniqueFeaturesShowcaseProps) {
   const locale = useLocale() as 'bengali' | 'english';
-  const isBengali = locale === 'bengali' || locale === 'bengali';
+  const isBengali = locale === 'bengali';
 
   // Fallback data if CMS data is not available
   const fallbackData: UniqueFeature[] = [
@@ -127,7 +127,7 @@ export default function UniqueFeaturesShowcase({ data }: UniqueFeaturesShowcaseP
   };
 
   return (
-    <section className="py-20 bg-gradient-to-br from-white via-gray-50 to-white relative overflow-hidden">
+    <section className="py-12 md:py-16 bg-gradient-to-br from-white via-gray-50 to-white relative overflow-hidden">
       {/* Background Pattern */}
       <div className="absolute inset-0 opacity-5">
         <div className="absolute top-20 left-20 w-40 h-40 bg-primary-500 rounded-full blur-3xl"></div>
@@ -138,10 +138,10 @@ export default function UniqueFeaturesShowcase({ data }: UniqueFeaturesShowcaseP
       <div className="container mx-auto px-4 relative z-10">
         {/* Enhanced Header */}
         <div className="text-center mb-16">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-primary-500 to-primary-600 rounded-full mb-6 shadow-lg">
-            <span className="text-2xl font-bold text-white">✨</span>
-          </div>
-          <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-primary-700 to-secondary-700 bg-clip-text text-transparent mb-6">
+        <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-primary-300 to-primary-400 rounded-full mb-6 shadow-lg">
+          <HelpCircle className="w-8 h-8 text-white" />
+        </div>
+          <h2 className="text-4xl md:text-5xl font-bold text-primary-400 mb-6">
             {isBengali ? 'কেন মাদরাসাতুল কুরআন?' : 'Why Madrasatul Quran?'}
           </h2>
           <p className="text-lg text-gray-700 max-w-4xl mx-auto leading-relaxed">
@@ -162,11 +162,11 @@ export default function UniqueFeaturesShowcase({ data }: UniqueFeaturesShowcaseP
               <div className="absolute inset-0 bg-gradient-to-br from-white to-gray-50 rounded-2xl shadow-lg group-hover:shadow-2xl transition-all duration-500 transform group-hover:-translate-y-2"></div>
               <div className="relative p-8 rounded-2xl border border-gray-200 group-hover:border-primary-300 transition-all duration-300 bg-white/80 backdrop-blur-sm">
                 <div className="flex items-start space-x-5">
-                  <div className="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl flex items-center justify-center text-white group-hover:from-primary-600 group-hover:to-primary-700 transition-all duration-300 shadow-lg group-hover:shadow-xl group-hover:scale-110">
+                  <div className="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-primary-300 to-primary-400 rounded-xl flex items-center justify-center text-white group-hover:from-primary-600 group-hover:to-primary-700 transition-all duration-300 shadow-lg group-hover:shadow-xl group-hover:scale-110">
                     {getIcon(feature.icon)}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-primary-700 transition-colors duration-300">
+                    <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-primary-500 transition-colors duration-300">
                       {isBengali ? feature.title.bengali : feature.title.english}
                     </h3>
                     <p className="text-sm text-gray-600 leading-relaxed">
@@ -190,7 +190,7 @@ export default function UniqueFeaturesShowcase({ data }: UniqueFeaturesShowcaseP
             </p>
             <a 
               href="/curriculum"
-              className="inline-flex items-center gap-3 bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white font-bold px-8 py-4 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+              className="inline-flex items-center gap-3 bg-gradient-to-r from-primary-400 to-primary-500 hover:from-primary-500 hover:to-primary-600 text-white font-bold px-8 py-4 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
             >
               <BookOpen className="w-6 h-6" />
               <span className="text-lg">

@@ -26,7 +26,7 @@ export default async function CurriculumPage({ params }: CurriculumPageProps) {
   return (
     <div className="min-h-screen bg-white">
       {/* Hero Section */}
-      <section className="relative py-20 md:py-28 bg-gradient-to-r from-primary-200 to-secondary-300 text-white overflow-hidden">
+      <section className="relative py-12 md:py-16 bg-gradient-to-r from-primary-200 to-secondary-300 text-white overflow-hidden">
         {/* Background Pattern */}
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-20 left-20 w-32 h-32 bg-white rounded-full blur-3xl"></div>
@@ -36,15 +36,15 @@ export default async function CurriculumPage({ params }: CurriculumPageProps) {
         
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-4xl mx-auto text-center">
-            <div className="inline-flex items-center justify-center w-20 h-20 bg-white/20 backdrop-blur-sm rounded-full mb-8">
-              <BookOpen className="w-10 h-10 text-white" />
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full mb-6">
+              <BookOpen className="w-8 h-8 text-white" />
             </div>
             
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 leading-tight">
               {isBengali ? 'আমাদের কারিকুলাম' : 'Our Curriculum'}
             </h1>
             
-            <p className="text-xl md:text-2xl text-white/90 mb-8 leading-relaxed max-w-3xl mx-auto">
+            <p className="text-lg md:text-xl text-white/90 mb-6 leading-relaxed max-w-3xl mx-auto">
               {isBengali 
                 ? 'কুরআন-সুন্নাহ ভিত্তিক তারবিয়াহ্‌, আরবী ও দীনী শিক্ষা এবং NCTB একাডেমিকের সমন্বয়ে পরিকল্পিত সমন্বিত কারিকুলাম'
                 : 'Integrated curriculum combining Quran-Sunnah based Tarbiyah, Arabic & Islamic education with NCTB academic standards'

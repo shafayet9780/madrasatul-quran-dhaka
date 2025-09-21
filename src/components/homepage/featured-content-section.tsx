@@ -6,6 +6,16 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { 
+  Phone, 
+  BookOpen, 
+  Users, 
+  Calendar, 
+  ArrowRight,
+  Newspaper,
+  Clock,
+  MapPin
+} from 'lucide-react';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -13,8 +23,7 @@ interface QuickAccessCardProps {
   title: string;
   description: string;
   href: string;
-  icon: string;
-  color: string;
+  icon: React.ReactNode;
   delay?: number;
 }
 
@@ -23,7 +32,6 @@ function QuickAccessCard({
   description,
   href,
   icon,
-  color,
   delay = 0,
 }: QuickAccessCardProps) {
   const [isVisible, setIsVisible] = useState(false);
@@ -55,37 +63,26 @@ function QuickAccessCard({
       style={{ transitionDelay: `${delay}ms` }}
     >
       <Link href={href} className="quick-access-item block group">
-        <div
-          className={`hover-card card hover:shadow-2xl transition-all duration-300 border-l-4 ${color}`}
-        >
-          <div className="flex items-start space-x-4">
-            <div
-              className={`flex-shrink-0 w-12 h-12 rounded-lg flex items-center justify-center text-2xl ${color.replace('border-l-', 'bg-').replace('-500', '-100')}`}
-            >
-              {icon}
+        <div className="group relative mt-4">
+          <div className="bg-white rounded-3xl shadow-xl p-8 h-full border border-primary-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
+            <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+              <div className="w-16 h-16 bg-gradient-to-br from-primary-300 to-primary-400 rounded-full flex items-center justify-center shadow-lg">
+                {icon}
+              </div>
             </div>
-            <div className="flex-1">
-              <h3 className="text-xl font-bold text-primary-700 mb-2 group-hover:text-primary-600 transition-colors">
+
+            <div className="pt-8">
+              <h3 className="text-2xl font-bold text-primary-800 mb-4 text-center">
                 {title}
               </h3>
-              <p className="text-text-secondary leading-relaxed">
+
+              <p className="text-gray-600 leading-relaxed mb-6 text-center">
                 {description}
               </p>
-              <div className="mt-4 flex items-center text-primary-600 font-medium group-hover:text-primary-500 transition-colors">
+
+              <div className="flex items-center justify-center text-primary-600 font-medium group-hover:text-primary-500 transition-colors">
                 <span>Learn More</span>
-                <svg
-                  className="w-4 h-4 ml-2 transform group-hover:translate-x-1 transition-transform"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 5l7 7-7 7"
-                  />
-                </svg>
+                <ArrowRight className="w-4 h-4 ml-2 transform group-hover:translate-x-1 transition-transform" />
               </div>
             </div>
           </div>
@@ -141,48 +138,44 @@ function FeaturedNewsCard({
       style={{ transitionDelay: `${delay}ms` }}
     >
       <Link href={href} className="news-item block group">
-        <div className="hover-card card hover:shadow-2xl transition-all duration-300 overflow-hidden p-0">
-          <div className="relative h-48 overflow-hidden">
-            <Image
-              src={image}
-              alt={title}
-              fill
-              className="object-cover group-hover:scale-110 transition-transform duration-500"
-              loading="lazy"
-              onError={e => {
-                // Fallback to a placeholder if image doesn't exist
-                const target = e.target as HTMLImageElement;
-                target.src =
-                  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 200'%3E%3Crect width='400' height='200' fill='%23f8e6c8'/%3E%3Ctext x='200' y='100' text-anchor='middle' dy='0.3em' font-family='Arial' font-size='16' fill='%23b8924f'%3ENews Image%3C/text%3E%3C/svg%3E";
-              }}
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
-            <div className="absolute bottom-4 left-4 text-white text-sm font-medium">
-              {date}
+        <div className="group relative mt-4">
+          <div className="bg-white rounded-3xl shadow-xl overflow-hidden border border-primary-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
+            <div className="relative h-48 overflow-hidden">
+              <Image
+                src={image}
+                alt={title}
+                fill
+                className="object-cover group-hover:scale-110 transition-transform duration-500"
+                loading="lazy"
+                onError={e => {
+                  // Fallback to a placeholder if image doesn't exist
+                  const target = e.target as HTMLImageElement;
+                  target.src =
+                    "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 200'%3E%3Crect width='400' height='200' fill='%23f8e6c8'/%3E%3Ctext x='200' y='100' text-anchor='middle' dy='0.3em' font-family='Arial' font-size='16' fill='%23b8924f'%3ENews Image%3C/text%3E%3C/svg%3E";
+                }}
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+              <div className="absolute top-4 right-4">
+                <div className="w-12 h-12 bg-gradient-to-br from-primary-300 to-primary-400 rounded-full flex items-center justify-center shadow-lg">
+                  <Newspaper className="w-6 h-6 text-white" />
+                </div>
+              </div>
+              <div className="absolute bottom-4 left-4 text-white text-sm font-medium flex items-center gap-2">
+                <Clock className="w-4 h-4" />
+                {date}
+              </div>
             </div>
-          </div>
-          <div className="p-6">
-            <h3 className="text-lg font-bold text-primary-700 mb-2 group-hover:text-primary-600 transition-colors line-clamp-2">
-              {title}
-            </h3>
-            <p className="text-text-secondary leading-relaxed line-clamp-3">
-              {excerpt}
-            </p>
-            <div className="mt-4 flex items-center text-primary-600 font-medium group-hover:text-primary-500 transition-colors">
-              <span>Read More</span>
-              <svg
-                className="w-4 h-4 ml-2 transform group-hover:translate-x-1 transition-transform"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9 5l7 7-7 7"
-                />
-              </svg>
+            <div className="p-6">
+              <h3 className="text-xl font-bold text-primary-800 mb-3 group-hover:text-primary-600 transition-colors line-clamp-2">
+                {title}
+              </h3>
+              <p className="text-gray-600 leading-relaxed line-clamp-3 mb-4">
+                {excerpt}
+              </p>
+              <div className="flex items-center text-primary-600 font-medium group-hover:text-primary-500 transition-colors">
+                <span>Read More</span>
+                <ArrowRight className="w-4 h-4 ml-2 transform group-hover:translate-x-1 transition-transform" />
+              </div>
             </div>
           </div>
         </div>
@@ -325,34 +318,32 @@ export default function FeaturedContentSection({
   }, []);
 
   const quickAccessItems = [
-    // Temporarily showing only contact for MVP launch
-    // Uncomment below when other pages are ready to launch
-    // {
-    //   title: tNav('admissions'),
-    //   description:
-    //     'Start your journey with us. Learn about admission requirements, application process, and important dates.',
-    //   href: '/admissions',
-    //   icon: '📝',
-    //   color: 'border-l-primary-500',
-    //   delay: 0,
-    // },
-    // {
-    //   title: tNav('programs'),
-    //   description:
-    //     'Explore our comprehensive Islamic and NCTB curriculum designed for holistic education.',
-    //   href: '/programs',
-    //   icon: '📚',
-    //   color: 'border-l-secondary-500',
-    //   delay: 200,
-    // },
+    {
+      title: tNav('curriculum'),
+      description: locale === 'bengali' 
+        ? 'আমাদের ইসলামী শিক্ষা ও NCTB কারিকুলাম সম্পর্কে জানুন'
+        : 'Learn about our Islamic education and NCTB curriculum',
+      href: '/curriculum',
+      icon: <BookOpen className="w-8 h-8 text-white" />,
+      delay: 0,
+    },
+    {
+      title: tNav('admissions'),
+      description: locale === 'bengali'
+        ? 'ভর্তির প্রয়োজনীয়তা, আবেদন প্রক্রিয়া এবং গুরুত্বপূর্ণ তারিখসমূহ'
+        : 'Admission requirements, application process, and important dates',
+      href: '/admissions',
+      icon: <Users className="w-8 h-8 text-white" />,
+      delay: 200,
+    },
     {
       title: tNav('contact'),
-      description:
-        'Get in touch with us for any inquiries, campus visits, or additional information.',
+      description: locale === 'bengali'
+        ? 'যেকোনো প্রশ্ন, ক্যাম্পাস পরিদর্শন বা অতিরিক্ত তথ্যের জন্য আমাদের সাথে যোগাযোগ করুন'
+        : 'Get in touch with us for any inquiries, campus visits, or additional information',
       href: '/contact',
-      icon: '📞',
-      color: 'border-l-accent-500',
-      delay: 0,
+      icon: <Phone className="w-8 h-8 text-white" />,
+      delay: 400,
     },
   ];
 
@@ -426,60 +417,76 @@ export default function FeaturedContentSection({
       </div>
 
       <div className="container-custom relative z-10">
-        {/* Quick Access Section - Conditional rendering based on available items */}
-        {quickAccessItems.length > 0 && (
-          <div ref={quickAccessRef} className="mb-20">
-            <div className="text-center mb-12">
-              <h2 className="quick-access-title text-3xl sm:text-4xl md:text-5xl font-bold text-primary-700 mb-4">
-                Quick Access
+        {/* Quick Access Section */}
+        <div ref={quickAccessRef} className="mb-20">
+          <div className="text-center mb-12">
+            <div className="flex items-center justify-center space-x-4 mb-6">
+              <h2 className="quick-access-title text-3xl md:text-4xl font-bold text-primary-400">
+                {locale === 'bengali' ? 'দ্রুত অ্যাক্সেস' : 'Quick Access'}
               </h2>
-              <p className="text-lg md:text-xl text-secondary-900 max-w-2xl mx-auto">
-                Find what you&apos;re looking for quickly with our most important
-                sections
+            </div>
+            <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto">
+              {locale === 'bengali' 
+                ? 'আমাদের সবচেয়ে গুরুত্বপূর্ণ বিভাগগুলির মাধ্যমে দ্রুত খুঁজে নিন'
+                : 'Find what you\'re looking for quickly with our most important sections'
+              }
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8 mb-12">
+            {quickAccessItems.map((item, index) => (
+              <QuickAccessCard
+                key={index}
+                title={item.title}
+                description={item.description}
+                href={item.href}
+                icon={item.icon}
+                delay={item.delay}
+              />
+            ))}
+          </div>
+
+          {/* Admissions CTA */}
+          <div className="text-center">
+            <div className="bg-white rounded-3xl p-8 md:p-12 border border-primary-200">
+              <h3 className="text-3xl md:text-4xl font-bold mb-4 text-primary-400">
+                {locale === 'bengali' 
+                  ? `ভর্তি ${new Date().getFullYear()}–${new Date().getFullYear() + 1}`
+                  : `Admission ${new Date().getFullYear()}–${new Date().getFullYear() + 1}`
+                }
+              </h3>
+              <p className="text-xl text-primary-300 mb-8 max-w-2xl mx-auto">
+                {locale === 'bengali'
+                  ? 'আমাদের অনন্য কারিকুলামে ভর্তি হতে আজই আবেদন করুন'
+                  : 'Apply today to join our unique curriculum'
+                }
               </p>
-            </div>
-
-            <div className="grid ${quickAccessItems.length === 1 ? 'justify-center' : 'md:grid-cols-3'} gap-6 lg:gap-8">
-              {quickAccessItems.map((item, index) => (
-                <QuickAccessCard
-                  key={index}
-                  title={item.title}
-                  description={item.description}
-                  href={item.href}
-                  icon={item.icon}
-                  color={item.color}
-                  delay={item.delay}
-                />
-              ))}
-            </div>
-
-            {/* Admissions CTA */}
-            <div className="mt-10">
-              <div className="card-islamic">
-                <div className="relative z-10">
-                  <h3 className="text-2xl font-extrabold mb-2">{`Admission ${new Date().getFullYear()}–${new Date().getFullYear() + 1}`}</h3>
-                  <p className="opacity-90 mb-4">আমাদের অনন্য কারিকুলামে ভর্তি হতে আজই আবেদন করুন।</p>
-                  <Link href="/admissions" className="inline-flex items-center px-5 py-3 rounded-xl bg-accent-400 text-white font-semibold shadow-lg hover:shadow-xl transition-all">
-                    ভর্তি আবেদন করুন
-                    <svg className="w-4 h-4 ml-2" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
-                    </svg>
-                  </Link>
-                </div>
-              </div>
+              <Link 
+                href="/admissions" 
+                className="inline-flex items-center gap-3 bg-primary-600 text-white hover:bg-primary-700 font-semibold px-8 py-4 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+              >
+                <span className="text-lg">
+                  {locale === 'bengali' ? 'ভর্তি আবেদন করুন' : 'Apply for Admission'}
+                </span>
+                <ArrowRight className="w-5 h-5" />
+              </Link>
             </div>
           </div>
-        )}
+        </div>
 
         {/* Featured News Section */}
         <div ref={newsRef}>
-          <div className="text-center mb-12">
-            <h2 className="news-title text-3xl sm:text-4xl md:text-5xl font-bold text-primary-700 mb-4">
-              Latest News & Events
-            </h2>
-            <p className="text-lg md:text-xl text-secondary-900 max-w-2xl mx-auto">
-              Stay updated with our latest achievements, events, and
-              announcements
+          {/* <div className="text-center mb-12">
+            <div className="flex items-center justify-center space-x-4 mb-6">
+              <h2 className="news-title text-3xl md:text-4xl font-bold text-primary-400">
+                {locale === 'bengali' ? 'সর্বশেষ সংবাদ ও ইভেন্ট' : 'Latest News & Events'}
+              </h2>
+            </div>
+            <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto">
+              {locale === 'bengali'
+                ? 'আমাদের সর্বশেষ অর্জন, ইভেন্ট এবং ঘোষণার সাথে আপডেট থাকুন'
+                : 'Stay updated with our latest achievements, events, and announcements'
+              }
             </p>
           </div>
 
@@ -495,7 +502,7 @@ export default function FeaturedContentSection({
                 delay={news.delay + 600}
               />
             ))}
-          </div>
+          </div> */}
 
           {/* View All News Button - Hidden for MVP */}
           {/* <div

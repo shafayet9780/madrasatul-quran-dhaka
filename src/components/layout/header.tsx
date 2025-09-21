@@ -71,9 +71,10 @@ export default function Header({ siteSettings }: HeaderProps) {
     };
   }, [isMobileMenuOpen]);
 
-  // Navigation items for MVP - Home, Admissions, and Contact
+  // Navigation items for MVP - Home, Curriculum, Admissions, and Contact
   const navigationItems = [
     { key: 'home', href: '/' },
+    { key: 'curriculum', href: '/curriculum' },
     { key: 'admissions', href: '/admissions' },
     // Temporarily hidden for MVP launch - uncomment when ready to launch full site
     // { key: 'about', href: '/about' },
