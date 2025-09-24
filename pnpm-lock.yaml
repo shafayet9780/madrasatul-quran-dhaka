@@ -14,6 +14,9 @@ importers:
       '@portabletext/editor':
         specifier: ^2.0.0
         version: 2.13.0(@portabletext/sanity-bridge@1.1.11(@sanity/schema@4.10.0(@types/react@19.1.13))(@sanity/types@4.10.0(@types/react@19.1.13)))(@sanity/schema@4.10.0(@types/react@19.1.13))(@sanity/types@4.10.0(@types/react@19.1.13))(@types/react@19.1.13)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(rxjs@7.8.2)
+      '@portabletext/react':
+        specifier: ^4.0.3
+        version: 4.0.3(react@19.1.0)
       '@sanity/cli':
         specifier: ^4.2.0
         version: 4.10.0(@types/node@20.19.17)(lightningcss@1.30.1)(react@19.1.0)(tsx@4.20.5)(typescript@5.9.2)(yaml@2.8.1)
@@ -26,6 +29,9 @@ importers:
       '@sanity/diff':
         specifier: ^4.2.0
         version: 4.10.0
+      '@sanity/image-url':
+        specifier: ^1.2.0
+        version: 1.2.0
       '@sanity/insert-menu':
         specifier: ^2.0.0
         version: 2.0.2(@emotion/is-prop-valid@1.2.2)(@sanity/types@4.10.0(@types/react@19.1.13))(react-dom@19.1.0(react@19.1.0))(react-is@19.1.1)(react@19.1.0)(styled-components@6.1.19(react-dom@19.1.0(react@19.1.0))(react@19.1.0))
@@ -99,6 +105,9 @@ importers:
       '@eslint/eslintrc':
         specifier: ^3
         version: 3.3.1
+      '@portabletext/types':
+        specifier: ^2.0.15
+        version: 2.0.15
       '@tailwindcss/postcss':
         specifier: ^4
         version: 4.1.13
@@ -123,6 +132,9 @@ importers:
       postcss:
         specifier: ^8.5.6
         version: 8.5.6
+      tailwind-merge:
+        specifier: ^3.3.1
+        version: 3.3.1
       tailwindcss:
         specifier: ^4
         version: 4.1.13
@@ -5661,6 +5673,9 @@ packages:
 
   symlink-or-copy@1.3.1:
     resolution: {integrity: sha512-0K91MEXFpBUaywiwSSkmKjnGcasG/rVBXFLJz5DrgGabpYD6N+3yZrfD6uUIfpuTu65DZLHi7N8CizHc07BPZA==}
+
+  tailwind-merge@3.3.1:
+    resolution: {integrity: sha512-gBXpgUm/3rp1lMZZrM/w7D8GKqshif0zAymAhbCyIt8KMe+0v9DQ7cdYLR4FHH/cKpdTXb+A/tKKU3eolfsI+g==}
 
   tailwindcss@4.1.13:
     resolution: {integrity: sha512-i+zidfmTqtwquj4hMEwdjshYYgMbOrPzb9a0M3ZgNa0JMoZeFC6bxZvO8yr8ozS6ix2SDz0+mvryPeBs2TFE+w==}
@@ -12810,6 +12825,8 @@ snapshots:
   symbol-tree@3.2.4: {}
 
   symlink-or-copy@1.3.1: {}
+
+  tailwind-merge@3.3.1: {}
 
   tailwindcss@4.1.13: {}
 
