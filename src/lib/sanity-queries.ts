@@ -146,6 +146,43 @@ export const siteSettingsQuery = groq`
       },
       showCloseButton,
       autoHide
+    },
+    locationInfo {
+      mapEmbedUrl,
+      googleMapsUrl,
+      landmarks[] {
+        name {
+          ${multilingualTextFields}
+        },
+        description {
+          ${multilingualTextFields}
+        },
+        distance,
+        icon
+      },
+      transportation {
+        busRoutes {
+          ${multilingualTextFields}
+        },
+        rickshawInfo {
+          ${multilingualTextFields}
+        },
+        rideSharing {
+          ${multilingualTextFields}
+        },
+        parking {
+          ${multilingualTextFields}
+        }
+      },
+      directions[] {
+        from {
+          ${multilingualTextFields}
+        },
+        description {
+          ${multilingualTextFields}
+        },
+        estimatedTime
+      }
     }
   }
 `

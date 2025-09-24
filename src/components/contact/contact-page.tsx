@@ -12,6 +12,8 @@ interface ContactPageProps {
 export default function ContactPage({ siteSettings }: ContactPageProps) {
   const t = useTranslations('contact');
 
+  console.log(siteSettings);
+
   return (
     <div className="min-h-screen">
       {/* Page Header */}
