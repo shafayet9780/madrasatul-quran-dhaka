@@ -243,13 +243,24 @@ export default function PreAdmissionForm({ formConfig }: PreAdmissionFormProps) 
         if (fieldConfig) {
           fileType = fieldConfig.fileType || 'general';
 
-          // Determine person name based on the section
+          // For all file uploads related to student admission, use student's name as the prefix
+          const studentName = (data as any).student_name_english || (data as any).student_name || 'student';
+          
           if (formConfig.studentInfoFields.some((field, idx) => getFieldKey(field, idx) === key)) {
-            // Student field - use student's name if available
-            personName = (formData as any).student_name_english || (formData as any).student_name || 'student';
+            // Student field - use student's name
+            personName = studentName;
           } else if (formConfig.parentInfoFields.fatherFields.some((field, idx) => getFieldKey(field, idx) === key)) {
-            // Father field - use father's name if available
-            personName = (formData as any).father_name || (formData as any).fatherName || 'father';
+            // Father field - use student's name (since it's part of student's admission file)
+            personName = studentName;
+          } else if (formConfig.parentInfoFields.motherFields.some((field, idx) => getFieldKey(field, idx) === key)) {
+            // Mother field - use student's name (since it's part of student's admission file)
+            personName = studentName;
+          } else if ((formConfig.additionalQuestions || []).some((field, idx) => getFieldKey(field, idx) === key)) {
+            // Additional questions - use student's name
+            personName = studentName;
+          } else {
+            // Default fallback
+            personName = studentName;
           }
         }
 

@@ -638,6 +638,7 @@ export const preAdmissionFormQuery = groq`
         ${multilingualTextFields}
       },
       fieldType,
+      fileType,
       options[] {
         label {
           ${multilingualTextFields}
@@ -659,6 +660,7 @@ export const preAdmissionFormQuery = groq`
           ${multilingualTextFields}
         },
         fieldType,
+        fileType,
         options[] {
           label {
             ${multilingualTextFields}
@@ -679,6 +681,7 @@ export const preAdmissionFormQuery = groq`
           ${multilingualTextFields}
         },
         fieldType,
+        fileType,
         options[] {
           label {
             ${multilingualTextFields}
