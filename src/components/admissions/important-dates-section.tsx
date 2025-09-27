@@ -2,6 +2,7 @@
 
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
+import Link from 'next/link';
 import { CalendarDaysIcon, ClockIcon, QuestionMarkCircleIcon, PaperAirplaneIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
 
 export function ImportantDates() {
@@ -21,41 +22,41 @@ export function ImportantDates() {
 
   const importantDates = [
     {
-      date: '2025-01-15',
+      date: '2025-10-01',
       title: t('dates.applicationOpen'),
       description: t('dates.applicationOpenDesc'),
       type: 'application',
     },
     {
-      date: '2025-02-28',
+      date: '2025-11-30',
       title: t('dates.applicationDeadline'),
       description: t('dates.applicationDeadlineDesc'),
       type: 'deadline',
     },
-    {
-      date: '2025-03-15',
-      title: t('dates.entranceExam'),
-      description: t('dates.entranceExamDesc'),
-      type: 'exam',
-    },
-    {
-      date: '2025-03-25',
-      title: t('dates.interview'),
-      description: t('dates.interviewDesc'),
-      type: 'interview',
-    },
-    {
-      date: '2025-04-05',
-      title: t('dates.resultPublication'),
-      description: t('dates.resultPublicationDesc'),
-      type: 'result',
-    },
-    {
-      date: '2025-04-20',
-      title: t('dates.admissionConfirmation'),
-      description: t('dates.admissionConfirmationDesc'),
-      type: 'confirmation',
-    },
+    // {
+    //   date: '2025-03-15',
+    //   title: t('dates.entranceExam'),
+    //   description: t('dates.entranceExamDesc'),
+    //   type: 'exam',
+    // },
+    // {
+    //   date: '2025-03-25',
+    //   title: t('dates.interview'),
+    //   description: t('dates.interviewDesc'),
+    //   type: 'interview',
+    // },
+    // {
+    //   date: '2025-04-05',
+    //   title: t('dates.resultPublication'),
+    //   description: t('dates.resultPublicationDesc'),
+    //   type: 'result',
+    // },
+    // {
+    //   date: '2025-04-20',
+    //   title: t('dates.admissionConfirmation'),
+    //   description: t('dates.admissionConfirmationDesc'),
+    //   type: 'confirmation',
+    // },
   ];
 
   const faqs = [
@@ -147,15 +148,15 @@ export function ImportantDates() {
               return (
                 <div
                   key={index}
-                  className={`border rounded-lg p-4 transition-all hover:shadow-md ${
-                    isUpcoming ? 'border-primary-200 bg-primary-50' : 'border-gray-200 bg-gray-50'
+                  className={`border-2 rounded-xl p-6 transition-all hover:shadow-lg hover:-translate-y-1 bg-white ${
+                    isUpcoming ? 'border-primary-300' : 'border-gray-300'
                   }`}
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex items-start space-x-4">
                       <div className="flex-shrink-0">
                         <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${
-                          isUpcoming ? 'bg-primary-600 text-white' : 'bg-gray-400 text-white'
+                          isUpcoming ? 'bg-primary-400 text-white' : 'bg-gray-400 text-white'
                         }`}>
                           <CalendarDaysIcon className="h-6 w-6" />
                         </div>
@@ -189,7 +190,7 @@ export function ImportantDates() {
         </div>
 
         {/* Inquiry Form */}
-        <div className="mb-12">
+        {/* <div className="mb-12">
           <h3 className="text-2xl font-bold text-gray-900 mb-6">
             {t('inquiry.title')}
           </h3>
@@ -345,10 +346,10 @@ export function ImportantDates() {
               </form>
             )}
           </div>
-        </div>
+        </div> */}
 
         {/* FAQ Section */}
-        <div>
+        {/* <div>
           <h3 className="text-2xl font-bold text-gray-900 mb-6">
             {t('faq.title')}
           </h3>
@@ -374,6 +375,46 @@ export function ImportantDates() {
                 )}
               </div>
             ))}
+          </div>
+        </div> */}
+      </div>
+
+      {/* Contact CTA Section */}
+      <div className="mt-16 bg-white rounded-2xl p-8 border-2 border-primary-200 shadow-lg">
+        <div className="text-center">
+          <div className="flex items-center justify-center space-x-4 mb-6">
+            <div className="w-16 h-16 bg-gradient-to-r from-primary-300 to-primary-400 rounded-full flex items-center justify-center shadow-lg">
+              <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+              </svg>
+            </div>
+            <div className="text-left">
+              <h3 className="text-2xl font-bold text-gray-900">
+                {t('contact.cta.title')}
+              </h3>
+              <p className="text-gray-600">
+                {t('contact.cta.subtitle')}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <Link
+              href="/contact"
+              className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-primary-300 to-primary-400 text-white font-semibold rounded-lg hover:from-primary-700 hover:to-primary-800 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+            >
+              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+              </svg>
+              {t('contact.cta.button')}
+            </Link>
+
+            <div className="flex items-center text-sm text-gray-600">
+              <svg className="w-4 h-4 mr-1 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+              </svg>
+              <span>{t('contact.cta.response')}</span>
+            </div>
           </div>
         </div>
       </div>

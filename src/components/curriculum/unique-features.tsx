@@ -39,7 +39,7 @@ export default function UniqueFeatures({ data }: UniqueFeaturesProps) {
     {
       icon: 'languages',
       title: {
-        bengali: 'চারটি ভাষার দক্ষতা',
+        bengali: 'ভাষার চারটি দক্ষতা',
         english: 'Four Language Skills'
       },
       description: {

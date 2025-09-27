@@ -40,7 +40,7 @@ export default function UniqueFeaturesShowcase({ data }: UniqueFeaturesShowcaseP
     {
       icon: 'languages',
       title: {
-        bengali: 'চারটি ভাষার দক্ষতা',
+        bengali: 'ভাষার চারটি দক্ষতা',
         english: 'Four Language Skills'
       },
       description: {
@@ -60,14 +60,25 @@ export default function UniqueFeaturesShowcase({ data }: UniqueFeaturesShowcaseP
       }
     },
     {
-      icon: 'higher-education',
+      icon: 'hadith',
       title: {
-        bengali: 'উচ্চ শিক্ষার সুযোগ',
-        english: 'Higher Education Pathway'
+        bengali: 'হাদিস মুখস্থ',
+        english: 'Hadith Memorization'
       },
       description: {
-        bengali: '৮ম শ্রেণির পর এসএসসি/দাখিল/মাদ্রাসা শিক্ষার সুযোগ',
-        english: 'Opportunity for SSC/Dakhil/Madrasa education after 8th grade'
+        bengali: '৯ম শ্রেণির মধ্যে ৩০০+ হাদিস মুখস্থ করা',
+        english: 'Memorizing 300+ Hadith (prophetic traditions) by 9th grade'
+      }
+    },
+    {
+      icon: 'translation',
+      title: {
+        bengali: 'কুরআন তর্জমা দক্ষতা',
+        english: 'Quranic Translation Proficiency'
+      },
+      description: {
+        bengali: 'এসএসসি/দাখিল পর্যায়ে ৯০%+ কুরআন তর্জমা দক্ষতা অর্জন',
+        english: 'Achieving 90%+ Quranic translation proficiency at SSC/Dakhil level'
       }
     },
     {
@@ -79,17 +90,6 @@ export default function UniqueFeaturesShowcase({ data }: UniqueFeaturesShowcaseP
       description: {
         bengali: 'ডে-কেয়ার হিফজ (কুরআন মুখস্থ) প্রোগ্রামের ব্যবস্থা',
         english: 'Provision for a Day-care Hifz (Quran memorization) program'
-      }
-    },
-    {
-      icon: 'transport',
-      title: {
-        bengali: 'নিজস্ব পরিবহন',
-        english: 'Own Transportation'
-      },
-      description: {
-        bengali: 'নিজস্ব পরিবহন ব্যবস্থা রয়েছে',
-        english: 'Own transportation system is available'
       }
     }
   ];
@@ -154,23 +154,23 @@ export default function UniqueFeaturesShowcase({ data }: UniqueFeaturesShowcaseP
         </div>
 
         {/* Enhanced Features Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16 items-stretch">
           {featuresData.map((feature, index) => (
-            <div 
+            <div
               key={index}
               className="group relative"
             >
               <div className="absolute inset-0 bg-gradient-to-br from-white to-gray-50 rounded-2xl shadow-lg group-hover:shadow-2xl transition-all duration-500 transform group-hover:-translate-y-2"></div>
-              <div className="relative p-8 rounded-2xl border border-gray-200 group-hover:border-primary-300 transition-all duration-300 bg-white/80 backdrop-blur-sm">
-                <div className="flex items-start space-x-5">
+              <div className="relative p-8 rounded-2xl border border-gray-200 group-hover:border-primary-300 transition-all duration-300 bg-white/80 backdrop-blur-sm h-full flex flex-col min-h-[160px]">
+                <div className="flex items-start space-x-5 flex-1">
                   <div className="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-primary-300 to-primary-400 rounded-xl flex items-center justify-center text-white group-hover:from-primary-600 group-hover:to-primary-700 transition-all duration-300 shadow-lg group-hover:shadow-xl group-hover:scale-110">
                     {getIcon(feature.icon)}
                   </div>
-                  <div className="flex-1 min-w-0">
+                  <div className="flex-1 min-w-0 flex flex-col">
                     <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-primary-500 transition-colors duration-300">
                       {isBengali ? feature.title.bengali : feature.title.english}
                     </h3>
-                    <p className="text-sm text-gray-600 leading-relaxed">
+                    <p className="text-sm text-gray-600 leading-relaxed flex-1">
                       {isBengali ? feature.description.bengali : feature.description.english}
                     </p>
                   </div>

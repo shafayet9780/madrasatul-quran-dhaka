@@ -1,8 +1,9 @@
 import { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 import { getContentService } from '@/lib/content-service';
-import { AdmissionsRequirements } from '@/components/admissions/requirements-section';
-import { FeeStructure } from '@/components/admissions/fee-structure-section';
+// import { AdmissionsRequirements } from '@/components/admissions/requirements-section';
+// import { FeeStructure } from '@/components/admissions/fee-structure-section';
+import { TuitionFee } from '@/components/admissions/tuition-fee-section';
 import { ImportantDates } from '@/components/admissions/important-dates-section';
 import { ArrowRight, FileText, Users, Calendar, DollarSign } from 'lucide-react';
 import Link from 'next/link';
@@ -66,9 +67,13 @@ export default async function AdmissionsPage({ params }: AdmissionsPageProps) {
                 <Calendar className="w-5 h-5" />
                 <span className="text-sm font-medium">{isBengali ? 'ভর্তি প্রক্রিয়া' : 'Admission Process'}</span>
               </div>
-              <div className="flex items-center gap-2">
+              {/* <div className="flex items-center gap-2">
                 <DollarSign className="w-5 h-5" />
                 <span className="text-sm font-medium">{isBengali ? 'ফি ক্যালকুলেটর' : 'Fee Calculator'}</span>
+              </div> */}
+              <div className="flex items-center gap-2">
+                <DollarSign className="w-5 h-5" />
+                <span className="text-sm font-medium">{isBengali ? 'টিউশন ফি' : 'Tuition Fee'}</span>
               </div>
               <div className="flex items-center gap-2">
                 <FileText className="w-5 h-5" />
@@ -114,13 +119,18 @@ export default async function AdmissionsPage({ params }: AdmissionsPageProps) {
           )}
           
           {/* Requirements and Application Process */}
-          <section className="mb-20">
+          {/* <section className="mb-20">
             <AdmissionsRequirements />
-          </section>
+          </section> */}
           
           {/* Fee Structure and Financial Information */}
-          <section className="mb-20">
+          {/* <section className="mb-20">
             <FeeStructure />
+          </section> */}
+
+          {/* Tuition Fee */}
+          <section className="mb-20">
+            <TuitionFee />
           </section>
           
           {/* Important Dates and Inquiry System */}

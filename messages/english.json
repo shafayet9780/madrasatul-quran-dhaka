@@ -331,6 +331,14 @@
           "answer": "Our primary medium of instruction is Bengali, following the NCTB curriculum. English is taught as a subject, and Islamic studies are conducted in Arabic with Bengali explanations. We ensure students develop proficiency in all three languages."
         }
       }
+    },
+    "contact": {
+      "cta": {
+        "title": "Want to know more?",
+        "subtitle": "Contact us for more information about Madrasatul Quran",
+        "button": "Contact Us",
+        "response": "We are ready to help you"
+      }
     }
   },
   "campus": {

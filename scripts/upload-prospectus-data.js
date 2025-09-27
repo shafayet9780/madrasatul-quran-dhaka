@@ -151,7 +151,7 @@ const prospectusData = {
     },
     {
       icon: 'languages',
-      titleBengali: 'চারটি ভাষার দক্ষতা',
+      titleBengali: 'ভাষার চারটি দক্ষতা',
       titleEnglish: 'Four Language Skills',
       descriptionBengali: 'ইংরেজি ও আরবি উভয় ভাষায় শোনা, বলা, পড়া ও লেখার দক্ষতা অর্জন',
       descriptionEnglish: 'Acquisition of four basic language skills (listening, speaking, reading, and writing) in both English and Arabic'

@@ -317,7 +317,7 @@ export default function HeroSection({
       </div>
 
       {/* Stats Section */}
-      <div className="bg-secondary-50 py-16">
+      {/* <div className="bg-secondary-50 py-16">
         <div className="container-custom">
           <div
             className={`grid grid-cols-2 lg:grid-cols-4 gap-8 transition-all duration-1000 delay-600 ${
@@ -360,14 +360,13 @@ export default function HeroSection({
             </div>
           </div>
         </div>
-      </div>
+      </div> */}
 
       {/* SEO and Accessibility improvements */}
       <div className="sr-only">
-        <h1>Madrasatul Quran - Islamic Education Excellence</h1>
+        <h1>Madrasatul Quran - Excellence in Islamic Education</h1>
         <p>
-          Combining traditional Islamic values with modern education in Dhaka,
-          Bangladesh
+          An ideal combination of islamic and general education
         </p>
       </div>
     </section>
