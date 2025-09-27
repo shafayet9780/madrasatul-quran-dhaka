@@ -317,6 +317,8 @@ export default function PreAdmissionForm({ formConfig }: PreAdmissionFormProps) 
         setSubmitMessage(successMessage);
         setFormData({}); // Clear form
         setShowPreview(false);
+        // Scroll to top after successful submission
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       } else {
         setSubmitStatus('error');
         setSubmitMessage(result.error || 'Submission failed');
