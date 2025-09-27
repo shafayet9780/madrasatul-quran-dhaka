@@ -536,6 +536,10 @@
       "title": "Our Location",
       "subtitle": "Visit us at our campus in the heart of Dhaka",
       "address": "123 Islamic Education Street, Dhanmondi, Dhaka-1205, Bangladesh",
+      "interactiveMap": "Interactive Map",
+      "getDirections": "Get Directions",
+      "viewOnGoogleMaps": "View on Google Maps",
+      "completeAddress": "Complete Address",
       "landmarks": {
         "title": "Nearby Landmarks",
         "landmark1": "Dhanmondi Lake (5 minutes walk)",

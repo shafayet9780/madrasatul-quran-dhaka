@@ -111,6 +111,10 @@
     font-family:
       'Noto Sans Bengali', 'Kalpurush', 'SolaimanLipi', sans-serif !important;
     line-height: 1.7;
+    font-feature-settings: 'liga';
+    -webkit-font-feature-settings: 'liga';
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
   }
 
   html.font-english,

@@ -1,7 +1,18 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { MapPin, Navigation, Bus, Car, Printer, ExternalLink, Plus, GraduationCap, ShoppingBag, Trees } from 'lucide-react';
+import {
+  MapPin,
+  Navigation,
+  Bus,
+  Car,
+  Printer,
+  ExternalLink,
+  Plus,
+  GraduationCap,
+  ShoppingBag,
+  Trees,
+} from 'lucide-react';
 import { useState } from 'react';
 import type { SiteSettings } from '@/types/sanity';
 import { getLocalizedText } from '@/lib/multilingual-content';
@@ -12,12 +23,14 @@ interface GoogleMapEmbedProps {
   address: string;
 }
 
-  const GoogleMapEmbed = ({ mapEmbedUrl }: GoogleMapEmbedProps) => {
-    // Use CMS provided embed URL or fallback to demo
-  const mapSrc = mapEmbedUrl || `https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3651.9073462084!2d90.37594731498!3d23.750895894586!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3755bf4a5c5b7c5b%3A0x5c5b7c5b7c5b7c5b!2sDhanmondi%2C%20Dhaka!5e0!3m2!1sen!2sbd!4v1635000000000!5m2!1sen!2sbd`;
+const GoogleMapEmbed = ({ mapEmbedUrl }: GoogleMapEmbedProps) => {
+  // Use CMS provided embed URL or fallback to demo
+  const mapSrc =
+    mapEmbedUrl ||
+    `https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3651.9073462084!2d90.37594731498!3d23.750895894586!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f12.5!3m3!1m2!1s0x3755bf4a5c5b7c5b%3A0x5c5b7c5b7c5b7c5b!2sMadrasatul%20Quran%2C%20Dhaka!5e0!3m2!1sen!2sbd!4v1635000000000!5m2!1sen!2sbd`;
 
   return (
-    <div className="w-full h-96 rounded-lg overflow-hidden shadow-md">
+    <div className="relative w-full h-96 rounded-lg overflow-hidden shadow-md">
       <iframe
         src={mapSrc}
         width="100%"
@@ -34,7 +47,7 @@ interface GoogleMapEmbedProps {
 
 const getLandmarkIcon = (iconType: string) => {
   const iconProps = { className: 'w-4 h-4 text-primary-600' };
-  
+
   switch (iconType) {
     case 'bus':
       return <Bus {...iconProps} />;
@@ -51,9 +64,14 @@ const getLandmarkIcon = (iconType: string) => {
   }
 };
 
-const LandmarkCard = ({ icon, title, description, distance }: { 
-  icon: React.ReactNode; 
-  title: string; 
+const LandmarkCard = ({
+  icon,
+  title,
+  description,
+  distance,
+}: {
+  icon: React.ReactNode;
+  title: string;
   description: string;
   distance?: string;
 }) => (
@@ -71,7 +89,15 @@ const LandmarkCard = ({ icon, title, description, distance }: {
   </div>
 );
 
-const DirectionCard = ({ title, description, time }: { title: string; description: string; time: string }) => (
+const DirectionCard = ({
+  title,
+  description,
+  time,
+}: {
+  title: string;
+  description: string;
+  time: string;
+}) => (
   <div className="p-4 bg-white rounded-lg border border-gray-200">
     <h4 className="font-medium text-gray-900 mb-2">{title}</h4>
     <p className="text-sm text-gray-600 mb-2">{description}</p>
@@ -88,23 +114,60 @@ interface LocationMapsProps {
 export default function LocationMaps({ siteSettings }: LocationMapsProps) {
   const t = useTranslations('contact.location');
   const locale = useLocale() as 'bengali' | 'english';
-  const [showPrintableDirections, setShowPrintableDirections] = useState(false);
 
   const address = siteSettings?.contactInfo?.address
     ? getLocalizedText(siteSettings.contactInfo.address, locale)
     : t('address');
 
-  const handleGetDirections = () => {
-    const encodedAddress = encodeURIComponent(address);
-    window.open(`https://www.google.com/maps/dir/?api=1&destination=${encodedAddress}`, '_blank');
+  // Utility function to extract location data from Google Maps embed URL
+  const extractLocationData = (url: string) => {
+    const lngMatch = url.match(/!2d(-?\d+\.\d+)/);
+    const latMatch = url.match(/!3d(-?\d+\.\d+)/);
+    const nameMatch = url.match(/!2s([^!]+)/);
+
+    const result: any = {};
+
+    if (lngMatch && latMatch) {
+      result.coordinates = {
+        longitude: parseFloat(lngMatch[1]),
+        latitude: parseFloat(latMatch[1]),
+      };
+    } else {
+      // Fallback coordinates
+      result.coordinates = {
+        longitude: 90.37594731498,
+        latitude: 23.750895894586,
+      };
+    }
+
+    if (nameMatch) {
+      // URL decode the place name
+      result.placeName = decodeURIComponent(nameMatch[1]);
+    } else {
+      result.placeName = 'Madrasatul Quran, Dhaka';
+    }
+
+    return result;
   };
 
-  const handlePrintDirections = () => {
-    setShowPrintableDirections(true);
-    setTimeout(() => {
-      window.print();
-      setShowPrintableDirections(false);
-    }, 100);
+  const handleGetDirections = () => {
+    // Get location data from the map embed URL (use siteSettings or fallback)
+    const mapSrc =
+      siteSettings?.locationInfo?.mapEmbedUrl ||
+      `https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3651.9073462084!2d90.37594731498!3d23.750895894586!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f12.5!3m3!1m2!1s0x3755bf4a5c5b7c5b%3A0x5c5b7c5b7c5b7c5b!2sMadrasatul%20Quran%2C%20Dhaka!5e0!3m2!1sen!2sbd!4v1635000000000!5m2!1sen!2sbd`;
+
+    const locationData = extractLocationData(mapSrc);
+
+    // Use place name if available, otherwise fall back to coordinates
+    const destination =
+      locationData.placeName ||
+      `${locationData.coordinates.latitude},${locationData.coordinates.longitude}`;
+
+    const encodedDestination = encodeURIComponent(destination);
+    window.open(
+      `https://www.google.com/maps/dir/?api=1&destination=${encodedDestination}`,
+      '_blank'
+    );
   };
 
   return (
@@ -126,11 +189,11 @@ export default function LocationMaps({ siteSettings }: LocationMapsProps) {
             <div className="mb-6">
               <h3 className="text-xl font-semibold text-gray-900 mb-4 flex items-center">
                 <MapPin className="w-5 h-5 text-primary-600 mr-2" />
-                Interactive Map
+                {t('interactiveMap')}
               </h3>
-              <GoogleMapEmbed 
+              <GoogleMapEmbed
                 mapEmbedUrl={siteSettings?.locationInfo?.mapEmbedUrl}
-                address={address} 
+                address={address}
               />
             </div>
 
@@ -141,25 +204,22 @@ export default function LocationMaps({ siteSettings }: LocationMapsProps) {
                 className="inline-flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors duration-200"
               >
                 <Navigation className="w-4 h-4 mr-2" />
-                Get Directions
+                {t('getDirections')}
               </button>
-              
-              <button
-                onClick={handlePrintDirections}
-                className="inline-flex items-center px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors duration-200"
-              >
-                <Printer className="w-4 h-4 mr-2" />
-                Print Directions
-              </button>
-              
+
               <a
-                href={siteSettings?.locationInfo?.googleMapsUrl || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`}
+                href={
+                  siteSettings?.locationInfo?.googleMapsUrl ||
+                  `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+                    address
+                  )}`
+                }
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
               >
                 <ExternalLink className="w-4 h-4 mr-2" />
-                Open in Google Maps
+                {t('viewOnGoogleMaps')}
               </a>
             </div>
           </div>
@@ -169,12 +229,10 @@ export default function LocationMaps({ siteSettings }: LocationMapsProps) {
             {/* Address */}
             <div>
               <h3 className="text-xl font-semibold text-gray-900 mb-4">
-                Complete Address
+                {t('completeAddress')}
               </h3>
               <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
-                <p className="text-gray-800 leading-relaxed">
-                  {address}
-                </p>
+                <p className="text-gray-800 leading-relaxed">{address}</p>
               </div>
             </div>
 
@@ -184,15 +242,20 @@ export default function LocationMaps({ siteSettings }: LocationMapsProps) {
                 {t('landmarks.title')}
               </h3>
               <div className="space-y-3">
-                {siteSettings?.locationInfo?.landmarks?.map((landmark, index) => (
-                  <LandmarkCard
-                    key={index}
-                    icon={getLandmarkIcon(landmark.icon)}
-                    title={getLocalizedText(landmark.name, locale)}
-                    description={getLocalizedText(landmark.description, locale)}
-                    distance={landmark.distance}
-                  />
-                )) || (
+                {siteSettings?.locationInfo?.landmarks?.map(
+                  (landmark, index) => (
+                    <LandmarkCard
+                      key={index}
+                      icon={getLandmarkIcon(landmark.icon)}
+                      title={getLocalizedText(landmark.name, locale)}
+                      description={getLocalizedText(
+                        landmark.description,
+                        locale
+                      )}
+                      distance={landmark.distance}
+                    />
+                  )
+                ) || (
                   // Fallback landmarks
                   <>
                     <LandmarkCard
@@ -225,7 +288,7 @@ export default function LocationMaps({ siteSettings }: LocationMapsProps) {
         {/* Transportation Information */}
         <div className="mt-12 grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Public Transportation */}
-          <div>
+          {/* <div>
             <h3 className="text-xl font-semibold text-gray-900 mb-6">
               {t('transportation.title')}
             </h3>
@@ -278,10 +341,10 @@ export default function LocationMaps({ siteSettings }: LocationMapsProps) {
                 </div>
               </div>
             </div>
-          </div>
+          </div> */}
 
           {/* Directions from Major Locations */}
-          <div>
+          {/* <div>
             <h3 className="text-xl font-semibold text-gray-900 mb-6">
               {t('directions.title')}
             </h3>
@@ -314,47 +377,8 @@ export default function LocationMaps({ siteSettings }: LocationMapsProps) {
                 </>
               )}
             </div>
-          </div>
+          </div> */}
         </div>
-
-        {/* Printable Directions (Hidden by default) */}
-        {showPrintableDirections && (
-          <div className="print:block hidden mt-12 p-8 bg-white">
-            <div className="text-center mb-8">
-              <h2 className="text-2xl font-bold text-gray-900">
-                Directions to Madrasatul Quran
-              </h2>
-              <p className="text-gray-600 mt-2">{address}</p>
-            </div>
-            
-            <div className="space-y-6">
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-3">By Public Transport:</h3>
-                <p className="text-gray-700">{t('transportation.bus')}</p>
-                <p className="text-gray-700 mt-2">{t('transportation.rickshaw')}</p>
-              </div>
-              
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-3">Nearby Landmarks:</h3>
-                <ul className="list-disc list-inside text-gray-700 space-y-1">
-                  <li>{t('landmarks.landmark1')}</li>
-                  <li>{t('landmarks.landmark2')}</li>
-                  <li>{t('landmarks.landmark3')}</li>
-                  <li>{t('landmarks.landmark4')}</li>
-                </ul>
-              </div>
-              
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-3">From Major Locations:</h3>
-                <ul className="list-disc list-inside text-gray-700 space-y-1">
-                  <li>{t('directions.fromAirport')}</li>
-                  <li>{t('directions.fromStation')}</li>
-                  <li>{t('directions.fromBusTerminal')}</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
     </section>
   );
