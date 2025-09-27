@@ -694,6 +694,27 @@ export const preAdmissionFormQuery = groq`
         }
       }
     },
+    additionalQuestions[] {
+      fieldName,
+      question {
+        ${multilingualTextFields}
+      },
+      fieldType,
+      fileType,
+      options[] {
+        label {
+          ${multilingualTextFields}
+        },
+        value
+      },
+      isRequired,
+      placeholder {
+        ${multilingualTextFields}
+      },
+      helpText {
+        ${multilingualTextFields}
+      }
+    },
     contactInfoFields[] {
       fieldName,
       label {

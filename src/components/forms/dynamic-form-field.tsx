@@ -258,6 +258,49 @@ export default function DynamicFormField({
         );
 
         case 'file':
+          // Determine file type and validation rules
+          // Handle both direct fileType property and nested structure
+          let fileType = 'general';
+
+          // Try to get fileType from different possible locations
+          if ((field as any).fileType) {
+            fileType = (field as any).fileType;
+          } else if ((field as any)?.options?.fileType) {
+            fileType = (field as any).options.fileType;
+          } else if (field.fieldName) {
+            // Fallback: determine fileType based on field name
+            if (field.fieldName.includes('photo') || field.fieldName.includes('image')) {
+              if (field.fieldName.includes('student')) {
+                fileType = 'student-image';
+              } else if (field.fieldName.includes('father')) {
+                fileType = 'father-image';
+              }
+            } else if (field.fieldName.includes('birth') || field.fieldName.includes('certificate')) {
+              fileType = 'student-birth-certificate';
+            }
+          }
+
+          const isImageOnly = fileType === 'father-image' || fileType === 'student-image';
+          const isDocument = fileType === 'student-birth-certificate';
+          const isImage = fileType === 'father-image' || fileType === 'student-image';
+
+          // Set file size limits
+          let maxSize = 500 * 1024; // Default 500KB
+          let maxSizeText = '500KB';
+
+          if (isDocument) {
+            maxSize = 3 * 1024 * 1024; // 3MB for PDFs
+            maxSizeText = '3MB';
+          }
+
+          // Set accept attribute based on file type
+          let accept = 'image/*';
+          if (isDocument) {
+            accept = 'image/*,application/pdf';
+          } else if (isImageOnly) {
+            accept = 'image/*';
+          }
+
           return (
             <div className="space-y-3">
               {/* Smart Profile Picture Upload */}
@@ -266,28 +309,76 @@ export default function DynamicFormField({
                 <div className="relative">
                   <div className="w-24 h-24 rounded-full border-3 border-gray-200 bg-gray-50 flex items-center justify-center overflow-hidden shadow-md">
                     {value && value instanceof File ? (
-                      <img
-                        src={URL.createObjectURL(value)}
-                        alt="Profile Preview"
-                        className="w-full h-full object-cover"
-                      />
+                      isImageOnly ? (
+                        <img
+                          src={URL.createObjectURL(value)}
+                          alt="Profile Preview"
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="text-center text-gray-400">
+                          {isDocument ? (
+                            // Birth Certificate - Document Icon
+                            <svg className="w-12 h-12 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 9l-2 2-2-2" />
+                            </svg>
+                          ) : (
+                            // Generic File Icon
+                            <svg className="w-12 h-12 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                          )}
+                          <p className="text-xs">
+                            {isDocument
+                              ? (locale === 'bengali' ? 'জন্ম নিবন্ধন' : 'Birth Certificate')
+                              : (locale === 'bengali' ? 'ফাইল' : 'File')
+                            }
+                          </p>
+                        </div>
+                      )
                     ) : (
                       <div className="text-center text-gray-400">
-                        <svg className="w-12 h-12 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                        </svg>
-                        <p className="text-xs">
-                          {locale === 'bengali' ? 'ছবি যোগ করুন' : 'Add Photo'}
+                        {isImageOnly ? (
+                          // Person Icon for Images
+                          <svg className="w-8 h-8 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                          </svg>
+                        ) : isDocument ? (
+                          // Birth Certificate Icon
+                          <svg className="w-8 h-8 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 9l-2 2-2-2" />
+                          </svg>
+                        ) : (
+                          // Generic File Icon
+                          <svg className="w-8 h-8 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                          </svg>
+                        )}
+                        <p className="text-[8px]">
+                          {isImageOnly
+                            ? (locale === 'bengali' ? 'ছবি যোগ করুন' : 'Add Photo')
+                            : isDocument
+                              ? (locale === 'bengali' ? 'জন্ম নিবন্ধন যোগ করুন' : 'Add Birth Certificate')
+                              : (locale === 'bengali' ? 'ফাইল যোগ করুন' : 'Add File')
+                          }
                         </p>
                       </div>
                     )}
                   </div>
-                  
+
                   {/* Upload Button Overlay */}
                   <label
                     htmlFor={effectiveName}
                     className="absolute -bottom-1 -right-1 w-8 h-8 bg-primary-600 hover:bg-primary-700 text-white rounded-full flex items-center justify-center cursor-pointer shadow-md transition-colors duration-200"
-                    title={locale === 'bengali' ? 'ছবি আপলোড করুন' : 'Upload Photo'}
+                    title={
+                      isImageOnly
+                        ? (locale === 'bengali' ? 'ছবি আপলোড করুন' : 'Upload Photo')
+                        : isDocument
+                          ? (locale === 'bengali' ? 'জন্ম নিবন্ধন আপলোড করুন' : 'Upload Birth Certificate')
+                          : (locale === 'bengali' ? 'ফাইল আপলোড করুন' : 'Upload File')
+                    }
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
@@ -300,21 +391,22 @@ export default function DynamicFormField({
                   type="file"
                   id={effectiveName}
                   name={effectiveName}
-                  accept="image/*"
+                  accept={accept}
                   onChange={(e) => {
                     const file = e.target.files?.[0];
                     if (file) {
-                      // Validate file size (max 500KB)
-                      if (file.size > 500 * 1024) {
-                        alert(locale === 'bengali'
-                          ? 'ফাইলের আকার 500KB-এর বেশি হতে পারবে না'
-                          : 'File size cannot exceed 500KB'
-                        );
+                      // Validate file size
+                      if (file.size > maxSize) {
+                        const errorMsg = locale === 'bengali'
+                          ? `ফাইলের আকার ${maxSizeText}-এর বেশি হতে পারবে না`
+                          : `File size cannot exceed ${maxSizeText}`;
+                        alert(errorMsg);
                         e.target.value = ''; // Clear the input
                         return;
                       }
+
                       // Validate file type
-                      if (!file.type.startsWith('image/')) {
+                      if (isImageOnly && !file.type.startsWith('image/')) {
                         alert(locale === 'bengali'
                           ? 'শুধুমাত্র ছবি ফাইল আপলোড করুন'
                           : 'Please upload image files only'
@@ -322,6 +414,16 @@ export default function DynamicFormField({
                         e.target.value = ''; // Clear the input
                         return;
                       }
+
+                      if (isDocument && !file.type.startsWith('image/') && file.type !== 'application/pdf') {
+                        alert(locale === 'bengali'
+                          ? 'শুধুমাত্র ছবি বা PDF ফাইল আপলোড করুন'
+                          : 'Please upload image or PDF files only'
+                        );
+                        e.target.value = ''; // Clear the input
+                        return;
+                      }
+
                       handleChange(file);
                     }
                   }}
@@ -348,7 +450,7 @@ export default function DynamicFormField({
                       }}
                       className="text-xs text-red-600 hover:text-red-700 underline"
                     >
-                      {locale === 'bengali' ? 'ছবি সরান' : 'Remove Photo'}
+                      {locale === 'bengali' ? 'ফাইল সরান' : 'Remove File'}
                     </button>
                   </div>
                 )}
@@ -356,9 +458,17 @@ export default function DynamicFormField({
                 {/* Upload Instructions */}
                 <div className="text-center max-w-xs mx-auto">
                   <p className="text-xs text-gray-600 leading-relaxed text-center">
-                    {locale === 'bengali' 
-                      ? 'স্পষ্ট মুখের ছবি আপলোড করুন (সর্বোচ্চ 500KB, JPG/PNG)'
-                      : 'Upload a clear photo of your face (Max 500KB, JPG/PNG)'
+                    {isImageOnly
+                      ? (locale === 'bengali'
+                          ? `স্পষ্ট মুখের ছবি আপলোড করুন (সর্বোচ্চ ${maxSizeText}, JPG/PNG)`
+                          : `Upload a clear photo of your face (Max ${maxSizeText}, JPG/PNG)`)
+                      : isDocument
+                        ? (locale === 'bengali'
+                            ? `জন্ম নিবন্ধন আপলোড করুন (সর্বোচ্চ ${maxSizeText}, JPG/PNG/PDF)`
+                            : `Upload birth certificate (Max ${maxSizeText}, JPG/PNG/PDF)`)
+                        : (locale === 'bengali'
+                            ? `ফাইল আপলোড করুন (সর্বোচ্চ ${maxSizeText})`
+                            : `Upload file (Max ${maxSizeText})`)
                     }
                   </p>
                 </div>
@@ -384,11 +494,16 @@ export default function DynamicFormField({
 
   return (
     <div className="space-y-1.5">
-      <label 
+      <label
         htmlFor={effectiveName}
         className="block text-sm font-semibold text-gray-700 cursor-pointer"
       >
         {label}
+        {field.fieldType === 'checkbox' && (
+          <span className="text-xs font-normal text-gray-500 ml-2">
+            ({locale === 'bengali' ? 'একাধিক নির্বাচন করা যাবে' : 'Multiple selection allowed'})
+          </span>
+        )}
         {field.isRequired && (
           <span className="text-red-500 ml-1">*</span>
         )}

@@ -27,8 +27,8 @@ export default function Header({ siteSettings }: HeaderProps) {
     : (locale === 'bengali' ? 'মাদরাসাতুল কুরআন' : 'Madrasatul Quran');
 
   const siteSubtitle = locale === 'bengali' 
-    ? 'ইসলামী শিক্ষায় উৎকর্ষতা' 
-    : 'Excellence in Islamic Education';
+    ? 'ইসলামিক ও সাধারণ শিক্ষার একটি আদর্শ সমন্বয়' 
+    : 'An ideal combination of islamic and general education';
 
   // Get logo URL from settings
   const logoUrl = siteSettings?.logo 
@@ -188,8 +188,8 @@ export default function Header({ siteSettings }: HeaderProps) {
               {siteSettings?.description 
                 ? getLocalizedText(siteSettings.description, locale)
                 : (locale === 'bengali'
-                  ? 'ইসলামী শিক্ষায় উৎকর্ষতা'
-                  : 'Excellence in Islamic Education')}
+                  ? 'ইসলামিক ও সাধারণ শিক্ষার একটি আদর্শ সমন্বয়'
+                  : 'An ideal combination of islamic and general education')}
             </div>
           </div>
         </div>

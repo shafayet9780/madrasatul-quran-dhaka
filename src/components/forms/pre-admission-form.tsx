@@ -44,6 +44,7 @@ export default function PreAdmissionForm({ formConfig }: PreAdmissionFormProps) 
     ...formConfig.studentInfoFields,
     ...formConfig.parentInfoFields.fatherFields,
     ...formConfig.parentInfoFields.motherFields,
+    ...(formConfig.additionalQuestions || []),
     ...formConfig.contactInfoFields
   ];
 
@@ -109,7 +110,15 @@ export default function PreAdmissionForm({ formConfig }: PreAdmissionFormProps) 
       const key = getFieldKey(field, index);
       if (key) fieldOrder.push(key);
     });
-    
+
+    // Add additional questions
+    if (formConfig.additionalQuestions) {
+      formConfig.additionalQuestions.forEach((field, index) => {
+        const key = getFieldKey(field, index);
+        if (key) fieldOrder.push(key);
+      });
+    }
+
     // Add contact fields
     formConfig.contactInfoFields.forEach((field, index) => {
       const key = getFieldKey(field, index);
@@ -184,6 +193,7 @@ export default function PreAdmissionForm({ formConfig }: PreAdmissionFormProps) 
       ...formConfig.studentInfoFields,
       ...formConfig.parentInfoFields.fatherFields,
       ...formConfig.parentInfoFields.motherFields,
+      ...(formConfig.additionalQuestions || []),
       ...formConfig.contactInfoFields
     ];
 
@@ -213,6 +223,38 @@ export default function PreAdmissionForm({ formConfig }: PreAdmissionFormProps) 
       if (value instanceof File) {
         const formData = new FormData();
         formData.append('file', value);
+
+        // Find the field configuration to determine file type and person name
+        let fileType = 'general';
+        let personName = 'unknown';
+
+        // Search through all form sections to find the field
+        const allFields = [
+          ...formConfig.generalQuestions,
+          ...formConfig.studentInfoFields,
+          ...formConfig.parentInfoFields.fatherFields,
+          ...formConfig.parentInfoFields.motherFields,
+          ...(formConfig.additionalQuestions || []),
+          ...formConfig.contactInfoFields
+        ];
+
+        const fieldConfig = allFields.find((field, index) => getFieldKey(field, index) === key);
+
+        if (fieldConfig) {
+          fileType = fieldConfig.fileType || 'general';
+
+          // Determine person name based on the section
+          if (formConfig.studentInfoFields.some((field, idx) => getFieldKey(field, idx) === key)) {
+            // Student field - use student's name if available
+            personName = (formData as any).student_name_english || (formData as any).student_name || 'student';
+          } else if (formConfig.parentInfoFields.fatherFields.some((field, idx) => getFieldKey(field, idx) === key)) {
+            // Father field - use father's name if available
+            personName = (formData as any).father_name || (formData as any).fatherName || 'father';
+          }
+        }
+
+        formData.append('fileType', fileType);
+        formData.append('personName', personName);
 
         try {
           const response = await fetch('/api/upload', {
@@ -532,6 +574,15 @@ export default function PreAdmissionForm({ formConfig }: PreAdmissionFormProps) 
             )
           )}
 
+          {/* Additional Information */}
+          {formConfig.additionalQuestions.length > 0 && (
+            renderPreviewSection(
+              locale === 'bengali' ? 'অতিরিক্ত তথ্য' : 'Additional Information',
+              formConfig.additionalQuestions,
+              'additional'
+            )
+          )}
+
           {/* Contact Information */}
           {formConfig.contactInfoFields.length > 0 && (
             renderPreviewSection(
@@ -657,7 +708,7 @@ export default function PreAdmissionForm({ formConfig }: PreAdmissionFormProps) 
                 </div>
                 <p className="text-blue-800 font-semibold text-sm">
                   {locale === 'bengali'
-                    ? `জমা দেওয়ার তারিখ: ${submissionDate.toLocaleDateString('bn-BD')}`
+                    ? `জমা দেওয়ার শেষ তারিখ: ${submissionDate.toLocaleDateString('bn-BD')}`
                     : `Submission Deadline: ${submissionDate.toLocaleDateString('en-US')}`
                   }
                 </p>
@@ -733,6 +784,15 @@ export default function PreAdmissionForm({ formConfig }: PreAdmissionFormProps) 
             locale === 'bengali' ? 'মাতার তথ্য' : 'Mother\'s Information',
             formConfig.parentInfoFields.motherFields,
             'mother'
+          )
+        )}
+
+        {/* Additional Information */}
+        {formConfig.additionalQuestions.length > 0 && (
+          renderFormSection(
+            locale === 'bengali' ? 'অতিরিক্ত তথ্য' : 'Additional Information',
+            formConfig.additionalQuestions,
+            'additional'
           )
         )}
 

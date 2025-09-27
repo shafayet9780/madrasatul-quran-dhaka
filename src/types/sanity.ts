@@ -268,6 +268,7 @@ export interface FormField {
   // Sanity array items carry a stable _key we can use as fallback name
   _key?: string
   fieldType: 'text' | 'textarea' | 'select' | 'radio' | 'checkbox' | 'date' | 'time' | 'email' | 'tel' | 'number' | 'boolean' | 'file'
+  fileType?: 'general' | 'student-image' | 'father-image' | 'student-birth-certificate'
   options?: FormFieldOption[]
   isRequired: boolean
   placeholder?: MultilingualText
@@ -290,6 +291,7 @@ export interface PreAdmissionForm {
     fatherFields: FormField[]
     motherFields: FormField[]
   }
+  additionalQuestions: FormField[]
   contactInfoFields: FormField[]
   declarationText: MultilingualText
   successMessage: MultilingualText

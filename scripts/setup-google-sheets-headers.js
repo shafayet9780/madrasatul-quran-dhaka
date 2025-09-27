@@ -132,6 +132,13 @@ function generateHeaders(formConfig, locale = 'english') {
     });
   }
 
+  // Process Additional Questions
+  if (formConfig.additionalQuestions && formConfig.additionalQuestions.length > 0) {
+    formConfig.additionalQuestions.forEach((field, index) => {
+      addFieldToHeaders(field, 'Additional', index);
+    });
+  }
+
   // Process Contact Information Fields
   if (formConfig.contactInfoFields && formConfig.contactInfoFields.length > 0) {
     formConfig.contactInfoFields.forEach((field, index) => {
@@ -283,6 +290,30 @@ async function setupGoogleSheetsHeaders() {
               bengali,
               english
             }
+          }
+        },
+        additionalQuestions[] {
+          fieldName,
+          question {
+            bengali,
+            english
+          },
+          fieldType,
+          options[] {
+            label {
+              bengali,
+              english
+            },
+            value
+          },
+          isRequired,
+          placeholder {
+            bengali,
+            english
+          },
+          helpText {
+            bengali,
+            english
           }
         },
         contactInfoFields[] {
@@ -442,6 +473,7 @@ async function setupGoogleSheetsHeaders() {
     console.log(`   - Student fields: ${formConfig.studentInfoFields?.length || 0}`);
     console.log(`   - Father fields: ${formConfig.parentInfoFields?.fatherFields?.length || 0}`);
     console.log(`   - Mother fields: ${formConfig.parentInfoFields?.motherFields?.length || 0}`);
+    console.log(`   - Additional questions: ${formConfig.additionalQuestions?.length || 0}`);
     console.log(`   - Contact fields: ${formConfig.contactInfoFields?.length || 0}`);
 
   } catch (error) {

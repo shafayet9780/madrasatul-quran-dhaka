@@ -255,6 +255,19 @@ export const preAdmissionForm = defineType({
               validation: (Rule) => Rule.required(),
             },
             {
+              name: 'fileType',
+              title: 'File Type (for file uploads)',
+              type: 'string',
+              options: {
+                list: [
+                  { title: 'General File', value: 'general' },
+                  { title: 'Student Image', value: 'student-image' },
+                  { title: 'Birth Certificate', value: 'student-birth-certificate' },
+                ],
+              },
+              hidden: ({ parent }) => parent?.fieldType !== 'file',
+            },
+            {
               name: 'options',
               title: 'Options (for dropdown)',
               type: 'array',
@@ -395,6 +408,18 @@ export const preAdmissionForm = defineType({
                     ],
                   },
                   validation: (Rule) => Rule.required(),
+                },
+                {
+                  name: 'fileType',
+                  title: 'File Type (for file uploads)',
+                  type: 'string',
+                  options: {
+                    list: [
+                      { title: 'General File', value: 'general' },
+                      { title: 'Father\'s Image', value: 'father-image' },
+                    ],
+                  },
+                  hidden: ({ parent }) => parent?.fieldType !== 'file',
                 },
                 {
                   name: 'options',
@@ -617,6 +642,160 @@ export const preAdmissionForm = defineType({
               },
             },
           ],
+        },
+      ],
+    }),
+    defineField({
+      name: 'additionalQuestions',
+      title: 'Additional Information',
+      type: 'array',
+      of: [
+        {
+          type: 'object',
+          fields: [
+            {
+              name: 'fieldName',
+              title: 'Field Name',
+              type: 'string',
+              validation: (Rule) => Rule.required(),
+            },
+            {
+              name: 'question',
+              title: 'Question',
+              type: 'object',
+              fields: [
+                {
+                  name: 'bengali',
+                  title: 'Bengali Question',
+                  type: 'string',
+                  validation: (Rule) => Rule.required(),
+                },
+                {
+                  name: 'english',
+                  title: 'English Question',
+                  type: 'string',
+                  validation: (Rule) => Rule.required(),
+                },
+              ],
+            },
+            {
+              name: 'fieldType',
+              title: 'Field Type',
+              type: 'string',
+              options: {
+                list: [
+                  { title: 'Short Answer', value: 'text' },
+                  { title: 'Long Answer', value: 'textarea' },
+                  { title: 'Dropdown', value: 'select' },
+                  { title: 'Multiple Choice', value: 'radio' },
+                  { title: 'Checkboxes', value: 'checkbox' },
+                  { title: 'Yes/No', value: 'boolean' },
+                  { title: 'Date Picker', value: 'date' },
+                  { title: 'Time Picker', value: 'time' },
+                  { title: 'Email', value: 'email' },
+                  { title: 'Phone', value: 'tel' },
+                  { title: 'Number', value: 'number' },
+                  { title: 'File Upload', value: 'file' },
+                ],
+              },
+              validation: (Rule) => Rule.required(),
+            },
+            {
+              name: 'fileType',
+              title: 'File Type (for file uploads)',
+              type: 'string',
+              options: {
+                list: [
+                  { title: 'General File', value: 'general' },
+                  { title: 'Student Image', value: 'student-image' },
+                  { title: 'Father\'s Image', value: 'father-image' },
+                  { title: 'Birth Certificate', value: 'student-birth-certificate' },
+                ],
+              },
+              hidden: ({ parent }) => parent?.fieldType !== 'file',
+            },
+            {
+              name: 'options',
+              title: 'Options (for dropdown/radio/checkbox)',
+              type: 'array',
+              of: [
+                {
+                  type: 'object',
+                  fields: [
+                    {
+                      name: 'label',
+                      title: 'Option Label',
+                      type: 'object',
+                      fields: [
+                        {
+                          name: 'bengali',
+                          title: 'Bengali',
+                          type: 'string',
+                        },
+                        {
+                          name: 'english',
+                          title: 'English',
+                          type: 'string',
+                        },
+                      ],
+                    },
+                    {
+                      name: 'value',
+                      title: 'Option Value',
+                      type: 'string',
+                    },
+                  ],
+                },
+              ],
+              hidden: ({ parent }) => !['select', 'radio', 'checkbox'].includes(parent?.fieldType),
+            },
+            {
+              name: 'isRequired',
+              title: 'Required Field',
+              type: 'boolean',
+              initialValue: false,
+            },
+            {
+              name: 'placeholder',
+              title: 'Placeholder Text',
+              type: 'object',
+              fields: [
+                {
+                  name: 'bengali',
+                  title: 'Bengali Placeholder',
+                  type: 'string',
+                },
+                {
+                  name: 'english',
+                  title: 'English Placeholder',
+                  type: 'string',
+                },
+              ],
+            },
+            {
+              name: 'helpText',
+              title: 'Help Text',
+              type: 'object',
+              fields: [
+                {
+                  name: 'bengali',
+                  title: 'Bengali Help Text',
+                  type: 'string',
+                },
+                {
+                  name: 'english',
+                  title: 'English Help Text',
+                  type: 'string',
+                },
+              ],
+            },
+          ],
+          preview: {
+            select: {
+              title: 'question.bengali',
+              subtitle: 'fieldType',
+            },
+          },
         },
       ],
     }),
