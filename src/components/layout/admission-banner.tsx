@@ -62,6 +62,7 @@ export default function AdmissionBanner({ bannerConfig }: AdmissionBannerProps) 
     }
   }, [config.autoHide, handleClose]);
 
+
   // Gate rendering after hooks
   if (!config.isEnabled || !isVisible) return null;
 
@@ -98,9 +99,7 @@ export default function AdmissionBanner({ bannerConfig }: AdmissionBannerProps) 
 
   return (
     <div
-      className={`admission-banner relative overflow-hidden transition-all duration-300 ease-in-out ${
-        isAnimating ? 'opacity-0 transform -translate-y-full' : 'opacity-100 transform translate-y-0'
-      }`}
+      className="admission-banner overflow-hidden"
       style={getBackgroundStyle()}
     >
       {/* Subtle pattern overlay */}

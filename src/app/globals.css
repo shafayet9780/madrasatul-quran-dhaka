@@ -642,6 +642,20 @@ slamic geometric pattern background */
     }
   }
 
+  /* Header scroll behavior */
+  .header-scroll-hidden {
+    transform: translateY(-100%);
+  }
+
+  .header-scroll-visible {
+    transform: translateY(0);
+  }
+
+  /* Smooth header transitions */
+  header {
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
   /* Line clamp utilities */
   .line-clamp-2 {
     display: -webkit-box;

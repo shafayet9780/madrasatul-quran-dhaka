@@ -52,6 +52,7 @@ export default function Header({ siteSettings }: HeaderProps) {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+
   // Prevent body scroll when mobile menu is open
   useEffect(() => {
     if (isMobileMenuOpen) {
@@ -199,7 +200,7 @@ export default function Header({ siteSettings }: HeaderProps) {
 
   return (
     <>
-      <header className="bg-white/90 shadow-xl border-b border-secondary-200 sticky top-0 z-40 backdrop-blur-md">
+      <header className="bg-white/90 border-b border-secondary-200 backdrop-blur-md shadow-xl">
         <div className="container-custom">
           <div className="flex items-center justify-between h-16 md:h-18">
             {/* Compact Logo - Clickable to Homepage */}
