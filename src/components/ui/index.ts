@@ -36,6 +36,10 @@ export { RichText } from './rich-text';
 export { SplitText } from './SplitText';
 export { ClickSpark } from './ClickSpark';
 
+// Download Components
+export { default as ProspectusDownload } from './prospectus-download';
+export { default as CurriculumDownload } from './curriculum-download';
+
 // Design System Utilities
 export {
   cn,

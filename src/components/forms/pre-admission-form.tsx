@@ -344,7 +344,7 @@ export default function PreAdmissionForm({ formConfig }: PreAdmissionFormProps) 
   };
 
   const renderPreviewSection = (title: string, fields: any[], sectionKey: string) => (
-    <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-5 md:p-6 relative overflow-hidden transition-all duration-300 hover:shadow-xl mb-6">
+    <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-3 sm:p-5 md:p-6 relative overflow-hidden transition-all duration-300 hover:shadow-xl mb-4 sm:mb-6">
       {/* Section accent border with gradient */}
       <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-primary-500 via-primary-600 to-primary-700"></div>
       
@@ -412,7 +412,7 @@ export default function PreAdmissionForm({ formConfig }: PreAdmissionFormProps) 
                 key={`${sectionKey}-${index}`}
                 className={`${field.fieldType === 'textarea' || field.fieldType === 'file' ? 'md:col-span-2' : ''} transition-all duration-200 `}
               >
-                <div className="bg-gray-50 rounded-lg p-2.5 border border-gray-200 hover:border-gray-300 transition-all duration-200">
+                <div className="bg-gray-50 rounded-lg p-2 sm:p-2.5 border border-gray-200 hover:border-gray-300 transition-all duration-200">
                   <div className="space-y-2">
                     <label className="flex items-center text-sm font-bold text-gray-800">
                       <div className="w-1.5 h-1.5 bg-primary-500 rounded-full mr-2"></div>
@@ -445,7 +445,7 @@ export default function PreAdmissionForm({ formConfig }: PreAdmissionFormProps) 
   );
 
   const renderFormSection = (title: string, fields: any[], sectionKey: string) => (
-    <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-5 md:p-6 relative overflow-hidden transition-all duration-300 hover:shadow-xl mb-6">
+    <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-3 sm:p-5 md:p-6 relative overflow-hidden transition-all duration-300 hover:shadow-xl mb-4 sm:mb-6">
       {/* Section accent border with gradient */}
       <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-primary-500 via-primary-600 to-primary-700"></div>
       
@@ -473,7 +473,7 @@ export default function PreAdmissionForm({ formConfig }: PreAdmissionFormProps) 
                 key={`${sectionKey}-${index}`}
                 className={`${field.fieldType === 'textarea' || field.fieldType === 'file' ? 'md:col-span-2' : ''} transition-all duration-200 `}
               >
-                <div className="bg-gray-50 rounded-lg p-2.5 border border-gray-100 hover:border-primary-200 transition-colors duration-200">
+                <div className="bg-gray-50 rounded-lg p-2 sm:p-2.5 border border-gray-100 hover:border-primary-200 transition-colors duration-200">
                   <DynamicFormField
                     field={field}
                     value={key ? formData[key] : undefined}
@@ -511,10 +511,10 @@ export default function PreAdmissionForm({ formConfig }: PreAdmissionFormProps) 
 
   if (showPreview) {
     return (
-      <div className="max-w-4xl mx-auto p-6 pb-28">
+      <div className="max-w-4xl mx-auto p-3 sm:p-6 pb-20 sm:pb-28">
         {/* Clean Preview Header */}
         <div className="text-center mb-6">
-          <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-6">
+          <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-4 sm:p-6">
               <div className="flex items-center justify-center space-x-4 mb-4">
                 <div className="w-12 h-12 bg-gradient-to-r from-green-600 to-primary-700 rounded-full flex items-center justify-center shadow-lg">
                   <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -550,7 +550,7 @@ export default function PreAdmissionForm({ formConfig }: PreAdmissionFormProps) 
         </div>
 
         {/* Preview Content */}
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6">
           {/* General Questions */}
           {formConfig.generalQuestions.length > 0 && (
             renderPreviewSection(
@@ -607,7 +607,7 @@ export default function PreAdmissionForm({ formConfig }: PreAdmissionFormProps) 
 
           {/* Declaration */}
           {formData.declaration && (
-            <div className="bg-gray-50 border border-gray-200 rounded-xl p-6">
+            <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 sm:p-6">
               <h3 className="text-lg font-bold text-gray-800 mb-4">
                 {locale === 'bengali' ? '✅ চূড়ান্ত ঘোষণা' : '✅ Final Declaration'}
               </h3>
@@ -693,10 +693,10 @@ export default function PreAdmissionForm({ formConfig }: PreAdmissionFormProps) 
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-6 pb-28">
+    <div className="max-w-4xl mx-auto p-3 sm:p-6 pb-20 sm:pb-28">
       {/* Clean Form Header */}
       <div className="text-center mb-6">
-        <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-6">
+        <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-4 sm:p-6">
             <div className="flex items-center justify-center space-x-4 mb-4">
               <div className="w-12 h-12 bg-gradient-to-r from-primary-600 to-primary-700 rounded-full flex items-center justify-center shadow-lg">
                 <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -763,7 +763,7 @@ export default function PreAdmissionForm({ formConfig }: PreAdmissionFormProps) 
       )}
 
       {/* Form */}
-      <form onSubmit={handlePreview} className="space-y-8">
+      <form onSubmit={handlePreview} className="space-y-4 sm:space-y-8">
         {/* General Questions */}
         {formConfig.generalQuestions.length > 0 && (
           renderFormSection(
@@ -819,7 +819,7 @@ export default function PreAdmissionForm({ formConfig }: PreAdmissionFormProps) 
         )}
 
         {/* Declaration */}
-        <div className="bg-gray-50 border border-gray-200 rounded-xl p-6">
+        <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 sm:p-6">
           <h3 className="text-lg font-bold text-gray-800 mb-4">
             {locale === 'bengali' ? '✅ চূড়ান্ত ঘোষণা' : '✅ Final Declaration'}
           </h3>

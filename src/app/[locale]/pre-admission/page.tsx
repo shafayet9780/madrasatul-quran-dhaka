@@ -88,7 +88,7 @@ export default async function PreAdmissionPage({ params }: PreAdmissionPageProps
       </div>
 
       {/* Form Container */}
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-8">
         <div className="max-w-5xl mx-auto">
           <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
             <PreAdmissionForm formConfig={preAdmissionFormConfig} />

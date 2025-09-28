@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { BookOpen, Star, ArrowRight, Users, Award } from 'lucide-react';
 import ProspectusDownload from '@/components/ui/prospectus-download';
+import CurriculumDownload from '@/components/ui/curriculum-download';
 import { TenYearStudyPlan, UniqueFeatures, CurriculumBreakdown, FeeStructure } from '@/components/curriculum';
 
 interface CurriculumPageProps {
@@ -63,6 +64,46 @@ export default async function CurriculumPage({ params }: CurriculumPageProps) {
               <div className="flex items-center gap-2">
                 <Star className="w-5 h-5" />
                 <span className="text-sm font-medium">{isBengali ? 'ইসলামী মূল্যবোধ' : 'Islamic Values'}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Curriculum Download CTA Section */}
+      <section className="pt-12 pb-6">
+        <div className="container mx-auto px-4">
+          <div className="max-w-4xl mx-auto text-center">
+            <div className="bg-white rounded-2xl shadow-lg border border-primary-200 p-8 md:p-12">
+              <div className="flex items-center justify-center space-x-4 mb-6">
+                <div className="w-10 h-10 bg-gradient-to-br from-primary-300 to-primary-400 rounded-full flex items-center justify-center shadow-lg">
+                  <BookOpen className="w-5 h-5 text-white" />
+                </div>
+                <h2 className="text-2xl md:text-3xl font-bold text-primary-300 mb-0">
+                  {isBengali ? 'বিস্তারিত কারিকুলাম' : 'Detailed Curriculum'}
+                </h2>
+              </div>
+              <p className="text-lg text-primary-200 mb-8 max-w-2xl mx-auto">
+                {isBengali 
+                  ? 'আমাদের সম্পূর্ণ কারিকুলামের বিস্তারিত বিবরণ ডাউনলোড করুন এবং আপনার সন্তানকে নিয়ে আমাদের পরিকল্পনা দেখুন'
+                  : 'Download our complete curriculum details and see our plan for your child\'s educational journey'
+                }
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                <CurriculumDownload 
+                  locale={locale as 'bengali' | 'english'} 
+                  variant="primary"
+                  size="lg"
+                />
+                <Link 
+                  href="/admissions" 
+                  className="group inline-flex items-center gap-3 bg-secondary-50 text-primary-400 border-2 border-primary-400 font-semibold px-8 py-4 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+                >
+                  <span className="text-lg">
+                    {isBengali ? 'ভর্তির জন্য আবেদন করুন' : 'Apply for Admission'}
+                  </span>
+                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
+                </Link>
               </div>
             </div>
           </div>

@@ -143,7 +143,7 @@ export default function HeroSection({
   return (
     <section className={`relative bg-white ${className}`}>
       {/* Main Hero Section */}
-      <div className="container-custom py-8 lg:py-12">
+      <div className="container-custom py-8">
         <div className="grid grid-cols-12 gap-6 lg:gap-8">
           {/* Left - Full Image Section with Title Above */}
           <div
@@ -175,7 +175,7 @@ export default function HeroSection({
             </div>
 
             {/* Full Width Image Gallery */}
-            <div className="relative h-96 lg:h-[520px] xl:h-[580px] rounded-2xl overflow-hidden shadow-xl ring-1 ring-secondary-200 bg-secondary-50">
+            <div className="relative h-64 sm:h-80 md:h-96 lg:h-[520px] xl:h-[580px] rounded-2xl overflow-hidden shadow-xl ring-1 ring-secondary-200 bg-gradient-to-br from-secondary-50 to-secondary-100">
               {activityImages.map((image, index) => (
                 <div
                   key={index}
@@ -187,14 +187,14 @@ export default function HeroSection({
                     image={image.image}
                     alt={image.alt}
                     fill
-                    className="object-cover"
+                    className="object-contain sm:object-cover"
                     onError={() => {
                       // Image failed to load
                     }}
                   />
                   {/* Image Overlay with Title */}
-                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-primary-900/70 to-transparent p-6">
-                    <h3 className="text-secondary-50 font-semibold text-xl lg:text-2xl">
+                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-primary-900/70 to-transparent p-3 sm:p-6">
+                    <h3 className="text-secondary-50 font-semibold text-lg sm:text-xl lg:text-2xl">
                       {image.title}
                     </h3>
                   </div>
@@ -202,7 +202,7 @@ export default function HeroSection({
               ))}
 
               {/* Gallery Indicators */}
-              <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex space-x-3">
+              <div className="absolute bottom-4 sm:bottom-8 left-1/2 transform -translate-x-1/2 flex space-x-3">
                 {activityImages.map((_, index) => (
                   <button
                     key={index}

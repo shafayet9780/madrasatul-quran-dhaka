@@ -299,7 +299,7 @@ export default function Footer({ footerSettings, siteSettings }: FooterProps) {
       <div className="absolute top-0 left-0 w-full h-20 bg-sand-light opacity-10"></div>
 
       {/* Main Footer Content */}
-      <div className="container-custom py-12 relative z-10">
+      <div className="container-custom px-4 sm:px-6 lg:px-8 py-12 relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* School Information */}
           <div ref={logoRef} className="space-y-4">
@@ -492,7 +492,7 @@ export default function Footer({ footerSettings, siteSettings }: FooterProps) {
 
       {/* Bottom Footer */}
       <div className="border-t border-white/20 bg-primary-800/40 backdrop-blur-sm">
-        <div className="container-custom py-6">
+        <div className="container-custom px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             <div className="text-sm text-white/80">
               {footerSettings?.copyright

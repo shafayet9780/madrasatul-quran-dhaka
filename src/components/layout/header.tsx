@@ -163,7 +163,7 @@ export default function Header({ siteSettings }: HeaderProps) {
             >
               <LogIn className="w-5 h-5" />
               <span>
-                {locale === 'bengali' ? 'স্কুল ম্যানেজমেন্ট সিস্টেমে লগইন' : 'Login to School Management'}
+                {locale === 'bengali' ? 'লগইন' : 'Login'}
               </span>
             </a>
 

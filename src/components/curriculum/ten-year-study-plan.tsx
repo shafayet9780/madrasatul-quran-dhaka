@@ -222,19 +222,19 @@ export default function TenYearStudyPlan({ data }: TenYearStudyPlanProps) {
 
       {/* Table */}
       <div className="overflow-x-auto">
-        <table className="w-full border-collapse">
+        <table className="w-full border-collapse min-w-[800px]">
           <thead>
             <tr className="bg-gradient-to-r from-primary-300 to-primary-400">
-              <th className="px-4 py-3 text-center text-sm font-bold text-white uppercase tracking-wide border-b border-amber-800">
+              <th className="px-4 py-3 text-center text-sm font-bold text-white uppercase tracking-wide border-b border-amber-800 min-w-[80px]">
                 {isBengali ? 'বয়স' : 'Age'}
               </th>
-              <th className="px-4 py-3 text-center text-sm font-bold text-white uppercase tracking-wide border-b border-amber-800">
+              <th className="px-4 py-3 text-center text-sm font-bold text-white uppercase tracking-wide border-b border-amber-800 min-w-[100px]">
                 {isBengali ? 'ক্লাস' : 'Class'}
               </th>
-              <th className="px-4 py-3 text-center text-sm font-bold text-white uppercase tracking-wide border-b border-amber-800">
+              <th className="px-4 py-3 text-center text-sm font-bold text-white uppercase tracking-wide border-b border-amber-800 min-w-[300px]">
                 {isBengali ? 'ইসলামিক স্টাডিজ' : 'Islamic Studies'}
               </th>
-              <th className="px-4 py-3 text-center text-sm font-bold text-white uppercase tracking-wide border-b border-amber-800">
+              <th className="px-4 py-3 text-center text-sm font-bold text-white uppercase tracking-wide border-b border-amber-800 min-w-[300px]">
                 {isBengali ? 'জেনারেল' : 'General'}
               </th>
             </tr>
@@ -245,15 +245,15 @@ export default function TenYearStudyPlan({ data }: TenYearStudyPlanProps) {
                 key={index}
                 className={`${index === 2 || index === 5 || index === 9 ? 'border-b-1 border-gray-400' : 'border-b border-gray-200'} ${getRowColorClass(index)}`}
               >
-                <td className="px-4 py-3 text-sm font-semibold text-gray-900 border-r border-gray-400">
+                <td className="px-4 py-3 text-sm font-semibold text-gray-900 border-r border-gray-400 min-w-[80px]">
                   <span className="inline-flex items-center justify-center w-8 h-8 bg-gray-100 rounded-full text-xs font-bold">
                     {row.age}
                   </span>
                 </td>
-                <td className="px-4 py-3 text-sm font-bold text-primary-800 border-r border-gray-400">
+                <td className="px-4 py-3 text-sm font-bold text-primary-800 border-r border-gray-400 min-w-[100px]">
                   {row.class}
                 </td>
-                <td className="px-1 py-2 border-r border-gray-400">
+                <td className="px-1 py-2 border-r border-gray-400 min-w-[300px]">
                   <div className="grid grid-cols-3 gap-1 w-full">
                     {index >= 10 ? (
                       // Classes 9, 10 - span all 5 slots
@@ -331,7 +331,7 @@ export default function TenYearStudyPlan({ data }: TenYearStudyPlanProps) {
                     )}
                   </div>
                 </td>
-                <td className="px-1 py-2">
+                <td className="px-1 py-2 min-w-[300px]">
                   <div className="grid grid-cols-5 gap-1 w-full">
                     {index >= 10 ? (
                       // Classes 9, 10 - span all 5 slots

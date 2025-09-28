@@ -3,6 +3,7 @@
 import { useLocale } from 'next-intl';
 import Link from 'next/link';
 import { CheckCircle, BookOpen, Languages, GraduationCap, Bus, Heart, History, Users, HelpCircle } from 'lucide-react';
+import CurriculumDownload from '@/components/ui/curriculum-download';
 
 interface UniqueFeature {
   icon: string;
@@ -182,22 +183,30 @@ export default function UniqueFeaturesShowcase({ data }: UniqueFeaturesShowcaseP
 
         {/* Enhanced Call to Action */}
         <div className="text-center">
-          <div className="bg-gradient-to-r from-primary-50 via-white to-secondary-50 rounded-2xl p-8 border-2 border-primary-200 shadow-lg">
+          <div className="bg-secondary-50 rounded-2xl p-8 border-2 border-primary-200 shadow-lg">
             <p className="text-gray-700 mb-6 text-lg">
               {isBengali 
-                ? 'আরও জানতে আমাদের কারিকুলাম পেজ দেখুন'
-                : 'Learn more about our comprehensive curriculum'
+                ? 'আরও জানতে আমাদের কারিকুলাম পেজ দেখুন অথবা বিস্তারিত কারিকুলাম ডাউনলোড করুন'
+                : 'Learn more about our comprehensive curriculum or download the detailed curriculum'
               }
             </p>
-            <Link 
-              href="/curriculum"
-              className="inline-flex items-center gap-3 bg-gradient-to-r from-primary-400 to-primary-500 hover:from-primary-500 hover:to-primary-600 text-white font-bold px-8 py-4 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
-            >
-              <BookOpen className="w-6 h-6" />
-              <span className="text-lg">
-                {isBengali ? 'কারিকুলাম দেখুন' : 'View Curriculum'}
-              </span>
-            </Link>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+              <Link 
+                href="/curriculum"
+                className="inline-flex items-center gap-3 bg-gradient-to-r from-primary-400 to-primary-500 hover:from-primary-500 hover:to-primary-600 text-white font-bold px-8 py-4 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+              >
+                <BookOpen className="w-6 h-6" />
+                <span className="text-lg">
+                  {isBengali ? 'কারিকুলাম দেখুন' : 'View Curriculum'}
+                </span>
+              </Link>
+              
+              <CurriculumDownload 
+                locale={locale} 
+                variant="outline"
+                size="lg"
+              />
+            </div>
           </div>
         </div>
       </div>
