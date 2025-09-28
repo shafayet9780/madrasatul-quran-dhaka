@@ -63,6 +63,8 @@ export const config = {
     // - _next/image (image optimization files)
     // - favicon.ico (favicon file)
     // - studio routes (Sanity Studio)
-    '/((?!api|_next/static|_next/image|favicon.ico|studio).*)',
+    // - sitemap.xml (SEO sitemap)
+    // - robots.txt (SEO robots)
+    '/((?!api|_next/static|_next/image|favicon.ico|studio|sitemap.xml|robots.txt).*)',
   ],
 }

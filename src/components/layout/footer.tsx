@@ -527,12 +527,14 @@ export default function Footer({ footerSettings, siteSettings }: FooterProps) {
                       ? 'ব্যবহারের শর্তাবলী'
                       : 'Terms of Service'}
                   </Link>
-                  <Link
-                    href="/sitemap"
+                  <a
+                    href={typeof window !== 'undefined' ? `${window.location.protocol}//${window.location.host}/sitemap.xml` : '/sitemap.xml'}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="text-white/80 hover:text-white transition-colors"
                   >
                     {locale === 'bengali' ? 'সাইটম্যাপ' : 'Sitemap'}
-                  </Link>
+                  </a>
                 </>
               )}
             </div>
