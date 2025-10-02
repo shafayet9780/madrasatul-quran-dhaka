@@ -1,15 +1,15 @@
-import { groq } from 'next-sanity'
+import { groq } from 'next-sanity';
 
 // Common fields for multilingual content
 const multilingualTextFields = `
   bengali,
   english
-`
+`;
 
 const multilingualSlugFields = `
   bengali { current },
   english { current }
-`
+`;
 
 const imageFields = `
   ...,
@@ -17,7 +17,7 @@ const imageFields = `
   caption {
     ${multilingualTextFields}
   }
-`
+`;
 
 const seoFields = `
   metaTitle {
@@ -29,7 +29,7 @@ const seoFields = `
   ogImage {
     ${imageFields}
   }
-`
+`;
 
 // Site Settings Query
 export const siteSettingsQuery = groq`
@@ -185,7 +185,7 @@ export const siteSettingsQuery = groq`
       }
     }
   }
-`
+`;
 
 // Pages Queries
 export const allPagesQuery = groq`
@@ -202,7 +202,7 @@ export const allPagesQuery = groq`
     },
     publishedAt
   }
-`
+`;
 
 export const pageBySlugQuery = groq`
   *[_type == "page" && (slug.bengali.current == $slug || slug.english.current == $slug)][0] {
@@ -225,7 +225,7 @@ export const pageBySlugQuery = groq`
     },
     publishedAt
   }
-`
+`;
 
 // News & Events Queries
 export const allNewsEventsQuery = groq`
@@ -248,7 +248,7 @@ export const allNewsEventsQuery = groq`
     featured,
     publishedAt
   }
-`
+`;
 
 export const featuredNewsEventsQuery = groq`
   *[_type == "newsEvent" && featured == true] | order(publishedAt desc) [0...6] {
@@ -269,7 +269,7 @@ export const featuredNewsEventsQuery = groq`
     category,
     publishedAt
   }
-`
+`;
 
 export const newsEventBySlugQuery = groq`
   *[_type == "newsEvent" && (slug.bengali.current == $slug || slug.english.current == $slug)][0] {
@@ -298,7 +298,7 @@ export const newsEventBySlugQuery = groq`
     featured,
     publishedAt
   }
-`
+`;
 
 // Academic Programs Queries
 export const allAcademicProgramsQuery = groq`
@@ -358,7 +358,7 @@ export const allAcademicProgramsQuery = groq`
     },
     order
   }
-`
+`;
 
 export const academicProgramBySlugQuery = groq`
   *[_type == "academicProgram" && (slug.bengali.current == $slug || slug.english.current == $slug)][0] {
@@ -417,7 +417,7 @@ export const academicProgramBySlugQuery = groq`
     },
     order
   }
-`
+`;
 
 // Staff Queries
 export const allStaffQuery = groq`
@@ -436,7 +436,7 @@ export const allStaffQuery = groq`
     displayOrder,
     isLeadership
   }
-`
+`;
 
 export const leadershipTeamQuery = groq`
   *[_type == "staffMember" && isLeadership == true] | order(displayOrder asc) {
@@ -471,7 +471,7 @@ export const leadershipTeamQuery = groq`
     },
     displayOrder
   }
-`
+`;
 
 // Facilities Queries
 export const allFacilitiesQuery = groq`
@@ -494,7 +494,7 @@ export const allFacilitiesQuery = groq`
     displayOrder,
     featured
   }
-`
+`;
 
 export const featuredFacilitiesQuery = groq`
   *[_type == "facility" && featured == true] | order(displayOrder asc) {
@@ -515,7 +515,7 @@ export const featuredFacilitiesQuery = groq`
     capacity,
     displayOrder
   }
-`
+`;
 
 export const facilityBySlugQuery = groq`
   *[_type == "facility" && (slug.bengali.current == $slug || slug.english.current == $slug)][0] {
@@ -559,7 +559,7 @@ export const facilityBySlugQuery = groq`
     displayOrder,
     featured
   }
-`
+`;
 
 // Footer Query
 export const footerQuery = groq`
@@ -596,7 +596,7 @@ export const footerQuery = groq`
     },
     isActive
   }
-`
+`;
 
 // Pre-Admission Form Query
 export const preAdmissionFormQuery = groq`
@@ -633,6 +633,27 @@ export const preAdmissionFormQuery = groq`
       }
     },
     studentInfoFields[] {
+      fieldName,
+      label {
+        ${multilingualTextFields}
+      },
+      fieldType,
+      fileType,
+      options[] {
+        label {
+          ${multilingualTextFields}
+        },
+        value
+      },
+      isRequired,
+      placeholder {
+        ${multilingualTextFields}
+      },
+      helpText {
+        ${multilingualTextFields}
+      }
+    },
+    studentAssessmentFields[] {
       fieldName,
       label {
         ${multilingualTextFields}
@@ -739,4 +760,4 @@ export const preAdmissionFormQuery = groq`
       ${multilingualTextFields}
     }
   }
-`
+`;

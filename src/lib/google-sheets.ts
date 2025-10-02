@@ -150,8 +150,10 @@ function findFieldByKey(fieldKey: string, formConfig: any): any {
   const allFields = [
     ...(formConfig.generalQuestions || []),
     ...(formConfig.studentInfoFields || []),
+    ...(formConfig.studentAssessmentFields || []),
     ...(formConfig.parentInfoFields?.fatherFields || []),
     ...(formConfig.parentInfoFields?.motherFields || []),
+    ...(formConfig.additionalQuestions || []),
     ...(formConfig.contactInfoFields || [])
   ];
   

@@ -287,6 +287,7 @@ export interface PreAdmissionForm {
   }
   generalQuestions: FormField[]
   studentInfoFields: FormField[]
+  studentAssessmentFields: FormField[]
   parentInfoFields: {
     fatherFields: FormField[]
     motherFields: FormField[]

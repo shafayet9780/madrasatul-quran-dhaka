@@ -1,4 +1,4 @@
-import { defineField, defineType } from 'sanity'
+import { defineField, defineType } from 'sanity';
 
 export const preAdmissionForm = defineType({
   name: 'preAdmissionForm',
@@ -26,13 +26,13 @@ export const preAdmissionForm = defineType({
               name: 'bengali',
               title: 'Bengali Title',
               type: 'string',
-              validation: (Rule) => Rule.required(),
+              validation: Rule => Rule.required(),
             },
             {
               name: 'english',
               title: 'English Title',
               type: 'string',
-              validation: (Rule) => Rule.required(),
+              validation: Rule => Rule.required(),
             },
           ],
         },
@@ -60,14 +60,14 @@ export const preAdmissionForm = defineType({
           title: 'Submission Date',
           type: 'date',
           description: 'Last date for form submission',
-          validation: (Rule) => Rule.required(),
+          validation: Rule => Rule.required(),
         },
         {
           name: 'googleSheetsId',
           title: 'Google Sheets ID',
           type: 'string',
           description: 'Google Sheets ID for storing form responses',
-          validation: (Rule) => Rule.required(),
+          validation: Rule => Rule.required(),
         },
       ],
     }),
@@ -88,13 +88,13 @@ export const preAdmissionForm = defineType({
                   name: 'bengali',
                   title: 'Bengali Question',
                   type: 'string',
-                  validation: (Rule) => Rule.required(),
+                  validation: Rule => Rule.required(),
                 },
                 {
                   name: 'english',
                   title: 'English Question',
                   type: 'string',
-                  validation: (Rule) => Rule.required(),
+                  validation: Rule => Rule.required(),
                 },
               ],
             },
@@ -117,7 +117,7 @@ export const preAdmissionForm = defineType({
                   { title: 'File Upload', value: 'file' },
                 ],
               },
-              validation: (Rule) => Rule.required(),
+              validation: Rule => Rule.required(),
             },
             {
               name: 'options',
@@ -152,7 +152,8 @@ export const preAdmissionForm = defineType({
                   ],
                 },
               ],
-              hidden: ({ parent }) => !['select', 'radio', 'checkbox'].includes(parent?.fieldType),
+              hidden: ({ parent }) =>
+                !['select', 'radio', 'checkbox'].includes(parent?.fieldType),
             },
             {
               name: 'isRequired',
@@ -216,7 +217,7 @@ export const preAdmissionForm = defineType({
               name: 'fieldName',
               title: 'Field Name',
               type: 'string',
-              validation: (Rule) => Rule.required(),
+              validation: Rule => Rule.required(),
             },
             {
               name: 'label',
@@ -227,13 +228,13 @@ export const preAdmissionForm = defineType({
                   name: 'bengali',
                   title: 'Bengali Label',
                   type: 'string',
-                  validation: (Rule) => Rule.required(),
+                  validation: Rule => Rule.required(),
                 },
                 {
                   name: 'english',
                   title: 'English Label',
                   type: 'string',
-                  validation: (Rule) => Rule.required(),
+                  validation: Rule => Rule.required(),
                 },
               ],
             },
@@ -252,7 +253,7 @@ export const preAdmissionForm = defineType({
                   { title: 'File Upload', value: 'file' },
                 ],
               },
-              validation: (Rule) => Rule.required(),
+              validation: Rule => Rule.required(),
             },
             {
               name: 'fileType',
@@ -262,7 +263,10 @@ export const preAdmissionForm = defineType({
                 list: [
                   { title: 'General File', value: 'general' },
                   { title: 'Student Image', value: 'student-image' },
-                  { title: 'Birth Certificate', value: 'student-birth-certificate' },
+                  {
+                    title: 'Birth Certificate',
+                    value: 'student-birth-certificate',
+                  },
                 ],
               },
               hidden: ({ parent }) => parent?.fieldType !== 'file',
@@ -353,6 +357,162 @@ export const preAdmissionForm = defineType({
       ],
     }),
     defineField({
+      name: 'studentAssessmentFields',
+      title: 'Student Assessment Fields',
+      type: 'array',
+      of: [
+        {
+          type: 'object',
+          fields: [
+            {
+              name: 'fieldName',
+              title: 'Field Name',
+              type: 'string',
+              validation: Rule => Rule.required(),
+            },
+            {
+              name: 'label',
+              title: 'Field Label',
+              type: 'object',
+              fields: [
+                {
+                  name: 'bengali',
+                  title: 'Bengali Label',
+                  type: 'string',
+                  validation: Rule => Rule.required(),
+                },
+                {
+                  name: 'english',
+                  title: 'English Label',
+                  type: 'string',
+                  validation: Rule => Rule.required(),
+                },
+              ],
+            },
+            {
+              name: 'fieldType',
+              title: 'Field Type',
+              type: 'string',
+              options: {
+                list: [
+                  { title: 'Short Answer', value: 'text' },
+                  { title: 'Long Answer', value: 'textarea' },
+                  { title: 'Dropdown', value: 'select' },
+                  { title: 'Multiple Choice', value: 'radio' },
+                  { title: 'Checkboxes', value: 'checkbox' },
+                  { title: 'Yes/No', value: 'boolean' },
+                  { title: 'Time Picker', value: 'time' },
+                  { title: 'Number', value: 'number' },
+                  { title: 'File Upload', value: 'file' },
+                ],
+              },
+              validation: Rule => Rule.required(),
+            },
+            {
+              name: 'fileType',
+              title: 'File Type (for file uploads)',
+              type: 'string',
+              options: {
+                list: [
+                  { title: 'General File', value: 'general' },
+                  { title: 'Student Image', value: 'student-image' },
+                  {
+                    title: 'Birth Certificate',
+                    value: 'student-birth-certificate',
+                  },
+                ],
+              },
+              hidden: ({ parent }) => parent?.fieldType !== 'file',
+            },
+            {
+              name: 'options',
+              title: 'Options',
+              type: 'array',
+              of: [
+                {
+                  type: 'object',
+                  fields: [
+                    {
+                      name: 'label',
+                      title: 'Option Label',
+                      type: 'object',
+                      fields: [
+                        {
+                          name: 'bengali',
+                          title: 'Bengali',
+                          type: 'string',
+                        },
+                        {
+                          name: 'english',
+                          title: 'English',
+                          type: 'string',
+                        },
+                      ],
+                    },
+                    {
+                      name: 'value',
+                      title: 'Option Value',
+                      type: 'string',
+                    },
+                  ],
+                },
+              ],
+              hidden: ({ parent }) =>
+                !['select', 'radio', 'checkbox'].includes(
+                  parent?.fieldType
+                ),
+            },
+            {
+              name: 'isRequired',
+              title: 'Required Field',
+              type: 'boolean',
+              initialValue: false,
+            },
+            {
+              name: 'placeholder',
+              title: 'Placeholder Text',
+              type: 'object',
+              fields: [
+                {
+                  name: 'bengali',
+                  title: 'Bengali Placeholder',
+                  type: 'string',
+                },
+                {
+                  name: 'english',
+                  title: 'English Placeholder',
+                  type: 'string',
+                },
+              ],
+            },
+            {
+              name: 'helpText',
+              title: 'Help Text',
+              type: 'object',
+              fields: [
+                {
+                  name: 'bengali',
+                  title: 'Bengali Help Text',
+                  type: 'string',
+                },
+                {
+                  name: 'english',
+                  title: 'English Help Text',
+                  type: 'string',
+                },
+              ],
+            },
+          ],
+          preview: {
+            select: {
+              title: 'label.bengali',
+              subtitle: 'fieldType',
+            },
+          },
+        },
+      ],
+    }),
+    defineField({
       name: 'parentInfoFields',
       title: 'Parent Information Fields',
       type: 'object',
@@ -369,7 +529,7 @@ export const preAdmissionForm = defineType({
                   name: 'fieldName',
                   title: 'Field Name',
                   type: 'string',
-                  validation: (Rule) => Rule.required(),
+                  validation: Rule => Rule.required(),
                 },
                 {
                   name: 'label',
@@ -380,13 +540,13 @@ export const preAdmissionForm = defineType({
                       name: 'bengali',
                       title: 'Bengali Label',
                       type: 'string',
-                      validation: (Rule) => Rule.required(),
+                      validation: Rule => Rule.required(),
                     },
                     {
                       name: 'english',
                       title: 'English Label',
                       type: 'string',
-                      validation: (Rule) => Rule.required(),
+                      validation: Rule => Rule.required(),
                     },
                   ],
                 },
@@ -407,7 +567,7 @@ export const preAdmissionForm = defineType({
                       { title: 'File Upload', value: 'file' },
                     ],
                   },
-                  validation: (Rule) => Rule.required(),
+                  validation: Rule => Rule.required(),
                 },
                 {
                   name: 'fileType',
@@ -416,7 +576,7 @@ export const preAdmissionForm = defineType({
                   options: {
                     list: [
                       { title: 'General File', value: 'general' },
-                      { title: 'Father\'s Image', value: 'father-image' },
+                      { title: "Father's Image", value: 'father-image' },
                     ],
                   },
                   hidden: ({ parent }) => parent?.fieldType !== 'file',
@@ -454,7 +614,10 @@ export const preAdmissionForm = defineType({
                       ],
                     },
                   ],
-                  hidden: ({ parent }) => !['select', 'radio', 'checkbox'].includes(parent?.fieldType),
+                  hidden: ({ parent }) =>
+                    !['select', 'radio', 'checkbox'].includes(
+                      parent?.fieldType
+                    ),
                 },
                 {
                   name: 'isRequired',
@@ -518,7 +681,7 @@ export const preAdmissionForm = defineType({
                   name: 'fieldName',
                   title: 'Field Name',
                   type: 'string',
-                  validation: (Rule) => Rule.required(),
+                  validation: Rule => Rule.required(),
                 },
                 {
                   name: 'label',
@@ -529,13 +692,13 @@ export const preAdmissionForm = defineType({
                       name: 'bengali',
                       title: 'Bengali Label',
                       type: 'string',
-                      validation: (Rule) => Rule.required(),
+                      validation: Rule => Rule.required(),
                     },
                     {
                       name: 'english',
                       title: 'English Label',
                       type: 'string',
-                      validation: (Rule) => Rule.required(),
+                      validation: Rule => Rule.required(),
                     },
                   ],
                 },
@@ -556,7 +719,7 @@ export const preAdmissionForm = defineType({
                       { title: 'File Upload', value: 'file' },
                     ],
                   },
-                  validation: (Rule) => Rule.required(),
+                  validation: Rule => Rule.required(),
                 },
                 {
                   name: 'options',
@@ -591,7 +754,10 @@ export const preAdmissionForm = defineType({
                       ],
                     },
                   ],
-                  hidden: ({ parent }) => !['select', 'radio', 'checkbox'].includes(parent?.fieldType),
+                  hidden: ({ parent }) =>
+                    !['select', 'radio', 'checkbox'].includes(
+                      parent?.fieldType
+                    ),
                 },
                 {
                   name: 'isRequired',
@@ -657,7 +823,7 @@ export const preAdmissionForm = defineType({
               name: 'fieldName',
               title: 'Field Name',
               type: 'string',
-              validation: (Rule) => Rule.required(),
+              validation: Rule => Rule.required(),
             },
             {
               name: 'question',
@@ -668,13 +834,13 @@ export const preAdmissionForm = defineType({
                   name: 'bengali',
                   title: 'Bengali Question',
                   type: 'string',
-                  validation: (Rule) => Rule.required(),
+                  validation: Rule => Rule.required(),
                 },
                 {
                   name: 'english',
                   title: 'English Question',
                   type: 'string',
-                  validation: (Rule) => Rule.required(),
+                  validation: Rule => Rule.required(),
                 },
               ],
             },
@@ -698,7 +864,7 @@ export const preAdmissionForm = defineType({
                   { title: 'File Upload', value: 'file' },
                 ],
               },
-              validation: (Rule) => Rule.required(),
+              validation: Rule => Rule.required(),
             },
             {
               name: 'fileType',
@@ -708,8 +874,11 @@ export const preAdmissionForm = defineType({
                 list: [
                   { title: 'General File', value: 'general' },
                   { title: 'Student Image', value: 'student-image' },
-                  { title: 'Father\'s Image', value: 'father-image' },
-                  { title: 'Birth Certificate', value: 'student-birth-certificate' },
+                  { title: "Father's Image", value: 'father-image' },
+                  {
+                    title: 'Birth Certificate',
+                    value: 'student-birth-certificate',
+                  },
                 ],
               },
               hidden: ({ parent }) => parent?.fieldType !== 'file',
@@ -747,7 +916,8 @@ export const preAdmissionForm = defineType({
                   ],
                 },
               ],
-              hidden: ({ parent }) => !['select', 'radio', 'checkbox'].includes(parent?.fieldType),
+              hidden: ({ parent }) =>
+                !['select', 'radio', 'checkbox'].includes(parent?.fieldType),
             },
             {
               name: 'isRequired',
@@ -811,7 +981,7 @@ export const preAdmissionForm = defineType({
               name: 'fieldName',
               title: 'Field Name',
               type: 'string',
-              validation: (Rule) => Rule.required(),
+              validation: Rule => Rule.required(),
             },
             {
               name: 'label',
@@ -822,13 +992,13 @@ export const preAdmissionForm = defineType({
                   name: 'bengali',
                   title: 'Bengali Label',
                   type: 'string',
-                  validation: (Rule) => Rule.required(),
+                  validation: Rule => Rule.required(),
                 },
                 {
                   name: 'english',
                   title: 'English Label',
                   type: 'string',
-                  validation: (Rule) => Rule.required(),
+                  validation: Rule => Rule.required(),
                 },
               ],
             },
@@ -844,7 +1014,7 @@ export const preAdmissionForm = defineType({
                   { title: 'Phone', value: 'tel' },
                 ],
               },
-              validation: (Rule) => Rule.required(),
+              validation: Rule => Rule.required(),
             },
             {
               name: 'isRequired',
@@ -906,14 +1076,14 @@ export const preAdmissionForm = defineType({
           title: 'Bengali Declaration',
           type: 'text',
           rows: 5,
-          validation: (Rule) => Rule.required(),
+          validation: Rule => Rule.required(),
         },
         {
           name: 'english',
           title: 'English Declaration',
           type: 'text',
           rows: 5,
-          validation: (Rule) => Rule.required(),
+          validation: Rule => Rule.required(),
         },
       ],
     }),
@@ -927,14 +1097,14 @@ export const preAdmissionForm = defineType({
           title: 'Bengali Success Message',
           type: 'text',
           rows: 3,
-          validation: (Rule) => Rule.required(),
+          validation: Rule => Rule.required(),
         },
         {
           name: 'english',
           title: 'English Success Message',
           type: 'text',
           rows: 3,
-          validation: (Rule) => Rule.required(),
+          validation: Rule => Rule.required(),
         },
       ],
     }),
@@ -945,11 +1115,11 @@ export const preAdmissionForm = defineType({
       subtitle: 'formSettings.isEnabled',
     },
     prepare(selection) {
-      const { title, subtitle } = selection
+      const { title, subtitle } = selection;
       return {
         title: title || 'Pre-Admission Form',
         subtitle: subtitle ? 'Enabled' : 'Disabled',
-      }
+      };
     },
   },
-})
+});

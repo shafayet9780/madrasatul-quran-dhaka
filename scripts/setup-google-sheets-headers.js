@@ -118,6 +118,13 @@ function generateHeaders(formConfig, locale = 'english') {
     });
   }
 
+  // Process Student Assessment Fields
+  if (formConfig.studentAssessmentFields && formConfig.studentAssessmentFields.length > 0) {
+    formConfig.studentAssessmentFields.forEach((field, index) => {
+      addFieldToHeaders(field, 'Student Assessment', index);
+    });
+  }
+
   // Process Father's Information Fields
   if (formConfig.parentInfoFields?.fatherFields && formConfig.parentInfoFields.fatherFields.length > 0) {
     formConfig.parentInfoFields.fatherFields.forEach((field, index) => {
@@ -231,6 +238,26 @@ async function setupGoogleSheetsHeaders() {
           }
         },
         studentInfoFields[] {
+          fieldName,
+          label {
+            bengali,
+            english
+          },
+          fieldType,
+          options[] {
+            label {
+              bengali,
+              english
+            },
+            value
+          },
+          isRequired,
+          placeholder {
+            bengali,
+            english
+          }
+        },
+        studentAssessmentFields[] {
           fieldName,
           label {
             bengali,
@@ -471,6 +498,7 @@ async function setupGoogleSheetsHeaders() {
     console.log(`   - Row 3+: Form data will be inserted here`);
     console.log(`   - General questions: ${formConfig.generalQuestions?.length || 0}`);
     console.log(`   - Student fields: ${formConfig.studentInfoFields?.length || 0}`);
+    console.log(`   - Student assessment fields: ${formConfig.studentAssessmentFields?.length || 0}`);
     console.log(`   - Father fields: ${formConfig.parentInfoFields?.fatherFields?.length || 0}`);
     console.log(`   - Mother fields: ${formConfig.parentInfoFields?.motherFields?.length || 0}`);
     console.log(`   - Additional questions: ${formConfig.additionalQuestions?.length || 0}`);

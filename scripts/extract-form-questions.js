@@ -77,6 +77,15 @@ async function extractFormQuestions() {
       });
     }
 
+    // Extract Student Assessment Fields
+    if (formData.studentAssessmentFields && formData.studentAssessmentFields.length > 0) {
+      extractedData.sections.push({
+        sectionTitle: 'শিক্ষার্থীর মূল্যায়ন',
+        sectionNameEn: 'Student Assessment',
+        fields: formData.studentAssessmentFields.map(field => extractField(field, 'Student Assessment'))
+      });
+    }
+
     // Extract Father Information Fields
     if (formData.parentInfoFields?.fatherFields && formData.parentInfoFields.fatherFields.length > 0) {
       extractedData.sections.push({

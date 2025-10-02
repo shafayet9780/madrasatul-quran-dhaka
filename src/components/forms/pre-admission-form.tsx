@@ -42,6 +42,7 @@ export default function PreAdmissionForm({ formConfig }: PreAdmissionFormProps) 
   const allFormFields = [
     ...formConfig.generalQuestions,
     ...formConfig.studentInfoFields,
+    ...formConfig.studentAssessmentFields,
     ...formConfig.parentInfoFields.fatherFields,
     ...formConfig.parentInfoFields.motherFields,
     ...(formConfig.additionalQuestions || []),
@@ -95,6 +96,12 @@ export default function PreAdmissionForm({ formConfig }: PreAdmissionFormProps) 
     
     // Add student info fields
     formConfig.studentInfoFields.forEach((field, index) => {
+      const key = getFieldKey(field, index);
+      if (key) fieldOrder.push(key);
+    });
+
+    // Add student assessment fields
+    formConfig.studentAssessmentFields.forEach((field, index) => {
       const key = getFieldKey(field, index);
       if (key) fieldOrder.push(key);
     });
@@ -191,6 +198,7 @@ export default function PreAdmissionForm({ formConfig }: PreAdmissionFormProps) 
     const allFields = [
       ...formConfig.generalQuestions,
       ...formConfig.studentInfoFields,
+      ...formConfig.studentAssessmentFields,
       ...formConfig.parentInfoFields.fatherFields,
       ...formConfig.parentInfoFields.motherFields,
       ...(formConfig.additionalQuestions || []),
@@ -232,6 +240,7 @@ export default function PreAdmissionForm({ formConfig }: PreAdmissionFormProps) 
         const allFields = [
           ...formConfig.generalQuestions,
           ...formConfig.studentInfoFields,
+          ...formConfig.studentAssessmentFields,
           ...formConfig.parentInfoFields.fatherFields,
           ...formConfig.parentInfoFields.motherFields,
           ...(formConfig.additionalQuestions || []),
@@ -248,6 +257,9 @@ export default function PreAdmissionForm({ formConfig }: PreAdmissionFormProps) 
           
           if (formConfig.studentInfoFields.some((field, idx) => getFieldKey(field, idx) === key)) {
             // Student field - use student's name
+            personName = studentName;
+          } else if (formConfig.studentAssessmentFields.some((field, idx) => getFieldKey(field, idx) === key)) {
+            // Student assessment field - use student's name
             personName = studentName;
           } else if (formConfig.parentInfoFields.fatherFields.some((field, idx) => getFieldKey(field, idx) === key)) {
             // Father field - use student's name (since it's part of student's admission file)
@@ -569,6 +581,15 @@ export default function PreAdmissionForm({ formConfig }: PreAdmissionFormProps) 
             )
           )}
 
+          {/* Student Assessment */}
+          {formConfig.studentAssessmentFields.length > 0 && (
+            renderPreviewSection(
+              locale === 'bengali' ? 'শিক্ষার্থীর মূল্যায়ন' : 'Student Assessment',
+              formConfig.studentAssessmentFields,
+              'student-assessment'
+            )
+          )}
+
           {/* Father's Information */}
           {formConfig.parentInfoFields.fatherFields.length > 0 && (
             renderPreviewSection(
@@ -779,6 +800,15 @@ export default function PreAdmissionForm({ formConfig }: PreAdmissionFormProps) 
             locale === 'bengali' ? 'শিক্ষার্থীর তথ্য' : 'Student Information',
             formConfig.studentInfoFields,
             'student'
+          )
+        )}
+
+        {/* Student Assessment */}
+        {formConfig.studentAssessmentFields.length > 0 && (
+          renderFormSection(
+            locale === 'bengali' ? 'শিক্ষার্থীর মূল্যায়ন' : 'Student Assessment',
+            formConfig.studentAssessmentFields,
+            'student-assessment'
           )
         )}
 
