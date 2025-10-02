@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useLocale } from 'next-intl';
-import { CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
+import { CheckCircle, AlertCircle, Loader2, Download } from 'lucide-react';
 import type { PreAdmissionForm } from '@/types/sanity';
 import type { Language } from '@/types';
 import { getLocalizedText } from '@/lib/multilingual-content';
@@ -21,12 +21,16 @@ interface FormErrors {
   [key: string]: string;
 }
 
-export default function PreAdmissionForm({ formConfig }: PreAdmissionFormProps) {
+export default function PreAdmissionForm({
+  formConfig,
+}: PreAdmissionFormProps) {
   const locale = useLocale() as Language;
   const [formData, setFormData] = useState<FormData>({});
   const [errors, setErrors] = useState<FormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [submitStatus, setSubmitStatus] = useState<
+    'idle' | 'success' | 'error'
+  >('idle');
   const [submitMessage, setSubmitMessage] = useState('');
   const [isUploadingFiles, setIsUploadingFiles] = useState(false);
   const [showTopProgress, setShowTopProgress] = useState(true);
@@ -46,7 +50,7 @@ export default function PreAdmissionForm({ formConfig }: PreAdmissionFormProps) 
     ...formConfig.parentInfoFields.fatherFields,
     ...formConfig.parentInfoFields.motherFields,
     ...(formConfig.additionalQuestions || []),
-    ...formConfig.contactInfoFields
+    ...formConfig.contactInfoFields,
   ];
 
   // Get only required fields for progress calculation
@@ -65,7 +69,7 @@ export default function PreAdmissionForm({ formConfig }: PreAdmissionFormProps) 
   const getFieldKey = (field: any, index?: number): string => {
     if (field.fieldName) return field.fieldName;
     if (field._key) return field._key;
-    
+
     // For general questions without fieldName, generate a key based on question text or index
     if (field.question) {
       // Always use English text for field key generation to match Google Sheets script
@@ -73,27 +77,26 @@ export default function PreAdmissionForm({ formConfig }: PreAdmissionFormProps) 
       // Create a safe key from the question text - must match Google Sheets script exactly
       const cleanText = questionText.toLowerCase().replace(/[^a-z0-9]/g, '_');
       const fieldKey = `general_${cleanText}_${index || 0}`;
-      
-      
+
       return fieldKey;
     }
-    
+
     return `field_${index || 0}`;
   };
 
   // Generate field order for Google Sheets (matches header order)
   const getFieldOrder = (): string[] => {
     const fieldOrder: string[] = [];
-    
+
     // Add timestamp first to match Google Sheets header order
     fieldOrder.push('timestamp');
-    
+
     // Add general questions
     formConfig.generalQuestions.forEach((field, index) => {
       const key = getFieldKey(field, index);
       if (key) fieldOrder.push(key);
     });
-    
+
     // Add student info fields
     formConfig.studentInfoFields.forEach((field, index) => {
       const key = getFieldKey(field, index);
@@ -105,13 +108,13 @@ export default function PreAdmissionForm({ formConfig }: PreAdmissionFormProps) 
       const key = getFieldKey(field, index);
       if (key) fieldOrder.push(key);
     });
-    
+
     // Add father fields
     formConfig.parentInfoFields.fatherFields.forEach((field, index) => {
       const key = getFieldKey(field, index);
       if (key) fieldOrder.push(key);
     });
-    
+
     // Add mother fields
     formConfig.parentInfoFields.motherFields.forEach((field, index) => {
       const key = getFieldKey(field, index);
@@ -131,10 +134,10 @@ export default function PreAdmissionForm({ formConfig }: PreAdmissionFormProps) 
       const key = getFieldKey(field, index);
       if (key) fieldOrder.push(key);
     });
-    
+
     // Add declaration
     fieldOrder.push('declaration');
-    
+
     return fieldOrder;
   };
 
@@ -149,7 +152,10 @@ export default function PreAdmissionForm({ formConfig }: PreAdmissionFormProps) 
   const declarationCompleted = formData.declaration ? 1 : 0;
   const totalCompletedFields = completedRequiredFields + declarationCompleted;
 
-  const progressPercentage = totalRequiredFields > 0 ? (totalCompletedFields / totalRequiredFields) * 100 : 0;
+  const progressPercentage =
+    totalRequiredFields > 0
+      ? (totalCompletedFields / totalRequiredFields) * 100
+      : 0;
 
   // Check if submission date has passed
   const submissionDate = new Date(formConfig.formSettings.submissionDate);
@@ -179,21 +185,21 @@ export default function PreAdmissionForm({ formConfig }: PreAdmissionFormProps) 
   const handleFieldChange = (fieldName: string, value: any) => {
     setFormData(prev => ({
       ...prev,
-      [fieldName]: value
+      [fieldName]: value,
     }));
-    
+
     // Clear error when user starts typing
     if (errors[fieldName]) {
       setErrors(prev => ({
         ...prev,
-        [fieldName]: ''
+        [fieldName]: '',
       }));
     }
   };
 
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {};
-    
+
     // Validate all form fields
     const allFields = [
       ...formConfig.generalQuestions,
@@ -202,7 +208,7 @@ export default function PreAdmissionForm({ formConfig }: PreAdmissionFormProps) 
       ...formConfig.parentInfoFields.fatherFields,
       ...formConfig.parentInfoFields.motherFields,
       ...(formConfig.additionalQuestions || []),
-      ...formConfig.contactInfoFields
+      ...formConfig.contactInfoFields,
     ];
 
     allFields.forEach((field, index) => {
@@ -211,9 +217,10 @@ export default function PreAdmissionForm({ formConfig }: PreAdmissionFormProps) 
         const value = key ? formData[key] : undefined;
         if (!isValueFilled(value)) {
           if (key) {
-            newErrors[key] = locale === 'bengali' 
-            ? 'এই ক্ষেত্রটি আবশ্যক' 
-            : 'This field is required';
+            newErrors[key] =
+              locale === 'bengali'
+                ? 'এই ক্ষেত্রটি আবশ্যক'
+                : 'This field is required';
           }
         }
       }
@@ -224,7 +231,9 @@ export default function PreAdmissionForm({ formConfig }: PreAdmissionFormProps) 
   };
 
   // Upload files to storage and return URLs
-  const uploadFiles = async (data: FormData): Promise<{ [key: string]: string }> => {
+  const uploadFiles = async (
+    data: FormData
+  ): Promise<{ [key: string]: string }> => {
     const uploadedUrls: { [key: string]: string } = {};
 
     for (const [key, value] of Object.entries(data)) {
@@ -244,30 +253,55 @@ export default function PreAdmissionForm({ formConfig }: PreAdmissionFormProps) 
           ...formConfig.parentInfoFields.fatherFields,
           ...formConfig.parentInfoFields.motherFields,
           ...(formConfig.additionalQuestions || []),
-          ...formConfig.contactInfoFields
+          ...formConfig.contactInfoFields,
         ];
 
-        const fieldConfig = allFields.find((field, index) => getFieldKey(field, index) === key);
+        const fieldConfig = allFields.find(
+          (field, index) => getFieldKey(field, index) === key
+        );
 
         if (fieldConfig) {
           fileType = fieldConfig.fileType || 'general';
 
           // For all file uploads related to student admission, use student's name as the prefix
-          const studentName = (data as any).student_name_english || (data as any).student_name || 'student';
-          
-          if (formConfig.studentInfoFields.some((field, idx) => getFieldKey(field, idx) === key)) {
+          const studentName =
+            (data as any).student_name_english ||
+            (data as any).student_name ||
+            'student';
+
+          if (
+            formConfig.studentInfoFields.some(
+              (field, idx) => getFieldKey(field, idx) === key
+            )
+          ) {
             // Student field - use student's name
             personName = studentName;
-          } else if (formConfig.studentAssessmentFields.some((field, idx) => getFieldKey(field, idx) === key)) {
+          } else if (
+            formConfig.studentAssessmentFields.some(
+              (field, idx) => getFieldKey(field, idx) === key
+            )
+          ) {
             // Student assessment field - use student's name
             personName = studentName;
-          } else if (formConfig.parentInfoFields.fatherFields.some((field, idx) => getFieldKey(field, idx) === key)) {
+          } else if (
+            formConfig.parentInfoFields.fatherFields.some(
+              (field, idx) => getFieldKey(field, idx) === key
+            )
+          ) {
             // Father field - use student's name (since it's part of student's admission file)
             personName = studentName;
-          } else if (formConfig.parentInfoFields.motherFields.some((field, idx) => getFieldKey(field, idx) === key)) {
+          } else if (
+            formConfig.parentInfoFields.motherFields.some(
+              (field, idx) => getFieldKey(field, idx) === key
+            )
+          ) {
             // Mother field - use student's name (since it's part of student's admission file)
             personName = studentName;
-          } else if ((formConfig.additionalQuestions || []).some((field, idx) => getFieldKey(field, idx) === key)) {
+          } else if (
+            (formConfig.additionalQuestions || []).some(
+              (field, idx) => getFieldKey(field, idx) === key
+            )
+          ) {
             // Additional questions - use student's name
             personName = studentName;
           } else {
@@ -303,11 +337,11 @@ export default function PreAdmissionForm({ formConfig }: PreAdmissionFormProps) 
 
   const handlePreview = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
-    
+
     setShowPreview(true);
     // Scroll to top when showing preview
     window.scrollTo({ top: 100, behavior: 'smooth' });
@@ -329,11 +363,15 @@ export default function PreAdmissionForm({ formConfig }: PreAdmissionFormProps) 
         submissionData[key] = url;
       });
 
-      const result = await submitToGoogleSheets(submissionData, {
-        spreadsheetId: formConfig.formSettings.googleSheetsId,
-        autoDetectRange: true, // Automatically detect range based on headers
-        fieldOrder: getFieldOrder()
-      }, formConfig); // Pass form configuration for option value-to-label conversion
+      const result = await submitToGoogleSheets(
+        submissionData,
+        {
+          spreadsheetId: formConfig.formSettings.googleSheetsId,
+          autoDetectRange: true, // Automatically detect range based on headers
+          fieldOrder: getFieldOrder(),
+        },
+        formConfig
+      ); // Pass form configuration for option value-to-label conversion
 
       if (result.success) {
         setSubmitStatus('success');
@@ -349,17 +387,25 @@ export default function PreAdmissionForm({ formConfig }: PreAdmissionFormProps) 
     } catch (error) {
       setIsUploadingFiles(false);
       setSubmitStatus('error');
-      setSubmitMessage(error instanceof Error ? error.message : 'An unexpected error occurred. Please try again.');
+      setSubmitMessage(
+        error instanceof Error
+          ? error.message
+          : 'An unexpected error occurred. Please try again.'
+      );
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const renderPreviewSection = (title: string, fields: any[], sectionKey: string) => (
+  const renderPreviewSection = (
+    title: string,
+    fields: any[],
+    sectionKey: string
+  ) => (
     <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-3 sm:p-5 md:p-6 relative overflow-hidden transition-all duration-300 hover:shadow-xl mb-4 sm:mb-6">
       {/* Section accent border with gradient */}
       <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-primary-500 via-primary-600 to-primary-700"></div>
-      
+
       {/* Section background pattern */}
       <div className="absolute top-0 right-0 w-20 h-20 opacity-5">
         <svg viewBox="0 0 100 100" className="w-full h-full text-primary-600">
@@ -370,7 +416,15 @@ export default function PreAdmissionForm({ formConfig }: PreAdmissionFormProps) 
       <div className="relative">
         <h3 className="text-lg font-bold text-gray-800 mb-4 pb-3 border-b border-primary-100 flex items-center">
           <span className="bg-gradient-to-r from-primary-600 to-primary-700 text-white px-3 py-1 rounded-full text-xs font-bold mr-3 shadow-md">
-            {sectionKey === 'general' ? '1' : sectionKey === 'student' ? '2' : sectionKey === 'father' ? '3' : sectionKey === 'mother' ? '4' : '5'}
+            {sectionKey === 'general'
+              ? '1'
+              : sectionKey === 'student'
+              ? '2'
+              : sectionKey === 'father'
+              ? '3'
+              : sectionKey === 'mother'
+              ? '4'
+              : '5'}
           </span>
           <span className="bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
             {title}
@@ -380,7 +434,7 @@ export default function PreAdmissionForm({ formConfig }: PreAdmissionFormProps) 
           {fields.map((field, index) => {
             const key = getFieldKey(field, index);
             const value = key ? formData[key] : undefined;
-            
+
             if (!value || (Array.isArray(value) && value.length === 0)) {
               return null; // Don't show empty fields in preview
             }
@@ -388,7 +442,9 @@ export default function PreAdmissionForm({ formConfig }: PreAdmissionFormProps) 
             let displayValue = '';
             let isFileField = false;
             if (value instanceof File) {
-              displayValue = `📎 ${value.name} (${(value.size / 1024).toFixed(1)} KB)`;
+              displayValue = `📎 ${value.name} (${(value.size / 1024).toFixed(
+                1
+              )} KB)`;
               isFileField = true;
             } else if (Array.isArray(value)) {
               // For checkboxes, convert values to labels
@@ -402,12 +458,25 @@ export default function PreAdmissionForm({ formConfig }: PreAdmissionFormProps) 
                 displayValue = value.join(', ');
               }
             } else if (typeof value === 'boolean') {
-              displayValue = value ? (locale === 'bengali' ? 'হ্যাঁ' : 'Yes') : (locale === 'bengali' ? 'না' : 'No');
+              displayValue = value
+                ? locale === 'bengali'
+                  ? 'হ্যাঁ'
+                  : 'Yes'
+                : locale === 'bengali'
+                ? 'না'
+                : 'No';
             } else {
               // For select/radio fields, convert value to label
-              if ((field.fieldType === 'select' || field.fieldType === 'radio') && field.options) {
-                const selectedOption = field.options.find(opt => opt.value === value);
-                displayValue = selectedOption ? getLocalizedText(selectedOption.label, locale) : String(value);
+              if (
+                (field.fieldType === 'select' || field.fieldType === 'radio') &&
+                field.options
+              ) {
+                const selectedOption = field.options.find(
+                  opt => opt.value === value
+                );
+                displayValue = selectedOption
+                  ? getLocalizedText(selectedOption.label, locale)
+                  : String(value);
               } else {
                 displayValue = String(value);
               }
@@ -416,13 +485,17 @@ export default function PreAdmissionForm({ formConfig }: PreAdmissionFormProps) 
             const label = field.label
               ? getLocalizedText(field.label, locale)
               : field.question
-                ? getLocalizedText(field.question, locale)
-                : '';
+              ? getLocalizedText(field.question, locale)
+              : '';
 
             return (
               <div
                 key={`${sectionKey}-${index}`}
-                className={`${field.fieldType === 'textarea' || field.fieldType === 'file' ? 'md:col-span-2' : ''} transition-all duration-200 `}
+                className={`${
+                  field.fieldType === 'textarea' || field.fieldType === 'file'
+                    ? 'md:col-span-2'
+                    : ''
+                } transition-all duration-200 `}
               >
                 <div className="bg-gray-50 rounded-lg p-2 sm:p-2.5 border border-gray-200 hover:border-gray-300 transition-all duration-200">
                   <div className="space-y-2">
@@ -440,10 +513,14 @@ export default function PreAdmissionForm({ formConfig }: PreAdmissionFormProps) 
                               className="w-full h-full object-cover"
                             />
                           </div>
-                          <p className="text-gray-800 break-words font-medium text-sm text-center">{displayValue}</p>
+                          <p className="text-gray-800 break-words font-medium text-sm text-center">
+                            {displayValue}
+                          </p>
                         </div>
                       ) : (
-                        <p className="text-gray-800 break-words font-medium text-sm">{displayValue}</p>
+                        <p className="text-gray-800 break-words font-medium text-sm">
+                          {displayValue}
+                        </p>
                       )}
                     </div>
                   </div>
@@ -456,11 +533,15 @@ export default function PreAdmissionForm({ formConfig }: PreAdmissionFormProps) 
     </div>
   );
 
-  const renderFormSection = (title: string, fields: any[], sectionKey: string) => (
+  const renderFormSection = (
+    title: string,
+    fields: any[],
+    sectionKey: string
+  ) => (
     <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-3 sm:p-5 md:p-6 relative overflow-hidden transition-all duration-300 hover:shadow-xl mb-4 sm:mb-6">
       {/* Section accent border with gradient */}
       <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-primary-500 via-primary-600 to-primary-700"></div>
-      
+
       {/* Section background pattern */}
       <div className="absolute top-0 right-0 w-20 h-20 opacity-5">
         <svg viewBox="0 0 100 100" className="w-full h-full text-primary-600">
@@ -471,7 +552,15 @@ export default function PreAdmissionForm({ formConfig }: PreAdmissionFormProps) 
       <div className="relative">
         <h3 className="text-lg font-bold text-gray-800 mb-4 pb-3 border-b border-primary-100 flex items-center">
           <span className="bg-gradient-to-r from-primary-600 to-primary-700 text-white px-3 py-1 rounded-full text-xs font-bold mr-3 shadow-md">
-            {sectionKey === 'general' ? '1' : sectionKey === 'student' ? '2' : sectionKey === 'father' ? '3' : sectionKey === 'mother' ? '4' : '5'}
+            {sectionKey === 'general'
+              ? '1'
+              : sectionKey === 'student'
+              ? '2'
+              : sectionKey === 'father'
+              ? '3'
+              : sectionKey === 'mother'
+              ? '4'
+              : '5'}
           </span>
           <span className="bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
             {title}
@@ -483,13 +572,17 @@ export default function PreAdmissionForm({ formConfig }: PreAdmissionFormProps) 
             return (
               <div
                 key={`${sectionKey}-${index}`}
-                className={`${field.fieldType === 'textarea' || field.fieldType === 'file' ? 'md:col-span-2' : ''} transition-all duration-200 `}
+                className={`${
+                  field.fieldType === 'textarea' || field.fieldType === 'file'
+                    ? 'md:col-span-2'
+                    : ''
+                } transition-all duration-200 `}
               >
                 <div className="bg-gray-50 rounded-lg p-2 sm:p-2.5 border border-gray-100 hover:border-primary-200 transition-colors duration-200">
                   <DynamicFormField
                     field={field}
                     value={key ? formData[key] : undefined}
-                    onChange={(value) => key && handleFieldChange(key, value)}
+                    onChange={value => key && handleFieldChange(key, value)}
                     error={key ? errors[key] : ''}
                     fieldKey={key}
                   />
@@ -508,13 +601,18 @@ export default function PreAdmissionForm({ formConfig }: PreAdmissionFormProps) 
         <div className="bg-red-50 border border-red-200 rounded-xl p-8 text-center">
           <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
           <h2 className="text-2xl font-bold text-red-800 mb-2">
-            {locale === 'bengali' ? 'আবেদনের সময় শেষ' : 'Application Period Closed'}
+            {locale === 'bengali'
+              ? 'আবেদনের সময় শেষ'
+              : 'Application Period Closed'}
           </h2>
           <p className="text-red-600">
-            {locale === 'bengali' 
-              ? `আবেদনের শেষ তারিখ ছিল: ${submissionDate.toLocaleDateString('bn-BD')}`
-              : `Application deadline was: ${submissionDate.toLocaleDateString('en-US')}`
-            }
+            {locale === 'bengali'
+              ? `আবেদনের শেষ তারিখ ছিল: ${submissionDate.toLocaleDateString(
+                  'bn-BD'
+                )}`
+              : `Application deadline was: ${submissionDate.toLocaleDateString(
+                  'en-US'
+                )}`}
           </p>
         </div>
       </div>
@@ -527,117 +625,129 @@ export default function PreAdmissionForm({ formConfig }: PreAdmissionFormProps) 
         {/* Clean Preview Header */}
         <div className="text-center mb-6">
           <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-4 sm:p-6">
-              <div className="flex items-center justify-center space-x-4 mb-4">
-                <div className="w-12 h-12 bg-gradient-to-r from-green-600 to-primary-700 rounded-full flex items-center justify-center shadow-lg">
-                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
-                <div className="text-left">
-                  <p className="text-sm text-gray-600">
-                    {locale === 'bengali' 
-                      ? 'আপনার আবেদনটি পর্যালোচনা করুন। সব কিছু সঠিক হলে জমা দিন।' 
-                      : 'Please review your application below. Submit if everything looks correct.'
-                    }
-                  </p>
-                </div>
+            <div className="flex items-center justify-center space-x-4 mb-4">
+              <div className="w-12 h-12 bg-gradient-to-r from-green-600 to-primary-700 rounded-full flex items-center justify-center shadow-lg">
+                <svg
+                  className="w-6 h-6 text-white"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
               </div>
-              
-              <div className="bg-gray-50 border border-gray-200 rounded-xl p-3 inline-block shadow-sm">
-                <div className="flex items-center space-x-2">
-                  <div className="w-6 h-6 bg-green-600 rounded-full flex items-center justify-center">
-                    <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                  </div>
-                  <p className="text-gray-800 font-semibold text-sm">
-                    {locale === 'bengali'
-                      ? 'সব তথ্য সঠিক হলে "জমা দিন" বাটনে ক্লিক করুন'
-                      : 'Click "Submit Application" if all information is correct'
-                    }
-                  </p>
-                </div>
+              <div className="text-left">
+                <p className="text-sm text-gray-600">
+                  {locale === 'bengali'
+                    ? 'আপনার আবেদনটি পর্যালোচনা করুন। সব কিছু সঠিক হলে জমা দিন।'
+                    : 'Please review your application below. Submit if everything looks correct.'}
+                </p>
               </div>
             </div>
+
+            <div className="bg-gray-50 border border-gray-200 rounded-xl p-3 inline-block shadow-sm">
+              <div className="flex items-center space-x-2">
+                <div className="w-6 h-6 bg-green-600 rounded-full flex items-center justify-center">
+                  <svg
+                    className="w-3 h-3 text-white"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M5 13l4 4L19 7"
+                    />
+                  </svg>
+                </div>
+                <p className="text-gray-800 font-semibold text-sm">
+                  {locale === 'bengali'
+                    ? 'সব তথ্য সঠিক হলে "জমা দিন" বাটনে ক্লিক করুন'
+                    : 'Click "Submit Application" if all information is correct'}
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Preview Content */}
         <div className="space-y-4 sm:space-y-6">
           {/* General Questions */}
-          {formConfig.generalQuestions.length > 0 && (
+          {formConfig.generalQuestions.length > 0 &&
             renderPreviewSection(
               locale === 'bengali' ? 'সাধারণ প্রশ্ন' : 'General Questions',
               formConfig.generalQuestions,
               'general'
-            )
-          )}
+            )}
 
           {/* Student Information */}
-          {formConfig.studentInfoFields.length > 0 && (
+          {formConfig.studentInfoFields.length > 0 &&
             renderPreviewSection(
               locale === 'bengali' ? 'শিক্ষার্থীর তথ্য' : 'Student Information',
               formConfig.studentInfoFields,
               'student'
-            )
-          )}
+            )}
 
           {/* Student Assessment */}
-          {formConfig.studentAssessmentFields.length > 0 && (
+          {formConfig.studentAssessmentFields.length > 0 &&
             renderPreviewSection(
-              locale === 'bengali' ? 'শিক্ষার্থীর মূল্যায়ন' : 'Student Assessment',
+              locale === 'bengali'
+                ? 'শিক্ষার্থীর মূল্যায়ন'
+                : 'Student Assessment',
               formConfig.studentAssessmentFields,
               'student-assessment'
-            )
-          )}
+            )}
 
           {/* Father's Information */}
-          {formConfig.parentInfoFields.fatherFields.length > 0 && (
+          {formConfig.parentInfoFields.fatherFields.length > 0 &&
             renderPreviewSection(
-              locale === 'bengali' ? 'পিতার তথ্য' : 'Father\'s Information',
+              locale === 'bengali' ? 'পিতার তথ্য' : "Father's Information",
               formConfig.parentInfoFields.fatherFields,
               'father'
-            )
-          )}
+            )}
 
           {/* Mother's Information */}
-          {formConfig.parentInfoFields.motherFields.length > 0 && (
+          {formConfig.parentInfoFields.motherFields.length > 0 &&
             renderPreviewSection(
-              locale === 'bengali' ? 'মাতার তথ্য' : 'Mother\'s Information',
+              locale === 'bengali' ? 'মাতার তথ্য' : "Mother's Information",
               formConfig.parentInfoFields.motherFields,
               'mother'
-            )
-          )}
+            )}
 
           {/* Additional Information */}
-          {formConfig.additionalQuestions.length > 0 && (
+          {formConfig.additionalQuestions.length > 0 &&
             renderPreviewSection(
               locale === 'bengali' ? 'অতিরিক্ত তথ্য' : 'Additional Information',
               formConfig.additionalQuestions,
               'additional'
-            )
-          )}
+            )}
 
           {/* Contact Information */}
-          {formConfig.contactInfoFields.length > 0 && (
+          {formConfig.contactInfoFields.length > 0 &&
             renderPreviewSection(
               locale === 'bengali' ? 'যোগাযোগের ঠিকানা' : 'Contact Information',
               formConfig.contactInfoFields,
               'contact'
-            )
-          )}
+            )}
 
           {/* Declaration */}
           {formData.declaration && (
             <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 sm:p-6">
               <h3 className="text-lg font-bold text-gray-800 mb-4">
-                {locale === 'bengali' ? '✅ চূড়ান্ত ঘোষণা' : '✅ Final Declaration'}
+                {locale === 'bengali' ? '✅ স্বীকৃতি' : '✅ Declaration'}
               </h3>
               <div className="bg-white border border-gray-200 rounded-lg p-4">
                 <p className="text-gray-700">
-                  {locale === 'bengali' 
+                  {locale === 'bengali'
                     ? 'আমি উপরে প্রদত্ত সকল তথ্য সঠিক ও সত্য বলে ঘোষণা করছি।'
-                    : 'I declare that all the information provided above is correct and true.'
-                  }
+                    : 'I declare that all the information provided above is correct and true.'}
                 </p>
               </div>
             </div>
@@ -652,7 +762,7 @@ export default function PreAdmissionForm({ formConfig }: PreAdmissionFormProps) 
               <span className="text-red-700">{submitMessage}</span>
             </div>
           )}
-          
+
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <button
               onClick={() => {
@@ -664,7 +774,7 @@ export default function PreAdmissionForm({ formConfig }: PreAdmissionFormProps) 
             >
               {locale === 'bengali' ? 'সম্পাদনা করুন' : 'Edit Application'}
             </button>
-            
+
             <button
               onClick={handleSubmit}
               disabled={isSubmitting || isUploadingFiles}
@@ -673,15 +783,21 @@ export default function PreAdmissionForm({ formConfig }: PreAdmissionFormProps) 
               {isUploadingFiles ? (
                 <>
                   <Loader2 className="w-5 h-5 animate-spin mr-2" />
-                  {locale === 'bengali' ? 'ছবি আপলোড হচ্ছে...' : 'Uploading files...'}
+                  {locale === 'bengali'
+                    ? 'ছবি আপলোড হচ্ছে...'
+                    : 'Uploading files...'}
                 </>
               ) : isSubmitting ? (
                 <>
                   <Loader2 className="w-5 h-5 animate-spin mr-2" />
-                  {locale === 'bengali' ? 'জমা দেওয়া হচ্ছে...' : 'Submitting...'}
+                  {locale === 'bengali'
+                    ? 'জমা দেওয়া হচ্ছে...'
+                    : 'Submitting...'}
                 </>
+              ) : locale === 'bengali' ? (
+                'আবেদন জমা দিন'
               ) : (
-                locale === 'bengali' ? 'আবেদন জমা দিন' : 'Submit Application'
+                'Submit Application'
               )}
             </button>
           </div>
@@ -696,7 +812,9 @@ export default function PreAdmissionForm({ formConfig }: PreAdmissionFormProps) 
         <div className="bg-green-50 border border-green-200 rounded-xl p-8 text-center">
           <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
           <h2 className="text-2xl font-bold text-green-800 mb-4">
-            {locale === 'bengali' ? 'আবেদন সফল' : 'Application Submitted Successfully'}
+            {locale === 'bengali'
+              ? 'আবেদন সফল'
+              : 'Application Submitted Successfully'}
           </h2>
           <p className="text-green-600 mb-6">{submitMessage}</p>
           <button
@@ -718,140 +836,189 @@ export default function PreAdmissionForm({ formConfig }: PreAdmissionFormProps) 
       {/* Clean Form Header */}
       <div className="text-center mb-6">
         <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-4 sm:p-6">
-            <div className="flex items-center justify-center space-x-4 mb-4">
-              <div className="w-12 h-12 bg-gradient-to-r from-primary-600 to-primary-700 rounded-full flex items-center justify-center shadow-lg">
-                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          <div className="flex items-center justify-center space-x-4 mb-4">
+            <div className="w-12 h-12 bg-gradient-to-r from-primary-600 to-primary-700 rounded-full flex items-center justify-center shadow-lg">
+              <svg
+                className="w-6 h-6 text-white"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                />
+              </svg>
+            </div>
+            <div className="text-left">
+              {formDescription && (
+                <p className="text-sm text-gray-600">{formDescription}</p>
+              )}
+            </div>
+          </div>
+
+          <div className="bg-gradient-to-r from-blue-50 to-primary-50 border border-blue-200 rounded-xl p-3 inline-block shadow-sm">
+            <div className="flex items-center space-x-2">
+              <div className="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center">
+                <svg
+                  className="w-3 h-3 text-white"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
                 </svg>
               </div>
-              <div className="text-left">
-                {formDescription && (
-                  <p className="text-sm text-gray-600">
-                    {formDescription}
-                  </p>
-                )}
-              </div>
-            </div>
-            
-            <div className="bg-gradient-to-r from-blue-50 to-primary-50 border border-blue-200 rounded-xl p-3 inline-block shadow-sm">
-              <div className="flex items-center space-x-2">
-                <div className="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center">
-                  <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
-                <p className="text-blue-800 font-semibold text-sm">
-                  {locale === 'bengali'
-                    ? `জমা দেওয়ার শেষ তারিখ: ${submissionDate.toLocaleDateString('bn-BD')}`
-                    : `Submission Deadline: ${submissionDate.toLocaleDateString('en-US')}`
-                  }
-                </p>
-              </div>
-            </div>
-        </div>
-      </div>
-
-
-      {/* Fixed Bottom Progress Bar (visible after threshold) */}
-      {!showTopProgress && (
-      <div className="fixed left-0 right-0 bottom-0 z-20 px-4 pb-4 pointer-events-none">
-        <div className="max-w-4xl mx-auto pointer-events-auto">
-          <div className="bg-white/95 shadow-2xl border border-primary-200 rounded-full px-4 py-3 backdrop-blur-sm">
-            <div className="flex items-center justify-between">
-              <span className="text-xs md:text-sm font-medium text-gray-700">
-                {locale === 'bengali' ? 'অগ্রগতি' : 'Progress'}
-              </span>
-              <span className={`text-xs md:text-sm font-semibold ${progressPercentage >= 100 ? 'text-green-600' : 'text-primary-700'}`}>
-                {totalCompletedFields} / {totalRequiredFields} • {Math.round(progressPercentage)}%
-                {progressPercentage >= 100 && (
-                  <span className="ml-1">✓</span>
-                )}
-              </span>
-            </div>
-            <div className="w-full bg-gray-200 rounded-full h-2 mt-2 overflow-hidden">
-              <div
-                className={`h-2 rounded-full transition-all duration-700 ease-out ${
-                  progressPercentage >= 100 
-                    ? 'bg-gradient-to-r from-green-500 to-green-600' 
-                    : 'bg-gradient-to-r from-primary-500 to-primary-600'
-                }`}
-                style={{ width: `${Math.min(progressPercentage, 100)}%` }}
-              ></div>
+              <p className="text-blue-800 font-semibold text-sm">
+                {locale === 'bengali'
+                  ? `জমা দেওয়ার শেষ তারিখ: ${submissionDate.toLocaleDateString(
+                      'bn-BD'
+                    )}`
+                  : `Submission Deadline: ${submissionDate.toLocaleDateString(
+                      'en-US'
+                    )}`}
+              </p>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Fixed Bottom Progress Bar (visible after threshold) */}
+      {!showTopProgress && (
+        <div className="fixed left-0 right-0 bottom-0 z-20 px-4 pb-4 pointer-events-none">
+          <div className="max-w-4xl mx-auto pointer-events-auto">
+            <div className="bg-white/95 shadow-2xl border border-primary-200 rounded-full px-4 py-3 backdrop-blur-sm">
+              <div className="flex items-center justify-between">
+                <span className="text-xs md:text-sm font-medium text-gray-700">
+                  {locale === 'bengali' ? 'অগ্রগতি' : 'Progress'}
+                </span>
+                <span
+                  className={`text-xs md:text-sm font-semibold ${
+                    progressPercentage >= 100
+                      ? 'text-green-600'
+                      : 'text-primary-700'
+                  }`}
+                >
+                  {totalCompletedFields} / {totalRequiredFields} •{' '}
+                  {Math.round(progressPercentage)}%
+                  {progressPercentage >= 100 && <span className="ml-1">✓</span>}
+                </span>
+              </div>
+              <div className="w-full bg-gray-200 rounded-full h-2 mt-2 overflow-hidden">
+                <div
+                  className={`h-2 rounded-full transition-all duration-700 ease-out ${
+                    progressPercentage >= 100
+                      ? 'bg-gradient-to-r from-green-500 to-green-600'
+                      : 'bg-gradient-to-r from-primary-500 to-primary-600'
+                  }`}
+                  style={{ width: `${Math.min(progressPercentage, 100)}%` }}
+                ></div>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
 
       {/* Form */}
       <form onSubmit={handlePreview} className="space-y-4 sm:space-y-8">
         {/* General Questions */}
-        {formConfig.generalQuestions.length > 0 && (
+        {formConfig.generalQuestions.length > 0 &&
           renderFormSection(
             locale === 'bengali' ? 'সাধারণ প্রশ্ন' : 'General Questions',
             formConfig.generalQuestions,
             'general'
-          )
-        )}
+          )}
 
         {/* Student Information */}
-        {formConfig.studentInfoFields.length > 0 && (
+        {formConfig.studentInfoFields.length > 0 &&
           renderFormSection(
             locale === 'bengali' ? 'শিক্ষার্থীর তথ্য' : 'Student Information',
             formConfig.studentInfoFields,
             'student'
-          )
-        )}
+          )}
 
         {/* Student Assessment */}
-        {formConfig.studentAssessmentFields.length > 0 && (
+        {formConfig.studentAssessmentFields.length > 0 &&
           renderFormSection(
-            locale === 'bengali' ? 'শিক্ষার্থীর মূল্যায়ন' : 'Student Assessment',
+            locale === 'bengali'
+              ? 'শিক্ষার্থীর মূল্যায়ন'
+              : 'Student Assessment',
             formConfig.studentAssessmentFields,
             'student-assessment'
-          )
-        )}
+          )}
 
         {/* Father's Information */}
-        {formConfig.parentInfoFields.fatherFields.length > 0 && (
+        {formConfig.parentInfoFields.fatherFields.length > 0 &&
           renderFormSection(
-            locale === 'bengali' ? 'পিতার তথ্য' : 'Father\'s Information',
+            locale === 'bengali' ? 'পিতার তথ্য' : "Father's Information",
             formConfig.parentInfoFields.fatherFields,
             'father'
-          )
-        )}
+          )}
 
         {/* Mother's Information */}
-        {formConfig.parentInfoFields.motherFields.length > 0 && (
+        {formConfig.parentInfoFields.motherFields.length > 0 &&
           renderFormSection(
-            locale === 'bengali' ? 'মাতার তথ্য' : 'Mother\'s Information',
+            locale === 'bengali' ? 'মাতার তথ্য' : "Mother's Information",
             formConfig.parentInfoFields.motherFields,
             'mother'
-          )
-        )}
+          )}
 
         {/* Additional Information */}
-        {formConfig.additionalQuestions.length > 0 && (
+        {formConfig.additionalQuestions.length > 0 &&
           renderFormSection(
             locale === 'bengali' ? 'অতিরিক্ত তথ্য' : 'Additional Information',
             formConfig.additionalQuestions,
             'additional'
-          )
-        )}
+          )}
 
         {/* Contact Information */}
-        {formConfig.contactInfoFields.length > 0 && (
+        {formConfig.contactInfoFields.length > 0 &&
           renderFormSection(
             locale === 'bengali' ? 'যোগাযোগের ঠিকানা' : 'Contact Information',
             formConfig.contactInfoFields,
             'contact'
-          )
-        )}
+          )}
+
+        {/* Parents Code of Conduct Section */}
+        <div className="bg-white border-2 border-primary-200 rounded-xl p-6 sm:p-8">
+          <div className="text-center">
+            <h3 className="text-xl font-bold text-gray-800 mb-3">
+              {locale === 'bengali'
+                ? '📋 অভিভাবকদের আচরণবিধি'
+                : '📋 Parents Code of Conduct'}
+            </h3>
+            <p className="text-gray-700 mb-6 max-w-2xl mx-auto">
+              {locale === 'bengali'
+                ? 'আবেদন জমা দেওয়ার আগে দয়া করে অভিভাবকদের আচরণবিধি ডাউনলোড করে পড়ুন। আবেদন জমা দেওয়ার জন্য এতে সম্মতি প্রদান আবশ্যক।'
+                : 'Please read the Parents’ Code of Conduct before submitting the application. Your consent is required to proceed.'}
+            </p>
+            <a
+              href="/api/download-code-of-conduct"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-3 px-6 py-3 bg-primary-600 text-white rounded-lg font-semibold hover:bg-primary-700 transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105"
+            >
+              <Download className="w-5 h-5" />
+              <span>
+                {locale === 'bengali'
+                  ? 'আচরণবিধি ডাউনলোড করুন'
+                  : 'Download Code of Conduct'}
+              </span>
+            </a>
+          </div>
+        </div>
 
         {/* Declaration */}
         <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 sm:p-6">
           <h3 className="text-lg font-bold text-gray-800 mb-4">
-            {locale === 'bengali' ? '✅ চূড়ান্ত ঘোষণা' : '✅ Final Declaration'}
+            {locale === 'bengali' ? '✅ স্বীকৃতি' : '✅ Declaration'}
           </h3>
           <div className="bg-white border border-gray-200 rounded-lg p-4 mb-4">
             <p className="text-gray-700 leading-relaxed whitespace-pre-line">
@@ -862,15 +1029,14 @@ export default function PreAdmissionForm({ formConfig }: PreAdmissionFormProps) 
             <input
               type="checkbox"
               checked={formData.declaration || false}
-              onChange={(e) => handleFieldChange('declaration', e.target.checked)}
+              onChange={e => handleFieldChange('declaration', e.target.checked)}
               required
               className="w-5 h-5 text-primary-600 border-gray-300 rounded focus:ring-primary-500 mt-1 cursor-pointer"
             />
             <span className="text-gray-700 font-medium">
-              {locale === 'bengali' 
+              {locale === 'bengali'
                 ? 'আমি উপরে প্রদত্ত সকল তথ্য সঠিক ও সত্য বলে ঘোষণা করছি।'
-                : 'I declare that all the information provided above is correct and true.'
-              }
+                : 'I declare that all the information provided above is correct and true.'}
             </span>
           </label>
           {errors.declaration && (
@@ -886,20 +1052,21 @@ export default function PreAdmissionForm({ formConfig }: PreAdmissionFormProps) 
               <span className="text-red-700">{submitMessage}</span>
             </div>
           )}
-          
+
           <button
             type="submit"
             disabled={isSubmitting || isUploadingFiles}
             className="text-lg px-8 py-4 bg-primary-600 text-white rounded-lg font-semibold hover:bg-primary-700 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
           >
-            {locale === 'bengali' ? 'আবেদন পর্যালোচনা করুন' : 'Preview Application'}
+            {locale === 'bengali'
+              ? 'আবেদন পর্যালোচনা করুন'
+              : 'Preview Application'}
           </button>
-          
+
           <p className="text-sm text-gray-600 mt-4">
-            {locale === 'bengali' 
+            {locale === 'bengali'
               ? 'আপনার আবেদনটি জমা দেওয়ার আগে পর্যালোচনা করার সুযোগ পাবেন।'
-              : 'You will have a chance to review your application before submitting.'
-            }
+              : 'You will have a chance to review your application before submitting.'}
           </p>
         </div>
       </form>
