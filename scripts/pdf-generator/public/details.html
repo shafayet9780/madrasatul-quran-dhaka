@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Submission Details - PDF Generator</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .details-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .details-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .details-header h1 {
+            margin: 0 0 10px 0;
+            font-size: 2rem;
+        }
+        
+        .details-header .subtitle {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+        
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+        
+        .back-button:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateX(-5px);
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background: #4CAF50;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+        
+        .details-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .details-section {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-left: 4px solid #667eea;
+        }
+        
+        .details-section h3 {
+            color: #333;
+            margin: 0 0 20px 0;
+            font-size: 1.3rem;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 10px;
+        }
+        
+        .field-group {
+            margin-bottom: 15px;
+        }
+        
+        .field-label {
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 5px;
+            display: block;
+        }
+        
+        .field-value {
+            color: #333;
+            padding: 8px 12px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            border: 1px solid #e9ecef;
+            min-height: 20px;
+        }
+        
+        .field-value.empty {
+            color: #999;
+            font-style: italic;
+        }
+        
+        .photo-section {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .photo-placeholder {
+            width: 150px;
+            height: 200px;
+            background: #f0f0f0;
+            border: 2px dashed #ccc;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+            color: #999;
+        }
+        
+        .photo-placeholder img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 6px;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        
+        .error {
+            text-align: center;
+            padding: 40px;
+            color: #dc3545;
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            border-radius: 8px;
+        }
+        
+        @media (max-width: 768px) {
+            .details-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="details-container">
+        <!-- Header -->
+        <div class="details-header">
+            <a href="index.html" class="back-button">
+                <i class="fas fa-arrow-left"></i>
+                Back to List
+            </a>
+            <h1><i class="fas fa-user"></i> Submission Details</h1>
+            <div class="subtitle">Complete information for this pre-admission form submission</div>
+            
+            <div class="action-buttons">
+                <button id="generatePdfBtn" class="btn btn-primary">
+                    <i class="fas fa-file-pdf"></i>
+                    Generate PDF
+                </button>
+                <a href="index.html" class="btn btn-secondary">
+                    <i class="fas fa-list"></i>
+                    Back to List
+                </a>
+            </div>
+        </div>
+
+        <!-- Loading indicator -->
+        <div id="loadingIndicator" class="loading">
+            <div class="spinner"></div>
+            <span>Loading submission details...</span>
+        </div>
+
+        <!-- Error message -->
+        <div id="errorMessage" class="error hidden">
+            <i class="fas fa-exclamation-triangle"></i>
+            <span id="errorText"></span>
+        </div>
+
+        <!-- Details content -->
+        <div id="detailsContent" class="details-content hidden">
+            <!-- Student Information -->
+            <div class="details-section">
+                <h3><i class="fas fa-user-graduate"></i> Student Information</h3>
+                <div class="photo-section">
+                    <div id="studentPhoto" class="photo-placeholder">
+                        <i class="fas fa-user"></i>
+                    </div>
+                </div>
+                <div class="field-group">
+                    <label class="field-label">Name (Bengali)</label>
+                    <div id="studentNameBengali" class="field-value"></div>
+                </div>
+                <div class="field-group">
+                    <label class="field-label">Name (English)</label>
+                    <div id="studentNameEnglish" class="field-value"></div>
+                </div>
+                <div class="field-group">
+                    <label class="field-label">Gender</label>
+                    <div id="studentGender" class="field-value"></div>
+                </div>
+                <div class="field-group">
+                    <label class="field-label">Date of Birth</label>
+                    <div id="dateOfBirth" class="field-value"></div>
+                </div>
+                <div class="field-group">
+                    <label class="field-label">Desired Class</label>
+                    <div id="desiredClass" class="field-value"></div>
+                </div>
+                <div class="field-group">
+                    <label class="field-label">Last Class Attended</label>
+                    <div id="lastClassAttended" class="field-value"></div>
+                </div>
+                <div class="field-group">
+                    <label class="field-label">Previous School</label>
+                    <div id="previousSchool" class="field-value"></div>
+                </div>
+            </div>
+
+            <!-- Assessment Information -->
+            <div class="details-section">
+                <h3><i class="fas fa-chart-line"></i> Assessment</h3>
+                <div class="field-group">
+                    <label class="field-label">Quran Level</label>
+                    <div id="quranLevel" class="field-value"></div>
+                </div>
+                <div class="field-group">
+                    <label class="field-label">Arabic Level</label>
+                    <div id="arabicLevel" class="field-value"></div>
+                </div>
+                <div class="field-group">
+                    <label class="field-label">General Subjects Level</label>
+                    <div id="generalSubjectsLevel" class="field-value"></div>
+                </div>
+                <div class="field-group">
+                    <label class="field-label">Obeying Parents</label>
+                    <div id="obeyingParents" class="field-value"></div>
+                </div>
+                <div class="field-group">
+                    <label class="field-label">Purpose of Study</label>
+                    <div id="purposeOfStudy" class="field-value"></div>
+                </div>
+            </div>
+
+            <!-- Father Information -->
+            <div class="details-section">
+                <h3><i class="fas fa-male"></i> Father Information</h3>
+                <div class="photo-section">
+                    <div id="fatherPhoto" class="photo-placeholder">
+                        <i class="fas fa-user"></i>
+                    </div>
+                </div>
+                <div class="field-group">
+                    <label class="field-label">Father Name (Bengali)</label>
+                    <div id="fatherNameBengali" class="field-value"></div>
+                </div>
+                <div class="field-group">
+                    <label class="field-label">Father Name (English)</label>
+                    <div id="fatherNameEnglish" class="field-value"></div>
+                </div>
+                <div class="field-group">
+                    <label class="field-label">Occupation</label>
+                    <div id="fatherOccupation" class="field-value"></div>
+                </div>
+                <div class="field-group">
+                    <label class="field-label">Organization</label>
+                    <div id="fatherOrganization" class="field-value"></div>
+                </div>
+                <div class="field-group">
+                    <label class="field-label">Designation</label>
+                    <div id="fatherDesignation" class="field-value"></div>
+                </div>
+                <div class="field-group">
+                    <label class="field-label">Monthly Income</label>
+                    <div id="fatherMonthlyIncome" class="field-value"></div>
+                </div>
+                <div class="field-group">
+                    <label class="field-label">Prayer Location</label>
+                    <div id="fatherPrayerLocation" class="field-value"></div>
+                </div>
+                <div class="field-group">
+                    <label class="field-label">Prayer Times</label>
+                    <div id="fatherPrayerTimes" class="field-value"></div>
+                </div>
+                <div class="field-group">
+                    <label class="field-label">Daily Quran</label>
+                    <div id="fatherDailyQuran" class="field-value"></div>
+                </div>
+                <div class="field-group">
+                    <label class="field-label">TV at Home</label>
+                    <div id="fatherTvAtHome" class="field-value"></div>
+                </div>
+            </div>
+
+            <!-- Mother Information -->
+            <div class="details-section">
+                <h3><i class="fas fa-female"></i> Mother Information</h3>
+                <div class="field-group">
+                    <label class="field-label">Mother Name (Bengali)</label>
+                    <div id="motherNameBengali" class="field-value"></div>
+                </div>
+                <div class="field-group">
+                    <label class="field-label">Mother Name (English)</label>
+                    <div id="motherNameEnglish" class="field-value"></div>
+                </div>
+                <div class="field-group">
+                    <label class="field-label">Occupation</label>
+                    <div id="motherOccupation" class="field-value"></div>
+                </div>
+                <div class="field-group">
+                    <label class="field-label">Organization</label>
+                    <div id="motherOrganization" class="field-value"></div>
+                </div>
+                <div class="field-group">
+                    <label class="field-label">Designation</label>
+                    <div id="motherDesignation" class="field-value"></div>
+                </div>
+                <div class="field-group">
+                    <label class="field-label">Prayer Times</label>
+                    <div id="motherPrayerTimes" class="field-value"></div>
+                </div>
+                <div class="field-group">
+                    <label class="field-label">Daily Quran</label>
+                    <div id="motherDailyQuran" class="field-value"></div>
+                </div>
+            </div>
+
+            <!-- Contact Information -->
+            <div class="details-section">
+                <h3><i class="fas fa-address-book"></i> Contact Information</h3>
+                <div class="field-group">
+                    <label class="field-label">Present Address</label>
+                    <div id="presentAddress" class="field-value"></div>
+                </div>
+                <div class="field-group">
+                    <label class="field-label">Father Phone</label>
+                    <div id="fatherPhone" class="field-value"></div>
+                </div>
+                <div class="field-group">
+                    <label class="field-label">Mother Phone</label>
+                    <div id="motherPhone" class="field-value"></div>
+                </div>
+                <div class="field-group">
+                    <label class="field-label">Email</label>
+                    <div id="email" class="field-value"></div>
+                </div>
+            </div>
+
+            <!-- Additional Information -->
+            <div class="details-section">
+                <h3><i class="fas fa-info-circle"></i> Additional Information</h3>
+                <div class="field-group">
+                    <label class="field-label">Transport Requirement</label>
+                    <div id="transportRequirement" class="field-value"></div>
+                </div>
+                <div class="field-group">
+                    <label class="field-label">Transport Location</label>
+                    <div id="transportLocation" class="field-value"></div>
+                </div>
+                <div class="field-group">
+                    <label class="field-label">Comments</label>
+                    <div id="comments" class="field-value"></div>
+                </div>
+            </div>
+
+            <!-- General Information -->
+            <div class="details-section">
+                <h3><i class="fas fa-question-circle"></i> General Information</h3>
+                <div class="field-group">
+                    <label class="field-label">How did you learn about Madrasatul Quran?</label>
+                    <div id="howDidYouLearn" class="field-value"></div>
+                </div>
+                <div class="field-group">
+                    <label class="field-label">Submission Date</label>
+                    <div id="submissionDate" class="field-value"></div>
+                </div>
+                <div class="field-group">
+                    <label class="field-label">Row Number</label>
+                    <div id="rowNumber" class="field-value"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PDF Generation Modal -->
+    <div id="pdfModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-file-pdf"></i> PDF Generation</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="pdfProgress" class="progress-container">
+                    <div class="progress-bar">
+                        <div id="progressFill" class="progress-fill"></div>
+                    </div>
+                    <div id="progressText">Preparing PDF...</div>
+                </div>
+                <div id="pdfResults" class="pdf-results hidden">
+                    <div class="result-item">
+                        <i class="fas fa-check-circle text-success"></i>
+                        <span>PDF generated successfully!</span>
+                    </div>
+                    <div class="result-actions">
+                        <a id="downloadLink" href="#" class="btn btn-primary" download>
+                            <i class="fas fa-download"></i> Download PDF
+                        </a>
+                        <button id="closeModalBtn" class="btn btn-secondary">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="details.js"></script>
+</body>
+</html>

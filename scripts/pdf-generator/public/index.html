@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Generator - Pre-Admission Forms</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h1><i class="fas fa-file-pdf"></i> PDF Generator</h1>
+                <p>Generate individual PDF applications from pre-admission form submissions</p>
+            </div>
+        </header>
+
+        <!-- Controls -->
+        <div class="controls">
+            <div class="search-section">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchInput" placeholder="Search by student name, class, or parent name...">
+                </div>
+                <div class="filter-buttons">
+                    <button class="filter-btn active" data-filter="all">All</button>
+                    <button class="filter-btn" data-filter="play">Play</button>
+                    <button class="filter-btn" data-filter="nursery">Nursery</button>
+                    <button class="filter-btn" data-filter="kg">KG</button>
+                    <button class="filter-btn" data-filter="class">Classes</button>
+                </div>
+            </div>
+            
+            <div class="action-buttons">
+                <button id="refreshBtn" class="btn btn-secondary">
+                    <i class="fas fa-sync-alt"></i> Refresh
+                </button>
+                <button id="selectAllBtn" class="btn btn-secondary">
+                    <i class="fas fa-check-square"></i> Select All
+                </button>
+                <button id="generateBulkBtn" class="btn btn-primary" disabled>
+                    <i class="fas fa-download"></i> Generate Selected PDFs
+                </button>
+            </div>
+        </div>
+
+        <!-- Loading indicator -->
+        <div id="loadingIndicator" class="loading hidden">
+            <div class="spinner"></div>
+            <span>Loading submissions...</span>
+        </div>
+
+        <!-- Error message -->
+        <div id="errorMessage" class="error-message hidden">
+            <i class="fas fa-exclamation-triangle"></i>
+            <span id="errorText"></span>
+        </div>
+
+        <!-- Success message -->
+        <div id="successMessage" class="success-message hidden">
+            <i class="fas fa-check-circle"></i>
+            <span id="successText"></span>
+        </div>
+
+        <!-- Submissions table -->
+        <div class="table-container">
+            <table id="submissionsTable" class="submissions-table">
+                <thead>
+                    <tr>
+                        <th>
+                            <input type="checkbox" id="selectAllCheckbox">
+                        </th>
+                        <th>Row #</th>
+                        <th>Student Name</th>
+                        <th>Class</th>
+                        <th>Father Name</th>
+                        <th>Mother Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="submissionsTableBody">
+                    <!-- Dynamic content will be inserted here -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination">
+            <button id="prevPageBtn" class="btn btn-secondary" disabled>
+                <i class="fas fa-chevron-left"></i> Previous
+            </button>
+            <span id="pageInfo">Page 1 of 1</span>
+            <button id="nextPageBtn" class="btn btn-secondary" disabled>
+                Next <i class="fas fa-chevron-right"></i>
+            </button>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats">
+            <div class="stat-item">
+                <i class="fas fa-users"></i>
+                <span>Total Submissions: <strong id="totalCount">0</strong></span>
+            </div>
+            <div class="stat-item">
+                <i class="fas fa-filter"></i>
+                <span>Filtered: <strong id="filteredCount">0</strong></span>
+            </div>
+            <div class="stat-item">
+                <i class="fas fa-check-square"></i>
+                <span>Selected: <strong id="selectedCount">0</strong></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- PDF Generation Modal -->
+    <div id="pdfModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-file-pdf"></i> PDF Generation</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="pdfProgress" class="progress-container">
+                    <div class="progress-bar">
+                        <div id="progressFill" class="progress-fill"></div>
+                    </div>
+                    <div id="progressText">Preparing PDF...</div>
+                </div>
+                <div id="pdfResults" class="pdf-results hidden">
+                    <div class="result-item">
+                        <i class="fas fa-check-circle text-success"></i>
+                        <span>PDF generated successfully!</span>
+                    </div>
+                    <div class="result-actions">
+                        <a id="downloadLink" href="#" class="btn btn-primary" download>
+                            <i class="fas fa-download"></i> Download PDF
+                        </a>
+                        <button id="closeModalBtn" class="btn btn-secondary">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bulk PDF Generation Modal -->
+    <div id="bulkModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-download"></i> Bulk PDF Generation</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="bulkProgress" class="progress-container">
+                    <div class="progress-bar">
+                        <div id="bulkProgressFill" class="progress-fill"></div>
+                    </div>
+                    <div id="bulkProgressText">Preparing bulk generation...</div>
+                </div>
+                <div id="bulkResults" class="bulk-results hidden">
+                    <div class="result-summary">
+                        <h4>Generation Complete!</h4>
+                        <div class="summary-stats">
+                            <div class="stat">
+                                <i class="fas fa-check-circle text-success"></i>
+                                <span>Successful: <strong id="successCount">0</strong></span>
+                            </div>
+                            <div class="stat">
+                                <i class="fas fa-times-circle text-error"></i>
+                                <span>Failed: <strong id="errorCount">0</strong></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="bulkDownloads" class="download-links">
+                        <!-- Download links will be inserted here -->
+                    </div>
+                    <div class="result-actions">
+                        <button id="closeBulkModalBtn" class="btn btn-secondary">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
