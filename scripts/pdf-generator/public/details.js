@@ -12,6 +12,10 @@ class DetailsPage {
         this.loadSubmissionDetails();
     }
 
+    /**
+     * Load option value to label mappings for display
+     */
+
     getRowNumberFromURL() {
         const urlParams = new URLSearchParams(window.location.search);
         this.rowNumber = urlParams.get('row');
@@ -59,7 +63,6 @@ class DetailsPage {
             
             this.submission = data.submission;
 
-            console.log("Submission data: ", JSON.stringify(this.submission, null, 2));
             this.populateDetails();
             this.hideLoading();
             
@@ -78,33 +81,41 @@ class DetailsPage {
         // Student Information
         this.setFieldValue('studentNameBengali', this.submission.studentName);
         this.setFieldValue('studentNameEnglish', this.submission.studentNameEnglish);
-        this.setFieldValue('studentGender', this.submission.sections?.student?.student_gender);
+        this.setFieldValue('studentGender', this.submission.sections?.student?.student_gender, 'student_gender');
         this.setFieldValue('dateOfBirth', this.submission.sections?.student?.date_of_birth);
-        this.setFieldValue('desiredClass', this.submission.sections?.student?.desired_class);
+        this.setFieldValue('desiredClass', this.submission.sections?.student?.desired_class, 'desired_class');
         this.setFieldValue('lastClassAttended', this.submission.sections?.student?.last_class_attended);
         this.setFieldValue('previousSchool', this.submission.sections?.student?.previous_school);
+        this.setFieldValue('studentBirthRegistration', this.submission.sections?.student?.student_birth_registration);
 
         // Student Photo
         this.setPhoto('studentPhoto', this.submission.sections?.student?.student_photo);
 
         // Assessment Information
-        this.setFieldValue('quranLevel', this.submission.sections?.assessment?.quran_level);
-        this.setFieldValue('arabicLevel', this.submission.sections?.assessment?.arabic_level);
-        this.setFieldValue('generalSubjectsLevel', this.submission.sections?.assessment?.general_subjects_level);
-        this.setFieldValue('obeyingParents', this.submission.sections?.assessment?.obeying_parents);
-        this.setFieldValue('purposeOfStudy', this.submission.sections?.assessment?.purpose_of_study);
+        this.setFieldValue('quranLevel', this.submission.sections?.assessment?.quran_level, 'quran_level');
+        this.setFieldValue('arabicLevel', this.submission.sections?.assessment?.arabic_level, 'arabic_level');
+        this.setFieldValue('generalSubjectsLevel', this.submission.sections?.assessment?.general_subjects_level, 'general_subjects_level');
+        this.setFieldValue('obeyingParents', this.submission.sections?.assessment?.obeying_parents, 'obeying_parents');
+        this.setFieldValue('purposeOfStudy', this.submission.sections?.assessment?.purpose_of_study, 'purpose_of_study');
 
         // Father Information
         this.setFieldValue('fatherNameBengali', this.submission.sections?.father?.father_name);
         this.setFieldValue('fatherNameEnglish', this.submission.sections?.father?.father_name_english);
-        this.setFieldValue('fatherOccupation', this.submission.sections?.father?.father_occupation);
+        this.setFieldValue('fatherOccupation', this.submission.sections?.father?.father_occupation, 'father_occupation');
         this.setFieldValue('fatherOrganization', this.submission.sections?.father?.father_organization);
         this.setFieldValue('fatherDesignation', this.submission.sections?.father?.father_designation);
-        this.setFieldValue('fatherMonthlyIncome', this.submission.sections?.father?.father_monthly_income);
-        this.setFieldValue('fatherPrayerLocation', this.submission.sections?.father?.father_prayer_location);
-        this.setFieldValue('fatherPrayerTimes', this.submission.sections?.father?.father_prayer_times);
+        this.setFieldValue('fatherMonthlyIncome', this.submission.sections?.father?.father_monthly_income, 'father_monthly_income');
+        this.setFieldValue('fatherPrayerLocation', this.submission.sections?.father?.father_prayer_location, 'father_prayer_location');
+        this.setFieldValue('fatherPrayerTimes', this.submission.sections?.father?.father_prayer_times, 'father_prayer_times');
         this.setFieldValue('fatherDailyQuran', this.submission.sections?.father?.father_daily_quran);
-        this.setFieldValue('fatherTvAtHome', this.submission.sections?.father?.father_tv_at_home);
+        this.setFieldValue('fatherTvAtHome', this.submission.sections?.father?.father_tv_at_home, 'father_tv_at_home');
+        this.setFieldValue('fatherScreenTime', this.submission.sections?.father?.father_screen_time);
+        this.setFieldValue('fatherSmoking', this.submission.sections?.father?.father_smoking, 'father_smoking');
+        this.setFieldValue('fatherTimeWithChildren', this.submission.sections?.father?.father_time_with_children);
+        this.setFieldValue('fatherIslamicClothing', this.submission.sections?.father?.father_islamic_clothing, 'father_islamic_clothing');
+        this.setFieldValue('fatherMahram', this.submission.sections?.father?.father_mahram, 'father_mahram');
+        this.setFieldValue('fatherFavoriteScholar', this.submission.sections?.father?.father_favorite_scholar);
+        this.setFieldValue('fatherFacebookId', this.submission.sections?.father?.father_facebook_id);
 
         // Father Photo
         this.setPhoto('fatherPhoto', this.submission.sections?.father?.father_photo);
@@ -112,11 +123,16 @@ class DetailsPage {
         // Mother Information
         this.setFieldValue('motherNameBengali', this.submission.sections?.mother?.mother_name);
         this.setFieldValue('motherNameEnglish', this.submission.sections?.mother?.mother_name_english);
-        this.setFieldValue('motherOccupation', this.submission.sections?.mother?.mother_occupation);
+        this.setFieldValue('motherOccupation', this.submission.sections?.mother?.mother_occupation, 'mother_occupation');
         this.setFieldValue('motherOrganization', this.submission.sections?.mother?.mother_organization);
         this.setFieldValue('motherDesignation', this.submission.sections?.mother?.mother_designation);
-        this.setFieldValue('motherPrayerTimes', this.submission.sections?.mother?.mother_prayer_times);
+        this.setFieldValue('motherPrayerTimes', this.submission.sections?.mother?.mother_prayer_times, 'mother_prayer_times');
         this.setFieldValue('motherDailyQuran', this.submission.sections?.mother?.mother_daily_quran);
+        this.setFieldValue('motherIslamicClothing', this.submission.sections?.mother?.mother_islamic_clothing, 'mother_islamic_clothing');
+        this.setFieldValue('motherScreenTime', this.submission.sections?.mother?.mother_screen_time);
+        this.setFieldValue('motherMahram', this.submission.sections?.mother?.mother_mahram, 'mother_mahram');
+        this.setFieldValue('motherFavoriteScholar', this.submission.sections?.mother?.mother_favorite_scholar);
+        this.setFieldValue('motherFacebookId', this.submission.sections?.mother?.mother_facebook_id);
 
         // Contact Information
         this.setFieldValue('presentAddress', this.submission.sections?.contact?.present_address);
@@ -125,12 +141,12 @@ class DetailsPage {
         this.setFieldValue('email', this.submission.sections?.contact?.email);
 
         // Additional Information
-        this.setFieldValue('transportRequirement', this.submission.sections?.additional?.transport_requirement);
+        this.setFieldValue('transportRequirement', this.submission.sections?.additional?.transport_requirement, 'transport_requirement');
         this.setFieldValue('transportLocation', this.submission.sections?.additional?.transport_location);
         this.setFieldValue('comments', this.submission.sections?.additional?.comments);
 
         // General Information
-        this.setFieldValue('howDidYouLearn', this.submission.sections?.general?.general_how_did_you_learn_about_madrasatul_quran__0);
+        this.setFieldValue('howDidYouLearnAboutMadrasa', this.submission.sections?.general?.general_how_did_you_learn_about_madrasatul_quran__0, 'general_how_did_you_learn_about_madrasatul_quran__0');
         this.setFieldValue('submissionDate', this.formatDate(this.submission.timestamp));
         this.setFieldValue('rowNumber', this.submission.rowNumber);
 
@@ -138,11 +154,13 @@ class DetailsPage {
         document.getElementById('detailsContent').classList.remove('hidden');
     }
 
-    setFieldValue(fieldId, value) {
+    setFieldValue(fieldId, value, fieldKey = null) {
         const element = document.getElementById(fieldId);
         if (element) {
+            let displayValue = value;
+
             // Convert value to string and check if it's not empty
-            const stringValue = value ? String(value).trim() : '';
+            const stringValue = displayValue ? String(displayValue).trim() : '';
             if (stringValue !== '') {
                 element.textContent = stringValue;
                 element.classList.remove('empty');

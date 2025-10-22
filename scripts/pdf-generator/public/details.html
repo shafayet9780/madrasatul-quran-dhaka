@@ -10,26 +10,26 @@
         .details-container {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 20px;
+            padding: 15px;
         }
-        
+
         .details-header {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            padding: 30px;
-            border-radius: 10px;
-            margin-bottom: 30px;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
-        
+
         .details-header h1 {
-            margin: 0 0 10px 0;
-            font-size: 2rem;
+            margin: 0 0 8px 0;
+            font-size: 1.6rem;
         }
-        
+
         .details-header .subtitle {
             opacity: 0.9;
-            font-size: 1.1rem;
+            font-size: 1rem;
         }
         
         .back-button {
@@ -38,35 +38,36 @@
             gap: 8px;
             background: rgba(255,255,255,0.2);
             color: white;
-            padding: 10px 20px;
-            border-radius: 25px;
+            padding: 8px 16px;
+            border-radius: 20px;
             text-decoration: none;
             transition: all 0.3s ease;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
         }
-        
+
         .back-button:hover {
             background: rgba(255,255,255,0.3);
-            transform: translateX(-5px);
+            transform: translateX(-3px);
         }
-        
+
         .action-buttons {
             display: flex;
-            gap: 15px;
-            margin-top: 20px;
+            gap: 10px;
+            margin-top: 15px;
         }
         
         .btn {
-            padding: 12px 24px;
+            padding: 10px 18px;
             border: none;
-            border-radius: 8px;
+            border-radius: 6px;
             cursor: pointer;
-            font-size: 1rem;
+            font-size: 0.9rem;
             font-weight: 600;
             text-decoration: none;
             display: inline-flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
             transition: all 0.3s ease;
         }
         
@@ -92,44 +93,46 @@
         .details-content {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 30px;
-            margin-bottom: 30px;
+            gap: 20px;
+            margin-bottom: 20px;
         }
-        
+
         .details-section {
             background: white;
-            border-radius: 10px;
-            padding: 25px;
+            border-radius: 8px;
+            padding: 18px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            border-left: 4px solid #667eea;
+            border-left: 3px solid #667eea;
         }
-        
+
         .details-section h3 {
             color: #333;
-            margin: 0 0 20px 0;
-            font-size: 1.3rem;
-            border-bottom: 2px solid #f0f0f0;
-            padding-bottom: 10px;
+            margin: 0 0 15px 0;
+            font-size: 1.1rem;
+            border-bottom: 1px solid #f0f0f0;
+            padding-bottom: 8px;
         }
         
         .field-group {
-            margin-bottom: 15px;
+            margin-bottom: 12px;
         }
-        
+
         .field-label {
             font-weight: 600;
             color: #555;
-            margin-bottom: 5px;
+            margin-bottom: 4px;
             display: block;
+            font-size: 0.85rem;
         }
-        
+
         .field-value {
             color: #333;
-            padding: 8px 12px;
+            padding: 6px 10px;
             background: #f8f9fa;
-            border-radius: 5px;
+            border-radius: 4px;
             border: 1px solid #e9ecef;
-            min-height: 20px;
+            min-height: 18px;
+            font-size: 0.9rem;
         }
         
         .field-value.empty {
@@ -139,51 +142,70 @@
         
         .photo-section {
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
-        
+
         .photo-placeholder {
-            width: 150px;
-            height: 200px;
+            width: 120px;
+            height: 160px;
             background: #f0f0f0;
             border: 2px dashed #ccc;
-            border-radius: 8px;
+            border-radius: 6px;
             display: flex;
             align-items: center;
             justify-content: center;
             margin: 0 auto;
             color: #999;
+            font-size: 0.8rem;
         }
-        
+
         .photo-placeholder img {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            border-radius: 6px;
+            border-radius: 4px;
         }
-        
+
         .loading {
             text-align: center;
-            padding: 40px;
+            padding: 30px 20px;
             color: #666;
+            font-size: 0.9rem;
         }
-        
+
         .error {
             text-align: center;
-            padding: 40px;
+            padding: 30px 20px;
             color: #dc3545;
             background: #f8d7da;
             border: 1px solid #f5c6cb;
-            border-radius: 8px;
+            border-radius: 6px;
+            font-size: 0.9rem;
         }
         
         @media (max-width: 768px) {
+            .details-container {
+                padding: 10px;
+            }
+
+            .details-header {
+                padding: 15px;
+                margin-bottom: 15px;
+            }
+
             .details-content {
                 grid-template-columns: 1fr;
+                gap: 15px;
+                margin-bottom: 15px;
             }
-            
+
+            .details-section {
+                padding: 15px;
+            }
+
             .action-buttons {
                 flex-direction: column;
+                gap: 8px;
             }
         }
     </style>
@@ -261,6 +283,10 @@
                     <label class="field-label">Previous School</label>
                     <div id="previousSchool" class="field-value"></div>
                 </div>
+                <div class="field-group">
+                    <label class="field-label">Birth Registration</label>
+                    <div id="studentBirthRegistration" class="field-value"></div>
+                </div>
             </div>
 
             <!-- Assessment Information -->
@@ -336,6 +362,34 @@
                     <label class="field-label">TV at Home</label>
                     <div id="fatherTvAtHome" class="field-value"></div>
                 </div>
+                <div class="field-group">
+                    <label class="field-label">Screen Time</label>
+                    <div id="fatherScreenTime" class="field-value"></div>
+                </div>
+                <div class="field-group">
+                    <label class="field-label">Smoking Habit</label>
+                    <div id="fatherSmoking" class="field-value"></div>
+                </div>
+                <div class="field-group">
+                    <label class="field-label">Time with Children</label>
+                    <div id="fatherTimeWithChildren" class="field-value"></div>
+                </div>
+                <div class="field-group">
+                    <label class="field-label">Islamic Clothing</label>
+                    <div id="fatherIslamicClothing" class="field-value"></div>
+                </div>
+                <div class="field-group">
+                    <label class="field-label">Follows Mahram Rules</label>
+                    <div id="fatherMahram" class="field-value"></div>
+                </div>
+                <div class="field-group">
+                    <label class="field-label">Favorite Scholar</label>
+                    <div id="fatherFavoriteScholar" class="field-value"></div>
+                </div>
+                <div class="field-group">
+                    <label class="field-label">Facebook ID</label>
+                    <div id="fatherFacebookId" class="field-value"></div>
+                </div>
             </div>
 
             <!-- Mother Information -->
@@ -368,6 +422,26 @@
                 <div class="field-group">
                     <label class="field-label">Daily Quran</label>
                     <div id="motherDailyQuran" class="field-value"></div>
+                </div>
+                <div class="field-group">
+                    <label class="field-label">Islamic Clothing (Purdah)</label>
+                    <div id="motherIslamicClothing" class="field-value"></div>
+                </div>
+                <div class="field-group">
+                    <label class="field-label">Screen Time</label>
+                    <div id="motherScreenTime" class="field-value"></div>
+                </div>
+                <div class="field-group">
+                    <label class="field-label">Follows Mahram Rules</label>
+                    <div id="motherMahram" class="field-value"></div>
+                </div>
+                <div class="field-group">
+                    <label class="field-label">Favorite Scholar</label>
+                    <div id="motherFavoriteScholar" class="field-value"></div>
+                </div>
+                <div class="field-group">
+                    <label class="field-label">Facebook ID</label>
+                    <div id="motherFacebookId" class="field-value"></div>
                 </div>
             </div>
 
@@ -414,7 +488,7 @@
                 <h3><i class="fas fa-question-circle"></i> General Information</h3>
                 <div class="field-group">
                     <label class="field-label">How did you learn about Madrasatul Quran?</label>
-                    <div id="howDidYouLearn" class="field-value"></div>
+                    <div id="howDidYouLearnAboutMadrasa" class="field-value"></div>
                 </div>
                 <div class="field-group">
                     <label class="field-label">Submission Date</label>
@@ -425,6 +499,7 @@
                     <div id="rowNumber" class="field-value"></div>
                 </div>
             </div>
+
         </div>
     </div>
 

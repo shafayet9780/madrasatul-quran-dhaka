@@ -8,15 +8,28 @@ const path = require('path');
 class GoogleSheetsClient {
   constructor() {
     this.sheets = null;
-    this.formQuestions = null;
+    this.formQuestions = null; // Optional - loaded for future use
     this.init();
   }
 
   async init() {
     try {
-      // Load form questions configuration
-      const formQuestionsPath = path.join(__dirname, '../pre-admission-form-questions.json');
-      this.formQuestions = JSON.parse(fs.readFileSync(formQuestionsPath, 'utf8'));
+      // Load form questions configuration (optional - for future use)
+      try {
+        const formQuestionsPath = path.join(
+          __dirname,
+          '../pre-admission-form-questions.json'
+        );
+        this.formQuestions = JSON.parse(
+          fs.readFileSync(formQuestionsPath, 'utf8')
+        );
+        console.log('📋 Form questions loaded');
+      } catch (formError) {
+        console.log(
+          '⚠️ Form questions not found or invalid - continuing without them'
+        );
+        this.formQuestions = null;
+      }
 
       // Initialize Google Sheets API
       const auth = new google.auth.GoogleAuth({
@@ -46,7 +59,7 @@ class GoogleSheetsClient {
   async fetchSubmissions() {
     try {
       console.log('📡 Fetching submissions from Google Sheets...');
-      
+
       const response = await this.sheets.spreadsheets.values.get({
         spreadsheetId: process.env.FORM_GOOGLE_SHEETS_ID,
         range: 'A:BB', // Get all columns
@@ -65,14 +78,15 @@ class GoogleSheetsClient {
       console.log(`📊 Found ${dataRows.length} submissions`);
 
       // Process each submission
-      const submissions = dataRows.map((row, index) => {
-        const submission = this.parseSubmission(row, fieldKeys, index + 3); // +3 for 1-based indexing
-        return submission;
-      }).filter(submission => submission !== null);
+      const submissions = dataRows
+        .map((row, index) => {
+          const submission = this.parseSubmission(row, fieldKeys, index + 3); // +3 for 1-based indexing
+          return submission;
+        })
+        .filter(submission => submission !== null);
 
       console.log(`✅ Processed ${submissions.length} valid submissions`);
       return submissions;
-
     } catch (error) {
       console.error('❌ Error fetching submissions:', error);
       throw error;
@@ -106,8 +120,8 @@ class GoogleSheetsClient {
           father: {},
           mother: {},
           additional: {},
-          contact: {}
-        }
+          contact: {},
+        },
       };
 
       // Map each field to its value
@@ -122,8 +136,6 @@ class GoogleSheetsClient {
           submission.studentName = value;
         } else if (fieldKey === 'student_name_english') {
           submission.studentNameEnglish = value;
-        } else if (fieldKey === 'desired_class') {
-          submission.desiredClass = this.convertOptionValue(fieldKey, value);
         } else if (fieldKey === 'father_name') {
           submission.fatherName = value;
         } else if (fieldKey === 'mother_name') {
@@ -145,7 +157,6 @@ class GoogleSheetsClient {
       }
 
       return submission;
-
     } catch (error) {
       console.error(`❌ Error parsing row ${rowNumber}:`, error);
       return null;
@@ -160,107 +171,72 @@ class GoogleSheetsClient {
    */
   categorizeField(fieldKey, value, sections) {
     // General questions
-    if (fieldKey.startsWith('general_')) {
-      sections.general[fieldKey] = this.convertOptionValue(fieldKey, value);
+    if (
+      fieldKey.startsWith('general_') &&
+      fieldKey !== 'general_subjects_level'
+    ) {
+      sections.general[fieldKey] = value;
     }
     // Student information
-    else if (fieldKey.startsWith('student_') || ['student_name_bengali', 'student_name_english', 'student_gender', 'date_of_birth', 'desired_class', 'last_class_attended', 'previous_school', 'student_birth_registration'].includes(fieldKey)) {
-      sections.student[fieldKey] = this.convertOptionValue(fieldKey, value);
+    else if (
+      fieldKey.startsWith('student_') ||
+      [
+        'student_name_bengali',
+        'student_name_english',
+        'student_gender',
+        'date_of_birth',
+        'desired_class',
+        'last_class_attended',
+        'previous_school',
+        'student_birth_registration',
+      ].includes(fieldKey)
+    ) {
+      sections.student[fieldKey] = value;
     }
     // Student assessment
-    else if (['quran_level', 'arabic_level', 'general_subjects_level', 'obeying_parents', 'purpose_of_study'].includes(fieldKey)) {
-      sections.assessment[fieldKey] = this.convertOptionValue(fieldKey, value);
+    else if (
+      [
+        'quran_level',
+        'arabic_level',
+        'general_subjects_level',
+        'obeying_parents',
+        'purpose_of_study',
+      ].includes(fieldKey)
+    ) {
+      sections.assessment[fieldKey] = value;
     }
     // Father information
-    else if (fieldKey.startsWith('father_') || ['father_name', 'father_name_english'].includes(fieldKey)) {
-      sections.father[fieldKey] = this.convertOptionValue(fieldKey, value);
+    else if (
+      (fieldKey.startsWith('father_') ||
+        ['father_name', 'father_name_english'].includes(fieldKey)) &&
+      fieldKey !== 'father_phone'
+    ) {
+      sections.father[fieldKey] = value;
     }
     // Mother information
-    else if (fieldKey.startsWith('mother_') || ['mother_name', 'mother_name_english'].includes(fieldKey)) {
-      sections.mother[fieldKey] = this.convertOptionValue(fieldKey, value);
+    else if (
+      (fieldKey.startsWith('mother_') ||
+        ['mother_name', 'mother_name_english'].includes(fieldKey)) &&
+      fieldKey !== 'mother_phone'
+    ) {
+      sections.mother[fieldKey] = value;
     }
     // Additional information
-    else if (['transport_requirement', 'transport_location', 'comments'].includes(fieldKey)) {
-      sections.additional[fieldKey] = this.convertOptionValue(fieldKey, value);
+    else if (
+      ['transport_requirement', 'transport_location', 'comments'].includes(
+        fieldKey
+      )
+    ) {
+      sections.additional[fieldKey] = value;
     }
     // Contact information
-    else if (['present_address', 'father_phone', 'mother_phone', 'email'].includes(fieldKey)) {
-      sections.contact[fieldKey] = this.convertOptionValue(fieldKey, value);
+    else if (
+      ['present_address', 'father_phone', 'mother_phone', 'email'].includes(
+        fieldKey
+      )
+    ) {
+      sections.contact[fieldKey] = value;
     }
-  }
-
-  /**
-   * Convert option values to display labels
-   * @param {string} fieldKey - The field key
-   * @param {string} value - The field value
-   * @returns {string} The display label
-   */
-  convertOptionValue(fieldKey, value) {
-    if (!value || !this.formQuestions) return value;
-
-    // Handle boolean fields
-    if (fieldKey.includes('obeying_parents') || fieldKey.includes('prayer_times') || fieldKey.includes('tv_at_home') || fieldKey.includes('smoking') || fieldKey.includes('mahram')) {
-      if (value.toLowerCase() === 'yes' || value.toLowerCase() === 'true' || value === '1') {
-        return 'হ্যাঁ';
-      } else if (value.toLowerCase() === 'no' || value.toLowerCase() === 'false' || value === '0') {
-        return 'না';
-      }
-      return value;
-    }
-
-    // Find the field configuration
-    const field = this.findFieldByKey(fieldKey);
-    if (!field || !field.options) {
-      return value;
-    }
-
-    // Handle multiple values (checkbox fields)
-    if (value.includes(', ')) {
-      const values = value.split(', ');
-      return values.map(v => {
-        const option = field.options.find(opt => opt.value.toLowerCase() === v.trim().toLowerCase());
-        return option ? option.label : v.trim();
-      }).join(', ');
-    }
-
-    // Handle single values - case insensitive matching
-    const option = field.options.find(opt => opt.value.toLowerCase() === value.toLowerCase());
-    return option ? option.label : value;
-  }
-
-  /**
-   * Find field configuration by field key
-   * @param {string} fieldKey - The field key to search for
-   * @returns {Object|null} Field configuration or null
-   */
-  findFieldByKey(fieldKey) {
-    if (!this.formQuestions) return null;
-
-    // Search in all sections
-    for (const section of this.formQuestions.sections) {
-      for (const field of section.fields) {
-        if (field.fieldName === fieldKey) {
-          return field;
-        }
-        
-        // For general questions, check if the generated key matches
-        if (fieldKey.startsWith('general_') && field.questionTitle) {
-          const questionText = field.questionTitle;
-          const cleanText = questionText.toLowerCase().replace(/[^a-z0-9]/g, '_');
-          const generatedKey = `general_${cleanText}_`;
-          if (fieldKey.startsWith(generatedKey)) {
-            return field;
-          }
-        }
-        
-        // Special handling for the "how did you learn about" question
-        if (fieldKey === 'general_how_did_you_learn_about_madrasatul_quran__0' && field.questionTitle && field.questionTitle.includes('কিভাবে')) {
-          return field;
-        }
-      }
-    }
-
-    return null;
   }
 
   /**
