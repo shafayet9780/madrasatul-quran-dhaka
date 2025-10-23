@@ -114,10 +114,9 @@ class PDFGeneratorApp {
         this.filteredSubmissions = this.submissions.filter(submission => {
             // Search filter
             const matchesSearch = !searchTerm || 
-                submission.studentName.toLowerCase().includes(searchTerm) ||
                 submission.studentNameEnglish.toLowerCase().includes(searchTerm) ||
-                submission.fatherName.toLowerCase().includes(searchTerm) ||
-                submission.motherName.toLowerCase().includes(searchTerm) ||
+                submission.sections?.father?.father_name_english.toLowerCase().includes(searchTerm) ||
+                submission.sections?.mother?.mother_name_english.toLowerCase().includes(searchTerm) ||
                 submission.email.toLowerCase().includes(searchTerm);
 
             // Class filter
@@ -180,13 +179,12 @@ class PDFGeneratorApp {
             <td>${submission.rowNumber}</td>
             <td>
                 <div class="student-info">
-                    <div class="name-bengali">${submission.studentName || '-'}</div>
                     <div class="name-english">${submission.studentNameEnglish || '-'}</div>
                 </div>
             </td>
             <td>${submission.desiredClass || '-'}</td>
-            <td>${submission.fatherName || '-'}</td>
-            <td>${submission.motherName || '-'}</td>
+            <td>${submission.sections?.father?.father_name_english || '-'}</td>
+            <td>${submission.sections?.mother?.mother_name_english || '-'}</td>
             <td>${submission.email || '-'}</td>
             <td>${submission.phone || '-'}</td>
             <td>${this.formatDate(submission.timestamp)}</td>

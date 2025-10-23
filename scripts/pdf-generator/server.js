@@ -390,13 +390,19 @@ async function startServer() {
 }
 
 // Handle graceful shutdown
-process.on('SIGINT', () => {
+process.on('SIGINT', async () => {
   console.log('\n🛑 Shutting down PDF Generator server...');
+  if (pdfGenerator && pdfGenerator.closeBrowser) {
+    await pdfGenerator.closeBrowser();
+  }
   process.exit(0);
 });
 
-process.on('SIGTERM', () => {
+process.on('SIGTERM', async () => {
   console.log('\n🛑 Shutting down PDF Generator server...');
+  if (pdfGenerator && pdfGenerator.closeBrowser) {
+    await pdfGenerator.closeBrowser();
+  }
   process.exit(0);
 });
 

@@ -136,6 +136,8 @@ class GoogleSheetsClient {
           submission.studentName = value;
         } else if (fieldKey === 'student_name_english') {
           submission.studentNameEnglish = value;
+        } else if (fieldKey === 'desired_class') {
+          submission.desiredClass = value;
         } else if (fieldKey === 'father_name') {
           submission.fatherName = value;
         } else if (fieldKey === 'mother_name') {
