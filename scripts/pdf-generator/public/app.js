@@ -110,10 +110,10 @@ class PDFGeneratorApp {
 
     filterSubmissions() {
         const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-        
+
         this.filteredSubmissions = this.submissions.filter(submission => {
             // Search filter
-            const matchesSearch = !searchTerm || 
+            const matchesSearch = !searchTerm ||
                 submission.studentNameEnglish.toLowerCase().includes(searchTerm) ||
                 submission.sections?.father?.father_name_english.toLowerCase().includes(searchTerm) ||
                 submission.sections?.mother?.mother_name_english.toLowerCase().includes(searchTerm) ||
@@ -122,18 +122,34 @@ class PDFGeneratorApp {
             // Class filter
             let matchesClass = true;
             if (this.currentFilter !== 'all') {
-                if (this.currentFilter === 'class') {
-                    matchesClass = submission.desiredClass && 
-                        (submission.desiredClass.includes('১ম') || 
-                         submission.desiredClass.includes('২য়') || 
-                         submission.desiredClass.includes('৩য়') ||
-                         submission.desiredClass.includes('৪র্থ') ||
-                         submission.desiredClass.includes('৫ম') ||
-                         submission.desiredClass.includes('৬ষ্ঠ'));
-                } else {
-                    matchesClass = submission.desiredClass && 
-                        submission.desiredClass.toLowerCase().includes(this.currentFilter);
+                const desiredClass = submission.desiredClass?.toLowerCase() || '';
+
+                // Debug: Log submissions to understand data format
+                if (submission.desiredClass && Math.random() < 0.1) { // Log 10% of submissions
+                    console.log('Class filter debug:', {
+                        filter: this.currentFilter,
+                        desiredClass: submission.desiredClass,
+                        desiredClassLower: desiredClass
+                    });
                 }
+
+                // Map filter values to possible data formats
+                const classMappings = {
+                    'play': ['play', 'প্লে'],
+                    'nursery': ['nursery', 'নার্সারি'],
+                    'kg': ['kg', 'কেজি'],
+                    'class_1': ['class_1', 'class 1', '১ম শ্রেণী', '১ম'],
+                    'class_2': ['class_2', 'class 2', '২য় শ্রেণী', '২য়'],
+                    'class_3': ['class_3', 'class 3', '৩য় শ্রেণী', '৩য়'],
+                    'class_4': ['class_4', 'class 4', '৪র্থ শ্রেণী', '৪র্থ'],
+                    'class_5': ['class_5', 'class 5', '৫ম শ্রেণী', '৫ম'],
+                    'class_6': ['class_6', 'class 6', '৬ষ্ঠ শ্রেণী', '৬ষ্ঠ']
+                };
+
+                const possibleMatches = classMappings[this.currentFilter] || [this.currentFilter];
+                matchesClass = possibleMatches.some(match =>
+                    desiredClass.includes(match.toLowerCase())
+                );
             }
 
             return matchesSearch && matchesClass;
