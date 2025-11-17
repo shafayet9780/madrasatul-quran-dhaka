@@ -394,6 +394,11 @@ Required environment variables (see `.env.local.example`):
 - `NEXT_PUBLIC_SITE_URL` - Site URL for SEO and social sharing
 - `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` - Google Maps API key for location features
 
+Analytics environment variables:
+
+- `NEXT_PUBLIC_GA_MEASUREMENT_ID` - Google Analytics measurement ID (optional)
+- `NEXT_PUBLIC_FB_PIXEL_ID` - Facebook Pixel ID for tracking and analytics (optional)
+
 Optional environment variables for production security:
 
 - `STUDIO_AUTH_ENABLED` - Set to 'true' to enable Sanity Studio authentication

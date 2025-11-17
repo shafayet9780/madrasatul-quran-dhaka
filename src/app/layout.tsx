@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Inter, Noto_Sans_Bengali, Amiri } from 'next/font/google';
 import { GoogleAnalytics, CookieConsent, InteractionTracker } from '@/components/analytics/google-analytics';
+import { FacebookPixel } from '@/components/analytics/facebook-pixel';
 import { PageErrorBoundary } from '@/components/error-boundary';
 import './globals.css';
 
@@ -131,6 +132,7 @@ export default function RootLayout({
         
         {/* Analytics and Monitoring */}
         <GoogleAnalytics />
+        <FacebookPixel />
         <CookieConsent />
       </body>
     </html>

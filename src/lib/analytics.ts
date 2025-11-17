@@ -6,6 +6,8 @@ declare global {
   interface Window {
     gtag: (...args: unknown[]) => void;
     dataLayer: unknown[];
+    fbq: (...args: unknown[]) => void;
+    _fbq: unknown;
   }
 }
 
@@ -68,6 +70,44 @@ export function initializeAnalytics() {
 }
 
 /**
+ * Initialize Facebook Pixel
+ */
+export function initializeFacebookPixel() {
+  const FB_PIXEL_ID = process.env.NEXT_PUBLIC_FB_PIXEL_ID;
+  
+  if (!FB_PIXEL_ID || typeof window === 'undefined') {
+    return;
+  }
+
+  // Initialize Facebook Pixel
+  if (!window.fbq) {
+    const fbq = function(...args: unknown[]) {
+      if (fbq.callMethod) {
+        (fbq as any).callMethod.apply(fbq, args);
+      } else {
+        (fbq as any).queue.push(args);
+      }
+    };
+    
+    if (!window._fbq) {
+      window._fbq = fbq;
+    }
+    
+    window.fbq = fbq as any;
+    (window.fbq as any).push = window.fbq;
+    (window.fbq as any).loaded = true;
+    (window.fbq as any).version = '2.0';
+    (window.fbq as any).queue = [];
+  }
+
+  // Initialize the pixel
+  window.fbq('init', FB_PIXEL_ID);
+  
+  // Track initial page view
+  window.fbq('track', 'PageView');
+}
+
+/**
  * Track page views
  */
 export function trackPageView(path: string, title?: string) {
@@ -80,6 +120,28 @@ export function trackPageView(path: string, title?: string) {
     page_title: title || document.title,
     page_location: window.location.href,
   });
+}
+
+/**
+ * Track Facebook Pixel page views
+ */
+export function trackFacebookPageView() {
+  if (typeof window === 'undefined' || !window.fbq) {
+    return;
+  }
+
+  window.fbq('track', 'PageView');
+}
+
+/**
+ * Track Facebook Pixel events
+ */
+export function trackFacebookEvent(eventName: string, parameters?: Record<string, unknown>) {
+  if (typeof window === 'undefined' || !window.fbq) {
+    return;
+  }
+
+  window.fbq('track', eventName, parameters);
 }
 
 /**
@@ -128,6 +190,14 @@ export function trackFormSubmission(formName: string, success: boolean, errorMes
       error_message: errorMessage,
     },
   });
+
+  // Track Facebook Pixel Lead event on successful form submission
+  if (success) {
+    trackFacebookEvent('Lead', {
+      content_name: formName,
+      content_category: 'form_submission',
+    });
+  }
 }
 
 /**
@@ -236,6 +306,13 @@ export function trackAdmissionInquiry(inquiryType: string, program?: string) {
       program: program,
     },
   });
+
+  // Track Facebook Pixel SubmitApplication event
+  trackFacebookEvent('SubmitApplication', {
+    content_name: inquiryType,
+    content_category: 'admission',
+    program: program,
+  });
 }
 
 /**
@@ -259,6 +336,14 @@ export function trackContactSubmission(contactType: string, success: boolean) {
       success: success,
     },
   });
+
+  // Track Facebook Pixel Contact event on successful submission
+  if (success) {
+    trackFacebookEvent('Contact', {
+      content_name: contactType,
+      content_category: 'contact_form',
+    });
+  }
 }
 
 /**
@@ -383,6 +468,9 @@ export function initializeAllAnalytics() {
 
   // Initialize Google Analytics
   initializeAnalytics();
+
+  // Initialize Facebook Pixel
+  initializeFacebookPixel();
 
   // Track Core Web Vitals
   trackCoreWebVitals();
