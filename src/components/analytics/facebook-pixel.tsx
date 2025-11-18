@@ -13,16 +13,49 @@ function FacebookPixelInner({ pixelId }: FacebookPixelProps) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   
+  // Get pixel ID from props or environment variable
   const FB_PIXEL_ID = pixelId || process.env.NEXT_PUBLIC_FB_PIXEL_ID;
 
   useEffect(() => {
-    if (!FB_PIXEL_ID) return;
+    if (!FB_PIXEL_ID) {
+      if (process.env.NODE_ENV === 'development') {
+        console.warn('⚠️ Facebook Pixel: NEXT_PUBLIC_FB_PIXEL_ID is not set');
+        console.warn('⚠️ Add NEXT_PUBLIC_FB_PIXEL_ID to your .env.local file');
+      }
+      return;
+    }
 
-    // Track page view on route change
-    trackFacebookPageView();
+    // Wait a bit for the script to load, then track page view
+    const timer = setTimeout(() => {
+      if (typeof window !== 'undefined' && window.fbq) {
+        trackFacebookPageView();
+        
+        // Development-only verification
+        if (process.env.NODE_ENV === 'development') {
+          console.log('✅ Facebook Pixel PageView tracked for:', pathname);
+        }
+      } else if (process.env.NODE_ENV === 'development') {
+        console.warn('⚠️ Facebook Pixel: fbq function not found. Script may not have loaded yet.');
+      }
+    }, 100);
+
+    return () => clearTimeout(timer);
   }, [pathname, searchParams, FB_PIXEL_ID]);
 
+  // Don't render if no pixel ID
   if (!FB_PIXEL_ID) {
+    if (process.env.NODE_ENV === 'development') {
+      return (
+        <div style={{ display: 'none' }}>
+          {/* Debug info - only in development */}
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `console.warn('Facebook Pixel: No pixel ID configured');`,
+            }}
+          />
+        </div>
+      );
+    }
     return null;
   }
 
@@ -31,6 +64,17 @@ function FacebookPixelInner({ pixelId }: FacebookPixelProps) {
       <Script
         id="facebook-pixel"
         strategy="afterInteractive"
+        onLoad={() => {
+          if (process.env.NODE_ENV === 'development') {
+            console.log('✅ Facebook Pixel script loaded');
+            console.log('✅ Pixel ID:', FB_PIXEL_ID);
+          }
+        }}
+        onError={() => {
+          if (process.env.NODE_ENV === 'development') {
+            console.error('❌ Facebook Pixel script failed to load');
+          }
+        }}
         dangerouslySetInnerHTML={{
           __html: `
             !function(f,b,e,v,n,t,s)
