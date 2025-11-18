@@ -81,11 +81,11 @@ export function initializeFacebookPixel() {
 
   // Initialize Facebook Pixel
   if (typeof window.fbq !== 'function') {
-    const fbq = function(...args: unknown[]) {
+    const fbq: any = function(...args: unknown[]) {
       if (fbq.callMethod) {
-        (fbq as any).callMethod.apply(fbq, args);
+        fbq.callMethod(...args);
       } else {
-        (fbq as any).queue.push(args);
+        fbq.queue.push(args);
       }
     };
     
@@ -93,11 +93,11 @@ export function initializeFacebookPixel() {
       window._fbq = fbq;
     }
     
-    window.fbq = fbq as any;
-    (window.fbq as any).push = window.fbq;
-    (window.fbq as any).loaded = true;
-    (window.fbq as any).version = '2.0';
-    (window.fbq as any).queue = [];
+    window.fbq = fbq;
+    fbq.push = fbq;
+    fbq.loaded = true;
+    fbq.version = '2.0';
+    fbq.queue = [];
   }
 
   // Initialize the pixel
