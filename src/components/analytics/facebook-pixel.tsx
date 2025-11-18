@@ -27,7 +27,7 @@ function FacebookPixelInner({ pixelId }: FacebookPixelProps) {
 
     // Wait a bit for the script to load, then track page view
     const timer = setTimeout(() => {
-      if (typeof window !== 'undefined' && window.fbq) {
+      if (typeof window !== 'undefined' && typeof window.fbq === 'function') {
         trackFacebookPageView();
         
         // Development-only verification

@@ -80,7 +80,7 @@ export function initializeFacebookPixel() {
   }
 
   // Initialize Facebook Pixel
-  if (!window.fbq) {
+  if (typeof window.fbq !== 'function') {
     const fbq = function(...args: unknown[]) {
       if (fbq.callMethod) {
         (fbq as any).callMethod.apply(fbq, args);
@@ -101,10 +101,12 @@ export function initializeFacebookPixel() {
   }
 
   // Initialize the pixel
-  window.fbq('init', FB_PIXEL_ID);
-  
-  // Track initial page view
-  window.fbq('track', 'PageView');
+  if (typeof window.fbq === 'function') {
+    window.fbq('init', FB_PIXEL_ID);
+    
+    // Track initial page view
+    window.fbq('track', 'PageView');
+  }
 }
 
 /**
@@ -126,7 +128,7 @@ export function trackPageView(path: string, title?: string) {
  * Track Facebook Pixel page views
  */
 export function trackFacebookPageView() {
-  if (typeof window === 'undefined' || !window.fbq) {
+  if (typeof window === 'undefined' || typeof window.fbq !== 'function') {
     return;
   }
 
@@ -137,7 +139,7 @@ export function trackFacebookPageView() {
  * Track Facebook Pixel events
  */
 export function trackFacebookEvent(eventName: string, parameters?: Record<string, unknown>) {
-  if (typeof window === 'undefined' || !window.fbq) {
+  if (typeof window === 'undefined' || typeof window.fbq !== 'function') {
     return;
   }
 
