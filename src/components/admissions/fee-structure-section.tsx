@@ -26,8 +26,8 @@ export function FeeStructure({ data }: FeeStructureProps) {
       admissionFee: 20000,
       sessionFee: 15000,
       monthlyTuition: 6000,
-      monthlyFood: 1500,
-      total: 20000 + 15000 + (6000 * 12) + (1500 * 12), // Annual total
+      monthlyFood: 0,
+      total: 20000 + 15000 + (6000 * 12), // Annual total
     },
     hifz: {
       name: isBengali ? 'হিফজ' : 'Hifz',

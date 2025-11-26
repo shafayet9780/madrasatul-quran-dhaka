@@ -55,7 +55,7 @@ export default function FeeStructure({ data }: FeeStructureProps) {
         bengali: 'খাবার খরচ (মাসিক)',
         english: 'Food Cost (Monthly)'
       },
-      preHifz: 1500,
+      preHifz: 0,
       hifz: 4000
     }
   ];

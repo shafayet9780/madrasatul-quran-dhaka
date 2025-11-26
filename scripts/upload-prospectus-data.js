@@ -290,7 +290,7 @@ const prospectusData = {
     {
       itemBengali: 'খাবার খরচ (মাসিক)',
       itemEnglish: 'Food Cost (Monthly)',
-      preHifz: 1500,
+      preHifz: 0,
       hifz: 4000
     }
   ],
