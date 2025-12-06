@@ -83,6 +83,7 @@ export default function Header({ siteSettings }: HeaderProps) {
     // { key: 'campus', href: '/campus' },
     // { key: 'news', href: '/news' },
     { key: 'contact', href: '/contact' },
+    { key: 'books', href: 'https://alquranervasha.com/downloads', target: '_blank' },
   ];
 
   const MobileMenuContent = () => (
@@ -142,6 +143,8 @@ export default function Header({ siteSettings }: HeaderProps) {
                   {/* Temporarily all items are simple links for MVP */}
                   <Link
                     href={item.href}
+                    target={item.target}
+                    rel={item.target === '_blank' ? 'noopener noreferrer' : undefined}
                     className="block py-3 text-gray-700 hover:text-primary-700 transition-colors font-medium"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
@@ -232,7 +235,12 @@ export default function Header({ siteSettings }: HeaderProps) {
                 {navigationItems.map(item => (
                   <div key={item.key} className="relative">
                     {/* All items are simple links for MVP */}
-                    <Link href={item.href} className="nav-link">
+                    <Link 
+                      href={item.href} 
+                      target={item.target}
+                      rel={item.target === '_blank' ? 'noopener noreferrer' : undefined}
+                      className="nav-link"
+                    >
                       {t(item.key as keyof typeof t)}
                     </Link>
                   </div>
