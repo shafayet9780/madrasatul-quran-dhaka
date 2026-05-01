@@ -34,15 +34,17 @@ export default function HeroSection({
   }, []);
 
   // Activity images for the gallery
-  const sanityImages = siteSettings?.heroImages && siteSettings.heroImages.length > 0
-    ? siteSettings.heroImages
-        .sort((a, b) => (a.order || 0) - (b.order || 0))
-        .map((heroImage) => ({
-          image: heroImage.image, // Pass the Sanity image object directly
-          alt: heroImage.alt,
-          title: getLocalizedText(heroImage.title, locale) || 'Activity Image',
-        }))
-    : null;
+  const sanityImages =
+    siteSettings?.heroImages && siteSettings.heroImages.length > 0
+      ? siteSettings.heroImages
+          .sort((a, b) => (a.order || 0) - (b.order || 0))
+          .map(heroImage => ({
+            image: heroImage.image, // Pass the Sanity image object directly
+            alt: heroImage.alt,
+            title:
+              getLocalizedText(heroImage.title, locale) || 'Activity Image',
+          }))
+      : null;
 
   const fallbackImages = [
     {
@@ -73,11 +75,8 @@ export default function HeroSection({
   ];
 
   // Use Sanity images if available (even if just 1), otherwise use fallback
-  const activityImages = sanityImages && sanityImages.length > 0 
-    ? sanityImages 
-    : fallbackImages;
-
-
+  const activityImages =
+    sanityImages && sanityImages.length > 0 ? sanityImages : fallbackImages;
 
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
@@ -90,284 +89,113 @@ export default function HeroSection({
     return () => clearInterval(interval);
   }, [activityImages.length]);
 
-  // Latest news data from Sanity or fallback
-  const latestNews =
-    featuredNews.length > 0
-      ? featuredNews.slice(0, 5).map((news, index) => {
-          const publishDate = new Date(news.publishedAt);
-          return {
-            date: publishDate.getDate().toString(),
-            month: publishDate.toLocaleDateString(
-              locale === 'bengali' ? 'bn-BD' : 'en-US',
-              { month: 'short' }
-            ),
-            title: getLocalizedText(news.title, locale),
-            isHighlight: index === 0 || news.featured,
-          };
-        })
-      : [
-          {
-            date: '18',
-            month: 'Jan',
-            title:
-              'Alhamdulillah, admission for the Session 2025-2026 is open for the children of age 4 to 6 years at Preschool',
-            isHighlight: true,
-          },
-          {
-            date: '16',
-            month: 'Jan',
-            title:
-              'Classes of Session 2025-2026 will start on 15 July 2025, Insha Allah',
-            isHighlight: false,
-          },
-          {
-            date: '15',
-            month: 'Jan',
-            title:
-              'Annual Quran Competition Results - Our students achieved remarkable success',
-            isHighlight: false,
-          },
-        ];
-
-  const [currentNewsIndex, setCurrentNewsIndex] = useState(0);
-
-  // Auto-scroll news
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentNewsIndex(prev => (prev + 1) % latestNews.length);
-    }, 4000); // Change every 4 seconds
-
-    return () => clearInterval(interval);
-  }, [latestNews.length]);
-
   return (
-    <section className={`relative bg-white ${className}`}>
-      {/* Main Hero Section */}
-      <div className="container-custom py-8">
-        <div className="grid grid-cols-12 gap-6 lg:gap-8">
-          {/* Left - Full Image Section with Title Above */}
-          <div
-            className={`col-span-12 lg:col-span-12 space-y-3 transition-all duration-1000 ${
-              isVisible
-                ? 'opacity-100 translate-x-0'
-                : 'opacity-0 -translate-x-8'
-            }`}
+    <section
+      className={`relative w-full overflow-hidden h-[55vh] sm:h-[85vh] min-h-[380px] sm:min-h-[600px] bg-primary-900 ${className}`}
+    >
+      {/* Full-bleed image slides */}
+      {activityImages.map((image, index) => (
+        <div
+          key={index}
+          className={`absolute inset-0 transition-opacity duration-1000 ${
+            index === currentImageIndex ? 'opacity-100' : 'opacity-0'
+          }`}
+        >
+          <HeroImage
+            image={image.image}
+            alt={image.alt}
+            fill
+            className="object-cover"
+            onError={() => {
+              // Image failed to load
+            }}
+          />
+        </div>
+      ))}
+
+      {/* Gradient overlay for text legibility */}
+      <div className="absolute inset-0 bg-gradient-to-b from-primary-900/50 via-primary-900/20 to-primary-900/75" />
+
+      {/* Content overlay */}
+      <div
+        className={`absolute inset-0 flex flex-col items-center justify-center px-4 sm:px-6 text-center transition-all duration-1000 ${
+          isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+        }`}
+      >
+        {/* Bismillah badge */}
+        <div
+          className="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold text-white bg-white/20 border border-white/30 backdrop-blur-sm mb-4"
+          aria-label="Bismillah"
+        >
+          <span className="font-arabic text-lg mr-1">﷽</span>
+        </div>
+
+        {/* Main Title */}
+        <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-extrabold leading-tight text-white drop-shadow-lg max-w-4xl">
+          <SplitText mode="words" stagger={0.06}>
+            {siteSettings
+              ? getLocalizedText(siteSettings.title, locale)
+              : t('hero.title')}
+          </SplitText>
+        </h1>
+
+        {/* Subtitle */}
+        <h2 className="mt-3 text-base sm:text-lg lg:text-xl text-white/90 leading-relaxed max-w-2xl drop-shadow">
+          {siteSettings
+            ? getLocalizedText(siteSettings.description, locale)
+            : t('hero.subtitle')}
+        </h2>
+
+        {/* CTA Buttons */}
+        <div className="mt-8 flex flex-col sm:flex-row gap-3 sm:gap-4 items-center">
+          <Link
+            href="/contact"
+            className="group relative bg-gradient-to-r from-primary-400 to-primary-500 hover:from-primary-500 hover:to-primary-600 text-white font-semibold px-6 sm:px-8 py-3 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 flex items-center space-x-2 text-sm sm:text-base"
           >
-            {/* Ultra Compact Title Section */}
-            <div className="text-center space-y-2">
-              {/* Institution Badge */}
-              <div className="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold text-primary-900 bg-secondary-50 border border-secondary-200" aria-label="Bismillah">
-                <span className="font-arabic text-lg mr-1">﷽</span>
-                {/* {locale === 'bengali' ? 'মিশন-চালিত ইসলামী শিক্ষা' : 'Mission-driven Islamic Education'} */}
-              </div>
-
-              {/* Main Title */}
-              <h1 className="text-2xl lg:text-4xl xl:text-5xl font-extrabold leading-tight text-primary-800">
-                <SplitText mode="words" stagger={0.06}>
-                  {siteSettings ? getLocalizedText(siteSettings.title, locale) : t('hero.title')}
-                </SplitText>
-              </h1>
-
-              {/* Subtitle */}
-              <h2 className="text-base lg:text-lg text-secondary-800 leading-relaxed max-w-2xl mx-auto">
-                {siteSettings ? getLocalizedText(siteSettings.description, locale) : t('hero.subtitle')}
-              </h2>
-            </div>
-
-            {/* Full Width Image Gallery */}
-            <div className="relative h-64 sm:h-80 md:h-96 lg:h-[520px] xl:h-[580px] rounded-2xl overflow-hidden shadow-xl ring-1 ring-secondary-200 bg-gradient-to-br from-secondary-50 to-secondary-100">
-              {activityImages.map((image, index) => (
-                <div
-                  key={index}
-                  className={`absolute inset-0 transition-opacity duration-1000 ${
-                    index === currentImageIndex ? 'opacity-100' : 'opacity-0'
-                  }`}
-                >
-                  <HeroImage
-                    image={image.image}
-                    alt={image.alt}
-                    fill
-                    className="object-cover"
-                    onError={() => {
-                      // Image failed to load
-                    }}
-                  />
-                  {/* Image Overlay with Title */}
-                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-primary-900/70 to-transparent p-3 sm:p-6">
-                    <h3 className="text-secondary-50 font-semibold text-lg sm:text-xl lg:text-2xl">
-                      {image.title}
-                    </h3>
-                  </div>
-                </div>
-              ))}
-
-              {/* Gallery Indicators */}
-              <div className="absolute bottom-4 sm:bottom-8 left-1/2 transform -translate-x-1/2 flex space-x-3">
-                {activityImages.map((_, index) => (
-                  <button
-                    key={index}
-                    onClick={() => setCurrentImageIndex(index)}
-                    className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                      index === currentImageIndex
-                        ? 'bg-white w-8'
-                        : 'bg-white/50'
-                    }`}
-                  />
-                ))}
-              </div>
-            </div>
-
-            {/* Enhanced CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center pt-3">
-              <Link
-                href="/contact"
-                className="group relative bg-gradient-to-r from-primary-400 to-primary-500 hover:from-primary-500 hover:to-primary-600 text-white font-semibold px-4 sm:px-8 py-3 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 flex items-center space-x-1 sm:space-x-2 text-sm sm:text-base"
-              >
-                <span className="whitespace-nowrap">{tNav('contact')}</span>
-                <svg
-                  className="w-3 h-3 sm:w-4 sm:h-4 group-hover:translate-x-1 transition-transform duration-300"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 5l7 7-7 7"
-                  />
-                </svg>
-              </Link>
-              
-              {/* Prospectus Download Button */}
-              <ProspectusDownload 
-                locale={locale} 
-                variant="outline"
-                size="md"
-                className="whitespace-nowrap"
+            <span className="whitespace-nowrap">{tNav('contact')}</span>
+            <svg
+              className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9 5l7 7-7 7"
               />
-            </div>
-          </div>
+            </svg>
+          </Link>
 
-          {/* Right - Narrow Tall News Sidebar */}
-          {/* Latest News Sidebar - Height matches title + image gallery */}
-          {/* <div
-            className={`col-span-12 lg:col-span-3 transition-all duration-1000 delay-600 ${
-              isVisible
-                ? 'opacity-100 translate-x-0'
-                : 'opacity-0 translate-x-8'
-            }`}
-          >
-            <div className="bg-white rounded-2xl shadow-lg border border-secondary-200 overflow-hidden h-[480px] lg:h-[520px] xl:h-[580px]">
-              <div className="bg-secondary-50 text-primary-900 px-4 py-3 border-b border-secondary-200">
-                <h3 className="text-sm font-semibold flex items-center">
-                  <span className="mr-2">🕋</span>
-                  {locale === 'bengali' ? 'সংবাদ ও ঘোষণা' : 'News & Announcements'}
-                </h3>
-              </div>
-
-              <div className="h-full overflow-hidden relative">
-                <div
-                  className="transition-transform duration-500 ease-in-out"
-                  style={{
-                    transform: `translateY(-${currentNewsIndex * 80}px)`,
-                  }}
-                >
-                  {latestNews.map((news, index) => (
-                    <div
-                      key={index}
-                      className="flex p-3 border-b border-secondary-100 min-h-[80px]"
-                    >
-                      <div className="flex-shrink-0 mr-3">
-                        <div
-                          className={`w-10 h-10 rounded-lg flex flex-col items-center justify-center text-xs font-bold ${
-                            news.isHighlight
-                              ? 'bg-primary-100 text-primary-700'
-                              : 'bg-secondary-100 text-secondary-800'
-                          }`}
-                        >
-                          <div className="text-sm leading-none">
-                            {news.date}
-                          </div>
-                          <div className="text-xs">{news.month}</div>
-                        </div>
-                      </div>
-
-                      <div className="flex-1">
-                        <p className={`text-xs leading-relaxed ${news.isHighlight ? 'text-primary-900 font-medium' : 'text-secondary-900'}`}>
-                          {news.title}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="absolute bottom-0 left-0 right-0 px-4 py-3 bg-gray-50 border-t border-gray-100">
-                <Link
-                  href="/news"
-                  className="text-xs text-green-600 hover:text-green-700 font-medium transition-colors duration-200 block text-center"
-                >
-                  View All →
-                </Link>
-              </div>
-            </div>
-          </div> */}
+          {/* Prospectus Download Button */}
+          <ProspectusDownload
+            locale={locale}
+            variant="outline"
+            size="md"
+            className="whitespace-nowrap"
+          />
         </div>
       </div>
 
-      {/* Stats Section */}
-      {/* <div className="bg-secondary-50 py-16">
-        <div className="container-custom">
-          <div
-            className={`grid grid-cols-2 lg:grid-cols-4 gap-8 transition-all duration-1000 delay-600 ${
-              isVisible
-                ? 'opacity-100 translate-y-0'
-                : 'opacity-0 translate-y-8'
+      {/* Gallery indicator dots */}
+      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex space-x-3">
+        {activityImages.map((_, index) => (
+          <button
+            key={index}
+            onClick={() => setCurrentImageIndex(index)}
+            aria-label={`Go to image ${index + 1}`}
+            className={`h-3 rounded-full transition-all duration-300 ${
+              index === currentImageIndex ? 'bg-white w-8' : 'bg-white/50 w-3'
             }`}
-          >
-            <div className="text-center">
-              <div className="text-4xl font-bold text-primary-700 mb-2">
-                {siteSettings?.statistics?.totalStudents || 500}+
-              </div>
-              <div className="text-secondary-900 font-medium">
-                {t('statistics.students')}
-              </div>
-            </div>
-            <div className="text-center">
-              <div className="text-4xl font-bold text-primary-700 mb-2">
-                {siteSettings?.statistics?.teacherCount || 25}+
-              </div>
-              <div className="text-secondary-900 font-medium">
-                {t('statistics.teachers')}
-              </div>
-            </div>
-            <div className="text-center">
-              <div className="text-4xl font-bold text-primary-700 mb-2">
-                {siteSettings?.statistics?.yearsOfService || 15}+
-              </div>
-              <div className="text-secondary-900 font-medium">
-                {t('statistics.years')}
-              </div>
-            </div>
-            <div className="text-center">
-              <div className="text-4xl font-bold text-primary-700 mb-2">
-                {siteSettings?.statistics?.graduationRate || 95}%
-              </div>
-              <div className="text-secondary-900 font-medium">
-                {t('statistics.successRate')}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div> */}
+          />
+        ))}
+      </div>
 
       {/* SEO and Accessibility improvements */}
       <div className="sr-only">
         <h1>Madrasatul Quran - Excellence in Islamic Education</h1>
-        <p>
-          An ideal combination of islamic and general education
-        </p>
+        <p>An ideal combination of islamic and general education</p>
       </div>
     </section>
   );

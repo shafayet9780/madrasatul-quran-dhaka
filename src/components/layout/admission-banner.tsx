@@ -11,7 +11,9 @@ interface AdmissionBannerProps {
   bannerConfig?: AdmissionBannerType | null;
 }
 
-export default function AdmissionBanner({ bannerConfig }: AdmissionBannerProps) {
+export default function AdmissionBanner({
+  bannerConfig,
+}: AdmissionBannerProps) {
   const locale = useLocale() as Language;
   const [isVisible, setIsVisible] = useState(true);
   const [isAnimating, setIsAnimating] = useState(false);
@@ -21,20 +23,20 @@ export default function AdmissionBanner({ bannerConfig }: AdmissionBannerProps) 
     isEnabled: true,
     title: {
       bengali: '২০২৬ শিক্ষাবর্ষে ভর্তি চলছে',
-      english: 'Admissions Open for 2026 Academic Year'
+      english: 'Admissions Open for 2026 Academic Year',
     },
     subtitle: {
       bengali: 'আজই আবেদন করুন',
-      english: 'Apply Now'
+      english: 'Apply Now',
     },
     buttonText: {
       bengali: 'আবেদন করুন',
-      english: 'Apply Now'
+      english: 'Apply Now',
     },
     buttonLink: '/pre-admission', // Link to pre-admission form page
     backgroundColor: 'primary', // Forest Green - attention-grabbing
     showCloseButton: true,
-    autoHide: 0
+    autoHide: 0,
   };
 
   // Use CMS config if available, otherwise use default
@@ -44,7 +46,7 @@ export default function AdmissionBanner({ bannerConfig }: AdmissionBannerProps) 
 
   const handleClose = () => {
     if (!config.showCloseButton) return;
-    
+
     setIsAnimating(true);
     setTimeout(() => {
       setIsVisible(false);
@@ -62,13 +64,14 @@ export default function AdmissionBanner({ bannerConfig }: AdmissionBannerProps) 
     }
   }, [config.autoHide, handleClose]);
 
-
   // Gate rendering after hooks
   if (!config.isEnabled || !isVisible) return null;
 
   // Get localized content
   const title = getLocalizedText(config.title, locale);
-  const subtitle = config.subtitle ? getLocalizedText(config.subtitle, locale) : '';
+  const subtitle = config.subtitle
+    ? getLocalizedText(config.subtitle, locale)
+    : '';
   const buttonText = getLocalizedText(config.buttonText, locale);
 
   // Get background style based on CMS configuration
@@ -76,15 +79,18 @@ export default function AdmissionBanner({ bannerConfig }: AdmissionBannerProps) 
     switch (config.backgroundColor) {
       case 'primary':
         return {
-          background: 'linear-gradient(90deg, #2D5A27 0%, #4A7C59 50%, #6B8E23 100%)',
+          background:
+            'linear-gradient(90deg, #2D5A27 0%, #4A7C59 50%, #6B8E23 100%)',
         };
       case 'secondary':
         return {
-          background: 'linear-gradient(90deg, #8B4513 0%, #CD853F 50%, #DAA520 100%)',
+          background:
+            'linear-gradient(90deg, #8B4513 0%, #CD853F 50%, #DAA520 100%)',
         };
       case 'accent':
         return {
-          background: 'linear-gradient(90deg, #B22222 0%, #DC143C 50%, #FF6347 100%)',
+          background:
+            'linear-gradient(90deg, #B22222 0%, #DC143C 50%, #FF6347 100%)',
         };
       case 'custom':
         return {
@@ -92,7 +98,8 @@ export default function AdmissionBanner({ bannerConfig }: AdmissionBannerProps) 
         };
       default:
         return {
-          background: 'linear-gradient(90deg, #2D5A27 0%, #4A7C59 50%, #6B8E23 100%)',
+          background:
+            'linear-gradient(90deg, #2D5A27 0%, #4A7C59 50%, #6B8E23 100%)',
         };
     }
   };
@@ -104,8 +111,8 @@ export default function AdmissionBanner({ bannerConfig }: AdmissionBannerProps) 
     >
       {/* Subtle pattern overlay */}
       <div className="absolute inset-0 opacity-10">
-        <div 
-          className="absolute inset-0" 
+        <div
+          className="absolute inset-0"
           style={{
             backgroundImage: `url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Cpath d='M20 20c0-5.5-4.5-10-10-10s-10 4.5-10 10 4.5 10 10 10 10-4.5 10-10zm0 0c0 5.5 4.5 10 10 10s10-4.5 10-10-4.5-10-10-10-10 4.5-10 10z'/%3E%3C/g%3E%3C/svg%3E")`,
           }}
