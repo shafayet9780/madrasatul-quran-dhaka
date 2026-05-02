@@ -118,20 +118,22 @@ export default function HeroSection({
 
       {/* Content overlay */}
       <div
-        className={`absolute inset-0 flex flex-col items-center justify-center px-4 sm:px-6 text-center transition-all duration-1000 ${
+        className={`absolute inset-0 z-10 flex flex-col items-center justify-center px-4 sm:px-6 text-center transition-all duration-1000 ${
           isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
         }`}
       >
         {/* Bismillah badge */}
         <div
-          className="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold text-white bg-white/20 border border-white/30 backdrop-blur-sm mb-4"
+          className="inline-flex items-center rounded-full px-5 py-2 text-white bg-white/20 border border-white/30 backdrop-blur-sm mb-5"
           aria-label="Bismillah"
         >
-          <span className="font-arabic text-lg mr-1">﷽</span>
+          <span className="font-arabic text-2xl sm:text-3xl leading-none">
+            ﷽
+          </span>
         </div>
 
         {/* Main Title */}
-        <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-extrabold leading-tight text-white drop-shadow-lg max-w-4xl">
+        <h1 className="text-3xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold leading-tight text-white drop-shadow-lg max-w-4xl">
           <SplitText mode="words" stagger={0.06}>
             {siteSettings
               ? getLocalizedText(siteSettings.title, locale)
@@ -146,15 +148,15 @@ export default function HeroSection({
             : t('hero.subtitle')}
         </h2>
 
-        {/* CTA Buttons */}
-        <div className="mt-8 flex flex-col sm:flex-row gap-3 sm:gap-4 items-center">
+        {/* CTA Buttons — glassmorphism, always side by side */}
+        <div className="mt-6 sm:mt-8 flex flex-row gap-3 items-center">
           <Link
             href="/contact"
-            className="group relative bg-gradient-to-r from-primary-400 to-primary-500 hover:from-primary-500 hover:to-primary-600 text-white font-semibold px-6 sm:px-8 py-3 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 flex items-center space-x-2 text-sm sm:text-base"
+            className="group bg-white/20 hover:bg-white/30 backdrop-blur-sm border border-white/40 text-white font-semibold px-4 py-2 sm:px-6 sm:py-3 rounded-xl transition-all duration-300 flex items-center gap-2 text-sm sm:text-base shadow-lg hover:scale-105"
           >
             <span className="whitespace-nowrap">{tNav('contact')}</span>
             <svg
-              className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300"
+              className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform duration-300"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -172,21 +174,23 @@ export default function HeroSection({
           <ProspectusDownload
             locale={locale}
             variant="outline"
-            size="md"
-            className="whitespace-nowrap"
+            size="sm"
+            className="whitespace-nowrap !bg-white/20 hover:!bg-white/30 !border-white/40 !text-white backdrop-blur-sm sm:!px-6 sm:!py-3 sm:!text-base"
           />
         </div>
       </div>
 
-      {/* Gallery indicator dots */}
-      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex space-x-3">
+      {/* Gallery indicator dots — above wave */}
+      <div className="absolute bottom-12 sm:bottom-20 left-1/2 -translate-x-1/2 flex space-x-2.5 z-20">
         {activityImages.map((_, index) => (
           <button
             key={index}
             onClick={() => setCurrentImageIndex(index)}
             aria-label={`Go to image ${index + 1}`}
-            className={`h-3 rounded-full transition-all duration-300 ${
-              index === currentImageIndex ? 'bg-white w-8' : 'bg-white/50 w-3'
+            className={`h-2 sm:h-3 rounded-full transition-all duration-300 ${
+              index === currentImageIndex
+                ? 'bg-white w-6 sm:w-8'
+                : 'bg-white/50 w-2 sm:w-3'
             }`}
           />
         ))}
