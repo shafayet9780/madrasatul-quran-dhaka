@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import imageUrlBuilder from '@sanity/image-url';
+import { createImageUrlBuilder } from '@sanity/image-url';
 import { client } from '@/lib/sanity';
 
 type ImageFormat = 'webp' | 'jpg' | 'png' | 'avif' | 'auto';
 
-const builder = imageUrlBuilder(client);
+const builder = createImageUrlBuilder(client);
 
 export async function GET(
   request: NextRequest,

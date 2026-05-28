@@ -1,12 +1,12 @@
 import { client } from './sanity';
-import imageUrlBuilder from '@sanity/image-url';
+import { createImageUrlBuilder } from '@sanity/image-url';
 import type { SanityImage } from '@/types/sanity';
 
 /**
  * Media management utilities for Sanity CMS
  */
 
-const builder = imageUrlBuilder(client);
+const builder = createImageUrlBuilder(client);
 
 export interface ImageTransformOptions {
   width?: number;
