@@ -20,4 +20,5 @@ export async function GET(request: NextRequest) {
   }
 }
 
-export const runtime = 'edge';
+// Dynamic: reads request.url to build a redirect, so it can't be prerendered.
+export const dynamic = 'force-dynamic';

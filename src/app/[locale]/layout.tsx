@@ -6,6 +6,7 @@ import { locales } from '@/lib/i18n';
 import LocaleProvider from '@/components/locale-provider';
 import { LanguageContextProvider } from '@/contexts/language-context';
 import { MainLayout } from '@/components/layout';
+import { getContentService } from '@/lib/content-service';
 
 export function generateStaticParams() {
   return locales.map(locale => ({ locale }));
@@ -27,11 +28,21 @@ export default async function LocaleLayout({
   // side is the easiest way to get started
   const messages = await getMessages();
 
+  // Fetch site/footer settings server-side (cached) and pass to the client
+  // layout as props.
+  const contentService = getContentService(false);
+  const [siteSettings, footerSettings] = await Promise.all([
+    contentService.getSiteSettings(),
+    contentService.getFooterSettings(),
+  ]);
+
   return (
     <LocaleProvider locale={locale}>
       <NextIntlClientProvider messages={messages}>
         <LanguageContextProvider>
-          <MainLayout>{children}</MainLayout>
+          <MainLayout siteSettings={siteSettings} footerSettings={footerSettings}>
+            {children}
+          </MainLayout>
           {/* <SpeedInsights /> */}
         </LanguageContextProvider>
       </NextIntlClientProvider>

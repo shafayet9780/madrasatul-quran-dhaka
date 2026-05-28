@@ -53,7 +53,6 @@ export class ContentService {
       return await sanityFetch({
         query: siteSettingsQuery,
         tags: ['siteSettings'],
-        revalidate: process.env.NODE_ENV === 'development' ? 0 : 60, // No cache in development
       });
     } catch (error) {
       console.error('Error fetching site settings:', error);
@@ -72,7 +71,6 @@ export class ContentService {
       return await sanityFetch({
         query: allPagesQuery,
         tags: ['page'],
-        revalidate: process.env.NODE_ENV === 'development' ? 0 : 60,
       });
     } catch (error) {
       console.error('Error fetching pages:', error);
@@ -89,7 +87,6 @@ export class ContentService {
         query: pageBySlugQuery,
         params: { slug },
         tags: ['page'],
-        revalidate: process.env.NODE_ENV === 'development' ? 0 : 60,
       });
     } catch (error) {
       console.error(`Error fetching page with slug ${slug}:`, error);
@@ -108,7 +105,6 @@ export class ContentService {
       return await sanityFetch({
         query: allNewsEventsQuery,
         tags: ['newsEvent'],
-        revalidate: process.env.NODE_ENV === 'development' ? 0 : 60,
       });
     } catch (error) {
       console.error('Error fetching news events:', error);
@@ -125,7 +121,6 @@ export class ContentService {
       return await sanityFetch({
         query,
         tags: ['newsEvent'],
-        revalidate: process.env.NODE_ENV === 'development' ? 0 : 60,
       });
     } catch (error) {
       console.error('Error fetching featured news events:', error);
@@ -142,7 +137,6 @@ export class ContentService {
         query: newsEventBySlugQuery,
         params: { slug },
         tags: ['newsEvent'],
-        revalidate: process.env.NODE_ENV === 'development' ? 0 : 60,
       });
     } catch (error) {
       console.error(`Error fetching news event with slug ${slug}:`, error);
@@ -226,7 +220,6 @@ export class ContentService {
         query,
         params: { today },
         tags: ['newsEvent'],
-        revalidate: process.env.NODE_ENV === 'development' ? 0 : 60,
       });
     } catch (error) {
       console.error('Error fetching upcoming events:', error);
@@ -274,7 +267,6 @@ export class ContentService {
         query,
         params: { searchTerm },
         tags: ['newsEvent'],
-        revalidate: process.env.NODE_ENV === 'development' ? 0 : 60,
       });
     } catch (error) {
       console.error(`Error searching news events with term ${searchTerm}:`, error);
@@ -293,7 +285,6 @@ export class ContentService {
       return await sanityFetch({
         query: allAcademicProgramsQuery,
         tags: ['academicProgram'],
-        revalidate: process.env.NODE_ENV === 'development' ? 0 : 60,
       });
     } catch (error) {
       console.error('Error fetching academic programs:', error);
@@ -310,7 +301,6 @@ export class ContentService {
         query: academicProgramBySlugQuery,
         params: { slug },
         tags: ['academicProgram'],
-        revalidate: process.env.NODE_ENV === 'development' ? 0 : 60,
       });
     } catch (error) {
       console.error(`Error fetching academic program with slug ${slug}:`, error);
@@ -329,7 +319,6 @@ export class ContentService {
       return await sanityFetch({
         query: allStaffQuery,
         tags: ['staffMember'],
-        revalidate: process.env.NODE_ENV === 'development' ? 0 : 60,
       });
     } catch (error) {
       console.error('Error fetching staff:', error);
@@ -345,7 +334,6 @@ export class ContentService {
       return await sanityFetch({
         query: leadershipTeamQuery,
         tags: ['staffMember'],
-        revalidate: process.env.NODE_ENV === 'development' ? 0 : 60,
       });
     } catch (error) {
       console.error('Error fetching leadership team:', error);
@@ -386,7 +374,6 @@ export class ContentService {
         query,
         params: { department },
         tags: ['staffMember'],
-        revalidate: process.env.NODE_ENV === 'development' ? 0 : 60,
       });
     } catch (error) {
       console.error(`Error fetching staff by department ${department}:`, error);
@@ -405,7 +392,6 @@ export class ContentService {
       return await sanityFetch({
         query: allFacilitiesQuery,
         tags: ['facility'],
-        revalidate: process.env.NODE_ENV === 'development' ? 0 : 60,
       });
     } catch (error) {
       console.error('Error fetching facilities:', error);
@@ -421,7 +407,6 @@ export class ContentService {
       return await sanityFetch({
         query: featuredFacilitiesQuery,
         tags: ['facility'],
-        revalidate: process.env.NODE_ENV === 'development' ? 0 : 60,
       });
     } catch (error) {
       console.error('Error fetching featured facilities:', error);
@@ -438,7 +423,6 @@ export class ContentService {
         query: facilityBySlugQuery,
         params: { slug },
         tags: ['facility'],
-        revalidate: process.env.NODE_ENV === 'development' ? 0 : 60,
       });
     } catch (error) {
       console.error(`Error fetching facility with slug ${slug}:`, error);
@@ -484,7 +468,6 @@ export class ContentService {
         query,
         params: { category },
         tags: ['facility'],
-        revalidate: process.env.NODE_ENV === 'development' ? 0 : 60,
       });
     } catch (error) {
       console.error(`Error fetching facilities by category ${category}:`, error);
@@ -503,7 +486,6 @@ export class ContentService {
           : sanityFetch({
               query: footerQuery,
               tags: ['footer'],
-              revalidate: process.env.NODE_ENV === 'development' ? 0 : 60,
             }),
         this.getSiteSettings()
       ]);
@@ -562,7 +544,6 @@ export class ContentService {
       return await sanityFetch({
         query: preAdmissionFormQuery,
         tags: ['preAdmissionForm'],
-        revalidate: process.env.NODE_ENV === 'development' ? 0 : 60,
       });
     } catch (error) {
       console.error('Error fetching pre-admission form:', error);

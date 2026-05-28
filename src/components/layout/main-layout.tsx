@@ -1,44 +1,27 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import Header from './header';
 import Footer from './footer';
 import AdmissionBanner from './admission-banner';
 import WhatsAppSupport from '@/components/ui/whatsapp-support';
-import { getContentService } from '@/lib/content-service';
 import { useScrollVisibility } from '@/hooks/use-scroll-visibility';
 import type { SiteSettings, FooterSettings } from '@/types/sanity';
 
 interface MainLayoutProps {
   children: React.ReactNode;
+  // Fetched server-side in the locale layout and passed down. Cache Components
+  // forbids importing the (server-only, `use cache`) content service into this
+  // client component.
+  siteSettings: SiteSettings | null;
+  footerSettings: FooterSettings | null;
 }
 
-export default function MainLayout({ children }: MainLayoutProps) {
-  const [siteSettings, setSiteSettings] = useState<SiteSettings | null>(null);
-  const [footerSettings, setFooterSettings] = useState<FooterSettings | null>(
-    null
-  );
+export default function MainLayout({
+  children,
+  siteSettings,
+  footerSettings,
+}: MainLayoutProps) {
   const isScrollVisible = useScrollVisibility();
-
-  console.log(
-    'MainLayout rendered. SiteSettings:',
-    siteSettings?.admissionBanner
-  );
-
-  // Fetch site settings for header and footer
-  useEffect(() => {
-    const fetchSettings = async () => {
-      const contentService = getContentService(false);
-      const [site, footer] = await Promise.all([
-        contentService.getSiteSettings(),
-        contentService.getFooterSettings(),
-      ]);
-      setSiteSettings(site);
-      setFooterSettings(footer);
-    };
-
-    fetchSettings();
-  }, []);
 
   return (
     <div className="min-h-screen flex flex-col">

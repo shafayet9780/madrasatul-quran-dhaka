@@ -2,9 +2,9 @@ import { client, getClient } from './sanity';
 import type { QueryParams } from '@sanity/client';
 
 /**
- * Get revalidation time based on environment
- * In development, use 0 (no cache) to ensure fresh content
- * In production, use the provided revalidate time
+ * Get revalidation time based on environment.
+ * In development, use 0 (no cache) to ensure fresh content; otherwise use the
+ * provided revalidate time.
  */
 function getRevalidateTime(revalidate: number | false): number | false {
   if (process.env.NODE_ENV === 'development') {
@@ -14,12 +14,15 @@ function getRevalidateTime(revalidate: number | false): number | false {
 }
 
 /**
- * Fetch data from Sanity with error handling and caching
+ * Fetch published content from Sanity with tag-based ISR.
+ *
+ * Tagged with `tags` so the /api/refresh route can invalidate via
+ * `revalidateTag(tag, 'max')`. Callers omit `revalidate` and get the 60s default.
  */
 export async function sanityFetch<T>({
   query,
   params = {},
-  revalidate = 60, // Cache for 60 seconds by default
+  revalidate = 60,
   tags = [],
 }: {
   query: string;
@@ -28,13 +31,12 @@ export async function sanityFetch<T>({
   tags?: string[];
 }): Promise<T> {
   try {
-    const data = await client.fetch<T>(query, params, {
+    return await client.fetch<T>(query, params, {
       next: {
         revalidate: getRevalidateTime(revalidate),
         tags,
       },
     });
-    return data;
   } catch (error) {
     console.error('Sanity fetch error:', error);
     throw new Error(`Failed to fetch data: ${error}`);
@@ -42,7 +44,8 @@ export async function sanityFetch<T>({
 }
 
 /**
- * Fetch data with preview support
+ * Fetch data with preview support. In preview mode the draft client is used and
+ * the read is never cached; otherwise it behaves like `sanityFetch`.
  */
 export async function sanityFetchWithPreview<T>({
   query,
@@ -60,15 +63,11 @@ export async function sanityFetchWithPreview<T>({
   const sanityClient = getClient(preview);
 
   try {
-    const data = await sanityClient.fetch<T>(query, params, {
+    return await sanityClient.fetch<T>(query, params, {
       next: preview
         ? { revalidate: 0 } // No caching in preview mode
-        : {
-            revalidate: getRevalidateTime(revalidate),
-            tags,
-          },
+        : { revalidate: getRevalidateTime(revalidate), tags },
     });
-    return data;
   } catch (error) {
     console.error('Sanity fetch error:', error);
     throw new Error(`Failed to fetch data: ${error}`);
@@ -76,8 +75,7 @@ export async function sanityFetchWithPreview<T>({
 }
 
 /**
- * Force refresh content in development mode
- * This function can be called to manually trigger a refresh
+ * Force a fresh, uncached read (e.g. manual refresh during development).
  */
 export async function forceRefreshContent<T>({
   query,
@@ -89,13 +87,9 @@ export async function forceRefreshContent<T>({
   tags?: string[];
 }): Promise<T> {
   try {
-    const data = await client.fetch<T>(query, params, {
-      next: {
-        revalidate: 0, // Force no cache
-        tags,
-      },
+    return await client.fetch<T>(query, params, {
+      next: { revalidate: 0, tags },
     });
-    return data;
   } catch (error) {
     console.error('Sanity force refresh error:', error);
     throw new Error(`Failed to force refresh data: ${error}`);
