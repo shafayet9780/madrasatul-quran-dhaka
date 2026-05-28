@@ -9,7 +9,7 @@ const intlMiddleware = createMiddleware({
   localePrefix: 'always',
 })
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
 
   // Handle Sanity Studio routes

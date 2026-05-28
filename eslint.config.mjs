@@ -10,6 +10,22 @@ const compat = new FlatCompat({
 });
 
 const eslintConfig = [
+  {
+    // Next 16 removed `next lint`; the bare `eslint` CLI would otherwise scan
+    // build output and generated types. Mirror what `next lint` used to ignore.
+    ignores: [
+      'node_modules/**',
+      '.next/**',
+      'out/**',
+      'build/**',
+      'coverage/**',
+      'playwright-report/**',
+      'test-results/**',
+      'next-env.d.ts',
+      // Standalone Node (CommonJS) tooling scripts — not part of the app build.
+      'scripts/**',
+    ],
+  },
   ...compat.extends('next/core-web-vitals', 'next/typescript'),
   {
     rules: {

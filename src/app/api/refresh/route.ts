@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
 
     // Revalidate all provided tags
     tags.forEach((tag: string) => {
-      revalidateTag(tag);
+      revalidateTag(tag, 'max');
     });
 
 
