@@ -1,6 +1,6 @@
 # Madrasatul Quran Website
 
-A modern, bilingual website for Madrasatul Quran, an Islamic educational institution in Dhaka, Bangladesh. Built with Next.js 15+ and designed to combine traditional Islamic values with contemporary web technologies.
+A modern, bilingual website for Madrasatul Quran, an Islamic educational institution in Dhaka, Bangladesh. Built with Next.js 16 and designed to combine traditional Islamic values with contemporary web technologies.
 
 ## Features
 
@@ -18,13 +18,14 @@ A modern, bilingual website for Madrasatul Quran, an Islamic educational institu
 
 ## Tech Stack
 
-- **Framework**: Next.js 15+ with App Router
+- **Framework**: Next.js 16 with App Router (Turbopack default), React 19.2
 - **Styling**: Tailwind CSS with custom Islamic design tokens
-- **Internationalization**: next-intl for Bengali/English support
-- **Content Management**: Sanity CMS with multilingual support
+- **Internationalization**: next-intl v4 for Bengali/English support
+- **Content Management**: Sanity v5 CMS with multilingual support
 - **Typography**: Inter (English), Noto Sans Bengali, Amiri (Arabic)
-- **Development**: TypeScript, ESLint, Prettier, tsx (TypeScript execution)
-- **Performance**: Optimized images with WebP/AVIF, SWC minification, compression enabled
+- **Development**: pnpm, TypeScript, ESLint, Prettier, tsx (TypeScript execution)
+- **Testing**: Vitest (unit) + Playwright (E2E route smoke)
+- **Performance**: Optimized images with WebP/AVIF, compression enabled
 
 ## Content Management System
 
@@ -59,8 +60,8 @@ This website features a comprehensive content management system built on Sanity 
 
 ### Prerequisites
 
-- Node.js 18+
-- npm or yarn
+- Node.js 20.9+
+- pnpm (the project's package manager — `pnpm-lock.yaml`)
 
 ### Installation
 
@@ -68,7 +69,7 @@ This website features a comprehensive content management system built on Sanity 
 2. Install dependencies:
 
    ```bash
-   npm install
+   pnpm install
    ```
 
 3. Copy environment variables:
@@ -100,7 +101,7 @@ This website features a comprehensive content management system built on Sanity 
 Run the development server:
 
 ```bash
-npm run dev
+pnpm dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) to view the website.
@@ -146,13 +147,15 @@ When enabled, users will need to provide credentials to access the studio at `/s
 **Note**: The project provides both JavaScript and TypeScript versions of key scripts. JavaScript versions are used by default for faster execution and broader compatibility, while TypeScript versions (with `:ts` suffix) provide full type checking.
 
 #### Development
-- `npm run dev` - Start development server with Turbopack
-- `npm run build` - Build for production
-- `npm run start` - Start production server
-- `npm run lint` - Run ESLint
-- `npm run lint:fix` - Fix ESLint issues
-- `npm run format` - Format code with Prettier
-- `npm run format:check` - Check code formatting
+- `pnpm dev` - Start development server (Turbopack)
+- `pnpm build` - Build for production (Turbopack)
+- `pnpm start` - Start production server
+- `pnpm lint` - Run ESLint
+
+#### Testing
+- `pnpm test` - Run Vitest unit suite (`src/lib/*.test.ts`)
+- `pnpm test:watch` - Vitest in watch mode
+- `pnpm test:e2e` - Run Playwright route-smoke E2E (builds + serves on port 3100; run `pnpm exec playwright install chromium` once)
 
 #### TypeScript Execution
 The project includes `tsx` for direct TypeScript execution without compilation:
@@ -236,7 +239,7 @@ src/
 ├── types/
 │   ├── index.ts           # General TypeScript type definitions
 │   └── sanity.ts          # Sanity-specific type definitions
-└── middleware.ts          # Next.js middleware for i18n
+└── proxy.ts               # Next.js proxy (formerly middleware) for i18n
 ```
 
 ## Content Management System
@@ -427,10 +430,11 @@ The website is optimized for Bangladesh's internet infrastructure with comprehen
 ```typescript
 // next.config.ts - Image optimization settings
 images: {
-  domains: ['cdn.sanity.io'],
+  remotePatterns: [{ protocol: 'https', hostname: 'cdn.sanity.io', pathname: '/**' }],
   formats: ['image/webp', 'image/avif'],
   deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
   imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+  qualities: [75, 90], // Next 16 defaults to [75]
   minimumCacheTTL: 31536000, // 1 year
   dangerouslyAllowSVG: true,
   contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",

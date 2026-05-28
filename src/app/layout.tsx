@@ -46,17 +46,12 @@ export const metadata: Metadata = {
   creator: 'Madrasatul Quran',
   publisher: 'Madrasatul Quran',
   
-  // Icons
+  // Icons — served from Sanity siteSettings.favicon via /api/favicon.
+  // (The default app/favicon.ico file was removed so it stops overriding this.)
   icons: {
-    icon: [
-      { url: '/api/favicon', sizes: '32x32' },
-      { url: '/favicon.ico' },
-      { url: '/icon-16x16.png', sizes: '16x16', type: 'image/png' },
-      { url: '/icon-32x32.png', sizes: '32x32', type: 'image/png' },
-    ],
-    apple: [
-      { url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
-    ],
+    icon: [{ url: '/api/favicon', sizes: '32x32', type: 'image/png' }],
+    shortcut: ['/api/favicon'],
+    apple: [{ url: '/api/favicon', sizes: '180x180', type: 'image/png' }],
   },
   
   // Open Graph
