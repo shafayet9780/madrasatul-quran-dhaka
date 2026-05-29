@@ -156,6 +156,16 @@ export function educationField() {
   })
 }
 
+export function seniorityField(options: { title: string; value: string }[]) {
+  return defineField({
+    name: 'seniority',
+    title: 'Seniority / Role',
+    type: 'string',
+    options: { list: options },
+    description: 'Optional. Orders profiles (most senior first) and shows a role badge on the card.',
+  })
+}
+
 export function displayOrderField() {
   return defineField({
     name: 'displayOrder',

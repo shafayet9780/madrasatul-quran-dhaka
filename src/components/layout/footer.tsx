@@ -2,15 +2,11 @@
 
 import { useTranslations, useLocale } from 'next-intl';
 import Link from 'next/link';
-import { useEffect, useRef } from 'react';
 import { MapPin, Phone, Mail, Clock, Smartphone, Download } from 'lucide-react';
 import { type Locale } from '@/lib/i18n';
 import type { FooterSettings, SiteSettings } from '@/types/sanity';
 import { getLocalizedText } from '@/lib/multilingual-content';
-import { gsap } from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-
-gsap.registerPlugin(ScrollTrigger);
+import { activePhones } from '@/lib/contact';
 
 interface FooterProps {
   footerSettings?: FooterSettings | null;
@@ -20,127 +16,6 @@ interface FooterProps {
 export default function Footer({ footerSettings, siteSettings }: FooterProps) {
   const t = useTranslations('footer');
   const locale = useLocale() as Locale;
-
-  const footerRef = useRef<HTMLElement>(null);
-  const logoRef = useRef<HTMLDivElement>(null);
-  const linksRef = useRef<HTMLDivElement>(null);
-  const contactRef = useRef<HTMLDivElement>(null);
-  const socialRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const ctx = gsap.context(() => {
-      // Main footer sections animations
-      gsap.fromTo(logoRef.current,
-        { y: 30, opacity: 0 },
-        {
-          y: 0,
-          opacity: 1,
-          duration: 0.8,
-          ease: 'power2.out',
-          scrollTrigger: {
-            trigger: footerRef.current,
-            start: 'top 90%',
-            toggleActions: 'play none none none'
-          }
-        }
-      );
-
-      gsap.fromTo(linksRef.current,
-        { y: 30, opacity: 0 },
-        {
-          y: 0,
-          opacity: 1,
-          duration: 0.8,
-          delay: 0.2,
-          ease: 'power2.out',
-          scrollTrigger: {
-            trigger: footerRef.current,
-            start: 'top 90%',
-            toggleActions: 'play none none none'
-          }
-        }
-      );
-
-      gsap.fromTo(contactRef.current,
-        { y: 30, opacity: 0 },
-        {
-          y: 0,
-          opacity: 1,
-          duration: 0.8,
-          delay: 0.4,
-          ease: 'power2.out',
-          scrollTrigger: {
-            trigger: footerRef.current,
-            start: 'top 90%',
-            toggleActions: 'play none none none'
-          }
-        }
-      );
-
-      gsap.fromTo(socialRef.current,
-        { y: 30, opacity: 0 },
-        {
-          y: 0,
-          opacity: 1,
-          duration: 0.8,
-          delay: 0.6,
-          ease: 'power2.out',
-          scrollTrigger: {
-            trigger: footerRef.current,
-            start: 'top 90%',
-            toggleActions: 'play none none none'
-          }
-        }
-      );
-
-      // Social media icons hover animations
-      const socialIcons = gsap.utils.toArray('.social-icon');
-      socialIcons.forEach((icon) => {
-        const element = icon as HTMLElement;
-        element.addEventListener('mouseenter', () => {
-          gsap.to(element, {
-            y: -5,
-            scale: 1.1,
-            duration: 0.3,
-            ease: 'power2.out'
-          });
-        });
-
-        element.addEventListener('mouseleave', () => {
-          gsap.to(element, {
-            y: 0,
-            scale: 1,
-            duration: 0.3,
-            ease: 'power2.out'
-          });
-        });
-      });
-
-      // Quick links hover animations
-      const quickLinks = gsap.utils.toArray('.footer-link');
-      quickLinks.forEach((link) => {
-        const element = link as HTMLElement;
-        element.addEventListener('mouseenter', () => {
-          gsap.to(element, {
-            x: 5,
-            duration: 0.2,
-            ease: 'power2.out'
-          });
-        });
-
-        element.addEventListener('mouseleave', () => {
-          gsap.to(element, {
-            x: 0,
-            duration: 0.2,
-            ease: 'power2.out'
-          });
-        });
-      });
-
-    }, []);
-
-    return () => ctx.revert();
-  }, []);
 
   // Use Sanity data or fallback to hardcoded data
   const quickLinks = footerSettings?.quickLinks?.filter(
@@ -192,16 +67,15 @@ export default function Footer({ footerSettings, siteSettings }: FooterProps) {
 
   // Use centralized contact info from siteSettings or fallback
   const siteContactInfo = siteSettings?.contactInfo;
+  // All active phone numbers (primary first); falls back to a single placeholder.
+  const phones = activePhones(siteContactInfo);
+  const fallbackPhone = '+880 1234 567890';
   const contactInfo = {
     address: siteContactInfo?.address
       ? getLocalizedText(siteContactInfo.address, locale)
       : locale === 'bengali'
         ? 'ঢাকা, বাংলাদেশ'
         : 'Dhaka, Bangladesh',
-    phone:
-      siteContactInfo?.phone?.find(p => p.isPrimary)?.number ||
-      siteContactInfo?.phone?.[0]?.number ||
-      '+880 1234 567890',
     email:
       siteContactInfo?.email?.find(e => e.isPrimary)?.address ||
       siteContactInfo?.email?.[0]?.address ||
@@ -294,7 +168,7 @@ export default function Footer({ footerSettings, siteSettings }: FooterProps) {
 
 
   return (
-    <footer ref={footerRef} className="bg-primary-700 text-white relative overflow-hidden">
+    <footer className="bg-primary-700 text-white relative overflow-hidden">
       {/* Beach Wave Pattern */}
       <div className="absolute top-0 left-0 w-full h-20 bg-sand-light opacity-10"></div>
 
@@ -302,7 +176,7 @@ export default function Footer({ footerSettings, siteSettings }: FooterProps) {
       <div className="container-custom px-4 sm:px-6 lg:px-8 py-12 relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* School Information */}
-          <div ref={logoRef} className="space-y-4">
+          <div className="space-y-4">
             <div className="flex flex-col items-start space-y-2">
               <div className="text-2xl font-bold font-arabic text-white drop-shadow-lg">
                 ﷽
@@ -328,7 +202,7 @@ export default function Footer({ footerSettings, siteSettings }: FooterProps) {
             </p>
 
             {/* Social Media Links */}
-            <div ref={socialRef} className="flex space-x-4 pt-2">
+            <div className="flex space-x-4 pt-2">
               {socialLinks.map(social => {
                 const iconElement = getSocialIcon(social.icon);
                 const colorClass = getSocialColor(social.icon);
@@ -338,7 +212,7 @@ export default function Footer({ footerSettings, siteSettings }: FooterProps) {
                     href={social.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className={`social-icon p-3 rounded-full bg-white/10 text-white ${colorClass} transition-all duration-300 shadow-lg hover:shadow-xl`}
+                    className={`social-icon p-3 rounded-full bg-white/10 text-white ${colorClass} transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-1 hover:scale-110 motion-reduce:transform-none`}
                     aria-label={`Follow us on ${social.platform}`}
                   >
                     {iconElement}
@@ -349,7 +223,7 @@ export default function Footer({ footerSettings, siteSettings }: FooterProps) {
           </div>
 
           {/* Quick Links */}
-          <div ref={linksRef} className="space-y-4">
+          <div className="space-y-4">
             <h3 className="text-lg font-bold text-white mb-1">
               {t('quickLinks')}
             </h3>
@@ -359,7 +233,7 @@ export default function Footer({ footerSettings, siteSettings }: FooterProps) {
                 <li key={link.url}>
                   <Link
                     href={link.url}
-                    className="footer-link text-white/80 hover:text-white transition-colors duration-300 text-sm"
+                    className="footer-link inline-block text-white/80 hover:text-white hover:translate-x-1 transition-all duration-300 text-sm motion-reduce:transform-none"
                   >
                     {getLocalizedText(link.label, locale)}
                   </Link>
@@ -369,7 +243,7 @@ export default function Footer({ footerSettings, siteSettings }: FooterProps) {
           </div>
 
           {/* Contact Information */}
-          <div ref={contactRef} className="space-y-4">
+          <div className="space-y-4">
             <h3 className="text-lg font-bold text-white mb-1">
               {t('contactInfo')}
             </h3>
@@ -391,12 +265,26 @@ export default function Footer({ footerSettings, siteSettings }: FooterProps) {
                   <p className="text-sm text-white/70">
                     {locale === 'bengali' ? 'ফোন:' : 'Phone:'}
                   </p>
-                  <a
-                    href={`tel:${contactInfo.phone}`}
-                    className="text-sm text-white hover:text-white/80 transition-colors"
-                  >
-                    {contactInfo.phone}
-                  </a>
+                  <div className="space-y-0.5">
+                    {phones.length > 0 ? (
+                      phones.map((p) => (
+                        <a
+                          key={p.number}
+                          href={`tel:${p.number}`}
+                          className="block text-sm text-white hover:text-white/80 transition-colors"
+                        >
+                          {p.label ? `${getLocalizedText(p.label, locale)}: ${p.number}` : p.number}
+                        </a>
+                      ))
+                    ) : (
+                      <a
+                        href={`tel:${fallbackPhone}`}
+                        className="block text-sm text-white hover:text-white/80 transition-colors"
+                      >
+                        {fallbackPhone}
+                      </a>
+                    )}
+                  </div>
                 </div>
               </div>
 

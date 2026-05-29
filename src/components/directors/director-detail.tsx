@@ -6,10 +6,12 @@ import { RichText } from '@/components/ui/rich-text';
 import { ProfileAvatar } from '@/components/people/profile-avatar';
 import {
   ProfileBreadcrumb,
+  ProfileBadge,
   SectionHeading,
   Qualifications,
   EducationSection,
 } from '@/components/people/profile-sections';
+import { seniorityBadgeKey } from '@/lib/seniority';
 import { getLocalizedText, getFontClass, type Language } from '@/lib/sanity-utils';
 import type { AvatarPlaceholders } from '@/lib/profile-avatar';
 import type { Director, ProfileSocialLink } from '@/types/sanity';
@@ -48,16 +50,18 @@ export function DirectorDetail({ director, placeholders }: DirectorDetailProps) 
   const locale = useLocale() as Language;
   const t = useTranslations('people');
   const td = useTranslations('directors');
+  const tSeniority = useTranslations('seniority');
   const font = getFontClass(locale);
   const name = getLocalizedText(director.name, locale);
+  const showSeniority = seniorityBadgeKey(director.seniority);
 
   const message = director.message?.[locale];
   const bio = director.fullBio?.[locale];
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="border-b bg-white">
-        <div className="container-custom py-4">
+      <div className="border-b border-gray-100 bg-white">
+        <div className="container-custom pt-6 pb-3">
           <ProfileBreadcrumb
             language={locale}
             parentHref="/directors"
@@ -80,6 +84,13 @@ export function DirectorDetail({ director, placeholders }: DirectorDetailProps) 
             />
             <h1 className={`mt-5 text-2xl font-bold text-gray-900 ${font}`}>{name}</h1>
             <p className={`mt-1 text-primary-600 ${font}`}>{getLocalizedText(director.designation, locale)}</p>
+            {showSeniority && (
+              <div className="mt-3 flex justify-center">
+                <ProfileBadge variant="accent" language={locale}>
+                  {tSeniority(director.seniority!)}
+                </ProfileBadge>
+              </div>
+            )}
             {director.socialLinks && director.socialLinks.length > 0 && (
               <SocialLinks links={director.socialLinks} />
             )}

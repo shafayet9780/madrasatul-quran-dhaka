@@ -10,6 +10,7 @@ import { NewsCard } from './news-card';
 import { EventsCalendar } from './events-calendar';
 import { PhotoGallery } from './photo-gallery';
 import { MediaSlideshow } from './media-slideshow';
+import { PageHero } from '@/components/ui/page-hero';
 
 export function NewsEventsPage() {
   const t = useTranslations('news');
@@ -83,17 +84,7 @@ export function NewsEventsPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Hero Section */}
-      <section className="bg-gradient-to-r from-primary-600 to-primary-700 text-white py-16">
-        <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto text-center">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4 font-bengali">
-              {t('title')}
-            </h1>
-            <p className="text-xl opacity-90 font-bengali">{t('subtitle')}</p>
-          </div>
-        </div>
-      </section>
+      <PageHero language={language} title={t('title')} subtitle={t('subtitle')} />
 
       {/* Navigation Tabs */}
       <section className="bg-white border-b">

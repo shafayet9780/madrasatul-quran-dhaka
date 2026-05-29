@@ -44,9 +44,21 @@
     "subjects": "পাঠদানের বিষয়",
     "specializations": "বিশেষত্ব",
     "experience": "বছরের অভিজ্ঞতা",
+    "experienceShort": "বছর",
     "searchPlaceholder": "নাম, বিষয় বা বিশেষত্ব দিয়ে খুঁজুন",
     "allDepartments": "সকল বিভাগ",
     "noResults": "কোনো প্রোফাইল পাওয়া যায়নি।"
+  },
+  "seniority": {
+    "chairman": "চেয়ারম্যান",
+    "principal": "অধ্যক্ষ",
+    "vice_principal": "উপাধ্যক্ষ",
+    "director": "পরিচালক",
+    "advisor": "উপদেষ্টা",
+    "head_of_department": "বিভাগীয় প্রধান",
+    "senior_teacher": "জ্যেষ্ঠ শিক্ষক",
+    "teacher": "শিক্ষক",
+    "assistant_teacher": "সহকারী শিক্ষক"
   },
   "common": {
     "loading": "লোড হচ্ছে...",

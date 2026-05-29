@@ -13,6 +13,7 @@ import {
   DollarSign,
 } from 'lucide-react';
 import Link from 'next/link';
+import { PageHero } from '@/components/ui/page-hero';
 
 interface AdmissionsPageProps {
   params: Promise<{
@@ -45,58 +46,21 @@ export default async function AdmissionsPage({ params }: AdmissionsPageProps) {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Hero Section */}
-      <section className="relative py-12 md:py-16 bg-gradient-to-r from-primary-200 to-secondary-300 text-white overflow-hidden">
-        {/* Background Pattern */}
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-20 left-20 w-32 h-32 bg-white rounded-full blur-3xl"></div>
-          <div className="absolute bottom-20 right-20 w-40 h-40 bg-white rounded-full blur-3xl"></div>
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-60 h-60 bg-white rounded-full blur-3xl"></div>
-        </div>
-
-        <div className="container mx-auto px-4 relative z-10">
-          <div className="max-w-4xl mx-auto text-center">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full mb-6">
-              <Users className="w-8 h-8 text-white" />
-            </div>
-
-            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 leading-tight">
-              {isBengali ? 'ভর্তি তথ্য' : 'Admissions'}
-            </h1>
-
-            <p className="text-lg md:text-xl text-white/90 mb-6 leading-relaxed max-w-3xl mx-auto">
-              {isBengali
-                ? 'মাদরাসাতুল কুরআনে আপনার সন্তানের ভবিষ্যৎ গড়ুন'
-                : "Build your child's future at Madrasatul Quran"}
-            </p>
-
-            <div className="flex flex-wrap justify-center gap-6 text-white/80">
-              <div className="flex items-center gap-2">
-                <Calendar className="w-5 h-5" />
-                <span className="text-sm font-medium">
-                  {isBengali ? 'ভর্তি প্রক্রিয়া' : 'Admission Process'}
-                </span>
-              </div>
-              {/* <div className="flex items-center gap-2">
-                <DollarSign className="w-5 h-5" />
-                <span className="text-sm font-medium">{isBengali ? 'ফি ক্যালকুলেটর' : 'Fee Calculator'}</span>
-              </div> */}
-              <div className="flex items-center gap-2">
-                <DollarSign className="w-5 h-5" />
-                <span className="text-sm font-medium">
-                  {isBengali ? 'টিউশন ফি' : 'Tuition Fee'}
-                </span>
-              </div>
-              <div className="flex items-center gap-2">
-                <FileText className="w-5 h-5" />
-                <span className="text-sm font-medium">
-                  {isBengali ? 'অনলাইন ফর্ম' : 'Online Form'}
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      <PageHero
+        language={isBengali ? 'bengali' : 'english'}
+        icon={<Users className="h-7 w-7 text-white" />}
+        title={isBengali ? 'ভর্তি তথ্য' : 'Admissions'}
+        subtitle={
+          isBengali
+            ? 'মাদরাসাতুল কুরআনে আপনার সন্তানের ভবিষ্যৎ গড়ুন'
+            : "Build your child's future at Madrasatul Quran"
+        }
+        chips={[
+          { icon: <Calendar className="h-4 w-4" />, label: isBengali ? 'ভর্তি প্রক্রিয়া' : 'Admission Process' },
+          { icon: <DollarSign className="h-4 w-4" />, label: isBengali ? 'টিউশন ফি' : 'Tuition Fee' },
+          { icon: <FileText className="h-4 w-4" />, label: isBengali ? 'অনলাইন ফর্ম' : 'Online Form' },
+        ]}
+      />
 
       {/* Main Content */}
       <div className="container mx-auto px-4 py-16">

@@ -152,6 +152,7 @@ export interface Director {
   name: MultilingualText
   slug: MultilingualSlug
   designation: MultilingualText
+  seniority?: string
   gender: 'male' | 'female'
   photo?: SanityImage
   summary?: MultilingualText
@@ -174,6 +175,7 @@ export interface Teacher {
   name: MultilingualText
   slug: MultilingualSlug
   designation?: MultilingualText
+  seniority?: string
   gender: 'male' | 'female'
   department?: Department
   photo?: SanityImage

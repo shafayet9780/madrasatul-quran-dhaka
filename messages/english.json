@@ -44,9 +44,21 @@
     "subjects": "Subjects Taught",
     "specializations": "Specializations",
     "experience": "Years of experience",
+    "experienceShort": "yrs",
     "searchPlaceholder": "Search by name, subject, or specialization",
     "allDepartments": "All Departments",
     "noResults": "No profiles found."
+  },
+  "seniority": {
+    "chairman": "Chairman",
+    "principal": "Principal",
+    "vice_principal": "Vice Principal",
+    "director": "Director",
+    "advisor": "Advisor",
+    "head_of_department": "Head of Department",
+    "senior_teacher": "Senior Teacher",
+    "teacher": "Teacher",
+    "assistant_teacher": "Assistant Teacher"
   },
   "home": {
     "meta": {
@@ -281,6 +293,14 @@
     "importantDates": {
       "title": "Important Dates & Inquiry System",
       "subtitle": "Stay informed about admission deadlines and get your questions answered",
+      "contact": {
+        "cta": {
+          "title": "Want to know more?",
+          "subtitle": "Contact us for detailed information about Madrasatul Quran",
+          "button": "Contact Us",
+          "response": "We're ready to help you"
+        }
+      },
       "calendar": {
         "title": "Admission Calendar 2025",
         "application": "Application",

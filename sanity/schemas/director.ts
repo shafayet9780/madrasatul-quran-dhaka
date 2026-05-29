@@ -10,6 +10,7 @@ import {
   educationField,
   displayOrderField,
   featuredField,
+  seniorityField,
 } from './shared'
 
 export const director = defineType({
@@ -20,6 +21,13 @@ export const director = defineType({
     mlString('name', 'Name', { required: true }),
     mlSlug(),
     mlString('designation', 'Designation', { required: true }),
+    seniorityField([
+      { title: 'Chairman', value: 'chairman' },
+      { title: 'Principal', value: 'principal' },
+      { title: 'Vice Principal', value: 'vice_principal' },
+      { title: 'Director', value: 'director' },
+      { title: 'Advisor', value: 'advisor' },
+    ]),
     genderField(),
     profilePhoto(),
     mlText('summary', 'Short Summary', { rows: 2 }),

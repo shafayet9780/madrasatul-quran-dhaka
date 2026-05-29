@@ -5,11 +5,13 @@ import { RichText } from '@/components/ui/rich-text';
 import { ProfileAvatar } from '@/components/people/profile-avatar';
 import {
   ProfileBreadcrumb,
+  ProfileBadge,
   SectionHeading,
   Qualifications,
   EducationSection,
   TagList,
 } from '@/components/people/profile-sections';
+import { seniorityBadgeKey } from '@/lib/seniority';
 import { getLocalizedText, getLocalizedArray, getFontClass, type Language } from '@/lib/sanity-utils';
 import type { AvatarPlaceholders } from '@/lib/profile-avatar';
 import type { Teacher } from '@/types/sanity';
@@ -23,15 +25,17 @@ export function TeacherDetail({ teacher, placeholders }: TeacherDetailProps) {
   const locale = useLocale() as Language;
   const t = useTranslations('people');
   const tt = useTranslations('teachers');
+  const tSeniority = useTranslations('seniority');
   const font = getFontClass(locale);
   const name = getLocalizedText(teacher.name, locale);
   const bio = teacher.fullBio?.[locale];
   const subjects = getLocalizedArray(teacher.subjects, locale);
+  const showSeniority = seniorityBadgeKey(teacher.seniority);
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="border-b bg-white">
-        <div className="container-custom py-4">
+      <div className="border-b border-gray-100 bg-white">
+        <div className="container-custom pt-6 pb-3">
           <ProfileBreadcrumb language={locale} parentHref="/teachers" parentLabel={tt('title')} current={name} />
         </div>
       </div>
@@ -54,6 +58,13 @@ export function TeacherDetail({ teacher, placeholders }: TeacherDetailProps) {
               <p className={`mt-1 text-sm text-gray-500 ${font}`}>
                 {getLocalizedText(teacher.department.name, locale)}
               </p>
+            )}
+            {showSeniority && (
+              <div className="mt-3 flex justify-center">
+                <ProfileBadge variant="accent" language={locale}>
+                  {tSeniority(teacher.seniority!)}
+                </ProfileBadge>
+              </div>
             )}
             {typeof teacher.yearsOfExperience === 'number' && (
               <div className="mt-5 rounded-xl bg-primary-50 px-4 py-3">

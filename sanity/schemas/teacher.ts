@@ -10,6 +10,7 @@ import {
   educationField,
   displayOrderField,
   featuredField,
+  seniorityField,
 } from './shared'
 
 export const teacher = defineType({
@@ -20,6 +21,12 @@ export const teacher = defineType({
     mlString('name', 'Name', { required: true }),
     mlSlug(),
     mlString('designation', 'Designation'),
+    seniorityField([
+      { title: 'Head of Department', value: 'head_of_department' },
+      { title: 'Senior Teacher', value: 'senior_teacher' },
+      { title: 'Teacher', value: 'teacher' },
+      { title: 'Assistant Teacher', value: 'assistant_teacher' },
+    ]),
     genderField(),
     defineField({
       name: 'department',

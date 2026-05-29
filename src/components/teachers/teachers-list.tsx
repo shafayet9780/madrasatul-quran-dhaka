@@ -7,6 +7,7 @@ import { PeopleHero } from '@/components/people/people-hero';
 import { TeacherCard } from './teacher-card';
 import { TeacherFilterBar } from './teacher-filter-bar';
 import { getDepartments, filterTeachers, groupByDepartment } from '@/lib/teacher-grouping';
+import { sortBySeniority } from '@/lib/seniority';
 import { getLocalizedText, getFontClass, type Language } from '@/lib/sanity-utils';
 import type { AvatarPlaceholders } from '@/lib/profile-avatar';
 import type { Teacher } from '@/types/sanity';
@@ -39,7 +40,7 @@ export function TeachersList({ teachers, placeholders }: TeachersListProps) {
   }, [searchParams, departments]);
   const groups = useMemo(() => {
     const filtered = filterTeachers(teachers, { query, departmentId: activeDepartment, language: locale });
-    return groupByDepartment(filtered);
+    return groupByDepartment(filtered).map((g) => ({ ...g, teachers: sortBySeniority(g.teachers) }));
   }, [teachers, query, activeDepartment, locale]);
 
   return (
@@ -59,21 +60,36 @@ export function TeachersList({ teachers, placeholders }: TeachersListProps) {
         {groups.length === 0 ? (
           <p className={`text-center text-gray-500 ${font}`}>{tp('noResults')}</p>
         ) : (
-          <div className="space-y-12">
-            {groups.map((group, i) => (
-              <div key={group.department?._id ?? `unassigned-${i}`}>
-                {group.department && (
-                  <h2 className={`mb-6 text-center text-2xl font-semibold text-gray-800 ${font}`}>
-                    {getLocalizedText(group.department.name, locale)}
-                  </h2>
-                )}
-                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                  {group.teachers.map((teacher) => (
-                    <TeacherCard key={teacher._id} teacher={teacher} placeholders={placeholders} />
-                  ))}
+          <div className="space-y-14">
+            {groups.map((group, i) => {
+              const accent = group.department?.accentColor;
+              return (
+                <div key={group.department?._id ?? `unassigned-${i}`}>
+                  {group.department && (
+                    <div className="mb-8">
+                      <div className="flex items-center gap-3">
+                        <span
+                          className="h-6 w-1.5 rounded-full"
+                          style={{ backgroundColor: accent || 'var(--color-primary-500)' }}
+                        />
+                        <h2 className={`text-2xl font-semibold text-gray-800 ${font}`}>
+                          {getLocalizedText(group.department.name, locale)}
+                        </h2>
+                        <span className="rounded-full bg-gray-100 px-2.5 py-0.5 text-sm font-medium text-gray-500">
+                          {group.teachers.length}
+                        </span>
+                      </div>
+                      <div className="mt-3 h-px w-full bg-gradient-to-r from-gray-200 to-transparent" />
+                    </div>
+                  )}
+                  <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                    {group.teachers.map((teacher) => (
+                      <TeacherCard key={teacher._id} teacher={teacher} placeholders={placeholders} />
+                    ))}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </section>

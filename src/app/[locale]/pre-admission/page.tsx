@@ -3,6 +3,7 @@ import { getContentService } from '@/lib/content-service';
 import { PreAdmissionForm } from '@/components/forms';
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
+import { PageHero } from '@/components/ui/page-hero';
 
 interface PreAdmissionPageProps {
   params: Promise<{
@@ -58,34 +59,24 @@ export default async function PreAdmissionPage({ params }: PreAdmissionPageProps
   
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Page Header */}
-      <div className="bg-gradient-to-r from-primary-200 to-primary-300 text-white py-12">
-        <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto">
-            {/* Back Button */}
-            <Link 
-              href="/admissions"
-              className="inline-flex items-center space-x-2 text-white/90 hover:text-white transition-colors mb-6"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              <span>{locale === 'bengali' ? 'ভর্তি পেজে ফিরুন' : 'Back to Admissions'}</span>
-            </Link>
-            
-            {/* Page Title */}
-            <div className="text-center">
-              <h1 className="text-3xl md:text-4xl font-bold mb-4">
-                {locale === 'bengali' ? 'প্রি-অ্যাডমিশন ফর্ম' : 'Pre-Admission Form'}
-              </h1>
-              <p className="text-lg text-white/90 max-w-2xl mx-auto">
-                {locale === 'bengali' 
-                  ? 'মাদরাসাতুল কুরআনে ভর্তির জন্য নিচের ফর্মটি সাবধানে পূরণ করুন।'
-                  : 'Please fill out the form below carefully for admission to Madrasatul Quran.'
-                }
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
+      <PageHero
+        language={locale === 'bengali' ? 'bengali' : 'english'}
+        title={locale === 'bengali' ? 'প্রি-অ্যাডমিশন ফর্ম' : 'Pre-Admission Form'}
+        subtitle={
+          locale === 'bengali'
+            ? 'মাদরাসাতুল কুরআনে ভর্তির জন্য নিচের ফর্মটি সাবধানে পূরণ করুন।'
+            : 'Please fill out the form below carefully for admission to Madrasatul Quran.'
+        }
+        breadcrumb={
+          <Link
+            href="/admissions"
+            className="inline-flex items-center gap-2 text-sm text-gray-500 transition-colors hover:text-accent-600"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            <span>{locale === 'bengali' ? 'ভর্তি পেজে ফিরুন' : 'Back to Admissions'}</span>
+          </Link>
+        }
+      />
 
       {/* Form Container */}
       <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-8">

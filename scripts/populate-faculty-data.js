@@ -45,6 +45,7 @@ const directors = [
     slugEn: 'maulana-abdullah',
     slugBn: 'maulana-abdullah',
     designation: ml('চেয়ারম্যান', 'Chairman'),
+    seniority: 'chairman',
     gender: 'male',
     order: 1,
     featured: true,
@@ -55,6 +56,7 @@ const directors = [
     slugEn: 'dr-fatima-khatun',
     slugBn: 'dr-fatima-khatun',
     designation: ml('অধ্যক্ষ', 'Principal'),
+    seniority: 'principal',
     gender: 'female',
     order: 2,
     featured: true,
@@ -62,7 +64,7 @@ const directors = [
 ];
 
 const teachers = [
-  { _id: 'teacher.1', name: ml('হাফেজ ইব্রাহিম', 'Hafez Ibrahim'), slugEn: 'hafez-ibrahim', dept: 'department.islamic-studies', gender: 'male', subjects: ml(['কুরআন', 'হিফজ'], ['Quran', 'Hifz']), exp: 12 },
+  { _id: 'teacher.1', name: ml('হাফেজ ইব্রাহিম', 'Hafez Ibrahim'), slugEn: 'hafez-ibrahim', dept: 'department.islamic-studies', gender: 'male', subjects: ml(['কুরআন', 'হিফজ'], ['Quran', 'Hifz']), exp: 12, seniority: 'head_of_department' },
   { _id: 'teacher.2', name: ml('উস্তাজা আয়েশা', 'Ustaza Ayesha'), slugEn: 'ustaza-ayesha', dept: 'department.islamic-studies', gender: 'female', subjects: ml(['আরবি', 'ফিকহ'], ['Arabic', 'Fiqh']), exp: 8 },
   { _id: 'teacher.3', name: ml('মোঃ রহিম', 'Md. Rahim'), slugEn: 'md-rahim', dept: 'department.nctb', gender: 'male', subjects: ml(['গণিত', 'বিজ্ঞান'], ['Mathematics', 'Science']), exp: 10 },
 ];
@@ -87,6 +89,7 @@ async function run() {
       name: d.name,
       slug: mlSlug(d.slugBn, d.slugEn),
       designation: d.designation,
+      seniority: d.seniority,
       gender: d.gender,
       summary: ml('শিক্ষায় নিবেদিত একজন অভিজ্ঞ নেতৃত্ব।', 'An experienced leader dedicated to education.'),
       message: para('আসসালামু আলাইকুম। আমাদের প্রতিষ্ঠানে আপনাকে স্বাগতম।', 'Assalamu Alaikum. Welcome to our institution.'),
@@ -104,6 +107,7 @@ async function run() {
       name: t.name,
       slug: mlSlug(t.slugEn, t.slugEn),
       gender: t.gender,
+      seniority: t.seniority,
       department: { _type: 'reference', _ref: t.dept },
       summary: ml('একজন নিবেদিতপ্রাণ শিক্ষক।', 'A dedicated teacher.'),
       fullBio: para('শিক্ষার্থীদের গড়ে তুলতে নিবেদিত।', 'Dedicated to nurturing students.'),

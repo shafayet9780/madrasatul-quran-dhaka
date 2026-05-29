@@ -23,3 +23,9 @@ test('unknown teacher slug returns 404', async ({ page }) => {
   const res = await page.goto('/english/teachers/no-such-teacher-xyz');
   expect(res?.status()).toBe(404);
 });
+
+test('content pages render the unified hero', async ({ page }) => {
+  const res = await page.goto('/english/admissions');
+  expect(res?.status()).toBeLessThan(400);
+  await expect(page.getByRole('heading', { level: 1, name: 'Admissions' })).toBeVisible();
+});

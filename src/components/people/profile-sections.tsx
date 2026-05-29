@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { ChevronRight } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { getLocalizedText, getLocalizedArray, getFontClass, type Language } from '@/lib/sanity-utils';
 import type { Education } from '@/types/sanity';
@@ -18,18 +19,43 @@ export function ProfileBreadcrumb({
 }) {
   const font = getFontClass(language);
   const t = useTranslations('people');
+  const link = 'text-gray-500 transition-colors hover:text-accent-600';
   return (
-    <nav className={`flex items-center gap-2 text-sm text-gray-500 ${font}`} aria-label="Breadcrumb">
-      <Link href="/" className="hover:text-primary-600">
+    <nav className={`flex items-center gap-1.5 text-sm ${font}`} aria-label="Breadcrumb">
+      <Link href="/" className={link}>
         {t('home')}
       </Link>
-      <span aria-hidden>/</span>
-      <Link href={parentHref} className="hover:text-primary-600">
+      <ChevronRight className="h-3.5 w-3.5 flex-shrink-0 text-gray-300" aria-hidden />
+      <Link href={parentHref} className={link}>
         {parentLabel}
       </Link>
-      <span aria-hidden>/</span>
-      <span className="truncate font-medium text-gray-900">{current}</span>
+      <ChevronRight className="h-3.5 w-3.5 flex-shrink-0 text-gray-300" aria-hidden />
+      <span className="truncate font-semibold text-gray-900" aria-current="page">
+        {current}
+      </span>
     </nav>
+  );
+}
+
+export function ProfileBadge({
+  children,
+  variant = 'muted',
+  language,
+}: {
+  children: React.ReactNode;
+  variant?: 'accent' | 'muted';
+  language: Language;
+}) {
+  const styles =
+    variant === 'accent'
+      ? 'bg-accent-50 text-accent-700 ring-accent-200'
+      : 'bg-primary-50 text-primary-700 ring-primary-100';
+  return (
+    <span
+      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ring-1 ${styles} ${getFontClass(language)}`}
+    >
+      {children}
+    </span>
   );
 }
 
