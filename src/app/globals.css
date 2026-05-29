@@ -81,12 +81,17 @@
   html {
     scroll-behavior: smooth;
     overflow-x: hidden;
+    /* Canvas/overscroll background. Browsers reveal this (or body, via background
+       propagation) on the rubber-band scroll — keep it white so the top bounce
+       blends into the navbar. Single color is reliable cross-browser; the
+       distinct top/bottom "trick" is not. */
+    background: #ffffff;
+    overscroll-behavior-y: contain;
   }
 
   body {
     color: var(--color-text-primary);
-    /* Brand background gradients */
-    background: linear-gradient(135deg, #A97C50 0%, #D4A574 50%, #F4E4C1 100%);
+    background: #ffffff;
     min-height: 100vh;
     font-feature-settings:
       'kern' 1,

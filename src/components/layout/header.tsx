@@ -332,7 +332,7 @@ export default function Header({ siteSettings, peopleNav }: HeaderProps) {
 
             {/* Desktop Navigation */}
             <nav ref={navRef} className="hidden xl:flex items-center justify-center flex-1 max-w-3xl mx-6">
-              <div className="flex items-center gap-0.5">
+              <div className="flex items-center gap-2">
                 {NAV_ITEMS.map((item) => {
                   if (item.type === 'link') {
                     return (

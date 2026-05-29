@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Inter, Noto_Sans_Bengali, Amiri } from 'next/font/google';
 import { GoogleAnalytics, CookieConsent, InteractionTracker } from '@/components/analytics/google-analytics';
 import { FacebookPixel } from '@/components/analytics/facebook-pixel';
@@ -33,6 +33,11 @@ const amiri = Amiri({
   fallback: ['Times New Roman', 'serif'],
   adjustFontFallback: true,
 });
+
+// Browser chrome color — matches the light navbar surface.
+export const viewport: Viewport = {
+  themeColor: '#ffffff',
+};
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://madrasatul-quran.edu.bd'),
