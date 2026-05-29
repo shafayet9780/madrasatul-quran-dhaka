@@ -7,6 +7,9 @@ import { siteSettings } from './siteSettings'
 import { footer } from './footer'
 import { preAdmissionForm } from './preAdmissionForm'
 import prospectus from './prospectus'
+import { department } from './department'
+import { director } from './director'
+import { teacher } from './teacher'
 
 export const schemaTypes = [
   page,
@@ -18,4 +21,7 @@ export const schemaTypes = [
   footer,
   preAdmissionForm,
   prospectus,
+  department,
+  director,
+  teacher,
 ]

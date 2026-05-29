@@ -61,6 +61,20 @@ export const siteSettings = defineType({
       ],
     }),
     defineField({
+      name: 'defaultMaleAvatar',
+      title: 'Default Male Avatar',
+      type: 'image',
+      options: { hotspot: true },
+      description: 'Placeholder shown for male directors/teachers who have no photo.',
+    }),
+    defineField({
+      name: 'defaultFemaleAvatar',
+      title: 'Default Female Avatar',
+      type: 'image',
+      options: { hotspot: true },
+      description: 'Placeholder shown for female directors/teachers (per modesty guidelines).',
+    }),
+    defineField({
       name: 'heroImages',
       title: 'Homepage Hero Images',
       description: 'Images for the homepage hero section gallery (recommended: 5 images)',

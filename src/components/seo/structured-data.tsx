@@ -6,7 +6,8 @@ import {
   generateEducationalInstitutionStructuredData,
   generateLocalBusinessStructuredData,
   generateBreadcrumbStructuredData,
-  generateFAQStructuredData 
+  generateFAQStructuredData,
+  serializeJsonLd
 } from '@/lib/seo';
 import { generateLocalBusinessStructuredData as generateLocalSEOData } from '@/lib/local-seo';
 
@@ -75,7 +76,7 @@ export function StructuredData({ type, data }: StructuredDataProps) {
       id={`structured-data-${type}`}
       type="application/ld+json"
       dangerouslySetInnerHTML={{
-        __html: JSON.stringify(structuredData),
+        __html: serializeJsonLd(structuredData),
       }}
     />
   );

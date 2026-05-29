@@ -81,6 +81,41 @@ export const structure: StructureResolver = (S) =>
         .title('Academic Programs')
         .schemaType('academicProgram')
         .child(S.documentTypeList('academicProgram').title('Academic Programs')),
+
+      S.divider(),
+
+      // Directors
+      S.listItem()
+        .title('Directors')
+        .schemaType('director')
+        .child(S.documentTypeList('director').title('Directors')),
+
+      // Teachers
+      S.listItem()
+        .title('Teachers')
+        .schemaType('teacher')
+        .child(
+          S.list()
+            .title('Teachers')
+            .items([
+              S.listItem()
+                .title('All Teachers')
+                .child(S.documentTypeList('teacher').title('All Teachers')),
+              S.listItem()
+                .title('Featured Teachers')
+                .child(
+                  S.documentTypeList('teacher')
+                    .title('Featured Teachers')
+                    .filter('_type == "teacher" && featured == true')
+                ),
+            ])
+        ),
+
+      // Departments
+      S.listItem()
+        .title('Departments')
+        .schemaType('department')
+        .child(S.documentTypeList('department').title('Departments')),
       
       // Staff
       S.listItem()

@@ -8,7 +8,45 @@
     "campus": "Campus & Facilities",
     "news": "News & Events",
     "contact": "Contact",
-    "books": "Our Books"
+    "books": "Our Books",
+    "academics": "Academics",
+    "ourStory": "Our Story",
+    "people": "Our People",
+    "directors": "Directors",
+    "teachers": "Teachers",
+    "allDirectors": "All Directors",
+    "allTeachers": "All Teachers",
+    "byDepartment": "By department"
+  },
+  "directors": {
+    "meta": {
+      "title": "Directors - Madrasatul Quran",
+      "description": "Meet the directors guiding Madrasatul Quran — their vision, leadership, and dedication to Islamic and modern education."
+    },
+    "title": "Our Directors",
+    "subtitle": "The leadership steering our mission of excellence in Islamic and modern education."
+  },
+  "teachers": {
+    "meta": {
+      "title": "Teachers - Madrasatul Quran",
+      "description": "Meet our dedicated teachers across departments — scholars and educators nurturing every student at Madrasatul Quran."
+    },
+    "title": "Our Teachers",
+    "subtitle": "Dedicated educators across our departments, nurturing knowledge and character."
+  },
+  "people": {
+    "home": "Home",
+    "viewProfile": "View Profile",
+    "message": "Message",
+    "biography": "Biography",
+    "qualifications": "Qualifications",
+    "education": "Education",
+    "subjects": "Subjects Taught",
+    "specializations": "Specializations",
+    "experience": "Years of experience",
+    "searchPlaceholder": "Search by name, subject, or specialization",
+    "allDepartments": "All Departments",
+    "noResults": "No profiles found."
   },
   "home": {
     "meta": {

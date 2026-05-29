@@ -131,6 +131,69 @@ export interface StaffMember {
   isLeadership: boolean
 }
 
+export interface Department {
+  _id: string
+  _type: 'department'
+  name: MultilingualText
+  slug: MultilingualSlug
+  description?: MultilingualText
+  accentColor?: string
+  displayOrder: number
+}
+
+export interface ProfileSocialLink {
+  platform: 'email' | 'facebook' | 'linkedin' | 'twitter' | 'website'
+  url: string
+}
+
+export interface Director {
+  _id: string
+  _type: 'director'
+  name: MultilingualText
+  slug: MultilingualSlug
+  designation: MultilingualText
+  gender: 'male' | 'female'
+  photo?: SanityImage
+  summary?: MultilingualText
+  message?: MultilingualContent
+  fullBio?: MultilingualContent
+  qualifications?: {
+    bengali: string[]
+    english: string[]
+  }
+  education?: Education[]
+  socialLinks?: ProfileSocialLink[]
+  signatureName?: string
+  displayOrder: number
+  featured?: boolean
+}
+
+export interface Teacher {
+  _id: string
+  _type: 'teacher'
+  name: MultilingualText
+  slug: MultilingualSlug
+  designation?: MultilingualText
+  gender: 'male' | 'female'
+  department?: Department
+  photo?: SanityImage
+  summary?: MultilingualText
+  fullBio?: MultilingualContent
+  subjects?: {
+    bengali: string[]
+    english: string[]
+  }
+  qualifications?: {
+    bengali: string[]
+    english: string[]
+  }
+  specializations?: string[]
+  yearsOfExperience?: number
+  education?: Education[]
+  displayOrder: number
+  featured?: boolean
+}
+
 export interface Facility {
   _id: string
   _type: 'facility'
@@ -327,6 +390,8 @@ export interface SiteSettings {
   title: MultilingualText
   description?: MultilingualText
   logo?: SanityImage
+  defaultMaleAvatar?: SanityImage
+  defaultFemaleAvatar?: SanityImage
   heroImages?: Array<{
     image: SanityImage
     alt: string

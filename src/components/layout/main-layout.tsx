@@ -6,6 +6,7 @@ import AdmissionBanner from './admission-banner';
 import WhatsAppSupport from '@/components/ui/whatsapp-support';
 import { useScrollVisibility } from '@/hooks/use-scroll-visibility';
 import type { SiteSettings, FooterSettings } from '@/types/sanity';
+import type { PeopleNavData } from '@/lib/queries/site';
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -14,12 +15,14 @@ interface MainLayoutProps {
   // client component.
   siteSettings: SiteSettings | null;
   footerSettings: FooterSettings | null;
+  peopleNav?: PeopleNavData;
 }
 
 export default function MainLayout({
   children,
   siteSettings,
   footerSettings,
+  peopleNav,
 }: MainLayoutProps) {
   const isScrollVisible = useScrollVisibility();
 
@@ -36,7 +39,7 @@ export default function MainLayout({
         {siteSettings?.admissionBanner?.isEnabled && (
           <AdmissionBanner bannerConfig={siteSettings.admissionBanner} />
         )}
-        <Header siteSettings={siteSettings} />
+        <Header siteSettings={siteSettings} peopleNav={peopleNav} />
       </div>
 
       <main

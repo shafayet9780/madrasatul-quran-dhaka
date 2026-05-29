@@ -210,6 +210,45 @@ export function generateBreadcrumbStructuredData(
 }
 
 /**
+ * Serialize a structured-data object for safe inline injection.
+ * Escapes `<` so a value containing `</script>` cannot break out of the tag.
+ */
+export function serializeJsonLd(data: unknown): string {
+  return JSON.stringify(data).replace(/</g, '\\u003c');
+}
+
+/**
+ * Generate Person structured data for a director or teacher profile.
+ */
+export function generatePersonStructuredData(
+  person: {
+    name: string;
+    jobTitle?: string;
+    description?: string;
+    imageUrl?: string;
+    url: string;
+  },
+  locale: 'bengali' | 'english'
+) {
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://madrasatul-quran.edu.bd';
+
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Person',
+    name: person.name,
+    jobTitle: person.jobTitle,
+    description: person.description,
+    image: person.imageUrl,
+    url: `${baseUrl}${person.url}`,
+    worksFor: {
+      '@type': 'EducationalOrganization',
+      '@id': `${baseUrl}/#organization`,
+      name: locale === 'bengali' ? 'মাদরাসাতুল কুরআন' : 'Madrasatul Quran',
+    },
+  };
+}
+
+/**
  * Generate FAQ structured data
  */
 export function generateFAQStructuredData(
