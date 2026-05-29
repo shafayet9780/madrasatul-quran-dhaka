@@ -212,10 +212,9 @@ export default function FeaturedContentSection({
 
         if (quickAccessTitle) {
           gsap.fromTo(quickAccessTitle,
-            { y: 30, opacity: 0 },
+            { y: 24 },
             {
               y: 0,
-              opacity: 1,
               duration: 0.8,
               ease: 'power2.out',
               scrollTrigger: {
@@ -229,10 +228,9 @@ export default function FeaturedContentSection({
 
         quickAccessItems.forEach((item, index) => {
           gsap.fromTo(item as any,
-            { y: 30, opacity: 0 },
+            { y: 24 },
             {
               y: 0,
-              opacity: 1,
               duration: 0.6,
               delay: index * 0.1,
               ease: 'power2.out',
@@ -253,10 +251,9 @@ export default function FeaturedContentSection({
 
         if (newsTitle) {
           gsap.fromTo(newsTitle,
-            { y: 30, opacity: 0 },
+            { y: 24 },
             {
               y: 0,
-              opacity: 1,
               duration: 0.8,
               ease: 'power2.out',
               scrollTrigger: {
@@ -270,10 +267,9 @@ export default function FeaturedContentSection({
 
         newsItems.forEach((item, index) => {
           gsap.fromTo(item as any,
-            { y: 30, opacity: 0 },
+            { y: 24 },
             {
               y: 0,
-              opacity: 1,
               duration: 0.6,
               delay: index * 0.15,
               ease: 'power2.out',

@@ -445,12 +445,13 @@ slamic geometric pattern background */
   /* Navigation styles */
   .nav-link {
     color: var(--color-text-primary);
-    font-weight: 600;
+    font-weight: 500;
     transition: all 0.3s ease;
     position: relative;
-    padding: 0.75rem 0.5rem;
+    padding: 0.4rem 0.35rem;
     white-space: nowrap;
-    font-size: 0.95rem;
+    font-size: 0.8125rem;
+    letter-spacing: 0.01em;
     display: inline-block;
   }
 

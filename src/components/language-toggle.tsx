@@ -41,22 +41,22 @@ export default function LanguageToggle({ className = '' }: LanguageToggleProps) 
       <button
         onClick={() => setIsOpen(!isOpen)}
         className={`
-          flex items-center gap-2 px-3 py-2 rounded-lg border border-gray-300 
-          bg-white hover:bg-gray-50 transition-all duration-200 
+          flex items-center gap-1.5 px-2 py-1 rounded-md border border-gray-200
+          bg-white/70 hover:bg-white hover:border-gray-300 transition-all duration-200
           ${isPending ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
-          focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent
+          focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent
         `}
         disabled={isPending}
         aria-label="Change language"
         aria-expanded={isOpen}
         aria-haspopup="listbox"
       >
-        <Globe className="w-4 h-4 text-gray-600" />
-        <span className="text-sm font-medium text-gray-700">
+        <Globe className="w-3.5 h-3.5 text-gray-500" />
+        <span className="text-xs font-medium text-gray-600">
           {getCurrentLanguageLabel()}
         </span>
         <svg
-          className={`w-4 h-4 text-gray-600 transition-transform duration-200 ${
+          className={`w-3 h-3 text-gray-400 transition-transform duration-200 ${
             isOpen ? 'rotate-180' : ''
           }`}
           fill="none"

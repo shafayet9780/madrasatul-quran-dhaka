@@ -168,9 +168,9 @@ export default function Footer({ footerSettings, siteSettings }: FooterProps) {
 
 
   return (
-    <footer className="bg-primary-700 text-white relative overflow-hidden">
-      {/* Beach Wave Pattern */}
-      <div className="absolute top-0 left-0 w-full h-20 bg-sand-light opacity-10"></div>
+    <footer className="relative overflow-hidden bg-gradient-to-br from-primary-700 via-primary-800 to-primary-900 text-white">
+      {/* Dot pattern overlay — matches the page hero for a cohesive bookend */}
+      <div className="pointer-events-none absolute inset-0 opacity-10 [background-image:radial-gradient(circle_at_1px_1px,white_1px,transparent_0)] [background-size:24px_24px]" />
 
       {/* Main Footer Content */}
       <div className="container-custom px-4 sm:px-6 lg:px-8 py-12 relative z-10">
