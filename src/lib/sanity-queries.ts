@@ -93,7 +93,7 @@ export const siteSettingsQuery = groq`
       isActive,
       order
     },
-    departments[] {
+    "officeContacts": coalesce(officeContacts, departments)[] {
       name {
         ${multilingualTextFields}
       },
@@ -183,6 +183,22 @@ export const siteSettingsQuery = groq`
         },
         estimatedTime
       }
+    },
+    navigationVisibility {
+      showPeople,
+      showAbout,
+      showAcademics,
+      showDirectors,
+      showTeachers,
+      showAdvisors,
+      showOurStory,
+      showCampus,
+      showNews,
+      showCurriculum,
+      showPrograms,
+      showAdmissions,
+      showContact,
+      showBooks
     }
   }
 `;

@@ -167,6 +167,18 @@ export interface Director {
   signatureName?: string
   displayOrder: number
   featured?: boolean
+  showDetailPage?: boolean
+}
+
+export interface Advisor {
+  _id: string
+  _type: 'advisor'
+  name: MultilingualText
+  gender: 'male' | 'female'
+  photo?: SanityImage
+  summary: MultilingualText
+  displayOrder: number
+  featured?: boolean
 }
 
 export interface Teacher {
@@ -194,6 +206,7 @@ export interface Teacher {
   education?: Education[]
   displayOrder: number
   featured?: boolean
+  showDetailPage?: boolean
 }
 
 export interface Facility {
@@ -405,7 +418,7 @@ export interface SiteSettings {
   contactInfo?: ContactInfo
   locationInfo?: LocationInfo
   socialMedia?: SocialMediaLink[]
-  departments?: DepartmentContact[]
+  officeContacts?: DepartmentContact[]
   admissionInfo?: AdmissionInfo
   seo?: {
     metaTitle?: MultilingualText
@@ -418,4 +431,20 @@ export interface SiteSettings {
   }
   statistics?: SchoolStatistics
   admissionBanner?: AdmissionBanner
+  navigationVisibility?: {
+    showPeople?: boolean
+    showAbout?: boolean
+    showAcademics?: boolean
+    showDirectors?: boolean
+    showTeachers?: boolean
+    showAdvisors?: boolean
+    showOurStory?: boolean
+    showCampus?: boolean
+    showNews?: boolean
+    showCurriculum?: boolean
+    showPrograms?: boolean
+    showAdmissions?: boolean
+    showContact?: boolean
+    showBooks?: boolean
+  }
 }

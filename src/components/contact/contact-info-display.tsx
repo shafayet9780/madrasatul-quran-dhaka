@@ -170,7 +170,7 @@ export default function ContactInfoDisplay({ siteSettings }: ContactInfoDisplayP
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {siteSettings?.departments?.filter(dept => dept.isActive).map((dept, index) => (
+            {siteSettings?.officeContacts?.filter(dept => dept.isActive).map((dept, index) => (
               <DepartmentContactCard
                 key={index}
                 title={dept.name ? getLocalizedText(dept.name, locale) : `Department ${index + 1}`}

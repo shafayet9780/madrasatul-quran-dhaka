@@ -1,13 +1,25 @@
-import { defineField, defineType } from 'sanity'
+import { defineField, defineType, ALL_FIELDS_GROUP } from 'sanity'
 
 export const siteSettings = defineType({
   name: 'siteSettings',
   title: 'Site Settings',
   type: 'document',
+  groups: [
+    // Hide the auto-generated "All fields" tab — every field is grouped below.
+    { ...ALL_FIELDS_GROUP, hidden: true },
+    { name: 'general', title: 'General', default: true },
+    { name: 'homepage', title: 'Homepage' },
+    { name: 'contact', title: 'Contact' },
+    { name: 'location', title: 'Location' },
+    { name: 'navigation', title: 'Navigation' },
+    { name: 'social', title: 'Social' },
+    { name: 'seo', title: 'SEO' },
+  ],
   fields: [
     defineField({
       name: 'title',
       title: 'Site Title',
+      group: 'general',
       type: 'object',
       fields: [
         {
@@ -28,6 +40,7 @@ export const siteSettings = defineType({
     defineField({
       name: 'description',
       title: 'Site Description',
+      group: 'general',
       type: 'object',
       fields: [
         {
@@ -47,6 +60,7 @@ export const siteSettings = defineType({
     defineField({
       name: 'logo',
       title: 'Logo',
+      group: 'general',
       type: 'image',
       options: {
         hotspot: true,
@@ -63,6 +77,7 @@ export const siteSettings = defineType({
     defineField({
       name: 'defaultMaleAvatar',
       title: 'Default Male Avatar',
+      group: 'general',
       type: 'image',
       options: { hotspot: true },
       description: 'Placeholder shown for male directors/teachers who have no photo.',
@@ -70,6 +85,7 @@ export const siteSettings = defineType({
     defineField({
       name: 'defaultFemaleAvatar',
       title: 'Default Female Avatar',
+      group: 'general',
       type: 'image',
       options: { hotspot: true },
       description: 'Placeholder shown for female directors/teachers (per modesty guidelines).',
@@ -77,6 +93,7 @@ export const siteSettings = defineType({
     defineField({
       name: 'heroImages',
       title: 'Homepage Hero Images',
+      group: 'homepage',
       description: 'Images for the homepage hero section gallery (recommended: 5 images)',
       type: 'array',
       of: [
@@ -155,12 +172,14 @@ export const siteSettings = defineType({
     defineField({
       name: 'favicon',
       title: 'Favicon',
+      group: 'general',
       type: 'image',
       description: 'Small icon for browser tabs (32x32px recommended)',
     }),
     defineField({
       name: 'contactInfo',
       title: 'Contact Information',
+      group: 'contact',
       type: 'object',
       fields: [
         {
@@ -346,6 +365,7 @@ export const siteSettings = defineType({
     defineField({
       name: 'locationInfo',
       title: 'Location Information',
+      group: 'location',
       type: 'object',
       fields: [
         {
@@ -584,6 +604,7 @@ export const siteSettings = defineType({
     defineField({
       name: 'socialMedia',
       title: 'Social Media Links',
+      group: 'social',
       type: 'array',
       of: [
         {
@@ -614,8 +635,40 @@ export const siteSettings = defineType({
       ]
     }),
     defineField({
+      name: 'navigationVisibility',
+      title: 'Navigation Visibility',
+      group: 'navigation',
+      description:
+        'Turn navbar links on/off. Use "Whole sections" to hide an entire menu (About / Academics / Our People) in one switch, or toggle individual links below. Hiding removes the link from desktop + mobile menus. The "Our People" links (Directors/Teachers/Advisors) additionally make their pages return 404 when hidden; other links are hidden from the menu only.',
+      type: 'object',
+      fieldsets: [
+        { name: 'sections', title: 'Whole sections (hide a menu entirely)' },
+        { name: 'people', title: 'Our People links' },
+        { name: 'about', title: 'About menu links' },
+        { name: 'academics', title: 'Academics menu links' },
+        { name: 'other', title: 'Other links' },
+      ],
+      fields: [
+        { name: 'showPeople', title: 'Our People', type: 'boolean', initialValue: true, fieldset: 'sections' },
+        { name: 'showAbout', title: 'About', type: 'boolean', initialValue: true, fieldset: 'sections' },
+        { name: 'showAcademics', title: 'Academics', type: 'boolean', initialValue: true, fieldset: 'sections' },
+        { name: 'showDirectors', title: 'Directors', type: 'boolean', initialValue: true, fieldset: 'people' },
+        { name: 'showTeachers', title: 'Teachers', type: 'boolean', initialValue: true, fieldset: 'people' },
+        { name: 'showAdvisors', title: 'Advisors', type: 'boolean', initialValue: true, fieldset: 'people' },
+        { name: 'showOurStory', title: 'Our Story', type: 'boolean', initialValue: true, fieldset: 'about' },
+        { name: 'showCampus', title: 'Campus & Facilities', type: 'boolean', initialValue: true, fieldset: 'about' },
+        { name: 'showNews', title: 'News & Events', type: 'boolean', initialValue: true, fieldset: 'about' },
+        { name: 'showCurriculum', title: 'Curriculum', type: 'boolean', initialValue: true, fieldset: 'academics' },
+        { name: 'showPrograms', title: 'Academic Programs', type: 'boolean', initialValue: true, fieldset: 'academics' },
+        { name: 'showAdmissions', title: 'Admissions', type: 'boolean', initialValue: true, fieldset: 'other' },
+        { name: 'showContact', title: 'Contact', type: 'boolean', initialValue: true, fieldset: 'other' },
+        { name: 'showBooks', title: 'Our Books (external)', type: 'boolean', initialValue: true, fieldset: 'other' },
+      ],
+    }),
+    defineField({
       name: 'admissionInfo',
       title: 'Admission Information',
+      group: 'contact',
       type: 'object',
       fields: [
         {
@@ -650,9 +703,10 @@ export const siteSettings = defineType({
       ],
     }),
     defineField({
-      name: 'departments',
-      title: 'Department Contacts',
-      description: 'Contact information for different departments',
+      name: 'officeContacts',
+      title: 'Office Contacts',
+      group: 'contact',
+      description: 'Per-office contact directory (e.g. Admissions, Accounts). Distinct from the academic "Department" documents that teachers belong to.',
       type: 'array',
       of: [
         {
@@ -721,6 +775,7 @@ export const siteSettings = defineType({
     defineField({
       name: 'seo',
       title: 'SEO Settings',
+      group: 'seo',
       type: 'object',
       fields: [
         {
@@ -793,6 +848,7 @@ export const siteSettings = defineType({
     defineField({
       name: 'statistics',
       title: 'School Statistics',
+      group: 'homepage',
       type: 'object',
       fields: [
         {
@@ -855,6 +911,7 @@ export const siteSettings = defineType({
     defineField({
       name: 'admissionBanner',
       title: 'Admission Banner',
+      group: 'homepage',
       type: 'object',
       fields: [
         {
