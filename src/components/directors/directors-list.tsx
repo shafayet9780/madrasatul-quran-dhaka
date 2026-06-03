@@ -4,7 +4,6 @@ import { useMemo } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { PeopleHero } from '@/components/people/people-hero';
 import { DirectorCard } from './director-card';
-import { sortBySeniority } from '@/lib/seniority';
 import { getFontClass, type Language } from '@/lib/sanity-utils';
 import type { AvatarPlaceholders } from '@/lib/profile-avatar';
 import type { Director } from '@/types/sanity';
@@ -19,7 +18,10 @@ export function DirectorsList({ directors, placeholders }: DirectorsListProps) {
   const t = useTranslations('directors');
   const tp = useTranslations('people');
   const font = getFontClass(locale);
-  const sorted = useMemo(() => sortBySeniority(directors), [directors]);
+  const sorted = useMemo(
+    () => [...directors].sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0)),
+    [directors]
+  );
 
   return (
     <div className="min-h-screen bg-gray-50">

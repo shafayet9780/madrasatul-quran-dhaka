@@ -152,7 +152,6 @@ export interface Director {
   name: MultilingualText
   slug: MultilingualSlug
   designation: MultilingualText
-  seniority?: string
   gender: 'male' | 'female'
   photo?: SanityImage
   summary?: MultilingualText

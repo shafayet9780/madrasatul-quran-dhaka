@@ -4,7 +4,6 @@ import Link from 'next/link';
 import { useLocale, useTranslations } from 'next-intl';
 import { ProfileAvatar } from '@/components/people/profile-avatar';
 import { ProfileBadge } from '@/components/people/profile-sections';
-import { seniorityBadgeKey } from '@/lib/seniority';
 import {
   getLocalizedText,
   getLocalizedSlug,
@@ -23,12 +22,11 @@ interface DirectorCardProps {
 export function DirectorCard({ director, placeholders }: DirectorCardProps) {
   const locale = useLocale() as Language;
   const t = useTranslations('people');
-  const tSeniority = useTranslations('seniority');
   const font = getFontClass(locale);
   const slug = getLocalizedSlug(director.slug, locale);
   const name = getLocalizedText(director.name, locale);
+  const designation = getLocalizedText(director.designation, locale);
   const firstQualification = getLocalizedArray(director.qualifications, locale)[0];
-  const showSeniority = seniorityBadgeKey(director.seniority);
   const detailEnabled = director.showDetailPage !== false;
 
   const inner = (
@@ -41,24 +39,19 @@ export function DirectorCard({ director, placeholders }: DirectorCardProps) {
         className="h-28 w-28 ring-4 ring-primary-100 transition-all duration-300 group-hover:ring-accent-200"
       />
       <h3 className={`mt-5 text-xl font-bold text-gray-900 ${font}`}>{name}</h3>
-      <p className={`mt-1 text-sm font-medium text-primary-600 ${font}`}>
-        {getLocalizedText(director.designation, locale)}
-      </p>
 
-      {(showSeniority || firstQualification) && (
-        <div className="mt-3 flex flex-wrap justify-center gap-2">
-          {showSeniority && (
-            <ProfileBadge variant="accent" language={locale}>
-              {tSeniority(director.seniority!)}
-            </ProfileBadge>
-          )}
-          {firstQualification && (
-            <ProfileBadge variant="muted" language={locale}>
-              {firstQualification}
-            </ProfileBadge>
-          )}
-        </div>
-      )}
+      <div className="mt-3 flex flex-wrap justify-center gap-2">
+        {designation && (
+          <ProfileBadge variant="accent" language={locale}>
+            {designation}
+          </ProfileBadge>
+        )}
+        {firstQualification && (
+          <ProfileBadge variant="muted" language={locale}>
+            {firstQualification}
+          </ProfileBadge>
+        )}
+      </div>
 
       {director.summary && getLocalizedText(director.summary, locale) && (
         <p className={`mt-3 line-clamp-2 text-sm text-gray-500 ${font}`}>
