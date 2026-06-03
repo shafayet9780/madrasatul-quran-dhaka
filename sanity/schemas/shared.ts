@@ -3,7 +3,7 @@ import { defineField } from 'sanity'
 /**
  * Shared field builders for multilingual (Bengali/English) content.
  * Mirrors the object-with-bengali/english pattern used across the schemas
- * (see newsEvent, staffMember) so Directors/Teachers stay consistent.
+ * (see newsEvent) so Directors/Teachers stay consistent.
  */
 
 type Req = { required?: boolean }

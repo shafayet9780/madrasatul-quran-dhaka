@@ -558,121 +558,6 @@ const academicPrograms = [
   }
 ];
 
-// Sample Staff Members
-const staffMembers = [
-  {
-    _type: 'staffMember',
-    name: {
-      bengali: 'ড. মোহাম্মদ আব্দুর রহমান',
-      english: 'Dr. Mohammad Abdur Rahman'
-    },
-    position: {
-      bengali: 'অধ্যক্ষ',
-      english: 'Principal'
-    },
-    department: 'administration',
-    qualifications: {
-      bengali: ['পিএইচডি ইসলামিক স্টাডিজ', 'এমএ আরবি সাহিত্য', 'বিএ (অনার্স) ইসলামিক স্টাডিজ'],
-      english: ['PhD Islamic Studies', 'MA Arabic Literature', 'BA (Hons) Islamic Studies']
-    },
-    biography: {
-      bengali: 'ড. মোহাম্মদ আব্দুর রহমান ২৫ বছরের শিক্ষকতার অভিজ্ঞতা নিয়ে আমাদের প্রতিষ্ঠানের নেতৃত্ব দিচ্ছেন। তিনি ইসলামী শিক্ষা ও আধুনিক শিক্ষার সমন্বয়ে একটি আদর্শ শিক্ষা ব্যবস্থা গড়ে তুলতে প্রতিশ্রুতিবদ্ধ।',
-      english: 'Dr. Mohammad Abdur Rahman is leading our institution with 25 years of teaching experience. He is committed to building an ideal education system that combines Islamic education with modern education.'
-    },
-    specializations: ['Islamic Education', 'Arabic Literature', 'Educational Administration'],
-    contactEmail: 'principal@madrasatulquran.edu.bd',
-    yearsOfExperience: 25,
-    education: [
-      {
-        degree: {
-          bengali: 'পিএইচডি ইসলামিক স্টাডিজ',
-          english: 'PhD Islamic Studies'
-        },
-        institution: {
-          bengali: 'ঢাকা বিশ্ববিদ্যালয়',
-          english: 'University of Dhaka'
-        },
-        year: 2005
-      }
-    ],
-    displayOrder: 1,
-    isLeadership: true
-  },
-  {
-    _type: 'staffMember',
-    name: {
-      bengali: 'মাওলানা আব্দুল করিম',
-      english: 'Maulana Abdul Karim'
-    },
-    position: {
-      bengali: 'ইসলামিক স্টাডিজ বিভাগের প্রধান',
-      english: 'Head of Islamic Studies Department'
-    },
-    department: 'islamic_studies',
-    qualifications: {
-      bengali: ['দাওরায়ে হাদিস', 'এমএ ইসলামিক স্টাডিজ', 'হাফেজুল কুরআন'],
-      english: ['Dawra-e-Hadith', 'MA Islamic Studies', 'Hafez-ul-Quran']
-    },
-    biography: {
-      bengali: 'মাওলানা আব্দুল করিম একজন অভিজ্ঞ ইসলামী শিক্ষক যিনি ২০ বছর ধরে কুরআন ও হাদিসের শিক্ষা প্রদান করে আসছেন। তিনি শিক্ষার্থীদের মধ্যে ইসলামী মূল্যবোধ গড়ে তুলতে নিরলসভাবে কাজ করে যাচ্ছেন।',
-      english: 'Maulana Abdul Karim is an experienced Islamic teacher who has been teaching Quran and Hadith for 20 years. He works tirelessly to build Islamic values among students.'
-    },
-    specializations: ['Quran Studies', 'Hadith Studies', 'Islamic Jurisprudence'],
-    yearsOfExperience: 20,
-    displayOrder: 2,
-    isLeadership: true
-  },
-  {
-    _type: 'staffMember',
-    name: {
-      bengali: 'প্রফেসর ড. ফাতিমা খাতুন',
-      english: 'Professor Dr. Fatima Khatun'
-    },
-    position: {
-      bengali: 'উপাধ্যক্ষ (একাডেমিক)',
-      english: 'Vice Principal (Academic)'
-    },
-    department: 'administration',
-    qualifications: {
-      bengali: ['পিএইচডি শিক্ষা', 'এমএড', 'বিএড'],
-      english: ['PhD Education', 'MEd', 'BEd']
-    },
-    biography: {
-      bengali: 'প্রফেসর ড. ফাতিমা খাতুন শিক্ষা ক্ষেত্রে ১৮ বছরের অভিজ্ঞতা রয়েছে। তিনি আমাদের একাডেমিক কার্যক্রম পরিচালনা ও শিক্ষার মান উন্নয়নে গুরুত্বপূর্ণ ভূমিকা পালন করছেন।',
-      english: 'Professor Dr. Fatima Khatun has 18 years of experience in the field of education. She plays an important role in conducting our academic programs and improving the quality of education.'
-    },
-    specializations: ['Educational Administration', 'Curriculum Development', 'Teacher Training'],
-    contactEmail: 'vpacademic@madrasatulquran.edu.bd',
-    yearsOfExperience: 18,
-    displayOrder: 3,
-    isLeadership: true
-  },
-  {
-    _type: 'staffMember',
-    name: {
-      bengali: 'মোহাম্মদ রফিকুল ইসলাম',
-      english: 'Mohammad Rafiqul Islam'
-    },
-    position: {
-      bengali: 'গণিত শিক্ষক',
-      english: 'Mathematics Teacher'
-    },
-    department: 'nctb_curriculum',
-    qualifications: {
-      bengali: ['এমএসসি গণিত', 'বিএসসি (অনার্স) গণিত'],
-      english: ['MSc Mathematics', 'BSc (Hons) Mathematics']
-    },
-    biography: {
-      bengali: 'মোহাম্মদ রফিকুল ইসলাম ১২ বছর ধরে গণিত শিক্ষকতা করে আসছেন। তিনি শিক্ষার্থীদের গণিতের প্রতি ভালোবাসা সৃষ্টি করতে সক্ষম।',
-      english: 'Mohammad Rafiqul Islam has been teaching mathematics for 12 years. He is able to create love for mathematics among students.'
-    },
-    specializations: ['Pure Mathematics', 'Applied Mathematics', 'Mathematical Problem Solving'],
-    yearsOfExperience: 12,
-    displayOrder: 4,
-    isLeadership: false
-  }
-];
-
 // Sample Facilities
 const facilities = [
   {
@@ -903,12 +788,6 @@ async function populateAllData() {
     }
     console.log(`✅ ${academicPrograms.length} Academic Programs populated successfully`);
 
-    console.log('\n👥 Populating Staff Members...');
-    for (const staff of staffMembers) {
-      await createOrUpdateDocument(staff);
-    }
-    console.log(`✅ ${staffMembers.length} Staff Members populated successfully`);
-
     console.log('\n🏢 Populating Facilities...');
     for (const facility of facilities) {
       await createOrUpdateDocument(facility);
@@ -934,7 +813,7 @@ async function cleanupData() {
     await validateEnvironment();
     await testConnection();
     
-    const contentTypes = ['page', 'newsEvent', 'academicProgram', 'staffMember', 'facility', 'translationTask'];
+    const contentTypes = ['page', 'newsEvent', 'academicProgram', 'facility', 'translationTask'];
     
     for (const contentType of contentTypes) {
       console.log(`Deleting ${contentType} documents...`);

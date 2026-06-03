@@ -435,60 +435,6 @@ export const academicProgramBySlugQuery = groq`
   }
 `;
 
-// Staff Queries
-export const allStaffQuery = groq`
-  *[_type == "staffMember"] | order(displayOrder asc) {
-    _id,
-    name {
-      ${multilingualTextFields}
-    },
-    position {
-      ${multilingualTextFields}
-    },
-    department,
-    photo {
-      ${imageFields}
-    },
-    displayOrder,
-    isLeadership
-  }
-`;
-
-export const leadershipTeamQuery = groq`
-  *[_type == "staffMember" && isLeadership == true] | order(displayOrder asc) {
-    _id,
-    name {
-      ${multilingualTextFields}
-    },
-    position {
-      ${multilingualTextFields}
-    },
-    department,
-    qualifications {
-      bengali,
-      english
-    },
-    biography {
-      ${multilingualTextFields}
-    },
-    photo {
-      ${imageFields}
-    },
-    specializations,
-    yearsOfExperience,
-    education[] {
-      degree {
-        ${multilingualTextFields}
-      },
-      institution {
-        ${multilingualTextFields}
-      },
-      year
-    },
-    displayOrder
-  }
-`;
-
 // Facilities Queries
 export const allFacilitiesQuery = groq`
   *[_type == "facility"] | order(displayOrder asc) {

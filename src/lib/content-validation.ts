@@ -5,7 +5,6 @@ import type {
   Page,
   NewsEvent,
   AcademicProgram,
-  StaffMember,
   Facility,
   SiteSettings
 } from '@/types/sanity';
@@ -326,47 +325,6 @@ export function validateAcademicProgram(program: AcademicProgram): ValidationRes
 }
 
 /**
- * Validate StaffMember content
- */
-export function validateStaffMember(staff: StaffMember): ValidationResult {
-  const errors: ValidationError[] = [];
-
-  // Validate required fields
-  errors.push(...validateMultilingualText(staff.name, 'name', true));
-  errors.push(...validateMultilingualText(staff.position, 'position', true));
-
-  // Validate department
-  const validDepartments = ['administration', 'islamic_studies', 'nctb_curriculum', 'co_curricular', 'support_staff'];
-  if (!validDepartments.includes(staff.department)) {
-    errors.push({
-      field: 'department',
-      message: `Department must be one of: ${validDepartments.join(', ')}`,
-      severity: 'error'
-    });
-  }
-
-  // Validate photo if present
-  if (staff.photo) {
-    errors.push(...validateSanityImage(staff.photo, 'photo', false));
-  }
-
-  // Validate leadership requirements
-  if (staff.isLeadership && !staff.biography) {
-    errors.push({
-      field: 'biography',
-      message: 'Biography is required for leadership team members',
-      severity: 'error'
-    });
-  }
-
-  return {
-    isValid: errors.filter(e => e.severity === 'error').length === 0,
-    errors: errors.filter(e => e.severity === 'error'),
-    warnings: errors.filter(e => e.severity === 'warning')
-  };
-}
-
-/**
  * Validate Facility content
  */
 export function validateFacility(facility: Facility): ValidationResult {
@@ -471,9 +429,6 @@ export function batchValidateContent(
         break;
       case 'academicProgram':
         validation = validateAcademicProgram(item.data);
-        break;
-      case 'staffMember':
-        validation = validateStaffMember(item.data);
         break;
       case 'facility':
         validation = validateFacility(item.data);

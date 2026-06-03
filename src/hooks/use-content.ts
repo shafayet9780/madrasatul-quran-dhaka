@@ -7,7 +7,6 @@ import type {
   Page,
   NewsEvent,
   AcademicProgram,
-  StaffMember,
   Facility
 } from '@/types/sanity';
 
@@ -198,42 +197,6 @@ export function useAcademicProgram(slug: string, options: UseContentOptions = {}
 }
 
 /**
- * Staff members hook
- */
-export function useStaff(options: UseContentOptions = {}) {
-  const contentService = getContentService(options.preview);
-  
-  return useContent(
-    () => contentService.getAllStaff(),
-    options
-  );
-}
-
-/**
- * Leadership team hook
- */
-export function useLeadershipTeam(options: UseContentOptions = {}) {
-  const contentService = getContentService(options.preview);
-  
-  return useContent(
-    () => contentService.getLeadershipTeam(),
-    options
-  );
-}
-
-/**
- * Staff by department hook
- */
-export function useStaffByDepartment(department: string, options: UseContentOptions = {}) {
-  const contentService = getContentService(options.preview);
-  
-  return useContent(
-    () => contentService.getStaffByDepartment(department),
-    options
-  );
-}
-
-/**
  * Facilities hook
  */
 export function useFacilities(options: UseContentOptions = {}) {
@@ -359,14 +322,12 @@ export function useMultiContent(options: UseContentOptions = {}) {
     siteSettings: SiteSettings | null;
     featuredNews: NewsEvent[];
     featuredFacilities: Facility[];
-    leadershipTeam: StaffMember[];
     loading: boolean;
     error: string | null;
   }>({
     siteSettings: null,
     featuredNews: [],
     featuredFacilities: [],
-    leadershipTeam: [],
     loading: true,
     error: null,
   });
@@ -375,18 +336,16 @@ export function useMultiContent(options: UseContentOptions = {}) {
     setState(prev => ({ ...prev, loading: true, error: null }));
     
     try {
-      const [siteSettings, featuredNews, featuredFacilities, leadershipTeam] = await Promise.all([
+      const [siteSettings, featuredNews, featuredFacilities] = await Promise.all([
         contentService.getSiteSettings(),
         contentService.getFeaturedNewsEvents(6),
         contentService.getFeaturedFacilities(),
-        contentService.getLeadershipTeam(),
       ]);
 
       setState({
         siteSettings,
         featuredNews,
         featuredFacilities,
-        leadershipTeam,
         loading: false,
         error: null,
       });

@@ -123,48 +123,6 @@ export const structure: StructureResolver = (S) =>
         .schemaType('department')
         .child(S.documentTypeList('department').title('Departments')),
       
-      // Staff
-      S.listItem()
-        .title('Staff')
-        .schemaType('staffMember')
-        .child(
-          S.list()
-            .title('Staff')
-            .items([
-              S.listItem()
-                .title('All Staff')
-                .child(S.documentTypeList('staffMember').title('All Staff')),
-              S.listItem()
-                .title('Leadership Team')
-                .child(
-                  S.documentTypeList('staffMember')
-                    .title('Leadership Team')
-                    .filter('_type == "staffMember" && isLeadership == true')
-                ),
-              S.listItem()
-                .title('Administration')
-                .child(
-                  S.documentTypeList('staffMember')
-                    .title('Administration')
-                    .filter('_type == "staffMember" && department == "administration"')
-                ),
-              S.listItem()
-                .title('Islamic Studies')
-                .child(
-                  S.documentTypeList('staffMember')
-                    .title('Islamic Studies')
-                    .filter('_type == "staffMember" && department == "islamic_studies"')
-                ),
-              S.listItem()
-                .title('NCTB Curriculum')
-                .child(
-                  S.documentTypeList('staffMember')
-                    .title('NCTB Curriculum')
-                    .filter('_type == "staffMember" && department == "nctb_curriculum"')
-                ),
-            ])
-        ),
-      
       // Facilities
       S.listItem()
         .title('Facilities')

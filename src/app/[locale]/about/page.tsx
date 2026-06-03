@@ -13,7 +13,7 @@ import ComingSoonPage from '@/components/ui/coming-soon-page';
 // import { getContentService } from '@/lib/content-service';
 // import { getPreviewContext } from '@/lib/preview';
 // import { PreviewBanner } from '@/components/preview/preview-banner';
-// import type { StaffMember, Page } from '@/types/sanity';
+// import type { Page } from '@/types/sanity';
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;

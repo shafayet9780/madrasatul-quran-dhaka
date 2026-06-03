@@ -10,8 +10,6 @@ import {
   newsEventBySlugQuery,
   allAcademicProgramsQuery,
   academicProgramBySlugQuery,
-  allStaffQuery,
-  leadershipTeamQuery,
   allFacilitiesQuery,
   featuredFacilitiesQuery,
   facilityBySlugQuery,
@@ -23,7 +21,6 @@ import type {
   Page,
   NewsEvent,
   AcademicProgram,
-  StaffMember,
   Facility,
   FooterSettings,
   PreAdmissionForm
@@ -308,78 +305,6 @@ export class ContentService {
     }
   }
 
-  /**
-   * Staff
-   */
-  async getAllStaff(): Promise<StaffMember[]> {
-    try {
-      if (this.isPreview) {
-        return await this.client.fetch(allStaffQuery);
-      }
-      return await sanityFetch({
-        query: allStaffQuery,
-        tags: ['staffMember'],
-      });
-    } catch (error) {
-      console.error('Error fetching staff:', error);
-      return [];
-    }
-  }
-
-  async getLeadershipTeam(): Promise<StaffMember[]> {
-    try {
-      if (this.isPreview) {
-        return await this.client.fetch(leadershipTeamQuery);
-      }
-      return await sanityFetch({
-        query: leadershipTeamQuery,
-        tags: ['staffMember'],
-      });
-    } catch (error) {
-      console.error('Error fetching leadership team:', error);
-      return [];
-    }
-  }
-
-  async getStaffByDepartment(department: string): Promise<StaffMember[]> {
-    try {
-      const query = `
-        *[_type == "staffMember" && department == $department] | order(displayOrder asc) {
-          _id,
-          name {
-            bengali,
-            english
-          },
-          position {
-            bengali,
-            english
-          },
-          department,
-          photo {
-            ...,
-            alt,
-            caption {
-              bengali,
-              english
-            }
-          },
-          displayOrder,
-          isLeadership
-        }
-      `;
-      if (this.isPreview) {
-        return await this.client.fetch(query, { department });
-      }
-      return await sanityFetch({
-        query,
-        params: { department },
-        tags: ['staffMember'],
-      });
-    } catch (error) {
-      console.error(`Error fetching staff by department ${department}:`, error);
-      return [];
-    }
-  }
 
   /**
    * Facilities

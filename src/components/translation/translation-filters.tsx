@@ -41,7 +41,6 @@ export function TranslationFilters({
       newsEvent: t('documentTypes.newsEvent', { defaultValue: 'News & Events' }),
       page: t('documentTypes.page', { defaultValue: 'Page' }),
       academicProgram: t('documentTypes.academicProgram', { defaultValue: 'Academic Program' }),
-      staffMember: t('documentTypes.staffMember', { defaultValue: 'Staff Member' }),
       facility: t('documentTypes.facility', { defaultValue: 'Facility' }),
     };
     return names[type] || type;

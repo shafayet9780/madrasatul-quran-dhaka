@@ -58,15 +58,7 @@ async function testContentIntegration() {
       console.log(`   - Age Range: ${firstProgram.ageRange}`);
     }
 
-    // Test 5: Staff Members
-    console.log('\n5. Testing Staff Members...');
-    const staff = await client.fetch('*[_type == "staffMember"] | order(displayOrder asc)');
-    console.log(`✅ Found ${staff.length} staff members`);
-    
-    const leadership = await client.fetch('*[_type == "staffMember" && isLeadership == true] | order(displayOrder asc)');
-    console.log(`✅ Found ${leadership.length} leadership team members`);
-
-    // Test 6: Facilities
+    // Test 5: Facilities
     console.log('\n6. Testing Facilities...');
     const facilities = await client.fetch('*[_type == "facility"] | order(displayOrder asc)');
     console.log(`✅ Found ${facilities.length} facilities`);

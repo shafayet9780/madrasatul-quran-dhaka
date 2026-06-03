@@ -64,17 +64,6 @@ export interface Subject {
   grade?: string;
 }
 
-export interface StaffMember {
-  _id: string;
-  name: MultilingualText;
-  position: MultilingualText;
-  qualifications: MultilingualText;
-  biography: MultilingualText;
-  photo: SanityImage;
-  specializations: string[];
-  contactEmail?: string;
-}
-
 export interface Facility {
   _id: string;
   name: MultilingualText;

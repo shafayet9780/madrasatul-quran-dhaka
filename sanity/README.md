@@ -14,7 +14,6 @@ sanity/
 │   ├── page.ts               # Page content schema
 │   ├── newsEvent.ts          # News & events schema
 │   ├── academicProgram.ts    # Academic programs schema
-│   ├── staffMember.ts        # Staff member schema
 │   ├── facility.ts           # Facility schema
 │   └── siteSettings.ts       # Site settings schema
 ├── structure.ts        # Custom studio structure

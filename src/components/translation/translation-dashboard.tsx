@@ -168,7 +168,7 @@ export function TranslationDashboard({ userRole = 'editor' }: TranslationDashboa
       <TranslationFilters
         filters={filters}
         onFiltersChange={setFilters}
-        documentTypes={['newsEvent', 'page', 'academicProgram', 'staffMember', 'facility']}
+        documentTypes={['newsEvent', 'page', 'academicProgram', 'facility']}
       />
 
       {/* Workflow Items */}

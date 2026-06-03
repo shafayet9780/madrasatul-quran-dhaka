@@ -111,26 +111,6 @@ export interface Education {
   year?: number
 }
 
-export interface StaffMember {
-  _id: string
-  _type: 'staffMember'
-  name: MultilingualText
-  position: MultilingualText
-  department: 'administration' | 'islamic_studies' | 'nctb_curriculum' | 'co_curricular' | 'support_staff'
-  qualifications?: {
-    bengali: string[]
-    english: string[]
-  }
-  biography?: MultilingualText
-  photo?: SanityImage
-  specializations?: string[]
-  contactEmail?: string
-  yearsOfExperience?: number
-  education?: Education[]
-  displayOrder: number
-  isLeadership: boolean
-}
-
 export interface Department {
   _id: string
   _type: 'department'

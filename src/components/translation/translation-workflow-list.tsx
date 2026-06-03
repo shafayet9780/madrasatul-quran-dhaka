@@ -10,7 +10,6 @@ import {
   DocumentTextIcon,
   NewspaperIcon,
   AcademicCapIcon,
-  UserGroupIcon,
   BuildingOfficeIcon
 } from '@heroicons/react/24/outline';
 import { 
@@ -43,8 +42,6 @@ export function TranslationWorkflowList({
         return DocumentTextIcon;
       case 'academicProgram':
         return AcademicCapIcon;
-      case 'staffMember':
-        return UserGroupIcon;
       case 'facility':
         return BuildingOfficeIcon;
       default:
@@ -57,7 +54,6 @@ export function TranslationWorkflowList({
       newsEvent: t('documentTypes.newsEvent', { defaultValue: 'News & Events' }),
       page: t('documentTypes.page', { defaultValue: 'Page' }),
       academicProgram: t('documentTypes.academicProgram', { defaultValue: 'Academic Program' }),
-      staffMember: t('documentTypes.staffMember', { defaultValue: 'Staff Member' }),
       facility: t('documentTypes.facility', { defaultValue: 'Facility' }),
     };
     return names[type] || type;
