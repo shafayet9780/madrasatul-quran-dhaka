@@ -10,6 +10,7 @@ import prospectus from './prospectus'
 import { department } from './department'
 import { director } from './director'
 import { teacher } from './teacher'
+import { advisor } from './advisor'
 
 export const schemaTypes = [
   page,
@@ -24,4 +25,5 @@ export const schemaTypes = [
   department,
   director,
   teacher,
+  advisor,
 ]

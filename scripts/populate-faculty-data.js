@@ -60,13 +60,22 @@ const directors = [
     gender: 'female',
     order: 2,
     featured: true,
+    // Demo: detail page disabled — card shows but isn't clickable.
+    showDetailPage: false,
   },
 ];
 
 const teachers = [
   { _id: 'teacher.1', name: ml('হাফেজ ইব্রাহিম', 'Hafez Ibrahim'), slugEn: 'hafez-ibrahim', dept: 'department.islamic-studies', gender: 'male', subjects: ml(['কুরআন', 'হিফজ'], ['Quran', 'Hifz']), exp: 12, seniority: 'head_of_department' },
   { _id: 'teacher.2', name: ml('উস্তাজা আয়েশা', 'Ustaza Ayesha'), slugEn: 'ustaza-ayesha', dept: 'department.islamic-studies', gender: 'female', subjects: ml(['আরবি', 'ফিকহ'], ['Arabic', 'Fiqh']), exp: 8 },
-  { _id: 'teacher.3', name: ml('মোঃ রহিম', 'Md. Rahim'), slugEn: 'md-rahim', dept: 'department.nctb', gender: 'male', subjects: ml(['গণিত', 'বিজ্ঞান'], ['Mathematics', 'Science']), exp: 10 },
+  // Demo: detail page disabled.
+  { _id: 'teacher.3', name: ml('মোঃ রহিম', 'Md. Rahim'), slugEn: 'md-rahim', dept: 'department.nctb', gender: 'male', subjects: ml(['গণিত', 'বিজ্ঞান'], ['Mathematics', 'Science']), exp: 10, showDetailPage: false },
+];
+
+const advisors = [
+  { _id: 'advisor.1', name: ml('মুফতি সালমান', 'Mufti Salman'), gender: 'male', order: 1, summary: ml('শরিয়াহ বিষয়ক উপদেষ্টা।', 'Shariah affairs advisor.'), featured: true },
+  // featured omitted → not shown in the mega-menu (only on the /advisors page).
+  { _id: 'advisor.2', name: ml('ড. করিম উদ্দিন', 'Dr. Karim Uddin'), gender: 'male', order: 2, summary: ml('শিক্ষা ও পাঠ্যক্রম উপদেষ্টা।', 'Education and curriculum advisor.') },
 ];
 
 async function run() {
@@ -97,6 +106,19 @@ async function run() {
       qualifications: ml(['কামিল', 'এম.এ'], ['Kamil', 'M.A']),
       displayOrder: d.order,
       featured: d.featured,
+      showDetailPage: d.showDetailPage !== false,
+    });
+  }
+
+  for (const a of advisors) {
+    docs.push({
+      _id: a._id,
+      _type: 'advisor',
+      name: a.name,
+      gender: a.gender,
+      summary: a.summary,
+      displayOrder: a.order,
+      featured: a.featured === true,
     });
   }
 
@@ -114,6 +136,7 @@ async function run() {
       subjects: t.subjects,
       yearsOfExperience: t.exp,
       displayOrder: 0,
+      showDetailPage: t.showDetailPage !== false,
     });
   }
 

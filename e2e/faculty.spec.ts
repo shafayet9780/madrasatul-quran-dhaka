@@ -12,6 +12,12 @@ for (const locale of ['bengali', 'english']) {
     expect(res?.status()).toBeLessThan(400);
     await expect(page.locator('input[type="search"]')).toBeVisible();
   });
+
+  test(`${locale} advisors list renders`, async ({ page }) => {
+    const res = await page.goto(`/${locale}/advisors`);
+    expect(res?.status()).toBeLessThan(400);
+    await expect(page.locator('h1').first()).toBeVisible();
+  });
 }
 
 test('unknown director slug returns 404', async ({ page }) => {

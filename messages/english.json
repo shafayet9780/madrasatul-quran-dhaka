@@ -16,7 +16,17 @@
     "teachers": "Teachers",
     "allDirectors": "All Directors",
     "allTeachers": "All Teachers",
-    "byDepartment": "By department"
+    "byDepartment": "By department",
+    "advisors": "Advisors",
+    "allAdvisors": "All Advisors"
+  },
+  "advisors": {
+    "meta": {
+      "title": "Advisors - Madrasatul Quran",
+      "description": "Meet the advisors supporting Madrasatul Quran with their guidance, wisdom, and experience."
+    },
+    "title": "Our Advisors",
+    "subtitle": "Experienced guides supporting our mission with wisdom and counsel."
   },
   "directors": {
     "meta": {

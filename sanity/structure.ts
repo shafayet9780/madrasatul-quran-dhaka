@@ -90,6 +90,12 @@ export const structure: StructureResolver = (S) =>
         .schemaType('director')
         .child(S.documentTypeList('director').title('Directors')),
 
+      // Advisors
+      S.listItem()
+        .title('Advisors')
+        .schemaType('advisor')
+        .child(S.documentTypeList('advisor').title('Advisors')),
+
       // Teachers
       S.listItem()
         .title('Teachers')
