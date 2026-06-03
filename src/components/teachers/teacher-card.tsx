@@ -30,12 +30,10 @@ export function TeacherCard({ teacher, placeholders }: TeacherCardProps) {
   const subjects = getLocalizedArray(teacher.subjects, locale);
   const firstQualification = getLocalizedArray(teacher.qualifications, locale)[0];
   const showSeniority = seniorityBadgeKey(teacher.seniority);
+  const detailEnabled = teacher.showDetailPage !== false;
 
-  return (
-    <Link
-      href={`/teachers/${slug}`}
-      className="group flex flex-col items-center rounded-2xl border-t-2 border-transparent bg-white p-6 text-center shadow-sm ring-1 ring-gray-100 transition-all duration-300 hover:-translate-y-1 hover:border-primary-400 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 motion-reduce:transition-none motion-reduce:hover:translate-y-0"
-    >
+  const inner = (
+    <>
       <ProfileAvatar
         photo={teacher.photo}
         gender={teacher.gender}
@@ -73,6 +71,23 @@ export function TeacherCard({ teacher, placeholders }: TeacherCardProps) {
       {subjects.length > 0 && (
         <p className={`mt-2 line-clamp-1 text-xs text-gray-500 ${font}`}>{subjects.join(' • ')}</p>
       )}
+    </>
+  );
+
+  if (!detailEnabled) {
+    return (
+      <div className="flex flex-col items-center rounded-2xl border-t-2 border-transparent bg-white p-6 text-center shadow-sm ring-1 ring-gray-100">
+        {inner}
+      </div>
+    );
+  }
+
+  return (
+    <Link
+      href={`/teachers/${slug}`}
+      className="group flex flex-col items-center rounded-2xl border-t-2 border-transparent bg-white p-6 text-center shadow-sm ring-1 ring-gray-100 transition-all duration-300 hover:-translate-y-1 hover:border-primary-400 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 motion-reduce:transition-none motion-reduce:hover:translate-y-0"
+    >
+      {inner}
     </Link>
   );
 }

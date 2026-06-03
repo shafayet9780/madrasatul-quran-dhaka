@@ -2,7 +2,8 @@ import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { urlFor } from '@/lib/sanity';
 import { getDirectorBySlug } from '@/lib/queries/directors';
-import { getProfilePlaceholders } from '@/lib/queries/site';
+import { getPeoplePageData } from '@/lib/queries/site';
+import { isSectionVisible } from '@/lib/nav-visibility';
 import { DirectorDetail } from '@/components/directors';
 import { generatePersonStructuredData, generateBreadcrumbStructuredData, serializeJsonLd } from '@/lib/seo';
 import { getLocalizedText, type Language } from '@/lib/sanity-utils';
@@ -15,7 +16,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale, slug } = await params;
   const language = locale as Language;
   const director = await getDirectorBySlug(slug, language);
-  if (!director) return { title: 'Director Not Found' };
+  if (!director || director.showDetailPage === false) return { title: 'Director Not Found' };
 
   const name = getLocalizedText(director.name, language);
   const description =
@@ -30,12 +31,14 @@ export default async function DirectorProfile({ params }: Props) {
   const { locale, slug } = await params;
   const language = locale as Language;
 
-  const [director, placeholders] = await Promise.all([
+  const [director, { placeholders, visibility }] = await Promise.all([
     getDirectorBySlug(slug, language),
-    getProfilePlaceholders(),
+    getPeoplePageData(),
   ]);
 
-  if (!director) notFound();
+  if (!director || director.showDetailPage === false || !isSectionVisible('directors', visibility)) {
+    notFound();
+  }
 
   const name = getLocalizedText(director.name, language);
   const imageUrl = director.photo ? urlFor(director.photo).width(400).height(400).url() : undefined;

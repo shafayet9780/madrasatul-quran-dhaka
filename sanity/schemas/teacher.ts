@@ -55,6 +55,13 @@ export const teacher = defineType({
     educationField(),
     displayOrderField(),
     featuredField(),
+    defineField({
+      name: 'showDetailPage',
+      title: 'Enable Detail Page',
+      type: 'boolean',
+      description: 'If off, this profile shows as a list card only — no clickable detail page.',
+      initialValue: true,
+    }),
   ],
   preview: {
     select: { title: 'name.english', subtitle: 'department.name.english', media: 'photo' },

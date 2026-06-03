@@ -72,6 +72,13 @@ export const director = defineType({
     }),
     displayOrderField(),
     featuredField('Highlight in the navigation mega-menu'),
+    defineField({
+      name: 'showDetailPage',
+      title: 'Enable Detail Page',
+      type: 'boolean',
+      description: 'If off, this profile shows as a list card only — no clickable detail page.',
+      initialValue: true,
+    }),
   ],
   preview: {
     select: { title: 'name.english', subtitle: 'designation.english', media: 'photo' },

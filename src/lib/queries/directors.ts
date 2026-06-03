@@ -12,7 +12,8 @@ const directorListProjection = `
   photo { ..., alt },
   summary,
   displayOrder,
-  featured
+  featured,
+  showDetailPage
 `;
 
 const directorDetailProjection = `
@@ -36,7 +37,8 @@ const directorDetailProjection = `
   socialLinks[] { platform, url },
   signatureName,
   displayOrder,
-  featured
+  featured,
+  showDetailPage
 `;
 
 export async function getDirectors(): Promise<Director[]> {
@@ -65,7 +67,7 @@ export async function getDirectorSlugs(): Promise<
   Array<{ bengali?: string; english?: string }>
 > {
   const query = `
-    *[_type == "director" && defined(slug.english.current)] {
+    *[_type == "director" && defined(slug.english.current) && showDetailPage != false] {
       "bengali": slug.bengali.current,
       "english": slug.english.current
     }

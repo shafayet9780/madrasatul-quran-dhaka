@@ -29,12 +29,10 @@ export function DirectorCard({ director, placeholders }: DirectorCardProps) {
   const name = getLocalizedText(director.name, locale);
   const firstQualification = getLocalizedArray(director.qualifications, locale)[0];
   const showSeniority = seniorityBadgeKey(director.seniority);
+  const detailEnabled = director.showDetailPage !== false;
 
-  return (
-    <Link
-      href={`/directors/${slug}`}
-      className="group flex flex-col items-center rounded-2xl border-t-2 border-transparent bg-white p-8 text-center shadow-md ring-1 ring-gray-100 transition-all duration-300 hover:-translate-y-1 hover:border-accent-400 hover:shadow-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-400 motion-reduce:transition-none motion-reduce:hover:translate-y-0"
-    >
+  const inner = (
+    <>
       <ProfileAvatar
         photo={director.photo}
         gender={director.gender}
@@ -67,9 +65,28 @@ export function DirectorCard({ director, placeholders }: DirectorCardProps) {
           {getLocalizedText(director.summary, locale)}
         </p>
       )}
-      <span className={`mt-4 text-sm font-medium text-accent-600 group-hover:text-accent-700 ${font}`}>
-        {t('viewProfile')} →
-      </span>
+      {detailEnabled && (
+        <span className={`mt-4 text-sm font-medium text-accent-600 group-hover:text-accent-700 ${font}`}>
+          {t('viewProfile')} →
+        </span>
+      )}
+    </>
+  );
+
+  if (!detailEnabled) {
+    return (
+      <div className="flex flex-col items-center rounded-2xl border-t-2 border-transparent bg-white p-8 text-center shadow-md ring-1 ring-gray-100">
+        {inner}
+      </div>
+    );
+  }
+
+  return (
+    <Link
+      href={`/directors/${slug}`}
+      className="group flex flex-col items-center rounded-2xl border-t-2 border-transparent bg-white p-8 text-center shadow-md ring-1 ring-gray-100 transition-all duration-300 hover:-translate-y-1 hover:border-accent-400 hover:shadow-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-400 motion-reduce:transition-none motion-reduce:hover:translate-y-0"
+    >
+      {inner}
     </Link>
   );
 }

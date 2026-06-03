@@ -2,7 +2,8 @@ import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { urlFor } from '@/lib/sanity';
 import { getTeacherBySlug } from '@/lib/queries/teachers';
-import { getProfilePlaceholders } from '@/lib/queries/site';
+import { getPeoplePageData } from '@/lib/queries/site';
+import { isSectionVisible } from '@/lib/nav-visibility';
 import { TeacherDetail } from '@/components/teachers';
 import { generatePersonStructuredData, generateBreadcrumbStructuredData, serializeJsonLd } from '@/lib/seo';
 import { getLocalizedText, type Language } from '@/lib/sanity-utils';
@@ -15,7 +16,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale, slug } = await params;
   const language = locale as Language;
   const teacher = await getTeacherBySlug(slug, language);
-  if (!teacher) return { title: 'Teacher Not Found' };
+  if (!teacher || teacher.showDetailPage === false) return { title: 'Teacher Not Found' };
 
   const name = getLocalizedText(teacher.name, language);
   const description =
@@ -28,12 +29,14 @@ export default async function TeacherProfile({ params }: Props) {
   const { locale, slug } = await params;
   const language = locale as Language;
 
-  const [teacher, placeholders] = await Promise.all([
+  const [teacher, { placeholders, visibility }] = await Promise.all([
     getTeacherBySlug(slug, language),
-    getProfilePlaceholders(),
+    getPeoplePageData(),
   ]);
 
-  if (!teacher) notFound();
+  if (!teacher || teacher.showDetailPage === false || !isSectionVisible('teachers', visibility)) {
+    notFound();
+  }
 
   const name = getLocalizedText(teacher.name, language);
   const imageUrl = teacher.photo ? urlFor(teacher.photo).width(400).height(400).url() : undefined;

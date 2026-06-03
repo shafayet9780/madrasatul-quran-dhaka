@@ -25,6 +25,7 @@ const teacherListProjection = `
   yearsOfExperience,
   displayOrder,
   featured,
+  showDetailPage,
   ${departmentProjection}
 `;
 
@@ -50,6 +51,7 @@ const teacherDetailProjection = `
   },
   displayOrder,
   featured,
+  showDetailPage,
   ${departmentProjection}
 `;
 
@@ -79,7 +81,7 @@ export async function getTeacherSlugs(): Promise<
   Array<{ bengali?: string; english?: string }>
 > {
   const query = `
-    *[_type == "teacher" && defined(slug.english.current)] {
+    *[_type == "teacher" && defined(slug.english.current) && showDetailPage != false] {
       "bengali": slug.bengali.current,
       "english": slug.english.current
     }

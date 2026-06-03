@@ -1,8 +1,10 @@
 import { Metadata } from 'next';
+import { notFound } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
 import { TeachersList } from '@/components/teachers';
 import { getTeachers } from '@/lib/queries/teachers';
-import { getProfilePlaceholders } from '@/lib/queries/site';
+import { getPeoplePageData } from '@/lib/queries/site';
+import { isSectionVisible } from '@/lib/nav-visibility';
 
 export async function generateMetadata({
   params,
@@ -18,6 +20,10 @@ export async function generateMetadata({
 }
 
 export default async function TeachersPage() {
-  const [teachers, placeholders] = await Promise.all([getTeachers(), getProfilePlaceholders()]);
+  const [teachers, { placeholders, visibility }] = await Promise.all([
+    getTeachers(),
+    getPeoplePageData(),
+  ]);
+  if (!isSectionVisible('teachers', visibility)) notFound();
   return <TeachersList teachers={teachers} placeholders={placeholders} />;
 }

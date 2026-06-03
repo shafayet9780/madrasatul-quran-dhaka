@@ -12,6 +12,7 @@ import { type Locale } from '@/lib/i18n';
 import type { SiteSettings } from '@/types/sanity';
 import type { PeopleNavData } from '@/lib/queries/site';
 import { getLocalizedText, getLocalizedSlug, getFontClass } from '@/lib/sanity-utils';
+import { isSectionVisible } from '@/lib/nav-visibility';
 
 interface HeaderProps {
   siteSettings?: SiteSettings | null;
@@ -63,6 +64,15 @@ export default function Header({ siteSettings, peopleNav }: HeaderProps) {
     male: siteSettings?.defaultMaleAvatar ?? null,
     female: siteSettings?.defaultFemaleAvatar ?? null,
   };
+
+  // Editor-controlled "Our People" section visibility (Site Settings).
+  const navVis = siteSettings?.navigationVisibility;
+  const peopleVisible = {
+    directors: isSectionVisible('directors', navVis),
+    teachers: isSectionVisible('teachers', navVis),
+    advisors: isSectionVisible('advisors', navVis),
+  };
+  const anyPeopleVisible = peopleVisible.directors || peopleVisible.teachers || peopleVisible.advisors;
 
   const siteTitle = siteSettings?.title
     ? getLocalizedText(siteSettings.title, locale)
@@ -133,57 +143,113 @@ export default function Header({ siteSettings, peopleNav }: HeaderProps) {
   };
 
   /* ---------- Desktop "Our People" mega-menu ---------- */
-  const PeopleMega = () => (
-    <div className="grid w-[34rem] grid-cols-2 gap-6 p-6">
-      <div>
-        <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-400">{t('directors')}</p>
-        <ul className="space-y-1">
-          {(peopleNav?.directors ?? []).map((d) => (
-            <li key={d._id}>
-              <Link
-                href={`/directors/${getLocalizedSlug(d.slug, locale)}`}
-                onClick={closeAll}
-                className="flex items-center gap-3 rounded-lg p-2 hover:bg-primary-50"
-              >
+  const PeopleMega = () => {
+    const columns: React.ReactNode[] = [];
+
+    if (peopleVisible.directors) {
+      columns.push(
+        <div key="directors">
+          <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-400">{t('directors')}</p>
+          <ul className="space-y-1">
+            {(peopleNav?.directors ?? []).map((d) => {
+              const row = (
+                <>
+                  <ProfileAvatar
+                    photo={d.photo}
+                    gender={d.gender}
+                    placeholders={placeholders}
+                    name={getLocalizedText(d.name, locale)}
+                    className="h-9 w-9 ring-1 ring-primary-100"
+                  />
+                  <span className={`text-sm text-gray-700 ${getFontClass(locale)}`}>
+                    {getLocalizedText(d.name, locale)}
+                  </span>
+                </>
+              );
+              return (
+                <li key={d._id}>
+                  {d.showDetailPage !== false ? (
+                    <Link
+                      href={`/directors/${getLocalizedSlug(d.slug, locale)}`}
+                      onClick={closeAll}
+                      className="flex items-center gap-3 rounded-lg p-2 hover:bg-primary-50"
+                    >
+                      {row}
+                    </Link>
+                  ) : (
+                    <div className="flex items-center gap-3 rounded-lg p-2">{row}</div>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+          <Link href="/directors" onClick={closeAll} className="mt-2 inline-block text-sm font-medium text-accent-600 hover:text-accent-700">
+            {t('allDirectors')} →
+          </Link>
+        </div>
+      );
+    }
+
+    if (peopleVisible.advisors) {
+      columns.push(
+        <div key="advisors">
+          <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-400">{t('advisors')}</p>
+          <ul className="space-y-1">
+            {(peopleNav?.advisors ?? []).map((a) => (
+              <li key={a._id} className="flex items-center gap-3 rounded-lg p-2">
                 <ProfileAvatar
-                  photo={d.photo}
-                  gender={d.gender}
+                  photo={a.photo}
+                  gender={a.gender}
                   placeholders={placeholders}
-                  name={getLocalizedText(d.name, locale)}
+                  name={getLocalizedText(a.name, locale)}
                   className="h-9 w-9 ring-1 ring-primary-100"
                 />
                 <span className={`text-sm text-gray-700 ${getFontClass(locale)}`}>
-                  {getLocalizedText(d.name, locale)}
+                  {getLocalizedText(a.name, locale)}
                 </span>
-              </Link>
-            </li>
-          ))}
-        </ul>
-        <Link href="/directors" onClick={closeAll} className="mt-2 inline-block text-sm font-medium text-accent-600 hover:text-accent-700">
-          {t('allDirectors')} →
-        </Link>
-      </div>
-      <div>
-        <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-400">{t('teachers')}</p>
-        <ul className="space-y-1">
-          {(peopleNav?.departments ?? []).map((dept) => (
-            <li key={dept._id}>
-              <Link
-                href={`/teachers?department=${getLocalizedSlug(dept.slug, locale)}`}
-                onClick={closeAll}
-                className={`block rounded-lg px-2 py-1.5 text-sm text-gray-600 hover:bg-primary-50 hover:text-primary-700 ${getFontClass(locale)}`}
-              >
-                {getLocalizedText(dept.name, locale)}
-              </Link>
-            </li>
-          ))}
-        </ul>
-        <Link href="/teachers" onClick={closeAll} className="mt-2 inline-block text-sm font-medium text-accent-600 hover:text-accent-700">
-          {t('allTeachers')} →
-        </Link>
-      </div>
-    </div>
-  );
+              </li>
+            ))}
+          </ul>
+          <Link href="/advisors" onClick={closeAll} className="mt-2 inline-block text-sm font-medium text-accent-600 hover:text-accent-700">
+            {t('allAdvisors')} →
+          </Link>
+        </div>
+      );
+    }
+
+    if (peopleVisible.teachers) {
+      columns.push(
+        <div key="teachers">
+          <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-400">{t('teachers')}</p>
+          <ul className="space-y-1">
+            {(peopleNav?.departments ?? []).map((dept) => (
+              <li key={dept._id}>
+                <Link
+                  href={`/teachers?department=${getLocalizedSlug(dept.slug, locale)}`}
+                  onClick={closeAll}
+                  className={`block rounded-lg px-2 py-1.5 text-sm text-gray-600 hover:bg-primary-50 hover:text-primary-700 ${getFontClass(locale)}`}
+                >
+                  {getLocalizedText(dept.name, locale)}
+                </Link>
+              </li>
+            ))}
+          </ul>
+          <Link href="/teachers" onClick={closeAll} className="mt-2 inline-block text-sm font-medium text-accent-600 hover:text-accent-700">
+            {t('allTeachers')} →
+          </Link>
+        </div>
+      );
+    }
+
+    const widthClass =
+      columns.length >= 3
+        ? 'w-[48rem] grid-cols-3'
+        : columns.length === 2
+          ? 'w-[34rem] grid-cols-2'
+          : 'w-72 grid-cols-1';
+
+    return <div className={`grid ${widthClass} gap-6 p-6`}>{columns}</div>;
+  };
 
   /* ---------- Mobile menu ---------- */
   const MobileMenuContent = () => (
@@ -225,7 +291,9 @@ export default function Header({ siteSettings, peopleNav }: HeaderProps) {
           <nav className="flex-1 overflow-y-auto py-4">
             <div className="space-y-1 px-4">
               {NAV_ITEMS.map((item) => {
+                if (item.type === 'mega' && (!isSectionVisible('people', navVis) || !anyPeopleVisible)) return null;
                 if (item.type === 'link') {
+                  if (!isSectionVisible(item.key, navVis)) return null;
                   return (
                     <Link
                       key={item.key}
@@ -239,6 +307,11 @@ export default function Header({ siteSettings, peopleNav }: HeaderProps) {
                     </Link>
                   );
                 }
+                const dropdownItems =
+                  item.type === 'dropdown'
+                    ? item.items.filter((sub) => isSectionVisible(sub.key, navVis))
+                    : [];
+                if (item.type === 'dropdown' && (!isSectionVisible(item.key, navVis) || dropdownItems.length === 0)) return null;
                 const isOpen = mobileOpenKey === item.key;
                 return (
                   <div key={item.key} className="border-b border-gray-100 last:border-0">
@@ -253,7 +326,7 @@ export default function Header({ siteSettings, peopleNav }: HeaderProps) {
                     {isOpen && (
                       <div className="pb-2 pl-3">
                         {item.type === 'dropdown'
-                          ? item.items.map((sub) => (
+                          ? dropdownItems.map((sub) => (
                               <Link
                                 key={sub.key}
                                 href={sub.href}
@@ -265,22 +338,33 @@ export default function Header({ siteSettings, peopleNav }: HeaderProps) {
                             ))
                           : (
                             <>
-                              <Link href="/directors" className="block py-2 text-sm font-medium text-gray-700" onClick={() => setIsMobileMenuOpen(false)}>
-                                {t('allDirectors')}
-                              </Link>
-                              <Link href="/teachers" className="block py-2 text-sm font-medium text-gray-700" onClick={() => setIsMobileMenuOpen(false)}>
-                                {t('allTeachers')}
-                              </Link>
-                              {(peopleNav?.departments ?? []).map((dept) => (
-                                <Link
-                                  key={dept._id}
-                                  href={`/teachers?department=${getLocalizedSlug(dept.slug, locale)}`}
-                                  className={`block py-1.5 pl-3 text-sm text-gray-500 hover:text-primary-700 ${getFontClass(locale)}`}
-                                  onClick={() => setIsMobileMenuOpen(false)}
-                                >
-                                  {getLocalizedText(dept.name, locale)}
+                              {peopleVisible.directors && (
+                                <Link href="/directors" className="block py-2 text-sm font-medium text-gray-700" onClick={() => setIsMobileMenuOpen(false)}>
+                                  {t('allDirectors')}
                                 </Link>
-                              ))}
+                              )}
+                              {peopleVisible.advisors && (
+                                <Link href="/advisors" className="block py-2 text-sm font-medium text-gray-700" onClick={() => setIsMobileMenuOpen(false)}>
+                                  {t('allAdvisors')}
+                                </Link>
+                              )}
+                              {peopleVisible.teachers && (
+                                <>
+                                  <Link href="/teachers" className="block py-2 text-sm font-medium text-gray-700" onClick={() => setIsMobileMenuOpen(false)}>
+                                    {t('allTeachers')}
+                                  </Link>
+                                  {(peopleNav?.departments ?? []).map((dept) => (
+                                    <Link
+                                      key={dept._id}
+                                      href={`/teachers?department=${getLocalizedSlug(dept.slug, locale)}`}
+                                      className={`block py-1.5 pl-3 text-sm text-gray-500 hover:text-primary-700 ${getFontClass(locale)}`}
+                                      onClick={() => setIsMobileMenuOpen(false)}
+                                    >
+                                      {getLocalizedText(dept.name, locale)}
+                                    </Link>
+                                  ))}
+                                </>
+                              )}
                             </>
                           )}
                       </div>
@@ -334,7 +418,9 @@ export default function Header({ siteSettings, peopleNav }: HeaderProps) {
             <nav ref={navRef} className="hidden xl:flex items-center justify-center flex-1 max-w-3xl mx-6">
               <div className="flex items-center gap-2">
                 {NAV_ITEMS.map((item) => {
+                  if (item.type === 'mega' && (!isSectionVisible('people', navVis) || !anyPeopleVisible)) return null;
                   if (item.type === 'link') {
+                    if (!isSectionVisible(item.key, navVis)) return null;
                     return (
                       <Link
                         key={item.key}
@@ -347,8 +433,14 @@ export default function Header({ siteSettings, peopleNav }: HeaderProps) {
                       </Link>
                     );
                   }
-                  const isOpen = openMenu === item.key;
                   const isMega = item.type === 'mega';
+                  const dropdownItems =
+                    item.type === 'dropdown'
+                      ? item.items.filter((sub) => isSectionVisible(sub.key, navVis))
+                      : [];
+                  // Hide a dropdown entirely when all its children are hidden.
+                  if (item.type === 'dropdown' && (!isSectionVisible(item.key, navVis) || dropdownItems.length === 0)) return null;
+                  const isOpen = openMenu === item.key;
                   return (
                     <div
                       key={item.key}
@@ -377,7 +469,7 @@ export default function Header({ siteSettings, peopleNav }: HeaderProps) {
                             {isMega ? (
                               <PeopleMega />
                             ) : (
-                              (item as Extract<NavItem, { type: 'dropdown' }>).items.map((sub) => (
+                              dropdownItems.map((sub) => (
                                 <Link
                                   key={sub.key}
                                   href={sub.href}
