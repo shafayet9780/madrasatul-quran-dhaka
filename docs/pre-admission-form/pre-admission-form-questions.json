@@ -1,0 +1,798 @@
+{
+  "formTitle": "প্রি-অ্যাডমিশন ফর্ম",
+  "formDescription": "প্রি-অ্যাডমিশনের জন্য ফরমটি সাবধানে পূরণ করুন।",
+  "sections": [
+    {
+      "sectionTitle": "সাধারণ প্রশ্নাবলী",
+      "sectionNameEn": "General Questions",
+      "fields": [
+        {
+          "sectionName": "General Questions",
+          "fieldName": "",
+          "questionTitle": "আপনি কিভাবে মাদরাসাতুল কুরআন সম্পর্কে জানতে পেরেছেন?",
+          "questionType": "select",
+          "isRequired": true,
+          "placeholder": "বাছাই করুন",
+          "helpText": "",
+          "options": [
+            {
+              "label": "ইন্টারনেট",
+              "value": "internet"
+            },
+            {
+              "label": "বন্ধু/পরিবার",
+              "value": "friends_family"
+            },
+            {
+              "label": "বিজ্ঞাপন",
+              "value": "advertisement"
+            },
+            {
+              "label": "অন্যান্য",
+              "value": "other"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "sectionTitle": "শিক্ষার্থীর তথ্য",
+      "sectionNameEn": "Student Information",
+      "fields": [
+        {
+          "sectionName": "Student Information",
+          "fieldName": "student_photo",
+          "questionTitle": "শিক্ষার্থীর ছবি",
+          "questionType": "file",
+          "isRequired": true,
+          "placeholder": "ছবি আপলোড করুন",
+          "helpText": "শিক্ষার্থীর সদ্য তোলা পাসপোর্ট সাইজ ছবি",
+          "options": [],
+          "fileType": "student-image"
+        },
+        {
+          "sectionName": "Student Information",
+          "fieldName": "student_name_bengali",
+          "questionTitle": "নাম (বাংলায়)",
+          "questionType": "text",
+          "isRequired": true,
+          "placeholder": "শিক্ষার্থীর নাম লিখুন (বাংলায়)",
+          "helpText": "",
+          "options": []
+        },
+        {
+          "sectionName": "Student Information",
+          "fieldName": "student_name_english",
+          "questionTitle": "Name (in English)",
+          "questionType": "text",
+          "isRequired": true,
+          "placeholder": "Enter student name (in english)",
+          "helpText": "",
+          "options": []
+        },
+        {
+          "sectionName": "Student Information",
+          "fieldName": "date_of_birth",
+          "questionTitle": "জন্ম তারিখ",
+          "questionType": "date",
+          "isRequired": true,
+          "placeholder": "",
+          "helpText": "",
+          "options": []
+        },
+        {
+          "sectionName": "Student Information",
+          "fieldName": "desired_class",
+          "questionTitle": "যে ক্লাসে ভর্তি হতে ইচ্ছুক",
+          "questionType": "select",
+          "isRequired": true,
+          "placeholder": "ক্লাস বাছাই করুন",
+          "helpText": "",
+          "options": [
+            {
+              "label": "নার্সারি",
+              "value": "nursery"
+            },
+            {
+              "label": "কেজি",
+              "value": "kg"
+            },
+            {
+              "label": "১ম শ্রেণী",
+              "value": "class_1"
+            },
+            {
+              "label": "২য় শ্রেণী",
+              "value": "class_2"
+            },
+            {
+              "label": "৩য় শ্রেণী",
+              "value": "class_3"
+            },
+            {
+              "label": "৪র্থ শ্রেণী (বিশেষ বিবেচনায়)",
+              "value": "class_4"
+            },
+            {
+              "label": "৫ম শ্রেণী (বিশেষ বিবেচনায়)",
+              "value": "class_5"
+            }
+          ]
+        },
+        {
+          "sectionName": "Student Information",
+          "fieldName": "last_class_attended",
+          "questionTitle": "সর্বশেষ যে শ্রেণীতে অধ্যয়ন করেছে (যদি প্রযোজ্য হয়)",
+          "questionType": "text",
+          "isRequired": false,
+          "placeholder": "",
+          "helpText": "",
+          "options": []
+        },
+        {
+          "sectionName": "Student Information",
+          "fieldName": "previous_school",
+          "questionTitle": "পূর্ববর্তী শিক্ষা প্রতিষ্ঠানের নাম (প্রযোজ্য ক্ষেত্রে)",
+          "questionType": "text",
+          "isRequired": false,
+          "placeholder": "",
+          "helpText": "",
+          "options": []
+        },
+        {
+          "sectionName": "Student Information",
+          "fieldName": "student_birth_registration",
+          "questionTitle": "শিক্ষার্থীর জন্ম নিবন্ধন সনদ",
+          "questionType": "file",
+          "isRequired": true,
+          "placeholder": "",
+          "helpText": "",
+          "options": [],
+          "fileType": "student-birth-certificate"
+        }
+      ]
+    },
+    {
+      "sectionTitle": "পিতার তথ্য",
+      "sectionNameEn": "Father Information",
+      "fields": [
+        {
+          "sectionName": "Father Information",
+          "fieldName": "father_name",
+          "questionTitle": "পিতার নাম",
+          "questionType": "text",
+          "isRequired": true,
+          "placeholder": "",
+          "helpText": "",
+          "options": []
+        },
+        {
+          "sectionName": "Father Information",
+          "fieldName": "father_name_english",
+          "questionTitle": "Father's Name (English)",
+          "questionType": "text",
+          "isRequired": true,
+          "placeholder": "",
+          "helpText": "",
+          "options": []
+        },
+        {
+          "sectionName": "Father Information",
+          "fieldName": "father_occupation",
+          "questionTitle": "পেশার বিবরণ",
+          "questionType": "select",
+          "isRequired": true,
+          "placeholder": "",
+          "helpText": "",
+          "options": [
+            {
+              "label": "ব্যবসায়ী",
+              "value": "business"
+            },
+            {
+              "label": "চাকরিজীবী",
+              "value": "service"
+            },
+            {
+              "label": "শিক্ষক",
+              "value": "teacher"
+            },
+            {
+              "label": "ডাক্তার",
+              "value": "doctor"
+            },
+            {
+              "label": "ইঞ্জিনিয়ার",
+              "value": "engineer"
+            },
+            {
+              "label": "অন্যান্য",
+              "value": "other"
+            }
+          ]
+        },
+        {
+          "sectionName": "Father Information",
+          "fieldName": "father_organization",
+          "questionTitle": "প্রতিষ্ঠান / ব্যবসার ধরণ (Organization)",
+          "questionType": "text",
+          "isRequired": false,
+          "placeholder": "",
+          "helpText": "",
+          "options": []
+        },
+        {
+          "sectionName": "Father Information",
+          "fieldName": "father_designation",
+          "questionTitle": "পদবী (Designation)",
+          "questionType": "text",
+          "isRequired": false,
+          "placeholder": "",
+          "helpText": "",
+          "options": []
+        },
+        {
+          "sectionName": "Father Information",
+          "fieldName": "father_prayer_times",
+          "questionTitle": "আপনি কি ৫ ওয়াক্ত সালাত সময়ের মধ্যে আদায় করেন?",
+          "questionType": "boolean",
+          "isRequired": true,
+          "placeholder": "",
+          "helpText": "",
+          "options": [
+            {
+              "label": "৫ ওয়াক্ত",
+              "value": "5_times"
+            },
+            {
+              "label": "৪ ওয়াক্ত",
+              "value": "4_times"
+            },
+            {
+              "label": "৩ ওয়াক্ত",
+              "value": "3_times"
+            },
+            {
+              "label": "২ ওয়াক্ত",
+              "value": "2_times"
+            },
+            {
+              "label": "১ ওয়াক্ত",
+              "value": "1_time"
+            }
+          ]
+        },
+        {
+          "sectionName": "Father Information",
+          "fieldName": "father_prayer_location",
+          "questionTitle": "সালাত কোথায় আদায় করেন?",
+          "questionType": "checkbox",
+          "isRequired": true,
+          "placeholder": "",
+          "helpText": "",
+          "options": [
+            {
+              "label": "মসজিদে",
+              "value": "mosque"
+            },
+            {
+              "label": "বাসায়",
+              "value": "home"
+            },
+            {
+              "label": "অফিসে",
+              "value": "office"
+            }
+          ]
+        },
+        {
+          "sectionName": "Father Information",
+          "fieldName": "father_daily_quran",
+          "questionTitle": "আপনি কি নিয়মিত আল-কুরআনুল কারীম তেলাওয়াত করেন?",
+          "questionType": "radio",
+          "isRequired": true,
+          "placeholder": "",
+          "helpText": "",
+          "options": [
+            {
+              "label": "প্রতিদিন",
+              "value": "daily"
+            },
+            {
+              "label": "মাঝে মাঝে",
+              "value": "sometimes"
+            },
+            {
+              "label": "তিলাওয়াত করা হয় না",
+              "value": "never"
+            }
+          ]
+        },
+        {
+          "sectionName": "Father Information",
+          "fieldName": "father_tv_at_home",
+          "questionTitle": "আপনার বাসায় কি টিভি আছে (ডিশ লাইন সহ)?",
+          "questionType": "boolean",
+          "isRequired": true,
+          "placeholder": "",
+          "helpText": "",
+          "options": []
+        },
+        {
+          "sectionName": "Father Information",
+          "fieldName": "father_screen_time",
+          "questionTitle": "টিভি/ইন্টারনেট/মোবাইলের সাথে প্রতিদিন কত সময় ব্যয় করেন?",
+          "questionType": "select",
+          "isRequired": true,
+          "placeholder": "",
+          "helpText": "",
+          "options": [
+            {
+              "label": "১ ঘণ্টা",
+              "value": "1_hour"
+            },
+            {
+              "label": "২ ঘণ্টা",
+              "value": "2_hours"
+            },
+            {
+              "label": "৩ ঘণ্টা",
+              "value": "3_hours"
+            },
+            {
+              "label": "৪ ঘণ্টা",
+              "value": "4_hours"
+            },
+            {
+              "label": "৫+ ঘণ্টা",
+              "value": "5_plus_hours"
+            }
+          ]
+        },
+        {
+          "sectionName": "Father Information",
+          "fieldName": "father_time_with_children",
+          "questionTitle": "আপনি প্রতিদিন গড়ে সন্তানদের সাথে কত সময় ব্যয় করেন?",
+          "questionType": "radio",
+          "isRequired": true,
+          "placeholder": "",
+          "helpText": "",
+          "options": [
+            {
+              "label": "১ ঘণ্টা+",
+              "value": "1_hour_plus"
+            },
+            {
+              "label": "৩০ মিনিট+",
+              "value": "30_minutes_plus"
+            },
+            {
+              "label": "নিয়মিত নয়",
+              "value": "not_regular"
+            }
+          ]
+        },
+        {
+          "sectionName": "Father Information",
+          "fieldName": "father_islamic_clothing",
+          "questionTitle": "আপনার ইসলামী পোশাক (লিবাস) মেনে চলা",
+          "questionType": "checkbox",
+          "isRequired": true,
+          "placeholder": "",
+          "helpText": "",
+          "options": [
+            {
+              "label": "ঢিলেঢালা পোশাক",
+              "value": "loose_clothing"
+            },
+            {
+              "label": "প্যান্ট গোড়ালির উপরে",
+              "value": "pants_above_ankle"
+            },
+            {
+              "label": "দাড়ি",
+              "value": "beard"
+            },
+            {
+              "label": "উপরোক্ত কোনটিই নয়",
+              "value": "none"
+            }
+          ]
+        },
+        {
+          "sectionName": "Father Information",
+          "fieldName": "father_smoking",
+          "questionTitle": "আপনার কি ধুমপানের অভ্যাস আছে?",
+          "questionType": "boolean",
+          "isRequired": true,
+          "placeholder": "",
+          "helpText": "",
+          "options": []
+        },
+        {
+          "sectionName": "Father Information",
+          "fieldName": "father_mahram",
+          "questionTitle": "আপনি  কি মাহরাম/নন মাহরাম মেনে চলেন?",
+          "questionType": "boolean",
+          "isRequired": true,
+          "placeholder": "",
+          "helpText": "",
+          "options": []
+        },
+        {
+          "sectionName": "Father Information",
+          "fieldName": "father_favorite_scholar",
+          "questionTitle": "আপনার  প্রিয় আলেম/স্কলারের নাম",
+          "questionType": "text",
+          "isRequired": false,
+          "placeholder": "",
+          "helpText": "",
+          "options": []
+        },
+        {
+          "sectionName": "Father Information",
+          "fieldName": "father_facebook_id",
+          "questionTitle": "আপনার ফেসবুক আইডি (না থাকলে \"নেই\" লিখুন)",
+          "questionType": "text",
+          "isRequired": true,
+          "placeholder": "https://facebook.com/******",
+          "helpText": "",
+          "options": []
+        },
+        {
+          "sectionName": "Father Information",
+          "fieldName": "father_photo",
+          "questionTitle": "পিতার ছবি",
+          "questionType": "file",
+          "isRequired": true,
+          "placeholder": "ছবি আপলোড করুন",
+          "helpText": "সদ্য তোলা পাসপোর্ট সাইজ ছবি",
+          "options": [],
+          "fileType": "father-image"
+        }
+      ]
+    },
+    {
+      "sectionTitle": "মাতার তথ্য",
+      "sectionNameEn": "Mother Information",
+      "fields": [
+        {
+          "sectionName": "Mother Information",
+          "fieldName": "mother_name",
+          "questionTitle": "মাতার নাম",
+          "questionType": "text",
+          "isRequired": true,
+          "placeholder": "",
+          "helpText": "",
+          "options": []
+        },
+        {
+          "sectionName": "Mother Information",
+          "fieldName": "mother_name_english",
+          "questionTitle": "Mother's Name (English)",
+          "questionType": "text",
+          "isRequired": true,
+          "placeholder": "",
+          "helpText": "",
+          "options": []
+        },
+        {
+          "sectionName": "Mother Information",
+          "fieldName": "mother_occupation",
+          "questionTitle": "পেশার বিবরণ",
+          "questionType": "select",
+          "isRequired": true,
+          "placeholder": "",
+          "helpText": "",
+          "options": [
+            {
+              "label": "গৃহিণী",
+              "value": "homemaker"
+            },
+            {
+              "label": "ব্যবসায়ী",
+              "value": "business"
+            },
+            {
+              "label": "চাকরিজীবী",
+              "value": "service"
+            },
+            {
+              "label": "শিক্ষক",
+              "value": "teacher"
+            },
+            {
+              "label": "ডাক্তার",
+              "value": "doctor"
+            },
+            {
+              "label": "অন্যান্য",
+              "value": "other"
+            }
+          ]
+        },
+        {
+          "sectionName": "Mother Information",
+          "fieldName": "mother_organization",
+          "questionTitle": "প্রতিষ্ঠান / ব্যবসার ধরণ (Organization)",
+          "questionType": "text",
+          "isRequired": false,
+          "placeholder": "",
+          "helpText": "",
+          "options": []
+        },
+        {
+          "sectionName": "Mother Information",
+          "fieldName": "mother_designation",
+          "questionTitle": "পদবী (Designation)",
+          "questionType": "text",
+          "isRequired": false,
+          "placeholder": "",
+          "helpText": "",
+          "options": []
+        },
+        {
+          "sectionName": "Mother Information",
+          "fieldName": "mother_prayer_times",
+          "questionTitle": "আপনি কি ৫ ওয়াক্ত সালাত সময়ের মধ্যে আদায় করেন?",
+          "questionType": "boolean",
+          "isRequired": true,
+          "placeholder": "",
+          "helpText": "",
+          "options": [
+            {
+              "label": "৫ ওয়াক্ত",
+              "value": "5_times"
+            },
+            {
+              "label": "৪ ওয়াক্ত",
+              "value": "4_times"
+            },
+            {
+              "label": "৩ ওয়াক্ত",
+              "value": "3_times"
+            },
+            {
+              "label": "২ ওয়াক্ত",
+              "value": "2_times"
+            },
+            {
+              "label": "১ ওয়াক্ত",
+              "value": "1_time"
+            }
+          ]
+        },
+        {
+          "sectionName": "Mother Information",
+          "fieldName": "mother_daily_quran",
+          "questionTitle": "আপনি কি নিয়মিত আল-কুরআনুল কারীম তেলাওয়াত করেন?",
+          "questionType": "radio",
+          "isRequired": true,
+          "placeholder": "",
+          "helpText": "",
+          "options": [
+            {
+              "label": "প্রতিদিন",
+              "value": "daily"
+            },
+            {
+              "label": "মাঝে মাঝে",
+              "value": "sometimes"
+            },
+            {
+              "label": "তিলাওয়াত করা হয় না",
+              "value": "never"
+            }
+          ]
+        },
+        {
+          "sectionName": "Mother Information",
+          "fieldName": "mother_islamic_clothing",
+          "questionTitle": "আপনি কি পর্দা করেন?",
+          "questionType": "radio",
+          "isRequired": true,
+          "placeholder": "",
+          "helpText": "",
+          "options": [
+            {
+              "label": "বোরকা + নিকাব",
+              "value": "borka_niqab"
+            },
+            {
+              "label": "বোরকা + হিজাব",
+              "value": "borka_hijab"
+            },
+            {
+              "label": "সাধারণ শালীন পোশাক",
+              "value": "normal_clothing"
+            }
+          ]
+        },
+        {
+          "sectionName": "Mother Information",
+          "fieldName": "mother_screen_time",
+          "questionTitle": "টিভি/ইন্টারনেট/মোবাইলের সাথে প্রতিদিন কত সময় ব্যয় করেন?",
+          "questionType": "select",
+          "isRequired": true,
+          "placeholder": "",
+          "helpText": "",
+          "options": [
+            {
+              "label": "১ ঘণ্টা",
+              "value": "1_hour"
+            },
+            {
+              "label": "২ ঘণ্টা",
+              "value": "2_hours"
+            },
+            {
+              "label": "৩ ঘণ্টা",
+              "value": "3_hours"
+            },
+            {
+              "label": "৪ ঘণ্টা",
+              "value": "4_hours"
+            },
+            {
+              "label": "৫+ ঘণ্টা",
+              "value": "5_plus_hours"
+            }
+          ]
+        },
+        {
+          "sectionName": "Mother Information",
+          "fieldName": "mother_mahram",
+          "questionTitle": "আপনি  কি মাহরাম/নন মাহরাম মেনে চলেন?",
+          "questionType": "boolean",
+          "isRequired": true,
+          "placeholder": "",
+          "helpText": "",
+          "options": []
+        },
+        {
+          "sectionName": "Mother Information",
+          "fieldName": "mother_favorite_scholar",
+          "questionTitle": "প্রিয় আলেম/স্কলারের নাম",
+          "questionType": "text",
+          "isRequired": false,
+          "placeholder": "",
+          "helpText": "",
+          "options": []
+        },
+        {
+          "sectionName": "Mother Information",
+          "fieldName": "mother_facebook_id",
+          "questionTitle": "আপনার ফেসবুক আইডি (না থাকলে \"নেই\" লিখুন)",
+          "questionType": "text",
+          "isRequired": true,
+          "placeholder": "https://facebook.com/******",
+          "helpText": "",
+          "options": []
+        }
+      ]
+    },
+    {
+      "sectionTitle": "অতিরিক্ত তথ্য",
+      "sectionNameEn": "Additional Information",
+      "fields": [
+        {
+          "sectionName": "Additional Information",
+          "fieldName": "transport_requirement",
+          "questionTitle": "আপনার সন্তানকে ভর্তি করার সিদ্ধান্তের জন্য পরিবহন সুবিধা থাকা কি গুরুত্বপূর্ণ?",
+          "questionType": "boolean",
+          "isRequired": true,
+          "placeholder": "",
+          "helpText": "",
+          "options": []
+        },
+        {
+          "sectionName": "Additional Information",
+          "fieldName": "transport_location",
+          "questionTitle": "আপনি যদি স্কুলের পরিবহন নেন, তাহলে কোন এলাকা থেকে আসবেন?",
+          "questionType": "select",
+          "isRequired": false,
+          "placeholder": "",
+          "helpText": "",
+          "options": [
+            {
+              "label": "মিরপুর",
+              "value": "mirpur"
+            },
+            {
+              "label": "উত্তরা",
+              "value": "uttara"
+            },
+            {
+              "label": "অন্যান্য",
+              "value": "others"
+            }
+          ]
+        },
+        {
+          "sectionName": "Additional Information",
+          "fieldName": "other_class_requirement",
+          "questionTitle": "আপনার অন্য সন্তানকে কি অন্য কোন ক্লাসে ভর্তি করতে চান (যদি সেই ক্লাসে ভর্তি নেয়া হয়)?",
+          "questionType": "checkbox",
+          "isRequired": false,
+          "placeholder": "",
+          "helpText": "",
+          "options": [
+            {
+              "label": "প্লে",
+              "value": "play"
+            },
+            {
+              "label": "৪র্থ শ্রেণী",
+              "value": "class_4"
+            },
+            {
+              "label": "৫ম শ্রেণী",
+              "value": "class_5"
+            },
+            {
+              "label": "৬ষ্ঠ শ্রেণী",
+              "value": "class_6"
+            }
+          ]
+        },
+        {
+          "sectionName": "Additional Information",
+          "fieldName": "comments",
+          "questionTitle": "মন্তব্য/পরামর্শ",
+          "questionType": "textarea",
+          "isRequired": false,
+          "placeholder": "আপনার কোন মন্তব্য/পরামর্শ থাকলে আমাদের জানান",
+          "helpText": "",
+          "options": []
+        }
+      ]
+    },
+    {
+      "sectionTitle": "যোগাযোগের তথ্য",
+      "sectionNameEn": "Contact Information",
+      "fields": [
+        {
+          "sectionName": "Contact Information",
+          "fieldName": "present_address",
+          "questionTitle": "বর্তমান ঠিকানা",
+          "questionType": "textarea",
+          "isRequired": true,
+          "placeholder": "বাসা, রোড নম্বর সহ বিস্তারিত ঠিকানা লিখুন",
+          "helpText": "",
+          "options": []
+        },
+        {
+          "sectionName": "Contact Information",
+          "fieldName": "father_phone",
+          "questionTitle": "মোবাইল ফোন নম্বর (পিতা)",
+          "questionType": "tel",
+          "isRequired": true,
+          "placeholder": "",
+          "helpText": "",
+          "options": []
+        },
+        {
+          "sectionName": "Contact Information",
+          "fieldName": "mother_phone",
+          "questionTitle": "মোবাইল ফোন নম্বর (মাতা)",
+          "questionType": "tel",
+          "isRequired": true,
+          "placeholder": "",
+          "helpText": "",
+          "options": []
+        },
+        {
+          "sectionName": "Contact Information",
+          "fieldName": "email",
+          "questionTitle": "ইমেইল",
+          "questionType": "email",
+          "isRequired": true,
+          "placeholder": "",
+          "helpText": "",
+          "options": []
+        }
+      ]
+    }
+  ],
+  "declarationText": "মাদরাসাতুল কুরআন একটি সম্পূর্ণ ইসলামিক শিক্ষা প্রতিষ্ঠান। আমি ঘোষণা করছি যে উপরে প্রদত্ত সকল তথ্য সঠিক ও সত্য। আমি জানি যে ভুল তথ্য প্রদানের ক্ষেত্রে ভর্তি বাতিল হতে পারে।"
+}
