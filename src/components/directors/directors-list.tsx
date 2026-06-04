@@ -22,6 +22,8 @@ export function DirectorsList({ directors, placeholders }: DirectorsListProps) {
     () => [...directors].sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0)),
     [directors]
   );
+  const primaryDirector = sorted[0];
+  const remainingDirectors = sorted.slice(1);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -31,11 +33,19 @@ export function DirectorsList({ directors, placeholders }: DirectorsListProps) {
         {directors.length === 0 ? (
           <p className={`text-center text-gray-500 ${font}`}>{tp('noResults')}</p>
         ) : (
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {sorted.map((director) => (
-              <DirectorCard key={director._id} director={director} placeholders={placeholders} />
-            ))}
-          </div>
+          <>
+            <div className="mx-auto w-full sm:max-w-xs">
+              <DirectorCard director={primaryDirector} placeholders={placeholders} />
+            </div>
+
+            {remainingDirectors.length > 0 && (
+              <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                {remainingDirectors.map((director) => (
+                  <DirectorCard key={director._id} director={director} placeholders={placeholders} />
+                ))}
+              </div>
+            )}
+          </>
         )}
       </section>
     </div>
