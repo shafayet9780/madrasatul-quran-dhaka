@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Download, FileText, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { trackFileDownload } from '@/lib/analytics/track';
 
 interface CurriculumDownloadProps {
   variant?: 'primary' | 'outline' | 'ghost';
@@ -44,6 +45,12 @@ export default function CurriculumDownload({
       
       // Clean up the blob URL
       window.URL.revokeObjectURL(blobUrl);
+
+      trackFileDownload({
+        fileCategory: 'curriculum',
+        locale,
+        ctaSource: 'curriculum_button',
+      });
       
     } catch (error) {
       console.error('Error downloading curriculum:', error);

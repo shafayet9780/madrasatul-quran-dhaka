@@ -1,12 +1,15 @@
 'use client';
 
-import { useTranslations } from 'next-intl';
-import { useState } from 'react';
+import { useTranslations, useLocale } from 'next-intl';
+import { useState, useRef } from 'react';
 import Link from 'next/link';
 import { CalendarDaysIcon, ClockIcon, QuestionMarkCircleIcon, PaperAirplaneIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
+import { trackFormAttempt, trackFormStart } from '@/lib/analytics/track';
 
 export function ImportantDates() {
   const t = useTranslations('admissions.importantDates');
+  const locale = useLocale();
+  const inquiryStartedRef = useRef(false);
 
   const [inquiryForm, setInquiryForm] = useState({
     name: '',
@@ -100,6 +103,7 @@ export function ImportantDates() {
 
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    trackFormAttempt({ formType: 'admission_inquiry', locale });
     setFormStatus('submitting');
     
     // Simulate form submission
@@ -121,6 +125,18 @@ export function ImportantDates() {
   };
 
   const isFormValid = inquiryForm.name && inquiryForm.email && inquiryForm.phone && inquiryForm.message;
+
+  const updateInquiryField = <K extends keyof typeof inquiryForm>(
+    field: K,
+    value: (typeof inquiryForm)[K]
+  ) => {
+    if (!inquiryStartedRef.current) {
+      inquiryStartedRef.current = true;
+      trackFormStart({ formType: 'admission_inquiry', locale });
+    }
+
+    setInquiryForm((prev) => ({ ...prev, [field]: value }));
+  };
 
   return (
     <section className="bg-white rounded-lg shadow-lg overflow-hidden">
@@ -190,7 +206,7 @@ export function ImportantDates() {
         </div>
 
         {/* Inquiry Form */}
-        {/* <div className="mb-12">
+        <div className="mb-12">
           <h3 className="text-2xl font-bold text-gray-900 mb-6">
             {t('inquiry.title')}
           </h3>
@@ -213,7 +229,7 @@ export function ImportantDates() {
                 </button>
               </div>
             ) : (
-              <form onSubmit={handleFormSubmit} className="space-y-6">
+              <form onSubmit={handleFormSubmit} className="space-y-6" data-clarity-mask="true">
                 <div className="grid md:grid-cols-2 gap-6">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -223,7 +239,7 @@ export function ImportantDates() {
                       type="text"
                       required
                       value={inquiryForm.name}
-                      onChange={(e) => setInquiryForm({...inquiryForm, name: e.target.value})}
+                      onChange={(e) => updateInquiryField('name', e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
                       placeholder={t('inquiry.form.namePlaceholder')}
                     />
@@ -237,7 +253,7 @@ export function ImportantDates() {
                       type="email"
                       required
                       value={inquiryForm.email}
-                      onChange={(e) => setInquiryForm({...inquiryForm, email: e.target.value})}
+                      onChange={(e) => updateInquiryField('email', e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
                       placeholder={t('inquiry.form.emailPlaceholder')}
                     />
@@ -251,7 +267,7 @@ export function ImportantDates() {
                       type="tel"
                       required
                       value={inquiryForm.phone}
-                      onChange={(e) => setInquiryForm({...inquiryForm, phone: e.target.value})}
+                      onChange={(e) => updateInquiryField('phone', e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
                       placeholder={t('inquiry.form.phonePlaceholder')}
                     />
@@ -266,7 +282,7 @@ export function ImportantDates() {
                       min="5"
                       max="18"
                       value={inquiryForm.studentAge}
-                      onChange={(e) => setInquiryForm({...inquiryForm, studentAge: e.target.value})}
+                      onChange={(e) => updateInquiryField('studentAge', e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
                       placeholder={t('inquiry.form.studentAgePlaceholder')}
                     />
@@ -278,7 +294,7 @@ export function ImportantDates() {
                     </label>
                     <select
                       value={inquiryForm.program}
-                      onChange={(e) => setInquiryForm({...inquiryForm, program: e.target.value})}
+                      onChange={(e) => updateInquiryField('program', e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
                     >
                       <option value="">{t('inquiry.form.programPlaceholder')}</option>
@@ -294,7 +310,7 @@ export function ImportantDates() {
                     </label>
                     <select
                       value={inquiryForm.subject}
-                      onChange={(e) => setInquiryForm({...inquiryForm, subject: e.target.value})}
+                      onChange={(e) => updateInquiryField('subject', e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
                     >
                       <option value="">{t('inquiry.form.subjectPlaceholder')}</option>
@@ -315,7 +331,7 @@ export function ImportantDates() {
                     required
                     rows={4}
                     value={inquiryForm.message}
-                    onChange={(e) => setInquiryForm({...inquiryForm, message: e.target.value})}
+                    onChange={(e) => updateInquiryField('message', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
                     placeholder={t('inquiry.form.messagePlaceholder')}
                   />
@@ -346,10 +362,10 @@ export function ImportantDates() {
               </form>
             )}
           </div>
-        </div> */}
+        </div>
 
         {/* FAQ Section */}
-        {/* <div>
+        <div>
           <h3 className="text-2xl font-bold text-gray-900 mb-6">
             {t('faq.title')}
           </h3>
@@ -376,7 +392,7 @@ export function ImportantDates() {
               </div>
             ))}
           </div>
-        </div> */}
+        </div>
       </div>
 
       {/* Contact CTA Section */}
@@ -400,7 +416,7 @@ export function ImportantDates() {
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <Link
-              href="/contact"
+              href={`/${locale}/contact`}
               className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-primary-300 to-primary-400 text-white font-semibold rounded-lg hover:from-primary-700 hover:to-primary-800 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
             >
               <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -25,12 +25,13 @@ interface FormSubmissionRequest {
   range: string;
   fieldOrder?: string[];
   autoDetectRange?: boolean;
+  attributionMetadata?: Record<string, unknown>;
 }
 
 export async function POST(request: NextRequest) {
   try {
     const body: FormSubmissionRequest = await request.json();
-    const { data, spreadsheetId, range, fieldOrder, autoDetectRange } = body;
+    const { data, spreadsheetId, range, fieldOrder, autoDetectRange, attributionMetadata } = body;
 
     // Validate request data
     if (!data || !spreadsheetId || !range) {
@@ -154,7 +155,14 @@ export async function POST(request: NextRequest) {
         range: actualRange,
         valueInputOption: 'RAW',
         requestBody: {
-          values: [rowData],
+          values: [
+            [
+              ...rowData,
+              ...(attributionMetadata
+                ? [JSON.stringify(attributionMetadata)]
+                : []),
+            ],
+          ],
         },
       });
 

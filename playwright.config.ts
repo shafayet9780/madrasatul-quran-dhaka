@@ -10,8 +10,11 @@ export default defineConfig({
   },
   webServer: {
     // Port 3100 avoids colliding with anything already on the default 3000.
-    command: 'pnpm build && PORT=3100 pnpm start',
+    command: 'pnpm build && pnpm start',
     url: 'http://localhost:3100',
+    env: {
+      PORT: '3100',
+    },
     reuseExistingServer: !process.env.CI,
     timeout: 240_000,
   },

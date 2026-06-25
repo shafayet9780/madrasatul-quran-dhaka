@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { useLocale } from 'next-intl';
+import { trackClickToWhatsapp } from '@/lib/analytics/track';
 
 export default function WhatsAppSupport() {
   const [isVisible, setIsVisible] = useState(false);
@@ -27,7 +28,9 @@ export default function WhatsAppSupport() {
   if (!mounted) return null;
 
   const handleWhatsAppClick = () => {
-    const message = locale === 'bengali' 
+    trackClickToWhatsapp({ ctaLocation: 'floating_support', locale });
+
+    const message = locale === 'bengali'
       ? 'আসসালামু আলাইকুম! আমি মাদরাসাতুল কুরআন সম্পর্কে জানতে চাই।'
       : 'Assalamu Alaikum! I would like to know more about Madrasatul Quran.';
     

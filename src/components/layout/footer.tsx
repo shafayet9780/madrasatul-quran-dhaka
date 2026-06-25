@@ -7,6 +7,8 @@ import { type Locale } from '@/lib/i18n';
 import type { FooterSettings, SiteSettings } from '@/types/sanity';
 import { getLocalizedText } from '@/lib/multilingual-content';
 import { activePhones } from '@/lib/contact';
+import { CookiePreferencesButton } from '@/components/analytics/consent-banner';
+import { trackClickToCall, trackClickToEmail } from '@/lib/analytics/track';
 
 interface FooterProps {
   footerSettings?: FooterSettings | null;
@@ -271,6 +273,7 @@ export default function Footer({ footerSettings, siteSettings }: FooterProps) {
                         <a
                           key={p.number}
                           href={`tel:${p.number}`}
+                          onClick={() => trackClickToCall({ ctaLocation: 'footer_phone', locale })}
                           className="block text-sm text-white hover:text-white/80 transition-colors"
                         >
                           {p.label ? `${getLocalizedText(p.label, locale)}: ${p.number}` : p.number}
@@ -279,6 +282,7 @@ export default function Footer({ footerSettings, siteSettings }: FooterProps) {
                     ) : (
                       <a
                         href={`tel:${fallbackPhone}`}
+                        onClick={() => trackClickToCall({ ctaLocation: 'footer_phone', locale })}
                         className="block text-sm text-white hover:text-white/80 transition-colors"
                       >
                         {fallbackPhone}
@@ -296,6 +300,7 @@ export default function Footer({ footerSettings, siteSettings }: FooterProps) {
                   </p>
                   <a
                     href={`mailto:${contactInfo.email}`}
+                    onClick={() => trackClickToEmail({ ctaLocation: 'footer_email', locale })}
                     className="text-sm text-white hover:text-white/80 transition-colors"
                   >
                     {contactInfo.email}
@@ -402,19 +407,18 @@ export default function Footer({ footerSettings, siteSettings }: FooterProps) {
                 )) || (
                 <>
                   <Link
-                    href="/privacy"
+                    href={`/${locale}/privacy-policy`}
                     className="text-white/80 hover:text-white transition-colors"
                   >
-                    {locale === 'bengali' ? 'গোপনীয়তা নীতি' : 'Privacy Policy'}
+                    {t('privacyPolicy')}
                   </Link>
                   <Link
-                    href="/terms"
+                    href={`/${locale}/cookie-policy`}
                     className="text-white/80 hover:text-white transition-colors"
                   >
-                    {locale === 'bengali'
-                      ? 'ব্যবহারের শর্তাবলী'
-                      : 'Terms of Service'}
+                    {t('cookiePolicy')}
                   </Link>
+                  <CookiePreferencesButton className="text-white/80 hover:text-white transition-colors" />
                   <a
                     href={typeof window !== 'undefined' ? `${window.location.protocol}//${window.location.host}/sitemap.xml` : '/sitemap.xml'}
                     target="_blank"

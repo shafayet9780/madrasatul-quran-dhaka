@@ -104,7 +104,6 @@ export function PageSEO({
       <link rel="preconnect" href="https://cdn.sanity.io" />
       
       {/* DNS Prefetch */}
-      <link rel="dns-prefetch" href="//www.google-analytics.com" />
       <link rel="dns-prefetch" href="//www.googletagmanager.com" />
       <link rel="dns-prefetch" href="//fonts.googleapis.com" />
       <link rel="dns-prefetch" href="//fonts.gstatic.com" />

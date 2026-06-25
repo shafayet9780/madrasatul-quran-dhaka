@@ -6,6 +6,7 @@ import { locales } from '@/lib/i18n';
 import LocaleProvider from '@/components/locale-provider';
 import { LanguageContextProvider } from '@/contexts/language-context';
 import { MainLayout } from '@/components/layout';
+import { ConsentBanner } from '@/components/analytics/consent-banner';
 import { getContentService } from '@/lib/content-service';
 import { getPeopleNav } from '@/lib/queries/site';
 
@@ -45,6 +46,7 @@ export default async function LocaleLayout({
           <MainLayout siteSettings={siteSettings} footerSettings={footerSettings} peopleNav={peopleNav}>
             {children}
           </MainLayout>
+          <ConsentBanner />
           {/* <SpeedInsights /> */}
         </LanguageContextProvider>
       </NextIntlClientProvider>

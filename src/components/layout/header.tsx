@@ -13,6 +13,7 @@ import type { SiteSettings } from '@/types/sanity';
 import type { PeopleNavData } from '@/lib/queries/site';
 import { getLocalizedText, getLocalizedSlug, getFontClass } from '@/lib/sanity-utils';
 import { isSectionVisible } from '@/lib/nav-visibility';
+import { trackClickToCall, trackOutboundClick } from '@/lib/analytics/track';
 
 interface HeaderProps {
   siteSettings?: SiteSettings | null;
@@ -301,7 +302,16 @@ export default function Header({ siteSettings, peopleNav }: HeaderProps) {
                       target={item.target}
                       rel={item.target === '_blank' ? 'noopener noreferrer' : undefined}
                       className="block py-3 font-medium text-gray-700 hover:text-primary-700"
-                      onClick={() => setIsMobileMenuOpen(false)}
+                      onClick={() => {
+                        if (item.target === '_blank') {
+                          trackOutboundClick({
+                            linkDomain: 'alquranervasha.com',
+                            locale,
+                            ctaLocation: `header_nav_${item.key}`,
+                          });
+                        }
+                        setIsMobileMenuOpen(false);
+                      }}
                     >
                       {t(item.key)}
                     </Link>
@@ -428,6 +438,15 @@ export default function Header({ siteSettings, peopleNav }: HeaderProps) {
                         target={item.target}
                         rel={item.target === '_blank' ? 'noopener noreferrer' : undefined}
                         className="nav-link"
+                        onClick={() => {
+                          if (item.target === '_blank') {
+                            trackOutboundClick({
+                              linkDomain: 'alquranervasha.com',
+                              locale,
+                              ctaLocation: `header_nav_${item.key}`,
+                            });
+                          }
+                        }}
                       >
                         {t(item.key)}
                       </Link>
@@ -504,6 +523,7 @@ export default function Header({ siteSettings, peopleNav }: HeaderProps) {
                 href={`tel:${siteSettings?.contactInfo?.phone?.find((p) => p.isPrimary)?.number ||
                   siteSettings?.contactInfo?.phone?.[0]?.number ||
                   '+8801234567890'}`}
+                onClick={() => trackClickToCall({ ctaLocation: 'header_phone', locale })}
                 className="hidden xl:flex items-center space-x-2 px-3 py-2 rounded-full bg-primary-700 text-white hover:bg-primary-800 transition-all duration-300 shadow-lg font-semibold text-sm whitespace-nowrap"
                 aria-label="Call us"
               >

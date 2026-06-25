@@ -6,6 +6,8 @@ import { X, ArrowRight } from 'lucide-react';
 import type { AdmissionBanner as AdmissionBannerType } from '@/types/sanity';
 import type { Language } from '@/types';
 import { getLocalizedText } from '@/lib/multilingual-content';
+import { pushToDataLayer } from '@/lib/analytics/push';
+import { buildViewContent } from '@/lib/analytics/events';
 
 interface AdmissionBannerProps {
   bannerConfig?: AdmissionBannerType | null;
@@ -156,6 +158,17 @@ export default function AdmissionBanner({
             {/* Call-to-action button */}
             <a
               href={config.buttonLink}
+              onClick={() =>
+                pushToDataLayer(
+                  buildViewContent({
+                    content_type: 'admission_cta',
+                    content_id: 'admission_banner',
+                    locale,
+                    page_path:
+                      typeof window !== 'undefined' ? window.location.pathname : '/',
+                  })
+                )
+              }
               className="inline-flex items-center space-x-2 bg-white/30 hover:bg-white/40 text-white font-bengali font-semibold px-4 py-2 md:px-5 md:py-2.5 lg:px-6 lg:py-3 rounded-full transition-all duration-300 transform hover:scale-105 hover:shadow-lg backdrop-blur-sm border border-white/50 text-sm md:text-base lg:text-lg whitespace-nowrap"
             >
               <span>{buttonText}</span>

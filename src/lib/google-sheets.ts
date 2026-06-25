@@ -3,6 +3,8 @@
  * This module handles sending form data to Google Sheets
  */
 
+import { getAttributionForSubmission } from '@/lib/analytics/attribution';
+
 interface FormSubmissionData {
   [key: string]: string | string[] | boolean | number;
 }
@@ -32,6 +34,8 @@ export async function submitToGoogleSheets(
     
     // For now, we'll use a server-side API route to handle the Google Sheets integration
     // This is more secure than exposing API keys on the client side
+    const attributionMetadata = getAttributionForSubmission();
+
     const response = await fetch('/api/submit-form', {
       method: 'POST',
       headers: {
@@ -43,6 +47,7 @@ export async function submitToGoogleSheets(
         range: config.range || 'A:Z',
         fieldOrder: config.fieldOrder,
         autoDetectRange: config.autoDetectRange || false,
+        attributionMetadata,
       }),
     });
 

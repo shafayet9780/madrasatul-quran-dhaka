@@ -699,7 +699,49 @@
     "quickLinks": "Quick Links",
     "contactInfo": "Contact Information",
     "followUs": "Follow Us",
-    "copyright": "© 2025 Madrasatul Quran. All rights reserved."
+    "copyright": "© 2025 Madrasatul Quran. All rights reserved.",
+    "cookiePolicy": "Cookie Policy",
+    "privacyPolicy": "Privacy Policy"
+  },
+  "analytics": {
+    "consent": {
+      "noticeMessage": "We use cookies and similar technologies for analytics and advertising to improve your experience.",
+      "regulatedMessage": "We use cookies for analytics, advertising, and site improvement. Please choose your preferences.",
+      "learnMore": "Learn more",
+      "acceptAll": "Accept all",
+      "rejectNonEssential": "Reject non-essential",
+      "managePreferences": "Manage preferences",
+      "cookiePreferences": "Cookie preferences",
+      "preferencesTitle": "Cookie preferences",
+      "preferencesDescription": "Choose which categories you allow. You can change these settings at any time.",
+      "analyticsTitle": "Analytics",
+      "analyticsDescription": "Helps us understand site usage through GA4 and Microsoft Clarity.",
+      "advertisingTitle": "Advertising",
+      "advertisingDescription": "Helps measure ad performance through Meta Pixel and Google Ads tags.",
+      "savePreferences": "Save preferences",
+      "cancel": "Cancel"
+    },
+    "policy": {
+      "privacyTitle": "Privacy Policy",
+      "cookieTitle": "Cookie Policy",
+      "legalReviewNotice": "This draft should be reviewed by legal counsel before production use.",
+      "privacyIntro": "Madrasatul Quran respects your privacy. This policy explains what information we collect, how we use analytics tools, and how to contact us about privacy requests.",
+      "dataCollectedTitle": "Information we collect",
+      "dataCollectedBody": "We collect information you voluntarily submit through forms (such as pre-admission inquiries), basic technical data needed to operate the website, and aggregated analytics events that do not include names, email addresses, phone numbers, or message content.",
+      "analyticsToolsTitle": "Analytics and advertising tools",
+      "analyticsToolsBody": "We use Google Tag Manager to load analytics and advertising tags, including Google Analytics 4, Meta Pixel, and Microsoft Clarity. These tools help us understand site usage and measure campaigns. We do not send personally identifiable information in analytics payloads.",
+      "childrenTitle": "Children's data",
+      "childrenBody": "Our website may be used by parents and guardians submitting information on behalf of students. We handle student-related form data securely and limit analytics to non-identifying events. Contact us to request access or deletion of submitted data.",
+      "contactTitle": "Privacy requests",
+      "contactBody": "For privacy questions or requests, contact us at info@madrasatul-quran.edu.bd or through the contact page on this website.",
+      "cookieIntro": "This policy explains how Madrasatul Quran uses cookies and similar technologies for analytics, advertising, and site improvement.",
+      "toolsTitle": "Tools we use",
+      "toolsBody": "Google Tag Manager, Google Analytics 4, Meta Pixel, and Microsoft Clarity may set cookies or use similar storage when you consent. Configuration is managed in Google Tag Manager.",
+      "retentionTitle": "Retention",
+      "retentionBody": "Cookie and analytics retention periods are configured in each vendor platform and Google Tag Manager. Session attribution data is stored in your browser session only when consent allows.",
+      "preferencesTitle": "Changing your preferences",
+      "preferencesBody": "You can reopen cookie preferences from the website footer at any time to accept or reject non-essential analytics and advertising cookies."
+    }
   },
   "preview": {
     "banner": {

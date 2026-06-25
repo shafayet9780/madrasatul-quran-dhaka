@@ -1,10 +1,11 @@
 'use client';
 
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { Phone, Mail, Clock, MapPin } from 'lucide-react';
 import type { SiteSettings } from '@/types/sanity';
 import { getLocalizedText } from '@/lib/multilingual-content';
-import { useLocale } from 'next-intl';
+import { trackClickToCall, trackClickToEmail } from '@/lib/analytics/track';
+import type { AnalyticsLocale } from '@/lib/analytics/types';
 
 interface ContactInfoProps {
   title: string;
@@ -12,14 +13,17 @@ interface ContactInfoProps {
   email: string;
   hours: string;
   address?: string;
+  locale: AnalyticsLocale;
 }
 
-const ContactInfoCard = ({ title, phone, email, hours, address }: ContactInfoProps) => {
+const ContactInfoCard = ({ title, phone, email, hours, address, locale }: ContactInfoProps) => {
   const handlePhoneClick = (phoneNumber: string) => {
+    trackClickToCall({ ctaLocation: 'contact_info_phone', locale });
     window.location.href = `tel:${phoneNumber}`;
   };
 
   const handleEmailClick = (emailAddress: string) => {
+    trackClickToEmail({ ctaLocation: 'contact_info_email', locale });
     window.location.href = `mailto:${emailAddress}`;
   };
 
@@ -154,6 +158,7 @@ export default function ContactInfoDisplay({ siteSettings }: ContactInfoDisplayP
               address={siteSettings?.contactInfo?.address
                 ? getLocalizedText(siteSettings.contactInfo.address, locale)
                 : t('contactInfo.mainOffice.address')}
+              locale={locale}
             />
           </div>
         </div>

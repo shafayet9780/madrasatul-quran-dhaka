@@ -2,6 +2,7 @@
 
 import { useTranslations, useLocale } from 'next-intl';
 import ContactInfoDisplay from './contact-info-display';
+import ContactForms from './contact-forms';
 import LocationMaps from './location-maps';
 import { PageHero } from '@/components/ui/page-hero';
 import type { Language } from '@/lib/sanity-utils';
@@ -25,8 +26,8 @@ export default function ContactPage({ siteSettings }: ContactPageProps) {
       {/* Location and Maps */}
       <LocationMaps siteSettings={siteSettings} />
 
-      {/* Contact Forms - Temporarily commented out */}
-      {/* <ContactForms /> */}
+      {/* Contact Forms */}
+      <ContactForms />
     </div>
   );
 }

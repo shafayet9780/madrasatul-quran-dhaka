@@ -1,8 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import { Inter, Noto_Sans_Bengali, Amiri } from 'next/font/google';
-import { GoogleAnalytics, CookieConsent, InteractionTracker } from '@/components/analytics/google-analytics';
-import { FacebookPixel } from '@/components/analytics/facebook-pixel';
 import { PageErrorBoundary } from '@/components/error-boundary';
+import { AnalyticsShell } from '@/components/analytics/analytics-shell';
 import './globals.css';
 
 // Font configurations with optimized loading
@@ -116,7 +115,7 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
@@ -124,16 +123,9 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${inter.variable} ${notoSansBengali.variable} ${amiri.variable}`}>
       <body className="font-english antialiased">
-        <PageErrorBoundary>
-          <InteractionTracker>
-            {children}
-          </InteractionTracker>
-        </PageErrorBoundary>
-        
-        {/* Analytics and Monitoring */}
-        <GoogleAnalytics />
-        <FacebookPixel />
-        <CookieConsent />
+        <AnalyticsShell>
+          <PageErrorBoundary>{children}</PageErrorBoundary>
+        </AnalyticsShell>
       </body>
     </html>
   );

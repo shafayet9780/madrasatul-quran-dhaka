@@ -399,8 +399,9 @@ Required environment variables (see `.env.local.example`):
 
 Analytics environment variables:
 
-- `NEXT_PUBLIC_GA_MEASUREMENT_ID` - Google Analytics measurement ID (optional)
-- `NEXT_PUBLIC_FB_PIXEL_ID` - Facebook Pixel ID for tracking and analytics (optional)
+- `NEXT_PUBLIC_GTM_ID` - Google Tag Manager container ID (required for production analytics). GA4, Meta Pixel, Microsoft Clarity, and Google Ads tags are configured inside GTM, not in application env vars.
+
+See `docs/analytics/analytics-spec.md` and `docs/analytics/gtm-setup-checklist.md` for implementation and marketer handoff.
 
 Optional environment variables for production security:
 

@@ -1,12 +1,18 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useLocale } from 'next-intl';
 import { CheckCircle, AlertCircle, Loader2, Download } from 'lucide-react';
 import type { PreAdmissionForm } from '@/types/sanity';
 import type { Language } from '@/types';
 import { getLocalizedText } from '@/lib/multilingual-content';
 import { submitToGoogleSheets } from '@/lib/google-sheets';
+import {
+  trackFormStart,
+  trackFormSubmit,
+  trackGenerateLead,
+  trackFileDownload,
+} from '@/lib/analytics/track';
 import DynamicFormField from './dynamic-form-field';
 
 interface PreAdmissionFormProps {
@@ -35,6 +41,7 @@ export default function PreAdmissionForm({
   const [isUploadingFiles, setIsUploadingFiles] = useState(false);
   const [showTopProgress, setShowTopProgress] = useState(true);
   const [showPreview, setShowPreview] = useState(false);
+  const formStartedRef = useRef(false);
 
   const formDescription = formConfig.formSettings.formDescription
     ? getLocalizedText(formConfig.formSettings.formDescription, locale)
@@ -183,6 +190,11 @@ export default function PreAdmissionForm({
   }, []);
 
   const handleFieldChange = (fieldName: string, value: any) => {
+    if (!formStartedRef.current) {
+      formStartedRef.current = true;
+      trackFormStart({ formType: 'pre_admission', locale });
+    }
+
     setFormData(prev => ({
       ...prev,
       [fieldName]: value,
@@ -374,6 +386,10 @@ export default function PreAdmissionForm({
       ); // Pass form configuration for option value-to-label conversion
 
       if (result.success) {
+        trackGenerateLead({
+          formType: 'pre_admission',
+          locale,
+        });
         setSubmitStatus('success');
         setSubmitMessage(successMessage);
         setFormData({}); // Clear form
@@ -381,11 +397,21 @@ export default function PreAdmissionForm({
         // Scroll to top after successful submission
         window.scrollTo({ top: 0, behavior: 'smooth' });
       } else {
+        trackFormSubmit({
+          formType: 'pre_admission',
+          locale,
+          success: false,
+        });
         setSubmitStatus('error');
         setSubmitMessage(result.error || 'Submission failed');
       }
     } catch (error) {
       setIsUploadingFiles(false);
+      trackFormSubmit({
+        formType: 'pre_admission',
+        locale,
+        success: false,
+      });
       setSubmitStatus('error');
       setSubmitMessage(
         error instanceof Error
@@ -832,7 +858,7 @@ export default function PreAdmissionForm({
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-3 sm:p-6 pb-20 sm:pb-28">
+    <div className="max-w-4xl mx-auto p-3 sm:p-6 pb-20 sm:pb-28" data-clarity-mask="true">
       {/* Clean Form Header */}
       <div className="text-center mb-6">
         <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-4 sm:p-6">
@@ -1003,6 +1029,13 @@ export default function PreAdmissionForm({
               href="/api/download-code-of-conduct"
               target="_blank"
               rel="noopener noreferrer"
+              onClick={() =>
+                trackFileDownload({
+                  fileCategory: 'code_of_conduct',
+                  locale,
+                  ctaSource: 'pre_admission_form',
+                })
+              }
               className="inline-flex items-center gap-3 px-6 py-3 bg-primary-600 text-white rounded-lg font-semibold hover:bg-primary-700 transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105"
             >
               <Download className="w-5 h-5" />

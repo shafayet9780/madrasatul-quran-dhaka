@@ -1,7 +1,14 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { trackPerformanceMetric, trackEvent } from '@/lib/analytics';
+
+function trackPerformanceMetric(_name: string, _value: number, _unit?: string): void {
+  // Performance metrics are not pushed to analytics in the GTM-first v1 implementation.
+}
+
+function trackEvent(_event: unknown): void {
+  // Broad engagement events were removed in favor of targeted dataLayer events.
+}
 
 export interface PerformanceMetrics {
   lcp?: number;
@@ -107,9 +114,10 @@ export function usePerformanceMonitoring() {
     const navigationEntries = performance.getEntriesByType('navigation') as PerformanceNavigationTiming[];
     if (navigationEntries.length > 0) {
       const nav = navigationEntries[0];
+      const navStart = nav.fetchStart;
       const ttfbValue = nav.responseStart - nav.requestStart;
-      const loadTimeValue = nav.loadEventEnd - (nav.activationStart || nav.fetchStart);
-      const domContentLoadedValue = nav.domContentLoadedEventEnd - (nav.activationStart || nav.fetchStart);
+      const loadTimeValue = nav.loadEventEnd - navStart;
+      const domContentLoadedValue = nav.domContentLoadedEventEnd - navStart;
 
       setMetrics(prev => ({
         ...prev,
