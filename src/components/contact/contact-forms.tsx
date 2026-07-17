@@ -1,8 +1,10 @@
 'use client';
 
-import { useTranslations } from 'next-intl';
-import { useState } from 'react';
+import { useTranslations, useLocale } from 'next-intl';
+import { useState, useRef } from 'react';
 import { Send, CheckCircle, AlertCircle, MessageSquare, GraduationCap, MessageCircle } from 'lucide-react';
+import type { FormType as AnalyticsFormType } from '@/lib/analytics/types';
+import { trackFormAttempt, trackFormStart } from '@/lib/analytics/track';
 
 interface FormData {
   name: string;
@@ -76,6 +78,14 @@ const FormTypeSelector = ({
 
 const ContactForm = ({ formType }: { formType: FormType }) => {
   const t = useTranslations('contact.forms');
+  const locale = useLocale();
+  const formStartedRef = useRef(false);
+  const analyticsFormType: AnalyticsFormType =
+    formType === 'general'
+      ? 'contact_general'
+      : formType === 'admission'
+        ? 'contact_admission'
+        : 'contact_feedback';
   const [formData, setFormData] = useState<FormData>({
     name: '',
     email: '',
@@ -138,14 +148,13 @@ const ContactForm = ({ formType }: { formType: FormType }) => {
       return;
     }
 
+    trackFormAttempt({ formType: analyticsFormType, locale });
+
     setIsSubmitting(true);
 
     try {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // In a real implementation, you would send the form data to your backend
-      console.log('Form submitted:', { formType, ...formData });
       
       setIsSubmitted(true);
       setFormData({
@@ -165,6 +174,11 @@ const ContactForm = ({ formType }: { formType: FormType }) => {
   };
 
   const handleInputChange = (field: keyof FormData, value: string) => {
+    if (!formStartedRef.current) {
+      formStartedRef.current = true;
+      trackFormStart({ formType: analyticsFormType, locale });
+    }
+
     setFormData(prev => ({ ...prev, [field]: value }));
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: '' }));
@@ -194,7 +208,7 @@ const ContactForm = ({ formType }: { formType: FormType }) => {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit} className="space-y-6" data-clarity-mask="true">
       {/* Honeypot field - hidden from users */}
       <input
         type="text"

@@ -3,6 +3,7 @@
 import { useLocale } from 'next-intl';
 import { useRouter, usePathname } from 'next/navigation';
 import { useState, useTransition } from 'react';
+import { trackLanguageChange } from '@/lib/analytics/track';
 import { locales, type Locale } from '@/lib/i18n';
 import { getLanguageLabel as getLanguageLabelUtil } from '@/lib/language-utils';
 import { Globe } from 'lucide-react';
@@ -20,6 +21,11 @@ export default function LanguageToggle({ className = '' }: LanguageToggleProps) 
 
   const handleLanguageChange = (newLocale: Locale) => {
     if (newLocale === locale) return;
+
+    trackLanguageChange({
+      fromLocale: locale,
+      toLocale: newLocale,
+    });
 
     startTransition(() => {
       // Remove the current locale from the pathname

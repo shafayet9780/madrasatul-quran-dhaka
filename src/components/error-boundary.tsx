@@ -1,7 +1,7 @@
 'use client';
 
 import React, { Component, ErrorInfo, ReactNode } from 'react';
-import { trackError } from '@/lib/analytics';
+import { trackException } from '@/lib/analytics/track';
 
 interface Props {
   children: ReactNode;
@@ -35,7 +35,7 @@ export class ErrorBoundary extends Component<Props, State> {
     });
 
     // Track error in analytics
-    trackError(error, 'react_error_boundary');
+    trackException(error, 'react_error_boundary');
 
     // Call custom error handler if provided
     if (this.props.onError) {
@@ -192,7 +192,7 @@ export function FormErrorBoundary({ children }: { children: ReactNode }) {
 // Hook for handling async errors
 export function useErrorHandler() {
   return (error: Error, context?: string) => {
-    trackError(error, context);
+    trackException(error, context);
     
     if (process.env.NODE_ENV === 'development') {
       console.error('Async Error:', error, context);

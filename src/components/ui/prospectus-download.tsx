@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Download, FileText, Loader2 } from 'lucide-react';
+import { trackFileDownload } from '@/lib/analytics/track';
 
 interface ProspectusDownloadProps {
   locale: string;
@@ -44,6 +45,12 @@ export default function ProspectusDownload({
       // Cleanup
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
+
+      trackFileDownload({
+        fileCategory: 'prospectus',
+        locale,
+        ctaSource: 'prospectus_button',
+      });
       
     } catch (error) {
       console.error('Download error:', error);
