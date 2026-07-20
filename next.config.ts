@@ -27,6 +27,18 @@ const nextConfig: NextConfig = {
   },
   // Enable compression
   compress: true,
+  async headers() {
+    return [
+      {
+        source: '/:locale(bengali|english)/downloads/:path*',
+        headers: [
+          { key: 'X-Robots-Tag', value: 'noindex, nofollow, noarchive' },
+          { key: 'Referrer-Policy', value: 'no-referrer' },
+          { key: 'Cache-Control', value: 'private, no-store' },
+        ],
+      },
+    ];
+  },
 };
 
 export default withNextIntl(nextConfig);

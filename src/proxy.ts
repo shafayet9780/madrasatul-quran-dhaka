@@ -1,6 +1,10 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import createMiddleware from 'next-intl/middleware'
+import {
+  isValidStudioAuthorization,
+  studioAuthConfigured,
+} from '@/lib/studio-auth'
 
 // Create the internationalization middleware
 const intlMiddleware = createMiddleware({
@@ -14,21 +18,17 @@ export function proxy(request: NextRequest) {
 
   // Handle Sanity Studio routes
   if (pathname.startsWith('/studio')) {
-    // In production, you might want to add authentication
     if (process.env.NODE_ENV === 'production') {
-      // Optional: Add basic auth or IP restriction
-      const authHeader = request.headers.get('authorization')
-      
-      // Example basic auth (you should use a more secure method)
-      if (process.env.STUDIO_AUTH_ENABLED === 'true') {
-        if (!authHeader || !isValidAuth(authHeader)) {
-          return new NextResponse('Authentication required', {
-            status: 401,
-            headers: {
-              'WWW-Authenticate': 'Basic realm="Sanity Studio"',
-            },
-          })
-        }
+      if (!studioAuthConfigured()) {
+        return new NextResponse('Studio authentication is not configured', { status: 503 })
+      }
+      if (!isValidStudioAuthorization(request.headers.get('authorization'))) {
+        return new NextResponse('Authentication required', {
+          status: 401,
+          headers: {
+            'WWW-Authenticate': 'Basic realm="Sanity Studio"',
+          },
+        })
       }
     }
     
@@ -40,21 +40,6 @@ export function proxy(request: NextRequest) {
   return intlMiddleware(request)
 }
 
-function isValidAuth(authHeader: string): boolean {
-  // Basic auth validation
-  const base64Credentials = authHeader.split(' ')[1]
-  if (!base64Credentials) return false
-  
-  const credentials = Buffer.from(base64Credentials, 'base64').toString('ascii')
-  const [username, password] = credentials.split(':')
-  
-  // Check against environment variables
-  return (
-    username === process.env.STUDIO_USERNAME &&
-    password === process.env.STUDIO_PASSWORD
-  )
-}
-
 export const config = {
   matcher: [
     // Match all pathnames except for
@@ -62,9 +47,8 @@ export const config = {
     // - _next/static (static files)
     // - _next/image (image optimization files)
     // - favicon.ico (favicon file)
-    // - studio routes (Sanity Studio)
     // - sitemap.xml (SEO sitemap)
     // - robots.txt (SEO robots)
-    '/((?!api|_next/static|_next/image|favicon.ico|studio|sitemap.xml|robots.txt).*)',
+    '/((?!api|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt).*)',
   ],
 }
