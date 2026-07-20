@@ -10,6 +10,10 @@ import { department } from './department'
 import { director } from './director'
 import { teacher } from './teacher'
 import { advisor } from './advisor'
+import { vercelBlobFile } from './vercelBlobFile'
+import { downloadCategory } from './downloadCategory'
+import { downloadable } from './downloadable'
+import { publicDownloadSettings } from './publicDownloadSettings'
 
 export const schemaTypes = [
   page,
@@ -24,4 +28,8 @@ export const schemaTypes = [
   director,
   teacher,
   advisor,
+  vercelBlobFile,
+  downloadCategory,
+  downloadable,
+  publicDownloadSettings,
 ]

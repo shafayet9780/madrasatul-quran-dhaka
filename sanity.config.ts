@@ -5,6 +5,9 @@ import { visionTool } from '@sanity/vision';
 import { schemaTypes } from './sanity/schemas';
 import { structure } from './sanity/structure';
 import { StudioLogo } from './sanity/components/StudioLogo';
+import { DownloadLinksTool } from './sanity/tools/DownloadLinksTool';
+import { ShareDownloadAction } from './sanity/actions/ShareDownloadAction';
+import { RevokeDownloadLinksAction } from './sanity/actions/RevokeDownloadLinksAction';
 
 export default defineConfig({
   name: 'madrasatul-quran-website',
@@ -17,8 +20,24 @@ export default defineConfig({
 
   plugins: [structureTool({ structure }), visionTool()],
 
+  tools: (prev) => [
+    ...prev,
+    {
+      name: 'download-links',
+      title: 'Download Links',
+      component: DownloadLinksTool,
+    },
+  ],
+
   schema: {
     types: schemaTypes,
+  },
+
+  document: {
+    actions: (prev, context) =>
+      ['downloadCategory', 'downloadable'].includes(context.schemaType)
+        ? [...prev, ShareDownloadAction, RevokeDownloadLinksAction]
+        : prev,
   },
 
   // Configure the studio

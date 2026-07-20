@@ -27,6 +27,35 @@ export const structure: StructureResolver = (S) =>
         .child(S.documentTypeList('preAdmissionForm').title('Pre-Admission Form Configuration')),
 
       S.divider(),
+
+      S.listItem()
+        .title('Downloads Library')
+        .id('downloadsLibrary')
+        .child(
+          S.list()
+            .title('Downloads Library')
+            .items([
+              S.listItem()
+                .title('Downloadable Items')
+                .schemaType('downloadable')
+                .child(S.documentTypeList('downloadable').title('Downloadable Items')),
+              S.listItem()
+                .title('Categories')
+                .schemaType('downloadCategory')
+                .child(S.documentTypeList('downloadCategory').title('Download Categories')),
+              S.divider(),
+              S.listItem()
+                .title('Public Download Files')
+                .id('publicDownloadSettings')
+                .child(
+                  S.document()
+                    .schemaType('publicDownloadSettings')
+                    .documentId('publicDownloadSettings')
+                ),
+            ])
+        ),
+
+      S.divider(),
       
       // Pages
       S.listItem()
