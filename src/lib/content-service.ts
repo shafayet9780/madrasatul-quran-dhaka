@@ -1,3 +1,5 @@
+import type { FeeSettings } from '@/types/fees';
+import { feeSettingsQuery } from './sanity-queries';
 import { client, previewClient } from './sanity';
 import { sanityFetch } from './sanity-fetch';
 import type { SanityDocument } from '@sanity/client';
@@ -37,6 +39,16 @@ export class ContentService {
   constructor(preview = false) {
     this.client = preview ? previewClient : client;
     this.isPreview = preview;
+  }
+
+  async getFeeSettings(): Promise<FeeSettings | null> {
+    try {
+      if (this.isPreview) return await this.client.fetch(feeSettingsQuery);
+      return await sanityFetch({ query: feeSettingsQuery, tags: ['feeSettings'] });
+    } catch (error) {
+      console.error('Error fetching fee settings:', error);
+      return null;
+    }
   }
 
   /**

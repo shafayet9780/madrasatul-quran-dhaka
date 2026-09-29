@@ -1,3 +1,4 @@
+import { feeSettings } from './feeSettings'
 import { page } from './page'
 import { newsEvent } from './newsEvent'
 import { academicProgram } from './academicProgram'
@@ -16,6 +17,7 @@ import { downloadable } from './downloadable'
 import { publicDownloadSettings } from './publicDownloadSettings'
 
 export const schemaTypes = [
+  feeSettings,
   page,
   newsEvent,
   academicProgram,

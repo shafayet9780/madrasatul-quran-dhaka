@@ -53,7 +53,7 @@ export default function MainLayout({
         {children}
       </main>
       <Footer footerSettings={footerSettings} siteSettings={siteSettings} />
-      <WhatsAppSupport />
+      <WhatsAppSupport contact={siteSettings?.contactInfo} />
     </div>
   );
 }

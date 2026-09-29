@@ -24,11 +24,12 @@ interface CurriculumSubject {
 }
 
 interface CurriculumBreakdownProps {
+  compact?: boolean;
   data?: CurriculumSubject[];
 }
 
 export default function CurriculumBreakdown({
-  data,
+  data, compact = false,
 }: CurriculumBreakdownProps) {
   const locale = useLocale() as 'bengali' | 'english';
   const isBengali = locale === 'bengali';
@@ -131,6 +132,32 @@ export default function CurriculumBreakdown({
         return <BookOpen {...iconProps} />;
     }
   };
+
+  if (compact)
+    return (
+      <div>
+        <h2 className="text-2xl md:text-3xl font-bold text-primary-800">
+          {isBengali
+            ? 'দশ বছরে ইসলাম শিক্ষায় উদ্দিষ্ট যোগ্যতা'
+            : 'Targeted qualifications in Islamic education in ten years'}
+        </h2>
+        <div className="mt-5 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {curriculumData.map((subject, index) => (
+            <article
+              key={index}
+              className="rounded-xl border border-gray-200 p-5"
+            >
+              <h3 className="text-lg font-semibold text-primary-800">
+                {subject.title[locale]}
+              </h3>
+              <p className="mt-2 text-gray-700 leading-relaxed">
+                {subject.description[locale]}
+              </p>
+            </article>
+          ))}
+        </div>
+      </div>
+    );
 
   return (
     <div>

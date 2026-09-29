@@ -1,18 +1,20 @@
 'use client';
+import { getAdmissionsContact } from '@/lib/admissions-contact';
+import type { ContactInfo } from '@/types/sanity';
 
 import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { useLocale } from 'next-intl';
 import { trackClickToWhatsapp } from '@/lib/analytics/track';
 
-export default function WhatsAppSupport() {
+export default function WhatsAppSupport({contact}: {contact?: ContactInfo}) {
   const [isVisible, setIsVisible] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const [mounted, setMounted] = useState(false);
   const locale = useLocale() as 'bengali' | 'english';
 
-  const phoneNumber = '01301226644';
-  const whatsappUrl = `https://wa.me/880${phoneNumber.replace(/[^0-9]/g, '')}`;
+  const phoneNumber = getAdmissionsContact(contact).whatsapp;
+  const whatsappUrl = phoneNumber ? `https://wa.me/${phoneNumber.slice(1)}` : '';
 
   useEffect(() => {
     setMounted(true);
@@ -25,7 +27,7 @@ export default function WhatsAppSupport() {
     return () => clearTimeout(timer);
   }, []);
 
-  if (!mounted) return null;
+  if (!mounted || !phoneNumber) return null;
 
   const handleWhatsAppClick = () => {
     trackClickToWhatsapp({ ctaLocation: 'floating_support', locale });

@@ -31,11 +31,14 @@ export default defineConfig({
 
   schema: {
     types: schemaTypes,
+    templates: (prev) => prev.filter(template => template.schemaType !== 'feeSettings'),
   },
 
   document: {
     actions: (prev, context) =>
-      ['downloadCategory', 'downloadable'].includes(context.schemaType)
+      context.schemaType === 'feeSettings'
+        ? prev.filter(action => action.action !== 'duplicate')
+        : ['downloadCategory', 'downloadable'].includes(context.schemaType)
         ? [...prev, ShareDownloadAction, RevokeDownloadLinksAction]
         : prev,
   },

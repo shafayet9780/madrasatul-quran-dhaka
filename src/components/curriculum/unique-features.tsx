@@ -16,10 +16,11 @@ interface UniqueFeature {
 }
 
 interface UniqueFeaturesProps {
+  compact?: boolean;
   data?: UniqueFeature[];
 }
 
-export default function UniqueFeatures({ data }: UniqueFeaturesProps) {
+export default function UniqueFeatures({ data, compact = false }: UniqueFeaturesProps) {
   const locale = useLocale() as 'bengali' | 'english';
   const isBengali = locale === 'bengali';
 
@@ -180,6 +181,37 @@ export default function UniqueFeatures({ data }: UniqueFeaturesProps) {
         return <CheckCircle {...iconProps} />;
     }
   };
+
+  if (compact)
+    return (
+      <div>
+        <h2 className="text-2xl md:text-3xl font-bold text-primary-800">
+          {isBengali ? 'কেন মাদরাসাতুল কুরআন?' : 'Why Madrasatul Quran?'}
+        </h2>
+        <p className="mt-3 max-w-4xl text-gray-700 leading-relaxed">
+          {isBengali
+            ? 'অনেক ভালো ইসলামী স্কুল থাকা সত্ত্বেও মাদরাসাতুল কুরআন প্রতিষ্ঠার কারণ হলো, আমরা এমন বাংলা মিডিয়াম স্কুল খুঁজে পাইনি যেখানে আরবি ও ইসলামী শিক্ষার সাথে সাধারণ শিক্ষার সমান গুরুত্ব দেওয়া হয়।'
+            : 'Despite the availability of many good Islamic schools, Madrasatul Quran was established because we could not find a Bengali medium school that equally emphasizes Arabic and Islamic education alongside general education.'}
+        </p>
+        <div className="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {featuresData.map((feature, index) => (
+            <article key={index} className="border-t border-primary-200 pt-4">
+              <div className="flex gap-3 items-start">
+                <span aria-hidden="true" className="text-primary-700 shrink-0">
+                  {getIcon(feature.icon)}
+                </span>
+                <h3 className="font-semibold text-lg text-gray-900">
+                  {feature.title[locale]}
+                </h3>
+              </div>
+              <p className="mt-2 text-gray-700 leading-relaxed">
+                {feature.description[locale]}
+              </p>
+            </article>
+          ))}
+        </div>
+      </div>
+    );
 
   return (
     <div className="bg-gradient-to-br from-white via-gray-50 to-white rounded-3xl shadow-2xl border border-gray-100 p-10 relative overflow-hidden">
