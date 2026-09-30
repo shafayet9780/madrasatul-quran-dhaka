@@ -14,6 +14,9 @@ export default defineConfig({
     url: 'http://localhost:3100',
     env: {
       PORT: '3100',
+      STUDIO_AUTH_ENABLED: 'true',
+      STUDIO_USERNAME: 'playwright-editor',
+      STUDIO_PASSWORD: 'playwright-test-password',
     },
     reuseExistingServer: !process.env.CI,
     timeout: 240_000,

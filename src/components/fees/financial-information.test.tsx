@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, cleanup } from '@testing-library/react';
+import { render, screen, cleanup, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { FinancialInformation, financialLinks } from './financial-information';
 import { initialFeeSettings } from '@/lib/fee-setup';
@@ -13,6 +13,30 @@ vi.mock('@/lib/analytics/track', () => ({
 }));
 afterEach(cleanup);
 describe('financial information', () => {
+  it.each(['english', 'bengali'] as const)(
+    'shows the configured notice for removed or hidden fees in %s while preserving other sections',
+    locale => {
+      for (const fees of [
+        [],
+        initialFeeSettings.fees.map(f => ({ ...f, visible: false })),
+      ]) {
+        const settings = { ...initialFeeSettings, fees, discounts: [] };
+        render(<FinancialInformation settings={settings} locale={locale} />);
+        const section = within(document.querySelector('#fees') as HTMLElement);
+        expect(
+          section.getByText(settings.unavailableMessage[locale])
+        ).toBeInTheDocument();
+        expect(section.queryByRole('table')).not.toBeInTheDocument();
+        expect(section.getByRole('link')).toHaveAttribute(
+          'href',
+          `/${locale}/contact`
+        );
+        expect(document.querySelector('#transport')).not.toBeNull();
+        expect(document.querySelector('#payment')).not.toBeNull();
+        cleanup();
+      }
+    }
+  );
   it('shows fees, transport, eligibility and no aggregate or percentage claims', () => {
     render(
       <FinancialInformation settings={initialFeeSettings} locale="english" />

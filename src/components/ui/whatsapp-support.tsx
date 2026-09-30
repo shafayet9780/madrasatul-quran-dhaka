@@ -132,10 +132,8 @@ export default function WhatsAppSupport({contact}: {contact?: ContactInfo}) {
             {/* Footer */}
             <div className="mt-4 pt-3 border-t border-gray-200">
               <p className="text-xs text-gray-500 text-center">
-                {locale === 'bengali' 
-                  ? 'মোবাইল নম্বর: 01301-226644'
-                  : 'Mobile: 01301-226644'
-                }
+                {locale === 'bengali' ? 'মোবাইল নম্বর: ' : 'Mobile: '}
+                {phoneNumber}
               </p>
             </div>
           </div>

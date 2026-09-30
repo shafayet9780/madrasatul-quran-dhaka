@@ -14,7 +14,14 @@ const bilingual = (name: string, title: string, required = true) =>
         title: language === 'bengali' ? 'Bengali' : 'English',
         type: 'text',
         rows: 2,
-        validation: rule => (required ? rule.required() : rule),
+        validation: rule =>
+          required
+            ? rule.required().custom(value =>
+                typeof value === 'string' && value.trim().length > 0
+                  ? true
+                  : 'Enter text; spaces alone are not allowed.'
+              )
+            : rule,
       })
     ),
     validation: rule => (required ? rule.required() : rule),

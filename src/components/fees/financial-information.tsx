@@ -61,7 +61,11 @@ export function FinancialInformation({
       <ArrowUpRight size={16} aria-hidden="true" />
     </Link>
   );
-  const unavailableMessage = settings?.unavailableMessage?.[locale];
+  const unavailableMessage =
+    settings?.unavailableMessage?.[locale] ||
+    (bn
+      ? 'বর্তমান ফি জানতে অফিসে যোগাযোগ করুন।'
+      : 'Please contact the office for current fee information.');
   if (!usableFeeSettings(settings))
     return (
       <div className={styles.financial}>
@@ -70,10 +74,7 @@ export function FinancialInformation({
             {bn ? 'ফি সম্পর্কিত তথ্য' : 'Fee information'}
           </h2>
           <p className={styles.introduction}>
-            {unavailableMessage ||
-              (bn
-                ? 'বর্তমান ফি জানতে অফিসে যোগাযোগ করুন।'
-                : 'Please contact the office for current fee information.')}
+            {unavailableMessage}
           </p>
           {contact}
         </section>
@@ -105,86 +106,95 @@ export function FinancialInformation({
     <div className={styles.financial}>
       <section id="fees" className={styles.section}>
         <h2 className={styles.heading}>{settings.heading[locale]}</h2>
-        <p className={styles.introduction}>{settings.introduction?.[locale]}</p>
-        <div className={styles.panel}>
-          <table className={`${styles.table} ${styles.desktopFees}`}>
-            <caption className="sr-only">{settings.heading[locale]}</caption>
-            <thead>
-              <tr>
-                <th scope="col">{bn ? 'ফি ও সময়কাল' : 'Fee and frequency'}</th>
-                {labels.map((label, i) => (
-                  <th key={i} scope="col">
-                    {label}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            {groups.map(group => (
-              <tbody key={group.key}>
-                <tr className={styles.groupLabel}>
-                  <th scope="rowgroup" colSpan={3}>
-                    {groupLabels[group.key as keyof typeof groupLabels]}
-                  </th>
-                </tr>
-                {group.items.map(fee => (
-                  <tr key={fee._key} className={styles.feeRow}>
-                    <th scope="row">
-                      <span className={styles.feeName}>
-                        {fee.name?.[locale]}
-                      </span>
-                      <span className={styles.frequency}>{frequency(fee)}</span>
-                      {fee.note?.[locale] && (
-                        <span className={styles.note}>{fee.note[locale]}</span>
-                      )}
-                    </th>
-                    <td>
-                      <Price value={fee.preHifz} locale={locale} />
-                    </td>
-                    <td>
-                      <Price value={fee.hifz} locale={locale} />
-                    </td>
+        {groups.length > 0 ? (
+          <>
+            <p className={styles.introduction}>{settings.introduction?.[locale]}</p>
+            <div className={styles.panel}>
+              <table className={`${styles.table} ${styles.desktopFees}`}>
+                <caption className="sr-only">{settings.heading[locale]}</caption>
+                <thead>
+                  <tr>
+                    <th scope="col">{bn ? 'ফি ও সময়কাল' : 'Fee and frequency'}</th>
+                    {labels.map((label, i) => (
+                      <th key={i} scope="col">
+                        {label}
+                      </th>
+                    ))}
                   </tr>
+                </thead>
+                {groups.map(group => (
+                  <tbody key={group.key}>
+                    <tr className={styles.groupLabel}>
+                      <th scope="rowgroup" colSpan={3}>
+                        {groupLabels[group.key as keyof typeof groupLabels]}
+                      </th>
+                    </tr>
+                    {group.items.map(fee => (
+                      <tr key={fee._key} className={styles.feeRow}>
+                        <th scope="row">
+                          <span className={styles.feeName}>
+                            {fee.name?.[locale]}
+                          </span>
+                          <span className={styles.frequency}>{frequency(fee)}</span>
+                          {fee.note?.[locale] && (
+                            <span className={styles.note}>{fee.note[locale]}</span>
+                          )}
+                        </th>
+                        <td>
+                          <Price value={fee.preHifz} locale={locale} />
+                        </td>
+                        <td>
+                          <Price value={fee.hifz} locale={locale} />
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
                 ))}
-              </tbody>
-            ))}
-          </table>
-          <div className={styles.mobileFees}>
-            {groups.map(group => (
-              <div className={styles.mobileGroup} key={group.key}>
-                <h3>{groupLabels[group.key as keyof typeof groupLabels]}</h3>
-                {group.items.map(fee => (
-                  <article key={fee._key} className={styles.feeCard}>
-                    <header>
-                      <h4>{fee.name?.[locale]}</h4>
-                      <span className={styles.frequency}>{frequency(fee)}</span>
-                    </header>
-                    <dl>
-                      {(['preHifz', 'hifz'] as const).map((program, i) => (
-                        <div key={program}>
-                          <dt>{labels[i]}</dt>
-                          <dd>
-                            <Price value={fee[program]} locale={locale} />
-                          </dd>
-                        </div>
-                      ))}
-                    </dl>
-                    {fee.note?.[locale] && (
-                      <p className={styles.note}>{fee.note[locale]}</p>
-                    )}
-                  </article>
+              </table>
+              <div className={styles.mobileFees}>
+                {groups.map(group => (
+                  <div className={styles.mobileGroup} key={group.key}>
+                    <h3>{groupLabels[group.key as keyof typeof groupLabels]}</h3>
+                    {group.items.map(fee => (
+                      <article key={fee._key} className={styles.feeCard}>
+                        <header>
+                          <h4>{fee.name?.[locale]}</h4>
+                          <span className={styles.frequency}>{frequency(fee)}</span>
+                        </header>
+                        <dl>
+                          {(['preHifz', 'hifz'] as const).map((program, i) => (
+                            <div key={program}>
+                              <dt>{labels[i]}</dt>
+                              <dd>
+                                <Price value={fee[program]} locale={locale} />
+                              </dd>
+                            </div>
+                          ))}
+                        </dl>
+                        {fee.note?.[locale] && (
+                          <p className={styles.note}>{fee.note[locale]}</p>
+                        )}
+                      </article>
+                    ))}
+                  </div>
                 ))}
               </div>
-            ))}
-          </div>
-          <div className={styles.panelFooter}>
-            <span>
-              {bn
-                ? 'সকল পরিমাণ বাংলাদেশি টাকায়'
-                : 'All amounts in Bangladeshi Taka'}
-            </span>
+              <div className={styles.panelFooter}>
+                <span>
+                  {bn
+                    ? 'সকল পরিমাণ বাংলাদেশি টাকায়'
+                    : 'All amounts in Bangladeshi Taka'}
+                </span>
+                {contact}
+              </div>
+            </div>
+          </>
+        ) : (
+          <>
+            <p className={styles.introduction}>{unavailableMessage}</p>
             {contact}
-          </div>
-        </div>
+          </>
+        )}
       </section>
       {vehicles.length > 0 && (
         <section id="transport" className={styles.section}>

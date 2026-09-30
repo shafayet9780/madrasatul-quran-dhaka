@@ -32,8 +32,10 @@ export function proxy(request: NextRequest) {
       }
     }
     
-    // Allow studio access
-    return NextResponse.next()
+    // Studio uses English outside the localized public routes.
+    const headers = new Headers(request.headers)
+    headers.set('X-NEXT-INTL-LOCALE', 'english')
+    return NextResponse.next({ request: { headers } })
   }
 
   // Handle internationalization for all other routes

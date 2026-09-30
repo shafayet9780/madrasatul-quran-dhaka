@@ -1,6 +1,23 @@
 import { expect, test } from '@playwright/test';
 import { DEFAULT_SITE_URL } from '../src/lib/site-url';
 
+test.describe('Studio document language', () => {
+  test.use({
+    httpCredentials: {
+      username: 'playwright-editor',
+      password: 'playwright-test-password',
+    },
+  });
+  test('serves the English CMS with English document language', async ({ page }) => {
+    const response = await page.request.get('/studio/structure');
+    expect(response.status()).toBe(200);
+    expect(await response.text()).toMatch(/<html[^>]*lang="en"/);
+    await page.goto('/studio/structure');
+    await expect(page.locator('html')).toHaveAttribute('lang', 'en');
+    await expect(page.locator('body')).toHaveClass(/font-english/);
+  });
+});
+
 for (const locale of ['bengali', 'english']) {
   for (const route of ['', '/admissions', '/curriculum']) {
     test(`${locale}${route || '/'} publishes localized SEO`, async ({
