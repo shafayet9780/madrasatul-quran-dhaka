@@ -5,7 +5,7 @@ import { trackClickToWhatsapp, trackClickToCall } from '@/lib/analytics/track';
 import type { ContactInfo } from '@/types/sanity';
 import type { FeeLocale } from '@/types/fees';
 export const actionClass =
-  'inline-flex min-h-11 items-center justify-center rounded-lg bg-[#493729] px-5 py-3 font-semibold text-white hover:bg-[#352b24] focus-visible:outline-2 focus-visible:outline-offset-2';
+  'inline-flex min-h-11 items-center justify-center rounded-lg bg-primary-500 px-5 py-3 font-semibold text-white hover:bg-primary-600 focus-visible:outline-2 focus-visible:outline-offset-2';
 export function ApplicationAction({
   available,
   locale,
@@ -41,12 +41,12 @@ export function ContactPanel({
   return (
     <section
       id="contact-admissions"
-      className="scroll-mt-48 rounded-2xl border border-[#e9e4dc] p-6 md:p-10 bg-[#f8f6f1]"
+      className="scroll-mt-48 rounded-2xl border border-gray-200 p-6 md:p-10 bg-secondary-50"
     >
-      <h2 className="text-2xl font-semibold tracking-tight text-[#352b24]">
+      <h2 className="text-2xl font-semibold tracking-tight text-[var(--color-text-primary)]">
         {bn ? 'আমরা সাহায্য করতে প্রস্তুত' : 'Talk to Admissions'}
       </h2>
-      <p className="mt-3 max-w-xl text-[#746c63] leading-relaxed">
+      <p className="mt-3 max-w-xl text-secondary-800 leading-relaxed">
         {bn
           ? 'ভর্তির সময়সূচি, ফি বা আপনার সন্তানের বিষয়ে জানতে অফিসে যোগাযোগ করুন।'
           : 'Contact the office about admission dates, fees, or your child’s next steps.'}
@@ -65,7 +65,7 @@ export function ContactPanel({
         )}
         {details.whatsapp && (
           <a
-            className="inline-flex min-h-11 items-center justify-center rounded-lg border border-[#d9d1c6] px-5 py-3 font-semibold text-[#493729] hover:bg-white focus-visible:outline-2 focus-visible:outline-offset-2"
+            className="inline-flex min-h-11 items-center justify-center rounded-lg border border-primary-200 px-5 py-3 font-semibold text-primary-500 hover:bg-white focus-visible:outline-2 focus-visible:outline-offset-2"
             href={`https://wa.me/${details.whatsapp.slice(1)}`}
             target="_blank"
             rel="noopener noreferrer"
@@ -80,7 +80,7 @@ export function ContactPanel({
           </a>
         )}
         <Link
-          className="inline-flex min-h-11 items-center px-3 font-semibold text-primary-800 underline underline-offset-4"
+          className="inline-flex min-h-11 items-center px-3 font-semibold text-primary-500 underline underline-offset-4"
           href={`/${locale}/contact`}
         >
           {bn ? 'যোগাযোগের বিস্তারিত' : 'Contact details'}

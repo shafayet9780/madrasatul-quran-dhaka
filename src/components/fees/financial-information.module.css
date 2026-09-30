@@ -1,8 +1,8 @@
 .financial {
-  --ink: #352b24;
-  --muted: #746c63;
-  --line: #e9e4dc;
-  --paper: #fbf9f5;
+  --ink: var(--color-text-primary);
+  --muted: var(--color-secondary-800);
+  --line: var(--color-gray-200);
+  --paper: var(--color-secondary-50);
   color: var(--ink);
   line-height: 1.65;
 }
@@ -30,8 +30,8 @@
   overflow: hidden;
   border: 1px solid var(--line);
   border-radius: 1.25rem;
-  background: #fff;
-  box-shadow: 0 4px 24px -16px #49372320;
+  background: var(--color-white);
+  box-shadow: var(--shadow-sm);
 }
 .table {
   width: 100%;
@@ -62,7 +62,7 @@
 }
 .groupLabel th {
   padding: 1.2rem 2rem 0.6rem;
-  color: #8a6841;
+  color: var(--color-primary-500);
   font-size: 0.75rem;
   font-weight: 600;
   text-align: left;
@@ -77,7 +77,7 @@
   vertical-align: middle;
 }
 .feeRow + .feeRow {
-  border-top: 1px solid #f1eee8;
+  border-top: 1px solid var(--color-gray-100);
 }
 .feeRow th {
   text-align: left;
@@ -134,7 +134,7 @@
   min-height: 44px;
   align-items: center;
   gap: 0.65rem;
-  color: #684b2c;
+  color: var(--color-primary-500);
   font-size: 0.85rem;
   font-weight: 600;
   text-decoration: none;
@@ -144,7 +144,7 @@
   text-underline-offset: 5px;
 }
 .contactLink:focus-visible {
-  outline: 2px solid #8a6841;
+  outline: 2px solid var(--color-primary-500);
   outline-offset: 4px;
   border-radius: 3px;
 }
@@ -215,7 +215,7 @@
   padding: 0.35rem 0.7rem;
   background: var(--paper);
   border-radius: 0.4rem;
-  color: #684b2c;
+  color: var(--color-primary-500);
   font-size: 0.78rem;
 }
 .instructions {
@@ -241,7 +241,7 @@
   content: counter(policies, decimal-leading-zero);
   flex-shrink: 0;
   padding-top: 0.15rem;
-  color: #947856;
+  color: var(--color-primary-500);
   font-size: 0.7rem;
   font-variant-numeric: tabular-nums;
 }
@@ -266,7 +266,7 @@
   }
   .mobileGroup h3 {
     padding: 1.25rem 1.25rem 0.5rem;
-    color: #8a6841;
+    color: var(--color-primary-500);
     font-size: 0.8rem;
     font-weight: 600;
   }
@@ -274,7 +274,7 @@
     padding: 1rem 1.25rem 1.25rem;
   }
   .feeCard + .feeCard {
-    border-top: 1px solid #f1eee8;
+    border-top: 1px solid var(--color-gray-100);
   }
   .feeCard header {
     display: flex;

@@ -1,6 +1,7 @@
 'use client';
 
-import { useLocale } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
+import { LearningCard } from './learning-card';
 import { CheckCircle, BookOpen, Languages, GraduationCap, Bus, Heart, History, Users, HelpCircle } from 'lucide-react';
 
 interface UniqueFeature {
@@ -23,6 +24,7 @@ interface UniqueFeaturesProps {
 export default function UniqueFeatures({ data, compact = false }: UniqueFeaturesProps) {
   const locale = useLocale() as 'bengali' | 'english';
   const isBengali = locale === 'bengali';
+  const t = useTranslations('admissionsExperience');
 
   // Fallback data if CMS data is not available
   const fallbackData: UniqueFeature[] = [
@@ -193,23 +195,20 @@ export default function UniqueFeatures({ data, compact = false }: UniqueFeatures
             ? 'অনেক ভালো ইসলামী স্কুল থাকা সত্ত্বেও মাদরাসাতুল কুরআন প্রতিষ্ঠার কারণ হলো, আমরা এমন বাংলা মিডিয়াম স্কুল খুঁজে পাইনি যেখানে আরবি ও ইসলামী শিক্ষার সাথে সাধারণ শিক্ষার সমান গুরুত্ব দেওয়া হয়।'
             : 'Despite the availability of many good Islamic schools, Madrasatul Quran was established because we could not find a Bengali medium school that equally emphasizes Arabic and Islamic education alongside general education.'}
         </p>
-        <div className="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {featuresData.map((feature, index) => (
-            <article key={index} className="border-t border-primary-200 pt-4">
-              <div className="flex gap-3 items-start">
-                <span aria-hidden="true" className="text-primary-700 shrink-0">
-                  {getIcon(feature.icon)}
-                </span>
-                <h3 className="font-semibold text-lg text-gray-900">
-                  {feature.title[locale]}
-                </h3>
-              </div>
-              <p className="mt-2 text-gray-700 leading-relaxed">
-                {feature.description[locale]}
-              </p>
-            </article>
+        <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {featuresData.map((item, index) => (
+            <LearningCard
+              key={index}
+              imageKey={item.icon}
+              title={item.title[locale]}
+              description={item.description[locale]}
+              locale={locale}
+            />
           ))}
         </div>
+        <p className="mt-4 text-xs text-[var(--color-text-secondary)]">
+          {t('illustrativeImages')}
+        </p>
       </div>
     );
 

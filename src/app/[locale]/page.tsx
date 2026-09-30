@@ -1,3 +1,5 @@
+import { generatePageMetadata } from '@/lib/page-metadata';
+import type { Locale } from '@/lib/i18n';
 import { Metadata } from 'next';
 import { draftMode } from 'next/headers';
 import { getTranslations } from 'next-intl/server';
@@ -7,13 +9,11 @@ import { getContentService } from '@/lib/content-service';
 import { getPreviewContext } from '@/lib/preview';
 import { PreviewBanner } from '@/components/preview/preview-banner';
 
-export async function generateMetadata(): Promise<Metadata> {
-  const t = await getTranslations('home');
+export async function generateMetadata({params}: {params:Promise<{locale:Locale}>}): Promise<Metadata> {
+  const {locale}=await params;
+  const t = await getTranslations({locale,namespace:'home'});
 
-  return {
-    title: t('meta.title'),
-    description: t('meta.description'),
-  };
+  return generatePageMetadata({title:t('meta.title'),description:t('meta.description'),locale});
 }
 
 export default async function Home() {

@@ -1,6 +1,7 @@
 'use client';
 
 import { useLocale, useTranslations } from 'next-intl';
+import { studyPeriods } from '@/lib/study-periods';
 
 interface StudyPlanData {
   age: string;
@@ -175,94 +176,137 @@ export default function TenYearStudyPlan({ data }: TenYearStudyPlanProps) {
   const studyPlanData = data || fallbackData;
 
   return (
-    <div className="bg-white rounded-2xl border border-[#e9e4dc] overflow-hidden">
+    <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
       {/* Header */}
       <div className="bg-white px-6 py-7">
-        <h2 className="text-xl font-semibold tracking-tight text-[#352b24]">
+        <h2 className="text-xl font-semibold tracking-tight text-[var(--color-text-primary)]">
           {isBengali
             ? 'দশ বছরের পাঠ পরিকল্পনা (পূর্ণ হিফজ সহ)'
             : '10-Year Study Plan (With Complete Hifz)'}
         </h2>
       </div>
 
-      {/* Table */}
-      <div className="md:hidden divide-y divide-gray-200 px-4">
-        {studyPlanData.map((row, index) => (
-          <details key={index} className="py-1">
-            <summary className="min-h-12 py-3 cursor-pointer font-semibold text-primary-800 focus-visible:outline-2">
-              {row.class} · {t('age')}{' '}
-              {isBengali
-                ? row.age.replace(/\d/g, digit => '০১২৩৪৫৬৭৮৯'[Number(digit)])
-                : row.age}
-            </summary>
-            <dl className="pb-4 space-y-3 text-gray-700 leading-relaxed">
-              <div>
-                <dt className="font-semibold">{t('islamicSubjects')}</dt>
-                <dd>{row.islamicStudies[locale]}</dd>
-              </div>
-              <div>
-                <dt className="font-semibold">{t('generalSubjects')}</dt>
-                <dd>{row.general[locale]}</dd>
-              </div>
-            </dl>
-          </details>
-        ))}
-      </div>
-      <div className="hidden md:block overflow-x-auto">
-        <table className="w-full border-collapse text-left text-sm">
-          <caption className="sr-only">
-            {isBengali
-              ? 'শ্রেণি অনুযায়ী পাঠ পরিকল্পনা'
-              : 'Study plan by class'}
-          </caption>
-          <thead className="border-y border-[#e9e4dc] text-[#746c63] bg-[#fbf9f5]">
-            <tr>
-              <th scope="col" className="px-6 py-4 font-medium">
+      <p className="px-6 pb-4 text-sm text-[var(--color-text-secondary)] md:hidden">
+        {t('swipePeriods')}
+      </p>
+      <div
+        role="region"
+        aria-label={t('periodGrid')}
+        tabIndex={0}
+        className="overflow-x-auto focus-visible:outline-2 focus-visible:outline-primary-500 focus-visible:outline-offset-2"
+      >
+        <table className="w-full min-w-[1080px] table-fixed border-collapse text-center text-sm">
+          <caption className="sr-only">{t('periodGrid')}</caption>
+          <colgroup>
+            <col className="w-16" />
+            <col className="w-24" />
+            {Array.from({ length: 8 }, (_, index) => (
+              <col key={index} />
+            ))}
+          </colgroup>
+          <thead className="text-[var(--color-text-primary)]">
+            <tr className="bg-secondary-50">
+              <th
+                rowSpan={2}
+                scope="col"
+                className="border border-gray-200 px-2 py-4 font-medium"
+              >
                 {t('age')}
               </th>
-              <th scope="col" className="px-6 py-4 font-medium">
+              <th
+                rowSpan={2}
+                scope="col"
+                className="sticky left-0 z-10 border border-gray-200 bg-secondary-50 px-2 py-4 font-medium"
+              >
                 {isBengali ? 'ক্লাস' : 'Class'}
               </th>
-              <th scope="col" className="px-6 py-4 font-medium">
+              <th
+                colSpan={3}
+                scope="colgroup"
+                className="border border-gray-200 px-2 py-4 font-semibold"
+              >
                 {t('islamicSubjects')}
               </th>
-              <th scope="col" className="px-6 py-4 font-medium">
+              <th
+                colSpan={5}
+                scope="colgroup"
+                className="border border-gray-200 px-2 py-4 font-semibold"
+              >
                 {t('generalSubjects')}
               </th>
             </tr>
-          </thead>
-          <tbody className="divide-y divide-[#eeeae3]">
-            {studyPlanData.map((row, index) => (
-              <tr key={index} className="hover:bg-[#fbf9f5]">
-                <td className="px-6 py-5 text-[#746c63] whitespace-nowrap">
-                  {isBengali
-                    ? row.age.replace(
-                        /\d/g,
-                        digit => '০১২৩৪৫৬৭৮৯'[Number(digit)]
-                      )
-                    : row.age}
-                </td>
+            <tr className="bg-gray-50">
+              {Array.from({ length: 8 }, (_, index) => (
                 <th
-                  scope="row"
-                  className="px-6 py-5 font-medium text-[#352b24] whitespace-nowrap"
+                  key={index}
+                  scope="col"
+                  className="border border-gray-200 px-1 py-2 text-xs font-medium"
                 >
-                  {row.class}
+                  {t('period')}{' '}
+                  {new Intl.NumberFormat(isBengali ? 'bn-BD' : 'en-BD').format(
+                    index + 1
+                  )}
                 </th>
-                <td className="px-6 py-5 text-[#615950] leading-relaxed">
-                  {row.islamicStudies[locale]}
-                </td>
-                <td className="px-6 py-5 text-[#615950] leading-relaxed">
-                  {row.general[locale]}
-                </td>
-              </tr>
-            ))}
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {studyPlanData.map((row, index) => {
+              const periods = studyPeriods(
+                row.islamicStudies[locale],
+                row.general[locale],
+                index
+              );
+              const cellClass =
+                'border border-gray-200 px-2 py-4 text-[var(--color-text-primary)] leading-relaxed';
+              return (
+                <tr key={index}>
+                  <td className={cellClass}>
+                    {isBengali
+                      ? row.age.replace(
+                          /\d/g,
+                          digit => '০১২৩৪৫৬৭৮৯'[Number(digit)]
+                        )
+                      : row.age}
+                  </td>
+                  <th
+                    scope="row"
+                    className="sticky left-0 z-10 border border-gray-200 bg-white px-2 py-4 font-semibold text-[var(--color-text-primary)]"
+                  >
+                    {row.class}
+                  </th>
+                  {periods.islamic.map((subject, slot) => (
+                    <td
+                      key={`islamic-${slot}`}
+                      colSpan={periods.merged ? 3 : 1}
+                      className={`${cellClass} bg-secondary-50/40`}
+                    >
+                      {subject || (
+                        <span className="sr-only">{t('emptyPeriod')}</span>
+                      )}
+                    </td>
+                  ))}
+                  {periods.general.map((subject, slot) => (
+                    <td
+                      key={`general-${slot}`}
+                      colSpan={periods.merged ? 5 : 1}
+                      className={cellClass}
+                    >
+                      {subject || (
+                        <span className="sr-only">{t('emptyPeriod')}</span>
+                      )}
+                    </td>
+                  ))}
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
 
       {/* Footer Note */}
-      <div className="bg-[#fbf9f5] px-6 py-4 border-t border-[#e9e4dc]">
-        <p className="text-xs text-[#746c63]">
+      <div className="bg-secondary-50 px-6 py-4 border-t border-gray-200">
+        <p className="text-xs text-secondary-800">
           {isBengali
             ? 'বাংলা মিডিয়াম NCTB (দাখিল/এস.এস.সি) এর সাথে নিজস্ব ইসলামী শিক্ষার কারিকুলাম'
             : 'Own Islamic education curriculum integrated with Bengali Medium NCTB (Dakhil/SSC)'}

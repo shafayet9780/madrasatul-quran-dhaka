@@ -1,6 +1,6 @@
 .compact {
-  background: #f8f6f1;
-  border-bottom: 1px solid #e9e4dc;
+  background: var(--color-secondary-50);
+  border-bottom: 1px solid var(--color-gray-200);
   padding: 3.5rem 1rem;
 }
 .content {
@@ -16,13 +16,13 @@
 }
 .title {
   margin: 0;
-  color: #352b24;
+  color: var(--color-text-primary);
   font-weight: 600;
   letter-spacing: -0.035em;
 }
 .subtitle {
   margin: 1rem 0 0;
-  color: #746c63;
+  color: var(--color-secondary-800);
   font-size: 1rem;
   line-height: 1.75;
 }

@@ -161,7 +161,7 @@
   "admissions": {
     "meta": {
       "title": "Admissions - Madrasatul Quran",
-      "description": "Learn about admission requirements, application process, fee structure, and important dates for Madrasatul Quran."
+      "description": "Admission steps, Pre-Hifz and Hifz fees, optional transport, discounts and payment policies at Madrasatul Quran in Uttara, Dhaka."
     },
     "requirements": {
       "title": "Admission Requirements & Application Process",
@@ -825,6 +825,11 @@
   "collegePath": "Students who wish to pursue college education will focus on general education and take SSC exams.",
   "islamicSubjects": "Islamic studies",
   "generalSubjects": "General subjects",
-  "age": "Age"
+  "age": "Age",
+  "period": "Period",
+  "periodGrid": "Study plan by class and period",
+  "swipePeriods": "Swipe horizontally to view all periods. The class column stays visible.",
+  "emptyPeriod": "No subject assigned",
+  "illustrativeImages": "Illustrative images of learning themes."
 }
 }

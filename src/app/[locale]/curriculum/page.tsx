@@ -1,3 +1,6 @@
+import { generatePageMetadata } from '@/lib/page-metadata';
+import Image from 'next/image';
+import { curriculumImage } from '@/lib/curriculum-images';
 import styles from '@/components/admissions/admissions-experience.module.css';
 import { PageHero } from '@/components/ui/page-hero';
 import ProspectusDownload from '@/components/ui/prospectus-download';
@@ -23,14 +26,16 @@ interface CurriculumPageProps {
 export async function generateMetadata({ params }: CurriculumPageProps) {
   const { locale } = await params;
   const bn = locale === 'bengali';
-  return {
+  return generatePageMetadata({
+    locale,
+    path: '/curriculum',
     title: bn
       ? 'আমাদের কারিকুলাম - মাদরাসাতুল কুরআন'
       : 'Our Curriculum - Madrasatul Quran',
     description: bn
-      ? 'কুরআন-সুন্নাহ ভিত্তিক তারবিয়াহ্‌, আরবী ও দীনী শিক্ষা এবং NCTB একাডেমিকের সমন্বয়ে পরিকল্পিত সমন্বিত কারিকুলাম'
-      : 'Integrated curriculum combining Quran-Sunnah based Tarbiyah, Arabic & Islamic education with NCTB academic standards',
-  };
+      ? 'উত্তরা, ঢাকার মাদরাসাতুল কুরআনের সমন্বিত কুরআন, আরবি ও NCTB কারিকুলাম, শ্রেণি ও পিরিয়ড অনুযায়ী পাঠ পরিকল্পনা, শিক্ষার লক্ষ্য এবং ফি সম্পর্কে জানুন।'
+      : 'Explore our integrated Quran, Arabic and NCTB curriculum, class-by-class study plan, learning goals and school fees in Uttara, Dhaka.',
+  });
 }
 export default async function CurriculumPage({ params }: CurriculumPageProps) {
   const { locale } = await params;
@@ -46,6 +51,7 @@ export default async function CurriculumPage({ params }: CurriculumPageProps) {
     service.getSiteSettings(),
   ]);
   const available = !!form?.formSettings?.isEnabled;
+  const libraryImage = curriculumImage('higher-education');
   return (
     <div className={`${styles.page} bg-white pb-20`}>
       <PageHero
@@ -88,16 +94,27 @@ export default async function CurriculumPage({ params }: CurriculumPageProps) {
           </section>
           <section id="outcomes" className="scroll-mt-48 space-y-6">
             <CurriculumBreakdown compact />
-            <div className="rounded-xl border border-gray-200 bg-gray-50 p-5">
-              <h3 className="text-xl font-semibold text-primary-800">
-                {t('higherEducation')}
-              </h3>
-              <p className="mt-3 text-gray-700 leading-relaxed">
-                {t('alimPath')}
-              </p>
-              <p className="mt-3 text-gray-700 leading-relaxed">
-                {t('collegePath')}
-              </p>
+            <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white md:grid md:grid-cols-[1fr_1.6fr]">
+              <Image
+                src={libraryImage.src}
+                alt={libraryImage.alt[locale]}
+                width={768}
+                height={512}
+                sizes="(min-width: 768px) 430px, calc(100vw - 32px)"
+                loading="lazy"
+                className="h-full w-full aspect-[3/2] object-cover"
+              />
+              <div className="p-5 md:p-8">
+                <h3 className="text-xl font-semibold text-primary-800">
+                  {t('higherEducation')}
+                </h3>
+                <p className="mt-3 text-gray-700 leading-relaxed">
+                  {t('alimPath')}
+                </p>
+                <p className="mt-3 text-gray-700 leading-relaxed">
+                  {t('collegePath')}
+                </p>
+              </div>
             </div>
           </section>
           <FinancialInformation settings={settings} locale={locale} />

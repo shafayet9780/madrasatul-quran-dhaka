@@ -1,3 +1,4 @@
+import { generatePageMetadata } from '@/lib/page-metadata';
 import styles from '@/components/admissions/admissions-experience.module.css';
 import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
@@ -22,7 +23,12 @@ export async function generateMetadata({
 }: AdmissionsPageProps): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'admissions.meta' });
-  return { title: t('title'), description: t('description') };
+  return generatePageMetadata({
+    title: t('title'),
+    description: t('description'),
+    locale,
+    path: '/admissions',
+  });
 }
 export default async function AdmissionsPage({ params }: AdmissionsPageProps) {
   const { locale } = await params;
@@ -61,7 +67,7 @@ export default async function AdmissionsPage({ params }: AdmissionsPageProps) {
         <PageNavigation links={links} label={t('navigation')} />
         <div className="space-y-12 py-8 md:py-12">
           <section id="application" className="scroll-mt-48">
-            <h2 className="text-2xl font-semibold tracking-tight text-[#352b24]">
+            <h2 className="text-2xl font-semibold tracking-tight text-[var(--color-text-primary)]">
               {t('stepsHeading')}
             </h2>
             <ol className="mt-5 grid gap-4 md:grid-cols-3">
@@ -70,10 +76,10 @@ export default async function AdmissionsPage({ params }: AdmissionsPageProps) {
                 'guidanceStep',
                 'confirmationStep',
               ].map((key, i) => (
-                <li key={key} className="border-t border-[#e9e4dc] pt-5">
+                <li key={key} className="border-t border-gray-200 pt-5">
                   <span
                     aria-hidden="true"
-                    className="mb-3 inline-block text-sm font-medium tabular-nums text-[#947856]"
+                    className="mb-3 inline-block text-sm font-medium tabular-nums text-primary-500"
                   >
                     {new Intl.NumberFormat(bn ? 'bn-BD' : 'en-BD', {
                       minimumIntegerDigits: 2,
