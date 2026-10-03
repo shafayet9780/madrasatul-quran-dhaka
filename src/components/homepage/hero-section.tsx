@@ -134,7 +134,7 @@ export default function HeroSection({
 
         {/* Main Title */}
         <h1 className="text-3xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold leading-tight text-white drop-shadow-lg max-w-4xl">
-          <SplitText mode="words" stagger={0.06}>
+          <SplitText as="span" mode="words" stagger={0.06}>
             {siteSettings
               ? getLocalizedText(siteSettings.title, locale)
               : t('hero.title')}
@@ -196,11 +196,6 @@ export default function HeroSection({
         ))}
       </div>
 
-      {/* SEO and Accessibility improvements */}
-      <div className="sr-only">
-        <h1>Madrasatul Quran - Excellence in Islamic Education</h1>
-        <p>An ideal combination of islamic and general education</p>
-      </div>
     </section>
   );
 }

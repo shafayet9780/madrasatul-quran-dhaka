@@ -222,6 +222,8 @@ export interface Facility {
 }
 
 export interface ContactInfo {
+  admissionsPhone?: string
+  whatsappNumber?: string
   address?: MultilingualText
   phone?: Array<{
     label?: MultilingualText

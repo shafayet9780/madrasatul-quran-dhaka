@@ -1,6 +1,7 @@
 'use client';
 
-import { useLocale } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
+import { studyPeriods } from '@/lib/study-periods';
 
 interface StudyPlanData {
   age: string;
@@ -22,6 +23,7 @@ interface TenYearStudyPlanProps {
 export default function TenYearStudyPlan({ data }: TenYearStudyPlanProps) {
   const locale = useLocale() as 'bengali' | 'english';
   const isBengali = locale === 'bengali';
+  const t = useTranslations('admissionsExperience');
 
   // Fallback data if CMS data is not available
   const fallbackData: StudyPlanData[] = [
@@ -173,213 +175,138 @@ export default function TenYearStudyPlan({ data }: TenYearStudyPlanProps) {
 
   const studyPlanData = data || fallbackData;
 
-  // Define color groups based on the image
-  const getRowColorClass = (index: number) => {
-    if (index >= 0 && index <= 2) {
-      // Group 1: Nursery, KG, Class 1 (Light Green)
-      return 'bg-green-25 hover:bg-green-50';
-    } else if (index >= 3 && index <= 5) {
-      // Group 2: Class 2, 3, 4 (Light Pink/Salmon)
-      return 'bg-pink-25 hover:bg-pink-50';
-    } else if (index >= 6 && index <= 9) {
-      // Group 3: Class 5, 6, 7, 8 (Light Blue)
-      return 'bg-blue-25 hover:bg-blue-50';
-    } else if (index >= 10 && index <= 11) {
-      // Group 4: Class 9, 10 (Light Pink/Salmon - repeating)
-      return 'bg-pink-25 hover:bg-pink-50';
-    }
-    return 'bg-white hover:bg-gray-25';
-  };
-
-  // Get box background color to match row color
-  const getBoxColorClass = (index: number) => {
-    if (index >= 0 && index <= 2) {
-      // Group 1: Nursery, KG, Class 1 (Light Green)
-      return 'bg-green-100 border-green-300 rounded-md';
-    } else if (index >= 3 && index <= 5) {
-      // Group 2: Class 2, 3, 4 (Light Pink/Salmon)
-      return 'bg-pink-100 border-pink-300 rounded-md';
-    } else if (index >= 6 && index <= 9) {
-      // Group 3: Class 5, 6, 7, 8 (Light Blue)
-      return 'bg-blue-100 border-blue-300 rounded-md';
-    } else if (index >= 10 && index <= 11) {
-      // Group 4: Class 9, 10 (Light Pink/Salmon - repeating)
-      return 'bg-pink-100 border-pink-300 rounded-md';
-    }
-    return 'bg-gray-100 border-gray-300 rounded-md';
-  };
-
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+    <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
       {/* Header */}
-      <div className="bg-white px-6 py-4">
-        <h3 className="text-2xl font-bold text-primary-500 text-center">
+      <div className="bg-white px-6 py-7">
+        <h2 className="text-xl font-semibold tracking-tight text-[var(--color-text-primary)]">
           {isBengali
             ? 'দশ বছরের পাঠ পরিকল্পনা (পূর্ণ হিফজ সহ)'
             : '10-Year Study Plan (With Complete Hifz)'}
-        </h3>
+        </h2>
       </div>
 
-      {/* Table */}
-      <div className="overflow-x-auto">
-        <table className="w-full border-collapse min-w-[800px]">
-          <thead>
-            <tr className="bg-gradient-to-r from-primary-300 to-primary-400">
-              <th className="px-4 py-3 text-center text-sm font-bold text-white uppercase tracking-wide border-b border-amber-800 min-w-[80px]">
-                {isBengali ? 'বয়স' : 'Age'}
+      <p className="px-6 pb-4 text-sm text-[var(--color-text-secondary)] md:hidden">
+        {t('swipePeriods')}
+      </p>
+      <div
+        role="region"
+        aria-label={t('periodGrid')}
+        tabIndex={0}
+        className="overflow-x-auto focus-visible:outline-2 focus-visible:outline-primary-500 focus-visible:outline-offset-2"
+      >
+        <table className="w-full min-w-[1080px] table-fixed border-collapse text-center text-sm">
+          <caption className="sr-only">{t('periodGrid')}</caption>
+          <colgroup>
+            <col className="w-16" />
+            <col className="w-24" />
+            {Array.from({ length: 8 }, (_, index) => (
+              <col key={index} />
+            ))}
+          </colgroup>
+          <thead className="text-[var(--color-text-primary)]">
+            <tr className="bg-secondary-50">
+              <th
+                rowSpan={2}
+                scope="col"
+                className="border border-gray-200 px-2 py-4 font-medium"
+              >
+                {t('age')}
               </th>
-              <th className="px-4 py-3 text-center text-sm font-bold text-white uppercase tracking-wide border-b border-amber-800 min-w-[100px]">
+              <th
+                rowSpan={2}
+                scope="col"
+                className="sticky left-0 z-10 border border-gray-200 bg-secondary-50 px-2 py-4 font-medium"
+              >
                 {isBengali ? 'ক্লাস' : 'Class'}
               </th>
-              <th className="px-4 py-3 text-center text-sm font-bold text-white uppercase tracking-wide border-b border-amber-800 min-w-[300px]">
-                {isBengali ? 'ইসলামিক স্টাডিজ' : 'Islamic Studies'}
+              <th
+                colSpan={3}
+                scope="colgroup"
+                className="border border-gray-200 px-2 py-4 font-semibold"
+              >
+                {t('islamicSubjects')}
               </th>
-              <th className="px-4 py-3 text-center text-sm font-bold text-white uppercase tracking-wide border-b border-amber-800 min-w-[300px]">
-                {isBengali ? 'জেনারেল' : 'General'}
+              <th
+                colSpan={5}
+                scope="colgroup"
+                className="border border-gray-200 px-2 py-4 font-semibold"
+              >
+                {t('generalSubjects')}
               </th>
+            </tr>
+            <tr className="bg-gray-50">
+              {Array.from({ length: 8 }, (_, index) => (
+                <th
+                  key={index}
+                  scope="col"
+                  className="border border-gray-200 px-1 py-2 text-xs font-medium"
+                >
+                  {t('period')}{' '}
+                  {new Intl.NumberFormat(isBengali ? 'bn-BD' : 'en-BD').format(
+                    index + 1
+                  )}
+                </th>
+              ))}
             </tr>
           </thead>
           <tbody>
-            {studyPlanData.map((row, index) => (
-              <tr
-                key={index}
-                className={`${index === 2 || index === 5 || index === 9 ? 'border-b-1 border-gray-400' : 'border-b border-gray-200'} ${getRowColorClass(index)}`}
-              >
-                <td className="px-4 py-3 text-sm font-semibold text-gray-900 border-r border-gray-400 min-w-[80px]">
-                  <span className="inline-flex items-center justify-center w-8 h-8 bg-gray-100 rounded-full text-xs font-bold">
-                    {row.age}
-                  </span>
-                </td>
-                <td className="px-4 py-3 text-sm font-bold text-primary-800 border-r border-gray-400 min-w-[100px]">
-                  {row.class}
-                </td>
-                <td className="px-1 py-2 border-r border-gray-400 min-w-[300px]">
-                  <div className="grid grid-cols-3 gap-1 w-full">
-                    {index >= 10 ? (
-                      // Classes 9, 10 - span all 5 slots
-                      <div
-                        className={`px-2 py-1 text-sm font-medium text-gray-700 border text-center col-span-5 min-w-0 ${getBoxColorClass(index)}`}
-                      >
-                        {isBengali ? row.general.bengali : row.general.english}
-                      </div>
-                    ) : index >= 7 && index <= 9 ? (
-                      // Classes 6, 7 - first slot blank
-                      <>
-                         <div
-                           className={`px-2 py-1 text-sm font-medium text-gray-700 border text-center min-w-0 ${getBoxColorClass(index)}`}
-                         ></div>
-                         {(isBengali
-                           ? row.islamicStudies.bengali
-                           : row.islamicStudies.english
-                         )
-                           .split(', ')
-                           .map((subject, subIndex) => (
-                             <div
-                               key={subIndex}
-                               className={`px-2 py-1 text-sm font-medium text-gray-700 border text-center min-w-0 ${getBoxColorClass(index)}`}
-                             >
-                               {subject.trim()}
-                             </div>
-                           ))}
-                         {/* Fill remaining slots to ensure 3 total */}
-                         {Array.from({
-                           length:
-                             3 -
-                             1 -
-                             (isBengali
-                               ? row.islamicStudies.bengali
-                               : row.islamicStudies.english
-                             ).split(', ').length,
-                         }).map((_, subIndex) => (
-                           <div
-                             key={`empty-${subIndex}`}
-                             className={`px-2 py-1 text-sm font-medium text-gray-700 border text-center min-w-0 ${getBoxColorClass(index)}`}
-                           ></div>
-                         ))}
-                      </>
-                    ) : (
-                      // Other classes - normal 3 slots
-                      <>
-                        {(isBengali
-                          ? row.islamicStudies.bengali
-                          : row.islamicStudies.english
+            {studyPlanData.map((row, index) => {
+              const periods = studyPeriods(
+                row.islamicStudies[locale],
+                row.general[locale],
+                index
+              );
+              const cellClass =
+                'border border-gray-200 px-2 py-4 text-[var(--color-text-primary)] leading-relaxed';
+              return (
+                <tr key={index}>
+                  <td className={cellClass}>
+                    {isBengali
+                      ? row.age.replace(
+                          /\d/g,
+                          digit => '০১২৩৪৫৬৭৮৯'[Number(digit)]
                         )
-                          .split(', ')
-                          .map((subject, subIndex) => (
-                            <div
-                              key={subIndex}
-                              className={`px-2 py-1 text-sm font-medium text-gray-700 border text-center min-w-0 ${getBoxColorClass(index)}`}
-                            >
-                              {subject.trim()}
-                            </div>
-                          ))}
-                        {/* Fill remaining slots if needed */}
-                        {Array.from({
-                          length:
-                            3 -
-                            (isBengali
-                              ? row.islamicStudies.bengali
-                              : row.islamicStudies.english
-                            ).split(', ').length,
-                        }).map((_, subIndex) => (
-                          <div
-                            key={`empty-${subIndex}`}
-                            className={`px-2 py-1 text-sm font-medium text-gray-700 border text-center min-w-0 ${getBoxColorClass(index)}`}
-                          ></div>
-                        ))}
-                      </>
-                    )}
-                  </div>
-                </td>
-                <td className="px-1 py-2 min-w-[300px]">
-                  <div className="grid grid-cols-5 gap-1 w-full">
-                    {index >= 10 ? (
-                      // Classes 9, 10 - span all 5 slots
-                      <div
-                        className={`px-2 py-1 text-sm font-medium text-gray-700 border text-center col-span-5 min-w-0 ${getBoxColorClass(index)}`}
-                      >
-                        {isBengali ? row.general.bengali : row.general.english}
-                      </div>
-                    ) : (
-                      // Other classes - 5 slots with last 2 blank for first 6 rows
-                      <>
-                        {(isBengali ? row.general.bengali : row.general.english)
-                          .split(', ')
-                          .map((subject, subIndex) => (
-                            <div
-                              key={subIndex}
-                              className={`px-2 py-1 text-sm font-medium text-gray-700 border text-center min-w-0 ${getBoxColorClass(index)}`}
-                            >
-                              {subject.trim()}
-                            </div>
-                          ))}
-                        {/* Fill remaining slots - last 2 blank for first 6 rows */}
-                        {Array.from({
-                          length:
-                            5 -
-                            (isBengali
-                              ? row.general.bengali
-                              : row.general.english
-                            ).split(', ').length,
-                        }).map((_, subIndex) => (
-                          <div
-                            key={`empty-${subIndex}`}
-                            className={`px-2 py-1 text-sm font-medium text-gray-700 border text-center min-w-0 ${getBoxColorClass(index)}`}
-                          ></div>
-                        ))}
-                      </>
-                    )}
-                  </div>
-                </td>
-              </tr>
-            ))}
+                      : row.age}
+                  </td>
+                  <th
+                    scope="row"
+                    className="sticky left-0 z-10 border border-gray-200 bg-white px-2 py-4 font-semibold text-[var(--color-text-primary)]"
+                  >
+                    {row.class}
+                  </th>
+                  {periods.islamic.map((subject, slot) => (
+                    <td
+                      key={`islamic-${slot}`}
+                      colSpan={periods.merged ? 3 : 1}
+                      className={`${cellClass} bg-secondary-50/40`}
+                    >
+                      {subject || (
+                        <span className="sr-only">{t('emptyPeriod')}</span>
+                      )}
+                    </td>
+                  ))}
+                  {periods.general.map((subject, slot) => (
+                    <td
+                      key={`general-${slot}`}
+                      colSpan={periods.merged ? 5 : 1}
+                      className={cellClass}
+                    >
+                      {subject || (
+                        <span className="sr-only">{t('emptyPeriod')}</span>
+                      )}
+                    </td>
+                  ))}
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
 
       {/* Footer Note */}
-      <div className="bg-gray-50 px-6 py-3 border-t border-gray-200">
-        <p className="text-sm text-gray-600 text-center">
+      <div className="bg-secondary-50 px-6 py-4 border-t border-gray-200">
+        <p className="text-xs text-secondary-800">
           {isBengali
             ? 'বাংলা মিডিয়াম NCTB (দাখিল/এস.এস.সি) এর সাথে নিজস্ব ইসলামী শিক্ষার কারিকুলাম'
             : 'Own Islamic education curriculum integrated with Bengali Medium NCTB (Dakhil/SSC)'}

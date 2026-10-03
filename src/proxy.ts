@@ -32,8 +32,10 @@ export function proxy(request: NextRequest) {
       }
     }
     
-    // Allow studio access
-    return NextResponse.next()
+    // Studio uses English outside the localized public routes.
+    const headers = new Headers(request.headers)
+    headers.set('X-NEXT-INTL-LOCALE', 'english')
+    return NextResponse.next({ request: { headers } })
   }
 
   // Handle internationalization for all other routes
@@ -44,11 +46,12 @@ export const config = {
   matcher: [
     // Match all pathnames except for
     // - api routes
+    // - images/ (public image assets)
     // - _next/static (static files)
     // - _next/image (image optimization files)
     // - favicon.ico (favicon file)
     // - sitemap.xml (SEO sitemap)
     // - robots.txt (SEO robots)
-    '/((?!api|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt).*)',
+    '/((?!api|images/|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt).*)',
   ],
 }

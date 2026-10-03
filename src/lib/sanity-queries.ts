@@ -61,6 +61,8 @@ export const siteSettingsQuery = groq`
       ${imageFields}
     },
     contactInfo {
+      admissionsPhone,
+      whatsappNumber,
       address {
         ${multilingualTextFields}
       },
@@ -723,3 +725,5 @@ export const preAdmissionFormQuery = groq`
     }
   }
 `;
+
+export const feeSettingsQuery = groq`*[_type == "feeSettings" && _id == "feeSettings"][0]`;

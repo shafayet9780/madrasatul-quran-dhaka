@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import { languageTag } from '@/lib/locale-tags';
 import { type Locale } from '@/lib/i18n';
 import { getTextDirection, getFontClass, storeLanguagePreference } from '@/lib/language-utils';
 
@@ -14,7 +15,7 @@ export default function LocaleProvider({ locale, children }: LocaleProviderProps
     const typedLocale = locale as Locale;
     
     // Update document attributes after hydration
-    document.documentElement.lang = locale;
+    document.documentElement.lang = languageTag(typedLocale);
     document.documentElement.dir = getTextDirection(typedLocale);
     
     // Add locale-specific font class

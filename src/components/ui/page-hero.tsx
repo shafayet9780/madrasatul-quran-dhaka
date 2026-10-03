@@ -1,3 +1,4 @@
+import styles from './page-hero.module.css';
 import type { ReactNode } from 'react';
 import { getFontClass, type Language } from '@/lib/sanity-utils';
 
@@ -7,6 +8,8 @@ export interface PageHeroChip {
 }
 
 interface PageHeroProps {
+  compact?: boolean;
+  actions?: ReactNode;
   title: string;
   subtitle?: string;
   language: Language;
@@ -23,11 +26,46 @@ interface PageHeroProps {
  * title/subtitle, accent underline, with optional eyebrow icon, feature chips,
  * and a breadcrumb strip. Used across content pages and the people list pages.
  */
-export function PageHero({ title, subtitle, language, icon, chips, breadcrumb }: PageHeroProps) {
+export function PageHero({
+  title,
+  subtitle,
+  language,
+  icon,
+  chips,
+  breadcrumb,
+  compact = false,
+  actions,
+}: PageHeroProps) {
   const font = getFontClass(language);
+  if (compact)
+    return (
+      <>
+        <section className={styles.compact}>
+          <div className={styles.content}>
+            <div className={styles.copy}>
+              <h1
+                className={`${styles.title} ${font}`}
+                style={{
+                  fontSize: 'clamp(2rem, 4vw, 3.25rem)',
+                  lineHeight: 1.25,
+                }}
+              >
+                {title}
+              </h1>
+              {subtitle && <p className={styles.subtitle}>{subtitle}</p>}
+            </div>
+            {actions && <div className={styles.actions}>{actions}</div>}
+          </div>
+        </section>
+        {breadcrumb}
+      </>
+    );
+
   return (
     <>
-      <section className="relative overflow-hidden bg-gradient-to-br from-primary-700 via-primary-800 to-primary-900 py-16 md:py-24">
+      <section
+        className="relative overflow-hidden bg-gradient-to-br from-primary-700 via-primary-800 to-primary-900 py-16 md:py-24"
+      >
         <div className="absolute inset-0 opacity-10 [background-image:radial-gradient(circle_at_1px_1px,white_1px,transparent_0)] [background-size:24px_24px]" />
         <div className="container-custom relative text-center text-white">
           {icon && (
@@ -35,11 +73,24 @@ export function PageHero({ title, subtitle, language, icon, chips, breadcrumb }:
               {icon}
             </div>
           )}
-          <h1 className={`mb-4 text-3xl font-bold md:text-5xl ${font}`}>{title}</h1>
+          <h1
+            className={`mb-4 text-3xl font-bold md:text-5xl ${font}`}
+          >
+            {title}
+          </h1>
           {subtitle && (
-            <p className={`mx-auto max-w-2xl text-base text-white/80 md:text-lg ${font}`}>{subtitle}</p>
+            <p
+              className={`mx-auto max-w-2xl text-base text-white/80 md:text-lg ${font}`}
+            >
+              {subtitle}
+            </p>
           )}
           <div className="mx-auto mt-6 h-1 w-24 rounded-full bg-accent-400" />
+          {actions && (
+            <div className="mt-6 flex flex-wrap justify-center gap-3">
+              {actions}
+            </div>
+          )}
           {chips && chips.length > 0 && (
             <div className="mt-8 flex flex-wrap justify-center gap-3">
               {chips.map((chip, i) => (

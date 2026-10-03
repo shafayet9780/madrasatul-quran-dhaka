@@ -10,6 +10,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
+    "setup:fees": "tsx scripts/setup-fees.ts",
     "setup:faculty": "node scripts/populate-faculty-data.js",
     "setup:form": "node scripts/populate-pre-admission-form.js",
     "setup:headers": "node scripts/setup-google-sheets-headers.js",

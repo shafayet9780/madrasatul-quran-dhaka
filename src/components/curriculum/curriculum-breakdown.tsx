@@ -1,6 +1,7 @@
 'use client';
 
-import { useLocale } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
+import { LearningCard } from './learning-card';
 import {
   BookOpen,
   Languages,
@@ -24,14 +25,16 @@ interface CurriculumSubject {
 }
 
 interface CurriculumBreakdownProps {
+  compact?: boolean;
   data?: CurriculumSubject[];
 }
 
 export default function CurriculumBreakdown({
-  data,
+  data, compact = false,
 }: CurriculumBreakdownProps) {
   const locale = useLocale() as 'bengali' | 'english';
   const isBengali = locale === 'bengali';
+  const t = useTranslations('admissionsExperience');
 
   // Fallback data if CMS data is not available
   const fallbackData: CurriculumSubject[] = [
@@ -131,6 +134,31 @@ export default function CurriculumBreakdown({
         return <BookOpen {...iconProps} />;
     }
   };
+
+  if (compact)
+    return (
+      <div>
+        <h2 className="text-2xl md:text-3xl font-bold text-primary-800">
+          {isBengali
+            ? 'দশ বছরে ইসলাম শিক্ষায় উদ্দিষ্ট যোগ্যতা'
+            : 'Targeted qualifications in Islamic education in ten years'}
+        </h2>
+        <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {curriculumData.map((item, index) => (
+            <LearningCard
+              key={index}
+              imageKey={item.icon}
+              title={item.title[locale]}
+              description={item.description[locale]}
+              locale={locale}
+            />
+          ))}
+        </div>
+        <p className="mt-4 text-xs text-[var(--color-text-secondary)]">
+          {t('illustrativeImages')}
+        </p>
+      </div>
+    );
 
   return (
     <div>

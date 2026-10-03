@@ -4,6 +4,7 @@ export const structure: StructureResolver = (S) =>
   S.list()
     .title('Content')
     .items([
+      S.listItem().title('Fees & Discounts').id('feeSettings').child(S.document().schemaType('feeSettings').documentId('feeSettings')),
       // Site Settings (Singleton)
       S.listItem()
         .title('Site Settings')

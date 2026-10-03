@@ -1,3 +1,4 @@
+import { normalizePhone } from '../../src/lib/admissions-contact';
 import { defineField, defineType, ALL_FIELDS_GROUP } from 'sanity'
 
 export const siteSettings = defineType({
@@ -182,6 +183,7 @@ export const siteSettings = defineType({
       group: 'contact',
       type: 'object',
       fields: [
+        ...['admissionsPhone', 'whatsappNumber'].map(name => ({ name, title: name === 'admissionsPhone' ? 'Admissions phone' : 'WhatsApp number', type: 'string', description: 'International format, for example +8801301226644', validation: (Rule: any) => Rule.regex(/^\+[1-9]\d{7,14}$/, {name: 'international phone number'}).custom((value: string | undefined) => !value || normalizePhone(value) === value || 'Use international format without the local leading zero, e.g. +8801301226644.') })),
         {
           name: 'address',
           title: 'Address',

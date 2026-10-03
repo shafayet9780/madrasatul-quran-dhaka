@@ -1,3 +1,4 @@
+import { getSiteUrl } from './site-url';
 import { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 
@@ -32,7 +33,7 @@ export async function generateMetadata(
   path: string = ''
 ): Promise<Metadata> {
   const t = await getTranslations('seo');
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://madrasatul-quran.edu.bd';
+  const baseUrl = getSiteUrl();
   const currentUrl = `${baseUrl}/${locale}${path}`;
 
   const title = seoData.title[locale];
@@ -113,7 +114,7 @@ export async function generateMetadata(
  * Generate structured data for educational institution
  */
 export function generateEducationalInstitutionStructuredData(locale: 'bengali' | 'english') {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://madrasatul-quran.edu.bd';
+  const baseUrl = getSiteUrl();
   
   return {
     '@context': 'https://schema.org',
@@ -195,7 +196,7 @@ export function generateBreadcrumbStructuredData(
   breadcrumbs: Array<{ name: string; url: string }>,
   locale: 'bengali' | 'english'
 ) {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://madrasatul-quran.edu.bd';
+  const baseUrl = getSiteUrl();
   
   return {
     '@context': 'https://schema.org',
@@ -230,7 +231,7 @@ export function generatePersonStructuredData(
   },
   locale: 'bengali' | 'english'
 ) {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://madrasatul-quran.edu.bd';
+  const baseUrl = getSiteUrl();
 
   return {
     '@context': 'https://schema.org',
@@ -273,7 +274,7 @@ export function generateFAQStructuredData(
  * Generate local business structured data
  */
 export function generateLocalBusinessStructuredData(locale: 'bengali' | 'english') {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://madrasatul-quran.edu.bd';
+  const baseUrl = getSiteUrl();
   
   return {
     '@context': 'https://schema.org',

@@ -1,21 +1,29 @@
+import { getSiteUrl } from '@/lib/site-url';
 import { MetadataRoute } from 'next';
 import { getDirectorSlugs } from '@/lib/queries/directors';
 import { getTeacherSlugs } from '@/lib/queries/teachers';
 import { getNavigationVisibility } from '@/lib/queries/site';
-import { isSectionVisible, type NavigationVisibility } from '@/lib/nav-visibility';
+import {
+  isSectionVisible,
+  type NavigationVisibility,
+} from '@/lib/nav-visibility';
 
-const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://madrasatul-quran.edu.bd';
-
-function bilingual(path: string, priority: number, changeFrequency: MetadataRoute.Sitemap[number]['changeFrequency']): MetadataRoute.Sitemap {
+function bilingual(
+  path: string,
+  priority: number,
+  changeFrequency: MetadataRoute.Sitemap[number]['changeFrequency']
+): MetadataRoute.Sitemap {
+  const baseUrl = getSiteUrl();
   const alternates = {
     languages: {
       'bn-BD': `${baseUrl}/bengali${path}`,
-      'en-US': `${baseUrl}/english${path}`,
+      en: `${baseUrl}/english${path}`,
+      'x-default': `${baseUrl}/bengali${path}`,
     },
   };
   return [
-    { url: `${baseUrl}/bengali${path}`, lastModified: new Date(), changeFrequency, priority, alternates },
-    { url: `${baseUrl}/english${path}`, lastModified: new Date(), changeFrequency, priority, alternates },
+    { url: `${baseUrl}/bengali${path}`, changeFrequency, priority, alternates },
+    { url: `${baseUrl}/english${path}`, changeFrequency, priority, alternates },
   ];
 }
 
@@ -26,14 +34,26 @@ function bilingualSlug(
   englishSlug: string | undefined,
   priority: number
 ): MetadataRoute.Sitemap {
+  const baseUrl = getSiteUrl();
   const languages: Record<string, string> = {};
-  if (bengaliSlug) languages['bn-BD'] = `${baseUrl}/bengali${base}/${bengaliSlug}`;
-  if (englishSlug) languages['en-US'] = `${baseUrl}/english${base}/${englishSlug}`;
+  if (bengaliSlug)
+    languages['bn-BD'] = `${baseUrl}/bengali${base}/${bengaliSlug}`;
+  if (englishSlug) languages['en'] = `${baseUrl}/english${base}/${englishSlug}`;
   const entries: MetadataRoute.Sitemap = [];
   if (bengaliSlug)
-    entries.push({ url: `${baseUrl}/bengali${base}/${bengaliSlug}`, lastModified: new Date(), changeFrequency: 'monthly', priority, alternates: { languages } });
+    entries.push({
+      url: `${baseUrl}/bengali${base}/${bengaliSlug}`,
+      changeFrequency: 'monthly',
+      priority,
+      alternates: { languages },
+    });
   if (englishSlug)
-    entries.push({ url: `${baseUrl}/english${base}/${englishSlug}`, lastModified: new Date(), changeFrequency: 'monthly', priority, alternates: { languages } });
+    entries.push({
+      url: `${baseUrl}/english${base}/${englishSlug}`,
+      changeFrequency: 'monthly',
+      priority,
+      alternates: { languages },
+    });
   return entries;
 }
 
@@ -53,6 +73,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...bilingual('', 1.0, 'weekly'),
     ...bilingual('/contact', 0.8, 'monthly'),
     ...bilingual('/curriculum', 0.9, 'monthly'),
+    ...bilingual('/admissions', 0.9, 'monthly'),
     ...bilingual('/pre-admission', 0.8, 'monthly'),
     ...(showDirectors ? bilingual('/directors', 0.8, 'monthly') : []),
     ...(showAdvisors ? bilingual('/advisors', 0.7, 'monthly') : []),
@@ -61,13 +82,20 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   let profilePages: MetadataRoute.Sitemap = [];
   try {
-    const [directorSlugs, teacherSlugs] = await Promise.all([getDirectorSlugs(), getTeacherSlugs()]);
+    const [directorSlugs, teacherSlugs] = await Promise.all([
+      getDirectorSlugs(),
+      getTeacherSlugs(),
+    ]);
     profilePages = [
       ...(showDirectors
-        ? directorSlugs.flatMap((s) => bilingualSlug('/directors', s.bengali, s.english, 0.6))
+        ? directorSlugs.flatMap(s =>
+            bilingualSlug('/directors', s.bengali, s.english, 0.6)
+          )
         : []),
       ...(showTeachers
-        ? teacherSlugs.flatMap((s) => bilingualSlug('/teachers', s.bengali, s.english, 0.6))
+        ? teacherSlugs.flatMap(s =>
+            bilingualSlug('/teachers', s.bengali, s.english, 0.6)
+          )
         : []),
     ];
   } catch (error) {

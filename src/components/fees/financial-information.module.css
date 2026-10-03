@@ -1,0 +1,336 @@
+.financial {
+  --ink: var(--color-text-primary);
+  --muted: var(--color-secondary-800);
+  --line: var(--color-gray-200);
+  --paper: var(--color-secondary-50);
+  color: var(--ink);
+  line-height: 1.65;
+}
+.section {
+  scroll-margin-top: 12rem;
+}
+.section + .section {
+  margin-top: 3.75rem;
+}
+.heading {
+  margin: 0;
+  color: var(--ink);
+  font-size: clamp(1.5rem, 2.6vw, 2rem);
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  line-height: 1.35;
+}
+.introduction {
+  margin: 0.75rem 0 1.75rem;
+  max-width: 44rem;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+.panel {
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 1.25rem;
+  background: var(--color-white);
+  box-shadow: var(--shadow-sm);
+}
+.table {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+  text-align: left;
+}
+.table th:first-child {
+  width: 48%;
+}
+.table thead th {
+  padding: 1.65rem 2rem;
+  vertical-align: bottom;
+  border-bottom: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+.table thead th:not(:first-child) {
+  text-align: right;
+  color: var(--ink);
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+.table thead th:last-child,
+.feeRow td:last-child {
+  background: var(--paper);
+}
+.groupLabel th {
+  padding: 1.2rem 2rem 0.6rem;
+  color: var(--color-primary-500);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-align: left;
+  letter-spacing: 0.015em;
+}
+.table tbody + tbody {
+  border-top: 1px solid var(--line);
+}
+.feeRow th,
+.feeRow td {
+  padding: 1.1rem 2rem 1.4rem;
+  vertical-align: middle;
+}
+.feeRow + .feeRow {
+  border-top: 1px solid var(--color-gray-100);
+}
+.feeRow th {
+  text-align: left;
+  font-weight: 400;
+}
+.feeRow td {
+  text-align: right;
+}
+.feeName {
+  display: block;
+  font-size: 0.98rem;
+  font-weight: 500;
+}
+.frequency {
+  display: block;
+  margin-top: 0.3rem;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 400;
+}
+.note {
+  display: block;
+  margin: 0.5rem 0 0;
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-weight: 400;
+}
+.price {
+  font-size: 1.1rem;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+.status {
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-weight: 400;
+}
+.panelFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  border-top: 1px solid var(--line);
+  padding: 0.75rem 2rem;
+}
+.panelFooter > span {
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+.contactLink {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  gap: 0.65rem;
+  color: var(--color-primary-500);
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+.contactLink:hover {
+  text-decoration: underline;
+  text-underline-offset: 5px;
+}
+.contactLink:focus-visible {
+  outline: 2px solid var(--color-primary-500);
+  outline-offset: 4px;
+  border-radius: 3px;
+}
+.mobileFees {
+  display: none;
+}
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.optional {
+  padding: 0.3rem 0.75rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--muted);
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+.transportTable th:first-child {
+  width: 55%;
+}
+.transportTable thead th {
+  padding: 1rem 2rem;
+}
+.transportTable thead th:not(:first-child) {
+  background: transparent;
+  font-size: 0.75rem;
+  color: var(--muted);
+  font-weight: 500;
+}
+.transportTable .feeRow td:last-child {
+  background: transparent;
+}
+.detailsSection {
+  display: grid;
+  grid-template-columns: minmax(0, 0.7fr) minmax(0, 1.3fr);
+  gap: 3rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--line);
+}
+.detailsSection .heading {
+  font-size: 1.4rem;
+}
+.discount + .discount {
+  border-top: 1px solid var(--line);
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+}
+.discount h3 {
+  margin: 0 0 0.7rem;
+  font-size: 1rem;
+  font-weight: 600;
+}
+.discount p {
+  margin: 0.6rem 0;
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+.discount .eligibility {
+  color: var(--ink);
+}
+.appliesTo {
+  display: inline-block;
+  margin-top: 0.35rem;
+  padding: 0.35rem 0.7rem;
+  background: var(--paper);
+  border-radius: 0.4rem;
+  color: var(--color-primary-500);
+  font-size: 0.78rem;
+}
+.instructions {
+  margin: 0 0 1rem;
+  font-size: 0.95rem;
+  color: var(--muted);
+}
+.policies {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  counter-reset: policies;
+}
+.policies li {
+  counter-increment: policies;
+  display: flex;
+  gap: 1rem;
+  padding: 0.9rem 0;
+  border-top: 1px solid var(--line);
+  font-size: 0.9rem;
+}
+.policies li::before {
+  content: counter(policies, decimal-leading-zero);
+  flex-shrink: 0;
+  padding-top: 0.15rem;
+  color: var(--color-primary-500);
+  font-size: 0.7rem;
+  font-variant-numeric: tabular-nums;
+}
+.empty {
+  padding: 2rem;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 1.25rem;
+}
+@media (max-width: 767px) {
+  .section + .section {
+    margin-top: 2.75rem;
+  }
+  .desktopFees {
+    display: none;
+  }
+  .mobileFees {
+    display: block;
+  }
+  .mobileGroup + .mobileGroup {
+    border-top: 1px solid var(--line);
+  }
+  .mobileGroup h3 {
+    padding: 1.25rem 1.25rem 0.5rem;
+    color: var(--color-primary-500);
+    font-size: 0.8rem;
+    font-weight: 600;
+  }
+  .feeCard {
+    padding: 1rem 1.25rem 1.25rem;
+  }
+  .feeCard + .feeCard {
+    border-top: 1px solid var(--color-gray-100);
+  }
+  .feeCard header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.3rem 0.65rem;
+  }
+  .feeCard h4 {
+    font-size: 1rem;
+    font-weight: 600;
+  }
+  .feeCard .frequency {
+    margin: 0;
+  }
+  .feeCard dl {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    margin: 1rem 0 0;
+  }
+  .feeCard dl > div + div {
+    border-left: 1px solid var(--line);
+    padding-left: 1.25rem;
+  }
+  .feeCard dt {
+    color: var(--muted);
+    font-size: 0.75rem;
+  }
+  .feeCard dd {
+    margin: 0.35rem 0 0;
+  }
+  .panelFooter {
+    padding: 0.6rem 1.25rem;
+    gap: 0;
+  }
+  .panelFooter > span {
+    display: none;
+  }
+  .detailsSection {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1.25rem;
+    padding-top: 1.5rem;
+  }
+  .table.transportTable th,
+  .table.transportTable td {
+    padding: 1rem 1.25rem;
+  }
+  .transportTable th:first-child {
+    width: 45%;
+  }
+  .price {
+    font-size: 1rem;
+  }
+  .status {
+    font-size: 0.8rem;
+  }
+  .empty {
+    padding: 1.5rem;
+  }
+}
