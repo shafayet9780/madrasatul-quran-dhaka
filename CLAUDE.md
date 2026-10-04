@@ -127,5 +127,12 @@ Many `scripts/*.js` / `.ts` are one-shot Sanity data seeders (e.g. `populate-san
 - Cross-cutting libs in `src/lib/`: SEO (`seo.ts`, `local-seo.ts`, `sitemap.ts`), performance (`performance-monitoring.ts`, `image-optimization.ts`, `font-optimization.ts`), `design-system.ts`, `multilingual-content.ts`, `content-validation.ts`, `publishing-workflow.ts`.
 - Next images: only `cdn.sanity.io` is whitelisted; WebP/AVIF, 1-year cache TTL (`next.config.ts`).
 
+## Surveys (teacher/guardian reviews)
+Spec `docs/survey-system.md`, plan `docs/survey-implementation-plan.md`, admin guide `docs/survey-admin-guide.md`, locked design `docs/survey-mockups/`.
+- `/survey/{slug}?k=…` (public, Bengali, outside `[locale]`) and `/admin/…` (Studio Basic Auth) are branched in `src/proxy.ts`; analytics never load there.
+- Data: Neon Postgres via Drizzle (`src/lib/survey/schema.ts`, migrations `drizzle/`); Sanity holds templates/rounds/classes/teachers; opening a round snapshots them into `survey_rounds` (Postgres is then the source of truth).
+- `src/lib/survey/` holds the logic (pure modules are unit-tested; `server-only` modules touch the DB/Sheets). Admin mutations are server actions that must call `assertAdmin()`.
+- Commands: `pnpm db:generate`, `pnpm db:migrate`, `pnpm test:db` (`*.db.test.ts` against the Neon dev branch), `pnpm survey:fixtures [--remove]` (sample data in the dev branch). e2e specs that touch the DB run one at a time (`survey-db` Playwright project) with `SURVEY_SHEET_ID` empty.
+
 ## Env
-Required vars live in `.env.local` (see `.env.local.example`): `NEXT_PUBLIC_SANITY_PROJECT_ID`, `NEXT_PUBLIC_SANITY_DATASET`, `SANITY_API_TOKEN` (preview/writes), Google service-account keys, analytics IDs, optional studio auth vars.
+Required vars live in `.env.local` (see `.env.local.example`): `NEXT_PUBLIC_SANITY_PROJECT_ID`, `NEXT_PUBLIC_SANITY_DATASET`, `SANITY_API_TOKEN` (preview/writes), Google service-account keys, analytics IDs, optional studio auth vars. Surveys add `DATABASE_URL` (pooled) / `DATABASE_URL_UNPOOLED` (migrations), `SURVEY_SHEET_ID`, `SURVEY_BACKUP_BLOB_READ_WRITE_TOKEN`, `CRON_SECRET`.

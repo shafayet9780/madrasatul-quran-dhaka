@@ -1,6 +1,6 @@
 # Survey System — Specification
 
-Status: **design and prototype locked** (2026-10-04). Prototype: [`survey-mockups/`](survey-mockups/README.md). Next: build in the phase order below.
+Status: **phase 1 built** (T1 + T1 reports, 2026-10-04) on branch `survey-form`; design and prototype locked. Prototype: [`survey-mockups/`](survey-mockups/README.md). Build record: [`survey-implementation-plan.md`](survey-implementation-plan.md). Admin how-to and go-live checklist: [`survey-admin-guide.md`](survey-admin-guide.md). Next: phase 2 (G1/G2 and guardian reports).
 
 Three recurring surveys, run from this app, replace the current Google Forms:
 

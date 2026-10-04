@@ -1,6 +1,17 @@
 # Survey System — Implementation Plan (Phase 1: T1 + T1 reports)
 
-Status: **locked** (2026-10-04)
+Status: **done** (M0–M8, 2026-10-04) · each milestone reviewed independently, fixed and re-checked. Admin how-to and go-live checklist: [`survey-admin-guide.md`](survey-admin-guide.md).
+
+Notes from the build (deviations and decisions beyond the plan):
+- Admin mutations are server actions on `/admin` pages and Studio calls go to `/studio/api/survey/…` (no `/api/admin`); every action calls `assertAdmin()`.
+- Draft rounds can also be opened from `/admin/rounds` with adjusted dates (R7).
+- Backups need a separate **private** Blob store (`SURVEY_BACKUP_BLOB_READ_WRITE_TOKEN`); the site's store is public.
+- Sheet copy uses a claim column (`mirror_claimed_at`, migration 0002) so a killed function never marks a batch as copied.
+- Duplicate resolution "keep one" supersedes the other teacher's batch; that teacher's receipt and Sheet rows say it was set aside by the admin.
+- Report "previous round" = the student's latest earlier round with marks. Flag thresholds are constants (`report-math.ts` `FLAGS`).
+- Notes live on the review screen (as in the locked T1 artboards), not beside names on the rating screen.
+- Migrations run on Vercel builds via `vercel-build`.
+- Remaining performance headroom: the site root layout preloads the public site's fonts on every route, survey pages included; moving the site into a route group with its own root layout would remove that (left for a decision because it touches the public site).
 Inputs: [`survey-system.md`](survey-system.md) (spec, locked) · [`survey-mockups/`](survey-mockups/README.md) (prototype + design system, locked)
 
 ## 1. Decisions (from the planning interview)
