@@ -7,10 +7,15 @@ import { planImport, readTable, type ImportPlan } from './erp-import';
 import { fetchClassMappings } from './sanity-source';
 import { importRuns, students } from './schema';
 
-async function buildPlan(file: File): Promise<{ plan: ImportPlan } | { error: string }> {
-  const table = await readUpload(file);
-  if ('error' in table) return table;
-  const read = readTable(table);
+/** More than a fifth of active students would become inactive: probably a partial list. */
+export function isLargeDeactivation(plan: ImportPlan) {
+  return plan.activeBefore > 0 && plan.deactivations.length / plan.activeBefore > 0.2;
+}
+
+async function buildPlan(file: File): Promise<{ plan: ImportPlan; sheetName?: string } | { error: string }> {
+  const upload = await readUpload(file);
+  if ('error' in upload) return upload;
+  const read = readTable(upload.table);
   if ('error' in read) return read;
   const [classes, existing] = await Promise.all([
     fetchClassMappings(),
@@ -28,7 +33,7 @@ async function buildPlan(file: File): Promise<{ plan: ImportPlan } | { error: st
       })
       .from(students),
   ]);
-  return { plan: planImport(read, classes, existing) };
+  return { plan: planImport(read, classes, existing), sheetName: upload.sheetName };
 }
 
 function summary(plan: ImportPlan) {
@@ -44,29 +49,49 @@ function summary(plan: ImportPlan) {
 }
 
 /** Dry run: plans the import and records it so the problem list can be downloaded. */
-export async function previewImport(file: File): Promise<{ plan: ImportPlan; runId: number } | { error: string }> {
+export async function previewImport(file: File): Promise<{ plan: ImportPlan; runId: number; sheetName?: string } | { error: string }> {
   const result = await buildPlan(file);
   if ('error' in result) return result;
   const [run] = await getDb()
     .insert(importRuns)
     .values({ fileName: file.name, status: 'dry_run', summary: summary(result.plan), problems: result.plan.problems })
     .returning({ id: importRuns.id });
-  return { plan: result.plan, runId: run.id };
+  return { plan: result.plan, runId: run.id, sheetName: result.sheetName };
 }
 
-/** Re-plans from the same file and applies it in one transaction. */
-export async function applyImport(file: File): Promise<{ ok: true; runId: number; summary: ReturnType<typeof summary> } | { ok: false; error: string }> {
+/**
+ * Re-plans from the same file and applies it in one transaction, but only if the result still
+ * matches the dry run the admin reviewed, and a large deactivation was explicitly confirmed.
+ */
+export async function applyImport(
+  file: File,
+  { previewRunId, confirmDeactivations }: { previewRunId: number; confirmDeactivations: boolean }
+): Promise<{ ok: true; runId: number; summary: ReturnType<typeof summary> } | { ok: false; error: string }> {
   const result = await buildPlan(file);
   if ('error' in result) return { ok: false, error: result.error };
   const { plan } = result;
   if (!plan.students.length) return { ok: false, error: 'ফাইলে ইমপোর্ট করার মতো কোনো সারি নেই।' };
+  const [preview] = await getDb()
+    .select({ summary: importRuns.summary, status: importRuns.status })
+    .from(importRuns)
+    .where(eq(importRuns.id, previewRunId))
+    .limit(1);
+  // jsonb does not keep key order, so compare field by field.
+  const current = summary(plan);
+  const same = preview && Object.entries(current).every(([key, value]) => preview.summary[key] === value);
+  if (!preview || preview.status !== 'dry_run' || !same) {
+    return { ok: false, error: 'যাচাইয়ের পর ফাইল, শিক্ষার্থী তালিকা বা Studio-র শ্রেণি ম্যাপিং বদলেছে। আবার যাচাই করুন।' };
+  }
+  if (isLargeDeactivation(plan) && !confirmDeactivations) {
+    return { ok: false, error: 'অনেক শিক্ষার্থী নিষ্ক্রিয় হবে; নিশ্চিত করার ঘরে টিক দিন।' };
+  }
   const db = getDb();
-  const now = new Date();
-  const runSummary = summary(plan);
+  const appliedAt = new Date();
+  const runSummary = current;
   const [, , run] = await db.batch([
     db
       .insert(students)
-      .values(plan.students.map((s) => ({ ...s, active: true, updatedAt: now })))
+      .values(plan.students.map((s) => ({ ...s, active: true, updatedAt: appliedAt })))
       .onConflictDoUpdate({
         target: students.erpId,
         set: {
@@ -78,16 +103,16 @@ export async function applyImport(file: File): Promise<{ ok: true; runId: number
           fatherMobile: sql`excluded.father_mobile`,
           motherMobile: sql`excluded.mother_mobile`,
           active: true,
-          updatedAt: now,
+          updatedAt: appliedAt,
         },
       }),
     db
       .update(students)
-      .set({ active: false, updatedAt: now })
+      .set({ active: false, updatedAt: appliedAt })
       .where(and(eq(students.active, true), notInArray(students.erpId, plan.fileIds))),
     db
       .insert(importRuns)
-      .values({ fileName: file.name, status: 'applied', summary: runSummary, problems: plan.problems, appliedAt: now })
+      .values({ fileName: file.name, status: 'applied', summary: runSummary, problems: plan.problems, appliedAt })
       .returning({ id: importRuns.id }),
   ]);
   return { ok: true, runId: run[0].id, summary: runSummary };

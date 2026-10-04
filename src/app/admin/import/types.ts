@@ -3,6 +3,8 @@ import type { ImportProblem } from '@/lib/survey/erp-import';
 export type ImportPreview = {
   runId: number;
   fileName: string;
+  /** The .xlsx sheet that was read. */
+  sheetName?: string;
   rowCount: number;
   columns: string[];
   ignoredColumns: string[];

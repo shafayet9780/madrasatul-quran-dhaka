@@ -1,4 +1,4 @@
-import { normaliseMobile, normaliseStudentId, toAsciiDigits } from './normalise';
+import { normaliseMobile, toAsciiDigits } from './normalise';
 
 // ERP student list → students table. Pure planning: reading the file and writing rows happen elsewhere.
 
@@ -113,7 +113,9 @@ export function readTable(table: string[][]): { rows: ErpRow[]; columns: string[
   return { rows, columns, ignoredColumns };
 }
 
-function resolvePlace(classes: ClassMapping[], row: ErpRow): { classKey: string; sectionKey: string } | { problem: string; action: string } {
+type Place = { classKey: string; sectionKey: string; ignoredSection?: string };
+
+function resolvePlace(classes: ClassMapping[], row: ErpRow): Place | { problem: string; action: string } {
   const cls = classes.find((c) => c.erpClassNames.some((name) => norm(name) === norm(row.cls)));
   if (!cls) {
     return {
@@ -121,7 +123,7 @@ function resolvePlace(classes: ClassMapping[], row: ErpRow): { classKey: string;
       action: 'Studio-তে শ্রেণি যোগ বা ম্যাপ করুন; না হলে সারিটি বাদ যাবে',
     };
   }
-  if (!cls.sections.length) return { classKey: cls.key, sectionKey: '' };
+  if (!cls.sections.length) return { classKey: cls.key, sectionKey: '', ...(row.section ? { ignoredSection: `Section “${row.section}” · ${cls.name}-এ কোনো শাখা নেই` } : {}) };
   const section = cls.sections.find((s) => s.erpSectionNames.some((name) => norm(name) === norm(row.section)));
   if (!section) {
     return {
@@ -160,7 +162,8 @@ export function planImport(
   const mapping = new Map<string, { erp: string; classKey: string | null; sectionKey: string; count: number }>();
 
   for (const row of read.rows) {
-    const id = normaliseStudentId(row.id);
+    // Stored as the ERP has it (Bengali digits converted); typed lookups normalise both sides.
+    const id = toAsciiDigits(row.id).trim();
     const skip = (issue: string, action = 'সারিটি বাদ যাবে') => problems.push({ line: row.line, id, name: row.name, issue, action, outcome: 'skipped' });
     const alter = (issue: string, action: string) => problems.push({ line: row.line, id, name: row.name, issue, action, outcome: 'altered' });
 
@@ -187,6 +190,8 @@ export function planImport(
       skip(place.problem, place.action);
       continue;
     }
+
+    if (place.ignoredSection) alter(place.ignoredSection, 'শাখা ছাড়া ইমপোর্ট হবে; দরকার হলে Studio-তে শাখা যোগ করুন');
 
     let roll: number | null = null;
     const rollText = toAsciiDigits(row.roll).trim();

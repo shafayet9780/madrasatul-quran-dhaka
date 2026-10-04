@@ -60,6 +60,7 @@ export function ImportBoard() {
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
+  const [confirmDeactivations, setConfirmDeactivations] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const resultRef = useRef<HTMLDivElement>(null);
 
@@ -87,11 +88,14 @@ export function ImportBoard() {
   }
 
   function apply() {
-    if (!file) return;
+    if (!file || !preview) return;
     setError(null);
+    const form = formWith(file);
+    form.set('runId', String(preview.runId));
+    if (confirmDeactivations) form.set('confirmDeactivations', 'yes');
     startTransition(async () => {
       try {
-        const result = await applyImportAction(formWith(file));
+        const result = await applyImportAction(form);
         if (result.ok) {
           setDone(result.message);
           setStage('done');
@@ -109,6 +113,7 @@ export function ImportBoard() {
     setStage('upload');
     setError(null);
     setDone(null);
+    setConfirmDeactivations(false);
     if (inputRef.current) inputRef.current.value = '';
   }
 
@@ -176,6 +181,7 @@ export function ImportBoard() {
             <div className="flex flex-col gap-0.5" style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontWeight: 600, overflowWrap: 'anywhere' }}>{preview.fileName}</div>
               <div style={{ fontSize: 13, color: 'var(--sv-text-muted)' }}>
+                {preview.sheetName ? `শিট “${preview.sheetName}” · ` : ''}
                 {bn(preview.rowCount)}টি সারি · কলাম মিলেছে: {preview.columns.join(', ')}
                 {preview.ignoredColumns.length ? ` · ${preview.ignoredColumns.join(', ')} উপেক্ষিত` : ''}
               </div>
@@ -203,8 +209,14 @@ export function ImportBoard() {
           </div>
 
           {preview.largeDeactivation && (
-            <div className="sv-note is-error" role="alert">
-              {bn(preview.counts.deactivations)} জন শিক্ষার্থী নিষ্ক্রিয় হবে। ফাইলটি কি পুরো স্কুলের তালিকা? না হলে ইমপোর্ট করবেন না।
+            <div className="sv-note is-error flex flex-col gap-2" role="alert">
+              <span>{bn(preview.counts.deactivations)} জন শিক্ষার্থী নিষ্ক্রিয় হবে। ফাইলটি কি পুরো স্কুলের তালিকা? না হলে ইমপোর্ট করবেন না।</span>
+              {stage === 'preview' && (
+                <label className="flex items-center gap-2" style={{ fontWeight: 600 }}>
+                  <input type="checkbox" checked={confirmDeactivations} onChange={(e) => setConfirmDeactivations(e.target.checked)} style={{ width: 18, height: 18 }} />
+                  হ্যাঁ, এটি পুরো তালিকা; {bn(preview.counts.deactivations)} জনকে নিষ্ক্রিয় করুন
+                </label>
+              )}
             </div>
           )}
 
@@ -306,7 +318,7 @@ export function ImportBoard() {
                 <button type="button" className="sv-sbtn is-stone" style={{ height: 48, padding: '0 18px', fontSize: 15 }} onClick={reset}>
                   বাতিল
                 </button>
-                <button type="button" className="sv-pbtn" disabled={pending} onClick={apply}>
+                <button type="button" className="sv-pbtn" disabled={pending || (preview.largeDeactivation && !confirmDeactivations)} onClick={apply}>
                   {pending ? 'ইমপোর্ট হচ্ছে…' : `ইমপোর্ট করুন${preview.counts.skipped ? ` (${bn(preview.counts.skipped)}টি সারি বাদ)` : ''}`}
                 </button>
               </>

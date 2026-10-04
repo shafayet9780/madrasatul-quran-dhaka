@@ -8,7 +8,7 @@ const CSV = [
   '10011,1,photo.jpg,ADRUP HOSSAIN MAHAJ,Nursery,Section A,MD. HOSSAIN,+8801712345678,+8801812345678',
   '10012,,photo.jpg,Maryam Binte Rafiq,Nursery,Section A,Rafiqul Islam,+8801912345678,',
   '10013,3,,Zayan Mahmud,KG,Section B,,"+880 1612-345678",01512345678',
-  '10014,2,,Tasnia Islam,Play,,Abdul Karim,+88017123,',
+  '10014,2,,Tasnia Islam,Play,Section A,Abdul Karim,+88017123,',
   '10172,,,Nafisa Anjum,Seven,,X,,',
   '10194,5,,,Four,,Y,,',
   '10011,9,,Duplicate Row,Four,,Z,,',
@@ -64,6 +64,12 @@ describe('readTable', () => {
 });
 
 describe('planImport', () => {
+  it('keeps ERP IDs as they are apart from Bengali digits', () => {
+    const read = readTable(parseCsv('ID,Name,Class\n2024-001,A,Four\n১০০২,B,Four'));
+    if ('error' in read) throw new Error(read.error);
+    expect(planImport(read, CLASSES, []).students.map((s) => s.erpId)).toEqual(['2024-001', '1002']);
+  });
+
   it('imports valid rows with canonical mobiles and keeps names as they are', () => {
     const { plan: p } = plan();
     expect(p.students.map((s) => s.erpId)).toEqual(['10011', '10012', '10013', '10014', '10015', '10016']);
@@ -75,6 +81,7 @@ describe('planImport', () => {
   it('skips unusable rows and imports unreadable rolls and mobiles blank', () => {
     const { plan: p } = plan();
     expect(p.problems.map((x) => [x.line, x.outcome, x.issue])).toEqual([
+      [6, 'altered', 'Section “Section A” · প্লে-এ কোনো শাখা নেই'],
       [6, 'altered', 'Father Contact “+88017123” · নম্বর সঠিক নয়'],
       [7, 'skipped', 'Class “Seven” · কোনো শ্রেণির সাথে ম্যাপ করা নেই'],
       [8, 'skipped', 'Name ফাঁকা'],
@@ -100,6 +107,6 @@ describe('planImport', () => {
     const { plan: p } = plan();
     expect(p.mapping.find((m) => m.erp === 'Nursery · Section A')).toEqual({ erp: 'Nursery · Section A', classKey: 'nursery', sectionKey: 'a', count: 2 });
     expect(p.mapping.find((m) => m.erp === 'Seven · —')).toMatchObject({ classKey: null, count: 1 });
-    expect(p.mapping.find((m) => m.erp === 'Play · —')).toMatchObject({ classKey: 'play', sectionKey: '' });
+    expect(p.mapping.find((m) => m.erp === 'Play · Section A')).toMatchObject({ classKey: 'play', sectionKey: '' });
   });
 });

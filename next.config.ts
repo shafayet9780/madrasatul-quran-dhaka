@@ -24,6 +24,8 @@ const nextConfig: NextConfig = {
   },
   experimental: {
     optimizePackageImports: ['lucide-react'],
+    // ERP student lists are uploaded through a server action (survey admin import, max 5 MB).
+    serverActions: { bodySizeLimit: '5mb' },
   },
   // Enable compression
   compress: true,

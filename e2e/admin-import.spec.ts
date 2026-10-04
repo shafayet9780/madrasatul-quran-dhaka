@@ -35,6 +35,10 @@ test('previews an ERP file, lists problems and imports the valid rows', async ({
   await page.getByRole('link', { name: 'সমস্যার তালিকা ডাউনলোড (Excel)' }).click();
   expect((await download).suggestedFilename()).toBe('students-problems.xlsx');
 
-  await page.getByRole('button', { name: /ইমপোর্ট করুন \(২টি সারি বাদ\)/ }).click();
+  // This short file would deactivate every other student, so import needs an explicit tick.
+  const importButton = page.getByRole('button', { name: /ইমপোর্ট করুন \(২টি সারি বাদ\)/ });
+  await expect(importButton).toBeDisabled();
+  await page.getByRole('checkbox', { name: /এটি পুরো তালিকা/ }).check();
+  await importButton.click();
   await expect(page.getByRole('status')).toContainText('ইমপোর্ট সম্পন্ন: ২ জন নতুন');
 });

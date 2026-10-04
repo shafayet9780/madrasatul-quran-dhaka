@@ -4,7 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { titleCase, toBengaliDigits as bn } from '@/lib/survey/normalise';
 import { assertAdmin } from '@/lib/survey/admin-auth';
 import type { Change, ImportPlan } from '@/lib/survey/erp-import';
-import { applyImport, previewImport } from '@/lib/survey/erp-import-server';
+import { applyImport, isLargeDeactivation, previewImport } from '@/lib/survey/erp-import-server';
 import { fetchClassMappings } from '@/lib/survey/sanity-source';
 import type { ApplyResult, PreviewResult } from './types';
 
@@ -37,7 +37,7 @@ export async function previewImportAction(form: FormData): Promise<PreviewResult
   if (!file) return { ok: false, error: 'একটি ফাইল বাছাই করুন।' };
   const [result, classes] = await Promise.all([previewImport(file), fetchClassMappings()]);
   if ('error' in result) return { ok: false, error: result.error };
-  const { plan, runId } = result;
+  const { plan, runId, sheetName } = result;
   const labelOf = (classKey: string | null, sectionKey: string) => {
     const cls = classes.find((c) => c.key === classKey);
     if (!cls) return null;
@@ -49,6 +49,7 @@ export async function previewImportAction(form: FormData): Promise<PreviewResult
     preview: {
       runId,
       fileName: file.name,
+      sheetName,
       rowCount: plan.rowCount,
       columns: plan.columns,
       ignoredColumns: plan.ignoredColumns,
@@ -65,7 +66,7 @@ export async function previewImportAction(form: FormData): Promise<PreviewResult
       addNames: plan.adds.map((s) => `${titleCase(s.name)} (${labelOf(s.classKey, s.sectionKey) ?? s.classKey})`),
       updateSummary: updateSummary(plan),
       deactivationNames: plan.deactivations.map((s) => `${titleCase(s.name)} (${labelOf(s.classKey, s.sectionKey) ?? s.classKey})`),
-      largeDeactivation: plan.activeBefore > 0 && plan.deactivations.length / plan.activeBefore > 0.2,
+      largeDeactivation: isLargeDeactivation(plan),
     },
   };
 }
@@ -74,7 +75,9 @@ export async function applyImportAction(form: FormData): Promise<ApplyResult> {
   await assertAdmin();
   const file = fileFrom(form);
   if (!file) return { ok: false, error: 'একটি ফাইল বাছাই করুন।' };
-  const result = await applyImport(file);
+  const previewRunId = Number(form.get('runId'));
+  if (!Number.isInteger(previewRunId) || previewRunId <= 0) return { ok: false, error: 'আগে ফাইলটি যাচাই করুন।' };
+  const result = await applyImport(file, { previewRunId, confirmDeactivations: form.get('confirmDeactivations') === 'yes' });
   if (!result.ok) return result;
   revalidatePath('/admin/import');
   const s = result.summary;
