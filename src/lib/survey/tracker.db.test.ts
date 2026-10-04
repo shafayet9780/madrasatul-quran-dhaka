@@ -75,6 +75,15 @@ describe('tracker', () => {
     expect(after!.coverage.rows.find((r) => r.classKey === 'tracker-class')!.cells[1]).toMatchObject({ state: 'done', teachers: ['উস্তাদ আব্দুল্লাহ', 'উস্তাদ হামযা'] });
   });
 
+  it('keeps both resolved when one of the teachers edits later', async () => {
+    await saveDraft(round, { teacherKey: 'ustad-abdullah', classKey: 'tracker-class', sectionKey: '', subjectKey: 'arabic' }, [{ studentErpId: `${run}-1`, answers: { attendance: 6 } }], meta);
+    // No acknowledgement needed and no new duplicate flag.
+    const result = await submitBatch(round, { teacherKey: 'ustad-abdullah', classKey: 'tracker-class', sectionKey: '', subjectKey: 'arabic' }, [], meta);
+    expect(result.ok).toBe(true);
+    const after = await loadTracker(round.id);
+    expect(after!.duplicates.map((d) => d.title)).toEqual(['পরীক্ষা · কুরআন']);
+  });
+
   it('keeps one batch: the other stops counting and its receipt says so', async () => {
     const data = await loadTracker(round.id);
     const batches = group(data!, 'কুরআন').batches;

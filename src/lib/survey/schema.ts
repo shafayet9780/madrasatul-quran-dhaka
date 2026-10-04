@@ -76,6 +76,8 @@ export const submissions = pgTable(
     status: submissionStatus('status').notNull().default('draft'),
     supersededBy: uuid('superseded_by').references((): AnyPgColumn => submissions.id),
     duplicateFlag: boolean('duplicate_flag').notNull().default(false),
+    /** Set when the admin resolved a duplicate in favour of this batch (kept one, or kept all). */
+    duplicateResolvedAt: ts('duplicate_resolved_at'),
     receiptToken: text('receipt_token').unique(),
     submitterName: text('submitter_name'),
     submitterRelation: text('submitter_relation'),

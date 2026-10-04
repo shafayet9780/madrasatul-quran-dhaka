@@ -103,7 +103,7 @@ export async function resolveDuplicate(roundId: string, batchIds: string[], keep
   }
   const now = new Date();
   if (!keepId) {
-    await db.update(submissions).set({ duplicateFlag: false, ...REQUEUE_MIRROR, updatedAt: now }).where(inArray(submissions.id, batchIds));
+    await db.update(submissions).set({ duplicateFlag: false, duplicateResolvedAt: now, ...REQUEUE_MIRROR, updatedAt: now }).where(inArray(submissions.id, batchIds));
     return null;
   }
   const dropped = batchIds.filter((id) => id !== keepId);
@@ -118,7 +118,10 @@ export async function resolveDuplicate(roundId: string, batchIds: string[], keep
       .where(and(inArray(submissions.id, dropped), isNull(submissions.supersededBy), keepStillCurrent)),
     db.delete(answerItems).where(inArray(answerItems.submissionId, setAsideByUs)),
     db.update(responses).set({ isCurrent: false }).where(inArray(responses.submissionId, setAsideByUs)),
-    db.update(submissions).set({ duplicateFlag: false, ...REQUEUE_MIRROR, updatedAt: now }).where(and(eq(submissions.id, keepId), isNull(submissions.supersededBy))),
+    db
+      .update(submissions)
+      .set({ duplicateFlag: false, duplicateResolvedAt: now, ...REQUEUE_MIRROR, updatedAt: now })
+      .where(and(eq(submissions.id, keepId), isNull(submissions.supersededBy))),
   ];
   await db.batch(statements as [BatchItem<'pg'>, ...BatchItem<'pg'>[]]);
   const after = await db.select({ supersededBy: submissions.supersededBy }).from(submissions).where(inArray(submissions.id, dropped));

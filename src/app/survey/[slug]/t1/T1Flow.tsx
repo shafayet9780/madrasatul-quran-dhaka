@@ -261,6 +261,7 @@ export function T1Flow({ config, initial }: { config: T1Config; initial: FlowSta
         answers={session.answers}
         saveState={session.saveState}
         closed={session.closed}
+        stale={session.stale}
         q={state.q}
         onQuestion={(q) => go({ ...state, step: 'rate', q })}
         onBackToClass={toClass}
@@ -278,6 +279,7 @@ export function T1Flow({ config, initial }: { config: T1Config; initial: FlowSta
       notes={session.notes}
       saveState={session.saveState}
       closed={session.closed}
+      stale={session.stale}
       onBack={() => go({ ...state, step: 'rate', q: snapshot.template.questions.length - 1 })}
       onGoTo={(q) => go({ ...state, step: 'rate', q })}
       onMark={session.setMark}

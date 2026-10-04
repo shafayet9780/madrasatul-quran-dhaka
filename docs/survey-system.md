@@ -226,7 +226,7 @@ Designed in the mockups and required in the build: lookup not found (in this cla
 - Survey routes live outside the `/[locale]` tree (root layout falls back to `bengali` via `src/lib/i18n.ts`). In `src/proxy.ts`, keep `/survey` and `/admin` **matched** and branch inside `proxy()` like the existing `/studio` block: `/admin` → Basic Auth check then `NextResponse.next()`; `/survey` → `NextResponse.next()` with the `bengali` locale header. Neither goes through `intlMiddleware`.
 - Admin pages and GET exports use `isValidStudioAuthorization` directly; `isAuthorizedStudioAdminRequest` requires an `Origin` header (only sent on fetch/POST), so use it for mutating admin APIs only.
 - Sheet mirror: a **new server-only module** that reuses only the service-account setup from `src/app/api/submit-form/route.ts`, reading `SURVEY_SHEET_ID` from env. Do **not** use `src/lib/google-sheets.ts` (a client wrapper that posts an arbitrary `spreadsheetId`).
-- T1 autosave: debounced per screen, PATCH per student row.
+- T1 autosave: debounced; changed student rows are POSTed together (`/api/survey/{roundId}/draft`).
 - `cacheComponents` stays off (see CLAUDE.md); survey and report routes are dynamic.
 - New env: `DATABASE_URL`, `SURVEY_SHEET_ID`.
 

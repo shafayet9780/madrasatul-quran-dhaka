@@ -37,6 +37,7 @@ export function ReviewScreen({
   notes,
   saveState,
   closed,
+  stale,
   onBack,
   onGoTo,
   onMark,
@@ -50,6 +51,7 @@ export function ReviewScreen({
   notes: Record<string, string>;
   saveState: SaveState;
   closed: boolean;
+  stale?: boolean;
   onBack: () => void;
   onGoTo: (q: number) => void;
   onMark: (erpId: string, questionKey: string, mark: number) => void;
@@ -183,7 +185,7 @@ export function ReviewScreen({
             </h1>
             <div style={{ fontSize: 15, fontWeight: 600 }}>{longLabel}</div>
           </div>
-          <StatusBanners saveState={saveState} closed={closed} />
+          <StatusBanners saveState={saveState} closed={closed} stale={stale} />
           <div role="alert" className="sv-banner is-warn" style={{ margin: '14px 16px 0' }}>
             {Icon.warn()}
             <span>
@@ -247,7 +249,7 @@ export function ReviewScreen({
           {summaryChips}
           <div style={{ fontSize: 14, color: 'var(--sv-text-muted)' }}>যেকোনো মার্কে চাপ দিয়ে সেখানেই বদলান।</div>
         </div>
-        <StatusBanners saveState={saveState} closed={closed} />
+        <StatusBanners saveState={saveState} closed={closed} stale={stale} />
         <div className="sv-grid" style={{ margin: '14px 10px 0', ['--sv-questions' as string]: questions.length }}>
           <div className="sv-grid-row is-head" aria-hidden="true">
             <div style={{ textAlign: 'left' }}>শিক্ষার্থী</div>
@@ -313,7 +315,7 @@ export function ReviewScreen({
             দেখে নিয়ে জমা দিন
           </h1>
         </div>
-        <StatusBanners saveState={saveState} closed={closed} />
+        <StatusBanners saveState={saveState} closed={closed} stale={stale} />
         <div className="flex flex-wrap gap-5 items-start">
           <section className="sv-panel" style={{ flex: '999 1 720px', minWidth: 0, padding: '8px 12px 12px', overflowX: 'auto', borderRadius: 18 }}>
             <table className="sv-desk-table">

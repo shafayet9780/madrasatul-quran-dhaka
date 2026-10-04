@@ -49,6 +49,8 @@ export function useBatch(api: SurveyApi, roundId: string, key: BatchKeyInput | n
   const [notes, setNotes] = useState<BatchState['notes']>({});
   const [saveState, setSaveState] = useState<SaveState>('idle');
   const [closed, setClosed] = useState(false);
+  /** The class or subject left the round's lists (admin refreshed them): marks stay on the device. */
+  const [stale, setStale] = useState(false);
 
   const pending = useRef<Pending>({});
   const inflight = useRef<Promise<boolean> | null>(null);
@@ -56,7 +58,7 @@ export function useBatch(api: SurveyApi, roundId: string, key: BatchKeyInput | n
   const keyRef = useRef(key);
   keyRef.current = key;
   const closedRef = useRef(false);
-  closedRef.current = closed;
+  closedRef.current = closed || stale;
   const loadRef = useRef<(() => Promise<void>) | null>(null);
   const id = key ? batchId(key) : null;
 
@@ -103,10 +105,12 @@ export function useBatch(api: SurveyApi, roundId: string, key: BatchKeyInput | n
           return false;
         }
         if (response.status === 400) {
-          // Malformed rows (should not happen): drop them rather than retry forever.
-          writeStored(roundId, current, pending.current);
+          // The class/subject is no longer in the round: keep the marks on the device, stop retrying.
+          restore();
+          closedRef.current = true;
+          setStale(true);
           setSaveState('error');
-          return true;
+          return false;
         }
         restore();
         setSaveState('error');
@@ -179,6 +183,7 @@ export function useBatch(api: SurveyApi, roundId: string, key: BatchKeyInput | n
     setAnswers({});
     setNotes({});
     setClosed(false);
+    setStale(false);
     pending.current = {};
     if (id) void load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -243,5 +248,5 @@ export function useBatch(api: SurveyApi, roundId: string, key: BatchKeyInput | n
     return !Object.keys(pending.current).length;
   }, [flush]);
 
-  return { batch, loadError, answers, notes, saveState, closed, setMark, setNote, saveNow, reload: load };
+  return { batch, loadError, answers, notes, saveState, closed, stale, setMark, setNote, saveNow, reload: load };
 }

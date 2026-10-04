@@ -49,13 +49,14 @@ Keys can be corrected until the document is first published; after that the Stud
   - Production: `DATABASE_URL`, `DATABASE_URL_UNPOOLED` (from the Neon integration). Preview: the same two names pointing at the Neon `dev` branch.
   - Create a **private** Blob store (Storage → Blob, access: private), connect it with the prefix `SURVEY_BACKUP_BLOB` → `SURVEY_BACKUP_BLOB_READ_WRITE_TOKEN`. Without it the nightly job reports a failure.
   - Leave `SURVEY_SHEET_ID` empty in Preview if preview submissions should not reach the real sheet.
-- Database migrations run on every Vercel build (`vercel-build`: `drizzle-kit migrate && next build`). If the project has a custom Build Command, change it to `pnpm run vercel-build`.
+- Database migrations run on every Vercel build (`vercel-build` → `scripts/migrate-if-configured.mjs`, then `next build`). Without `DATABASE_URL_UNPOOLED` the step is skipped with a warning so the public site still deploys; a failing migration stops the deploy. If the project has a custom Build Command, change it to `pnpm run vercel-build`.
 - Studio: add the survey teachers, each class's subjects, and the ERP section names for দ্বিতীয়/তৃতীয় বালক/বালিকা; import the real ERP list once (`/admin` → ERP ইমপোর্ট) and check the class mapping.
 - Remove the local sample data from the dev branch when it is no longer needed: `pnpm survey:fixtures --remove`.
 
 ## Developer commands
 
 - `pnpm test` (unit, offline) · `pnpm test:db` (Neon dev branch, cleans up after itself) · `pnpm test:e2e`
+- `test:db`, `survey:fixtures` and the database e2e specs write data, so they refuse to run unless `.env.local` has `SURVEY_DEV_DB=1` — set it only while `DATABASE_URL` points at the dev branch (`vercel env pull` rewrites the file and removes it).
 - `pnpm db:generate` / `pnpm db:migrate` (migrations in `drizzle/`)
 - `pnpm survey:fixtures` loads sample rounds, students and submissions into the dev branch (open link printed); `--remove` deletes them.
 - `pnpm exec tsx scripts/survey-seed.ts` creates missing Studio survey documents (areas, T1 template, classes); `--overwrite` replaces them (only before any round opens).

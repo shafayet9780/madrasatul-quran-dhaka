@@ -65,10 +65,11 @@ export async function loadRoster(classKey: string, sectionKey: string): Promise<
   return rows.map((r) => ({ ...r, name: titleCase(r.name) })).sort(compareStudents);
 }
 
-async function describeDuplicates(key: BatchKey): Promise<DuplicateBatch[]> {
+/** Other teachers' current batches; `resolved` = the admin already decided about them. */
+async function describeDuplicates(key: BatchKey): Promise<(DuplicateBatch & { resolved: boolean })[]> {
   const db = getDb();
   const others = await db
-    .select({ id: submissions.id, teacherName: submissions.teacherName, submittedAt: submissions.submittedAt })
+    .select({ id: submissions.id, teacherName: submissions.teacherName, submittedAt: submissions.submittedAt, resolvedAt: submissions.duplicateResolvedAt })
     .from(submissions)
     .where(otherBatches(key));
   if (!others.length) return [];
@@ -82,6 +83,7 @@ async function describeDuplicates(key: BatchKey): Promise<DuplicateBatch[]> {
     teacherName: o.teacherName ?? '',
     submittedAt: o.submittedAt!.toISOString(),
     students: counts.find((c) => c.submissionId === o.id)?.n ?? 0,
+    resolved: o.resolvedAt !== null,
   }));
 }
 
@@ -114,7 +116,7 @@ export async function loadBatch(round: Round, input: BatchKeyInput): Promise<Bat
     notes: Object.fromEntries(saved.filter((r) => r.note).map((r) => [r.studentErpId, r.note!])),
     status: draft ? 'draft' : current ? 'submitted' : 'new',
     submitted: current ? { at: current.submittedAt!.toISOString(), receiptToken: current.receiptToken! } : null,
-    duplicates,
+    duplicates: duplicates.map(({ resolved: _resolved, ...d }) => d),
   };
 }
 
@@ -252,7 +254,10 @@ export async function submitBatch(
   if (!roster.length) return { ok: false, reason: 'empty' };
   const missing = findMissing(round.snapshot, roster, new Map(drafted.map((r) => [r.studentErpId, r.answers])));
   if (missing.length) return { ok: false, reason: 'incomplete', missing };
-  if (duplicates.some((d) => !acknowledged.includes(d.submissionId))) return { ok: false, reason: 'duplicate', duplicates };
+  // A pair the admin already resolved (kept both) stays resolved when either teacher edits later.
+  const resolvedPair = Boolean(current?.duplicateResolvedAt) && duplicates.every((d) => d.resolved);
+  const open = resolvedPair ? [] : duplicates.map(({ resolved: _resolved, ...d }) => d);
+  if (open.some((d) => !acknowledged.includes(d.submissionId))) return { ok: false, reason: 'duplicate', duplicates: open };
 
   const rosterIds = roster.map((s) => s.erpId);
   const kept = drafted.filter((r) => rosterIds.includes(r.studentErpId));
@@ -295,7 +300,8 @@ export async function submitBatch(
         submittedAt: now,
         updatedAt: now,
         receiptToken,
-        duplicateFlag: duplicates.length > 0,
+        duplicateFlag: open.length > 0,
+        duplicateResolvedAt: resolvedPair ? current!.duplicateResolvedAt : null,
         teacherName: names.teacherName,
         subjectName: names.subjectName,
         ...REQUEUE_MIRROR,
@@ -306,12 +312,12 @@ export async function submitBatch(
       // conflicts and the whole batch rolls back.
       .where(and(eq(submissions.id, draft.id), eq(submissions.status, 'draft')))
   );
-  if (duplicates.length) {
+  if (open.length) {
     statements.push(
       db
         .update(submissions)
         .set({ duplicateFlag: true, ...REQUEUE_MIRROR })
-        .where(inArray(submissions.id, duplicates.map((d) => d.submissionId)))
+        .where(inArray(submissions.id, open.map((d) => d.submissionId)))
     );
   }
   if (items.length) statements.push(db.insert(answerItems).values(items));

@@ -22,19 +22,21 @@ export async function GET(request: NextRequest) {
   let ok = true;
   // In production an unconfigured copy or backup must show as a failed run, not a quiet success.
   const production = process.env.VERCEL_ENV === 'production';
-  try {
-    result.sheet = await mirrorPending();
-    if (production && 'skipped' in (result.sheet as object)) ok = false;
-  } catch (error) {
-    ok = false;
-    result.sheet = { error: error instanceof Error ? error.message : 'failed' };
-  }
+  // Backup first: it must not be cut off by a long Sheet backlog. The Sheet retry then gets a
+  // budget that leaves room inside the 60 s limit.
   try {
     result.backup = await backupSurveyTables();
     if (production && 'skipped' in (result.backup as object)) ok = false;
   } catch (error) {
     ok = false;
     result.backup = { error: error instanceof Error ? error.message : 'failed' };
+  }
+  try {
+    result.sheet = await mirrorPending({ budgetMs: 20_000 });
+    if (production && 'skipped' in (result.sheet as object)) ok = false;
+  } catch (error) {
+    ok = false;
+    result.sheet = { error: error instanceof Error ? error.message : 'failed' };
   }
   try {
     result.prunedDryRuns = await pruneDryRuns();

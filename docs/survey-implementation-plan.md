@@ -7,10 +7,12 @@ Notes from the build (deviations and decisions beyond the plan):
 - Draft rounds can also be opened from `/admin/rounds` with adjusted dates (R7).
 - Backups need a separate **private** Blob store (`SURVEY_BACKUP_BLOB_READ_WRITE_TOKEN`); the site's store is public.
 - Sheet copy uses a claim column (`mirror_claimed_at`, migration 0002) so a killed function never marks a batch as copied.
+- A resolved duplicate (`duplicate_resolved_at`, migration 0003) stays resolved when either teacher edits later; a set-aside teacher resubmitting raises it again.
 - Duplicate resolution "keep one" supersedes the other teacher's batch; that teacher's receipt and Sheet rows say it was set aside by the admin.
 - Report "previous round" = the student's latest earlier round with marks. Flag thresholds are constants (`report-math.ts` `FLAGS`).
 - Notes live on the review screen (as in the locked T1 artboards), not beside names on the rating screen.
-- Migrations run on Vercel builds via `vercel-build`.
+- Migrations run on Vercel builds via `vercel-build` (skipped with a warning when `DATABASE_URL_UNPOOLED` is missing).
+- Final review leftovers for phase 2: receipt links carry the round key (fine for teachers, revisit for guardians); a status change mid-copy can append one Sheet row twice (harmless, append-only); "current/superseded/set-aside" is derived in three places and draft-progress counting in two — consolidate when G1/G2 add more; `stats.ts` uses a fixed top mark (১০) rather than the template scale; no unit tests for the submit/overview routes, receipt page or backup.
 - Remaining performance headroom: the site root layout preloads the public site's fonts on every route, survey pages included; moving the site into a route group with its own root layout would remove that (left for a decision because it touches the public site).
 Inputs: [`survey-system.md`](survey-system.md) (spec, locked) · [`survey-mockups/`](survey-mockups/README.md) (prototype + design system, locked)
 
@@ -42,12 +44,13 @@ Inputs: [`survey-system.md`](survey-system.md) (spec, locked) · [`survey-mockup
 
 ```
 src/app/survey/[slug]/page.tsx            # round entry (server: load round snapshot) → client flow
-src/app/survey/[slug]/SurveyFlowT1.tsx    # client: teacher → class → rate → review
+src/app/survey/[slug]/t1/T1Flow.tsx       # client: teacher → class → rate → review (+ screens, useBatch autosave)
 src/app/survey/receipt/[token]/page.tsx   # receipt (print stylesheet)
-src/app/api/survey/[roundId]/draft/route.ts      # PATCH per student (autosave)
+src/app/api/survey/[roundId]/draft/route.ts      # POST changed student rows (autosave, debounced)
 src/app/api/survey/[roundId]/submit/route.ts     # transactional submit + supersede + duplicate re-check
-src/app/api/survey/[roundId]/status/route.ts     # teacher's own batch status, duplicate pre-check
-src/app/admin/(reports)/…                 # tracker, class, student, raters
+src/app/api/survey/[roundId]/batch/route.ts      # roster + saved marks + other teachers' batches
+src/app/api/survey/[roundId]/overview/route.ts   # teacher's own batches (class picker, resume card)
+src/app/admin/tracker, src/app/admin/reports/…   # tracker, class, student, raters, Excel export
 src/app/admin/rounds/page.tsx             # open / copy link / extend / close (+ actions.ts server actions)
 src/app/admin/import/page.tsx             # ERP import with dry run
 src/app/studio/api/survey/…               # endpoints the Studio calls (Basic Auth path + same-origin check)

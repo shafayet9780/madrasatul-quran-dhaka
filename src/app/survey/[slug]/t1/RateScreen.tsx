@@ -14,6 +14,7 @@ export function RateScreen({
   answers,
   saveState,
   closed,
+  stale,
   q,
   onQuestion,
   onBackToClass,
@@ -26,6 +27,7 @@ export function RateScreen({
   answers: Record<string, Record<string, number>>;
   saveState: SaveState;
   closed: boolean;
+  stale?: boolean;
   q: number;
   onQuestion: (q: number) => void;
   onBackToClass: () => void;
@@ -107,7 +109,7 @@ export function RateScreen({
           </section>
           )}
 
-          <StatusBanners saveState={saveState} closed={closed} />
+          <StatusBanners saveState={saveState} closed={closed} stale={stale} />
 
           <div className="flex items-center justify-between gap-3" style={{ padding: '14px 24px 6px' }}>
             <span style={{ fontSize: 14, color: 'var(--sv-text-muted)' }}>{bn(students.length)} জন · রোল অনুযায়ী</span>

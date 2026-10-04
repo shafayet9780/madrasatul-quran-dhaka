@@ -39,10 +39,17 @@ export function DeskHeader({ config, batchKey, saveState }: { config: T1Config; 
 }
 
 /** Offline and round-closed notices shared by the rating and review screens. */
-export function StatusBanners({ saveState, closed }: { saveState: SaveState; closed: boolean }) {
+export function StatusBanners({ saveState, closed, stale = false }: { saveState: SaveState; closed: boolean; stale?: boolean }) {
   return (
-    <div role="status" style={{ display: saveState === 'offline' || closed ? 'block' : 'none', padding: '12px 16px 0' }}>
-      {closed ? (
+    <div role="status" style={{ display: saveState === 'offline' || closed || stale ? 'block' : 'none', padding: '12px 16px 0' }}>
+      {stale ? (
+        <div className="sv-banner is-warn">
+          {Icon.warn()}
+          <span>
+            <b>এই ক্লাস বা বিষয় এই রাউন্ডের তালিকায় আর নেই।</b> আপনার মার্ক এই ফোনে রাখা আছে। ক্লাস বাছাইয়ে ফিরে আবার দেখুন, অথবা অফিসে জানান।
+          </span>
+        </div>
+      ) : closed ? (
         <div className="sv-banner is-info">
           {Icon.clock({ size: 20 })}
           <span>

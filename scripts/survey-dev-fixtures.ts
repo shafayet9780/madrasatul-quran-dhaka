@@ -10,6 +10,11 @@ import { config } from 'dotenv';
 import { resolve } from 'node:path';
 
 config({ path: resolve(process.cwd(), '.env.local') });
+// Fixtures delete and insert rows: only ever against the dev branch, marked in .env.local.
+if (process.env.SURVEY_DEV_DB !== '1') {
+  console.error('Refusing to load fixtures: set SURVEY_DEV_DB=1 in .env.local only when DATABASE_URL is the Neon dev branch.');
+  process.exit(1);
+}
 
 const DAY = 24 * 60 * 60 * 1000;
 export const FIXTURE_LINK = '/survey/fixture-t1?k=fixture-open-link-key-000';
