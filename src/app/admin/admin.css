@@ -225,3 +225,73 @@
     color: var(--sv-text-muted);
   }
 }
+
+/* Tracker coverage grid (R6) */
+.sv-admin .sv-cover {
+  border-collapse: separate;
+  border-spacing: 3px;
+  min-width: 640px;
+  width: 100%;
+  font-size: 13px;
+}
+.sv-admin .sv-cover th {
+  font-weight: 600;
+  color: var(--sv-text-muted);
+  padding: 0 0 4px;
+  text-align: center;
+}
+.sv-admin .sv-cover th[scope='row'] {
+  width: 130px;
+  text-align: left;
+  color: var(--sv-text-body);
+  white-space: nowrap;
+  padding-right: 8px;
+}
+.sv-admin .sv-cover td {
+  height: 34px;
+  border-radius: 6px;
+  text-align: center;
+  vertical-align: middle;
+}
+.sv-admin .sv-cover td svg {
+  display: inline-block;
+  vertical-align: middle;
+}
+.sv-admin .sv-cover td.is-done {
+  background: var(--sv-ok-bg);
+}
+.sv-admin .sv-cover td.is-draft {
+  background: var(--sv-info-bg);
+}
+.sv-admin .sv-cover td.is-dup {
+  background: var(--sv-warn-bg);
+}
+.sv-admin .sv-cover td.is-todo {
+  background: var(--sv-stone-soft);
+}
+.sv-admin .sv-jump {
+  display: inline-flex;
+  align-items: center;
+  height: 34px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: #fff;
+  border: 1px solid var(--sv-hairline);
+  font-size: 13.5px;
+  font-weight: 600;
+  text-decoration: none;
+  color: var(--sv-text) !important;
+}
+
+@media print {
+  .sv-admin nav[aria-label='রিপোর্ট মেনু'],
+  .sv-admin .sv-no-print {
+    display: none !important;
+  }
+  .sv-admin {
+    background: #fff;
+  }
+  .sv-admin .sv-card {
+    break-inside: avoid;
+  }
+}

@@ -1,6 +1,6 @@
 /**
  * Loads sample survey data into the database in .env.local (the Neon dev branch) for local work
- * and end-to-end tests: two T1 rounds, students, two submitted batches and one draft.
+ * and end-to-end tests: two T1 rounds, students, three submitted batches (one duplicate) and one draft.
  * Every row it writes is marked "fixture"/"fx" and is removed by --remove.
  *
  *   pnpm survey:fixtures           # (re)load fixtures
@@ -29,7 +29,7 @@ const ROSTERS: Record<string, [number | null, string][]> = {
 
 async function main() {
   // Imported after dotenv so the database URL is set.
-  const { and, inArray, isNotNull, like } = await import('drizzle-orm');
+  const { and, eq, inArray, isNotNull, like } = await import('drizzle-orm');
   const { getDb } = await import('../src/lib/survey/db');
   const { students, submissions, surveyRounds } = await import('../src/lib/survey/schema');
   const { saveDraft, submitBatch } = await import('../src/lib/survey/t1');
@@ -98,10 +98,18 @@ async function main() {
     const result = await submitBatch(open, key, [], meta);
     if (!result.ok) throw new Error(`fixture submit failed: ${JSON.stringify(result)}`);
   }
+  // A second teacher also submits Nursery B Quran: a duplicate for the tracker to resolve.
+  const nurseryB = rows.filter((s) => s.classKey === 'nursery' && s.sectionKey === 'b');
+  const dupKey = { teacherKey: 'ustaza-sumaiya', classKey: 'nursery', sectionKey: 'b', subjectKey: 'quran' };
+  await saveDraft(open, dupKey, nurseryB.map((s, i) => ({ studentErpId: s.erpId, answers: answersFor(i + 3) })), meta);
+  const others = await db.select({ id: submissions.id }).from(submissions).where(and(eq(submissions.roundId, open.id), eq(submissions.status, 'submitted')));
+  const dup = await submitBatch(open, dupKey, others.map((o) => o.id), meta);
+  if (!dup.ok) throw new Error(`fixture duplicate failed: ${JSON.stringify(dup)}`);
+
   const kg = rows.filter((s) => s.classKey === 'kg');
   await saveDraft(open, { teacherKey: 'ustad-hamza', classKey: 'kg', sectionKey: 'a', subjectKey: 'arabic' }, kg.slice(0, 3).map((s, i) => ({ studentErpId: s.erpId, answers: answersFor(i) })), meta);
 
-  console.log(`Loaded fixtures: ${rows.length} students, 2 rounds, 2 submitted batches, 1 draft. Open link: ${FIXTURE_LINK}`);
+  console.log(`Loaded fixtures: ${rows.length} students, 2 rounds, 3 submitted batches (one duplicate), 1 draft. Open link: ${FIXTURE_LINK}`);
 }
 
 main().catch((error) => {

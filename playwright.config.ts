@@ -1,6 +1,6 @@
 import { defineConfig, devices } from '@playwright/test';
 
-const DB_SPECS = /(admin-rounds|admin-import|survey-t1)\.spec\.ts/;
+const DB_SPECS = /(admin-rounds|admin-import|admin-tracker|survey-t1)\.spec\.ts/;
 
 export default defineConfig({
   testDir: 'e2e',

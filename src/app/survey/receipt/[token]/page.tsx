@@ -18,12 +18,12 @@ export default async function ReceiptPage({ params }: { params: Promise<{ token:
   const receipt = /^[A-Za-z0-9_-]{8,64}$/.test(token) ? await loadReceipt(token) : null;
   if (!receipt || receipt.submission.kind !== 'T1') return <LinkInvalid phone={await fetchOfficePhone().catch(() => null)} />;
 
-  const { submission, round, rows, replacedBy } = receipt;
+  const { submission, round, rows, replacedBy, setAside } = receipt;
   const { questions } = round.snapshot.template;
   const key = { classKey: submission.classKey, sectionKey: submission.sectionKey, subjectKey: submission.subjectKey };
   const label = batchLabel(round.snapshot, key);
   const access = surveyAccess(round);
-  const canEdit = !replacedBy && (access === 'open' || access === 'grace');
+  const canEdit = !replacedBy && !setAside && (access === 'open' || access === 'grace');
   const surveyBase = `/survey/${round.slug}?k=${encodeURIComponent(round.linkKey)}&t=${submission.teacherKey}`;
   const editHref = `${surveyBase}&step=review&c=${key.classKey}${key.sectionKey ? `&s=${key.sectionKey}` : ''}&sub=${key.subjectKey}`;
   const noted = rows.filter((r) => r.note);
@@ -40,6 +40,11 @@ export default async function ReceiptPage({ params }: { params: Promise<{ token:
         <div style={{ fontSize: 15, color: 'var(--sv-text-muted)' }}>জাযাকাল্লাহু খাইরান</div>
       </div>
 
+      {setAside && (
+        <div className="sv-banner is-info sv-no-print" style={{ margin: '18px 16px 0' }}>
+          <span>এই ক্লাস ও বিষয়ে অন্য একজন শিক্ষকের রিভিউ রাখা হয়েছে, তাই এটি রিপোর্টে গণ্য হবে না। প্রশ্ন থাকলে অফিসে যোগাযোগ করুন।</span>
+        </div>
+      )}
       {replacedBy && (
         <div className="sv-banner is-info sv-no-print" style={{ margin: '18px 16px 0' }}>
           <span>

@@ -366,6 +366,8 @@ export type Receipt = {
   rows: { erpId: string; name: string; roll: number | null; answers: Record<string, unknown>; note: string | null }[];
   /** Receipt token of the submission that replaced this one, if it was edited later. */
   replacedBy: string | null;
+  /** The admin kept another teacher's batch for this class and subject (duplicate resolved). */
+  setAside: boolean;
 };
 
 export async function loadReceipt(token: string): Promise<Receipt | null> {
@@ -391,5 +393,6 @@ export async function loadReceipt(token: string): Promise<Receipt | null> {
   const rows = saved
     .map((r) => ({ erpId: r.studentErpId, name: titleCase(r.studentName), roll: r.roll, answers: r.answers, note: r.note }))
     .sort(compareStudents);
-  return { submission, round, rows, replacedBy: replacement[0]?.token ?? null };
+  const replacedBy = replacement[0]?.token ?? null;
+  return { submission, round, rows, replacedBy, setAside: Boolean(submission.supersededBy) && !replacedBy };
 }

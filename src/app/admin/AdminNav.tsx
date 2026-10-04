@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 
 // Report pages join this list as they are built (M6–M7).
 const SECTIONS: { heading: string; links: { label: string; href: string }[] }[] = [
+  { heading: 'রিপোর্ট', links: [{ label: 'রেসপন্স ট্র্যাকার', href: '/admin/tracker' }] },
   {
     heading: 'অ্যাডমিন',
     links: [

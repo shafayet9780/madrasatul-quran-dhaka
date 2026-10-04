@@ -15,7 +15,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
   const { acknowledgedDuplicates, ...key } = body;
   const result = await submitBatch(round, key, acknowledgedDuplicates, requestMeta(request));
   // Copy to the Sheet after responding (never fails the submit); the daily job retries failures.
-  if (result.ok) after(() => mirrorPending({ roundId: round.id, limit: 20 }).catch(() => undefined));
+  if (result.ok) after(() => mirrorPending({ roundId: round.id, limit: 20, budgetMs: 15_000 }).catch(() => undefined));
   // Business outcomes (incomplete, duplicate, closed) are 200/409-style answers the client renders.
   return json(result, result.ok ? 200 : result.reason === 'closed' ? 403 : 409);
 }
