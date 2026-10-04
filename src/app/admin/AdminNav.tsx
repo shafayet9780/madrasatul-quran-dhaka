@@ -5,7 +5,13 @@ import { usePathname } from 'next/navigation';
 
 // Report pages join this list as they are built (M6–M7).
 const SECTIONS: { heading: string; links: { label: string; href: string }[] }[] = [
-  { heading: 'অ্যাডমিন', links: [{ label: 'রাউন্ড', href: '/admin/rounds' }] },
+  {
+    heading: 'অ্যাডমিন',
+    links: [
+      { label: 'রাউন্ড', href: '/admin/rounds' },
+      { label: 'ERP ইমপোর্ট', href: '/admin/import' },
+    ],
+  },
 ];
 
 export function AdminNav() {

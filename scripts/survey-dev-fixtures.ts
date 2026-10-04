@@ -1,7 +1,7 @@
 /**
  * Loads sample survey data into the database in .env.local (the Neon dev branch) for local work
  * and end-to-end tests: two T1 rounds, students, two submitted batches and one draft.
- * Every row it writes is marked "fixture"/"fx-" and is removed by --remove.
+ * Every row it writes is marked "fixture"/"fx" and is removed by --remove.
  *
  *   pnpm survey:fixtures           # (re)load fixtures
  *   pnpm survey:fixtures --remove  # remove them
@@ -44,7 +44,8 @@ async function main() {
     await db.delete(submissions).where(inArray(submissions.roundId, ids));
     await db.delete(surveyRounds).where(inArray(surveyRounds.id, ids));
   }
-  await db.delete(students).where(like(students.erpId, 'fx-%'));
+  // Also covers IDs from the import e2e file (fx20001…: the import strips dashes).
+  await db.delete(students).where(like(students.erpId, 'fx%'));
   if (process.argv.includes('--remove')) {
     console.log(`Removed ${ids.length} fixture rounds and their students.`);
     return;
@@ -53,7 +54,8 @@ async function main() {
   let id = 10011;
   const rows = Object.entries(ROSTERS).flatMap(([place, list]) => {
     const [classKey, sectionKey] = place.split('|');
-    return list.map(([roll, name]) => ({ erpId: `fx-${id++}`, name, classKey, sectionKey, roll }));
+    // IDs follow the import's normal form (no dashes), so an imported list matches them.
+    return list.map(([roll, name]) => ({ erpId: `fx${id++}`, name, classKey, sectionKey, roll }));
   });
   await db.insert(students).values(rows);
 

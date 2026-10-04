@@ -63,3 +63,15 @@ export async function fetchOfficePhone(): Promise<OfficePhone | null> {
   const best = usable.find((p) => p.type === 'main' && p.isPrimary) ?? usable[0];
   return best ? { label: best.label?.bengali ?? null, number: best.number! } : null;
 }
+
+/** Classes with their ERP labels, for the student import. */
+export function fetchClassMappings(): Promise<import('./erp-import').ClassMapping[]> {
+  return sanity.fetch(
+    `*[_type == "surveyClass"] | order(order asc) {
+      key, name, "erpClassNames": coalesce(erpClassNames, []),
+      "sections": coalesce(sections[] { key, name, "erpSectionNames": coalesce(erpSectionNames, []) }, [])
+    }`,
+    {},
+    fresh
+  );
+}
