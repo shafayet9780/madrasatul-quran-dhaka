@@ -101,7 +101,8 @@ export async function loadBatch(round: Round, input: BatchKeyInput): Promise<Bat
   };
 }
 
-export type SaveResult = { ok: true; savedAt: string } | { ok: false; reason: 'closed' | 'invalid' };
+/** `rejected`: students no longer in this class-section (e.g. after an ERP import); their rows were not saved. */
+export type SaveResult = { ok: true; savedAt: string; rejected: string[] } | { ok: false; reason: 'closed' | 'invalid' };
 
 /**
  * Autosave: merges marks (and notes when sent) into this teacher's draft for the batch.
@@ -127,8 +128,11 @@ export async function saveDraft(round: Round, input: BatchKeyInput, rows: DraftR
       )
     );
   const byId = new Map(roster.map((s) => [s.erpId, s]));
-  const valid = rows.map((row) => ({ row, answers: validRowAnswers(round.snapshot, row), student: byId.get(row.studentErpId) }));
-  if (valid.some((v) => !v.answers || !v.student)) return { ok: false, reason: 'invalid' };
+  const checked = rows.map((row) => ({ row, answers: validRowAnswers(round.snapshot, row), student: byId.get(row.studentErpId) }));
+  if (checked.some((v) => !v.answers)) return { ok: false, reason: 'invalid' };
+  const rejected = checked.filter((v) => !v.student).map((v) => v.row.studentErpId);
+  const valid = checked.filter((v) => v.student);
+  if (!valid.length) return { ok: true, savedAt: now.toISOString(), rejected };
 
   const newId = randomUUID();
   const [current] = await db.select({ id: submissions.id }).from(submissions).where(and(ownBatch(key), isCurrent));
@@ -192,7 +196,7 @@ export async function saveDraft(round: Round, input: BatchKeyInput, rows: DraftR
     db.update(submissions).set({ updatedAt: now, clientIp: meta.ip, userAgent: meta.userAgent }).where(eq(submissions.id, draft.id)),
   ];
   await db.batch(statements as [BatchItem<'pg'>, ...BatchItem<'pg'>[]]);
-  return { ok: true, savedAt: now.toISOString() };
+  return { ok: true, savedAt: now.toISOString(), rejected };
 }
 
 /**
@@ -235,6 +239,7 @@ export async function submitBatch(
   const rosterIds = roster.map((s) => s.erpId);
   const kept = drafted.filter((r) => rosterIds.includes(r.studentErpId));
   const earlierForStudents = and(
+    ne(responses.submissionId, draft.id),
     eq(responses.roundId, key.roundId),
     eq(responses.kind, 'T1'),
     eq(responses.teacherKey, key.teacherKey),
@@ -279,7 +284,9 @@ export async function submitBatch(
         clientIp: meta.ip,
         userAgent: meta.userAgent,
       })
-      .where(eq(submissions.id, draft.id))
+      // A stale second submit (another tab) finds no draft here; its answer_items insert then
+      // conflicts and the whole batch rolls back.
+      .where(and(eq(submissions.id, draft.id), eq(submissions.status, 'draft')))
   );
   if (duplicates.length) {
     statements.push(
@@ -294,9 +301,12 @@ export async function submitBatch(
   try {
     await db.batch(statements as [BatchItem<'pg'>, ...BatchItem<'pg'>[]]);
   } catch (error) {
-    // A concurrent submit of the same batch won the race (unique index); the client can retry.
-    if ((error as { code?: string }).code === '23505') return { ok: false, reason: 'conflict' };
-    throw error;
+    if ((error as { code?: string }).code !== '23505') throw error;
+    // Another submit of this batch won the race: hand back its receipt rather than an error.
+    const [winner] = await db.select({ token: submissions.receiptToken }).from(submissions).where(and(ownBatch(key), isCurrent));
+    const [stillDraft] = await db.select({ id: submissions.id }).from(submissions).where(and(ownBatch(key), eq(submissions.status, 'draft')));
+    if (winner?.token && !stillDraft) return { ok: true, receiptToken: winner.token };
+    return { ok: false, reason: 'conflict' };
   }
   return { ok: true, receiptToken };
 }

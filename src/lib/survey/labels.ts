@@ -25,11 +25,6 @@ export function questionLabel(question: { text: string; shortLabel?: string }): 
 
 export const bn = toBengaliDigits;
 
-/** "১টি", "৫ জন" style counts. */
-export function countLabel(n: number, unit: 'টি' | ' জন'): string {
-  return `${toBengaliDigits(n)}${unit}`;
-}
-
 /** Teacher initial for the avatar, skipping honorifics. */
 export function nameInitial(name: string): string {
   return name.replace(/^(মাওলানা|মাওঃ|উস্তাদ|উস্তাযা|উস্তাজা|হাফেজ|হাফেয|মুফতি|ড\.|মো\.|মোঃ|মোহাম্মদ)\s*/, '').charAt(0);

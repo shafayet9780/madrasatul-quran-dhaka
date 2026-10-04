@@ -402,7 +402,7 @@
   border-radius: 999px;
   border: 0;
   background: var(--sv-tint);
-  color: #7a4b2e;
+  color: var(--sv-bronze-text);
   font-size: 13.5px;
   font-weight: 600;
   cursor: pointer;
@@ -445,7 +445,7 @@
   font-weight: 600;
   font-size: 14px;
   background: var(--sv-tint);
-  color: #7a4b2e;
+  color: var(--sv-bronze-text);
 }
 .sv-roll.is-done {
   background: var(--sv-track);

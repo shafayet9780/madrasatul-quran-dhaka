@@ -7,10 +7,9 @@ import { getDb } from './db';
 import { surveyAccess } from './round-status';
 import { surveyRounds } from './schema';
 import type { RequestMeta } from './t1';
+import { SURVEY_KEY_HEADER } from './t1-types';
 
 type Round = typeof surveyRounds.$inferSelect;
-
-export const SURVEY_KEY_HEADER = 'x-survey-key';
 
 export function keyMatches(given: string | null | undefined, expected: string): boolean {
   if (!given) return false;
@@ -29,7 +28,9 @@ export function json(body: unknown, status = 200) {
  */
 export async function authorizeRound(
   request: NextRequest,
-  roundId: string
+  roundId: string,
+  /** Grace after closing only lets someone finish: save and submit, not open a class. */
+  { allowGrace = true }: { allowGrace?: boolean } = {}
 ): Promise<{ round: Round; response?: never } | { round?: never; response: NextResponse }> {
   if (!z.uuid().safeParse(roundId).success) return { response: json({ reason: 'invalid' }, 404) };
   const [round] = await getDb().select().from(surveyRounds).where(eq(surveyRounds.id, roundId)).limit(1);
@@ -37,7 +38,9 @@ export async function authorizeRound(
     return { response: json({ reason: 'invalid' }, 404) };
   }
   const access = surveyAccess(round);
-  if (access === 'scheduled' || access === 'closed') return { response: json({ reason: access }, 403) };
+  if (access === 'scheduled' || access === 'closed' || (access === 'grace' && !allowGrace)) {
+    return { response: json({ reason: access === 'grace' ? 'closed' : access }, 403) };
+  }
   return { round };
 }
 

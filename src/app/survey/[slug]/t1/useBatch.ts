@@ -55,6 +55,9 @@ export function useBatch(api: SurveyApi, roundId: string, key: BatchKeyInput | n
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const keyRef = useRef(key);
   keyRef.current = key;
+  const closedRef = useRef(false);
+  closedRef.current = closed;
+  const loadRef = useRef<(() => Promise<void>) | null>(null);
   const id = key ? batchId(key) : null;
 
   const flush = useCallback(async (): Promise<boolean> => {
@@ -68,28 +71,42 @@ export function useBatch(api: SurveyApi, roundId: string, key: BatchKeyInput | n
 
     const run = (async () => {
       const rows: DraftRow[] = Object.entries(sending).map(([studentErpId, row]) => ({ studentErpId, ...row }));
+      // Unsent rows go back to the queue, unless the teacher has moved to another class
+      // (they stay on the device under that class and are sent when it is opened again).
       const restore = () => {
-        pending.current = merge(sending, pending.current);
-        writeStored(roundId, current, pending.current);
+        if (keyRef.current === current) {
+          pending.current = merge(sending, pending.current);
+          writeStored(roundId, current, pending.current);
+        } else {
+          writeStored(roundId, current, merge(sending, readStored(roundId, current)));
+        }
       };
       try {
-        const response = await api.post<{ ok: boolean; reason?: string }>('draft', { ...current, rows });
+        const response = await api.post<{ ok: boolean; reason?: string; rejected?: string[] }>('draft', { ...current, rows });
         if (response.status === 200) {
           writeStored(roundId, current, pending.current);
+          const rejected = response.data.rejected ?? [];
+          if (rejected.length) {
+            // These students have left the class (e.g. ERP import): reload the class list.
+            setSaveState('idle');
+            void loadRef.current?.();
+            return true;
+          }
           setSaveState(Object.keys(pending.current).length ? 'saving' : 'saved');
           return true;
         }
         if (response.status === 403) {
           restore();
+          closedRef.current = true;
           setClosed(true);
           setSaveState('error');
           return false;
         }
         if (response.status === 400) {
-          // The server refused these rows (e.g. a student left the class): drop them and reload.
+          // Malformed rows (should not happen): drop them rather than retry forever.
           writeStored(roundId, current, pending.current);
           setSaveState('error');
-          return false;
+          return true;
         }
         restore();
         setSaveState('error');
@@ -103,7 +120,8 @@ export function useBatch(api: SurveyApi, roundId: string, key: BatchKeyInput | n
     inflight.current = run;
     const ok = await run;
     inflight.current = null;
-    if (!ok && Object.keys(pending.current).length && !timer.current) {
+    // No timed retry once the round is closed: 'online' or a reload after the admin extends it will send.
+    if (!ok && !closedRef.current && Object.keys(pending.current).length && !timer.current) {
       timer.current = setTimeout(() => {
         timer.current = null;
         void flush();
@@ -133,8 +151,11 @@ export function useBatch(api: SurveyApi, roundId: string, key: BatchKeyInput | n
         return;
       }
       const stored = readStored(roundId, current);
-      pending.current = merge(stored, pending.current);
       const saved = response.data;
+      // Queued marks for students who have left the class can never be saved; drop them.
+      const roster = new Set(saved.students.map((s) => s.erpId));
+      pending.current = Object.fromEntries(Object.entries(merge(stored, pending.current)).filter(([erpId]) => roster.has(erpId)));
+      writeStored(roundId, current, pending.current);
       const mergedAnswers = { ...saved.answers };
       const mergedNotes = { ...saved.notes };
       for (const [erpId, row] of Object.entries(pending.current)) {
@@ -150,6 +171,8 @@ export function useBatch(api: SurveyApi, roundId: string, key: BatchKeyInput | n
       setLoadError('network');
     }
   }, [api, roundId, flush]);
+
+  loadRef.current = load;
 
   useEffect(() => {
     setBatch(null);
@@ -167,7 +190,7 @@ export function useBatch(api: SurveyApi, roundId: string, key: BatchKeyInput | n
     window.addEventListener('online', online);
     window.addEventListener('offline', offline);
     const beforeUnload = (event: BeforeUnloadEvent) => {
-      if (Object.keys(pending.current).length || inflight.current) event.preventDefault();
+      if (!closedRef.current && (Object.keys(pending.current).length || inflight.current)) event.preventDefault();
     };
     window.addEventListener('beforeunload', beforeUnload);
     return () => {

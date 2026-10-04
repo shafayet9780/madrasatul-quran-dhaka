@@ -4,6 +4,9 @@ import { z } from 'zod';
 
 const key = z.string().regex(/^[a-z0-9][a-z0-9-]*$/).max(64);
 
+/** Header carrying the round's link key on survey API calls (kept out of URLs and logs). */
+export const SURVEY_KEY_HEADER = 'x-survey-key';
+
 export const batchKeySchema = z.object({
   teacherKey: key,
   classKey: key,

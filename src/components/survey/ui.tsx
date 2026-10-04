@@ -34,7 +34,7 @@ export const Icon = {
       <path d="M8 9h8M8 12h5" />
     </svg>
   ),
-  noteAdd: () => svg(<><path d="M4 4h16v12H8l-4 4z" /><path d="M12 7v6M9 10h6" /></>, { size: 20, stroke: '#7D8A91' }),
+  noteAdd: () => svg(<><path d="M4 4h16v12H8l-4 4z" /><path d="M12 7v6M9 10h6" /></>, { size: 20, stroke: 'var(--sv-icon-muted)' }),
   download: (p?: IconProps) => svg(<path d="M12 4v11M7 10l5 5 5-5M5 20h14" />, { size: 20, width: 2.2, ...p }),
 };
 
@@ -76,7 +76,9 @@ export function MarkTrack({
   labelledBy,
   label,
   large,
+  autoFocusSelected,
 }: {
+  autoFocusSelected?: boolean;
   marks: number[];
   value: number | undefined;
   onChange: (mark: number) => void;
@@ -116,6 +118,7 @@ export function MarkTrack({
           aria-checked={value === mark}
           aria-label={`${bn(mark)} মার্ক`}
           tabIndex={selected === -1 ? (i === 0 ? 0 : -1) : i === selected ? 0 : -1}
+          data-autofocus={autoFocusSelected && (selected === -1 ? i === 0 : i === selected) ? true : undefined}
           onClick={() => onChange(mark)}
           onKeyDown={(e) => onKeyDown(e, i)}
         >

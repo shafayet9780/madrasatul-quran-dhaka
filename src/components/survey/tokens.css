@@ -3,6 +3,9 @@
   --sv-bronze: #875b3d;
   --sv-bronze-pressed: #6e4a31;
   --sv-bronze-ink: #5e3b24;
+  /* Bronze for small text on stone (resume card, roll dots, pills); from the T1 artboards. */
+  --sv-bronze-text: #7a4b2e;
+  --sv-icon-muted: #7d8a91;
   --sv-link: #875b3d;
   --sv-link-hover: #654321;
   --sv-tint: #f6eee6;

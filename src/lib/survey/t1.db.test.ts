@@ -101,7 +101,7 @@ describe('T1 draft and submit', () => {
 
   it('rejects off-scale marks, unknown students and closed rounds', async () => {
     expect(await saveDraft(round, keyA, [{ studentErpId: ids.s1, answers: { attendance: 7 } }], meta)).toEqual({ ok: false, reason: 'invalid' });
-    expect(await saveDraft(round, keyA, [{ studentErpId: 'someone-else', answers: { attendance: 8 } }], meta)).toEqual({ ok: false, reason: 'invalid' });
+    expect(await saveDraft(round, keyA, [{ studentErpId: 'someone-else', answers: { attendance: 8 } }], meta)).toMatchObject({ ok: true, rejected: ['someone-else'] });
     expect(await saveDraft(closedRound, keyA, [{ studentErpId: ids.s1, answers: { attendance: 8 } }], meta)).toEqual({ ok: false, reason: 'closed' });
   });
 
@@ -178,6 +178,27 @@ describe('T1 draft and submit', () => {
       .where(and(eq(answerItems.roundId, round.id), eq(answerItems.teacherKey, 'ustad-abdullah'), eq(answerItems.studentErpId, ids.s3)));
     expect(items.every((i) => i.sectionKey === 'b' && i.mark === 6)).toBe(true);
     expect(items).toHaveLength(QUESTIONS.length);
+  });
+
+  it('two submits racing end with one receipt that stays valid', async () => {
+    const keyR = { ...keyA, subjectKey: 'bangla' };
+    await saveDraft(round, keyR, [ids.s1, ids.s2].map((id) => ({ studentErpId: id, answers: full(8) })), meta);
+    const [a, b] = await Promise.all([submitBatch(round, keyR, [], meta), submitBatch(round, keyR, [], meta)]);
+    if (!a.ok || !b.ok) throw new Error(JSON.stringify([a, b]));
+    expect(a.receiptToken).toBe(b.receiptToken);
+    const receipt = await loadReceipt(a.receiptToken);
+    expect(receipt?.rows).toHaveLength(2);
+    expect(await currentItems(receipt!.submission.id)).toHaveLength(2 * QUESTIONS.length);
+  });
+
+  it('saves the other rows when a student has left the class', async () => {
+    const keyM = { ...keyA, subjectKey: 'math' };
+    const result = await saveDraft(round, keyM, [
+      { studentErpId: ids.s1, answers: { attendance: 10 } },
+      { studentErpId: ids.s3, answers: { attendance: 8 } }, // moved to section B earlier
+    ], meta);
+    expect(result).toMatchObject({ ok: true, rejected: [ids.s3] });
+    expect((await loadBatch(round, keyM))?.answers).toEqual({ [ids.s1]: { attendance: 10 } });
   });
 
   it('summarises the teacher’s batches for the class picker', async () => {

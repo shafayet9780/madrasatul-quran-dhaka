@@ -1,7 +1,6 @@
 'use client';
 
 import { Icon, SaveChip, type SaveState } from '@/components/survey/ui';
-import { formatDateTime } from '@/lib/survey/dates';
 import { batchLabel } from '@/lib/survey/labels';
 import type { BatchKeyInput } from '@/lib/survey/t1-types';
 import type { T1Config } from './types';
@@ -60,8 +59,4 @@ export function StatusBanners({ saveState, closed }: { saveState: SaveState; clo
       ) : null}
     </div>
   );
-}
-
-export function closingLine(closesAt: string) {
-  return formatDateTime(new Date(closesAt));
 }

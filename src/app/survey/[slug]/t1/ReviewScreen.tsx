@@ -461,8 +461,8 @@ function EditMarkSheet({
         <div style={{ fontSize: 15, lineHeight: 1.55, color: 'var(--sv-text-body)' }}>{question.text}</div>
         {question.hint && <div className="sv-hint">{question.hint}</div>}
       </div>
-      <div data-autofocus-scope>
-        <MarkTrack large marks={scale} value={answers[student.erpId]?.[question.key]} labelledBy={titleId} onChange={(mark) => onMark(student.erpId, question.key, mark)} />
+      <div>
+        <MarkTrack large autoFocusSelected marks={scale} value={answers[student.erpId]?.[question.key]} labelledBy={titleId} onChange={(mark) => onMark(student.erpId, question.key, mark)} />
       </div>
       <div className="flex justify-between" style={{ fontSize: 14 }}>
         <button type="button" className="sv-tertiary" style={{ alignSelf: 'auto', visibility: prev ? 'visible' : 'hidden' }} onClick={() => prev && onMove({ erpId: prev.erpId, q: editing.q })}>

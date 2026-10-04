@@ -2,7 +2,6 @@
 
 import { useMemo, useState } from 'react';
 import { ChipRadioGroup, Icon, Progress, Topbar } from '@/components/survey/ui';
-import { formatDateTime } from '@/lib/survey/dates';
 import { batchLabel, bn, nameInitial, sectionDisplay } from '@/lib/survey/labels';
 import type { OverviewItem } from '@/lib/survey/t1-types';
 import { OfficeContact } from '../StatusScreens';
@@ -215,9 +214,9 @@ export function ClassScreen({
 
       {resume && (
         <div className="flex items-center gap-3" style={{ margin: '14px 16px 0', padding: '14px 16px', borderRadius: 16, background: 'var(--sv-stone)' }}>
-          <span style={{ flex: 'none', color: '#7A4B2E' }}>{Icon.clock()}</span>
+          <span style={{ flex: 'none', color: 'var(--sv-bronze-text)' }}>{Icon.clock()}</span>
           <div className="flex flex-col gap-0.5" style={{ flex: 1, lineHeight: 1.45 }}>
-            <div style={{ fontSize: 13, color: '#7A4B2E', fontWeight: 600 }}>অসমাপ্ত রিভিউ</div>
+            <div style={{ fontSize: 13, color: 'var(--sv-bronze-text)', fontWeight: 600 }}>অসমাপ্ত রিভিউ</div>
             <div style={{ fontSize: 15, fontWeight: 600 }}>{batchLabel(snapshot, resume)}</div>
             <div style={{ fontSize: 13, color: 'var(--sv-text-muted)' }}>
               {bn(resume.total)} জনের মধ্যে {bn(resume.done)} জন সম্পন্ন
@@ -226,7 +225,7 @@ export function ClassScreen({
           <button
             type="button"
             className="sv-tertiary"
-            style={{ color: '#7A4B2E', textDecoration: 'none', fontSize: 15, padding: '12px 4px' }}
+            style={{ color: 'var(--sv-bronze-text)', textDecoration: 'none', fontSize: 15, padding: '12px 4px' }}
             onClick={() => onStart({ classKey: resume.classKey, sectionKey: resume.sectionKey, subjectKey: resume.subjectKey })}
           >
             চালিয়ে যান
@@ -299,8 +298,4 @@ export function ClassScreen({
       </div>
     </main>
   );
-}
-
-export function closesText(closesAt: string) {
-  return formatDateTime(new Date(closesAt));
 }
