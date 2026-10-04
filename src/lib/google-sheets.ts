@@ -43,7 +43,6 @@ export async function submitToGoogleSheets(
       },
       body: JSON.stringify({
         data: values,
-        spreadsheetId: config.spreadsheetId,
         range: config.range || 'A:Z',
         fieldOrder: config.fieldOrder,
         autoDetectRange: config.autoDetectRange || false,

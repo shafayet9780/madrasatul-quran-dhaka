@@ -38,3 +38,10 @@ test('studio route loads without an application error', async ({ page }) => {
   expect(res?.status()).toBeLessThan(400);
   await expect(page.getByText('Application error')).toHaveCount(0);
 });
+
+test('pre-admission form page renders', async ({ page }) => {
+  const res = await page.goto('/bengali/pre-admission');
+  expect(res?.status()).toBeLessThan(400);
+  await expect(page.getByText('Application error')).toHaveCount(0);
+  await expect(page.locator('main').first()).toBeVisible();
+});
