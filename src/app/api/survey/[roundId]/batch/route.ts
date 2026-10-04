@@ -1,10 +1,12 @@
 import type { NextRequest } from 'next/server';
 import { surveyAccess } from '@/lib/survey/round-status';
-import { authorizeRound, json, readBody } from '@/lib/survey/survey-request';
+import { authorizeRound, rateLimited, json, readBody } from '@/lib/survey/survey-request';
 import { loadBatch } from '@/lib/survey/t1';
 import { batchKeySchema } from '@/lib/survey/t1-types';
 
 export async function POST(request: NextRequest, { params }: { params: Promise<{ roundId: string }> }) {
+  const limited = await rateLimited(request, 'read');
+  if (limited) return limited;
   const { round, response } = await authorizeRound(request, (await params).roundId);
   if (response) return response;
   const body = await readBody(request, batchKeySchema);

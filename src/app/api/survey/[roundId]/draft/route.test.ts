@@ -1,9 +1,10 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { NextRequest } from 'next/server';
 
-const { selectRound, saveDraft } = vi.hoisted(() => ({ selectRound: vi.fn(), saveDraft: vi.fn() }));
+const { selectRound, saveDraft, allow } = vi.hoisted(() => ({ selectRound: vi.fn(), saveDraft: vi.fn(), allow: vi.fn(async () => true) }));
 
 vi.mock('server-only', () => ({}));
+vi.mock('@/lib/survey/rate-limit', () => ({ allow, SURVEY_LIMITS: { read: {}, draft: {}, submit: {} } }));
 vi.mock('@/lib/survey/db', () => ({
   getDb: () => ({ select: () => ({ from: () => ({ where: () => ({ limit: selectRound }) }) }) }),
 }));
@@ -28,6 +29,12 @@ const call = (req: NextRequest, roundId = ROUND_ID) => POST(req, { params: Promi
 afterEach(() => vi.clearAllMocks());
 
 describe('survey draft route', () => {
+  it('answers 429 once the IP has used its budget', async () => {
+    allow.mockResolvedValueOnce(false);
+    expect((await call(request('secret-key'))).status).toBe(429);
+    expect(saveDraft).not.toHaveBeenCalled();
+  });
+
   it('rejects a missing or wrong link key and unknown rounds the same way', async () => {
     selectRound.mockResolvedValue([openRound()]);
     expect((await call(request(null))).status).toBe(404);

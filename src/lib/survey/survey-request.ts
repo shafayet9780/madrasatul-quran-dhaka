@@ -4,6 +4,7 @@ import { eq } from 'drizzle-orm';
 import { NextResponse, type NextRequest } from 'next/server';
 import { z } from 'zod';
 import { getDb } from './db';
+import { allow, SURVEY_LIMITS } from './rate-limit';
 import { surveyAccess } from './round-status';
 import { surveyRounds } from './schema';
 import type { RequestMeta } from './t1';
@@ -42,6 +43,13 @@ export async function authorizeRound(
     return { response: json({ reason: access === 'grace' ? 'closed' : access }, 403) };
   }
   return { round };
+}
+
+/** 429 when this IP has used up its budget for the action (spec §8), else null. */
+export async function rateLimited(request: NextRequest, action: keyof typeof SURVEY_LIMITS): Promise<NextResponse | null> {
+  const { limit, windowMs } = SURVEY_LIMITS[action];
+  const ip = requestMeta(request).ip ?? 'unknown';
+  return (await allow(`survey:${action}:${ip}`, limit, windowMs)) ? null : json({ reason: 'rate-limited' }, 429);
 }
 
 export async function readBody<T>(request: NextRequest, schema: z.ZodType<T>): Promise<T | null> {

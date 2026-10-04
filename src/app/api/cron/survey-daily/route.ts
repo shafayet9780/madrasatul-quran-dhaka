@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { isAuthorizedCleanupRequest } from '@/lib/downloads/cleanup';
 import { backupSurveyTables } from '@/lib/survey/backup';
 import { pruneDryRuns } from '@/lib/survey/erp-import-server';
+import { pruneRateLimits } from '@/lib/survey/rate-limit';
 import { mirrorPending } from '@/lib/survey/sheets-mirror';
 
 export const runtime = 'nodejs';
@@ -9,7 +10,7 @@ export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
 
 // Daily (vercel.json): retry Sheet copies that failed, back up the survey tables to Blob,
-// and drop import dry runs older than a day.
+// and drop import dry runs and rate-limit windows older than a day.
 export async function GET(request: NextRequest) {
   const secret = process.env.CRON_SECRET;
   if (!secret) return NextResponse.json({ error: 'Scheduled jobs are not configured' }, { status: 503 });
@@ -37,6 +38,7 @@ export async function GET(request: NextRequest) {
   }
   try {
     result.prunedDryRuns = await pruneDryRuns();
+    result.prunedRateLimits = await pruneRateLimits();
   } catch (error) {
     ok = false;
     result.prunedDryRuns = { error: error instanceof Error ? error.message : 'failed' };

@@ -31,6 +31,15 @@ const nextConfig: NextConfig = {
   compress: true,
   async headers() {
     return [
+      // Survey links carry a key in the URL and personal answers: never index, cache or refer them.
+      ...['/survey/:path*', '/admin/:path*'].map((source) => ({
+        source,
+        headers: [
+          { key: 'X-Robots-Tag', value: 'noindex, nofollow, noarchive' },
+          { key: 'Referrer-Policy', value: 'no-referrer' },
+          { key: 'Cache-Control', value: 'private, no-store' },
+        ],
+      })),
       {
         source: '/:locale(bengali|english)/downloads/:path*',
         headers: [

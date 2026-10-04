@@ -4,6 +4,7 @@ import { NextRequest } from 'next/server';
 const { selectRound, loadBatch } = vi.hoisted(() => ({ selectRound: vi.fn(), loadBatch: vi.fn() }));
 
 vi.mock('server-only', () => ({}));
+vi.mock('@/lib/survey/rate-limit', () => ({ allow: async () => true, SURVEY_LIMITS: { read: {}, draft: {}, submit: {} } }));
 vi.mock('@/lib/survey/db', () => ({
   getDb: () => ({ select: () => ({ from: () => ({ where: () => ({ limit: selectRound }) }) }) }),
 }));

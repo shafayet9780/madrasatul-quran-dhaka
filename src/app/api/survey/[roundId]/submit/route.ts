@@ -1,5 +1,5 @@
 import { after, type NextRequest } from 'next/server';
-import { authorizeRound, json, readBody, requestMeta } from '@/lib/survey/survey-request';
+import { authorizeRound, rateLimited, json, readBody, requestMeta } from '@/lib/survey/survey-request';
 import { mirrorPending } from '@/lib/survey/sheets-mirror';
 import { submitBatch } from '@/lib/survey/t1';
 import { submitRequestSchema } from '@/lib/survey/t1-types';
@@ -8,6 +8,8 @@ import { submitRequestSchema } from '@/lib/survey/t1-types';
 export const maxDuration = 30;
 
 export async function POST(request: NextRequest, { params }: { params: Promise<{ roundId: string }> }) {
+  const limited = await rateLimited(request, 'submit');
+  if (limited) return limited;
   const { round, response } = await authorizeRound(request, (await params).roundId);
   if (response) return response;
   const body = await readBody(request, submitRequestSchema);

@@ -5,6 +5,7 @@ const { mirrorPending, backupSurveyTables, pruneDryRuns } = vi.hoisted(() => ({ 
 vi.mock('@/lib/survey/sheets-mirror', () => ({ mirrorPending }));
 vi.mock('@/lib/survey/backup', () => ({ backupSurveyTables }));
 vi.mock('@/lib/survey/erp-import-server', () => ({ pruneDryRuns }));
+vi.mock('@/lib/survey/rate-limit', () => ({ pruneRateLimits: async () => 0 }));
 
 import { GET } from './route';
 
@@ -37,6 +38,7 @@ describe('survey daily cron', () => {
       sheet: { mirrored: 2, failed: 0 },
       backup: { pathname: 'survey-backups/2026-10-04.json', bytes: 10, removed: 0 },
       prunedDryRuns: 3,
+      prunedRateLimits: 0,
     });
   });
 
