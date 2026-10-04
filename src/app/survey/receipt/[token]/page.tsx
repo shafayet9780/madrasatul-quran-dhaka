@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { formatDateTime } from '@/lib/survey/dates';
-import { batchLabel, bn, questionLabel } from '@/lib/survey/labels';
+import { batchLabel, bn, questionLabel, referenceNumber } from '@/lib/survey/labels';
 import { surveyAccess } from '@/lib/survey/round-status';
 import { fetchOfficePhone } from '@/lib/survey/sanity-source';
 import { loadReceipt } from '@/lib/survey/t1';
@@ -12,13 +12,6 @@ export const dynamic = 'force-dynamic';
 export const metadata: Metadata = { title: 'রসিদ' };
 
 const dayMonth = new Intl.DateTimeFormat('bn-BD', { timeZone: 'Asia/Dhaka', day: 'numeric', month: 'long' });
-
-/** Short reference shown to the respondent ("৭২৪১ ৯৩৫৮"), derived from the submission id. */
-function referenceNumber(id: string) {
-  const n = parseInt(id.replace(/-/g, '').slice(0, 12), 16) % 100000000;
-  const digits = String(n).padStart(8, '0');
-  return bn(`${digits.slice(0, 4)} ${digits.slice(4)}`);
-}
 
 export default async function ReceiptPage({ params }: { params: Promise<{ token: string }> }) {
   const { token } = await params;

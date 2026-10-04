@@ -1,7 +1,7 @@
 import 'server-only';
 import ExcelJS from 'exceljs';
 import { readUpload } from './erp-file';
-import { and, desc, eq, notInArray, sql } from 'drizzle-orm';
+import { and, desc, eq, lt, notInArray, sql } from 'drizzle-orm';
 import { getDb } from './db';
 import { planImport, readTable, type ImportPlan } from './erp-import';
 import { fetchClassMappings } from './sanity-source';
@@ -149,4 +149,13 @@ export async function problemsWorkbook(runId: number): Promise<{ fileName: strin
   const buffer = await workbook.xlsx.writeBuffer();
   const stem = run.fileName.replace(/\.[^.]+$/, '');
   return { fileName: `${stem}-problems.xlsx`, buffer: buffer as ArrayBuffer };
+}
+
+/** Dry runs are only needed for the preview's Excel link; the daily job drops those older than a day. */
+export async function pruneDryRuns(now = new Date()) {
+  const removed = await getDb()
+    .delete(importRuns)
+    .where(and(eq(importRuns.status, 'dry_run'), lt(importRuns.createdAt, new Date(now.getTime() - 24 * 60 * 60 * 1000))))
+    .returning({ id: importRuns.id });
+  return removed.length;
 }

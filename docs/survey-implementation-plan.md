@@ -91,7 +91,9 @@ Each milestone ends with its checks passing and a commit.
 
 ### M5 — Sheet copy + backup
 - After each submit: best-effort append (status column current/superseded/duplicate); failures marked for retry. Rows with `mirrored_at IS NULL` (new or status changed) are what the retry picks up.
-- Daily cron (`survey-daily`): retry failed copies + JSON backup of survey tables to Vercel Blob.
+- Daily cron (`survey-daily`): retry failed copies + JSON backup of survey tables to Vercel Blob + prune import dry runs older than a day.
+  - The site's Blob store is public, so backups go to a **separate private Blob store** (env prefix `SURVEY_BACKUP_BLOB` → `SURVEY_BACKUP_BLOB_READ_WRITE_TOKEN`); without it the job skips the backup and says so.
+  - End-to-end tests run with `SURVEY_SHEET_ID` empty, so test submissions never reach the real sheet.
 **Check:** route tests with mocked Sheets/Blob; manual end-to-end on `dev`.
 
 ### M6 — Tracker (T1)

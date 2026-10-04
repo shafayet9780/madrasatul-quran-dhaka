@@ -19,6 +19,8 @@ export default defineConfig({
       STUDIO_AUTH_ENABLED: 'true',
       STUDIO_USERNAME: 'playwright-editor',
       STUDIO_PASSWORD: 'playwright-test-password',
+      // Never copy test submissions to the real "Survey Responses" sheet (Next keeps an empty value).
+      SURVEY_SHEET_ID: '',
     },
     reuseExistingServer: !process.env.CI,
     timeout: 240_000,

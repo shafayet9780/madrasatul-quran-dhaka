@@ -45,3 +45,8 @@ export function formatDateTime(date: Date): string {
   const h12 = hour % 12 || 12;
   return `${dayMonth.format(date)}, ${period(hour)} ${toBengaliDigits(`${h12}:${String(minute).padStart(2, '0')}`)}`;
 }
+
+/** Sortable Dhaka time for spreadsheets: "2026-10-04 21:42". */
+export function formatSheetTime(date: Date): string {
+  return toDhakaInput(date).replace('T', ' ');
+}

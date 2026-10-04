@@ -29,3 +29,11 @@ export const bn = toBengaliDigits;
 export function nameInitial(name: string): string {
   return name.replace(/^(মাওলানা|মাওঃ|উস্তাদ|উস্তাযা|উস্তাজা|হাফেজ|হাফেয|মুফতি|ড\.|মো\.|মোঃ|মোহাম্মদ)\s*/, '').charAt(0);
 }
+
+/** Short reference shown on receipts and in the Sheet copy ("৭২৪১ ৯৩৫৮"), derived from the submission id. */
+export function referenceNumber(submissionId: string, bengali = true): string {
+  const n = parseInt(submissionId.replace(/-/g, '').slice(0, 12), 16) % 100000000;
+  const digits = String(n).padStart(8, '0');
+  const text = `${digits.slice(0, 4)} ${digits.slice(4)}`;
+  return bengali ? toBengaliDigits(text) : text;
+}

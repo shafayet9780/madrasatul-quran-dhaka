@@ -1,0 +1,41 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { isAuthorizedCleanupRequest } from '@/lib/downloads/cleanup';
+import { backupSurveyTables } from '@/lib/survey/backup';
+import { pruneDryRuns } from '@/lib/survey/erp-import-server';
+import { mirrorPending } from '@/lib/survey/sheets-mirror';
+
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+export const maxDuration = 60;
+
+// Daily (vercel.json): retry Sheet copies that failed, back up the survey tables to Blob,
+// and drop import dry runs older than a day.
+export async function GET(request: NextRequest) {
+  const secret = process.env.CRON_SECRET;
+  if (!secret) return NextResponse.json({ error: 'Scheduled jobs are not configured' }, { status: 503 });
+  if (!isAuthorizedCleanupRequest(request.headers.get('authorization'), secret)) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  const result: Record<string, unknown> = {};
+  let ok = true;
+  try {
+    result.sheet = await mirrorPending();
+  } catch (error) {
+    ok = false;
+    result.sheet = { error: error instanceof Error ? error.message : 'failed' };
+  }
+  try {
+    result.backup = await backupSurveyTables();
+  } catch (error) {
+    ok = false;
+    result.backup = { error: error instanceof Error ? error.message : 'failed' };
+  }
+  try {
+    result.prunedDryRuns = await pruneDryRuns();
+  } catch (error) {
+    ok = false;
+    result.prunedDryRuns = { error: error instanceof Error ? error.message : 'failed' };
+  }
+  return NextResponse.json(result, { status: ok ? 200 : 500 });
+}
