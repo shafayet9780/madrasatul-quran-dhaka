@@ -5,7 +5,8 @@ import { toBengaliDigits as bn } from '@/lib/survey/normalise';
 import { roundStatus } from '@/lib/survey/round-status';
 import { listT1Rounds, loadTracker } from '@/lib/survey/tracker';
 import type { CellState } from '@/lib/survey/coverage';
-import { DuplicateResolver, PrintButton, RoundPicker } from './TrackerControls';
+import { RoundPicker } from '../RoundPicker';
+import { DuplicateResolver, PrintButton } from './TrackerControls';
 
 export const metadata: Metadata = { title: 'রেসপন্স ট্র্যাকার' };
 export const dynamic = 'force-dynamic';
@@ -77,7 +78,10 @@ export default async function TrackerPage({ searchParams }: { searchParams: Prom
           </div>
         </div>
         <div className="flex flex-wrap gap-2 items-center sv-no-print">
-          <RoundPicker rounds={rounds.map((r) => ({ id: r.id, label: r.label }))} value={round.id} />
+          <RoundPicker rounds={rounds.map((r) => ({ id: r.id, label: r.label }))} value={round.id} basePath="/admin/tracker" />
+          <a className="sv-sbtn" href={`/admin/reports/export?kind=tracker&round=${round.id}`}>
+            Excel
+          </a>
           <PrintButton />
         </div>
       </div>

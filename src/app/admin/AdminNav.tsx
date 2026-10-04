@@ -5,7 +5,14 @@ import { usePathname } from 'next/navigation';
 
 // Report pages join this list as they are built (M6–M7).
 const SECTIONS: { heading: string; links: { label: string; href: string }[] }[] = [
-  { heading: 'রিপোর্ট', links: [{ label: 'রেসপন্স ট্র্যাকার', href: '/admin/tracker' }] },
+  {
+    heading: 'রিপোর্ট',
+    links: [
+      { label: 'রেসপন্স ট্র্যাকার', href: '/admin/tracker' },
+      { label: 'ক্লাস ও শিক্ষার্থী', href: '/admin/reports' },
+      { label: 'শিক্ষকদের রেটিং প্যাটার্ন', href: '/admin/reports/raters' },
+    ],
+  },
   {
     heading: 'অ্যাডমিন',
     links: [
@@ -14,6 +21,14 @@ const SECTIONS: { heading: string; links: { label: string; href: string }[] }[] 
     ],
   },
 ];
+
+const ALL_HREFS = SECTIONS.flatMap((s) => s.links.map((l) => l.href));
+
+/** The longest nav link that the path is under (so /admin/reports/raters is not also "reports"). */
+function isCurrent(pathname: string, href: string) {
+  const matches = ALL_HREFS.filter((h) => pathname === h || pathname.startsWith(`${h}/`));
+  return matches.sort((a, b) => b.length - a.length)[0] === href;
+}
 
 export function AdminNav() {
   const pathname = usePathname();
@@ -40,7 +55,7 @@ export function AdminNav() {
               key={link.href}
               href={link.href}
               className="sv-nav-link"
-              aria-current={pathname === link.href || pathname.startsWith(`${link.href}/`) ? 'page' : undefined}
+              aria-current={isCurrent(pathname, link.href) ? 'page' : undefined}
             >
               {link.label}
             </Link>

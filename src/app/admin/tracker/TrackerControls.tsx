@@ -1,30 +1,8 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
 import { useState, useTransition } from 'react';
 import { formatDateTime } from '@/lib/survey/dates';
 import { resolveDuplicateAction } from './actions';
-
-export function RoundPicker({ rounds, value }: { rounds: { id: string; label: string }[]; value: string }) {
-  const router = useRouter();
-  return (
-    <label className="flex items-center gap-1.5" style={{ fontSize: 13, color: 'var(--sv-text-muted)' }}>
-      রাউন্ড
-      <select
-        className="sv-input"
-        style={{ height: 36, width: 'auto', fontSize: 14 }}
-        value={value}
-        onChange={(e) => router.push(`/admin/tracker?round=${e.target.value}`)}
-      >
-        {rounds.map((r) => (
-          <option key={r.id} value={r.id}>
-            {r.label}
-          </option>
-        ))}
-      </select>
-    </label>
-  );
-}
 
 export function PrintButton() {
   return (

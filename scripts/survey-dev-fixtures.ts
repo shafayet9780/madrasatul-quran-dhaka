@@ -36,8 +36,8 @@ async function main() {
   const { t1FixtureSnapshot } = await import('../src/lib/survey/testing/t1-fixture');
   const db = getDb();
 
-  const rounds = await db.select({ id: surveyRounds.id }).from(surveyRounds).where(like(surveyRounds.sanityRoundId, 'fixture-%'));
-  const ids = rounds.map((r) => r.id);
+  const previous = await db.select({ id: surveyRounds.id }).from(surveyRounds).where(like(surveyRounds.sanityRoundId, 'fixture-%'));
+  const ids = previous.map((r) => r.id);
   if (ids.length) {
     // Replaced batches reference their replacement, so they go first.
     await db.delete(submissions).where(and(inArray(submissions.roundId, ids), isNotNull(submissions.supersededBy)));
@@ -61,7 +61,7 @@ async function main() {
 
   const now = Date.now();
   const snapshot = t1FixtureSnapshot();
-  const [open] = await db
+  const rounds = await db
     .insert(surveyRounds)
     .values([
       {
@@ -80,16 +80,19 @@ async function main() {
         slug: 'fixture-t1-old',
         label: 'সেপ্টেম্বর ২০২৬ (নমুনা)',
         snapshot,
+        // Opened now so the September marks below can be submitted, then moved into the past.
         opensAt: new Date(now - 40 * DAY),
-        closesAt: new Date(now - 20 * DAY),
+        closesAt: new Date(now + DAY),
         linkKey: 'fixture-closed-link-key-0',
       },
     ])
     .returning();
+  const open = rounds.find((r) => r.sanityRoundId === 'fixture-t1-open')!;
 
   const meta = { ip: null, userAgent: 'fixtures' };
+  const old = rounds.find((r) => r.sanityRoundId === 'fixture-t1-closed')!;
   const marks = [10, 8, 10, 6, 10, 8, 4, 10, 8, 10, 6, 8];
-  const answersFor = (i: number) => Object.fromEntries(snapshot.template.questions.map((q, n) => [q.key, marks[(i * 5 + n * 3 + (i % 3)) % marks.length]]));
+  const answersFor = (i: number) => Object.fromEntries(snapshot.template.questions.map((q, n) => [q.key, marks[(i * 7 + n * 5 + (i % 3)) % marks.length]]));
   const teacher = 'ustad-abdullah';
   for (const sectionKey of ['a', 'b']) {
     const key = { teacherKey: teacher, classKey: 'nursery', sectionKey, subjectKey: 'quran' };
@@ -105,6 +108,14 @@ async function main() {
   const others = await db.select({ id: submissions.id }).from(submissions).where(and(eq(submissions.roundId, open.id), eq(submissions.status, 'submitted')));
   const dup = await submitBatch(open, dupKey, others.map((o) => o.id), meta);
   if (!dup.ok) throw new Error(`fixture duplicate failed: ${JSON.stringify(dup)}`);
+
+  // September: Nursery A Quran with higher marks, so trends and "dropped since last round" show.
+  const nurseryA = rows.filter((s) => s.classKey === 'nursery' && s.sectionKey === 'a');
+  const septKey = { teacherKey: teacher, classKey: 'nursery', sectionKey: 'a', subjectKey: 'quran' };
+  await saveDraft(old, septKey, nurseryA.map((s, i) => ({ studentErpId: s.erpId, answers: Object.fromEntries(snapshot.template.questions.map((q) => [q.key, i % 4 === 0 ? 10 : 8])) })), meta);
+  const sept = await submitBatch(old, septKey, [], meta);
+  if (!sept.ok) throw new Error(`fixture September submit failed: ${JSON.stringify(sept)}`);
+  await db.update(surveyRounds).set({ opensAt: new Date(now - 40 * DAY), closesAt: new Date(now - 20 * DAY) }).where(eq(surveyRounds.id, old.id));
 
   const kg = rows.filter((s) => s.classKey === 'kg');
   await saveDraft(open, { teacherKey: 'ustad-hamza', classKey: 'kg', sectionKey: 'a', subjectKey: 'arabic' }, kg.slice(0, 3).map((s, i) => ({ studentErpId: s.erpId, answers: answersFor(i) })), meta);

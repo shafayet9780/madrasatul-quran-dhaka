@@ -311,3 +311,26 @@
     white-space: normal;
   }
 }
+
+/* Report flags and KPI tiles (R3–R5) */
+.sv-admin .sv-flag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--sv-warn-bg);
+  color: var(--sv-warn);
+  border-radius: 6px;
+  padding: 1px 7px;
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.sv-admin .sv-kpi {
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.sv-admin .sv-kpi.is-muted .sv-num {
+  color: var(--sv-text-muted);
+}
