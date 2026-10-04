@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { sanitizePathWithAllowedQuery } from './url';
+import { isUntrackedPath, sanitizePathWithAllowedQuery } from './url';
 
 describe('analytics URL sanitization', () => {
   it('keeps only safe UTM query params in page paths', () => {
@@ -19,5 +19,15 @@ describe('analytics URL sanitization', () => {
     expect(
       sanitizePathWithAllowedQuery('/bengali/admissions', '?gclid=raw&message=hello')
     ).toBe('/bengali/admissions');
+  });
+});
+
+describe('isUntrackedPath', () => {
+  it('excludes survey and admin pages only', () => {
+    expect(isUntrackedPath('/survey/t1-2026-10')).toBe(true);
+    expect(isUntrackedPath('/admin')).toBe(true);
+    expect(isUntrackedPath('/admin/rounds')).toBe(true);
+    expect(isUntrackedPath('/bengali/admissions')).toBe(false);
+    expect(isUntrackedPath('/surveys')).toBe(false);
   });
 });

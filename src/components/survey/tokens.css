@@ -1,0 +1,61 @@
+/* Bronze & Stone design tokens (docs/survey-mockups/README.md), scoped to survey and admin pages. */
+.sv-root {
+  --sv-bronze: #875b3d;
+  --sv-bronze-pressed: #6e4a31;
+  --sv-bronze-ink: #5e3b24;
+  --sv-link: #875b3d;
+  --sv-link-hover: #654321;
+  --sv-tint: #f6eee6;
+  --sv-tint-border: #e9d6c3;
+  --sv-paper: #fcfbf8;
+  --sv-report: #f8f7f4;
+  --sv-stone: #f4f2ee;
+  --sv-stone-soft: #f7f5f1;
+  --sv-track: #efece6;
+  --sv-hairline: #e7e3dc;
+  --sv-hairline-soft: #f0ece6;
+  --sv-input-border: #e2ddd5;
+  --sv-dashed: #d8d2c9;
+  --sv-button-border: #d3dbdf;
+  --sv-text: #1f2a2e;
+  --sv-text-body: #3d4a53;
+  --sv-text-muted: #5b6670;
+  --sv-focus: #4f7fa6;
+  --sv-ok: #2e6a55;
+  --sv-ok-bg: #e7f1ec;
+  --sv-warn: #8a4416;
+  --sv-warn-bg: #fbf1e6;
+  --sv-error: #a2341e;
+  --sv-error-bg: #fbece8;
+  --sv-info: #3b6684;
+  --sv-info-bg: #eaf1f6;
+  --sv-neutral-bg: #f0ece6;
+
+  font-family: var(--sv-font-body), 'Hind Siliguri', sans-serif;
+  color: var(--sv-text);
+}
+
+.sv-root .sv-head {
+  font-family: var(--sv-font-head), 'Anek Bangla', sans-serif;
+  font-weight: 600;
+}
+
+.sv-root .sv-num {
+  font-family: var(--sv-font-head), 'Anek Bangla', sans-serif;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.sv-root :focus-visible {
+  outline: 3px solid var(--sv-focus);
+  outline-offset: 2px;
+}
+
+.sv-root .sv-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}

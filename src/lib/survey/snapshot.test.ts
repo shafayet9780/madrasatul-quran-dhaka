@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { classLabel, compareStudents, markFor, roundSnapshotSchema, type RoundSnapshot } from './snapshot';
+import { classLabel, classSections, compareStudents, markFor, roundSnapshotSchema, t1PairCount, type RoundSnapshot } from './snapshot';
+import { t1FixtureSnapshot } from './testing/t1-fixture';
 
 const snapshot: RoundSnapshot = roundSnapshotSchema.parse({
   takenAt: '2026-10-04T00:00:00.000Z',
@@ -85,5 +86,14 @@ describe('compareStudents', () => {
       { erpId: '1', roll: 2, name: 'C' },
     ];
     expect(list.sort(compareStudents).map((s) => s.erpId)).toEqual(['1', '3', '7', '9']);
+  });
+});
+
+describe('T1 fixture', () => {
+  it('is a valid snapshot with 13 class-sections and 65 class-subject pairs', () => {
+    const fixture = roundSnapshotSchema.parse(t1FixtureSnapshot());
+    expect(fixture.template.questions).toHaveLength(7);
+    expect(classSections(fixture)).toHaveLength(13);
+    expect(t1PairCount(fixture)).toBe(65);
   });
 });

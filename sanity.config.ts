@@ -8,6 +8,7 @@ import { StudioLogo } from './sanity/components/StudioLogo';
 import { DownloadLinksTool } from './sanity/tools/DownloadLinksTool';
 import { ShareDownloadAction } from './sanity/actions/ShareDownloadAction';
 import { RevokeDownloadLinksAction } from './sanity/actions/RevokeDownloadLinksAction';
+import { OpenRoundAction } from './sanity/actions/OpenRoundAction';
 
 export default defineConfig({
   name: 'madrasatul-quran-website',
@@ -40,6 +41,8 @@ export default defineConfig({
         ? prev.filter(action => action.action !== 'duplicate')
         : ['downloadCategory', 'downloadable'].includes(context.schemaType)
         ? [...prev, ShareDownloadAction, RevokeDownloadLinksAction]
+        : context.schemaType === 'surveyRound'
+        ? [OpenRoundAction, ...prev]
         : prev,
   },
 

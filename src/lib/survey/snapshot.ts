@@ -74,3 +74,19 @@ export function compareStudents(a: Orderable, b: Orderable): number {
   if (b.roll !== null) return 1;
   return a.name.localeCompare(b.name, 'en', { sensitivity: 'base' }) || a.erpId.localeCompare(b.erpId);
 }
+
+export type ClassSection = { classKey: string; sectionKey: string; label: string };
+
+/** Every class-section in class order; a class without sections is one entry with sectionKey ''. */
+export function classSections(snapshot: RoundSnapshot): ClassSection[] {
+  return snapshot.classes.flatMap((c) =>
+    c.sections.length
+      ? c.sections.map((s) => ({ classKey: c.key, sectionKey: s.key, label: `${c.name} ${s.name}` }))
+      : [{ classKey: c.key, sectionKey: '', label: c.name }]
+  );
+}
+
+/** T1 coverage denominator: class-section × subject pairs. */
+export function t1PairCount(snapshot: RoundSnapshot): number {
+  return snapshot.classes.reduce((sum, c) => sum + Math.max(1, c.sections.length) * c.subjects.length, 0);
+}

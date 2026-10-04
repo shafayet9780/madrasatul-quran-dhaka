@@ -37,9 +37,9 @@ src/app/api/survey/[roundId]/draft/route.ts      # PATCH per student (autosave)
 src/app/api/survey/[roundId]/submit/route.ts     # transactional submit + supersede + duplicate re-check
 src/app/api/survey/[roundId]/status/route.ts     # teacher's own batch status, duplicate pre-check
 src/app/admin/(reports)/…                 # tracker, class, student, raters
-src/app/admin/rounds/page.tsx             # open / copy link / extend / close
+src/app/admin/rounds/page.tsx             # open / copy link / extend / close (+ actions.ts server actions)
 src/app/admin/import/page.tsx             # ERP import with dry run
-src/app/api/admin/…                       # admin APIs (Basic Auth + same-origin for mutations)
+src/app/studio/api/survey/…               # endpoints the Studio calls (Basic Auth path + same-origin check)
 src/app/api/cron/survey-daily/route.ts    # Sheet-copy retry + JSON backup to Blob
 src/lib/survey/                           # db client, schema, snapshot, scoring, normalise, sheets, stats
 sanity/schemas/survey*.ts                 # template, round, class, teacher, area
@@ -49,6 +49,10 @@ drizzle/                                  # migrations
 ```
 
 `src/proxy.ts`: `/survey` → bengali locale header, no intl redirect; `/admin` → Basic Auth (same check as `/studio`), no intl redirect.
+
+Admin mutations are server actions on the `/admin` pages (they post to the page URL, so the proxy's Basic Auth covers them; each action re-checks it). Endpoints the Studio calls live under `/studio/api/…` for the same reason, following the existing downloads share-link route. No `/api/admin` routes. Analytics (GTM) never load on `/survey` or `/admin`.
+
+Testing: `pnpm test` (unit, offline) · `pnpm test:db` (`*.db.test.ts` against the Neon dev branch, self-cleaning) · `pnpm test:e2e`. `scripts/survey-dev-fixtures.ts` loads sample rounds (marked `fixture-`) into the dev database; `--remove` deletes them.
 
 ## 4. Milestones
 
@@ -70,7 +74,7 @@ Each milestone ends with its checks passing and a commit.
 
 ### M2 — Round lifecycle
 - Studio **Open round** action → admin API: validates, snapshots template + classes + teachers into `survey_rounds`, generates link key.
-- `/admin/rounds`: list, copy link, extend (date picker), close with confirmation, refresh lists.
+- `/admin/rounds`: list, copy link, extend (date picker), close with confirmation, refresh lists; draft rounds can also be opened here with adjusted dates (R7 artboard).
 **Check:** route tests (open/extend/close, auth required); opening twice is idempotent.
 
 ### M3 — Teacher survey (phone + desktop)
