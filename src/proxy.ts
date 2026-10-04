@@ -13,29 +13,50 @@ const intlMiddleware = createMiddleware({
   localePrefix: 'always',
 })
 
+function isUnder(pathname: string, base: string): boolean {
+  return pathname === base || pathname.startsWith(`${base}/`)
+}
+
+/** Basic Auth gate shared by Studio and the survey admin (production only). */
+function basicAuthResponse(request: NextRequest): NextResponse | null {
+  if (process.env.NODE_ENV !== 'production') return null
+  if (!studioAuthConfigured()) {
+    return new NextResponse('Studio authentication is not configured', { status: 503 })
+  }
+  if (!isValidStudioAuthorization(request.headers.get('authorization'))) {
+    return new NextResponse('Authentication required', {
+      status: 401,
+      headers: {
+        'WWW-Authenticate': 'Basic realm="Sanity Studio"',
+      },
+    })
+  }
+  return null
+}
+
+function withLocale(request: NextRequest, locale: 'bengali' | 'english') {
+  const headers = new Headers(request.headers)
+  headers.set('X-NEXT-INTL-LOCALE', locale)
+  return NextResponse.next({ request: { headers } })
+}
+
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
 
   // Handle Sanity Studio routes
   if (pathname.startsWith('/studio')) {
-    if (process.env.NODE_ENV === 'production') {
-      if (!studioAuthConfigured()) {
-        return new NextResponse('Studio authentication is not configured', { status: 503 })
-      }
-      if (!isValidStudioAuthorization(request.headers.get('authorization'))) {
-        return new NextResponse('Authentication required', {
-          status: 401,
-          headers: {
-            'WWW-Authenticate': 'Basic realm="Sanity Studio"',
-          },
-        })
-      }
-    }
-    
     // Studio uses English outside the localized public routes.
-    const headers = new Headers(request.headers)
-    headers.set('X-NEXT-INTL-LOCALE', 'english')
-    return NextResponse.next({ request: { headers } })
+    return basicAuthResponse(request) ?? withLocale(request, 'english')
+  }
+
+  // Survey admin and reports: same login as Studio, Bengali, no locale prefix.
+  if (isUnder(pathname, '/admin')) {
+    return basicAuthResponse(request) ?? withLocale(request, 'bengali')
+  }
+
+  // Public survey links are Bengali-only and live outside the locale tree.
+  if (isUnder(pathname, '/survey')) {
+    return withLocale(request, 'bengali')
   }
 
   // Handle internationalization for all other routes

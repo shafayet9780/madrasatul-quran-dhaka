@@ -194,4 +194,21 @@ export const structure: StructureResolver = (S) =>
                 ),
             ])
         ),
+
+      S.divider(),
+
+      S.listItem()
+        .title('Surveys')
+        .id('surveys')
+        .child(
+          S.list()
+            .title('Surveys')
+            .items([
+              S.documentTypeListItem('surveyRound').title('Rounds'),
+              S.documentTypeListItem('surveyTemplate').title('Templates'),
+              S.documentTypeListItem('surveyClass').title('Classes & Subjects'),
+              S.documentTypeListItem('surveyTeacher').title('Teachers (survey)'),
+              S.documentTypeListItem('surveyArea').title('Areas'),
+            ])
+        ),
     ])

@@ -15,6 +15,11 @@ import { vercelBlobFile } from './vercelBlobFile'
 import { downloadCategory } from './downloadCategory'
 import { downloadable } from './downloadable'
 import { publicDownloadSettings } from './publicDownloadSettings'
+import { surveyArea } from './surveyArea'
+import { surveyClass } from './surveyClass'
+import { surveyTeacher } from './surveyTeacher'
+import { surveyTemplate } from './surveyTemplate'
+import { surveyRound } from './surveyRound'
 
 export const schemaTypes = [
   feeSettings,
@@ -34,4 +39,9 @@ export const schemaTypes = [
   downloadCategory,
   downloadable,
   publicDownloadSettings,
+  surveyArea,
+  surveyClass,
+  surveyTeacher,
+  surveyTemplate,
+  surveyRound,
 ]
