@@ -195,6 +195,7 @@ export function RoundsBoard({ rows }: { rows: BoardRow[] }) {
   const [panel, setPanel] = useState<Panel>(null);
   const [message, setMessage] = useState<Message>(null);
   const [pending, startTransition] = useTransition();
+  const statusRef = useRef<HTMLDivElement>(null);
 
   function run(action: () => Promise<ActionResult>) {
     startTransition(async () => {
@@ -202,6 +203,8 @@ export function RoundsBoard({ rows }: { rows: BoardRow[] }) {
         const result = await action();
         setMessage(result.ok ? { ok: true, lines: [result.message] } : { ok: false, lines: result.errors });
         if (result.ok) setPanel(null);
+        // The panel that had focus may be gone; keep keyboard users at the result.
+        requestAnimationFrame(() => statusRef.current?.focus());
       } catch {
         setMessage({ ok: false, lines: ['কাজটি সম্পন্ন হয়নি। ইন্টারনেট সংযোগ দেখে আবার চেষ্টা করুন।'] });
       }
@@ -219,9 +222,9 @@ export function RoundsBoard({ rows }: { rows: BoardRow[] }) {
         <h2 id="all-rounds" className="sv-head sv-h2">
           সব রাউন্ড
         </h2>
-        <div role="status" aria-live="polite">
+        <div role="status" aria-live="polite" ref={statusRef} tabIndex={-1} style={{ outline: 'none' }}>
           {message && (
-            <div className={`sv-note ${message.ok ? 'is-ok' : 'is-error'} flex flex-col gap-0.5`}>
+            <div className={`sv-note ${message.ok ? 'is-ok' : 'is-error'} flex flex-col gap-0.5`} role={message.ok ? undefined : 'alert'}>
               {message.lines.map((line) => (
                 <span key={line}>{line}</span>
               ))}

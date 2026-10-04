@@ -39,11 +39,11 @@ describe('Studio open-round route', () => {
 
   it('opens the round and returns the link without exposing the key separately', async () => {
     authorize.mockReturnValue(true)
-    openRound.mockResolvedValue({ ok: true, alreadyOpen: false, dryRun: false, roundId: 'r1', slug: 't1-2026-10', linkKey: 'secret', summary })
+    openRound.mockResolvedValue({ ok: true, alreadyOpen: false, roundId: 'r1', slug: 't1-2026-10', linkKey: 'secret', summary })
     const response = await POST(request({ sanityRoundId: 'round-1' }))
     const body = await response.json()
     expect(openRound).toHaveBeenCalledWith('round-1', { dryRun: false })
-    expect(body).toEqual({ ok: true, alreadyOpen: false, dryRun: false, roundId: 'r1', slug: 't1-2026-10', summary, url: 'https://school.test/survey/t1-2026-10?k=secret' })
+    expect(body).toEqual({ ok: true, alreadyOpen: false, roundId: 'r1', slug: 't1-2026-10', summary, url: 'https://school.test/survey/t1-2026-10?k=secret' })
   })
 
   it('passes dry runs through and returns validation errors as 422', async () => {

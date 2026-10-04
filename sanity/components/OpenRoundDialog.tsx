@@ -5,7 +5,7 @@ import { Button, Card, Flex, Spinner, Stack, Text, TextInput, useToast } from '@
 
 type Summary = { questions: number; classSections: number; t1Pairs: number; areas: number; teachers: number }
 type Result =
-  | { ok: true; alreadyOpen: boolean; dryRun: boolean; summary: Summary; url?: string }
+  | { ok: true; alreadyOpen: boolean; summary: Summary; url?: string }
   | { ok: false; errors: string[] }
 
 async function call(sanityRoundId: string, dryRun: boolean): Promise<Result> {
@@ -73,6 +73,11 @@ export function OpenRoundDialog({ sanityRoundId }: { sanityRoundId: string }) {
               ))}
             </Stack>
           </Card>
+          <Text size={1}>
+            Fix the content here and publish, or open the round from the{' '}
+            <a href="/admin/rounds" target="_blank" rel="noreferrer">admin rounds page</a>, where the dates can be
+            changed.
+          </Text>
         </Stack>
       </Card>
     )

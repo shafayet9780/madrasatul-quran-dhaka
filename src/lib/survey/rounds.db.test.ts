@@ -3,6 +3,7 @@ import { eq, like } from 'drizzle-orm';
 import { getDb } from './db';
 import { surveyRounds, submissions } from './schema';
 import { roundSource } from './testing/fixtures';
+import { roundStatus } from './round-status';
 
 const { fetchRoundSource, fetchListsSource } = vi.hoisted(() => ({ fetchRoundSource: vi.fn(), fetchListsSource: vi.fn() }));
 vi.mock('./sanity-source', () => ({ fetchRoundSource, fetchListsSource }));
@@ -29,7 +30,7 @@ describe('openRound', () => {
   it('validates on a dry run without creating anything', async () => {
     const id = `${run}-dry`;
     const result = await openRound(id, { dates: dates(), dryRun: true });
-    expect(result).toMatchObject({ ok: true, dryRun: true, alreadyOpen: false, summary: { questions: 2, t1Pairs: 5 } });
+    expect(result).toMatchObject({ ok: true, alreadyOpen: false, summary: { questions: 2, t1Pairs: 5 } });
     expect(await getDb().select().from(surveyRounds).where(eq(surveyRounds.sanityRoundId, id))).toHaveLength(0);
   });
 
@@ -81,6 +82,20 @@ describe('round lifecycle', () => {
     await closeRound(roundId);
     const [still] = await db.select().from(surveyRounds).where(eq(surveyRounds.id, roundId));
     expect(still.closesAt.getTime()).toBe(closed.closesAt.getTime());
+  });
+
+  it('closes a scheduled round so it reads as closed', async () => {
+    const opensAt = new Date(Date.now() + 24 * hour);
+    const opened = await openRound(`${run}-scheduled`, { dates: { opensAt, closesAt: new Date(opensAt.getTime() + 24 * hour) } });
+    if (!opened.ok || !opened.roundId) throw new Error('open failed');
+    await closeRound(opened.roundId);
+    const [row] = await getDb().select().from(surveyRounds).where(eq(surveyRounds.id, opened.roundId));
+    expect(row.opensAt.getTime()).toBeLessThanOrEqual(row.closesAt.getTime());
+    expect(roundStatus(row)).toBe('closed');
+  });
+
+  it('reports a missing round when extending', async () => {
+    expect(await setClosesAt('00000000-0000-4000-8000-000000000000', new Date(Date.now() + hour))).toBe('রাউন্ডটি পাওয়া যায়নি।');
   });
 
   it('refreshes lists but keeps the questions', async () => {

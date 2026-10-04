@@ -8,7 +8,7 @@ import { roundSnapshotSchema } from './snapshot';
 import { fetchListsSource, fetchRoundSource } from './sanity-source';
 
 export type OpenRoundResult =
-  | { ok: true; alreadyOpen: boolean; dryRun: boolean; roundId?: string; slug: string; linkKey?: string; summary: RoundSummary }
+  | { ok: true; alreadyOpen: boolean; roundId?: string; slug: string; linkKey?: string; summary: RoundSummary }
   | { ok: false; errors: string[] };
 
 export function surveyPath(slug: string, linkKey: string): string {
@@ -33,7 +33,6 @@ export async function openRound(
     return {
       ok: true,
       alreadyOpen: true,
-      dryRun,
       roundId: existing.id,
       slug: existing.slug,
       linkKey: existing.linkKey,
@@ -44,7 +43,7 @@ export async function openRound(
   const built = buildRound(await fetchRoundSource(sanityRoundId), { dates });
   if (!built.ok) return built;
   const { round } = built;
-  if (dryRun) return { ok: true, alreadyOpen: false, dryRun, slug: round.slug, summary: round.summary };
+  if (dryRun) return { ok: true, alreadyOpen: false, slug: round.slug, summary: round.summary };
 
   const [inserted] = await getDb()
     .insert(surveyRounds)
@@ -61,7 +60,7 @@ export async function openRound(
     .onConflictDoNothing()
     .returning();
   if (inserted) {
-    return { ok: true, alreadyOpen: false, dryRun, roundId: inserted.id, slug: inserted.slug, linkKey: inserted.linkKey, summary: round.summary };
+    return { ok: true, alreadyOpen: false, roundId: inserted.id, slug: inserted.slug, linkKey: inserted.linkKey, summary: round.summary };
   }
 
   // Lost a race with another open of the same round, or the link name is taken.
@@ -102,19 +101,22 @@ export async function listRounds(): Promise<RoundListItem[]> {
 
 export async function setClosesAt(roundId: string, closesAt: Date, now = new Date()): Promise<string | null> {
   if (closesAt <= now) return 'নতুন বন্ধের সময় এখনকার পরে হতে হবে।';
-  const [row] = await getDb()
+  const db = getDb();
+  const [row] = await db
     .update(surveyRounds)
     .set({ closesAt, updatedAt: now })
     .where(and(eq(surveyRounds.id, roundId), sql`${surveyRounds.opensAt} < ${closesAt}`))
     .returning({ id: surveyRounds.id });
-  return row ? null : 'বন্ধের সময় খোলার সময়ের পরে হতে হবে।';
+  if (row) return null;
+  const [exists] = await db.select({ id: surveyRounds.id }).from(surveyRounds).where(eq(surveyRounds.id, roundId)).limit(1);
+  return exists ? 'বন্ধের সময় খোলার সময়ের পরে হতে হবে।' : 'রাউন্ডটি পাওয়া যায়নি।';
 }
 
-/** Closes an open or scheduled round now; no-op when already closed. */
+/** Closes an open or scheduled round now; no-op when already closed. A scheduled round's opening moves to now too. */
 export async function closeRound(roundId: string, now = new Date()): Promise<void> {
   await getDb()
     .update(surveyRounds)
-    .set({ closesAt: now, updatedAt: now })
+    .set({ closesAt: now, opensAt: sql`LEAST(${surveyRounds.opensAt}, ${now})`, updatedAt: now })
     .where(and(eq(surveyRounds.id, roundId), gt(surveyRounds.closesAt, now)));
 }
 

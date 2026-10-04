@@ -72,4 +72,8 @@ describe('roundStatus', () => {
     expect(roundStatus(round, new Date('2026-10-05T00:00:00Z'))).toBe('open');
     expect(roundStatus(round, new Date('2026-10-20T00:00:00Z'))).toBe('closed');
   });
+  it('treats a round closed before it opened as closed', () => {
+    const closedEarly = { opensAt: new Date('2026-10-05T00:00:00Z'), closesAt: new Date('2026-10-03T00:00:00Z') };
+    expect(roundStatus(closedEarly, new Date('2026-10-04T00:00:00Z'))).toBe('closed');
+  });
 });

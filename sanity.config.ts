@@ -42,7 +42,7 @@ export default defineConfig({
         : ['downloadCategory', 'downloadable'].includes(context.schemaType)
         ? [...prev, ShareDownloadAction, RevokeDownloadLinksAction]
         : context.schemaType === 'surveyRound'
-        ? [OpenRoundAction, ...prev]
+        ? [...prev, OpenRoundAction]
         : prev,
   },
 
