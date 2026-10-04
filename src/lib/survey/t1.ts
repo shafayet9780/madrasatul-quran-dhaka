@@ -87,6 +87,11 @@ async function describeDuplicates(key: BatchKey): Promise<(DuplicateBatch & { re
   }));
 }
 
+/** What the client may see of another teacher's batch (the admin's decision stays server-side). */
+function publicDuplicate(d: DuplicateBatch & { resolved: boolean }): DuplicateBatch {
+  return { submissionId: d.submissionId, teacherName: d.teacherName, submittedAt: d.submittedAt, students: d.students };
+}
+
 /** Students of the class-section with this teacher's saved marks (draft first, else the submitted batch). */
 export async function loadBatch(round: Round, input: BatchKeyInput): Promise<BatchState | null> {
   if (!resolveBatch(round.snapshot, input)) return null;
@@ -116,7 +121,7 @@ export async function loadBatch(round: Round, input: BatchKeyInput): Promise<Bat
     notes: Object.fromEntries(saved.filter((r) => r.note).map((r) => [r.studentErpId, r.note!])),
     status: draft ? 'draft' : current ? 'submitted' : 'new',
     submitted: current ? { at: current.submittedAt!.toISOString(), receiptToken: current.receiptToken! } : null,
-    duplicates: duplicates.map(({ resolved: _resolved, ...d }) => d),
+    duplicates: duplicates.map(publicDuplicate),
   };
 }
 
@@ -256,7 +261,7 @@ export async function submitBatch(
   if (missing.length) return { ok: false, reason: 'incomplete', missing };
   // A pair the admin already resolved (kept both) stays resolved when either teacher edits later.
   const resolvedPair = Boolean(current?.duplicateResolvedAt) && duplicates.every((d) => d.resolved);
-  const open = resolvedPair ? [] : duplicates.map(({ resolved: _resolved, ...d }) => d);
+  const open = resolvedPair ? [] : duplicates.map(publicDuplicate);
   if (open.some((d) => !acknowledged.includes(d.submissionId))) return { ok: false, reason: 'duplicate', duplicates: open };
 
   const rosterIds = roster.map((s) => s.erpId);
