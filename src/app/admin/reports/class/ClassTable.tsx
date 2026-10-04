@@ -28,6 +28,9 @@ export function ClassTable({ rows, roundId, showTrend }: { rows: Row[]; roundId:
     return row.flags.length;
   };
   const sorted = [...rows].sort((a, b) => {
+    // Students without a roll or without marks stay at the bottom in both directions.
+    const missing = (row: Row) => (sort.key === 'roll' ? row.roll === null : sort.key === 'mean' ? row.mean === null : false);
+    if (missing(a) !== missing(b)) return missing(a) ? 1 : -1;
     const x = value(a, sort.key);
     const y = value(b, sort.key);
     return (typeof x === 'string' ? x.localeCompare(y as string) : x - (y as number)) * sort.dir;

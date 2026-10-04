@@ -18,6 +18,7 @@ const CLASS = 'reports-class';
 function snapshot() {
   const s = t1FixtureSnapshot();
   s.classes.push({ key: CLASS, name: 'রিপোর্ট', sections: [], subjects: [{ key: 'quran', name: 'কুরআন' }, { key: 'math', name: 'গণিত' }] });
+  s.classes.push({ key: `${CLASS}-b`, name: 'রিপোর্ট খ', sections: [], subjects: [{ key: 'quran', name: 'কুরআন' }] });
   return s;
 }
 const all = (mark: number) => Object.fromEntries(t1FixtureSnapshot().template.questions.map((q) => [q.key, mark]));
@@ -66,6 +67,15 @@ describe('classReport', () => {
     expect(report!.kpis).toMatchObject({ ratedStudents: 4, flagged: expect.any(Number), subjectsCovered: 2, subjectsTotal: 2 });
     expect(report!.areas.find((a) => a.areaKey === 'attendance')).toMatchObject({ students: 4, reliable: true });
     expect(await classReport(oct, CLASS, 'a')).toBeNull();
+  });
+});
+
+describe('a student moved after being rated', () => {
+  it('stays in the class where they were rated and is left out of the new one', async () => {
+    await getDb().update(students).set({ classKey: `${CLASS}-b` }).where(eq(students.erpId, id(4)));
+    expect((await classReport(oct, CLASS, ''))!.rows.map((r) => r.erpId)).toContain(id(4));
+    expect((await classReport(oct, `${CLASS}-b`, ''))!.rows.map((r) => r.erpId)).not.toContain(id(4));
+    await getDb().update(students).set({ classKey: CLASS }).where(eq(students.erpId, id(4)));
   });
 });
 

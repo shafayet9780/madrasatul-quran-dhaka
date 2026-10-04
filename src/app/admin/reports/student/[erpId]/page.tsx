@@ -23,11 +23,13 @@ const STATUS = {
   current: { label: 'বর্তমান', bg: 'var(--sv-ok-bg)', fg: 'var(--sv-ok)' },
   duplicate: { label: 'ডুপ্লিকেট', bg: 'var(--sv-warn-bg)', fg: 'var(--sv-warn)' },
   superseded: { label: 'পুরনো', bg: 'var(--sv-neutral-bg)', fg: 'var(--sv-text-body)' },
+  'set-aside': { label: 'বাদ (অ্যাডমিন সিদ্ধান্ত)', bg: 'var(--sv-neutral-bg)', fg: 'var(--sv-text-body)' },
 } as const;
 
 export default async function StudentProfilePage({ params, searchParams }: { params: Promise<{ erpId: string }>; searchParams: Promise<{ round?: string }> }) {
   const [{ erpId: rawId }, search, rounds] = await Promise.all([params, searchParams, t1Rounds()]);
-  const erpId = decodeURIComponent(rawId);
+  // Next has already decoded the segment.
+  const erpId = rawId;
   const round = pickRound(rounds, search.round);
   if (!round) return <NoRounds />;
   const report = await studentReport(round, erpId);
@@ -250,7 +252,7 @@ export default async function StudentProfilePage({ params, searchParams }: { par
               <div
                 key={i}
                 className="flex gap-3 items-start"
-                style={{ padding: '10px 12px', borderRadius: 12, border: '1px solid var(--sv-hairline)', opacity: entry.status === 'superseded' ? 0.7 : 1 }}
+                style={{ padding: '10px 12px', borderRadius: 12, border: '1px solid var(--sv-hairline)', opacity: entry.status === 'superseded' || entry.status === 'set-aside' ? 0.7 : 1 }}
               >
                 <span className="sv-tag" style={{ flex: 'none' }}>
                   T1

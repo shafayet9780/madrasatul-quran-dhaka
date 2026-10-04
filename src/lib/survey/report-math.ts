@@ -74,13 +74,13 @@ export function studentAreaMeans(rows: MarkRow[], erpId: string, areaKeys: strin
 
 export type Flag = { kind: 'drop' | 'low-teachers'; label: string };
 
-export function studentFlags(current: StudentAggregate | undefined, previousMean: number | null, bn: (n: number | string) => string): Flag[] {
+export function studentFlags(current: StudentAggregate | undefined, previousMean: number | null, bn: (n: number | string) => string, lowestMark = 4): Flag[] {
   const flags: Flag[] = [];
   if (current?.mean != null && previousMean != null && previousMean - current.mean >= FLAGS.dropMarks) {
     flags.push({ kind: 'drop', label: `আগের রাউন্ড থেকে ${bn((previousMean - current.mean).toFixed(1))} কমেছে` });
   }
   if (current && current.lowTeachers >= FLAGS.lowMarkTeachers) {
-    flags.push({ kind: 'low-teachers', label: `${bn(current.lowTeachers)} জন শিক্ষক ৪ দিয়েছেন` });
+    flags.push({ kind: 'low-teachers', label: `${bn(current.lowTeachers)} জন শিক্ষক ${bn(lowestMark)} দিয়েছেন` });
   }
   return flags;
 }

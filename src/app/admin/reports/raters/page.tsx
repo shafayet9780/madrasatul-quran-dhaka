@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { toBengaliDigits as bn } from '@/lib/survey/normalise';
 import { formatMark } from '@/lib/survey/report-math';
 import { pickRound, raterReport, t1Rounds } from '@/lib/survey/reports';
+import { MIN_N } from '@/lib/survey/stats';
 import { RoundPicker } from '../../RoundPicker';
 import { DIST_COLORS, Distribution, LeniencyDot } from '../charts';
 import { NoRounds } from '../NoRounds';
@@ -102,8 +103,9 @@ export default async function RatersPage({ searchParams }: { searchParams: Promi
                       <td data-label="শিক্ষার্থী" className="sv-num">
                         {bn(r.students)}
                       </td>
-                      <td data-label="গড়" className="sv-num">
+                      <td data-label="গড়" className="sv-num" style={{ color: r.students < MIN_N ? 'var(--sv-text-muted)' : undefined }}>
                         {formatMark(r.mean, bn)}
+                        {r.students < MIN_N && <span style={{ fontSize: 12, fontWeight: 400 }}> (n&lt;৩)</span>}
                       </td>
                       <td data-label="বণ্টন">
                         <Distribution items={r.distribution} label={`${r.name}: ${distLabel}`} />
@@ -115,8 +117,9 @@ export default async function RatersPage({ searchParams }: { searchParams: Promi
                               delta={r.leniency.delta}
                               label={`${r.name}: সহকর্মীদের তুলনায় ${signed(r.leniency.delta)} মার্ক, ${bn(r.leniency.pairedStudents)} জন শিক্ষার্থীর তুলনায়`}
                             />
-                            <span className="sv-num" style={{ width: 44, textAlign: 'right' }}>
+                            <span className="sv-num" style={{ width: 64, textAlign: 'right', color: r.leniency.pairedStudents < MIN_N ? 'var(--sv-text-muted)' : undefined }}>
                               {signed(r.leniency.delta)}
+                              {r.leniency.pairedStudents < MIN_N && <span style={{ fontSize: 12, fontWeight: 400 }}> (n&lt;৩)</span>}
                             </span>
                           </div>
                         ) : (

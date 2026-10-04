@@ -1,5 +1,6 @@
 import 'server-only';
-import { and, asc, eq, inArray, isNull, lte } from 'drizzle-orm';
+import { and, asc, eq, inArray, isNull, lte, ne, or, sql } from 'drizzle-orm';
+import { alias } from 'drizzle-orm/pg-core';
 import { getDb } from './db';
 import { questionLabel } from './labels';
 import { titleCase, toBengaliDigits as bn } from './normalise';
@@ -27,7 +28,7 @@ export function pickRound(rounds: Round[], requested?: string, now = new Date())
 }
 
 async function marks(roundIds: string[], where: { classKey?: string; sectionKey?: string; erpIds?: string[] } = {}): Promise<MarkRow[]> {
-  if (!roundIds.length) return [];
+  if (!roundIds.length || (where.erpIds && !where.erpIds.length)) return [];
   const rows = await getDb()
     .select({
       roundId: answerItems.roundId,
@@ -70,23 +71,22 @@ async function roundsUpTo(round: Round) {
     .orderBy(asc(surveyRounds.opensAt));
 }
 
-/** Class-sections of a round with how many students have marks (reports index). */
+/** Class-sections of a round with how many students have marks and their mean (reports index). */
 export async function classOverview(round: Round) {
-  const rows = await marks([round.id]);
-  const byPlace = new Map<string, Set<string>>();
-  const placeOf = await getDb()
-    .select({ studentErpId: answerItems.studentErpId, classKey: answerItems.classKey, sectionKey: answerItems.sectionKey })
+  const groups = await getDb()
+    .select({
+      classKey: answerItems.classKey,
+      sectionKey: answerItems.sectionKey,
+      students: sql<number>`count(DISTINCT ${answerItems.studentErpId})`.mapWith(Number),
+      mean: sql<number | null>`avg(${answerItems.mark})`.mapWith((v) => (v === null ? null : Number(v))),
+    })
     .from(answerItems)
-    .where(and(eq(answerItems.roundId, round.id), eq(answerItems.kind, 'T1')));
-  for (const p of placeOf) {
-    const key = `${p.classKey}|${p.sectionKey}`;
-    byPlace.set(key, (byPlace.get(key) ?? new Set()).add(p.studentErpId));
-  }
+    .where(and(eq(answerItems.roundId, round.id), eq(answerItems.kind, 'T1')))
+    .groupBy(answerItems.classKey, answerItems.sectionKey);
   return round.snapshot.classes.flatMap((cls) =>
     (cls.sections.length ? cls.sections.map((s) => s.key) : ['']).map((sectionKey) => {
-      const ids = byPlace.get(`${cls.key}|${sectionKey}`) ?? new Set<string>();
-      const { mean } = summarise(rows.filter((r) => ids.has(r.studentErpId)).map((r) => r.mark));
-      return { classKey: cls.key, sectionKey, label: classLabelOf(round.snapshot, cls.key, sectionKey), students: ids.size, mean };
+      const group = groups.find((g) => g.classKey === cls.key && g.sectionKey === sectionKey);
+      return { classKey: cls.key, sectionKey, label: classLabelOf(round.snapshot, cls.key, sectionKey), students: group?.students ?? 0, mean: group?.mean ?? null };
     })
   );
 }
@@ -143,9 +143,31 @@ export async function classReport(round: Round, classKey: string, sectionKey: st
         )
       ),
   ]);
-  const people = new Map([...roster, ...snapshots].map((s) => [s.erpId, s]));
+  // Reports follow the snapshot: someone who moved here after being rated in another class-section
+  // this round belongs to that class's report, not this one.
+  const ratedHere = new Set(snapshots.map((s) => s.erpId));
+  const newcomers = roster.filter((s) => !ratedHere.has(s.erpId)).map((s) => s.erpId);
+  const ratedElsewhere = newcomers.length
+    ? new Set(
+        (
+          await db
+            .selectDistinct({ erpId: responses.studentErpId })
+            .from(responses)
+            .where(
+              and(
+                eq(responses.roundId, round.id),
+                eq(responses.kind, 'T1'),
+                eq(responses.isCurrent, true),
+                inArray(responses.studentErpId, newcomers),
+                or(ne(responses.classKey, classKey), ne(responses.sectionKey, sectionKey))
+              )
+            )
+        ).map((r) => r.erpId)
+      )
+    : new Set<string>();
+  const people = new Map([...roster.filter((s) => !ratedElsewhere.has(s.erpId)), ...snapshots].map((s) => [s.erpId, s]));
   const ids = [...people.keys()];
-  const past = await marks(history.map((h) => h.id), { erpIds: ids.length ? ids : ['-'] });
+  const past = await marks(history.map((h) => h.id), { erpIds: ids });
   const aggregates = studentAggregates(current, lowest(snapshot));
 
   const rows = [...people.values()]
@@ -160,7 +182,7 @@ export async function classReport(round: Round, classKey: string, sectionKey: st
         n: agg?.n ?? 0,
         teachers: agg?.teachers ?? 0,
         trend: trend.map((p) => ({ label: p.label, mean: p.mean! })),
-        flags: studentFlags(agg, previousMean(trend, round.id), bn),
+        flags: studentFlags(agg, previousMean(trend, round.id), bn, lowest(snapshot)),
       };
     })
     .sort(compareStudents);
@@ -196,6 +218,7 @@ export async function studentReport(round: Round, erpId: string) {
   const place = snap ?? { name: student!.name, roll: student!.roll, classKey: student!.classKey, sectionKey: student!.sectionKey };
   const { snapshot } = round;
   const history = await roundsUpTo(round);
+  const replacement = alias(submissions, 'replacement');
   const [mine, classRows, notes, log] = await Promise.all([
     marks(history.map((h) => h.id), { erpIds: [erpId] }),
     marks([round.id], { classKey: place.classKey, sectionKey: place.sectionKey }),
@@ -212,10 +235,13 @@ export async function studentReport(round: Round, erpId: string) {
         submittedAt: submissions.submittedAt,
         supersededBy: submissions.supersededBy,
         duplicateFlag: submissions.duplicateFlag,
+        teacherKey: submissions.teacherKey,
+        replacementTeacher: replacement.teacherKey,
       })
       .from(responses)
       .innerJoin(submissions, eq(submissions.id, responses.submissionId))
       .innerJoin(surveyRounds, eq(surveyRounds.id, responses.roundId))
+      .leftJoin(replacement, eq(replacement.id, submissions.supersededBy))
       .where(and(eq(responses.studentErpId, erpId), eq(responses.kind, 'T1'), eq(submissions.status, 'submitted')))
       .orderBy(asc(submissions.submittedAt)),
   ]);
@@ -227,10 +253,13 @@ export async function studentReport(round: Round, erpId: string) {
 
   // Subject × question grid: one row per subject and teacher (a kept duplicate shows twice).
   const cls = snapshot.classes.find((c) => c.key === place.classKey);
-  const teacherOf = await db
-    .select({ id: submissions.id, teacherName: submissions.teacherName, subjectKey: submissions.subjectKey })
-    .from(submissions)
-    .where(inArray(submissions.id, [...new Set(current.map((r) => r.submissionId))].concat('00000000-0000-0000-0000-000000000000')));
+  const submissionIds = [...new Set(current.map((r) => r.submissionId))];
+  const teacherOf = submissionIds.length
+    ? await db
+        .select({ id: submissions.id, teacherName: submissions.teacherName, subjectKey: submissions.subjectKey })
+        .from(submissions)
+        .where(inArray(submissions.id, submissionIds))
+    : [];
   const grid = (cls?.subjects ?? []).flatMap((subject) => {
     const batches = teacherOf.filter((t) => t.subjectKey === subject.key);
     if (!batches.length) return [{ subject: subject.name, teacher: '', marks: null as (number | null)[] | null }];
@@ -257,7 +286,7 @@ export async function studentReport(round: Round, erpId: string) {
     mean: agg?.mean ?? null,
     teachers: agg?.teachers ?? 0,
     classMean: summarise(classRows.map((r) => r.mark)).mean,
-    flags: studentFlags(agg, previousMean(trend, round.id), bn),
+    flags: studentFlags(agg, previousMean(trend, round.id), bn, lowest(snapshot)),
     areas: studentAreaMeans(current, erpId, areas).map((a, i) => ({
       ...a,
       name: snapshot.areas.find((x) => x.key === a.areaKey)!.name,
@@ -269,7 +298,13 @@ export async function studentReport(round: Round, erpId: string) {
     notes: notes.filter((n) => n.note).map((n) => ({ ...n, note: n.note! })),
     log: log.map((l) => ({
       ...l,
-      status: l.supersededBy ? ('superseded' as const) : l.duplicateFlag ? ('duplicate' as const) : ('current' as const),
+      status: l.supersededBy
+        ? l.replacementTeacher && l.replacementTeacher !== l.teacherKey
+          ? ('set-aside' as const)
+          : ('superseded' as const)
+        : l.duplicateFlag
+          ? ('duplicate' as const)
+          : ('current' as const),
     })),
   };
 }
