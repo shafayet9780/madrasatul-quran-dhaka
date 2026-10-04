@@ -40,7 +40,12 @@ export async function POST(request: NextRequest) {
     const attributionCell = attribution.length <= MAX_ATTRIBUTION_LENGTH ? attribution : '';
 
     // Validate request data
-    if (!Array.isArray(data)) {
+    if (
+      !Array.isArray(data) ||
+      !data.every((value) => typeof value === 'string') ||
+      (fieldOrder !== undefined &&
+        (!Array.isArray(fieldOrder) || !fieldOrder.every((key) => typeof key === 'string')))
+    ) {
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }

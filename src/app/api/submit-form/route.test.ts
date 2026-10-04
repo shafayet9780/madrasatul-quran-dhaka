@@ -52,6 +52,13 @@ describe('pre-admission submit', () => {
     expect(call.requestBody.values[0]).toHaveLength(2) // timestamp + data, no attribution cell
   })
 
+  it('rejects non-string cells before touching Sheets', async () => {
+    vi.stubEnv('FORM_GOOGLE_SHEETS_ID', 'configured-sheet')
+    expect((await submit({ data: [{ a: 1 }] })).status).toBe(400)
+    expect((await submit({ data: ['a'], fieldOrder: 'name' })).status).toBe(400)
+    expect(get).not.toHaveBeenCalled()
+  })
+
   it('fails without touching Sheets when no sheet is configured', async () => {
     vi.stubEnv('FORM_GOOGLE_SHEETS_ID', '')
     const response = await submit({ data: ['a'], range: 'A:Z', spreadsheetId: 'attacker-sheet' })
