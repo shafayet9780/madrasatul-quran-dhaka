@@ -6,11 +6,12 @@ import { compareStudents, type RoundSnapshot } from './snapshot';
 // Rows for the "Survey Responses" Google Sheet: one tab per round, one row per student,
 // appended again whenever a submission's status changes (append-only history).
 
-export type SheetStatus = 'current' | 'superseded' | 'duplicate';
+export type SheetStatus = 'current' | 'superseded' | 'set-aside' | 'duplicate';
 
 const STATUS_LABEL: Record<SheetStatus, string> = {
   current: 'বর্তমান',
   superseded: 'পুরনো (সংশোধিত)',
+  'set-aside': 'বাদ (অ্যাডমিন সিদ্ধান্ত)',
   duplicate: 'ডুপ্লিকেট',
 };
 
@@ -31,8 +32,9 @@ export function t1SheetHeader(snapshot: RoundSnapshot): string[] {
   ];
 }
 
-export function sheetStatus(submission: { supersededBy: string | null; duplicateFlag: boolean }): SheetStatus {
-  if (submission.supersededBy) return 'superseded';
+/** `setAside`: superseded by another teacher's batch (the admin kept that one). */
+export function sheetStatus(submission: { supersededBy: string | null; duplicateFlag: boolean; setAside?: boolean }): SheetStatus {
+  if (submission.supersededBy) return submission.setAside ? 'set-aside' : 'superseded';
   return submission.duplicateFlag ? 'duplicate' : 'current';
 }
 
@@ -47,6 +49,7 @@ export function t1SheetRows(
     classKey: string;
     sectionKey: string;
     subjectName: string | null;
+    setAside?: boolean;
   },
   responses: { studentErpId: string; studentName: string; roll: number | null; answers: Record<string, unknown>; note: string | null }[]
 ): (string | number)[][] {

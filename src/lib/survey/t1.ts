@@ -1,6 +1,7 @@
 import 'server-only';
 import { randomBytes, randomUUID } from 'node:crypto';
-import { and, eq, inArray, isNull, ne, notInArray, or, sql, type SQL } from 'drizzle-orm';
+import { and, desc, eq, inArray, isNull, ne, notInArray, or, sql, type SQL } from 'drizzle-orm';
+import { alias } from 'drizzle-orm/pg-core';
 import type { BatchItem } from 'drizzle-orm/batch';
 import { getDb } from './db';
 import { titleCase } from './normalise';
@@ -38,6 +39,22 @@ function otherBatches(key: BatchKey): SQL {
     eq(submissions.subjectKey, key.subjectKey),
     isCurrent
   )!;
+}
+
+/**
+ * This teacher's latest batch that the admin set aside in favour of another teacher's (duplicate
+ * resolved): reopening the class starts from these marks instead of an empty form.
+ */
+async function ownSetAside(key: BatchKey): Promise<{ id: string } | undefined> {
+  const replacement = alias(submissions, 'replacement');
+  const [row] = await getDb()
+    .select({ id: submissions.id })
+    .from(submissions)
+    .innerJoin(replacement, eq(replacement.id, submissions.supersededBy))
+    .where(and(ownBatch(key), eq(submissions.status, 'submitted'), ne(replacement.teacherKey, key.teacherKey)))
+    .orderBy(desc(submissions.submittedAt))
+    .limit(1);
+  return row;
 }
 
 export async function loadRoster(classKey: string, sectionKey: string): Promise<RosterStudent[]> {
@@ -83,7 +100,7 @@ export async function loadBatch(round: Round, input: BatchKeyInput): Promise<Bat
   ]);
   const draft = own.find((s) => s.status === 'draft');
   const current = own.find((s) => s.status === 'submitted');
-  const source = draft ?? current;
+  const source = draft ?? current ?? (await ownSetAside(key));
   const saved = source
     ? await db
         .select({ studentErpId: responses.studentErpId, answers: responses.answers, note: responses.note })
@@ -136,6 +153,7 @@ export async function saveDraft(round: Round, input: BatchKeyInput, rows: DraftR
 
   const newId = randomUUID();
   const [current] = await db.select({ id: submissions.id }).from(submissions).where(and(ownBatch(key), isCurrent));
+  const copyFrom = current ?? (await ownSetAside(key));
   // Create the draft (no-op when one exists) and, only if it was just created, copy the submitted batch into it.
   await db.batch([
     db
@@ -159,7 +177,7 @@ export async function saveDraft(round: Round, input: BatchKeyInput, rows: DraftR
       INSERT INTO responses (submission_id, round_id, kind, teacher_key, subject_key, student_erp_id, student_name, class_key, section_key, roll, answers, note)
       SELECT ${newId}, round_id, kind, teacher_key, subject_key, student_erp_id, student_name, class_key, section_key, roll, answers, note
       FROM responses
-      WHERE submission_id = ${current?.id ?? null} AND EXISTS (SELECT 1 FROM submissions WHERE id = ${newId})
+      WHERE submission_id = ${copyFrom?.id ?? null} AND EXISTS (SELECT 1 FROM submissions WHERE id = ${newId})
     `),
   ]);
   const [draft] = await db.select({ id: submissions.id }).from(submissions).where(and(ownBatch(key), eq(submissions.status, 'draft')));

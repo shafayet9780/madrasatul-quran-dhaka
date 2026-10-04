@@ -42,7 +42,8 @@ export function buildCoverage(snapshot: RoundSnapshot, batches: BatchSummary[]) 
         if (!cls.subjects.some((s) => s.key === key)) return { subjectKey: key, state: 'na' as const, teachers: [] };
         const done = at(current, place.classKey, place.sectionKey, key);
         const pending = at(drafts, place.classKey, place.sectionKey, key);
-        const state: CellState = done.length > 1 || done.some((b) => b.duplicateFlag) ? 'dup' : done.length ? 'done' : pending.length ? 'draft' : 'todo';
+        // The duplicate flag is the source of truth: "keep all" clears it while both batches stay current.
+        const state: CellState = done.some((b) => b.duplicateFlag) ? 'dup' : done.length ? 'done' : pending.length ? 'draft' : 'todo';
         const teachers = [...new Set([...done, ...pending].map((b) => b.teacherName ?? ''))].filter(Boolean).sort((x, y) => x.localeCompare(y, 'bn'));
         return { subjectKey: key, state, teachers };
       }),
@@ -57,7 +58,7 @@ export function buildCoverage(snapshot: RoundSnapshot, batches: BatchSummary[]) 
   };
 }
 
-/** Groups of current batches that cover the same class-section + subject (duplicates to resolve). */
+/** Groups of current batches for one class-section + subject that are still flagged as duplicates. */
 export function duplicateGroups(batches: BatchSummary[]) {
   const groups = new Map<string, BatchSummary[]>();
   for (const b of batches) {
@@ -65,7 +66,7 @@ export function duplicateGroups(batches: BatchSummary[]) {
     const key = `${b.classKey}|${b.sectionKey}|${b.subjectKey}`;
     groups.set(key, [...(groups.get(key) ?? []), b]);
   }
-  return [...groups.values()].filter((group) => group.length > 1 || group.some((b) => b.duplicateFlag));
+  return [...groups.values()].filter((group) => group.length > 1 && group.some((b) => b.duplicateFlag));
 }
 
 /** "Android · Chrome" from a user agent, for the drafts list. */

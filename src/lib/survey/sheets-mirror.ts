@@ -54,10 +54,14 @@ async function mirrorOne(spreadsheetId: string, submissionId: string, knownTabs:
   if (!claimed) return true; // Someone else is copying it.
   const ours = and(eq(submissions.id, submissionId), eq(submissions.mirrorClaimedAt, claimAt));
   try {
-    const [[round], rows] = await Promise.all([
+    const [[round], rows, replacement] = await Promise.all([
       db.select().from(surveyRounds).where(eq(surveyRounds.id, claimed.roundId)),
       db.select().from(responses).where(eq(responses.submissionId, claimed.id)),
+      claimed.supersededBy
+        ? db.select({ teacherKey: submissions.teacherKey }).from(submissions).where(eq(submissions.id, claimed.supersededBy))
+        : Promise.resolve([]),
     ]);
+    const setAside = Boolean(replacement[0] && replacement[0].teacherKey !== claimed.teacherKey);
     const title = tabName(round.slug);
     await ensureTab(spreadsheetId, title, t1SheetHeader(round.snapshot), knownTabs);
     await getSheetsClient().spreadsheets.values.append({
@@ -65,7 +69,7 @@ async function mirrorOne(spreadsheetId: string, submissionId: string, knownTabs:
       range: `'${title}'!A1`,
       valueInputOption: 'RAW',
       insertDataOption: 'INSERT_ROWS',
-      requestBody: { values: t1SheetRows(round.snapshot, { ...claimed, submittedAt: claimed.submittedAt! }, rows) },
+      requestBody: { values: t1SheetRows(round.snapshot, { ...claimed, submittedAt: claimed.submittedAt!, setAside }, rows) },
     });
     await db.update(submissions).set({ mirroredAt: new Date(), mirrorClaimedAt: null }).where(ours);
     return true;

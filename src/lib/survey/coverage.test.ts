@@ -51,7 +51,14 @@ describe('buildCoverage', () => {
 
 describe('duplicateGroups', () => {
   it('returns current batches that share a class and subject', () => {
-    const groups = duplicateGroups([batch({ id: 'a' }), batch({ id: 'b', teacherName: 'অন্য' }), batch({ id: 'c', subjectKey: 'math' })]);
+    const groups = duplicateGroups([
+      batch({ id: 'a', duplicateFlag: true }),
+      batch({ id: 'b', teacherName: 'অন্য', duplicateFlag: true }),
+      batch({ id: 'c', subjectKey: 'math' }),
+      // Kept both earlier: no longer a duplicate to resolve.
+      batch({ id: 'd', subjectKey: 'bangla' }),
+      batch({ id: 'e', subjectKey: 'bangla', teacherName: 'অন্য' }),
+    ]);
     expect(groups.map((g) => g.map((b) => b.id))).toEqual([['a', 'b']]);
   });
 });

@@ -59,7 +59,7 @@ export function DuplicateResolver({
 
   return (
     <fieldset className="flex flex-col gap-2" style={{ padding: '10px 12px', borderRadius: 12, border: '1px solid var(--sv-tint-border)', background: 'var(--sv-tint)', margin: 0 }}>
-      <legend className="sr-only">{title}</legend>
+      <legend className="sv-visually-hidden">{title}</legend>
       <div className="flex justify-between gap-2" style={{ fontWeight: 600 }}>
         <span>ডুপ্লিকেট · {title}</span>
         <span className="sv-num" style={{ fontSize: 13.5 }}>

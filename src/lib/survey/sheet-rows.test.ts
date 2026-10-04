@@ -36,6 +36,7 @@ describe('sheet rows', () => {
 
   it('labels superseded and duplicate submissions', () => {
     expect(sheetStatus({ supersededBy: 'x', duplicateFlag: true })).toBe('superseded');
+    expect(sheetStatus({ supersededBy: 'x', duplicateFlag: true, setAside: true })).toBe('set-aside');
     expect(sheetStatus({ supersededBy: null, duplicateFlag: true })).toBe('duplicate');
     expect(sheetStatus({ supersededBy: null, duplicateFlag: false })).toBe('current');
   });
