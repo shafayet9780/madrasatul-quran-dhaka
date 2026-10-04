@@ -76,6 +76,9 @@ Each milestone ends with its checks passing and a commit.
 ### M3 — Teacher survey (phone + desktop)
 - Screens per prototype: intro, name pick (+ "not on list"), class/section/subject with own status, duplicate warning, question-first rating (pinned header, one-ring track, remaining jump, per-tap autosave), review (tap-to-edit, notes, incomplete state), submit, receipt (print), all states (saving/offline/failed/closed/grace/invalid/not open).
 - Submit: one transaction — validate complete, re-check duplicate, supersede previous batch, write `answer_items`, issue receipt token.
+  - Statement order in the `db.batch`: clear the old current rows (`is_current`, `superseded_by`, delete their `answer_items`) before promoting the draft; ids generated in the app.
+  - Section move mid-round: if this teacher already has a current response for a student in this subject from another section's batch, the new batch supersedes that one response (clear `is_current`, delete its `answer_items`) instead of failing on the unique index.
+  - Any status change on an already-copied submission (superseded, duplicate flag) sets `mirrored_at = NULL`, so the Sheet copy (M5) appends the new status.
 **Check:** unit tests for submit/supersede/duplicate logic; Playwright e2e on `dev` (full T1 flow phone + desktop viewport, resume after reload, duplicate warning, edit after submit); axe accessibility scan on each step.
 
 ### M4 — ERP import
@@ -83,7 +86,7 @@ Each milestone ends with its checks passing and a commit.
 **Check:** fixture tests with real-format sample (mixed case, empty roll, missing contacts, unmapped class, short mobile).
 
 ### M5 — Sheet copy + backup
-- After each submit: best-effort append (status column current/superseded/duplicate); failures marked for retry.
+- After each submit: best-effort append (status column current/superseded/duplicate); failures marked for retry. Rows with `mirrored_at IS NULL` (new or status changed) are what the retry picks up.
 - Daily cron (`survey-daily`): retry failed copies + JSON backup of survey tables to Vercel Blob.
 **Check:** route tests with mocked Sheets/Blob; manual end-to-end on `dev`.
 
@@ -114,4 +117,4 @@ Each milestone ends with its checks passing and a commit.
 
 ## 6. Out of scope for this phase
 
-Guardian surveys G1/G2 and their identity flow, guardian-side reports (overview, teaching-quality heatmap, guardian↔teacher comparison, guardian print). The data model and design system already support them; they are phase 2.
+Guardian surveys G1/G2 and their identity flow (G1 submit validation must tell N/A apart from an invalid value; `markFor` returns `undefined` for both today), guardian-side reports (overview, teaching-quality heatmap, guardian↔teacher comparison, guardian print). The data model and design system already support them; they are phase 2.

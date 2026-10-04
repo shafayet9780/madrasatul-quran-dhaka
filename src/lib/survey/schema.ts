@@ -2,6 +2,7 @@ import { sql } from 'drizzle-orm';
 import {
   bigserial,
   boolean,
+  check,
   index,
   integer,
   jsonb,
@@ -107,6 +108,8 @@ export const submissions = pgTable(
     index('submissions_unmirrored_idx')
       .on(t.submittedAt)
       .where(sql`${t.status} = 'submitted' AND ${t.mirroredAt} IS NULL`),
+    // NULL teacher keys would slip past the T1 unique indexes.
+    check('submissions_t1_teacher_chk', sql`${t.kind} <> 'T1' OR ${t.teacherKey} IS NOT NULL`),
   ]
 );
 
@@ -150,6 +153,7 @@ export const responses = pgTable(
       .on(t.roundId, t.teacherKey, t.subjectKey, t.studentErpId)
       .where(sql`${t.isCurrent} AND ${t.kind} = 'T1'`),
     index('responses_student_idx').on(t.studentErpId),
+    check('responses_t1_teacher_chk', sql`${t.kind} <> 'T1' OR ${t.teacherKey} IS NOT NULL`),
   ]
 );
 

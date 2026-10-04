@@ -12,8 +12,9 @@ const question = z.object({
   type: z.enum(['marks', 'options']),
   options: z.array(option).default([]),
   areaKey: key,
-  required: z.boolean(),
-  allowNA: z.boolean(),
+  // Sanity omits booleans an editor never toggled.
+  required: z.boolean().default(true),
+  allowNA: z.boolean().default(false),
 });
 
 const named = z.object({ key, name: z.string().min(1) });

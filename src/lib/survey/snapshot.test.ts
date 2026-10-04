@@ -41,6 +41,13 @@ describe('roundSnapshotSchema', () => {
   it('defaults options to an empty list', () => {
     expect(snapshot.template.questions[0].options).toEqual([]);
   });
+  it('defaults required and allowNA when Sanity omits them', () => {
+    expect(snapshot.template.questions[0]).toMatchObject({ required: true, allowNA: false });
+    const loose = structuredClone(snapshot) as any;
+    delete loose.template.questions[0].required;
+    delete loose.template.questions[0].allowNA;
+    expect(roundSnapshotSchema.parse(loose).template.questions[0]).toMatchObject({ required: true, allowNA: false });
+  });
   it('rejects keys that are not lowercase slugs', () => {
     const bad = structuredClone(snapshot);
     bad.teachers[0].key = 'Teacher 1';
