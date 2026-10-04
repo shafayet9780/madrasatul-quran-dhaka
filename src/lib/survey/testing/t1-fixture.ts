@@ -9,6 +9,8 @@ const SUBJECTS = [
   ['math', 'গণিত'],
 ].map(([key, name]) => ({ key, name }));
 
+const SHORT_LABELS: Record<string, string> = {"attendance": "নিয়মিত উপস্থিতি", "attention": "মনোযোগ", "peer-conduct": "মারামারি/বাজে কথা", "follows-instructions": "নির্দেশ পালন", "guardian-coordination": "অভিভাবকের কোর্ডিনেশন", "guardian-off-hours": "নির্ধারিত সময়ের বাইরে যোগাযোগ", "assessment-80": "এসেসমেন্টে ৮০%"};
+
 const AB = [{ key: 'a', name: 'A' }, { key: 'b', name: 'B' }];
 const BOYS_GIRLS = [{ key: 'male', name: 'বালক' }, { key: 'female', name: 'বালিকা' }];
 
@@ -33,6 +35,7 @@ export function t1FixtureSnapshot(takenAt = new Date()): RoundSnapshot {
       ].map(([key, text, areaKey, hint]) => ({
         key,
         text,
+        shortLabel: SHORT_LABELS[key],
         ...(hint ? { hint } : {}),
         type: 'marks' as const,
         options: [],

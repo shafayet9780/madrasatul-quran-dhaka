@@ -23,6 +23,7 @@ export type RoundSource = {
         | {
             key?: string | null;
             text?: string | null;
+            shortLabel?: string | null;
             hint?: string | null;
             type?: string | null;
             options?: { key?: string | null; label?: string | null; mark?: number | null }[] | null;
@@ -144,6 +145,7 @@ export function buildRound(
       questions: questions.map((q) => ({
         key: q.key,
         text: q.text,
+        shortLabel: opt(q.shortLabel),
         hint: opt(q.hint),
         type: q.type,
         options: (q.options ?? []).map((o) => ({ key: o.key, label: o.label, mark: o.mark })),

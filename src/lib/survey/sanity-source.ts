@@ -19,7 +19,7 @@ export function fetchRoundSource(sanityRoundId: string): Promise<RoundSource> {
         _id, label, "slug": slug.current, plannedOpensAt, plannedClosesAt,
         "template": template-> {
           _id, kind, version, title, intro, commentLabel, scale,
-          questions[] { key, text, hint, type, options[] { key, label, mark }, "areaKey": area->key, required, allowNA }
+          questions[] { key, text, shortLabel, hint, type, options[] { key, label, mark }, "areaKey": area->key, required, allowNA }
         }
       },
       ${LISTS}

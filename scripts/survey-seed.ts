@@ -35,14 +35,14 @@ const AREAS: [key: string, name: string, group: 'student' | 'teaching'][] = [
   ['overall-satisfaction', 'সার্বিক সন্তুষ্টি', 'teaching'],
 ];
 
-const T1_QUESTIONS: [key: string, text: string, area: string, hint?: string][] = [
-  ['attendance', 'ক্লাসে নিয়মিত উপস্থিত হয় কি না?', 'attendance'],
-  ['attention', 'ক্লাসে মনোযোগী কি না?', 'focus-habits'],
-  ['peer-conduct', 'অন্য বাচ্চাদের সাথে মারামারি বা বাজে কথা বলে কি না?', 'peer-conduct', '১০ = সমস্যা নেই, ৪ = প্রায়ই করে'],
-  ['follows-instructions', 'শিক্ষকের নির্দেশ পালন করে কি না?', 'obedience'],
-  ['guardian-coordination', 'অভিভাবক শিক্ষকের সাথে সঠিক কোর্ডিনেশন করে কি না?', 'guardian-cooperation'],
-  ['guardian-off-hours', 'অভিভাবক নির্ধারিত সময়ের বাইরে শিক্ষকের সাথে যোগাযোগ করে কি না?', 'guardian-cooperation', '১০ = কখনো করেন না, ৪ = প্রায়ই করেন'],
-  ['assessment-80', 'কুইজ বা অন্যান্য এসেসমেন্ট এ শতকরা আশিভাগ মার্ক পায় কি না?', 'results'],
+const T1_QUESTIONS: [key: string, text: string, shortLabel: string, area: string, hint?: string][] = [
+  ['attendance', 'ক্লাসে নিয়মিত উপস্থিত হয় কি না?', 'নিয়মিত উপস্থিতি', 'attendance'],
+  ['attention', 'ক্লাসে মনোযোগী কি না?', 'মনোযোগ', 'focus-habits'],
+  ['peer-conduct', 'অন্য বাচ্চাদের সাথে মারামারি বা বাজে কথা বলে কি না?', 'মারামারি/বাজে কথা', 'peer-conduct', '১০ = সমস্যা নেই, ৪ = প্রায়ই করে'],
+  ['follows-instructions', 'শিক্ষকের নির্দেশ পালন করে কি না?', 'নির্দেশ পালন', 'obedience'],
+  ['guardian-coordination', 'অভিভাবক শিক্ষকের সাথে সঠিক কোর্ডিনেশন করে কি না?', 'অভিভাবকের কোর্ডিনেশন', 'guardian-cooperation'],
+  ['guardian-off-hours', 'অভিভাবক নির্ধারিত সময়ের বাইরে শিক্ষকের সাথে যোগাযোগ করে কি না?', 'নির্ধারিত সময়ের বাইরে যোগাযোগ', 'guardian-cooperation', '১০ = কখনো করেন না, ৪ = প্রায়ই করেন'],
+  ['assessment-80', 'কুইজ বা অন্যান্য এসেসমেন্ট এ শতকরা আশিভাগ মার্ক পায় কি না?', 'এসেসমেন্টে ৮০%', 'results'],
 ];
 
 type Section = [key: string, name: string, erpSectionNames: string[]];
@@ -84,11 +84,12 @@ const documents: { _id: string; _type: string; [field: string]: unknown }[] = [
     title: 'স্টুডেন্ট সম্পর্কে শিক্ষকের রিভিউ',
     intro: 'যে ক্লাস ও বিষয়ে পড়ান, সেই ক্লাসের প্রত্যেক শিক্ষার্থীকে প্রতিটি প্রশ্নে মার্ক দিন।',
     scale: [10, 8, 6, 4],
-    questions: T1_QUESTIONS.map(([key, text, area, hint]) => ({
+    questions: T1_QUESTIONS.map(([key, text, shortLabel, area, hint]) => ({
       _key: key,
       _type: 'surveyQuestion',
       key,
       text,
+      shortLabel,
       ...(hint ? { hint } : {}),
       type: 'marks',
       area: { _type: 'reference', _ref: areaId(area) },
@@ -125,6 +126,11 @@ async function main() {
   }
   const written = overwrite ? documents.length : documents.filter((d) => !existing.has(d._id)).length;
   if (written) await tx.commit();
+  // Fields added after the first seed: fill them on existing documents without overwriting edits.
+  if (!overwrite && existing.has('survey-template-t1-v1')) {
+    const missing = Object.fromEntries(T1_QUESTIONS.map(([key, , shortLabel]) => [`questions[_key=="${key}"].shortLabel`, shortLabel]));
+    await client.patch('survey-template-t1-v1').setIfMissing(missing).commit();
+  }
   console.log(
     `${overwrite ? 'Replaced' : 'Created'} ${written} documents; ${overwrite ? 0 : existing.size} already existed. ` +
       `Areas ${AREAS.length}, T1 questions ${T1_QUESTIONS.length}, classes ${CLASSES.length}, teachers ${TEACHERS.length}.`

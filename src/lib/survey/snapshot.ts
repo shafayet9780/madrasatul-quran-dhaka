@@ -7,6 +7,7 @@ const option = z.object({ key, label: z.string().min(1), mark: z.number().min(0)
 const question = z.object({
   key,
   text: z.string().min(1),
+  shortLabel: z.string().optional(),
   hint: z.string().optional(),
   // 'marks': answer is one of template.scale · 'options': answer is an option key (marks hidden)
   type: z.enum(['marks', 'options']),

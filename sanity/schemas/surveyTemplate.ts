@@ -44,6 +44,12 @@ export const surveyTemplate = defineType({
           fields: [
             keyField(),
             defineField({ name: 'text', title: 'Question (Bengali)', type: 'string', validation: (Rule) => Rule.required() }),
+            defineField({
+              name: 'shortLabel',
+              title: 'Short label',
+              description: 'A few words for review tables and reports, e.g. "মনোযোগ".',
+              type: 'string',
+            }),
             defineField({ name: 'hint', title: 'Hint', description: 'Shown under the question, e.g. for reversed wording.', type: 'string' }),
             defineField({
               name: 'type',

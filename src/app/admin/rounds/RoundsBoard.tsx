@@ -207,6 +207,7 @@ export function RoundsBoard({ rows }: { rows: BoardRow[] }) {
         requestAnimationFrame(() => statusRef.current?.focus());
       } catch {
         setMessage({ ok: false, lines: ['কাজটি সম্পন্ন হয়নি। ইন্টারনেট সংযোগ দেখে আবার চেষ্টা করুন।'] });
+        requestAnimationFrame(() => statusRef.current?.focus());
       }
     });
   }
