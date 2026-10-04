@@ -9,10 +9,8 @@ interface FormSubmissionData {
   [key: string]: string | string[] | boolean | number;
 }
 
+// The target spreadsheet and range are configured on the server, not here.
 interface GoogleSheetsConfig {
-  spreadsheetId: string;
-  range?: string;
-  apiKey?: string;
   fieldOrder?: string[];
   autoDetectRange?: boolean;
 }
@@ -43,7 +41,6 @@ export async function submitToGoogleSheets(
       },
       body: JSON.stringify({
         data: values,
-        range: config.range || 'A:Z',
         fieldOrder: config.fieldOrder,
         autoDetectRange: config.autoDetectRange || false,
         attributionMetadata,
@@ -187,38 +184,4 @@ export function getSheetsHeaders(formFields: string[]): string[] {
     'Submission Date',
     ...formFields
   ];
-}
-
-/**
- * Validate Google Sheets configuration
- * @param config - Google Sheets configuration
- * @returns boolean - Whether config is valid
- */
-export function validateSheetsConfig(config: GoogleSheetsConfig): boolean {
-  return !!(config.spreadsheetId && config.range);
-}
-
-/**
- * Test Google Sheets connection
- * @param config - Google Sheets configuration
- * @returns Promise<boolean> - Connection status
- */
-export async function testSheetsConnection(config: GoogleSheetsConfig): Promise<boolean> {
-  try {
-    const response = await fetch('/api/test-sheets', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        spreadsheetId: config.spreadsheetId,
-        range: config.range,
-      }),
-    });
-
-    return response.ok;
-  } catch (error) {
-    console.error('Error testing Google Sheets connection:', error);
-    return false;
-  }
 }

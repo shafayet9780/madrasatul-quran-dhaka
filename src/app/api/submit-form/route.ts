@@ -19,23 +19,28 @@ function numberToColumnLetter(num: number): string {
  * This route handles the server-side integration with Google Sheets API
  */
 
-// The spreadsheet comes from server env only; any spreadsheetId in the body is ignored.
+// The spreadsheet and range are fixed server-side; any spreadsheetId or range in the body is ignored.
 interface FormSubmissionRequest {
   data: string[];
-  range: string;
   fieldOrder?: string[];
   autoDetectRange?: boolean;
   attributionMetadata?: Record<string, unknown>;
 }
 
+const DEFAULT_RANGE = 'A:Z';
+const MAX_ATTRIBUTION_LENGTH = 2000;
+
 export async function POST(request: NextRequest) {
   try {
     const body: FormSubmissionRequest = await request.json();
-    const { data, range, fieldOrder, autoDetectRange, attributionMetadata } = body;
+    const { data, fieldOrder, autoDetectRange, attributionMetadata } = body;
     const spreadsheetId = process.env.FORM_GOOGLE_SHEETS_ID;
+    // Attribution is a small client-built object; drop anything oversized rather than store it.
+    const attribution = attributionMetadata ? JSON.stringify(attributionMetadata) : '';
+    const attributionCell = attribution.length <= MAX_ATTRIBUTION_LENGTH ? attribution : '';
 
     // Validate request data
-    if (!data || !range) {
+    if (!Array.isArray(data)) {
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
@@ -67,7 +72,7 @@ export async function POST(request: NextRequest) {
 
       // Get headers to determine the correct range and data order
       let headers: string[] = [];
-      let actualRange = range;
+      let actualRange = DEFAULT_RANGE;
 
       if (autoDetectRange || fieldOrder) {
         try {
@@ -92,7 +97,7 @@ export async function POST(request: NextRequest) {
           }
         } catch (headerError) {
           console.warn(
-            'Could not fetch headers, using provided range:',
+            'Could not fetch headers, using the default range:',
             headerError
           );
         }
@@ -139,9 +144,7 @@ export async function POST(request: NextRequest) {
           values: [
             [
               ...rowData,
-              ...(attributionMetadata
-                ? [JSON.stringify(attributionMetadata)]
-                : []),
+              ...(attributionCell ? [attributionCell] : []),
             ],
           ],
         },

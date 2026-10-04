@@ -66,8 +66,8 @@ export const preAdmissionForm = defineType({
           name: 'googleSheetsId',
           title: 'Google Sheets ID',
           type: 'string',
-          description: 'Google Sheets ID for storing form responses',
-          validation: Rule => Rule.required(),
+          description:
+            'Used by the header setup script only. Submissions go to the sheet set in the server setting FORM_GOOGLE_SHEETS_ID; keep the two the same.',
         },
       ],
     }),

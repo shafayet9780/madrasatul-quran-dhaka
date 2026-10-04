@@ -38,6 +38,20 @@ describe('pre-admission submit', () => {
     expect(append).toHaveBeenCalledWith(expect.objectContaining({ spreadsheetId: 'configured-sheet' }))
   })
 
+  it('ignores a client range and drops oversized attribution', async () => {
+    vi.stubEnv('FORM_GOOGLE_SHEETS_ID', 'configured-sheet')
+    append.mockResolvedValue({ data: {} })
+    const response = await submit({
+      data: ['a'],
+      range: 'Private!A:Z',
+      attributionMetadata: { note: 'x'.repeat(5000) },
+    })
+    expect(response.status).toBe(200)
+    const call = append.mock.calls[0][0]
+    expect(call.range).toBe('A:Z')
+    expect(call.requestBody.values[0]).toHaveLength(2) // timestamp + data, no attribution cell
+  })
+
   it('fails without touching Sheets when no sheet is configured', async () => {
     vi.stubEnv('FORM_GOOGLE_SHEETS_ID', '')
     const response = await submit({ data: ['a'], range: 'A:Z', spreadsheetId: 'attacker-sheet' })
