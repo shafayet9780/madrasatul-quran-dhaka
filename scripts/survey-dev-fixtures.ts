@@ -1,44 +1,65 @@
 /**
- * Loads sample survey data into the database in .env.local (the Neon dev branch) for local work.
- * Every row it writes is marked "fixture-" and is removed by --remove.
+ * Loads sample survey data into the database in .env.local (the Neon dev branch) for local work
+ * and end-to-end tests: two T1 rounds, students, two submitted batches and one draft.
+ * Every row it writes is marked "fixture"/"fx-" and is removed by --remove.
  *
- *   pnpm exec tsx scripts/survey-dev-fixtures.ts           # (re)load fixtures
- *   pnpm exec tsx scripts/survey-dev-fixtures.ts --remove  # remove them
+ *   pnpm survey:fixtures           # (re)load fixtures
+ *   pnpm survey:fixtures --remove  # remove them
  */
 import { config } from 'dotenv';
 import { resolve } from 'node:path';
-import { neon } from '@neondatabase/serverless';
-import { inArray, like } from 'drizzle-orm';
-import { drizzle } from 'drizzle-orm/neon-http';
-import * as schema from '../src/lib/survey/schema';
-import { t1FixtureSnapshot } from '../src/lib/survey/testing/t1-fixture';
 
 config({ path: resolve(process.cwd(), '.env.local') });
-if (!process.env.DATABASE_URL) throw new Error('DATABASE_URL is required.');
-const db = drizzle(neon(process.env.DATABASE_URL), { schema });
-const { surveyRounds, submissions } = schema;
 
 const DAY = 24 * 60 * 60 * 1000;
+export const FIXTURE_LINK = '/survey/fixture-t1?k=fixture-open-link-key-000';
 
-async function remove() {
+// [roll, name] per class-section; null roll = not yet assigned in the ERP.
+const ROSTERS: Record<string, [number | null, string][]> = {
+  'nursery|a': [
+    [1, 'AHMAD SHAFIN ISLAM'], [2, 'Maryam Binte Rafiq'], [3, 'Abdullah Al Noman'], [4, 'Safiya Rahman'], [5, 'Yahya Hasan'],
+    [6, 'Humaira Jannat'], [7, 'ZAYAN MAHMUD'], [8, 'Aisha Siddika Noor'], [9, 'Musa Ibn Khalid'], [10, 'Rumaisa Akter'],
+    [11, 'Talha Zubair'], [12, 'Khadija Tul Kubra'], [14, 'Ibrahim Hossain'], [15, 'Nusaiba Karim'], [16, 'Omar Faruk Tamim'],
+    [17, 'Sumaya Binte Salam'], [18, 'HAMZA RAHIM'], [null, 'Tasnia Islam'], [null, 'Abdur Rahman Fahim'], [null, 'Zainab Akter'],
+  ],
+  'nursery|b': [[1, 'Arafat Hossain'], [2, 'Fatima Zahra'], [3, 'Imran Kabir'], [4, 'Labiba Noor'], [5, 'Rayan Ahmed'], [6, 'Tasfia Haque']],
+  'kg|a': [[1, 'Ayaan Chowdhury'], [2, 'Hafsa Akter'], [3, 'Junaid Islam'], [4, 'Mariam Sultana'], [5, 'Sami Rahman']],
+  'play|': [[1, 'Adiba Rahman'], [2, 'Nabil Hasan'], [3, 'Raisa Islam'], [4, 'Umar Faruq']],
+};
+
+async function main() {
+  // Imported after dotenv so the database URL is set.
+  const { and, inArray, isNotNull, like } = await import('drizzle-orm');
+  const { getDb } = await import('../src/lib/survey/db');
+  const { students, submissions, surveyRounds } = await import('../src/lib/survey/schema');
+  const { saveDraft, submitBatch } = await import('../src/lib/survey/t1');
+  const { t1FixtureSnapshot } = await import('../src/lib/survey/testing/t1-fixture');
+  const db = getDb();
+
   const rounds = await db.select({ id: surveyRounds.id }).from(surveyRounds).where(like(surveyRounds.sanityRoundId, 'fixture-%'));
   const ids = rounds.map((r) => r.id);
   if (ids.length) {
+    // Replaced batches reference their replacement, so they go first.
+    await db.delete(submissions).where(and(inArray(submissions.roundId, ids), isNotNull(submissions.supersededBy)));
     await db.delete(submissions).where(inArray(submissions.roundId, ids));
     await db.delete(surveyRounds).where(inArray(surveyRounds.id, ids));
   }
-  return ids.length;
-}
-
-async function main() {
-  const removed = await remove();
+  await db.delete(students).where(like(students.erpId, 'fx-%'));
   if (process.argv.includes('--remove')) {
-    console.log(`Removed ${removed} fixture rounds.`);
+    console.log(`Removed ${ids.length} fixture rounds and their students.`);
     return;
   }
+
+  let id = 10011;
+  const rows = Object.entries(ROSTERS).flatMap(([place, list]) => {
+    const [classKey, sectionKey] = place.split('|');
+    return list.map(([roll, name]) => ({ erpId: `fx-${id++}`, name, classKey, sectionKey, roll }));
+  });
+  await db.insert(students).values(rows);
+
   const now = Date.now();
   const snapshot = t1FixtureSnapshot();
-  const rounds = await db
+  const [open] = await db
     .insert(surveyRounds)
     .values([
       {
@@ -62,16 +83,23 @@ async function main() {
         linkKey: 'fixture-closed-link-key-0',
       },
     ])
-    .returning({ id: surveyRounds.id, sanityRoundId: surveyRounds.sanityRoundId });
+    .returning();
 
-  const open = rounds.find((r) => r.sanityRoundId === 'fixture-t1-open')!;
-  const base = { roundId: open.id, kind: 'T1' as const, teacherKey: 'ustad-abdullah', teacherName: 'উস্তাদ আব্দুল্লাহ' };
-  await db.insert(submissions).values([
-    { ...base, classKey: 'nursery', sectionKey: 'a', subjectKey: 'quran', subjectName: 'কুরআন', status: 'submitted', submittedAt: new Date(now - DAY) },
-    { ...base, classKey: 'nursery', sectionKey: 'b', subjectKey: 'quran', subjectName: 'কুরআন', status: 'submitted', submittedAt: new Date(now - DAY) },
-    { ...base, classKey: 'kg', sectionKey: 'a', subjectKey: 'arabic', subjectName: 'আরবি', status: 'draft' },
-  ]);
-  console.log(`Loaded ${rounds.length} fixture rounds (open link: /survey/fixture-t1?k=fixture-open-link-key-000).`);
+  const meta = { ip: null, userAgent: 'fixtures' };
+  const marks = [10, 8, 10, 6, 10, 8, 4, 10, 8, 10, 6, 8];
+  const answersFor = (i: number) => Object.fromEntries(snapshot.template.questions.map((q, n) => [q.key, marks[(i * 5 + n * 3 + (i % 3)) % marks.length]]));
+  const teacher = 'ustad-abdullah';
+  for (const sectionKey of ['a', 'b']) {
+    const key = { teacherKey: teacher, classKey: 'nursery', sectionKey, subjectKey: 'quran' };
+    const roster = rows.filter((s) => s.classKey === 'nursery' && s.sectionKey === sectionKey);
+    await saveDraft(open, key, roster.map((s, i) => ({ studentErpId: s.erpId, answers: answersFor(i), ...(i === 6 ? { note: 'ক্লাসে মনোযোগ ভালো, তবে সহপাঠীদের সাথে মাঝে মাঝে ঝগড়া করে।' } : {}) })), meta);
+    const result = await submitBatch(open, key, [], meta);
+    if (!result.ok) throw new Error(`fixture submit failed: ${JSON.stringify(result)}`);
+  }
+  const kg = rows.filter((s) => s.classKey === 'kg');
+  await saveDraft(open, { teacherKey: 'ustad-hamza', classKey: 'kg', sectionKey: 'a', subjectKey: 'arabic' }, kg.slice(0, 3).map((s, i) => ({ studentErpId: s.erpId, answers: answersFor(i) })), meta);
+
+  console.log(`Loaded fixtures: ${rows.length} students, 2 rounds, 2 submitted batches, 1 draft. Open link: ${FIXTURE_LINK}`);
 }
 
 main().catch((error) => {

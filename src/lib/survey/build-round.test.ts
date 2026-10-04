@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { buildRound } from './build-round';
 import { roundSource as source } from './testing/fixtures';
-import { roundStatus } from './round-status';
+import { roundStatus, surveyAccess } from './round-status';
 
 const now = new Date('2026-10-04T00:00:00Z');
 
@@ -75,5 +75,15 @@ describe('roundStatus', () => {
   it('treats a round closed before it opened as closed', () => {
     const closedEarly = { opensAt: new Date('2026-10-05T00:00:00Z'), closesAt: new Date('2026-10-03T00:00:00Z') };
     expect(roundStatus(closedEarly, new Date('2026-10-04T00:00:00Z'))).toBe('closed');
+  });
+});
+
+describe('surveyAccess', () => {
+  const round = { opensAt: new Date('2026-10-05T00:00:00Z'), closesAt: new Date('2026-10-20T00:00:00Z') };
+  it('allows a 10-minute grace after closing', () => {
+    expect(surveyAccess(round, new Date('2026-10-04T23:00:00Z'))).toBe('scheduled');
+    expect(surveyAccess(round, new Date('2026-10-10T00:00:00Z'))).toBe('open');
+    expect(surveyAccess(round, new Date('2026-10-20T00:09:59Z'))).toBe('grace');
+    expect(surveyAccess(round, new Date('2026-10-20T00:10:00Z'))).toBe('closed');
   });
 });

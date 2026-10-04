@@ -52,3 +52,14 @@ export function fetchUnopenedRounds(openedIds: string[]): Promise<UnopenedRound[
     fresh
   );
 }
+
+export type OfficePhone = { label: string | null; number: string };
+
+/** The school's main office number for help lines on survey pages. */
+export async function fetchOfficePhone(): Promise<OfficePhone | null> {
+  const phones: { label?: { bengali?: string }; number?: string; isActive?: boolean; isPrimary?: boolean; type?: string }[] | null =
+    await sanity.fetch(`*[_id == "siteSettings"][0].contactInfo.phone`, {}, { next: { revalidate: 3600 } });
+  const usable = (phones ?? []).filter((p) => p.number && p.isActive !== false);
+  const best = usable.find((p) => p.type === 'main' && p.isPrimary) ?? usable[0];
+  return best ? { label: best.label?.bengali ?? null, number: best.number! } : null;
+}

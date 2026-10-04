@@ -1,0 +1,853 @@
+/* Survey screens (T1/G1/G2 artboards). Mobile first; desktop layouts from 960px. Tokens: components/survey/tokens.css */
+.sv-survey {
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: var(--sv-paper);
+  font-size: 17px;
+  line-height: 1.6;
+}
+:where(.sv-survey) a {
+  color: var(--sv-link);
+}
+:where(.sv-survey) a:hover {
+  color: var(--sv-link-hover);
+}
+/* Zero-specificity reset so component classes (.sv-cta etc.) always win. */
+:where(.sv-survey) button {
+  font: inherit;
+  color: inherit;
+}
+
+/* Phone column: screens are a single column up to 560px wide, centred on larger screens. */
+.sv-screen {
+  max-width: 560px;
+  margin: 0 auto;
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+.sv-h1 {
+  margin: 0;
+  font-size: 26px;
+  line-height: 1.35;
+}
+.sv-muted {
+  color: var(--sv-text-muted);
+}
+
+/* Header: 3px progress line, back chevron, centred context label. */
+.sv-progress {
+  display: grid;
+  gap: 3px;
+  height: 3px;
+}
+.sv-progress > span {
+  height: 3px;
+  background: var(--sv-hairline);
+}
+.sv-progress > span.is-done {
+  background: var(--sv-bronze);
+}
+.sv-progress > span.is-current {
+  background: #d9bfa9;
+}
+.sv-topbar {
+  display: flex;
+  align-items: center;
+  padding: 8px 8px 0;
+}
+.sv-topbar-label {
+  flex: 1;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--sv-text-muted);
+  line-height: 1.4;
+}
+.sv-icon-btn {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  border: 0;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--sv-text);
+  cursor: pointer;
+  text-decoration: none;
+}
+.sv-icon-spacer {
+  flex: none;
+  width: 44px;
+}
+
+/* Buttons: one solid bronze action per screen; stone secondary; text tertiary. */
+.sv-cta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 56px;
+  padding: 0 20px;
+  border-radius: 16px;
+  border: 0;
+  background: var(--sv-bronze);
+  color: #fff;
+  text-decoration: none;
+  font-family: var(--sv-font-head), 'Anek Bangla', sans-serif;
+  font-weight: 600;
+  font-size: 18px;
+  box-shadow: 0 1px 2px rgba(94, 59, 36, 0.28), 0 8px 20px rgba(135, 91, 61, 0.22);
+  cursor: pointer;
+}
+.sv-survey a.sv-cta,
+.sv-survey a.sv-cta:hover {
+  color: #fff;
+}
+.sv-cta:hover,
+.sv-cta:active,
+.sv-cta[aria-busy='true'] {
+  background: var(--sv-bronze-pressed);
+}
+.sv-cta:disabled:not([aria-busy='true']) {
+  background: var(--sv-hairline);
+  color: var(--sv-text-muted);
+  box-shadow: none;
+  cursor: not-allowed;
+}
+.sv-cta[aria-busy='true'] {
+  cursor: progress;
+}
+.sv-secondary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 54px;
+  padding: 0 18px;
+  border-radius: 16px;
+  border: 0;
+  background: var(--sv-stone);
+  color: var(--sv-text);
+  text-decoration: none;
+  font-family: var(--sv-font-head), 'Anek Bangla', sans-serif;
+  font-weight: 600;
+  font-size: 17px;
+  cursor: pointer;
+}
+.sv-survey a.sv-secondary:hover {
+  color: var(--sv-text);
+}
+.sv-secondary.is-bronze-text {
+  color: var(--sv-bronze-pressed);
+}
+.sv-tertiary {
+  align-self: center;
+  min-height: 44px;
+  padding: 8px;
+  border: 0;
+  background: transparent;
+  color: var(--sv-link);
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.sv-spinner {
+  animation: sv-spin 0.9s linear infinite;
+}
+@keyframes sv-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sv-spinner {
+    animation: none;
+  }
+}
+
+/* Bottom action area (sticks to the bottom of the phone column). */
+.sv-footer {
+  position: sticky;
+  bottom: 0;
+  margin-top: auto;
+  padding: 12px 16px calc(20px + env(safe-area-inset-bottom));
+  background: var(--sv-paper);
+  border-top: 1px solid var(--sv-hairline);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 3;
+}
+.sv-footer.is-white {
+  background: #fff;
+}
+
+/* Choice tiles (teacher list, class/section/subject radios): stone; selected = tint + bronze outline. */
+.sv-option {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 56px;
+  padding: 10px 14px;
+  border-radius: 14px;
+  border: 2px solid transparent;
+  background: var(--sv-stone);
+  text-align: left;
+  cursor: pointer;
+}
+.sv-option[aria-pressed='true'],
+.sv-option[aria-checked='true'] {
+  border-color: var(--sv-bronze);
+  background: var(--sv-tint);
+}
+.sv-avatar {
+  flex: none;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--sv-paper);
+  color: var(--sv-bronze-ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 16px;
+}
+.sv-option[aria-pressed='true'] .sv-avatar {
+  background: #fff;
+}
+.sv-chip-radio {
+  min-height: 50px;
+  padding: 6px 10px;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  background: var(--sv-stone);
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  line-height: 1.35;
+}
+.sv-chip-radio[aria-checked='true'] {
+  background: var(--sv-tint);
+  border-color: var(--sv-bronze);
+  color: var(--sv-bronze-ink);
+  box-shadow: inset 0 0 0 1px var(--sv-bronze);
+}
+.sv-chip-radio small {
+  font-size: 12.5px;
+  font-weight: 600;
+  opacity: 0.9;
+}
+.sv-group-label {
+  font-family: var(--sv-font-head), 'Anek Bangla', sans-serif;
+  font-weight: 600;
+  font-size: 17px;
+}
+
+/* Search field */
+.sv-search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 50px;
+  padding: 0 14px;
+  border-radius: 14px;
+  background: #fff;
+  border: 1px solid var(--sv-track);
+}
+.sv-search:focus-within {
+  border-color: var(--sv-bronze);
+}
+.sv-search input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  font: inherit;
+  font-size: 16px;
+  background: transparent;
+  color: var(--sv-text);
+}
+
+/* Mark track: four marks in one stone track; the chosen one gets the bronze ring. */
+.sv-track {
+  flex: none;
+  display: grid;
+  grid-template-columns: repeat(var(--sv-marks, 4), 44px);
+  gap: 2px;
+  padding: 3px;
+  border-radius: 13px;
+  background: var(--sv-track);
+}
+.sv-mark {
+  height: 48px;
+  border-radius: 10px;
+  border: 0;
+  background: transparent;
+  font-family: var(--sv-font-head), 'Anek Bangla', sans-serif;
+  font-weight: 600;
+  font-size: 19px;
+  color: var(--sv-text-body);
+  cursor: pointer;
+  padding: 0;
+}
+.sv-mark[aria-checked='true'] {
+  background: var(--sv-tint);
+  color: var(--sv-bronze-ink);
+  box-shadow: inset 0 0 0 2px var(--sv-bronze);
+}
+.sv-track.is-large {
+  grid-template-columns: repeat(var(--sv-marks, 4), minmax(0, 1fr));
+  border-radius: 16px;
+}
+.sv-track.is-large .sv-mark {
+  height: 56px;
+  font-size: 21px;
+  border-radius: 14px;
+}
+
+/* Status chips and messages */
+.sv-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+.sv-chip.is-ok {
+  background: var(--sv-ok-bg);
+  color: var(--sv-ok);
+}
+.sv-chip.is-info {
+  background: var(--sv-info-bg);
+  color: var(--sv-info);
+}
+.sv-chip.is-warn {
+  background: var(--sv-warn-bg);
+  color: var(--sv-warn);
+}
+.sv-hint {
+  display: inline-flex;
+  align-self: flex-start;
+  gap: 7px;
+  align-items: center;
+  padding: 6px 11px;
+  border-radius: 10px;
+  background: var(--sv-warn-bg);
+  color: var(--sv-warn);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.45;
+}
+.sv-banner {
+  display: flex;
+  gap: 10px;
+  padding: 14px 16px;
+  border-radius: 16px;
+  font-size: 15px;
+  line-height: 1.55;
+}
+.sv-banner > svg {
+  flex: none;
+  margin-top: 3px;
+}
+.sv-banner.is-warn {
+  background: var(--sv-warn-bg);
+  color: var(--sv-warn);
+}
+.sv-banner.is-error {
+  background: var(--sv-error-bg);
+  color: var(--sv-error);
+}
+.sv-banner.is-info {
+  background: var(--sv-info-bg);
+  color: var(--sv-info);
+}
+.sv-card {
+  background: #fff;
+  border: 1px solid var(--sv-hairline);
+  border-radius: 16px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.sv-card.is-attention {
+  border-color: var(--sv-tint-border);
+}
+.sv-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 34px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 0;
+  background: var(--sv-tint);
+  color: #7a4b2e;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* Rating screen */
+.sv-rate-head {
+  position: sticky;
+  top: 0;
+  z-index: 4;
+  background: rgba(252, 251, 248, 0.94);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--sv-hairline);
+}
+.sv-question {
+  margin: 0;
+  font-size: 21px;
+  line-height: 1.45;
+}
+.sv-student-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 68px;
+  padding: 8px 10px 8px 12px;
+  border-bottom: 1px solid var(--sv-track);
+  scroll-margin-top: 220px;
+  scroll-margin-bottom: 120px;
+}
+.sv-roll {
+  flex: none;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--sv-font-head), 'Anek Bangla', sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  background: var(--sv-tint);
+  color: #7a4b2e;
+}
+.sv-roll.is-done {
+  background: var(--sv-track);
+  color: var(--sv-text-muted);
+}
+.sv-student-name {
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.35;
+}
+.sv-student-id {
+  font-size: 12.5px;
+  color: var(--sv-text-muted);
+}
+.sv-rate-nav {
+  display: flex;
+  gap: 10px;
+  flex-direction: row;
+}
+.sv-square {
+  flex: none;
+  width: 56px;
+  height: 56px;
+  border-radius: 18px;
+  border: 0;
+  background: var(--sv-track);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--sv-text);
+  cursor: pointer;
+}
+.sv-rate-nav .sv-cta {
+  flex: 1;
+  border-radius: 18px;
+}
+
+/* Review grid (phone): students × questions, sticky header */
+.sv-grid {
+  background: #fff;
+  border-radius: 16px;
+  border: 1px solid var(--sv-hairline);
+  overflow: hidden;
+}
+.sv-grid-row {
+  display: grid;
+  grid-template-columns: 102px repeat(var(--sv-questions, 7), minmax(0, 1fr)) 36px;
+  align-items: center;
+  min-height: 46px;
+  padding: 0 4px 0 10px;
+  border-bottom: 1px solid var(--sv-hairline-soft);
+}
+.sv-grid-row.is-head {
+  min-height: 40px;
+  background: var(--sv-stone-soft);
+  border-bottom-color: var(--sv-hairline);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--sv-text-muted);
+  text-align: center;
+}
+.sv-grid-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+  border-radius: 8px;
+  border: 0;
+  background: transparent;
+  font-family: var(--sv-font-head), 'Anek Bangla', sans-serif;
+  font-weight: 600;
+  font-size: 15px;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+  padding: 0;
+}
+.sv-grid-cell:hover {
+  background: var(--sv-paper);
+}
+.sv-grid-cell.is-low {
+  color: var(--sv-warn);
+}
+.sv-grid-cell.is-empty {
+  color: var(--sv-warn);
+  background: var(--sv-warn-bg);
+}
+.sv-gap {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 52px;
+  padding: 10px 14px;
+  border-radius: 14px;
+  background: #fff;
+  border: 1px solid var(--sv-tint-border);
+  color: var(--sv-text);
+  text-align: left;
+  cursor: pointer;
+  width: 100%;
+}
+
+/* Bottom sheet dialogs (centred card on desktop) */
+.sv-sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(32, 43, 48, 0.55);
+  z-index: 40;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+.sv-sheet {
+  width: 100%;
+  max-width: 560px;
+  max-height: 92dvh;
+  overflow-y: auto;
+  background: #fff;
+  border-radius: 26px 26px 0 0;
+  padding: 12px 20px calc(24px + env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.sv-sheet-grip {
+  align-self: center;
+  width: 44px;
+  height: 5px;
+  border-radius: 3px;
+  background: var(--sv-track);
+}
+.sv-textarea {
+  width: 100%;
+  border-radius: 14px;
+  border: 2px solid transparent;
+  background: var(--sv-stone);
+  padding: 12px 14px;
+  font: inherit;
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--sv-text);
+  resize: none;
+}
+.sv-textarea:focus {
+  background: #fff;
+  border-color: var(--sv-bronze);
+  outline: none;
+}
+
+/* Desktop-only chrome and layouts */
+.sv-desktop-only {
+  display: none;
+}
+@media (min-width: 960px) {
+  .sv-desktop-only {
+    display: revert;
+  }
+  .sv-mobile-only {
+    display: none !important;
+  }
+  .sv-sheet-backdrop {
+    align-items: center;
+  }
+  .sv-sheet {
+    border-radius: 22px;
+    padding-bottom: 24px;
+  }
+  .sv-sheet-grip {
+    display: none;
+  }
+  .sv-wide {
+    max-width: 1280px;
+    margin: 0 auto;
+    width: 100%;
+    padding: 24px 28px 40px;
+  }
+}
+.sv-desk-header {
+  background: #fff;
+  border-bottom: 1px solid var(--sv-hairline);
+}
+.sv-desk-header > div {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 14px 28px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+}
+.sv-logo {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: var(--sv-bronze);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--sv-font-head), 'Anek Bangla', sans-serif;
+  font-weight: 600;
+  font-size: 18px;
+}
+.sv-step {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 48px;
+  padding: 8px 12px;
+  border-radius: 12px;
+  border: 0;
+  background: transparent;
+  font-size: 15px;
+  color: var(--sv-text-body);
+  text-align: left;
+  cursor: pointer;
+  line-height: 1.4;
+}
+.sv-step:hover {
+  background: var(--sv-stone);
+}
+.sv-step[aria-current='step'] {
+  background: var(--sv-tint);
+  color: var(--sv-bronze-ink);
+  font-weight: 600;
+}
+.sv-step-dot {
+  flex: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 13px;
+  background: var(--sv-stone);
+  color: var(--sv-text-muted);
+}
+.sv-step-dot.is-done {
+  background: var(--sv-tint);
+  color: var(--sv-bronze-ink);
+  box-shadow: inset 0 0 0 1.5px var(--sv-bronze);
+}
+.sv-desk-table {
+  width: 100%;
+  min-width: 820px;
+  border-collapse: collapse;
+}
+.sv-desk-table th {
+  font-weight: 600;
+  color: var(--sv-text-muted);
+  font-size: 13px;
+  text-align: center;
+  padding: 10px 4px;
+  border-bottom: 1px solid var(--sv-hairline);
+  vertical-align: bottom;
+  line-height: 1.4;
+}
+.sv-desk-table td {
+  padding: 4px;
+  border-bottom: 1px solid var(--sv-hairline-soft);
+  font-size: 14px;
+  vertical-align: middle;
+}
+.sv-note-add {
+  height: 36px;
+  padding: 0 12px;
+  border-radius: 9px;
+  border: 1px dashed var(--sv-dashed);
+  background: #fff;
+  font-size: 13px;
+  color: var(--sv-text-muted);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+@media (min-width: 960px) {
+  /* Two columns of students on the rating screen. */
+  .sv-student-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: repeat(var(--sv-rows, 10), auto);
+    grid-auto-flow: column;
+    column-gap: 12px;
+    row-gap: 8px;
+  }
+  .sv-student-list .sv-student-row {
+    border: 1px solid var(--sv-hairline);
+    border-radius: 14px;
+    background: #fff;
+    min-height: 64px;
+  }
+}
+
+/* Receipt and print */
+.sv-receipt-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.sv-receipt-table th,
+.sv-receipt-table td {
+  padding: 7px 4px;
+  border-bottom: 1px solid var(--sv-hairline-soft);
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+.sv-receipt-table th {
+  background: var(--sv-stone-soft);
+  color: var(--sv-text-muted);
+  font-weight: 600;
+}
+.sv-receipt-table th:first-child,
+.sv-receipt-table td:first-child {
+  text-align: left;
+  position: sticky;
+  left: 0;
+  background: #fff;
+  min-width: 150px;
+}
+.sv-receipt-table th:first-child {
+  background: var(--sv-stone-soft);
+}
+
+@media print {
+  @page {
+    size: A4;
+    margin: 14mm;
+  }
+  .sv-survey {
+    background: #fff;
+    min-height: 0;
+  }
+  .sv-no-print {
+    display: none !important;
+  }
+  .sv-screen {
+    max-width: none;
+    min-height: 0;
+  }
+  .sv-card,
+  .sv-grid {
+    break-inside: avoid;
+    border-color: #ccc;
+  }
+  .sv-receipt-table th:first-child,
+  .sv-receipt-table td:first-child {
+    position: static;
+  }
+}
+
+/* Rating/review page frame: phone column on small screens, header + two columns on desktop. */
+.sv-frame {
+  max-width: 560px;
+  margin: 0 auto;
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+.sv-frame-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+.sv-frame-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+@media (min-width: 960px) {
+  .sv-frame {
+    max-width: none;
+  }
+  .sv-frame-body {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 24px;
+    max-width: 1280px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 24px 28px 40px;
+  }
+  .sv-frame-aside {
+    flex: 1 1 250px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    position: sticky;
+    top: 12px;
+  }
+  .sv-frame-main {
+    flex: 999 1 640px;
+    gap: 16px;
+  }
+  .sv-panel {
+    background: #fff;
+    border: 1px solid var(--sv-hairline);
+    border-radius: 16px;
+  }
+}

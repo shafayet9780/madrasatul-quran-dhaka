@@ -13,6 +13,7 @@
     "test:e2e": "playwright test",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
+    "survey:fixtures": "tsx --conditions=react-server scripts/survey-dev-fixtures.ts",
     "setup:fees": "tsx scripts/setup-fees.ts",
     "setup:faculty": "node scripts/populate-faculty-data.js",
     "setup:form": "node scripts/populate-pre-admission-form.js",
@@ -59,6 +60,7 @@
     "zod": "^4.6.5"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.13.0",
     "@eslint/eslintrc": "^3",
     "@playwright/test": "^1.60.0",
     "@portabletext/types": "^2.0.15",

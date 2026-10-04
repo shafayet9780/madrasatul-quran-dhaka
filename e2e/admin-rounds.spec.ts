@@ -2,7 +2,7 @@ import { execFileSync } from 'node:child_process';
 import { expect, test } from '@playwright/test';
 
 // Uses the Neon dev database from .env.local; the fixture rounds are reloaded before and after.
-const loadFixtures = () => execFileSync('pnpm', ['exec', 'tsx', 'scripts/survey-dev-fixtures.ts'], { stdio: 'ignore' });
+const loadFixtures = () => execFileSync('pnpm', ['survey:fixtures'], { stdio: 'ignore' });
 
 test.describe.configure({ mode: 'serial' });
 test.beforeAll(loadFixtures);

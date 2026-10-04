@@ -1,5 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
 
+const DB_SPECS = /(admin-rounds|survey-t1)\.spec\.ts/;
+
 export default defineConfig({
   testDir: 'e2e',
   timeout: 60_000,
@@ -21,5 +23,9 @@ export default defineConfig({
     reuseExistingServer: !process.env.CI,
     timeout: 240_000,
   },
-  projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
+  projects: [
+    { name: 'chromium', use: { ...devices['Desktop Chrome'] }, testIgnore: DB_SPECS },
+    // These specs reload shared fixtures in the Neon dev database, so they run one at a time.
+    { name: 'survey-db', use: { ...devices['Desktop Chrome'] }, testMatch: DB_SPECS, workers: 1 },
+  ],
 });
