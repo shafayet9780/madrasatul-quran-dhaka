@@ -30,8 +30,8 @@ describe('sheet rows', () => {
     expect(rows[0].slice(0, 12)).toEqual(['2026-10-04 21:42', expect.stringMatching(/^\d{4} \d{4}$/), 'বর্তমান', 'উস্তাদ আব্দুল্লাহ', 'নার্সারি', 'A', 'কুরআন', 1, '101', 'Ahmad', 10, 6]);
     expect(rows[1][9]).toBe('Zainab Akter');
     expect(rows[1][7]).toBe('');
-    // Notes cannot become formulas.
-    expect(rows[1][17]).toBe('\'=HYPERLINK("x")');
+    // Written RAW by the mirror, so a note that looks like a formula stays text, unchanged.
+    expect(rows[1][17]).toBe('=HYPERLINK("x")');
   });
 
   it('labels superseded and duplicate submissions', () => {

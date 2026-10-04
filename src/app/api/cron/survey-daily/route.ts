@@ -19,14 +19,18 @@ export async function GET(request: NextRequest) {
 
   const result: Record<string, unknown> = {};
   let ok = true;
+  // In production an unconfigured copy or backup must show as a failed run, not a quiet success.
+  const production = process.env.VERCEL_ENV === 'production';
   try {
     result.sheet = await mirrorPending();
+    if (production && 'skipped' in (result.sheet as object)) ok = false;
   } catch (error) {
     ok = false;
     result.sheet = { error: error instanceof Error ? error.message : 'failed' };
   }
   try {
     result.backup = await backupSurveyTables();
+    if (production && 'skipped' in (result.backup as object)) ok = false;
   } catch (error) {
     ok = false;
     result.backup = { error: error instanceof Error ? error.message : 'failed' };

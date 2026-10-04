@@ -49,4 +49,13 @@ describe('survey daily cron', () => {
     expect(backupSurveyTables).toHaveBeenCalled();
     expect((await response.json()).sheet).toEqual({ error: 'quota' });
   });
+
+  it('fails in production when the backup or sheet copy is not configured', async () => {
+    vi.stubEnv('CRON_SECRET', 'cron-secret');
+    vi.stubEnv('VERCEL_ENV', 'production');
+    mirrorPending.mockResolvedValue({ mirrored: 0, failed: 0 });
+    backupSurveyTables.mockResolvedValue({ skipped: 'SURVEY_BACKUP_BLOB_READ_WRITE_TOKEN is not set (private Blob store)' });
+    pruneDryRuns.mockResolvedValue(0);
+    expect((await GET(request('cron-secret'))).status).toBe(500);
+  });
 });

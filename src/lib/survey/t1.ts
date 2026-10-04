@@ -5,7 +5,7 @@ import type { BatchItem } from 'drizzle-orm/batch';
 import { getDb } from './db';
 import { titleCase } from './normalise';
 import { surveyAccess } from './round-status';
-import { answerItems, responses, students, submissions, surveyRounds } from './schema';
+import { answerItems, REQUEUE_MIRROR, responses, students, submissions, surveyRounds } from './schema';
 import { compareStudents } from './snapshot';
 import { findMissing, resolveBatch, t1AnswerItems, validRowAnswers } from './t1-logic';
 import type { BatchKeyInput, BatchState, DraftRow, DuplicateBatch, OverviewItem, RosterStudent, SubmitResult } from './t1-types';
@@ -253,7 +253,7 @@ export async function submitBatch(
   const statements: BatchItem<'pg'>[] = [];
   if (current) {
     statements.push(
-      db.update(submissions).set({ supersededBy: draft.id, mirroredAt: null, updatedAt: now }).where(eq(submissions.id, current.id)),
+      db.update(submissions).set({ supersededBy: draft.id, ...REQUEUE_MIRROR, updatedAt: now }).where(eq(submissions.id, current.id)),
       db.delete(answerItems).where(eq(answerItems.submissionId, current.id))
     );
   }
@@ -280,7 +280,7 @@ export async function submitBatch(
         duplicateFlag: duplicates.length > 0,
         teacherName: names.teacherName,
         subjectName: names.subjectName,
-        mirroredAt: null,
+        ...REQUEUE_MIRROR,
         clientIp: meta.ip,
         userAgent: meta.userAgent,
       })
@@ -292,7 +292,7 @@ export async function submitBatch(
     statements.push(
       db
         .update(submissions)
-        .set({ duplicateFlag: true, mirroredAt: null })
+        .set({ duplicateFlag: true, ...REQUEUE_MIRROR })
         .where(inArray(submissions.id, duplicates.map((d) => d.submissionId)))
     );
   }
@@ -379,8 +379,13 @@ export async function loadReceipt(token: string): Promise<Receipt | null> {
   const [[round], saved, replacement] = await Promise.all([
     db.select().from(surveyRounds).where(eq(surveyRounds.id, submission.roundId)),
     db.select().from(responses).where(eq(responses.submissionId, submission.id)),
+    // Only link to the teacher's own newer batch: a duplicate resolved in favour of another
+    // teacher must not reveal that teacher's marks and notes.
     submission.supersededBy
-      ? db.select({ token: submissions.receiptToken }).from(submissions).where(eq(submissions.id, submission.supersededBy))
+      ? db
+          .select({ token: submissions.receiptToken })
+          .from(submissions)
+          .where(and(eq(submissions.id, submission.supersededBy), eq(submissions.teacherKey, submission.teacherKey ?? '')))
       : Promise.resolve([]),
   ]);
   const rows = saved

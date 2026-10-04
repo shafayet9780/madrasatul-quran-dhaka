@@ -4,6 +4,9 @@ import { mirrorPending } from '@/lib/survey/sheets-mirror';
 import { submitBatch } from '@/lib/survey/t1';
 import { submitRequestSchema } from '@/lib/survey/t1-types';
 
+// Headroom for the after-submit Sheet copy (Sheets auth, a new tab, the append).
+export const maxDuration = 30;
+
 export async function POST(request: NextRequest, { params }: { params: Promise<{ roundId: string }> }) {
   const { round, response } = await authorizeRound(request, (await params).roundId);
   if (response) return response;

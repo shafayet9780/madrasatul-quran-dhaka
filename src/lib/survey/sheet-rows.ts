@@ -36,12 +36,6 @@ export function sheetStatus(submission: { supersededBy: string | null; duplicate
   return submission.duplicateFlag ? 'duplicate' : 'current';
 }
 
-/** Leading = + - @ would make Sheets treat a typed note as a formula. */
-function safeText(value: string | null | undefined): string {
-  const text = value ?? '';
-  return /^[=+\-@]/.test(text) ? `'${text}` : text;
-}
-
 export function t1SheetRows(
   snapshot: RoundSnapshot,
   submission: {
@@ -66,14 +60,14 @@ export function t1SheetRows(
       formatSheetTime(submission.submittedAt),
       referenceNumber(submission.id, false),
       status,
-      safeText(submission.teacherName),
+      submission.teacherName ?? '',
       cls?.name ?? submission.classKey,
       section?.name ?? '',
-      safeText(submission.subjectName),
+      submission.subjectName ?? '',
       r.roll ?? '',
-      safeText(r.erpId),
-      safeText(r.name),
+      r.erpId,
+      r.name,
       ...snapshot.template.questions.map((q) => (typeof r.answers[q.key] === 'number' ? (r.answers[q.key] as number) : '')),
-      safeText(r.note),
+      r.note ?? '',
     ]);
 }

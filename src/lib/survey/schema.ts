@@ -94,6 +94,8 @@ export const submissions = pgTable(
     updatedAt: ts('updated_at').notNull().defaultNow(),
     submittedAt: ts('submitted_at'),
     mirroredAt: ts('mirrored_at'),
+    /** Sheet copy in progress since; a claim older than 15 minutes is treated as abandoned. */
+    mirrorClaimedAt: ts('mirror_claimed_at'),
   },
   (t) => [
     index('submissions_round_idx').on(t.roundId, t.status),
@@ -112,6 +114,9 @@ export const submissions = pgTable(
     check('submissions_t1_teacher_chk', sql`${t.kind} <> 'T1' OR ${t.teacherKey} IS NOT NULL`),
   ]
 );
+
+/** Status changed (superseded, duplicate flag): copy the batch to the Sheet again, dropping any claim. */
+export const REQUEUE_MIRROR = { mirroredAt: null, mirrorClaimedAt: null } as const;
 
 /**
  * One row per student in a submission, with a snapshot of the student at the time.

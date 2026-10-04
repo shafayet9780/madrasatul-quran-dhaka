@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
-import { and, eq, inArray, isNotNull, like } from 'drizzle-orm';
+import { and, eq, isNotNull, like } from 'drizzle-orm';
 
 const { get, batchUpdate, update, append } = vi.hoisted(() => ({ get: vi.fn(), batchUpdate: vi.fn(), update: vi.fn(), append: vi.fn() }));
 vi.mock('@/lib/google-sheets-server', () => ({
@@ -68,6 +68,19 @@ describe('mirrorPending', () => {
     expect(rows).toHaveLength(1);
     expect(rows[0].slice(2, 10)).toEqual(['বর্তমান', 'উস্তাদ আব্দুল্লাহ', 'পরীক্ষা', '', 'কুরআন', 1, `${run}-1`, 'Zainab Akter']);
     expect(await mirroredAt()).not.toBeNull();
+  });
+
+  it('leaves a fresh claim alone and takes over an abandoned one', async () => {
+    const db = getDb();
+    await db.update(submissions).set({ mirroredAt: null, mirrorClaimedAt: new Date() }).where(eq(submissions.roundId, roundId));
+    expect(await mirrorPending({ roundId })).toEqual({ mirrored: 0, failed: 0 });
+    await db.update(submissions).set({ mirrorClaimedAt: new Date(Date.now() - 20 * 60 * 1000) }).where(eq(submissions.roundId, roundId));
+    get.mockResolvedValue({ data: { sheets: [{ properties: { title: run } }] } });
+    append.mockResolvedValue({});
+    expect(await mirrorPending({ roundId })).toEqual({ mirrored: 1, failed: 0 });
+    const [row] = await db.select().from(submissions).where(eq(submissions.roundId, roundId));
+    expect(row.mirroredAt).not.toBeNull();
+    expect(row.mirrorClaimedAt).toBeNull();
   });
 
   it('does nothing when everything is already copied', async () => {
