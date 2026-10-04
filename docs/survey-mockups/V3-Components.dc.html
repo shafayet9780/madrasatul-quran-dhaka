@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<title>নকশা v3: স্টোন ও সেজ</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Anek+Bangla:wght@500;600&amp;family=Hind+Siliguri:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+*{box-sizing:border-box}
+.lbl{font-size:13px;font-weight:600;color:#5B6670;letter-spacing:0.3px}
+.cta{display:flex;align-items:center;justify-content:center;gap:10px;height:56px;padding:0 24px;border-radius:16px;border:0;background:#875B3D;color:#fff;font-family:'Anek Bangla',sans-serif;font-weight:600;font-size:18px;box-shadow:0 1px 2px rgba(94,59,36,0.28),0 8px 20px rgba(135,91,61,0.22);cursor:pointer}
+.cta.pressed{background:#6E4A31;transform:scale(0.98)}
+.sec{display:flex;align-items:center;justify-content:center;height:56px;padding:0 24px;border-radius:16px;border:0;background:#F4F2EE;color:#1F2A2E;font-family:'Anek Bangla',sans-serif;font-weight:600;font-size:18px;cursor:pointer}
+.ter{display:flex;align-items:center;justify-content:center;height:44px;padding:0 8px;border:0;background:transparent;color:#7A4B2E;font:inherit;font-weight:600;font-size:15px;cursor:pointer}
+.tile{position:relative;min-height:76px;border-radius:16px;background:#F4F2EE;border:2px solid transparent;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:17px;font-weight:600;color:#1F2A2E}
+.tile.on{background:#F6EEE6;border-color:#875B3D;color:#5E3B24}
+.disc{position:absolute;top:8px;right:8px;width:20px;height:20px;border-radius:50%;background:#875B3D;display:flex;align-items:center;justify-content:center}
+.track{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:2px;padding:3px;border-radius:14px;background:#EFECE6}
+.seg{height:46px;border-radius:11px;border:0;background:transparent;font-family:'Anek Bangla',sans-serif;font-weight:600;font-size:19px;letter-spacing:0.3px;color:#3D4A53;cursor:pointer}
+.seg.on{background:#F6EEE6;box-shadow:inset 0 0 0 2px #875B3D;color:#5E3B24}
+.st{display:grid;gap:3px;padding:3px;border-radius:14px;background:#EFECE6}
+.st button{height:44px;border-radius:11px;border:0;background:transparent;font:inherit;font-size:16px;font-weight:600;color:#5B6670}
+.st button.on{background:#fff;color:#1F2A2E;box-shadow:0 1px 3px rgba(31,42,46,0.12)}
+.field{display:flex;flex-direction:column;gap:2px;padding:10px 16px;border-radius:16px;background:#F4F2EE;border:2px solid transparent}
+.field.focus{background:#fff;border-color:#875B3D}
+.field.err{background:#fff;border-color:#C8482F}
+.sw{width:56px;height:56px;border-radius:14px}
+.cta:focus-visible,.sec:focus-visible,.ter:focus-visible,.seg:focus-visible,.st button:focus-visible{outline:3px solid #4F7FA6;outline-offset:2px}
+</style>
+</helmet>
+<div style="width: 1200px; height: 1300px; background: #FCFBF8; font-family: 'Hind Siliguri', sans-serif; color: #1F2A2E; padding: 0 64px 56px; display: flex; flex-direction: column; gap: 40px; overflow: hidden">
+  <div style="display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; margin: 0 -64px">
+    <div style="height: 3px; background: #875B3D"></div><div style="height: 3px; background: #875B3D"></div><div style="height: 3px; background: #875B3D"></div><div style="height: 3px; background: #D9BFA9"></div><div style="height: 3px; background: #EFECE6"></div><div style="height: 3px; background: #EFECE6"></div><div style="height: 3px; background: #EFECE6"></div>
+  </div>
+
+  <div style="display: flex; justify-content: space-between; align-items: flex-end; gap: 32px">
+    <div style="display: flex; flex-direction: column; gap: 8px">
+      <div class="lbl" style="color: #875B3D">ডিজাইন সিস্টেম · ব্রোঞ্জ ও পাথর · লক করা</div>
+      <h1 style="margin: 0; font-family: 'Anek Bangla', sans-serif; font-weight: 600; font-size: 36px; line-height: 1.35">ভরাট ব্রোঞ্জে এগোন, ব্রোঞ্জ রেখায় বেছে নিন</h1>
+      <div style="font-size: 17px; line-height: 1.6; color: #5B6670; max-width: 640px">প্রতিটি স্ক্রিনে একটিই ভরাট ব্রোঞ্জ: মূল বাটন। নির্বাচন কখনো ভরাট নয়, শুধু ব্রোঞ্জ রেখা, হালকা আভা ও ছোট টিক। সেজ সবুজ শুধু যাচাই ও সাফল্যে।</div>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(6, 56px); gap: 10px; font-size: 12.5px; color: #5B6670; text-align: center">
+      <div class="sw" style="background: #875B3D"></div><div class="sw" style="background: #2E6A55"></div><div class="sw" style="background: #F6EEE6; box-shadow: inset 0 0 0 1px #E7DACB"></div><div class="sw" style="background: #F4F2EE; box-shadow: inset 0 0 0 1px #E7E3DC"></div><div class="sw" style="background: #FCFBF8; box-shadow: inset 0 0 0 1px #E7E3DC"></div><div class="sw" style="background: #1F2A2E"></div>
+      <span>ব্রোঞ্জ<br>বাটন</span><span>সেজ<br>যাচাই</span><span>আভা<br>নির্বাচন</span><span>পাথর<br>টাইল</span><span>কাগজ<br>পাতা</span><span>লেখা</span>
+    </div>
+  </div>
+
+  <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 48px">
+    <div style="display: flex; flex-direction: column; gap: 14px">
+      <div class="lbl">বাটন</div>
+      <button class="cta">পরবর্তী ধাপ <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></button>
+      <button class="cta pressed">চাপ দেওয়া অবস্থা</button>
+      <button class="sec">আগের প্রশ্ন</button>
+      <button class="ter">শ্রেণি বদলান</button>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 14px">
+      <div class="lbl">নির্বাচন · রেখা, ব্লক নয়</div>
+      <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px">
+        <div class="tile">প্লে</div>
+        <div class="tile on">নার্সারি<span style="font-size: 13px; font-weight: 500; color: #7A4B2E">২ শাখা</span><span class="disc"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"></path></svg></span></div>
+        <div class="tile">কেজি<span style="font-size: 13px; font-weight: 500; color: #5B6670">২ শাখা</span></div>
+      </div>
+      <div class="lbl" style="padding-top: 6px">সুইচ</div>
+      <div class="st" style="grid-template-columns: repeat(3, minmax(0, 1fr))"><button class="on">পিতা</button><button>মাতা</button><button>অন্যান্য</button></div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 14px">
+      <div class="lbl">মার্ক · সংখ্যাই নায়ক</div>
+      <div class="track"><button class="seg">১০</button><button class="seg on">৮</button><button class="seg">৬</button><button class="seg">৪</button></div>
+      <div class="track"><button class="seg">১০</button><button class="seg">৮</button><button class="seg">৬</button><button class="seg">৪</button></div>
+      <div style="font-size: 14.5px; color: #5B6670; line-height: 1.6">প্রতিটি সারিতে একটি ব্রোঞ্জ বৃত্ত। ২০ জনের তালিকায় নিচে চোখ বুলালেই বোঝা যায় কোন সারি ফাঁকা।</div>
+    </div>
+  </div>
+
+  <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 48px">
+    <div style="display: flex; flex-direction: column; gap: 12px">
+      <div class="lbl">ইনপুট</div>
+      <div class="field"><span style="font-size: 13px; color: #5B6670">আপনার নাম</span><span style="font-size: 17px">রফিকুল ইসলাম</span></div>
+      <div class="field focus"><span style="font-size: 13px; color: #7A4B2E; font-weight: 600">মোবাইল নম্বর</span><span style="font-family: 'Anek Bangla', sans-serif; font-size: 20px; font-weight: 600; letter-spacing: 0.6px">০১৯১৫ ৪৮২ ৭৩৬</span></div>
+      <div class="field err"><span style="font-size: 13px; color: #A2341E; font-weight: 600">মোবাইল নম্বর</span><span style="font-family: 'Anek Bangla', sans-serif; font-size: 20px; font-weight: 600">০১৯১৫ ৪৮২</span></div>
+      <div style="font-size: 14px; color: #A2341E">নম্বরে ১১টি সংখ্যা হবে</div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 12px">
+      <div class="lbl">বার্তা</div>
+      <div style="display: flex; gap: 10px; font-size: 15px; line-height: 1.6; color: #3D4A53"><svg style="flex: none; margin-top: 4px" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5B6670" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V8a4 4 0 0 1 8 0v3"></path></svg><span>আপনার নাম ও উত্তর শুধু প্রিন্সিপাল ও অ্যাডমিন দেখবেন।</span></div>
+      <div style="display: flex; gap: 8px; align-items: center; font-size: 15px; color: #2E6A55; font-weight: 600"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z"></path><path d="m9 12 2 2 4-4"></path></svg>যাচাইকৃত · স্কুলের রেকর্ডের সাথে মিলেছে</div>
+      <div style="display: inline-flex; align-self: flex-start; gap: 8px; align-items: center; padding: 7px 12px; border-radius: 12px; background: #FBF1E6; color: #8A4416; font-size: 14.5px; font-weight: 600"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 16V4M3 8l4-4 4 4M17 8v12M21 16l-4 4-4-4"></path></svg>উল্টো স্কেল: ১০ = সমস্যা নেই</div>
+      <div style="display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px; border-radius: 14px; background: #FBECE8; color: #A2341E; font-size: 14.5px; line-height: 1.55"><svg style="flex: none; margin-top: 2px" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 8v5M12 16h.01"></path></svg><span>এই নম্বরে নার্সারি A-তে কাউকে পাওয়া যায়নি</span></div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 12px">
+      <div class="lbl">রিপোর্টের রং</div>
+      <div style="display: flex; gap: 16px; align-items: center; font-size: 14.5px"><span style="width: 14px; height: 14px; border-radius: 50%; background: #B86A2E"></span>অভিভাবক<span style="width: 14px; height: 14px; border-radius: 50%; background: #2F6FA3; margin-left: 10px"></span>শিক্ষক</div>
+      <div style="display: flex; gap: 2px"><span style="flex: 1; height: 22px; background: #EEF4F1; border-radius: 4px 0 0 4px"></span><span style="flex: 1; height: 22px; background: #CFE2DA"></span><span style="flex: 1; height: 22px; background: #A3C6B8"></span><span style="flex: 1; height: 22px; background: #6E9F8E"></span><span style="flex: 1; height: 22px; background: #447A6A"></span><span style="flex: 1; height: 22px; background: #2E5B52; border-radius: 0 4px 4px 0"></span></div>
+      <div style="font-size: 14px; color: #5B6670; line-height: 1.6">শিক্ষার মানের হিটম্যাপ সেজ রঙে। অভিভাবক ও শিক্ষকের তুলনা কমলা-নীলে, যা বর্ণান্ধতা পরীক্ষায় উত্তীর্ণ।</div>
+    </div>
+  </div>
+
+  <div style="display: flex; gap: 40px; align-items: baseline; border-top: 1px solid #E7E3DC; padding-top: 28px">
+    <span style="font-family: 'Anek Bangla', sans-serif; font-weight: 600; font-size: 32px; line-height: 1.3">পাতার শিরোনাম ৩২</span>
+    <span style="font-family: 'Anek Bangla', sans-serif; font-weight: 600; font-size: 26px; line-height: 1.35">স্ক্রিন ২৬</span>
+    <span style="font-family: 'Anek Bangla', sans-serif; font-weight: 600; font-size: 21px; line-height: 1.5">প্রশ্ন ২১</span>
+    <span style="font-size: 17px; line-height: 1.6">মূল লেখা ১৭</span>
+    <span style="font-size: 13.5px; color: #5B6670">সহায়ক ১৩.৫</span>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1200,"height":1300}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

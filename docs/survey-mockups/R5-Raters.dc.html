@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<title>রিপোর্ট: শিক্ষকদের রেটিং প্যাটার্ন</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Anek+Bangla:wght@500;600&amp;family=Hind+Siliguri:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+*{box-sizing:border-box}
+a{color:#875B3D}a:hover{color:#654321}
+.nav{display:flex;align-items:center;gap:10px;min-height:42px;padding:8px 12px;border-radius:10px;color:#3D4A53;text-decoration:none;font-size:15px;font-weight:500}
+.nav:hover{background:#F4F2EE;color:#1F2A2E}
+.nav[aria-current="page"]{background:#F6EEE6;color:#5E3B24;font-weight:600}
+.card{background:#FFFFFF;border:1px solid #E7E3DC;border-radius:16px;padding:20px}
+.h2{margin:0;font-family:'Anek Bangla',sans-serif;font-weight:600;font-size:19px}
+.sel{height:40px;border-radius:10px;border:1px solid transparent;background:#F4F2EE;padding:0 10px;font:inherit;font-size:14px;color:#1F2A2E}
+.tbtn{height:40px;padding:0 14px;border-radius:10px;border:1px solid transparent;background:#F4F2EE;font:inherit;font-size:14px;font-weight:600;color:#1F2A2E;display:flex;align-items:center;gap:8px;cursor:pointer}
+.nav:focus-visible,.sel:focus-visible,.tbtn:focus-visible,a:focus-visible{outline:3px solid #4F7FA6;outline-offset:2px}
+.num{font-family:'Anek Bangla',sans-serif;font-weight:600;font-variant-numeric:tabular-nums}
+th{font-weight:600;color:#5B6670;font-size:13px;text-align:left;padding:10px;border-bottom:1px solid #E7E3DC;white-space:nowrap}
+td{padding:10px;border-bottom:1px solid #F0ECE6;font-size:14px;vertical-align:middle}
+</style>
+</helmet>
+<div style="min-height: 1300px; background: #F8F7F4; font-family: 'Hind Siliguri', sans-serif; color: #1F2A2E; display: flex; flex-wrap: wrap; align-items: flex-start">
+  <nav aria-label="রিপোর্ট মেনু" style="flex: 1 1 220px; max-width: 100%; padding: 22px 14px; display: flex; flex-direction: column; gap: 4px">
+    <div style="display: flex; align-items: center; gap: 10px; padding: 0 8px 18px">
+      <div style="width: 34px; height: 34px; border-radius: 10px; background: #875B3D; color: #fff; display: flex; align-items: center; justify-content: center; font-family: 'Anek Bangla', sans-serif; font-weight: 600; font-size: 18px">ম</div>
+      <div style="display: flex; flex-direction: column"><span style="font-weight: 600; font-size: 15px">রিভিউ রিপোর্ট</span><span style="font-size: 13px; color: #5B6670">মাদরাসাতুল কুরআন, ঢাকা</span></div>
+    </div>
+    <sc-for list="{{nav}}" as="n" hint-placeholder-count="8">
+      <sc-if value="{{n.head}}" hint-placeholder-val="{{false}}"><div style="padding: 16px 12px 6px; font-size: 13px; font-weight: 600; color: #5B6670">{{n.label}}</div></sc-if>
+      <sc-if value="{{n.link}}" hint-placeholder-val="{{true}}"><a class="nav" href="{{n.href}}" aria-current="{{n.cur}}">{{n.label}}</a></sc-if>
+    </sc-for>
+  </nav>
+
+  <main style="flex: 999 1 560px; min-width: 0; padding: 22px 28px 48px; display: flex; flex-direction: column; gap: 20px">
+    <div style="display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px">
+      <div style="display: flex; flex-direction: column; gap: 4px">
+        <div style="display: flex; align-items: center; gap: 10px">
+          <h1 style="margin: 0; font-family: 'Anek Bangla', sans-serif; font-weight: 600; font-size: 30px">শিক্ষকদের রেটিং প্যাটার্ন</h1>
+          <span style="background: #E7E3DC; color: #3D4A53; border-radius: 999px; padding: 2px 10px; font-size: 13px; font-weight: 600">নমুনা ডেটা</span>
+        </div>
+        <div style="font-size: 14px; color: #5B6670">T1 · অক্টোবর ২০২৬ · কে কেমন মার্ক দেন, যাতে তুলনা ন্যায্য হয়</div>
+      </div>
+      <div style="display: flex; gap: 8px"><label style="display: flex; align-items: center; gap: 6px; font-size: 13px; color: #5B6670">রাউন্ড <select class="sel"><option>অক্টোবর ২০২৬</option></select></label><button class="tbtn">Excel</button><button class="tbtn">প্রিন্ট / PDF</button></div>
+    </div>
+
+    <div style="display: flex; flex-wrap: wrap; gap: 12px">
+      <div class="card" style="flex: 1 1 260px; padding: 14px 16px; display: flex; gap: 12px; align-items: flex-start">
+        <div style="flex: none; width: 34px; height: 34px; border-radius: 10px; background: #EAF1F6; display: flex; align-items: center; justify-content: center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3B6684" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 12h16M12 4v16"></path></svg></div>
+        <div style="font-size: 14px; line-height: 1.55"><b>সহকর্মীদের তুলনায়</b>: একই শিক্ষার্থীদের অন্য শিক্ষকেরা যে মার্ক দিয়েছেন, তার সাথে গড় পার্থক্য। + মানে বেশি উদার।</div>
+      </div>
+      <div class="card" style="flex: 1 1 260px; padding: 14px 16px; display: flex; gap: 12px; align-items: flex-start">
+        <div style="flex: none; width: 34px; height: 34px; border-radius: 10px; background: #FBF1E6; display: flex; align-items: center; justify-content: center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8A4416" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 2 20h20L12 3z"></path></svg></div>
+        <div style="font-size: 14px; line-height: 1.55"><b>একই মার্ক</b>: কোনো ব্যাচে ১০+ শিক্ষার্থীর ৯০% বা বেশি উত্তরে একই মার্ক হলে চিহ্নিত হয়।</div>
+      </div>
+    </div>
+
+    <section class="card" style="display: flex; flex-direction: column; gap: 12px">
+      <div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px; align-items: center">
+        <h2 class="h2">শিক্ষকভিত্তিক সারাংশ</h2>
+        <div style="display: flex; gap: 10px; font-size: 13px; color: #5B6670">
+          <span style="display: flex; align-items: center; gap: 4px"><span style="width: 12px; height: 12px; border-radius: 3px; background: #B0521A"></span>৪</span>
+          <span style="display: flex; align-items: center; gap: 4px"><span style="width: 12px; height: 12px; border-radius: 3px; background: #E59A5B"></span>৬</span>
+          <span style="display: flex; align-items: center; gap: 4px"><span style="width: 12px; height: 12px; border-radius: 3px; background: #8DB4DB"></span>৮</span>
+          <span style="display: flex; align-items: center; gap: 4px"><span style="width: 12px; height: 12px; border-radius: 3px; background: #2F6FA3"></span>১০</span>
+        </div>
+      </div>
+      <div style="overflow-x: auto">
+        <table style="width: 100%; min-width: 900px; border-collapse: collapse">
+          <thead><tr><th>শিক্ষক</th><th>ব্যাচ</th><th>শিক্ষার্থী</th><th>গড় মার্ক</th><th style="width: 260px">মার্কের বণ্টন</th><th style="width: 220px">সহকর্মীদের তুলনায়</th><th>একই মার্ক</th></tr></thead>
+          <tbody>
+            <sc-for list="{{rows}}" as="r" hint-placeholder-count="9">
+              <tr>
+                <td style="font-weight: 600">{{r.name}}</td>
+                <td class="num">{{r.batches}}</td>
+                <td class="num">{{r.students}}</td>
+                <td class="num">{{r.mean}}</td>
+                <td>
+                  <div style="display: flex; gap: 2px; height: 16px" title="{{r.tip}}">
+                    <div style="background: #B0521A; width: {{r.w4}}; border-radius: 4px 0 0 4px"></div>
+                    <div style="background: #E59A5B; width: {{r.w6}}"></div>
+                    <div style="background: #8DB4DB; width: {{r.w8}}"></div>
+                    <div style="background: #2F6FA3; width: {{r.w10}}; border-radius: 0 4px 4px 0"></div>
+                  </div>
+                </td>
+                <td>
+                  <div style="display: flex; align-items: center; gap: 10px">
+                    <div style="position: relative; flex: 1; height: 18px">
+                      <div style="position: absolute; left: 0; right: 0; top: 8px; height: 2px; background: #F0ECE6"></div>
+                      <div style="position: absolute; left: 50%; top: 1px; width: 1px; height: 16px; background: #A8A096"></div>
+                      <div style="position: absolute; top: 3px; left: {{r.pos}}; width: 12px; height: 12px; margin-left: -6px; border-radius: 50%; background: #3D4A53; box-shadow: 0 0 0 2px #FFFFFF"></div>
+                    </div>
+                    <span class="num" style="width: 40px; text-align: right">{{r.len}}</span>
+                  </div>
+                </td>
+                <td>
+                  <sc-if value="{{r.flat}}" hint-placeholder-val="{{false}}">
+                    <span style="display: inline-flex; align-items: center; gap: 4px; background: #FBF1E6; color: #8A4416; border-radius: 6px; padding: 1px 7px; font-size: 13px; font-weight: 500; white-space: nowrap"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#8A4416" stroke-width="2.6" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 2 20h20L12 3z"></path></svg>{{r.flatText}}</span>
+                  </sc-if>
+                  <sc-if value="{{r.ok}}" hint-placeholder-val="{{true}}"><span style="font-size: 13px; color: #5B6670">—</span></sc-if>
+                </td>
+              </tr>
+            </sc-for>
+          </tbody>
+        </table>
+      </div>
+      <div style="display: flex; justify-content: flex-end; gap: 40px; font-size: 13px; color: #5B6670; padding-right: 160px"><span>কঠোর ← ০ → উদার (মার্ক, −২ থেকে +২)</span></div>
+    </section>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1300}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const bn = (n) => String(n).replace(/\d/g, (d) => '০১২৩৪৫৬৭৮৯'[d]);
+    const NAV = [
+      ['h', 'রিপোর্ট'], ['ওভারভিউ', 'R1-Overview.dc.html'], ['শিক্ষার মান (G1)', 'R2-Teaching.dc.html'], ['ক্লাস', 'R3-Class.dc.html'],
+      ['শিক্ষার্থী প্রোফাইল', 'R4-Student.dc.html'], ['শিক্ষকদের রেটিং প্যাটার্ন', 'R5-Raters.dc.html'], ['রেসপন্স ট্র্যাকার', 'R6-Tracker.dc.html'],
+      ['h', 'অ্যাডমিন'], ['রাউন্ড', 'R7-Rounds.dc.html'], ['ERP ইমপোর্ট', 'R8-Import.dc.html']
+    ];
+    const current = 'R5-Raters.dc.html';
+    const R = [
+      ['উস্তাযা সুমাইয়া আক্তার', 6, 118, [8, 22, 40, 30], 0.1, null],
+      ['মাওলানা আব্দুর রহিম', 5, 104, [12, 30, 38, 20], -0.4, null],
+      ['হাফেজ মাহমুদুল হাসান', 7, 141, [2, 6, 22, 70], 1.1, 'একই মার্ক · ২টি ব্যাচ'],
+      ['নুসরাত জাহান', 4, 82, [10, 26, 42, 22], -0.2, null],
+      ['মো. সাইফুল ইসলাম', 5, 96, [6, 20, 44, 30], 0.3, null],
+      ['তাসনিম ফারহানা', 6, 120, [9, 25, 41, 25], 0.0, null],
+      ['হাফেজ ইমরান হোসেন', 4, 77, [0, 2, 94, 4], 0.2, 'একই মার্ক · ৯৪% ৮'],
+      ['রুমানা পারভীন', 5, 99, [22, 34, 30, 14], -0.9, null],
+      ['মাওলানা জুবায়ের আহমদ', 3, 58, [7, 21, 45, 27], 0.2, null]
+    ];
+    const fmt = (v) => (v > 0 ? '+' : v < 0 ? '−' : '') + bn(Math.abs(v).toFixed(1));
+    return {
+      nav: NAV.map(([a, b]) => a === 'h' ? { head: true, link: false, label: b } : { head: false, link: true, label: a, href: b, cur: b === current ? 'page' : 'false' }),
+      rows: R.map(([name, b, s, d, l, flat]) => {
+        const mean = (d[0] * 4 + d[1] * 6 + d[2] * 8 + d[3] * 10) / 100;
+        return {
+          name, batches: bn(b), students: bn(s), mean: bn(mean.toFixed(1)),
+          w4: d[0] + '%', w6: d[1] + '%', w8: d[2] + '%', w10: d[3] + '%',
+          tip: name + ': ৪ → ' + bn(d[0]) + '%, ৬ → ' + bn(d[1]) + '%, ৮ → ' + bn(d[2]) + '%, ১০ → ' + bn(d[3]) + '%',
+          pos: (50 + (l / 2) * 50).toFixed(1) + '%', len: fmt(l), flat: !!flat, ok: !flat, flatText: flat || ''
+        };
+      })
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<title>শিক্ষকের রিভিউ: শ্রেণি, শাখা ও বিষয়</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Anek+Bangla:wght@500;600&amp;family=Hind+Siliguri:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+*{box-sizing:border-box}
+a{color:#875B3D}a:hover{color:#654321}
+.cta{display:flex;align-items:center;justify-content:center;gap:10px;height:56px;border-radius:16px;background:#875B3D;color:#fff;text-decoration:none;font-family:'Anek Bangla',sans-serif;font-weight:600;font-size:19px;box-shadow:0 1px 2px rgba(94,59,36,0.28),0 8px 20px rgba(135,91,61,0.22)}
+.cta:hover{background:#6E4A31;color:#fff}
+.chip{min-height:50px;padding:6px 10px;border-radius:12px;border:1px solid transparent;background:#F4F2EE;font:inherit;font-size:16px;font-weight:500;color:#1F2A2E;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px}
+.chip[aria-checked="true"]{background:#F6EEE6;border-color:#875B3D;color:#5E3B24;box-shadow:inset 0 0 0 1px #875B3D}
+.chip:focus-visible,.cta:focus-visible,.back:focus-visible{outline:3px solid #4F7FA6;outline-offset:2px}
+.back{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;color:#1F2A2E;background:transparent;border:0}
+.lbl{font-family:'Anek Bangla',sans-serif;font-weight:600;font-size:17px}
+</style>
+</helmet>
+<div style="width: 390px; height: 1040px; background: #FCFBF8; font-family: 'Hind Siliguri', sans-serif; color: #1F2A2E; display: flex; flex-direction: column; overflow: hidden">
+  <div style="height: 3px; background: #EFECE6"><div style="width: 100%; height: 3px; background: #875B3D"></div></div>
+  <div style="display: flex; align-items: center; padding: 8px 8px 0"><a class="back" href="T1-Teacher.dc.html" aria-label="পিছনে"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 6-6 6 6 6"></path></svg></a><div style="flex: 1; text-align: center; font-size: 14px; font-weight: 600; color: #5B6670">শুরু · ধাপ ২/২</div><div style="width: 44px"></div></div>
+
+  <div style="padding: 8px 20px 0; display: flex; flex-direction: column; gap: 4px">
+    <div style="font-size: 14px; color: #5B6670">আসসালামু আলাইকুম,</div>
+    <h1 style="margin: 0; font-family: 'Anek Bangla', sans-serif; font-weight: 600; font-size: 24px; line-height: 1.4">উস্তাযা সুমাইয়া আক্তার</h1>
+  </div>
+
+  <div style="margin: 14px 16px 0; padding: 14px 16px; border-radius: 16px; background: #F4F2EE; display: flex; align-items: center; gap: 12px">
+    <svg style="flex: none" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#7A4B2E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>
+    <div style="flex: 1; display: flex; flex-direction: column; gap: 2px">
+      <div style="font-size: 13px; color: #7A4B2E; font-weight: 600">অসমাপ্ত রিভিউ</div>
+      <div style="font-size: 15px; font-weight: 600">কেজি · শাখা A · আরবি</div>
+      <div style="font-size: 13px; color: #5B6670">২১ জনের মধ্যে ১২ জন সম্পন্ন</div>
+    </div>
+    <a href="T1-Rate.dc.html" style="flex: none; font-weight: 600; font-size: 15px; color: #7A4B2E; padding: 12px 4px">চালিয়ে যান</a>
+  </div>
+
+  <div style="padding: 20px 16px 0; display: flex; flex-direction: column; gap: 10px">
+    <div class="lbl" id="clsLbl">শ্রেণি</div>
+    <div role="radiogroup" aria-labelledby="clsLbl" style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px">
+      <sc-for list="{{classes}}" as="c" hint-placeholder-count="9">
+        <button class="chip" role="radio" aria-checked="{{c.sel}}" onClick="{{c.pick}}">{{c.label}}</button>
+      </sc-for>
+    </div>
+  </div>
+
+  <sc-if value="{{hasSections}}" hint-placeholder-val="{{true}}">
+    <div style="padding: 20px 16px 0; display: flex; flex-direction: column; gap: 10px">
+      <div class="lbl" id="secLbl">শাখা</div>
+      <div role="radiogroup" aria-labelledby="secLbl" style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px">
+        <sc-for list="{{sections}}" as="s" hint-placeholder-count="2">
+          <button class="chip" role="radio" aria-checked="{{s.sel}}" onClick="{{s.pick}}">{{s.label}}</button>
+        </sc-for>
+      </div>
+    </div>
+  </sc-if>
+
+  <div style="padding: 20px 16px 0; display: flex; flex-direction: column; gap: 10px">
+    <div class="lbl" id="subLbl">বিষয়</div>
+    <div role="radiogroup" aria-labelledby="subLbl" style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px">
+      <sc-for list="{{subjects}}" as="s" hint-placeholder-count="6">
+        <button class="chip" role="radio" aria-checked="{{s.sel}}" onClick="{{s.pick}}">
+          <span>{{s.label}}</span>
+          <sc-if value="{{s.hasStatus}}" hint-placeholder-val="{{false}}"><span style="font-size: 12.5px; font-weight: 600; opacity: 0.9">{{s.status}}</span></sc-if>
+        </button>
+      </sc-for>
+    </div>
+  </div>
+
+  <div style="margin-top: auto; padding: 14px 16px 28px; background: #FFFFFF; border-top: 1px solid #E7E3DC; display: flex; flex-direction: column; gap: 12px">
+    <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 8px">
+      <div style="font-size: 16px; font-weight: 600">{{summary}}</div>
+      <div style="font-size: 14px; color: #5B6670; white-space: nowrap">{{count}} জন</div>
+    </div>
+    <a class="cta" href="T1-Rate.dc.html">{{ctaLabel}}</a>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1040}}'>
+class Component extends DCLogic {
+  constructor(p) { super(p); this.state = { cls: 1, sec: 0, sub: 1 }; }
+  renderVals() {
+    const bn = (n) => String(n).replace(/\d/g, (d) => '০১২৩৪৫৬৭৮৯'[d]);
+    const C = [
+      { label: 'প্লে', secs: [], n: 18 }, { label: 'নার্সারি', secs: ['শাখা A', 'শাখা B'], n: 20 }, { label: 'কেজি', secs: ['শাখা A', 'শাখা B'], n: 21 },
+      { label: 'প্রথম', secs: [], n: 24 }, { label: 'দ্বিতীয়', secs: ['বালক', 'বালিকা'], n: 19 }, { label: 'তৃতীয়', secs: ['বালক', 'বালিকা'], n: 17 },
+      { label: 'চতুর্থ', secs: [], n: 22 }, { label: 'পঞ্চম', secs: [], n: 20 }, { label: 'ষষ্ঠ', secs: [], n: 16 }
+    ];
+    const S = ['কুরআন', 'আরবি', 'ইসলাম শিক্ষা', 'বাংলা', 'ইংরেজি', 'গণিত'];
+    const st = this.state;
+    const c = C[st.cls];
+    const mine = st.cls === 1 && st.sec === 0 ? { 0: ['done', '✓ জমা দিয়েছেন'], 2: ['draft', '◐ খসড়া ৮/২০'] } : {};
+    const cur = mine[st.sub];
+    const secLabel = c.secs.length ? ' · ' + c.secs[st.sec] : '';
+    return {
+      classes: C.map((x, i) => ({ label: x.label, sel: st.cls === i, pick: () => this.setState({ cls: i, sec: 0 }) })),
+      hasSections: c.secs.length > 0,
+      sections: c.secs.map((x, i) => ({ label: x, sel: st.sec === i, pick: () => this.setState({ sec: i }) })),
+      subjects: S.map((x, i) => ({ label: x, sel: st.sub === i, hasStatus: !!mine[i], status: mine[i] ? mine[i][1] : '', pick: () => this.setState({ sub: i }) })),
+      summary: c.label + secLabel + ' · ' + S[st.sub],
+      count: bn(c.n),
+      ctaLabel: cur && cur[0] === 'done' ? 'জমা দেওয়া রিভিউ সংশোধন করুন' : cur && cur[0] === 'draft' ? 'খসড়া চালিয়ে যান' : 'শুরু করুন'
+    };
+  }
+}
+</script>
+</body>
+</html>

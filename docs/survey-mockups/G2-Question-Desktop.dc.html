@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<title>শিক্ষার্থী রিভিউ: প্রশ্ন (ডেস্কটপ)</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Anek+Bangla:wght@500;600&amp;family=Hind+Siliguri:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+*{box-sizing:border-box}
+a{color:#875B3D}a:hover{color:#654321}
+.opt{width:100%;display:flex;align-items:center;gap:14px;min-height:68px;padding:14px 18px;border-radius:16px;border:1px solid transparent;background:#F4F2EE;font:inherit;font-size:17px;font-weight:500;color:#1F2A2E;text-align:left;cursor:pointer}
+.opt:hover{border-color:#875B3D}
+.opt[aria-checked="true"]{border:2px solid #875B3D;background:#F6EEE6;padding:13px 17px}
+.step{width:100%;display:flex;align-items:center;gap:10px;min-height:44px;padding:6px 10px;border-radius:10px;border:0;background:transparent;font:inherit;font-size:14px;color:#3D4A53;text-align:left;cursor:pointer}
+.step:hover{background:#F4F2EE}
+.step[aria-current="step"]{background:#F6EEE6;color:#5E3B24;font-weight:600}
+.nav{display:flex;align-items:center;justify-content:center;gap:8px;height:50px;padding:0 22px;border-radius:14px;text-decoration:none;font-family:'Anek Bangla',sans-serif;font-weight:600;font-size:17px}
+.opt:focus-visible,.step:focus-visible,.nav:focus-visible{outline:3px solid #4F7FA6;outline-offset:2px}
+</style>
+</helmet>
+<div style="min-height: 1000px; background: #FCFBF8; font-family: 'Hind Siliguri', sans-serif; color: #1F2A2E; display: flex; flex-direction: column">
+  <header style="background: #FFFFFF; border-bottom: 1px solid #E7E3DC">
+    <div style="max-width: 1200px; margin: 0 auto; padding: 14px 28px; display: flex; flex-wrap: wrap; align-items: center; gap: 16px">
+      <div style="display: flex; align-items: center; gap: 10px">
+        <div style="width: 34px; height: 34px; border-radius: 10px; background: #875B3D; color: #fff; display: flex; align-items: center; justify-content: center; font-family: 'Anek Bangla', sans-serif; font-weight: 600; font-size: 18px">ম</div>
+        <div style="display: flex; flex-direction: column"><span style="font-weight: 600; font-size: 15px">শিক্ষার্থীর উপর অভিভাবক রিভিউ</span><span style="font-size: 13px; color: #5B6670">অক্টোবর ২০২৬ · শেষ ২০ অক্টোবর</span></div>
+      </div>
+      <div style="margin-left: auto; display: flex; flex-wrap: wrap; align-items: center; gap: 16px; font-size: 14px">
+        <span style="font-weight: 600">Maryam Binte Rafiq · নার্সারি A</span>
+        <span style="color: #5B6670">রফিকুল ইসলাম (পিতা)</span>
+        <span style="background: #E7F1EC; color: #2E6A55; border-radius: 8px; padding: 2px 8px; font-size: 13px; font-weight: 600">যাচাইকৃত</span>
+      </div>
+    </div>
+  </header>
+
+  <div style="max-width: 1200px; width: 100%; margin: 0 auto; padding: 24px 28px 40px; display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start">
+    <aside style="flex: 1 1 300px; background: #FFFFFF; border: 1px solid #E7E3DC; border-radius: 16px; padding: 10px; display: flex; flex-direction: column; gap: 2px">
+      <div style="padding: 6px 10px 8px; display: flex; justify-content: space-between; font-size: 13px; color: #5B6670"><span style="font-weight: 600">৯টি প্রশ্ন</span><span>১টি সম্পন্ন</span></div>
+      <sc-for list="{{steps}}" as="s" hint-placeholder-count="9">
+        <button class="step" aria-current="{{s.cur}}">
+          <span style="flex: none; width: 24px; height: 24px; border-radius: 50%; background: {{s.dotBg}}; color: {{s.dotFg}}; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 13px">{{s.dot}}</span>
+          <span style="flex: 1">{{s.label}}</span>
+          <sc-if value="{{s.hasAns}}" hint-placeholder-val="{{false}}"><span style="font-size: 13px; color: #5B6670">{{s.ans}}</span></sc-if>
+        </button>
+      </sc-for>
+    </aside>
+
+    <main style="flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column; gap: 16px">
+      <section style="background: #FFFFFF; border: 1px solid #E7E3DC; border-radius: 18px; padding: 22px 24px; display: flex; flex-direction: column; gap: 8px">
+        <div style="font-size: 14px; color: #5B6670; font-weight: 600">প্রশ্ন ২/৯</div>
+        <h1 id="q2d" style="margin: 0; font-family: 'Anek Bangla', sans-serif; font-weight: 600; font-size: 28px; line-height: 1.35">বাসায় নিয়মিত পড়া পড়ে কি না?</h1>
+        <div style="font-size: 15px; color: #5B6670">নন ডে কেয়ার শিক্ষার্থীদের জন্য প্রযোজ্য</div>
+      </section>
+
+      <div role="radiogroup" aria-labelledby="q2d" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 10px">
+        <sc-for list="{{opts}}" as="o" hint-placeholder-count="5">
+          <button class="opt" role="radio" aria-checked="{{o.sel}}" onClick="{{o.pick}}">
+            <span style="flex: none; width: 24px; height: 24px; border-radius: 50%; border: 2px solid {{o.ring}}; display: flex; align-items: center; justify-content: center">
+              <sc-if value="{{o.sel}}" hint-placeholder-val="{{false}}"><span style="width: 12px; height: 12px; border-radius: 50%; background: #875B3D"></span></sc-if>
+            </span>
+            <span>{{o.label}}</span>
+          </button>
+        </sc-for>
+        <button class="opt" role="radio" aria-checked="{{na.sel}}" onClick="{{na.pick}}" style="border-style: dashed">
+          <span style="flex: none; width: 24px; height: 24px; border-radius: 50%; border: 2px solid {{na.ring}}; display: flex; align-items: center; justify-content: center">
+            <sc-if value="{{na.sel}}" hint-placeholder-val="{{false}}"><span style="width: 12px; height: 12px; border-radius: 50%; background: #875B3D"></span></sc-if>
+          </span>
+          <span style="display: flex; flex-direction: column; gap: 2px"><span>প্রযোজ্য নয় (ডে কেয়ার)</span><span style="font-size: 13px; color: #5B6670; font-weight: 400">স্কোরে গণনা হবে না</span></span>
+        </button>
+      </div>
+
+      <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; padding-top: 8px">
+        <a class="nav" href="G-Match.dc.html" style="background: #F4F2EE; color: #1F2A2E; border: 0">← আগের প্রশ্ন</a>
+        <a class="nav" href="G2-Question.dc.html" style="background: #875B3D; color: #fff">পরের প্রশ্ন →</a>
+      </div>
+    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+  constructor(p) { super(p); this.state = { picked: 2 }; }
+  renderVals() {
+    const bn = (n) => String(n).replace(/\d/g, (d) => '০১২৩৪৫৬৭৮৯'[d]);
+    const Q = ['নিয়মিত ক্লাস', 'বাসায় পড়া', 'হোমওয়ার্ক', 'মোবাইল / ডিভাইস', 'মাদ্রাসা পছন্দ', 'পিতামাতার কথা শোনা', 'মারামারির অভিযোগ', 'কুইজের নাম্বার', 'সার্বিক সন্তুষ্টি'];
+    const O = ['৪ ঘন্টা +', '৩ ঘন্টা +', '২ ঘন্টা +', '১ ঘন্টা +', '১ ঘন্টার কম'];
+    const p = this.state.picked;
+    const mk = (i) => ({ sel: p === i, ring: p === i ? '#875B3D' : '#A8A096', pick: () => this.setState({ picked: i }) });
+    return {
+      steps: Q.map((label, i) => ({
+        label, cur: i === 1 ? 'step' : 'false',
+        dot: i < 1 ? '✓' : bn(i + 1), hasAns: i === 0, ans: 'উপস্থিতি > ৯০%',
+        dotBg: i < 1 ? '#E7F1EC' : i === 1 ? '#875B3D' : '#F0ECE6',
+        dotFg: i < 1 ? '#2E6A55' : i === 1 ? '#FFFFFF' : '#3D4A53'
+      })),
+      opts: O.map((label, i) => Object.assign({ label }, mk(i))),
+      na: mk(99)
+    };
+  }
+}
+</script>
+</body>
+</html>

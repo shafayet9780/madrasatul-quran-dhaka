@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<title>শিক্ষকের রিভিউ: রিভিউ ও জমা (ডেস্কটপ)</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Anek+Bangla:wght@500;600&amp;family=Hind+Siliguri:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+*{box-sizing:border-box}
+a{color:#875B3D}a:hover{color:#654321}
+.cta{display:flex;align-items:center;justify-content:center;height:54px;border-radius:15px;background:#875B3D;color:#fff;text-decoration:none;font-family:'Anek Bangla',sans-serif;font-weight:600;font-size:19px;box-shadow:0 1px 2px rgba(94,59,36,0.28),0 8px 20px rgba(135,91,61,0.22)}
+.cta:hover{background:#6E4A31;color:#fff}
+.cellb{display:flex;align-items:center;justify-content:center;height:36px;border-radius:8px;text-decoration:none;font-family:'Anek Bangla',sans-serif;font-weight:600;font-size:15px}
+.cellb:hover{background:#FCFBF8}
+.nbtn{height:36px;padding:0 12px;border-radius:9px;border:1px dashed #D8D2C9;background:#fff;font:inherit;font-size:13px;color:#5B6670;cursor:pointer;white-space:nowrap}
+.cta:focus-visible,.cellb:focus-visible,.nbtn:focus-visible,a:focus-visible{outline:3px solid #4F7FA6;outline-offset:2px}
+th{font-weight:600;color:#5B6670;font-size:13px;text-align:center;padding:10px 4px;border-bottom:1px solid #E7E3DC;vertical-align:bottom}
+td{padding:4px;border-bottom:1px solid #F0ECE6;font-size:14px;vertical-align:middle}
+</style>
+</helmet>
+<div style="min-height: 1300px; background: #FCFBF8; font-family: 'Hind Siliguri', sans-serif; color: #1F2A2E; display: flex; flex-direction: column">
+  <header style="background: #FFFFFF; border-bottom: 1px solid #E7E3DC">
+    <div style="max-width: 1280px; margin: 0 auto; padding: 14px 28px; display: flex; flex-wrap: wrap; align-items: center; gap: 16px">
+      <div style="display: flex; align-items: center; gap: 10px">
+        <div style="width: 34px; height: 34px; border-radius: 10px; background: #875B3D; color: #fff; display: flex; align-items: center; justify-content: center; font-family: 'Anek Bangla', sans-serif; font-weight: 600; font-size: 18px">ম</div>
+        <div style="display: flex; flex-direction: column"><span style="font-weight: 600; font-size: 15px">স্টুডেন্ট সম্পর্কে শিক্ষকের রিভিউ</span><span style="font-size: 13px; color: #5B6670">অক্টোবর ২০২৬ · শেষ ২০ অক্টোবর</span></div>
+      </div>
+      <div style="margin-left: auto; display: flex; flex-wrap: wrap; gap: 16px; font-size: 14px"><span style="font-weight: 600">নার্সারি · শাখা A · কুরআন</span><span style="color: #5B6670">উস্তাযা সুমাইয়া আক্তার</span></div>
+    </div>
+  </header>
+
+  <div style="max-width: 1280px; width: 100%; margin: 0 auto; padding: 24px 28px 40px; display: flex; flex-direction: column; gap: 18px">
+    <div style="display: flex; flex-wrap: wrap; align-items: baseline; gap: 14px">
+      <a href="T1-Rate-Desktop.dc.html" style="font-size: 14px; font-weight: 600">← প্রশ্নে ফিরে যান</a>
+      <h1 style="margin: 0; font-family: 'Anek Bangla', sans-serif; font-weight: 600; font-size: 30px">দেখে নিয়ে জমা দিন</h1>
+    </div>
+
+    <div style="display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start">
+      <section style="flex: 999 1 720px; min-width: 0; background: #FFFFFF; border: 1px solid #E7E3DC; border-radius: 18px; padding: 8px 12px 12px; overflow-x: auto">
+        <table style="width: 100%; min-width: 820px; border-collapse: collapse">
+          <thead>
+            <tr>
+              <th style="text-align: left; width: 44px">রোল</th>
+              <th style="text-align: left">শিক্ষার্থী</th>
+              <sc-for list="{{qs}}" as="q" hint-placeholder-count="7">
+                <th style="width: 76px"><div style="font-size: 15px; color: #1F2A2E">{{q.n}}</div><div style="font-size: 12.5px; font-weight: 500; line-height: 1.4">{{q.short}}</div></th>
+              </sc-for>
+              <th style="text-align: left; width: 220px">নোট (ঐচ্ছিক)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <sc-for list="{{rows}}" as="r" hint-placeholder-count="20">
+              <tr>
+                <td style="font-family: 'Anek Bangla', sans-serif; font-weight: 600; color: #5B6670; padding-left: 8px">{{r.roll}}</td>
+                <td style="font-weight: 600">{{r.name}}</td>
+                <sc-for list="{{r.cells}}" as="c" hint-placeholder-count="7">
+                  <td><a class="cellb" href="T1-Rate-Desktop.dc.html" title="{{c.tip}}" aria-label="{{c.tip}}" style="color: {{c.color}}">{{c.v}}</a></td>
+                </sc-for>
+                <td>
+                  <sc-if value="{{r.hasNote}}" hint-placeholder-val="{{false}}">
+                    <a href="T1-Note.dc.html" style="display: block; font-size: 13px; line-height: 1.4; color: #3B6684; text-decoration: none; padding: 6px 8px; border-radius: 8px; background: #EAF1F6; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 220px">{{r.note}}</a>
+                  </sc-if>
+                  <sc-if value="{{r.noNote}}" hint-placeholder-val="{{true}}"><button class="nbtn">+ নোট যোগ করুন</button></sc-if>
+                </td>
+              </tr>
+            </sc-for>
+          </tbody>
+        </table>
+      </section>
+
+      <aside style="flex: 1 1 300px; display: flex; flex-direction: column; gap: 14px">
+        <div style="background: #FFFFFF; border: 1px solid #E7E3DC; border-radius: 18px; padding: 20px; display: flex; flex-direction: column; gap: 14px">
+          <div style="display: flex; flex-direction: column; gap: 4px">
+            <div style="font-size: 13px; color: #5B6670">সারাংশ</div>
+            <div style="font-family: 'Anek Bangla', sans-serif; font-weight: 600; font-size: 20px">নার্সারি A · কুরআন</div>
+          </div>
+          <div style="display: flex; flex-wrap: wrap; gap: 6px">
+            <span style="background: #E7F1EC; color: #2E6A55; border-radius: 999px; padding: 4px 10px; font-size: 13px; font-weight: 600">২০ জন · ৭টি প্রশ্ন · সব পূর্ণ</span>
+            <span style="background: #EAF1F6; color: #3B6684; border-radius: 999px; padding: 4px 10px; font-size: 13px; font-weight: 600">২টি নোট</span>
+          </div>
+          <a class="cta" href="T1-Receipt.dc.html">জমা দিন</a>
+          <div style="font-size: 13px; color: #5B6670; line-height: 1.5">জমা দেওয়ার পরেও ২০ অক্টোবর পর্যন্ত সংশোধন করা যাবে। কোনো মার্কে চাপ দিলে সেই প্রশ্নে ফিরে যাবেন।</div>
+        </div>
+        <div style="background: #FFFFFF; border: 1px solid #E7E3DC; border-radius: 18px; padding: 16px 18px; display: flex; flex-direction: column; gap: 6px; font-size: 13.5px; line-height: 1.5; color: #3D4A53">
+          <div style="font-weight: 600; color: #1F2A2E; margin-bottom: 2px">প্রশ্নসমূহ</div>
+          <sc-for list="{{qs}}" as="q" hint-placeholder-count="7"><div><b>{{q.n}}.</b> {{q.full}}</div></sc-for>
+        </div>
+      </aside>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1300}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const bn = (n) => String(n).replace(/\d/g, (d) => '০১২৩৪৫৬৭৮৯'[d]);
+    const S = [
+      ['Ahmad Shafin Islam', 1], ['Maryam Binte Rafiq', 2], ['Abdullah Al Noman', 3], ['Safiya Rahman', 4],
+      ['Yahya Hasan', 5], ['Humaira Jannat', 6], ['Zayan Mahmud', 7], ['Aisha Siddika Noor', 8],
+      ['Musa Ibn Khalid', 9], ['Rumaisa Akter', 10], ['Talha Zubair', 11], ['Khadija Tul Kubra', 12],
+      ['Ibrahim Hossain', 14], ['Nusaiba Karim', 15], ['Omar Faruk Tamim', 16], ['Sumaya Binte Salam', 17],
+      ['Hamza Rahim', 18], ['Tasnia Islam', null], ['Abdur Rahman Fahim', null], ['Zainab Akter', null]
+    ];
+    const Q = [
+      ['উপস্থিতি', 'ক্লাসে নিয়মিত উপস্থিত হয় কি না?'], ['মনোযোগ', 'ক্লাসে মনোযোগী কি না?'],
+      ['মারামারি', 'অন্য বাচ্চাদের সাথে মারামারি বা বাজে কথা বলে কি না? (১০ = সমস্যা নেই)'], ['নির্দেশ পালন', 'শিক্ষকের নির্দেশ পালন করে কি না?'],
+      ['কোর্ডিনেশন', 'অভিভাবক শিক্ষকের সাথে সঠিক কোর্ডিনেশন করে কি না?'], ['সময়ের বাইরে', 'অভিভাবক নির্ধারিত সময়ের বাইরে শিক্ষকের সাথে যোগাযোগ করে কি না? (১০ = কখনো করেন না)'],
+      ['৮০% মার্ক', 'কুইজ বা অন্যান্য এসেসমেন্ট এ শতকরা আশিভাগ মার্ক পায় কি না?']
+    ];
+    const vals = [10, 8, 10, 6, 10, 8, 4, 10, 8, 10, 6, 8];
+    const notes = { 6: 'ক্লাসে মনোযোগ ভালো, তবে সহপাঠীদের সাথে মাঝে মাঝে ঝগড়া করে।', 8: 'হোমওয়ার্ক প্রায়ই অসম্পূর্ণ থাকে।' };
+    return {
+      qs: Q.map(([short, full], i) => ({ n: bn(i + 1), short, full })),
+      rows: S.map(([name, roll], i) => ({
+        name, roll: roll ? bn(roll) : '–', hasNote: !!notes[i], noNote: !notes[i], note: notes[i] || '',
+        cells: [0, 1, 2, 3, 4, 5, 6].map((q) => {
+          const v = vals[(i * 5 + q * 3 + (i % 3)) % vals.length];
+          return { v: bn(v), color: v === 4 ? '#8A4416' : '#1F2A2E', tip: name + ' · প্রশ্ন ' + bn(q + 1) + ': ' + bn(v) + ' (বদলাতে চাপ দিন)' };
+        })
+      }))
+    };
+  }
+}
+</script>
+</body>
+</html>

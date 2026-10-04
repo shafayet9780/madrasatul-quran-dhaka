@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<title>রিপোর্ট: রেসপন্স ট্র্যাকার</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Anek+Bangla:wght@500;600&amp;family=Hind+Siliguri:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+*{box-sizing:border-box}
+a{color:#875B3D}a:hover{color:#654321}
+.nav{display:flex;align-items:center;gap:10px;min-height:42px;padding:8px 12px;border-radius:10px;color:#3D4A53;text-decoration:none;font-size:15px;font-weight:500}
+.nav:hover{background:#F4F2EE;color:#1F2A2E}
+.nav[aria-current="page"]{background:#F6EEE6;color:#5E3B24;font-weight:600}
+.card{background:#FFFFFF;border:1px solid #E7E3DC;border-radius:16px;padding:20px}
+.h2{margin:0;font-family:'Anek Bangla',sans-serif;font-weight:600;font-size:19px}
+.sel{height:40px;border-radius:10px;border:1px solid transparent;background:#F4F2EE;padding:0 10px;font:inherit;font-size:14px;color:#1F2A2E}
+.tbtn{height:40px;padding:0 14px;border-radius:10px;border:1px solid transparent;background:#F4F2EE;font:inherit;font-size:14px;font-weight:600;color:#1F2A2E;display:flex;align-items:center;gap:8px;cursor:pointer;white-space:nowrap}
+.sbtn{height:36px;padding:0 10px;border-radius:9px;border:1px solid transparent;background:#F4F2EE;font:inherit;font-size:13px;font-weight:600;color:#1F2A2E;display:inline-flex;align-items:center;gap:6px;cursor:pointer;white-space:nowrap;text-decoration:none}
+.jump{height:38px;padding:0 14px;border-radius:999px;background:#FFFFFF;border:1px solid #E7E3DC;display:inline-flex;align-items:center;font-size:14px;font-weight:600;color:#1F2A2E;text-decoration:none}
+.nav:focus-visible,.sel:focus-visible,.tbtn:focus-visible,.sbtn:focus-visible,.jump:focus-visible,a:focus-visible{outline:3px solid #4F7FA6;outline-offset:2px}
+.num{font-family:'Anek Bangla',sans-serif;font-weight:600;font-variant-numeric:tabular-nums}
+th{font-weight:600;color:#5B6670;font-size:13px;text-align:left;padding:9px 10px;border-bottom:1px solid #E7E3DC;white-space:nowrap}
+td{padding:9px 10px;border-bottom:1px solid #F0ECE6;font-size:14px;vertical-align:middle}
+</style>
+</helmet>
+<div style="min-height: 2300px; background: #F8F7F4; font-family: 'Hind Siliguri', sans-serif; color: #1F2A2E; display: flex; flex-wrap: wrap; align-items: flex-start">
+  <nav aria-label="রিপোর্ট মেনু" style="flex: 1 1 220px; max-width: 100%; padding: 22px 14px; display: flex; flex-direction: column; gap: 4px">
+    <div style="display: flex; align-items: center; gap: 10px; padding: 0 8px 18px">
+      <div style="width: 34px; height: 34px; border-radius: 10px; background: #875B3D; color: #fff; display: flex; align-items: center; justify-content: center; font-family: 'Anek Bangla', sans-serif; font-weight: 600; font-size: 18px">ম</div>
+      <div style="display: flex; flex-direction: column"><span style="font-weight: 600; font-size: 15px">রিভিউ রিপোর্ট</span><span style="font-size: 13px; color: #5B6670">মাদরাসাতুল কুরআন, ঢাকা</span></div>
+    </div>
+    <sc-for list="{{nav}}" as="n" hint-placeholder-count="8">
+      <sc-if value="{{n.head}}" hint-placeholder-val="{{false}}"><div style="padding: 16px 12px 6px; font-size: 13px; font-weight: 600; color: #5B6670">{{n.label}}</div></sc-if>
+      <sc-if value="{{n.link}}" hint-placeholder-val="{{true}}"><a class="nav" href="{{n.href}}" aria-current="{{n.cur}}">{{n.label}}</a></sc-if>
+    </sc-for>
+  </nav>
+
+  <main style="flex: 999 1 560px; min-width: 0; padding: 22px 28px 48px; display: flex; flex-direction: column; gap: 20px">
+    <div style="display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px">
+      <div style="display: flex; flex-direction: column; gap: 4px">
+        <div style="display: flex; align-items: center; gap: 10px">
+          <h1 style="margin: 0; font-family: 'Anek Bangla', sans-serif; font-weight: 600; font-size: 30px">রেসপন্স ট্র্যাকার</h1>
+          <span style="background: #E7E3DC; color: #3D4A53; border-radius: 999px; padding: 2px 10px; font-size: 13px; font-weight: 600">নমুনা ডেটা</span>
+        </div>
+        <div style="font-size: 14px; color: #5B6670">অক্টোবর ২০২৬ · বন্ধ হতে ১৬ দিন বাকি · শেষ হালনাগাদ এইমাত্র</div>
+      </div>
+      <div style="display: flex; gap: 8px; flex-wrap: wrap">
+        <label style="display: flex; align-items: center; gap: 6px; font-size: 13px; color: #5B6670">রাউন্ড <select class="sel"><option>অক্টোবর ২০২৬</option></select></label>
+        <button class="tbtn">Excel</button>
+        <button class="tbtn">প্রিন্ট / PDF</button>
+      </div>
+    </div>
+
+    <nav aria-label="এই পাতায়" style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center">
+      <span style="font-size: 13px; color: #5B6670; margin-right: 4px">এই পাতায়:</span>
+      <a class="jump" href="#g">অভিভাবক</a>
+      <a class="jump" href="#t">শিক্ষক কভারেজ</a>
+      <a class="jump" href="#v">যাচাই ও খসড়া (১৪)</a>
+    </nav>
+
+    <h2 id="g" class="h2" style="font-size: 22px; padding-top: 4px">অভিভাবক</h2>
+    <div style="display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start">
+      <section class="card" style="flex: 1 1 380px; min-width: 0; display: flex; flex-direction: column; gap: 8px">
+        <div style="display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 8px">
+          <h3 style="margin: 0; font-size: 16px; font-weight: 600">শ্রেণিভিত্তিক সাড়া</h3>
+          <div style="display: flex; gap: 12px; font-size: 13px; color: #5B6670">
+            <span style="display: flex; align-items: center; gap: 5px"><span style="width: 11px; height: 11px; border-radius: 3px; background: #3A6B5D"></span>G1</span>
+            <span style="display: flex; align-items: center; gap: 5px"><span style="width: 11px; height: 11px; border-radius: 3px; background: #B86A2E"></span>G2</span>
+          </div>
+        </div>
+        <sc-for list="{{classes}}" as="c" hint-placeholder-count="13">
+          <button style="display: grid; grid-template-columns: 100px minmax(0, 1fr) 54px; align-items: center; gap: 10px; padding: 7px 10px; border-radius: 10px; border: 1px solid {{c.border}}; background: {{c.bg}}; font: inherit; color: #1F2A2E; text-align: left; cursor: pointer" aria-pressed="{{c.sel}}">
+            <span style="font-weight: 600; font-size: 14px">{{c.cls}}</span>
+            <span style="display: flex; flex-direction: column; gap: 3px">
+              <span style="height: 7px; border-radius: 4px; background: #F0ECE6; overflow: hidden; display: block"><span style="display: block; height: 7px; background: #3A6B5D; width: {{c.w1}}"></span></span>
+              <span style="height: 7px; border-radius: 4px; background: #F0ECE6; overflow: hidden; display: block"><span style="display: block; height: 7px; background: #B86A2E; width: {{c.w2}}"></span></span>
+            </span>
+            <span class="num" style="font-size: 12.5px; text-align: right; line-height: 1.3">{{c.t1}}<br>{{c.t2}}</span>
+          </button>
+        </sc-for>
+      </section>
+
+      <section class="card" style="flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column; gap: 12px">
+        <div style="display: flex; flex-direction: column; gap: 2px">
+          <h3 style="margin: 0; font-family: 'Anek Bangla', sans-serif; font-weight: 600; font-size: 19px">নার্সারি A · এখনো জমা হয়নি</h3>
+          <div style="font-size: 13.5px; color: #5B6670">প্রত্যেক অভিভাবককে আলাদা বার্তা পাঠান। গ্রুপে নাম তালিকা পাঠাবেন না।</div>
+        </div>
+        <div style="overflow-x: auto">
+          <table style="width: 100%; min-width: 640px; border-collapse: collapse">
+            <thead><tr><th>শিক্ষার্থী</th><th>বাকি</th><th>যোগাযোগ</th><th style="text-align: right">কাজ</th></tr></thead>
+            <tbody>
+              <sc-for list="{{pending}}" as="p" hint-placeholder-count="4">
+                <tr>
+                  <td><div style="font-weight: 600">{{p.name}}</div><div style="font-size: 13px; color: #5B6670">{{p.roll}}</div></td>
+                  <td><div style="display: flex; gap: 4px"><sc-for list="{{p.missing}}" as="m" hint-placeholder-count="2"><span style="background: #F8F7F4; border-radius: 6px; padding: 1px 7px; font-size: 13px; font-weight: 600">{{m}}</span></sc-for></div></td>
+                  <td style="font-size: 13.5px; color: #3D4A53">{{p.contact}}</td>
+                  <td style="text-align: right">
+                    <div style="display: inline-flex; gap: 6px">
+                      <sc-if value="{{p.canMsg}}" hint-placeholder-val="{{true}}">
+                        <button class="sbtn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"></rect><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"></path></svg>বার্তা কপি</button>
+                      </sc-if>
+                      <sc-if value="{{p.noContact}}" hint-placeholder-val="{{false}}"><span style="font-size: 13px; color: #8A4416">ERP-তে নম্বর যোগ করুন</span></sc-if>
+                    </div>
+                  </td>
+                </tr>
+              </sc-for>
+            </tbody>
+          </table>
+        </div>
+        <div style="padding: 12px 14px; border-radius: 12px; background: #F7F5F1; font-size: 14px; line-height: 1.6; color: #3D4A53"><b>বার্তার নমুনা (Yahya Hasan):</b> “আসসালামু আলাইকুম। Yahya Hasan-এর অক্টোবর মাসের অভিভাবক রিভিউ (G1, G2) এখনো জমা হয়নি। লিংক: [রাউন্ড লিংক] · শেষ সময় ২০ অক্টোবর। জাযাকাল্লাহু খাইরান।”</div>
+      </section>
+    </div>
+
+    <h2 id="t" class="h2" style="font-size: 22px; padding-top: 8px">শিক্ষক কভারেজ</h2>
+    <section class="card" style="display: flex; flex-direction: column; gap: 10px">
+      <div style="display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 8px">
+        <h3 style="margin: 0; font-size: 16px; font-weight: 600">শ্রেণি × বিষয় · কভার ৮৬/৯৪</h3>
+        <div style="display: flex; flex-wrap: wrap; gap: 12px; font-size: 13px; color: #5B6670">
+          <span style="display: flex; align-items: center; gap: 4px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2E6A55" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"></path></svg>জমা</span>
+          <span style="display: flex; align-items: center; gap: 4px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3B6684" stroke-width="2.2" aria-hidden="true"><circle cx="12" cy="12" r="8"></circle><path d="M12 4a8 8 0 0 1 0 16z" fill="#3B6684"></path></svg>খসড়া</span>
+          <span style="display: flex; align-items: center; gap: 4px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8A4416" stroke-width="2.4" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 2 20h20L12 3z"></path></svg>ডুপ্লিকেট</span>
+          <span style="display: flex; align-items: center; gap: 4px"><span style="width: 12px; height: 2px; background: #7D8A91"></span>বাকি</span>
+        </div>
+      </div>
+      <div style="overflow-x: auto">
+        <div style="min-width: 640px; display: grid; grid-template-columns: 110px repeat(8, minmax(0, 1fr)); gap: 3px; font-size: 13px">
+          <div></div>
+          <sc-for list="{{subjects}}" as="s" hint-placeholder-count="8"><div style="text-align: center; font-weight: 600; color: #5B6670; padding-bottom: 4px">{{s}}</div></sc-for>
+          <sc-for list="{{cover}}" as="r" hint-placeholder-count="13">
+            <div style="display: flex; align-items: center; font-weight: 600; color: #3D4A53">{{r.cls}}</div>
+            <sc-for list="{{r.cells}}" as="c" hint-placeholder-count="8">
+              <div title="{{c.tip}}" aria-label="{{c.tip}}" style="height: 34px; border-radius: 6px; background: {{c.bg}}; display: flex; align-items: center; justify-content: center">
+                <sc-if value="{{c.done}}" hint-placeholder-val="{{true}}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2E6A55" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"></path></svg></sc-if>
+                <sc-if value="{{c.draft}}" hint-placeholder-val="{{false}}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3B6684" stroke-width="2.2" aria-hidden="true"><circle cx="12" cy="12" r="8"></circle><path d="M12 4a8 8 0 0 1 0 16z" fill="#3B6684"></path></svg></sc-if>
+                <sc-if value="{{c.dup}}" hint-placeholder-val="{{false}}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8A4416" stroke-width="2.4" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 2 20h20L12 3z"></path></svg></sc-if>
+                <sc-if value="{{c.todo}}" hint-placeholder-val="{{false}}"><span style="width: 12px; height: 2px; background: #7D8A91"></span></sc-if>
+              </div>
+            </sc-for>
+          </sc-for>
+        </div>
+      </div>
+    </section>
+
+    <h2 id="v" class="h2" style="font-size: 22px; padding-top: 8px">যাচাই ও খসড়া</h2>
+    <div style="display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start">
+      <section class="card" style="flex: 999 1 520px; min-width: 0; display: flex; flex-direction: column; gap: 10px">
+        <h3 style="margin: 0; font-size: 16px; font-weight: 600">অযাচাইকৃত জমা (৯)</h3>
+        <div style="font-size: 13.5px; color: #5B6670">মোবাইল নম্বর ERP-র সাথে মেলেনি। ফোন করে নিশ্চিত হলে “ঠিক আছে” চাপুন; রিপোর্টে “শুধু যাচাইকৃত” ফিল্টারে তখন এটি গণ্য হবে।</div>
+        <sc-for list="{{unverified}}" as="u" hint-placeholder-count="3">
+          <div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center; padding: 10px 12px; border-radius: 12px; border: 1px solid #E7E3DC">
+            <span style="background: #F8F7F4; border-radius: 6px; padding: 1px 7px; font-size: 13px; font-weight: 600">{{u.kind}}</span>
+            <div style="flex: 1 1 220px; display: flex; flex-direction: column"><span style="font-weight: 600">{{u.who}}</span><span style="font-size: 13px; color: #5B6670">{{u.meta}}</span></div>
+            <button class="sbtn">ঠিক আছে</button>
+            <button class="sbtn" style="color: #8A4416">বাতিল করুন</button>
+          </div>
+        </sc-for>
+      </section>
+      <section class="card" style="flex: 1 1 380px; min-width: 0; display: flex; flex-direction: column; gap: 10px">
+        <h3 style="margin: 0; font-size: 16px; font-weight: 600">শিক্ষকদের খসড়া (৩) · ডুপ্লিকেট (১)</h3>
+        <sc-for list="{{drafts}}" as="d" hint-placeholder-count="4">
+          <div style="display: flex; flex-direction: column; gap: 2px; padding: 10px 12px; border-radius: 12px; border: 1px solid {{d.bd}}; background: {{d.bg}}">
+            <div style="display: flex; justify-content: space-between; gap: 8px"><span style="font-weight: 600">{{d.title}}</span><span class="num" style="font-size: 13.5px">{{d.prog}}</span></div>
+            <span style="font-size: 13px; color: #5B6670">{{d.meta}}</span>
+          </div>
+        </sc-for>
+      </section>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":2300}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const bn = (n) => String(n).replace(/\d/g, (d) => '০১২৩৪৫৬৭৮৯'[d]);
+    const NAV = [
+      ['h', 'রিপোর্ট'], ['ওভারভিউ', 'R1-Overview.dc.html'], ['শিক্ষার মান (G1)', 'R2-Teaching.dc.html'], ['ক্লাস', 'R3-Class.dc.html'],
+      ['শিক্ষার্থী প্রোফাইল', 'R4-Student.dc.html'], ['শিক্ষকদের রেটিং প্যাটার্ন', 'R5-Raters.dc.html'], ['রেসপন্স ট্র্যাকার', 'R6-Tracker.dc.html'],
+      ['h', 'অ্যাডমিন'], ['রাউন্ড', 'R7-Rounds.dc.html'], ['ERP ইমপোর্ট', 'R8-Import.dc.html']
+    ];
+    const current = 'R6-Tracker.dc.html';
+    const CLS = ['প্লে', 'নার্সারি A', 'নার্সারি B', 'কেজি A', 'কেজি B', 'প্রথম', 'দ্বিতীয় বালক', 'দ্বিতীয় বালিকা', 'তৃতীয় বালক', 'তৃতীয় বালিকা', 'চতুর্থ', 'পঞ্চম', 'ষষ্ঠ'];
+    const TOT = [18, 20, 19, 21, 20, 24, 19, 18, 17, 18, 22, 20, 16];
+    const G2 = [16, 17, 14, 17, 14, 22, 15, 15, 11, 14, 21, 15, 12];
+    const G1 = [15, 16, 13, 16, 13, 21, 14, 14, 10, 14, 20, 14, 11];
+    const SUB = ['কুরআন', 'আরবি', 'ইসলাম', 'বাংলা', 'ইংরেজি', 'গণিত', 'বিজ্ঞান', 'ইতিহাস'];
+    const has = (ci, si) => si < 6 || (si === 6 && ci >= 5) || (si === 7 && ci >= 10);
+    const state = { '1-5': 'todo', '1-0': 'dup', '3-1': 'draft', '8-4': 'draft', '12-6': 'draft', '4-5': 'todo', '9-3': 'todo', '11-7': 'todo', '6-2': 'todo', '2-4': 'todo', '7-6': 'todo' };
+    const BG = { done: '#E7F1EC', draft: '#EAF1F6', dup: '#FBF1E6', todo: '#F7F5F1' };
+    const LBL = { done: 'জমা', draft: 'খসড়া', dup: 'ডুপ্লিকেট', todo: 'বাকি' };
+    return {
+      nav: NAV.map(([a, b]) => a === 'h' ? { head: true, link: false, label: b } : { head: false, link: true, label: a, href: b, cur: b === current ? 'page' : 'false' }),
+      classes: CLS.map((cls, i) => ({ cls, w1: Math.round((G1[i] / TOT[i]) * 100) + '%', w2: Math.round((G2[i] / TOT[i]) * 100) + '%',
+        t1: bn(G1[i]) + '/' + bn(TOT[i]), t2: bn(G2[i]) + '/' + bn(TOT[i]), sel: i === 1, bg: i === 1 ? '#F6EEE6' : '#FFFFFF', border: i === 1 ? '#875B3D' : '#E7E3DC' })),
+      pending: [
+        { name: 'Yahya Hasan', roll: 'রোল ৫', missing: ['G1', 'G2'], contact: 'বাবা ০১৭২০-৪৪১৮৫৩ · মা ০১৯৮৮-২১০৬৭৪', canMsg: true, noContact: false },
+        { name: 'Tasnia Islam', roll: 'রোল নেই · আইডি ১০১৬১', missing: ['G1', 'G2'], contact: 'বাবা ০১৬৮৫-৯৯৩০২১', canMsg: true, noContact: false },
+        { name: 'Zainab Akter', roll: 'রোল নেই · আইডি ১০১৬৬', missing: ['G1', 'G2'], contact: 'কোনো নম্বর নেই', canMsg: false, noContact: true },
+        { name: 'Hamza Rahim', roll: 'রোল ১৮', missing: ['G1'], contact: 'বাবা ০১৮১২-৭৭০৪১৫', canMsg: true, noContact: false }
+      ],
+      subjects: SUB,
+      cover: CLS.map((cls, ci) => ({
+        cls,
+        cells: SUB.map((s, si) => {
+          if (!has(ci, si)) return { bg: 'transparent', done: false, draft: false, dup: false, todo: false, tip: cls + ' · ' + s + ': প্রযোজ্য নয়' };
+          const st = state[ci + '-' + si] || 'done';
+          return { bg: BG[st], done: st === 'done', draft: st === 'draft', dup: st === 'dup', todo: st === 'todo', tip: cls + ' · ' + s + ': ' + LBL[st] };
+        })
+      })),
+      unverified: [
+        { kind: 'G2', who: 'আব্দুল করিম (চাচা) · Hasan Ibn Karim', meta: 'কেজি A · ০১৮৫৫-২০৩৯৪১ · ৩ অক্টো' },
+        { kind: 'G1', who: 'মো. কামরুল হাসান (অন্যান্য) · Talha Zubair', meta: 'নার্সারি A · ০১৭৩৩-৫১০২৮৮ · ২ অক্টো' },
+        { kind: 'G2', who: 'সালমা বেগম (মাতা) · Abdur Rahman Fahim', meta: 'নার্সারি A · ০১৯১১-৬৮৪৩২০ · ২ অক্টো' }
+      ],
+      drafts: [
+        { title: 'কেজি A · আরবি', prog: '১২/২১', meta: 'উস্তাযা সুমাইয়া আক্তার · শেষ সম্পাদনা ৩ অক্টো রাত ১০:১২ · Android · Chrome', bd: '#E7E3DC', bg: '#FFFFFF' },
+        { title: 'তৃতীয় বালক · ইংরেজি', prog: '৫/১৭', meta: 'তাসনিম ফারহানা · ২ অক্টো · Windows · Edge', bd: '#E7E3DC', bg: '#FFFFFF' },
+        { title: 'ষষ্ঠ · বিজ্ঞান', prog: '১৪/১৬', meta: 'মো. সাইফুল ইসলাম · আজ সকাল ৯:৩০ · Android · Chrome', bd: '#E7E3DC', bg: '#FFFFFF' },
+        { title: 'ডুপ্লিকেট · নার্সারি A · কুরআন', prog: '২টি জমা', meta: 'হাফেজ মাহমুদুল হাসান ও উস্তাযা সুমাইয়া আক্তার · কোনটি রাখবেন ঠিক করুন', bd: '#E9D6C3', bg: '#F6EEE6' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

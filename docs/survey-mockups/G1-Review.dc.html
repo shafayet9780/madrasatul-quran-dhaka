@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<title>অভিভাবক রিভিউ: রিভিউ, মন্তব্য ও জমা</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Anek+Bangla:wght@500;600&amp;family=Hind+Siliguri:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+*{box-sizing:border-box}
+a{color:#875B3D}a:hover{color:#654321}
+.cta{display:flex;align-items:center;justify-content:center;gap:10px;height:56px;border-radius:16px;background:#875B3D;color:#fff;text-decoration:none;font-family:'Anek Bangla',sans-serif;font-weight:600;font-size:19px;box-shadow:0 1px 2px rgba(94,59,36,0.28),0 8px 20px rgba(135,91,61,0.22)}
+.cta:hover{background:#6E4A31;color:#fff}
+.back{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;color:#1F2A2E;background:transparent;border:0}
+.cta:focus-visible,.back:focus-visible,textarea:focus-visible,.edit:focus-visible{outline:3px solid #4F7FA6;outline-offset:2px}
+.edit{font-size:14px;font-weight:600;padding:10px 4px;text-decoration:none}
+</style>
+</helmet>
+<div style="width: 390px; height: 1700px; background: #FCFBF8; font-family: 'Hind Siliguri', sans-serif; color: #1F2A2E; display: flex; flex-direction: column; overflow: hidden">
+  <div style="display: flex; align-items: center; padding: 8px 8px 0"><a class="back" href="G1-Rate.dc.html" aria-label="পিছনে"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 6-6 6 6 6"></path></svg></a><div style="flex: 1; text-align: center; font-size: 14px; font-weight: 600; color: #5B6670">শেষ ধাপ</div><div style="width: 44px"></div></div>
+  <div style="padding: 6px 20px 0; display: flex; flex-direction: column; gap: 6px">
+    <h1 style="margin: 0; font-family: 'Anek Bangla', sans-serif; font-weight: 600; font-size: 26px">দেখে নিয়ে জমা দিন</h1>
+    <div style="font-size: 15px; color: #5B6670">Maryam Binte Rafiq · নার্সারি A · ১৪টি প্রশ্ন × ৬টি বিষয়</div>
+  </div>
+
+  <div style="margin: 14px 12px 0; display: flex; flex-direction: column; gap: 8px">
+    <sc-for list="{{questions}}" as="q" hint-placeholder-count="14">
+      <div style="background: #FFFFFF; border: 1px solid #E7E3DC; border-radius: 14px; padding: 10px 12px 12px 14px; display: flex; flex-direction: column; gap: 8px">
+        <div style="display: flex; gap: 8px; align-items: flex-start">
+          <div style="flex: 1; font-size: 14.5px; font-weight: 600; line-height: 1.45">{{q.n}}. {{q.text}}</div>
+          <a class="edit" href="G1-Rate.dc.html" aria-label="{{q.editLabel}}">বদলান</a>
+        </div>
+        <div style="display: flex; flex-wrap: wrap; gap: 6px">
+          <sc-for list="{{q.marks}}" as="m" hint-placeholder-count="6">
+            <div style="display: flex; gap: 6px; align-items: baseline; background: #FCFBF8; border-radius: 8px; padding: 3px 8px; font-size: 13px">
+              <span style="color: #5B6670">{{m.s}}</span>
+              <b style="font-family: 'Anek Bangla', sans-serif; color: {{m.color}}">{{m.v}}</b>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-for>
+  </div>
+
+  <div style="padding: 20px 16px 0; display: flex; flex-direction: column; gap: 8px">
+    <label for="cmt" style="font-size: 16px; font-weight: 600">বিশেষ কোন পরামর্শ ও মন্তব্য <span style="font-weight: 400; color: #5B6670">(ঐচ্ছিক)</span></label>
+    <textarea id="cmt" rows="4" placeholder="এখানে লিখুন" style="width: 100%; border-radius: 14px; border: 2px solid transparent; background: #F4F2EE; padding: 12px 14px; font: inherit; font-size: 16px; line-height: 1.6; color: #1F2A2E; background: #fff; resize: none">গণিতের হোমওয়ার্ক একটু কমালে ভালো হয়।</textarea>
+  </div>
+
+  <div style="margin-top: auto; padding: 16px 16px 28px; background: #FFFFFF; border-top: 1px solid #E7E3DC; display: flex; flex-direction: column; gap: 10px">
+    <a class="cta" href="G1-Receipt.dc.html">জমা দিন</a>
+    <div style="text-align: center; font-size: 13px; color: #5B6670">জমা দেওয়ার পর রসিদ দেখতে ও ডাউনলোড করতে পারবেন</div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1700}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const bn = (n) => String(n).replace(/\d/g, (d) => '০১২৩৪৫৬৭৮৯'[d]);
+    const Q = [
+      'ক্লাসের পড়া আপনার সন্তান বুঝতে পারে কি না?', 'ক্লাসের পড়া ক্লাসে শেষ হয় কি না?', 'অতিরিক্ত হোমওয়ার্ক দেওয়া হয় কি না?',
+      'ক্লাসে উত্তম আচরণ করা হয় কি না?', 'আপনার সন্তান শিক্ষককে পছন্দ করে কি না?', 'কুইজের সিলেবাস ঠিকঠাক রিভাইজ করা হয় কি না?',
+      'ক্লাস ওয়ার্ক ঠিকঠাক চেক করা হয় কি না?', 'হোমওয়ার্ক নিয়মিত চেক করা হয় কি না?', 'পড়ানো লেসন আপনার সন্তান শিখেছে কি না?',
+      'অভিভাবকের সাথে শিক্ষক ভালোভাবে কোর্ডিনেট করে কি না?', 'পরীক্ষার খাতা ঠিকঠাক চেক করে বাসায় পাঠানো হয় কি না?',
+      'শিক্ষার্থীর আদব আখলাক শৃংখলার ব্যাপারে শিক্ষক যত্নশীল কি না?', 'আপনার সন্তানের কোনো সমস্যা বা দূর্বলতা থাকলে আপনাকে অবগত করা হয় কিনা?',
+      'সার্বিকভাবে আপনি শিক্ষকের কাজে সন্তুষ্ট কি না?'
+    ];
+    const S = ['কুরআন', 'আরবি', 'ইসলাম', 'বাংলা', 'ইংরেজি', 'গণিত'];
+    const vals = [10, 10, 8, 10, 8, 6, 10, 8, 10, 4];
+    return {
+      questions: Q.map((text, qi) => ({
+        n: bn(qi + 1),
+        text,
+        editLabel: 'প্রশ্ন ' + bn(qi + 1) + ' বদলান',
+        marks: S.map((s, si) => {
+          const v = vals[(qi * 3 + si * 7 + (qi % 4)) % vals.length];
+          return { s, v: bn(v), color: v === 4 ? '#8A4416' : '#1F2A2E' };
+        })
+      }))
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<title>অভিভাবক রিভিউ: খুঁজে পাওয়া যায়নি</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Anek+Bangla:wght@500;600&amp;family=Hind+Siliguri:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+*{box-sizing:border-box}
+a{color:#875B3D}a:hover{color:#654321}
+.seg{flex:1;height:44px;border-radius:11px;border:0;background:transparent;font:inherit;font-size:15px;font-weight:600;color:#5B6670;cursor:pointer}
+.seg[aria-pressed="true"]{background:#fff;color:#1F2A2E;box-shadow:0 1px 3px rgba(32,43,48,0.15)}
+.back{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;color:#1F2A2E;background:transparent;border:0}
+.field{width:100%;height:60px;border-radius:14px;border:2px solid #8A4416;padding:0 16px;font-family:'Anek Bangla',sans-serif;font-size:24px;font-weight:600;letter-spacing:1px;color:#1F2A2E;background:#fff}
+.act{display:flex;align-items:center;justify-content:center;height:48px;border-radius:13px;text-decoration:none;font-weight:600;font-size:15px}
+.seg:focus-visible,.back:focus-visible,.act:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid #4F7FA6;outline-offset:2px}
+</style>
+</helmet>
+<div style="width: 390px; height: 900px; background: #FCFBF8; font-family: 'Hind Siliguri', sans-serif; color: #1F2A2E; display: flex; flex-direction: column; overflow: hidden">
+  <div style="height: 3px; background: #EFECE6"><div style="width: 66%; height: 3px; background: #875B3D"></div></div>
+  <div style="display: flex; align-items: center; padding: 8px 8px 0"><a class="back" href="G-Class.dc.html" aria-label="পিছনে"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 6-6 6 6 6"></path></svg></a><div style="flex: 1; text-align: center; font-size: 14px; font-weight: 600; color: #5B6670">পরিচয় · ধাপ ২/৩</div><div style="width: 44px"></div></div>
+  <div style="padding: 10px 20px 0; display: flex; flex-direction: column; gap: 10px">
+    <div style="align-self: flex-start; display: flex; align-items: center; gap: 8px; background: #fff; border: 1px solid #E7E3DC; border-radius: 999px; padding: 4px 6px 4px 12px; font-size: 14px"><span style="font-weight: 600">নার্সারি · শাখা A</span><a href="G-Class.dc.html" style="font-size: 13px; padding: 6px 8px">পরিবর্তন</a></div>
+    <h1 style="margin: 0; font-family: 'Anek Bangla', sans-serif; font-weight: 600; font-size: 26px; line-height: 1.4">শিক্ষার্থী খুঁজে বের করুন</h1>
+  </div>
+  <div style="margin: 16px 16px 0; padding: 4px; border-radius: 14px; background: #E7E3DC; display: flex; gap: 4px" role="group" aria-label="খোঁজার উপায়">
+    <button class="seg" aria-pressed="true">মোবাইল নম্বর</button>
+    <button class="seg" aria-pressed="false">শিক্ষার্থী আইডি</button>
+  </div>
+  <div style="padding: 18px 16px 0; display: flex; flex-direction: column; gap: 8px">
+    <label for="mob" style="font-size: 15px; font-weight: 600">বাবা বা মায়ের মোবাইল নম্বর</label>
+    <input id="mob" class="field" inputmode="numeric" aria-invalid="true" aria-describedby="nf" defaultValue="০১৯১৫৪৮২৭৩৬">
+  </div>
+
+  <div id="nf" role="alert" style="margin: 14px 16px 0; padding: 16px; border-radius: 16px; background: #FFFFFF; border: 1.5px solid #E9D6C3; display: flex; flex-direction: column; gap: 12px">
+    <div style="display: flex; gap: 10px; align-items: flex-start">
+      <svg style="flex: none; margin-top: 3px" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8A4416" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5M8.5 11h5"></path></svg>
+      <div style="display: flex; flex-direction: column; gap: 4px">
+        <div style="font-size: 16px; font-weight: 600; line-height: 1.5">নার্সারি · শাখা A-তে এই নম্বরের কোনো শিক্ষার্থী পাওয়া যায়নি</div>
+        <div style="font-size: 14px; color: #5B6670; line-height: 1.55">শ্রেণি ঠিক আছে কি না দেখুন, অথবা শিক্ষার্থী আইডি দিয়ে চেষ্টা করুন। স্কুলে হয়তো অন্য নম্বর দেওয়া আছে।</div>
+      </div>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px">
+      <a class="act" href="G-Class.dc.html" style="background: #F4F2EE; color: #1F2A2E; border: 0">শ্রেণি বদলান</a>
+      <a class="act" href="G-Identify.dc.html" style="background: #875B3D; color: #fff">আইডি দিয়ে খুঁজুন</a>
+    </div>
+    <div style="font-size: 13.5px; color: #5B6670; border-top: 1px solid #F0ECE6; padding-top: 10px">সাহায্য দরকার? অফিস: <b style="color: #1F2A2E">[অফিসের ফোন নম্বর]</b></div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

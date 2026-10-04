@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<title>অ্যাডমিন: রাউন্ড</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Anek+Bangla:wght@500;600&amp;family=Hind+Siliguri:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+*{box-sizing:border-box}
+a{color:#875B3D}a:hover{color:#654321}
+.nav{display:flex;align-items:center;gap:10px;min-height:42px;padding:8px 12px;border-radius:10px;color:#3D4A53;text-decoration:none;font-size:15px;font-weight:500}
+.nav:hover{background:#F4F2EE;color:#1F2A2E}
+.nav[aria-current="page"]{background:#F6EEE6;color:#5E3B24;font-weight:600}
+.card{background:#FFFFFF;border:1px solid #E7E3DC;border-radius:16px;padding:20px}
+.h2{margin:0;font-family:'Anek Bangla',sans-serif;font-weight:600;font-size:19px}
+.sbtn{height:34px;padding:0 10px;border-radius:9px;border:1px solid transparent;background:#F4F2EE;font:inherit;font-size:13px;font-weight:600;color:#1F2A2E;cursor:pointer;white-space:nowrap}
+.pbtn{height:48px;padding:0 18px;border-radius:12px;border:0;background:#875B3D;color:#fff;font-family:'Anek Bangla',sans-serif;font-weight:600;font-size:17px;cursor:pointer}
+.in{height:44px;border-radius:10px;border:1px solid #E2DDD5;padding:0 12px;font:inherit;font-size:15px;color:#1F2A2E;background:#fff;width:100%}
+.nav:focus-visible,.sbtn:focus-visible,.pbtn:focus-visible,.in:focus-visible,a:focus-visible{outline:3px solid #4F7FA6;outline-offset:2px}
+th{font-weight:600;color:#5B6670;font-size:13px;text-align:left;padding:10px;border-bottom:1px solid #E7E3DC;white-space:nowrap}
+td{padding:11px 10px;border-bottom:1px solid #F0ECE6;font-size:14px;vertical-align:middle}
+</style>
+</helmet>
+<div style="min-height: 1200px; background: #F8F7F4; font-family: 'Hind Siliguri', sans-serif; color: #1F2A2E; display: flex; flex-wrap: wrap; align-items: flex-start">
+  <nav aria-label="রিপোর্ট মেনু" style="flex: 1 1 220px; max-width: 100%; padding: 22px 14px; display: flex; flex-direction: column; gap: 4px">
+    <div style="display: flex; align-items: center; gap: 10px; padding: 0 8px 18px">
+      <div style="width: 34px; height: 34px; border-radius: 10px; background: #875B3D; color: #fff; display: flex; align-items: center; justify-content: center; font-family: 'Anek Bangla', sans-serif; font-weight: 600; font-size: 18px">ম</div>
+      <div style="display: flex; flex-direction: column"><span style="font-weight: 600; font-size: 15px">রিভিউ রিপোর্ট</span><span style="font-size: 13px; color: #5B6670">মাদরাসাতুল কুরআন, ঢাকা</span></div>
+    </div>
+    <sc-for list="{{nav}}" as="n" hint-placeholder-count="8">
+      <sc-if value="{{n.head}}" hint-placeholder-val="{{false}}"><div style="padding: 16px 12px 6px; font-size: 13px; font-weight: 600; color: #5B6670">{{n.label}}</div></sc-if>
+      <sc-if value="{{n.link}}" hint-placeholder-val="{{true}}"><a class="nav" href="{{n.href}}" aria-current="{{n.cur}}">{{n.label}}</a></sc-if>
+    </sc-for>
+  </nav>
+
+  <main style="flex: 999 1 560px; min-width: 0; padding: 22px 28px 48px; display: flex; flex-direction: column; gap: 20px">
+    <div style="display: flex; flex-direction: column; gap: 4px">
+      <h1 style="margin: 0; font-family: 'Anek Bangla', sans-serif; font-weight: 600; font-size: 30px">রাউন্ড</h1>
+      <div style="font-size: 14px; color: #5B6670">প্রশ্ন ও রাউন্ডের খসড়া Studio-তে তৈরি হয়; এখানে খোলা, লিংক শেয়ার, মেয়াদ বাড়ানো ও বন্ধ করা হয়</div>
+    </div>
+
+    <div style="display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start">
+      <section class="card" style="flex: 999 1 620px; min-width: 0; display: flex; flex-direction: column; gap: 12px">
+        <h2 class="h2">সব রাউন্ড</h2>
+        <div style="overflow-x: auto">
+          <table style="width: 100%; min-width: 760px; border-collapse: collapse">
+            <thead><tr><th>জরিপ</th><th>রাউন্ড</th><th>অবস্থা</th><th>সময়</th><th>জমা</th><th>কাজ</th></tr></thead>
+            <tbody>
+              <sc-for list="{{rounds}}" as="r" hint-placeholder-count="6">
+                <tr style="background: {{r.rowBg}}">
+                  <td><span style="background: #F8F7F4; border-radius: 6px; padding: 2px 8px; font-size: 13px; font-weight: 600">{{r.kind}}</span></td>
+                  <td style="font-weight: 600">{{r.label}}</td>
+                  <td><span style="display: inline-flex; align-items: center; gap: 6px; background: {{r.sbg}}; color: {{r.sfg}}; border-radius: 999px; padding: 2px 10px; font-size: 13px; font-weight: 600"><span style="width: 7px; height: 7px; border-radius: 50%; background: {{r.sfg}}"></span>{{r.status}}</span></td>
+                  <td style="color: #5B6670; font-size: 13px">{{r.when}}</td>
+                  <td style="font-family: 'Anek Bangla', sans-serif; font-weight: 600">{{r.count}}</td>
+                  <td>
+                    <div style="display: flex; gap: 6px; flex-wrap: wrap">
+                      <sc-for list="{{r.actions}}" as="a" hint-placeholder-count="2"><button class="sbtn" style="background: {{a.bg}}; color: {{a.fg}}; border-color: {{a.bd}}">{{a.label}}</button></sc-for>
+                    </div>
+                  </td>
+                </tr>
+              </sc-for>
+            </tbody>
+          </table>
+        </div>
+        <div role="alertdialog" aria-labelledby="closeQ" style="display: flex; flex-wrap: wrap; gap: 12px; align-items: center; padding: 14px 16px; border-radius: 14px; border: 1.5px solid #E9D6C3; background: #F6EEE6">
+          <div style="flex: 1 1 320px; display: flex; flex-direction: column; gap: 2px">
+            <div id="closeQ" style="font-weight: 600">T1 · অক্টোবর ২০২৬ এখনই বন্ধ করবেন?</div>
+            <div style="font-size: 13.5px; color: #5B6670">৮৬/৯৪ ক্লাস-বিষয় জমা হয়েছে; ৩টি খসড়া রয়ে যাবে। বন্ধের পর শিক্ষকরা আর জমা দিতে পারবেন না, তবে পরে মেয়াদ বাড়ানো যাবে।</div>
+          </div>
+          <button class="sbtn" style="height: 40px">না, খোলা রাখুন</button>
+          <button class="sbtn" style="height: 40px; background: #875B3D; border-color: #875B3D; color: #fff">হ্যাঁ, বন্ধ করুন</button>
+        </div>
+      </section>
+
+      <section class="card" style="flex: 1 1 360px; min-width: 0; display: flex; flex-direction: column; gap: 14px; border: 2px solid #875B3D">
+        <div style="display: flex; flex-direction: column; gap: 2px">
+          <div style="font-size: 13px; color: #5B6670">খসড়া রাউন্ড খুলুন</div>
+          <h2 class="h2" style="font-size: 21px">G2 · নভেম্বর ২০২৬</h2>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
+          <label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 600">খোলার সময়<input class="in" type="datetime-local" defaultValue="2026-11-01T08:00"></label>
+          <label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 600">বন্ধের সময়<input class="in" type="datetime-local" defaultValue="2026-11-20T23:59"></label>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 8px; padding: 12px 14px; border-radius: 12px; background: #F7F5F1">
+          <div style="font-size: 14px; font-weight: 600">খোলার সময় যা স্থির হবে</div>
+          <div style="display: flex; flex-direction: column; gap: 4px; font-size: 14px; color: #3D4A53">
+            <span>· ৯টি প্রশ্ন, অপশন ও লুকানো মার্ক</span>
+            <span>· ১৩টি শ্রেণি-শাখা ও বিষয় তালিকা</span>
+            <span>· ৭টি ক্ষেত্র (এরিয়া) ট্যাগ</span>
+          </div>
+          <div style="font-size: 13px; color: #5B6670">পরে Studio-তে প্রশ্ন বদলালেও এই রাউন্ডের ফলাফল বদলাবে না।</div>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 6px">
+          <div style="font-size: 13px; font-weight: 600">শেয়ার লিংক (খোলার পর সক্রিয়)</div>
+          <div style="display: flex; gap: 8px; align-items: center; padding: 10px 12px; border-radius: 10px; border: 1px dashed #D8D2C9; font-size: 13.5px; color: #3D4A53; overflow-wrap: anywhere">madrasatul-quran.edu.bd/survey/g2-nov-2026?k=••••••••</div>
+        </div>
+        <button class="pbtn">রাউন্ড খুলুন</button>
+      </section>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1200}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const NAV = [
+      ['h', 'রিপোর্ট'], ['ওভারভিউ', 'R1-Overview.dc.html'], ['শিক্ষার মান (G1)', 'R2-Teaching.dc.html'], ['ক্লাস', 'R3-Class.dc.html'],
+      ['শিক্ষার্থী প্রোফাইল', 'R4-Student.dc.html'], ['শিক্ষকদের রেটিং প্যাটার্ন', 'R5-Raters.dc.html'], ['রেসপন্স ট্র্যাকার', 'R6-Tracker.dc.html'],
+      ['h', 'অ্যাডমিন'], ['রাউন্ড', 'R7-Rounds.dc.html'], ['ERP ইমপোর্ট', 'R8-Import.dc.html']
+    ];
+    const current = 'R7-Rounds.dc.html';
+    const ST = { open: ['চলমান', '#E7F1EC', '#2E6A55'], draft: ['খসড়া', '#EAF1F6', '#3B6684'], closed: ['বন্ধ', '#F0ECE6', '#3D4A53'] };
+    const A = (label, primary) => primary ? { label, bg: '#875B3D', fg: '#FFFFFF', bd: '#875B3D' } : { label, bg: '#FFFFFF', fg: '#1F2A2E', bd: '#D3DBDF' };
+    const R = [
+      ['T1', 'অক্টোবর ২০২৬', 'open', '১–২০ অক্টোবর', '৮৬/৯৪ ক্লাস-বিষয়', [A('লিংক কপি'), A('মেয়াদ বাড়ান'), A('এখনই বন্ধ')]],
+      ['G1', 'অক্টোবর ২০২৬', 'open', '১–২০ অক্টোবর', '২০৭ জন', [A('লিংক কপি'), A('মেয়াদ বাড়ান'), A('এখনই বন্ধ')]],
+      ['G2', 'অক্টোবর ২০২৬', 'open', '১–২০ অক্টোবর', '২০১ জন', [A('লিংক কপি'), A('মেয়াদ বাড়ান'), A('এখনই বন্ধ')]],
+      ['G2', 'নভেম্বর ২০২৬', 'draft', '১–২০ নভেম্বর (পরিকল্পিত)', '—', [A('রাউন্ড খুলুন', true), A('Studio-তে সম্পাদনা')]],
+      ['T1', 'সেপ্টেম্বর ২০২৬', 'closed', '১–২০ সেপ্টেম্বর', '৯১/৯৪ ক্লাস-বিষয়', [A('রিপোর্ট দেখুন')]],
+      ['G2', 'সেপ্টেম্বর ২০২৬', 'closed', '১–২০ সেপ্টেম্বর', '১৮৬ জন', [A('রিপোর্ট দেখুন')]]
+    ];
+    return {
+      nav: NAV.map(([a, b]) => a === 'h' ? { head: true, link: false, label: b } : { head: false, link: true, label: a, href: b, cur: b === current ? 'page' : 'false' }),
+      rounds: R.map(([kind, label, st, when, count, actions]) => ({ kind, label, status: ST[st][0], sbg: ST[st][1], sfg: ST[st][2], when, count, actions, rowBg: st === 'draft' ? '#F6EEE6' : 'transparent' }))
+    };
+  }
+}
+</script>
+</body>
+</html>
