@@ -12,9 +12,10 @@ import { ReportTools } from '../../ReportTools';
 export const metadata: Metadata = { title: 'শিক্ষার্থী প্রোফাইল' };
 export const dynamic = 'force-dynamic';
 
-/** 8801712345678 → ০১৭১২-৩৪৫৬৭৮ */
+/** 8801712345678 → ০১৭১২-৩৪৫৬৭৮; a foreign number keeps its country code: +৪৯১৬৩… */
 function localMobile(mobile: string | null) {
   if (!mobile) return null;
+  if (!mobile.startsWith('8801')) return bn(`+${mobile}`);
   const local = mobile.replace(/^88/, '');
   return bn(`${local.slice(0, 5)}-${local.slice(5)}`);
 }
