@@ -33,7 +33,7 @@ const formKey = (roundId: string, erpId: string) => `sv-g-form:${roundId}:${erpI
 function readForm(roundId: string, erpId: string): DeviceForm {
   try {
     const saved = JSON.parse(localStorage.getItem(formKey(roundId, erpId)) ?? 'null');
-    if (saved && typeof saved.submissionId === 'string') return { submissionId: saved.submissionId, answers: saved.answers ?? {}, comment: saved.comment ?? '' };
+    if (saved && typeof saved.submissionId === 'string') return { submissionId: saved.submissionId, answers: saved.answers ?? {}, comment: saved.comment ?? '', sentWith: saved.sentWith };
   } catch {
     // Storage unavailable: the form lives in memory only.
   }
@@ -137,9 +137,18 @@ export function GuardianFlow({ config }: { config: GuardianConfig }) {
 
   async function submit(): Promise<SubmitError | null> {
     if (!form || !childErpId || !identity.relation) return 'failed';
+    // A resend from another mobile is a new form, not the earlier one again.
+    const submissionId = form.sentWith && form.sentWith !== mobile ? crypto.randomUUID() : form.submissionId;
+    const sending = { ...form, submissionId, sentWith: mobile ?? undefined };
+    setForm(sending);
+    try {
+      localStorage.setItem(formKey(config.roundId, childErpId), JSON.stringify(sending));
+    } catch {
+      // Storage unavailable.
+    }
     try {
       const response = await api.post<GuardianSubmitResult>('guardian-submit', {
-        submissionId: form.submissionId,
+        submissionId,
         classKey: identity.classKey,
         sectionKey: identity.sectionKey,
         studentErpId: childErpId,
@@ -162,7 +171,7 @@ export function GuardianFlow({ config }: { config: GuardianConfig }) {
       if (response.status === 403) return 'closed';
       if (response.status === 429) return 'rate-limited';
       if (result.reason === 'incomplete') return 'incomplete';
-      if (result.reason === 'invalid') {
+      if (response.status === 422 && result.reason === 'invalid') {
         // The child left this class (roster re-imported) or the form no longer fits: search again.
         setError('changed');
         go('identify');

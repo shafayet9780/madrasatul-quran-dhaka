@@ -1,6 +1,5 @@
 import type { LookupRequest } from './guardian-types';
-import { normaliseMobile, normaliseStudentId } from './normalise';
-import { toBengaliDigits } from './normalise';
+import { normaliseMobile, normaliseStudentId, toBengaliDigits } from './normalise';
 import { classifyAnswer, type RoundSnapshot, type SnapshotQuestion } from './snapshot';
 
 /** The typed ID or mobile in the stored form, or null when it cannot match anything. */

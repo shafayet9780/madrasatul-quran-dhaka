@@ -16,7 +16,13 @@ export type GuardianConfig = {
 export type GuardianStep = 'intro' | 'class' | 'identify' | 'match' | 'answer' | 'review';
 
 /** Answers kept on this device until submit, per round and child (cleared after submit). */
-export type DeviceForm = { submissionId: string; answers: Record<string, unknown>; comment: string };
+export type DeviceForm = {
+  submissionId: string;
+  answers: Record<string, unknown>;
+  comment: string;
+  /** The submitter mobile of the last send: a different one makes a new submission id. */
+  sentWith?: string;
+};
 
 export type Relation = 'father' | 'mother' | 'other';
 

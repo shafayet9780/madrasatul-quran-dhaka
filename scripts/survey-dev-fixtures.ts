@@ -46,7 +46,7 @@ async function main() {
   // Imported after dotenv so the database URL is set.
   const { and, eq, inArray, isNotNull, like } = await import('drizzle-orm');
   const { getDb } = await import('../src/lib/survey/db');
-  const { students, submissions, surveyRounds } = await import('../src/lib/survey/schema');
+  const { rateLimits, students, submissions, surveyRounds } = await import('../src/lib/survey/schema');
   const { saveDraft, submitBatch } = await import('../src/lib/survey/t1');
   const { t1FixtureSnapshot } = await import('../src/lib/survey/testing/t1-fixture');
   const { g1FixtureSnapshot, g2FixtureSnapshot } = await import('../src/lib/survey/testing/guardian-fixture');
@@ -62,6 +62,8 @@ async function main() {
   }
   // Also covers IDs from the import e2e file (fx20001…: the import strips dashes).
   await db.delete(students).where(like(students.erpId, 'fx%'));
+  // Repeated test runs look the same sample numbers up many times: start each run with fresh limits.
+  await db.delete(rateLimits);
   if (process.argv.includes('--remove')) {
     console.log(`Removed ${ids.length} fixture rounds and their students.`);
     return;

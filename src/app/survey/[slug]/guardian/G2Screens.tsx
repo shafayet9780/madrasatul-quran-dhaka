@@ -51,12 +51,10 @@ export function G2QuestionScreen({
   const value = answers[question.key];
   // A new question is announced: focus moves to its heading (not on the first render).
   const headingRef = useRef<HTMLHeadingElement>(null);
-  const firstRender = useRef(true);
+  const shownQ = useRef(q);
   useEffect(() => {
-    if (firstRender.current) {
-      firstRender.current = false;
-      return;
-    }
+    if (shownQ.current === q) return;
+    shownQ.current = q;
     headingRef.current?.focus();
   }, [q]);
 
