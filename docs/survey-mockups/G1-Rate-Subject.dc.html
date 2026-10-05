@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<title>অভিভাবক রিভিউ: এক বিষয়ের সব প্রশ্ন</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Anek+Bangla:wght@500;600&amp;family=Hind+Siliguri:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+*{box-sizing:border-box}
+a{color:#875B3D}a:hover{color:#654321}
+.mk{height:50px;border-radius:12px;border:0;background:transparent;color:#1F2A2E;font-family:'Anek Bangla',sans-serif;font-weight:600;font-size:19px;cursor:pointer;padding:0}
+.mk[aria-checked="true"]{background:#F6EEE6;color:#5E3B24;box-shadow:inset 0 0 0 2px #875B3D}
+.mk:focus-visible,.nav:focus-visible,.icon:focus-visible{outline:3px solid #4F7FA6;outline-offset:2px}
+.nav{display:flex;align-items:center;justify-content:center;gap:8px;height:52px;border-radius:15px;text-decoration:none;font-family:'Anek Bangla',sans-serif;font-weight:600;font-size:17px}
+.icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;color:#1F2A2E;text-decoration:none}
+</style>
+</helmet>
+<div style="position: relative; width: 390px; height: 1640px; background: #FCFBF8; font-family: 'Hind Siliguri', sans-serif; color: #1F2A2E; display: flex; flex-direction: column; overflow: hidden">
+  <div style="position: sticky; top: 0; z-index: 2; background: #FFFFFF; border-bottom: 1px solid #E7E3DC; box-shadow: 0 2px 8px rgba(32,43,48,0.06)">
+    <div style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 3px; height: 3px" role="progressbar" aria-label="বিষয়ের অগ্রগতি" aria-valuemin="0" aria-valuemax="5" aria-valuenow="1">
+      <sc-for list="{{segments}}" as="g" hint-placeholder-count="5"><div style="height: 3px; background: {{g}}"></div></sc-for>
+    </div>
+    <div style="display: flex; align-items: center; padding: 6px 8px 0">
+      <a class="icon" href="G-Match.dc.html" aria-label="পিছনে"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 6-6 6 6 6"></path></svg></a>
+      <div style="flex: 1; text-align: center; font-size: 14px; font-weight: 600; color: #5B6670">Maryam Binte Rafiq · নার্সারি A</div>
+      <div style="width: 44px"></div>
+    </div>
+    <div style="padding: 4px 20px 14px; display: flex; flex-direction: column; gap: 4px">
+      <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px">
+        <div style="font-size: 14px; font-weight: 600; color: #5B6670">বিষয় ২/৫</div>
+        <div style="display: flex; align-items: center; gap: 6px; font-size: 13px; color: #2E6A55; font-weight: 600" aria-live="polite">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="7" y="3" width="10" height="18" rx="2"></rect><path d="M11 18h2"></path></svg>
+          এই ফোনে সংরক্ষিত
+        </div>
+      </div>
+      <h1 id="subj" style="margin: 0; font-family: 'Anek Bangla', sans-serif; font-weight: 600; font-size: 28px; line-height: 1.35">ইসলাম শিক্ষা</h1>
+      <div style="font-size: 14px; color: #5B6670">{{progress}}</div>
+    </div>
+  </div>
+
+  <div style="padding: 14px 12px 120px; display: flex; flex-direction: column; gap: 10px">
+    <sc-for list="{{questions}}" as="q" hint-placeholder-count="10">
+      <div style="background: #FFFFFF; border: 1px solid {{q.border}}; border-radius: 16px; padding: 12px 12px 12px 14px; display: flex; flex-direction: column; gap: 10px">
+        <div style="display: flex; gap: 10px; align-items: flex-start">
+          <div id="{{q.id}}" style="flex: 1; font-size: 16.5px; font-weight: 600; line-height: 1.5">{{q.n}}. {{q.text}}</div>
+          <sc-if value="{{q.done}}" hint-placeholder-val="{{false}}">
+            <svg style="flex: none; margin-top: 3px" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2E6A55" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-label="সম্পন্ন"><path d="m5 12 5 5 9-10"></path></svg>
+          </sc-if>
+        </div>
+        <sc-if value="{{q.hasHint}}" hint-placeholder-val="{{false}}">
+          <div style="align-self: flex-start; display: flex; align-items: center; gap: 6px; background: #FBF1E6; color: #8A4416; border-radius: 10px; padding: 5px 10px; font-size: 14px; font-weight: 600">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#8A4416" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 8h.01M11 12h1v5h1"></path></svg>
+            {{q.hint}}
+          </div>
+        </sc-if>
+        <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 2px; padding: 3px; border-radius: 14px; background: #EFECE6" role="radiogroup" aria-labelledby="subj {{q.id}}">
+          <sc-for list="{{q.marks}}" as="m" hint-placeholder-count="4">
+            <button class="mk" role="radio" aria-checked="{{m.sel}}" aria-label="{{m.aria}}" onClick="{{m.pick}}">{{m.v}}</button>
+          </sc-for>
+        </div>
+      </div>
+    </sc-for>
+  </div>
+
+  <div style="position: absolute; left: 0; right: 0; bottom: 0; background: #FFFFFF; border-top: 1px solid #E7E3DC; padding: 12px 16px 26px; display: grid; grid-template-columns: 116px minmax(0, 1fr); gap: 10px">
+    <a class="nav" href="G-Match.dc.html" style="background: #F4F2EE; color: #1F2A2E">আগের বিষয়</a>
+    <a class="nav" href="G1-Review-Subject.dc.html" style="background: #875B3D; color: #fff">{{nextLabel}}</a>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1640}}'>
+class Component extends DCLogic {
+  constructor(p) { super(p); this.state = { marks: { 0: 10, 1: 8, 2: 10, 3: 10, 4: 8, 5: 6, 6: 10 } }; }
+  renderVals() {
+    const bn = (n) => String(n).replace(/\d/g, (d) => '০১২৩৪৫৬৭৮৯'[d]);
+    const Q = [
+      'পড়ানো লেসন আপনার সন্তান শিখেছে কি না?', 'ক্লাসে উত্তম আচরণ করা হয় কি না?', 'ক্লাস ওয়ার্ক ঠিকঠাক চেক করা হয় কি না?',
+      'হোমওয়ার্ক নিয়মিত চেক করা হয় কি না?', 'অতিরিক্ত হোমওয়ার্ক দেওয়া হয় কি না?', 'কুইজের সিলেবাস রিভাইজ করা হয় কি না?',
+      'পরীক্ষার খাতা ঠিকঠাক চেক করে বাসায় পাঠানো হয় কি না?', 'আপনার সন্তানের কোনো সমস্যা বা দুর্বলতা থাকলে আপনাকে অবগত করা হয় কি না?',
+      'আপনার সন্তান শিক্ষককে পছন্দ করে কি না?', 'সার্বিকভাবে আপনি শিক্ষকের কাজে সন্তুষ্ট কি না?'
+    ];
+    const marks = this.state.marks;
+    const done = Object.keys(marks).length;
+    const left = Q.length - done;
+    return {
+      segments: ['#875B3D', '#D9BFA9', '#E7E3DC', '#E7E3DC', '#E7E3DC'],
+      progress: bn(Q.length) + 'টি প্রশ্ন · ' + bn(done) + 'টি সম্পন্ন',
+      nextLabel: left ? 'পরের বিষয় (' + bn(left) + 'টি বাকি)' : 'পরের বিষয়: বাংলা →',
+      questions: Q.map((text, i) => ({
+        text, n: bn(i + 1), id: 'q' + i,
+        done: !!marks[i],
+        border: marks[i] ? '#E7E3DC' : '#E9D6C3',
+        hasHint: i === 4, hint: '১০ = পরিমাণ ঠিক আছে, ৪ = অনেক বেশি',
+        marks: [10, 8, 6, 4].map((v) => ({
+          v: bn(v), aria: bn(v) + ' মার্ক', sel: marks[i] === v,
+          pick: () => this.setState({ marks: Object.assign({}, marks, { [i]: v }) })
+        }))
+      }))
+    };
+  }
+}
+</script>
+</body>
+</html>
