@@ -4,6 +4,7 @@ import { and, eq, isNotNull, like } from 'drizzle-orm';
 import { getDb } from './db';
 import { lookupChildren, pruneLookups, submitGuardian, verifyMobile } from './guardian';
 import { loadReceipt } from './t1';
+import { loadGuardianTracker } from './tracker';
 import { answerItems, responses, students, submissions, surveyLookups, surveyRounds } from './schema';
 import { g2FixtureSnapshot } from './testing/guardian-fixture';
 
@@ -173,5 +174,22 @@ describe('submitGuardian', () => {
   it('refuses after the grace period', async () => {
     const closed = { ...round, closesAt: new Date(Date.now() - 20 * 60 * 1000) };
     expect(await submitGuardian(closed, form(), meta)).toEqual({ ok: false, reason: 'closed' });
+  });
+});
+
+describe('loadGuardianTracker', () => {
+  it('counts current forms per class, lists children without one, and children with several', async () => {
+    const data = await loadGuardianTracker(round.id);
+    const kgA = data!.places.find((p) => p.classKey === 'kg' && p.sectionKey === 'a')!;
+    const ours = (ids: string[]) => ids.filter((id) => id.startsWith(run));
+    // Hasan and Husain both have a current form (the inactive child is not counted).
+    expect(ours(kgA.pending.map((c) => c.erpId))).toEqual([]);
+    const six = data!.places.find((p) => p.classKey === 'six')!;
+    expect(ours(six.pending.map((c) => c.erpId))).toEqual([`${run}-c`]);
+    expect(ours(data!.multiple.map((m) => m.child.erpId)).sort()).toEqual([`${run}-a`, `${run}-b`]);
+    const multiple = data!.multiple.find((m) => m.child.erpId === `${run}-b`)!;
+    expect(multiple.forms.filter((f) => f.current)).toHaveLength(1);
+    expect(multiple.forms[0].current).toBe(true);
+    expect(await loadGuardianTracker('not-a-round')).toBeNull();
   });
 });

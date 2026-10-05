@@ -3,7 +3,7 @@ import { and, asc, eq, isNull, lt, or } from 'drizzle-orm';
 import { getSheetsClient, sheetsConfigured } from '@/lib/google-sheets-server';
 import { getDb } from './db';
 import { responses, submissions, surveyRounds } from './schema';
-import { t1SheetHeader, t1SheetRows } from './sheet-rows';
+import { guardianSheetHeader, guardianSheetRows, t1SheetHeader, t1SheetRows } from './sheet-rows';
 
 // Best-effort copy of submitted batches to the "Survey Responses" sheet (SURVEY_SHEET_ID).
 // A submission is claimed (mirror_claimed_at) before appending, so the after-submit copy and the
@@ -17,7 +17,6 @@ const CLAIM_TTL_MS = 15 * 60 * 1000;
 const isPending = (now: Date) =>
   and(
     eq(submissions.status, 'submitted'),
-    eq(submissions.kind, 'T1'), // Guardian surveys get their own layout in phase 2; leave them pending.
     isNull(submissions.mirroredAt),
     or(isNull(submissions.mirrorClaimedAt), lt(submissions.mirrorClaimedAt, new Date(now.getTime() - CLAIM_TTL_MS)))
   );
@@ -61,15 +60,23 @@ async function mirrorOne(spreadsheetId: string, submissionId: string, knownTabs:
         ? db.select({ teacherKey: submissions.teacherKey }).from(submissions).where(eq(submissions.id, claimed.supersededBy))
         : Promise.resolve([]),
     ]);
-    const setAside = Boolean(replacement[0] && replacement[0].teacherKey !== claimed.teacherKey);
     const title = tabName(round.slug);
-    await ensureTab(spreadsheetId, title, t1SheetHeader(round.snapshot), knownTabs);
+    let values: (string | number)[][];
+    if (claimed.kind === 'T1') {
+      const setAside = Boolean(replacement[0] && replacement[0].teacherKey !== claimed.teacherKey);
+      await ensureTab(spreadsheetId, title, t1SheetHeader(round.snapshot), knownTabs);
+      values = t1SheetRows(round.snapshot, { ...claimed, submittedAt: claimed.submittedAt!, setAside }, rows);
+    } else {
+      // A guardian form has one response (one child).
+      await ensureTab(spreadsheetId, title, guardianSheetHeader(round.snapshot), knownTabs);
+      values = rows.flatMap((row) => guardianSheetRows(round.snapshot, { ...claimed, submittedAt: claimed.submittedAt! }, row));
+    }
     await getSheetsClient().spreadsheets.values.append({
       spreadsheetId,
       range: `'${title}'!A1`,
       valueInputOption: 'RAW',
       insertDataOption: 'INSERT_ROWS',
-      requestBody: { values: t1SheetRows(round.snapshot, { ...claimed, submittedAt: claimed.submittedAt!, setAside }, rows) },
+      requestBody: { values },
     });
     await db.update(submissions).set({ mirroredAt: new Date(), mirrorClaimedAt: null }).where(ours);
     return true;

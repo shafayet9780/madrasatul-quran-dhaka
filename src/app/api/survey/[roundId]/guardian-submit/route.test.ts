@@ -9,6 +9,8 @@ vi.mock('@/lib/survey/db', () => ({
   getDb: () => ({ select: () => ({ from: () => ({ where: () => ({ limit: selectRound }) }) }) }),
 }));
 vi.mock('@/lib/survey/guardian', () => ({ submitGuardian }));
+vi.mock('@/lib/survey/sheets-mirror', () => ({ mirrorPending: async () => ({}) }));
+vi.mock('next/server', async (original) => ({ ...(await original<typeof import('next/server')>()), after: (task: () => unknown) => void task() }));
 
 import { POST } from './route';
 

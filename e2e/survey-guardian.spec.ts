@@ -51,13 +51,15 @@ test('a guardian finds siblings by mobile, picks one and is verified', async ({ 
   await expect(page.getByRole('heading', { name: 'কার জন্য রিভিউ দিচ্ছেন?' })).toBeVisible();
   const kids = page.getByRole('radiogroup', { name: 'কার জন্য রিভিউ দিচ্ছেন?' }).getByRole('radio');
   await expect(kids).toHaveCount(2);
-  await expect(page.getByRole('button', { name: /প্রশ্ন শুরু করুন/ })).toBeDisabled();
+  await expect(page.getByRole('button', { name: /শুরু করুন/ })).toBeDisabled();
   await kids.filter({ hasText: 'Hamza Rahim' }).click();
+  // The sample data already has a form for Hamza: the guardian is told before starting.
+  await expect(page.getByText('এই শিক্ষার্থীর রিভিউ আগেই জমা হয়েছে')).toBeVisible();
   await page.getByLabel('আপনার নাম').fill('রহিম উদ্দিন');
   await page.getByRole('radio', { name: 'পিতা' }).click();
   await expect(page.getByLabel('আপনার মোবাইল নম্বর')).toHaveValue('০১৭০০-০০০০০২');
   await expect(page.getByText('যাচাইকৃত · স্কুলের রেকর্ডের সাথে মিলেছে')).toBeVisible();
-  await expect(page.getByRole('button', { name: /প্রশ্ন শুরু করুন/ })).toBeEnabled();
+  await expect(page.getByRole('button', { name: /শুরু করুন/ })).toBeEnabled();
   await expectAccessible(page);
 
   // Names and mobiles never go into the URL; a reload keeps the identity in this tab.
@@ -68,9 +70,9 @@ test('a guardian finds siblings by mobile, picks one and is verified', async ({ 
   await page.getByLabel('আপনার মোবাইল নম্বর').fill('01811111111');
   await expect(page.getByText(/অযাচাইকৃত/)).toBeVisible();
   await page.getByRole('radio', { name: 'অন্যান্য' }).click();
-  await expect(page.getByRole('button', { name: /প্রশ্ন শুরু করুন/ })).toBeDisabled();
+  await expect(page.getByRole('button', { name: /শুরু করুন/ })).toBeDisabled();
   await page.getByLabel(/সম্পর্ক লিখুন/).fill('মামা');
-  await expect(page.getByRole('button', { name: /প্রশ্ন শুরু করুন/ })).toBeEnabled();
+  await expect(page.getByRole('button', { name: /শুরু করুন/ })).toBeEnabled();
 });
 
 test('a student ID only matches within the chosen class', async ({ page }) => {

@@ -3,9 +3,10 @@ import Link from 'next/link';
 import { formatDateTime } from '@/lib/survey/dates';
 import { toBengaliDigits as bn } from '@/lib/survey/normalise';
 import { roundStatus } from '@/lib/survey/round-status';
-import { listT1Rounds, loadTracker } from '@/lib/survey/tracker';
+import { listTrackerRounds, loadTracker } from '@/lib/survey/tracker';
 import type { CellState } from '@/lib/survey/coverage';
 import { RoundPicker } from '../RoundPicker';
+import { GuardianTracker } from './GuardianTracker';
 import { DuplicateResolver, PrintButton } from './TrackerControls';
 
 export const metadata: Metadata = { title: 'রেসপন্স ট্র্যাকার' };
@@ -38,8 +39,10 @@ function StateIcon({ state }: { state: CellState }) {
   return null;
 }
 
-export default async function TrackerPage({ searchParams }: { searchParams: Promise<{ round?: string }> }) {
-  const [{ round: requested }, rounds] = await Promise.all([searchParams, listT1Rounds()]);
+const KIND_LABEL = { T1: 'শিক্ষক', G1: 'ক্লাস পরিচালনা', G2: 'শিক্ষার্থী' } as const;
+
+export default async function TrackerPage({ searchParams }: { searchParams: Promise<{ round?: string; place?: string }> }) {
+  const [{ round: requested, place }, rounds] = await Promise.all([searchParams, listTrackerRounds()]);
   const now = new Date();
 
   if (!rounds.length) {
@@ -49,7 +52,7 @@ export default async function TrackerPage({ searchParams }: { searchParams: Prom
           রেসপন্স ট্র্যাকার
         </h1>
         <div className="sv-card" style={{ padding: 20 }}>
-          এখনো কোনো শিক্ষক রিভিউ (T1) রাউন্ড খোলা হয়নি। <Link href="/admin/rounds">রাউন্ড পাতায়</Link> গিয়ে একটি রাউন্ড খুলুন।
+          এখনো কোনো রাউন্ড খোলা হয়নি। <Link href="/admin/rounds">রাউন্ড পাতায়</Link> গিয়ে একটি রাউন্ড খুলুন।
         </div>
       </>
     );
@@ -58,6 +61,8 @@ export default async function TrackerPage({ searchParams }: { searchParams: Prom
   // Default: the open round, else the latest.
   const chosen =
     rounds.find((r) => r.id === requested) ?? rounds.find((r) => roundStatus(r, now) === 'open') ?? rounds[0];
+  const picker = rounds.map((r) => ({ id: r.id, label: `${KIND_LABEL[r.kind]} · ${r.label}` }));
+  if (chosen.kind !== 'T1') return <GuardianTracker roundId={chosen.id} rounds={picker} place={place} now={now} />;
   const data = await loadTracker(chosen.id);
   if (!data) return null;
   const { round, coverage, drafts, duplicates } = data;
@@ -78,7 +83,7 @@ export default async function TrackerPage({ searchParams }: { searchParams: Prom
           </div>
         </div>
         <div className="flex flex-wrap gap-2 items-center sv-no-print">
-          <RoundPicker rounds={rounds.map((r) => ({ id: r.id, label: r.label }))} value={round.id} basePath="/admin/tracker" />
+          <RoundPicker rounds={picker} value={round.id} basePath="/admin/tracker" />
           <a className="sv-sbtn" href={`/admin/reports/export?kind=tracker&round=${round.id}`}>
             Excel
           </a>
@@ -95,10 +100,6 @@ export default async function TrackerPage({ searchParams }: { searchParams: Prom
           খসড়া ও ডুপ্লিকেট ({bn(drafts.length + duplicates.length)})
         </a>
       </nav>
-
-      <div className="sv-card" style={{ fontSize: 14, color: 'var(--sv-text-muted)' }}>
-        অভিভাবক রিভিউ (G1, G2) দ্বিতীয় ধাপে চালু হবে; তখন এখানে শ্রেণিভিত্তিক সাড়া ও বাকি অভিভাবকদের তালিকা দেখা যাবে।
-      </div>
 
       <h2 id="coverage" className="sv-head sv-h2" style={{ fontSize: 22, paddingTop: 4 }}>
         শিক্ষক কভারেজ

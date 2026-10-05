@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { sheetStatus, t1SheetHeader, t1SheetRows } from './sheet-rows';
+import { guardianSheetHeader, guardianSheetRows, sheetStatus, t1SheetHeader, t1SheetRows } from './sheet-rows';
+import { g1FixtureSnapshot, g2FixtureSnapshot } from './testing/guardian-fixture';
 import { t1FixtureSnapshot } from './testing/t1-fixture';
 
 const snapshot = t1FixtureSnapshot();
@@ -39,5 +40,40 @@ describe('sheet rows', () => {
     expect(sheetStatus({ supersededBy: 'x', duplicateFlag: true, setAside: true })).toBe('set-aside');
     expect(sheetStatus({ supersededBy: null, duplicateFlag: true })).toBe('duplicate');
     expect(sheetStatus({ supersededBy: null, duplicateFlag: false })).toBe('current');
+  });
+});
+
+describe('guardian sheet rows', () => {
+  const submission = {
+    id: '6f1d2a8e-3b4c-4d5e-8f90-1a2b3c4d5e6f',
+    submittedAt: new Date('2026-10-12T09:30:00Z'),
+    supersededBy: null,
+    classKey: 'nursery',
+    sectionKey: 'a',
+    submitterName: 'রফিকুল ইসলাম',
+    submitterRelation: 'পিতা',
+    submitterMobile: '8801700000001',
+    verified: true,
+    comment: 'ভালো',
+  };
+
+  it('G2: one row with the chosen options, the N/A label and the guardian', () => {
+    const snapshot = g2FixtureSnapshot();
+    const header = guardianSheetHeader(snapshot);
+    const [row] = guardianSheetRows(snapshot, submission, { studentErpId: '10012', studentName: 'MARYAM BINTE RAFIQ', roll: 2, answers: { attendance: 'above-90', 'study-at-home': 'na', devices: 'never', 'peer-complaints': 'often' } });
+    expect(row).toHaveLength(header.length);
+    expect(row.slice(2, 12)).toEqual(['বর্তমান', 'নার্সারি', 'A', 2, '10012', 'Maryam Binte Rafiq', 'রফিকুল ইসলাম', 'পিতা', '+8801700000001', 'যাচাইকৃত']);
+    expect(row.slice(12)).toEqual(['উপস্থিতি > ৯০%', 'প্রযোজ্য নয় (ডে কেয়ার)', 'দেখে না', 'প্রায়ই আসে', 'ভালো']);
+  });
+
+  it('G1: one row per subject with its marks, marked as earlier once replaced', () => {
+    const snapshot = g1FixtureSnapshot();
+    const subjects = snapshot.classes.find((c) => c.key === 'nursery')!.subjects;
+    const answers = Object.fromEntries(snapshot.template.questions.map((q, qi) => [q.key, Object.fromEntries(subjects.map((s, si) => [s.key, [10, 8, 6, 4][(qi + si) % 4]]))]));
+    const rows = guardianSheetRows(snapshot, { ...submission, supersededBy: 'x', verified: false }, { studentErpId: '10012', studentName: 'Maryam', roll: null, answers });
+    expect(rows).toHaveLength(subjects.length);
+    expect(rows[0]).toHaveLength(guardianSheetHeader(snapshot).length);
+    expect(rows[1].slice(2, 3)).toEqual(['পুরনো (সংশোধিত)']);
+    expect(rows[1].slice(11, 16)).toEqual(['অযাচাইকৃত', subjects[1].name, 8, 6, 4]);
   });
 });

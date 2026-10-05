@@ -1,6 +1,7 @@
-import type { NextRequest } from 'next/server';
+import { after, type NextRequest } from 'next/server';
 import { submitGuardian } from '@/lib/survey/guardian';
 import { guardianSubmitSchema } from '@/lib/survey/guardian-types';
+import { mirrorPending } from '@/lib/survey/sheets-mirror';
 import { authorizeRound, json, rateLimited, readBody, requestMeta } from '@/lib/survey/survey-request';
 
 /** Submits a guardian's G1/G2 form; allowed in the grace period so a form on screen can still be sent. */
@@ -13,5 +14,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
   const body = await readBody(request, guardianSubmitSchema);
   if (!body) return json({ ok: false, reason: 'invalid' }, 400);
   const result = await submitGuardian(round, body, requestMeta(request));
+  // Copy to the Sheet after answering (the earlier form, if replaced, is copied again with its new status).
+  if (result.ok) after(() => mirrorPending({ roundId: round.id, limit: 20, budgetMs: 15_000 }).catch(() => undefined));
   return json(result, result.ok ? 200 : result.reason === 'closed' ? 403 : 422);
 }

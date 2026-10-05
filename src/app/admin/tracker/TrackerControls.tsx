@@ -70,3 +70,22 @@ export function DuplicateResolver({
     </fieldset>
   );
 }
+
+/** Copies one guardian's reminder (never a group list); the admin sends it on WhatsApp. */
+export function CopyReminder({ text, child }: { text: string; child: string }) {
+  const [copied, setCopied] = useState(false);
+  async function copy() {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      window.prompt('বার্তাটি কপি করুন', text);
+    }
+  }
+  return (
+    <button type="button" className="sv-sbtn" aria-label={`${child}: বার্তা কপি`} onClick={() => void copy()}>
+      <span aria-live="polite">{copied ? 'কপি হয়েছে' : 'বার্তা কপি'}</span>
+    </button>
+  );
+}

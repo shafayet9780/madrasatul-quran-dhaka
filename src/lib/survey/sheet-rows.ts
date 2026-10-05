@@ -1,7 +1,8 @@
 import { formatSheetTime } from './dates';
+import { answerText } from './guardian-logic';
 import { questionLabel, referenceNumber } from './labels';
 import { titleCase } from './normalise';
-import { compareStudents, type RoundSnapshot } from './snapshot';
+import { classifyAnswer, compareStudents, type RoundSnapshot } from './snapshot';
 
 // Rows for the "Survey Responses" Google Sheet: one tab per round, one row per student,
 // appended again whenever a submission's status changes (append-only history).
@@ -73,4 +74,73 @@ export function t1SheetRows(
       ...snapshot.template.questions.map((q) => (typeof r.answers[q.key] === 'number' ? (r.answers[q.key] as number) : '')),
       r.note ?? '',
     ]);
+}
+
+/** Guardian rounds: G2 one row per form; G1 one row per form and subject of the child's class. */
+export function guardianSheetHeader(snapshot: RoundSnapshot): string[] {
+  return [
+    'জমার সময়',
+    'রেফারেন্স',
+    'অবস্থা',
+    'শ্রেণি',
+    'শাখা',
+    'রোল',
+    'শিক্ষার্থী ID',
+    'শিক্ষার্থী',
+    'প্রদানকারী',
+    'সম্পর্ক',
+    'মোবাইল',
+    'যাচাই',
+    ...(snapshot.template.kind === 'G1' ? ['বিষয়'] : []),
+    ...snapshot.template.questions.map((q, i) => `${i + 1}. ${questionLabel(q)}`),
+    'মন্তব্য',
+  ];
+}
+
+export function guardianSheetRows(
+  snapshot: RoundSnapshot,
+  submission: {
+    id: string;
+    submittedAt: Date;
+    supersededBy: string | null;
+    classKey: string;
+    sectionKey: string;
+    submitterName: string | null;
+    submitterRelation: string | null;
+    submitterMobile: string | null;
+    verified: boolean | null;
+    comment: string | null;
+  },
+  response: { studentErpId: string; studentName: string; roll: number | null; answers: Record<string, unknown> }
+): (string | number)[][] {
+  const { template } = snapshot;
+  const cls = snapshot.classes.find((c) => c.key === submission.classKey);
+  const section = cls?.sections.find((s) => s.key === submission.sectionKey);
+  const front = [
+    formatSheetTime(submission.submittedAt),
+    referenceNumber(submission.id, false),
+    submission.supersededBy ? STATUS_LABEL.superseded : STATUS_LABEL.current,
+    cls?.name ?? submission.classKey,
+    section?.name ?? '',
+    response.roll ?? '',
+    response.studentErpId,
+    titleCase(response.studentName),
+    submission.submitterName ?? '',
+    submission.submitterRelation ?? '',
+    submission.submitterMobile ? `+${submission.submitterMobile}` : '',
+    submission.verified ? 'যাচাইকৃত' : 'অযাচাইকৃত',
+  ];
+  const comment = submission.comment ?? '';
+  if (template.kind !== 'G1') {
+    return [[...front, ...template.questions.map((q) => answerText(q, template.scale, response.answers[q.key]) ?? ''), comment]];
+  }
+  return (cls?.subjects ?? []).map((subject) => [
+    ...front,
+    subject.name,
+    ...template.questions.map((q) => {
+      const answer = classifyAnswer(q, template.scale, (response.answers[q.key] as Record<string, unknown> | undefined)?.[subject.key]);
+      return answer.kind === 'mark' ? answer.mark : answer.kind === 'na' ? 'প্রযোজ্য নয়' : '';
+    }),
+    comment,
+  ]);
 }

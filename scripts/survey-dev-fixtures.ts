@@ -50,6 +50,7 @@ async function main() {
   const { getDb } = await import('../src/lib/survey/db');
   const { rateLimits, students, submissions, surveyRounds } = await import('../src/lib/survey/schema');
   const { saveDraft, submitBatch } = await import('../src/lib/survey/t1');
+  const { submitGuardian } = await import('../src/lib/survey/guardian');
   const { t1FixtureSnapshot } = await import('../src/lib/survey/testing/t1-fixture');
   const { g1FixtureSnapshot, g2FixtureSnapshot } = await import('../src/lib/survey/testing/guardian-fixture');
   const db = getDb();
@@ -100,7 +101,7 @@ async function main() {
         slug: 'fixture-g1',
         label: 'অক্টোবর ২০২৬ · ক্লাস পরিচালনা (নমুনা)',
         snapshot: g1FixtureSnapshot(),
-        opensAt: new Date(now - 3 * DAY),
+        opensAt: new Date(now - 4 * DAY),
         closesAt: new Date(now + 14 * DAY),
         linkKey: 'fixture-g1-link-key-00000',
       },
@@ -110,7 +111,7 @@ async function main() {
         slug: 'fixture-g1-q',
         label: 'অক্টোবর ২০২৬ · প্রশ্নভিত্তিক (নমুনা)',
         snapshot: g1FixtureSnapshot(new Date(), 'by-question'),
-        opensAt: new Date(now - 3 * DAY),
+        opensAt: new Date(now - 4 * DAY),
         closesAt: new Date(now + 14 * DAY),
         linkKey: 'fixture-g1q-link-key-0000',
       },
@@ -120,7 +121,7 @@ async function main() {
         slug: 'fixture-g2',
         label: 'অক্টোবর ২০২৬ · শিক্ষার্থী (নমুনা)',
         snapshot: g2FixtureSnapshot(),
-        opensAt: new Date(now - 3 * DAY),
+        opensAt: new Date(now - 4 * DAY),
         closesAt: new Date(now + 14 * DAY),
         linkKey: 'fixture-g2-link-key-00000',
       },
@@ -169,6 +170,26 @@ async function main() {
 
   const kg = rows.filter((s) => s.classKey === 'kg');
   await saveDraft(open, { teacherKey: '90002', classKey: 'kg', sectionKey: 'a', subjectKey: 'arabic' }, kg.slice(0, 3).map((s, i) => ({ studentErpId: s.erpId, answers: answersFor(i) })), meta);
+
+  // Guardian forms for the tracker (Maryam stays free for the end-to-end tests).
+  const g2 = rounds.find((r) => r.sanityRoundId === 'fixture-g2-open')!;
+  const g1 = rounds.find((r) => r.sanityRoundId === 'fixture-g1-open')!;
+  const byName = (name: string) => rows.find((s) => s.name === name)!;
+  const g2Answers = { attendance: 'above-90', 'study-at-home': '2h', devices: '1-2-weekly', 'peer-complaints': 'never' };
+  const guardianForm = (round: typeof g2, name: string, submitter: { name: string; relation: 'father' | 'mother' | 'other'; relationOther?: string; mobile: string }, answers: Parameters<typeof submitGuardian>[1]['answers']) =>
+    submitGuardian(
+      round,
+      { submissionId: crypto.randomUUID(), classKey: byName(name).classKey, sectionKey: byName(name).sectionKey, studentErpId: byName(name).erpId, submitter: { relationOther: '', ...submitter }, answers, comment: '' },
+      meta
+    );
+  for (const result of [
+    await guardianForm(g2, 'Yahya Hasan', { name: 'নাসরিন আক্তার', relation: 'mother', mobile: '+447700900123' }, g2Answers),
+    await guardianForm(g2, 'HAMZA RAHIM', { name: 'আব্দুর রহিম', relation: 'father', mobile: '01700000002' }, g2Answers),
+    await guardianForm(g2, 'HAMZA RAHIM', { name: 'রাশেদ কবির', relation: 'other', relationOther: 'মামা', mobile: '01855000000' }, { ...g2Answers, devices: 'never' }),
+    await guardianForm(g1, 'Yahya Hasan', { name: 'আব্দুর রহিম', relation: 'father', mobile: '01700000002' }, Object.fromEntries(g1.snapshot.template.questions.map((q) => [q.key, Object.fromEntries((g1.snapshot.classes.find((c) => c.key === 'nursery')?.subjects ?? []).map((sub) => [sub.key, 8]))]))),
+  ]) {
+    if (!result.ok) throw new Error(`fixture guardian form failed: ${JSON.stringify(result)}`);
+  }
 
   console.log(`Loaded fixtures: ${rows.length} students, 5 rounds, 3 submitted batches (one duplicate), 1 draft. Links: T1 ${FIXTURE_LINK} · G1 ${FIXTURE_G1_LINK} · G1 by question ${FIXTURE_G1Q_LINK} · G2 ${FIXTURE_G2_LINK}`);
 }

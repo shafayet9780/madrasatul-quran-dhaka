@@ -2,7 +2,8 @@ import 'server-only';
 import ExcelJS from 'exceljs';
 import { formatSheetTime } from './dates';
 import { classReport, raterReport, studentReport } from './reports';
-import { loadTracker } from './tracker';
+import { displayMobile } from './labels';
+import { loadGuardianTracker, loadTracker } from './tracker';
 import type { surveyRounds } from './schema';
 
 type Round = typeof surveyRounds.$inferSelect;
@@ -143,6 +144,53 @@ export async function trackerWorkbook(roundId: string): Promise<Book | null> {
         { header: 'ডিভাইস', key: 'device', width: 20 },
       ],
       rows: data.drafts.map((d) => ({ ...d, when: formatSheetTime(d.updatedAt) })),
+    },
+  ]);
+}
+
+export async function guardianTrackerWorkbook(roundId: string): Promise<Book | null> {
+  const data = await loadGuardianTracker(roundId);
+  if (!data) return null;
+  const who = (f: { who: string; relation: string }) => `${f.who} (${f.relation})`;
+  return book(`অভিভাবক ট্র্যাকার - ${data.round.label}.xlsx`, [
+    {
+      name: 'বাকি',
+      columns: [
+        { header: 'শ্রেণি', key: 'place', width: 16 },
+        { header: 'রোল', key: 'roll', width: 8 },
+        { header: 'শিক্ষার্থী ID', key: 'erpId', width: 14 },
+        { header: 'শিক্ষার্থী', key: 'name', width: 28 },
+        { header: 'বাবার মোবাইল', key: 'father', width: 18 },
+        { header: 'মায়ের মোবাইল', key: 'mother', width: 18 },
+      ],
+      rows: data.places.flatMap((p) =>
+        p.pending.map((c) => ({ place: p.label, roll: c.roll, erpId: c.erpId, name: c.name, father: displayMobile(c.fatherMobile, false), mother: displayMobile(c.motherMobile, false) }))
+      ),
+    },
+    {
+      name: 'অযাচাইকৃত',
+      columns: [
+        { header: 'শ্রেণি', key: 'place', width: 16 },
+        { header: 'শিক্ষার্থী', key: 'name', width: 28 },
+        { header: 'প্রদানকারী', key: 'who', width: 28 },
+        { header: 'মোবাইল', key: 'mobile', width: 18 },
+        { header: 'জমার সময়', key: 'when', width: 18 },
+      ],
+      rows: data.unverified.map((f) => ({ place: f.place, name: f.child.name, who: who(f), mobile: displayMobile(f.mobile, false), when: formatSheetTime(f.submittedAt) })),
+    },
+    {
+      name: 'একাধিক জমা',
+      columns: [
+        { header: 'শ্রেণি', key: 'place', width: 16 },
+        { header: 'শিক্ষার্থী', key: 'name', width: 28 },
+        { header: 'অবস্থা', key: 'status', width: 10 },
+        { header: 'প্রদানকারী', key: 'who', width: 28 },
+        { header: 'যাচাই', key: 'verified', width: 12 },
+        { header: 'জমার সময়', key: 'when', width: 18 },
+      ],
+      rows: data.multiple.flatMap((m) =>
+        m.forms.map((f) => ({ place: m.place, name: m.child.name, status: f.current ? 'গণ্য' : 'আগের', who: who(f), verified: f.verified ? 'যাচাইকৃত' : 'অযাচাইকৃত', when: formatSheetTime(f.submittedAt) }))
+      ),
     },
   ]);
 }

@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { assertAdmin } from '@/lib/survey/admin-auth';
-import { classWorkbook, ratersWorkbook, studentWorkbook, trackerWorkbook } from '@/lib/survey/report-excel';
+import { classWorkbook, guardianTrackerWorkbook, ratersWorkbook, studentWorkbook, trackerWorkbook } from '@/lib/survey/report-excel';
 import { pickRound, t1Rounds } from '@/lib/survey/reports';
 
 // Excel downloads for the report tables (admin only: under /admin and checked here).
@@ -11,6 +11,10 @@ export async function GET(request: NextRequest) {
     return new NextResponse('Authentication required', { status: 401 });
   }
   const q = request.nextUrl.searchParams;
+  if (q.get('kind') === 'guardian-tracker') {
+    const guardian = await guardianTrackerWorkbook(q.get('round') ?? '');
+    return guardian ? download(guardian) : new NextResponse('Not found', { status: 404 });
+  }
   const rounds = await t1Rounds();
   const round = pickRound(rounds, q.get('round') ?? undefined);
   if (!round || round.id !== q.get('round')) return new NextResponse('Not found', { status: 404 });
@@ -27,6 +31,10 @@ export async function GET(request: NextRequest) {
             ? await trackerWorkbook(round.id)
             : null;
   if (!file) return new NextResponse('Not found', { status: 404 });
+  return download(file);
+}
+
+function download(file: { fileName: string; buffer: ArrayBuffer }) {
   return new NextResponse(file.buffer, {
     headers: {
       'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
