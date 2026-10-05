@@ -32,7 +32,7 @@ Each milestone ends with its checks green, an independent review, fixes, a re-re
 ### P0 — Mockups for the changed screens
 - **G1-Rate-BySubject** (phone + desktop): one subject per screen ("বিষয় ২/৫"), the 10 questions each with a mark track, hint readable on a phone, progress by subject; review grid subjects × questions.
 - Frame changes that follow the §1 decisions: "already submitted" warning before starting (`G-Match`), tracker per guardian round without a draft list (`R6`), save chip `এই ফোনে সংরক্ষিত`.
-**Check:** owner approves the frames before P4 (by-subject) and P5 (tracker). P1–P3 do not wait.
+**Check:** owner approves the frames before P4 (by-subject) and P5 (tracker). P1–P3 do not wait. **Done:** approved 2026-10-05 (canvas version 19).
 
 ### P1 — Templates, answers and configuration
 - Template schema + snapshot: `layout` (G1; `by-subject` default / `by-question`).
@@ -86,7 +86,7 @@ Each milestone ends with its checks green, an independent review, fixes, a re-re
 
 | Item | Needed by |
 |---|---|
-| Approve the P0 frames | P4, P5 |
+| Approve the P0 frames (done 2026-10-05) | P4, P5 |
 | A guardian or two to try the preview | P7 |
 
 ## 5. Out of scope
