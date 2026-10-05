@@ -5,7 +5,7 @@ Status: **done** (M0–M8, 2026-10-04) · each milestone reviewed independently,
 Notes from the build (deviations and decisions beyond the plan):
 - Admin mutations are server actions on `/admin` pages and Studio calls go to `/studio/api/survey/…` (no `/api/admin`); every action calls `assertAdmin()`.
 - Draft rounds can also be opened from `/admin/rounds` with adjusted dates (R7).
-- Backups need a separate **private** Blob store (`SURVEY_BACKUP_BLOB_READ_WRITE_TOKEN`); the site's store is public.
+- Backups need a separate **private** Blob store (`PG_BACKUP_BLOB_READ_WRITE_TOKEN`); the site's store is public.
 - Sheet copy uses a claim column (`mirror_claimed_at`, migration 0002) so a killed function never marks a batch as copied.
 - A resolved duplicate (`duplicate_resolved_at`, migration 0003) stays resolved when either teacher edits later; a set-aside teacher resubmitting raises it again.
 - Duplicate resolution "keep one" supersedes the other teacher's batch; that teacher's receipt and Sheet rows say it was set aside by the admin.
@@ -106,7 +106,7 @@ Each milestone ends with its checks passing and a commit.
 ### M5 — Sheet copy + backup
 - After each submit: best-effort append (status column current/superseded/duplicate); failures marked for retry. Rows with `mirrored_at IS NULL` (new or status changed) are what the retry picks up.
 - Daily cron (`survey-daily`): retry failed copies + JSON backup of survey tables to Vercel Blob + prune import dry runs older than a day.
-  - The site's Blob store is public, so backups go to a **separate private Blob store** (env prefix `SURVEY_BACKUP_BLOB` → `SURVEY_BACKUP_BLOB_READ_WRITE_TOKEN`); without it the job skips the backup and says so.
+  - The site's Blob store is public, so backups go to a **separate private Blob store** (env prefix `PG_BACKUP_BLOB` → `PG_BACKUP_BLOB_READ_WRITE_TOKEN`); without it the job skips the backup and says so.
   - End-to-end tests run with `SURVEY_SHEET_ID` empty, so test submissions never reach the real sheet.
 **Check:** route tests with mocked Sheets/Blob; manual end-to-end on `dev`.
 

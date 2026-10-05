@@ -9,11 +9,11 @@ const KEEP = 30;
 /**
  * Nightly JSON copy of every survey table to a private Vercel Blob store (the Neon free plan only
  * keeps 6 hours of history). Student data never goes to the site's public store, so this needs its
- * own private store, connected with the env prefix SURVEY_BACKUP_BLOB. Keeps the latest 30 days.
+ * own private store, connected with the env prefix PG_BACKUP_BLOB. Keeps the latest 30 days.
  */
 export async function backupSurveyTables(now = new Date()) {
-  const token = process.env.SURVEY_BACKUP_BLOB_READ_WRITE_TOKEN;
-  if (!token) return { skipped: 'SURVEY_BACKUP_BLOB_READ_WRITE_TOKEN is not set (private Blob store)' as const };
+  const token = process.env.PG_BACKUP_BLOB_READ_WRITE_TOKEN;
+  if (!token) return { skipped: 'PG_BACKUP_BLOB_READ_WRITE_TOKEN is not set (private Blob store)' as const };
   const db = getDb();
   const [studentRows, roundRows, submissionRows, responseRows, itemRows, importRows] = await Promise.all([
     db.select().from(students),

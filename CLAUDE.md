@@ -135,4 +135,4 @@ Spec `docs/survey-system.md`, plan `docs/survey-implementation-plan.md`, admin g
 - Commands: `pnpm db:generate`, `pnpm db:migrate`, `pnpm test:db` (`*.db.test.ts` against the Neon dev branch), `pnpm survey:fixtures [--remove]` (sample data in the dev branch). e2e specs that touch the DB run one at a time (`survey-db` Playwright project) with `SURVEY_SHEET_ID` empty.
 
 ## Env
-Required vars live in `.env.local` (see `.env.local.example`): `NEXT_PUBLIC_SANITY_PROJECT_ID`, `NEXT_PUBLIC_SANITY_DATASET`, `SANITY_API_TOKEN` (preview/writes), Google service-account keys, analytics IDs, optional studio auth vars. Surveys add `DATABASE_URL` (pooled) / `DATABASE_URL_UNPOOLED` (migrations), `SURVEY_SHEET_ID`, `SURVEY_BACKUP_BLOB_READ_WRITE_TOKEN`, `CRON_SECRET`.
+Required vars live in `.env.local` (see `.env.local.example`): `NEXT_PUBLIC_SANITY_PROJECT_ID`, `NEXT_PUBLIC_SANITY_DATASET`, `SANITY_API_TOKEN` (preview/writes), Google service-account keys, analytics IDs, optional studio auth vars. Surveys add `DATABASE_URL` (pooled) / `DATABASE_URL_UNPOOLED` (migrations), `SURVEY_SHEET_ID`, `PG_BACKUP_BLOB_READ_WRITE_TOKEN`, `CRON_SECRET`.

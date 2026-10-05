@@ -48,7 +48,7 @@ Keys can be corrected until the document is first published; after that the Stud
 - Vercel → Settings → Environment Variables:
   - Production and Preview: `FORM_GOOGLE_SHEETS_ID` (pre-admission form), `SURVEY_SHEET_ID`, `CRON_SECRET`, `STUDIO_AUTH_ENABLED=true`, `STUDIO_USERNAME`, `STUDIO_PASSWORD`.
   - Production: `DATABASE_URL`, `DATABASE_URL_UNPOOLED` (from the Neon integration). Preview: the same two names pointing at the Neon `dev` branch.
-  - Create a **private** Blob store (Storage → Blob, access: private), connect it with the prefix `SURVEY_BACKUP_BLOB` → `SURVEY_BACKUP_BLOB_READ_WRITE_TOKEN`. Without it the nightly job reports a failure.
+  - Create a **private** Blob store (Storage → Blob, access: private), connect it with the prefix `PG_BACKUP_BLOB` → `PG_BACKUP_BLOB_READ_WRITE_TOKEN`. Without it the nightly job reports a failure.
   - Leave `SURVEY_SHEET_ID` empty in Preview if preview submissions should not reach the real sheet.
 - Database migrations run on every Vercel build (`vercel-build` → `scripts/migrate-if-configured.mjs`, then `next build`). Without `DATABASE_URL_UNPOOLED` the step is skipped with a warning so the public site still deploys; a failing migration stops the deploy. If the project has a custom Build Command, change it to `pnpm run vercel-build`.
 - Studio: survey teachers, subjects and ERP section names are loaded (2026-10-05); fill in the eight missing Bengali teacher names. Import the real ERP list in production once (`/admin` → ERP ইমপোর্ট); the dry run on the 2026-10-05 export mapped all 148 students with no problems.
