@@ -84,7 +84,7 @@ export default async function ReceiptPage({ params }: { params: Promise<{ token:
         <dd style={{ margin: 0 }}>{formatDateTime(submission.submittedAt!)}</dd>
       </dl>
 
-      <div style={{ margin: '14px 12px 0', background: '#fff', borderRadius: 16, border: '1px solid var(--sv-hairline)', overflowX: 'auto' }}>
+      <div role="region" aria-label="শিক্ষার্থীদের মার্ক" tabIndex={0} style={{ margin: '14px 12px 0', background: '#fff', borderRadius: 16, border: '1px solid var(--sv-hairline)', overflowX: 'auto' }}>
         <table className="sv-receipt-table">
           <caption className="sv-visually-hidden">প্রতিটি শিক্ষার্থীর মার্ক, প্রশ্ন অনুযায়ী</caption>
           <thead>
