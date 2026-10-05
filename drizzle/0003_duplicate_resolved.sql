@@ -1,0 +1,1 @@
+ALTER TABLE "submissions" ADD COLUMN "duplicate_resolved_at" timestamp with time zone;

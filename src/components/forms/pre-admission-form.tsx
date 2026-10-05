@@ -378,7 +378,6 @@ export default function PreAdmissionForm({
       const result = await submitToGoogleSheets(
         submissionData,
         {
-          spreadsheetId: formConfig.formSettings.googleSheetsId,
           autoDetectRange: true, // Automatically detect range based on headers
           fieldOrder: getFieldOrder(),
         },

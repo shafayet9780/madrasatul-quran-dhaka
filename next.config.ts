@@ -24,11 +24,22 @@ const nextConfig: NextConfig = {
   },
   experimental: {
     optimizePackageImports: ['lucide-react'],
+    // ERP student lists are uploaded through a server action (survey admin import, max 5 MB).
+    serverActions: { bodySizeLimit: '5mb' },
   },
   // Enable compression
   compress: true,
   async headers() {
     return [
+      // Survey links carry a key in the URL and personal answers: never index, cache or refer them.
+      ...['/survey/:path*', '/admin/:path*'].map((source) => ({
+        source,
+        headers: [
+          { key: 'X-Robots-Tag', value: 'noindex, nofollow, noarchive' },
+          { key: 'Referrer-Policy', value: 'no-referrer' },
+          { key: 'Cache-Control', value: 'private, no-store' },
+        ],
+      })),
       {
         source: '/:locale(bengali|english)/downloads/:path*',
         headers: [

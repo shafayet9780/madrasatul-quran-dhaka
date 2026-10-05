@@ -12,6 +12,7 @@ it('keeps search-engine crawl protections shared and leaves rendering resources 
   }>;
   expect(rules[0]).toMatchObject({ userAgent: '*', allow: '/' });
   expect(rules[0].disallow).toContain('/studio');
+  expect(rules[0].disallow).toContain('/survey');
   expect(rules[0].disallow).toContain('/bengali/downloads');
   expect(rules[0].disallow).not.toContain('/_next/');
   expect(rules[0].disallow).not.toContain('/*?*');

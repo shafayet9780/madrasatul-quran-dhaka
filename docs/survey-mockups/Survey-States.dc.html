@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<title>সার্ভে: অবস্থা ও ত্রুটি</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Anek+Bangla:wght@500;600&amp;family=Hind+Siliguri:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+*{box-sizing:border-box}
+a{color:#875B3D}a:hover{color:#654321}
+.sec{font-family:'Anek Bangla',sans-serif;font-weight: 600;font-size:17px;padding-top:8px}
+.card{background:#FFFFFF;border:1px solid #E7E3DC;border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:10px}
+.cta{display:flex;align-items:center;justify-content:center;gap:10px;height:54px;border-radius:15px;border:0;width:100%;font-family:'Anek Bangla',sans-serif;font-weight:600;font-size:18px}
+.sm{display:flex;align-items:center;justify-content:center;height:46px;border-radius:13px;font:inherit;font-weight:600;font-size:15px;text-decoration:none;cursor:pointer}
+.chip{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:6px 12px;font-size:14px;font-weight:600}
+.sm:focus-visible,a:focus-visible,button:focus-visible{outline:3px solid #4F7FA6;outline-offset:2px}
+</style>
+</helmet>
+<div style="width: 390px; height: 2140px; background: #FCFBF8; font-family: 'Hind Siliguri', sans-serif; color: #1F2A2E; padding: 20px 16px; display: flex; flex-direction: column; gap: 12px; overflow: hidden">
+  <h1 style="margin: 0; font-family: 'Anek Bangla', sans-serif; font-weight: 600; font-size: 24px">অবস্থা ও ত্রুটির স্ক্রিন</h1>
+
+  <div class="sec">স্বয়ংক্রিয় সংরক্ষণ</div>
+  <div class="card" style="flex-direction: row; flex-wrap: wrap; gap: 8px">
+    <span class="chip" style="background: #E7F1EC; color: #2E6A55"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"></path></svg>সংরক্ষিত</span>
+    <span class="chip" style="background: #EAF1F6; color: #3B6684"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9"></path></svg>সংরক্ষণ হচ্ছে…</span>
+    <span class="chip" style="background: #FBF1E6; color: #8A4416"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M2 8.8a15 15 0 0 1 20 0M5 12.5a10 10 0 0 1 9.5-2.6M3 3l18 18M8.5 16a5 5 0 0 1 4.2-1.3M12 20h.01"></path></svg>অফলাইন</span>
+  </div>
+  <div role="status" style="padding: 14px 16px; border-radius: 16px; background: #FBF1E6; color: #8A4416; display: flex; gap: 10px; font-size: 15px; line-height: 1.55">
+    <svg style="flex: none; margin-top: 3px" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8A4416" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M2 8.8a15 15 0 0 1 20 0M5 12.5a10 10 0 0 1 9.5-2.6M3 3l18 18M8.5 16a5 5 0 0 1 4.2-1.3M12 20h.01"></path></svg>
+    <span><b>ইন্টারনেট সংযোগ নেই।</b> আপনার মার্ক এই ফোনে রাখা আছে; সংযোগ ফিরলে নিজে থেকেই সংরক্ষিত হবে। পেজ বন্ধ করবেন না।</span>
+  </div>
+
+  <div class="sec">জমা দেওয়ার বাটন</div>
+  <div class="card">
+    <button class="cta" style="background: #875B3D; color: #fff">জমা দিন</button>
+    <button class="cta" aria-busy="true" disabled style="background: #6E4A31; color: #fff; cursor: progress"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9"></path></svg>জমা হচ্ছে…</button>
+    <button class="cta" disabled aria-disabled="true" style="background: #E7E3DC; color: #5B6670">জমা দিন (৫টি বাকি)</button>
+    <div style="font-size: 13.5px; color: #5B6670">জমা হওয়ার সময় বাটন নিষ্ক্রিয় থাকে, তাই দুবার চাপলেও দুবার জমা হয় না।</div>
+  </div>
+
+  <div class="sec">জমা ব্যর্থ</div>
+  <div role="alert" class="card" style="border-color: #E9D6C3">
+    <div style="font-size: 16px; font-weight: 600">জমা হয়নি, নেটওয়ার্কে সমস্যা</div>
+    <div style="font-size: 14.5px; color: #5B6670; line-height: 1.55">আপনার সব উত্তর সংরক্ষিত আছে। সংযোগ ঠিক হলে আবার চেষ্টা করুন।</div>
+    <button class="sm" style="background: #875B3D; color: #fff; border: 0">আবার চেষ্টা করুন</button>
+  </div>
+
+  <div class="sec">জমার মুহূর্তে ডুপ্লিকেট (শিক্ষক)</div>
+  <div class="card" style="border-color: #E9D6C3">
+    <div style="font-size: 16px; font-weight: 600; line-height: 1.5">এইমাত্র আরেকজন শিক্ষক এই ক্লাস ও বিষয়ের রিভিউ জমা দিয়েছেন</div>
+    <div style="font-size: 14.5px; color: #5B6670">হাফেজ মাহমুদুল হাসান · ৫ মিনিট আগে · নার্সারি A · কুরআন</div>
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px">
+      <button class="sm" style="background: #F4F2EE; color: #1F2A2E; border: 0">খসড়া রেখে দিন</button>
+      <button class="sm" style="background: #875B3D; color: #fff; border: 0">তবুও জমা দিন</button>
+    </div>
+  </div>
+
+  <div class="sec">রিভিউ চলাকালীন সময় শেষ</div>
+  <div class="card">
+    <div style="display: flex; gap: 8px; align-items: center; font-size: 15px; font-weight: 600; color: #3B6684"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>সময় শেষ, তবে আরও ৮ মিনিট জমা দেওয়া যাবে</div>
+    <div style="height: 1px; background: #F0ECE6"></div>
+    <div style="font-size: 15px; font-weight: 600">এই রাউন্ড বন্ধ হয়ে গেছে</div>
+    <div style="font-size: 14.5px; color: #5B6670; line-height: 1.55">আপনার খসড়া সংরক্ষিত আছে। অ্যাডমিন সময় বাড়ালে এই লিংক থেকেই জমা দিতে পারবেন।</div>
+  </div>
+
+  <div class="sec">খোঁজা (অভিভাবক)</div>
+  <div class="card">
+    <button class="cta" aria-busy="true" disabled style="background: #6E4A31; color: #fff"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9"></path></svg>খুঁজছি…</button>
+    <div role="alert" style="padding: 12px 14px; border-radius: 12px; background: #FBF1E6; color: #8A4416; font-size: 14.5px; line-height: 1.55">অনেকবার চেষ্টা হয়েছে। ১০ মিনিট পর আবার চেষ্টা করুন, অথবা অফিসে যোগাযোগ করুন।</div>
+  </div>
+
+  <div class="sec">লিংক</div>
+  <div class="card">
+    <div style="font-size: 16px; font-weight: 600">এই রিভিউ এখনো শুরু হয়নি</div>
+    <div style="font-size: 14.5px; color: #5B6670; line-height: 1.55">শুরু হবে ১ নভেম্বর, সকাল ৮:০০। তখন এই একই লিংকে আসুন।</div>
+  </div>
+  <div class="card">
+    <div style="font-size: 16px; font-weight: 600">লিংকটি সঠিক নয়</div>
+    <div style="font-size: 14.5px; color: #5B6670; line-height: 1.55">মাদরাসা থেকে পাঠানো পুরো লিংকটি আবার খুলুন। সমস্যা থাকলে অফিসে যোগাযোগ করুন: [অফিসের ফোন নম্বর]</div>
+  </div>
+
+  <div class="sec">শিক্ষকের নাম তালিকায় নেই</div>
+  <div class="card">
+    <div style="font-size: 16px; font-weight: 600">আপনার নাম যোগ করতে অ্যাডমিনকে জানান</div>
+    <div style="font-size: 14.5px; color: #5B6670; line-height: 1.55">অ্যাডমিন নাম যোগ করে তালিকা হালনাগাদ করলে এই একই লিংকে আপনার নাম দেখা যাবে।</div>
+    <a class="sm" href="T1-Teacher.dc.html" style="background: #F4F2EE; color: #1F2A2E; border: 0">তালিকায় ফিরে যান</a>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":2140}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

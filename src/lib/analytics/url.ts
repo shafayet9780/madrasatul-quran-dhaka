@@ -49,3 +49,8 @@ export function sanitizeCurrentPath(): string {
 
   return sanitizePathWithAllowedQuery(window.location.pathname, window.location.search);
 }
+
+/** Survey links and the survey admin never load analytics: they carry personal answers and link keys. */
+export function isUntrackedPath(pathname: string): boolean {
+  return /^\/(survey|admin)(\/|$)/.test(pathname);
+}

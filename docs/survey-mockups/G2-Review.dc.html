@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<title>শিক্ষার্থী রিভিউ: দেখে নিয়ে জমা</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Anek+Bangla:wght@500;600&amp;family=Hind+Siliguri:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+*{box-sizing:border-box}
+a{color:#7A4B2E}
+.back{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;color:#1F2A2E;background:transparent;border:0}
+.edit{flex:none;font-size:14.5px;font-weight:600;padding:10px 4px;text-decoration:none;color:#7A4B2E}
+.cta{display:flex;align-items:center;justify-content:center;gap:10px;height:56px;border-radius:16px;background:#875B3D;color:#fff;text-decoration:none;font-family:'Anek Bangla',sans-serif;font-weight:600;font-size:18px;box-shadow:0 1px 2px rgba(94,59,36,0.28),0 8px 20px rgba(135,91,61,0.22)}
+.cta:hover{background:#6E4A31;color:#fff}
+.back:focus-visible,.edit:focus-visible,.cta:focus-visible,textarea:focus-visible{outline:3px solid #4F7FA6;outline-offset:2px}
+textarea:focus{background:#fff;border-color:#875B3D}
+</style>
+</helmet>
+<div style="width: 390px; height: 1420px; background: #FCFBF8; font-family: 'Hind Siliguri', sans-serif; color: #1F2A2E; display: flex; flex-direction: column; overflow: hidden">
+  <div style="height: 3px; background: #875B3D"></div>
+  <div style="display: flex; align-items: center; padding: 8px 8px 0"><a class="back" href="G2-Question.dc.html" aria-label="প্রশ্নে ফিরুন"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 6-6 6 6 6"></path></svg></a><div style="flex: 1; text-align: center; font-size: 14px; font-weight: 600; color: #5B6670">শেষ ধাপ · দেখে নিয়ে জমা</div><div style="width: 44px"></div></div>
+
+  <div style="padding: 16px 24px 0; display: flex; flex-direction: column; gap: 6px">
+    <h1 style="margin: 0; font-family: 'Anek Bangla', sans-serif; font-weight: 600; font-size: 26px; line-height: 1.35">দেখে নিয়ে জমা দিন</h1>
+    <div style="font-size: 15px; color: #5B6670">Maryam Binte Rafiq · নার্সারি A · ৯টি প্রশ্ন</div>
+  </div>
+
+  <div style="margin: 18px 16px 0; display: flex; flex-direction: column">
+    <sc-for list="{{answers}}" as="x" hint-placeholder-count="9">
+      <div style="display: flex; gap: 10px; align-items: flex-start; padding: 12px 4px; border-top: 1px solid #E7E3DC">
+        <span style="flex: none; width: 22px; padding-top: 1px; font-family: 'Anek Bangla', sans-serif; font-weight: 600; font-size: 15px; color: #875B3D; font-variant-numeric: tabular-nums">{{x.n}}</span>
+        <div style="flex: 1; display: flex; flex-direction: column; gap: 2px">
+          <span style="font-size: 14px; line-height: 1.5; color: #5B6670">{{x.q}}</span>
+          <span style="font-size: 16px; font-weight: 600; line-height: 1.5; color: {{x.color}}">{{x.a}}</span>
+        </div>
+        <a class="edit" href="G2-Question.dc.html" aria-label="{{x.editLabel}}">বদলান</a>
+      </div>
+    </sc-for>
+  </div>
+
+  <div style="padding: 18px 20px 0; display: flex; flex-direction: column; gap: 8px">
+    <label for="g2c" style="font-size: 15px; font-weight: 600; color: #3D4A53">কোন পরামর্শ ও মন্তব্য <span style="font-weight: 400; color: #5B6670">(ঐচ্ছিক)</span></label>
+    <textarea id="g2c" rows="3" placeholder="এখানে লিখুন" style="width: 100%; border-radius: 16px; border: 2px solid transparent; background: #F4F2EE; padding: 12px 14px; font: inherit; font-size: 16px; line-height: 1.6; color: #1F2A2E; resize: none">বাসায় কুরআন তিলাওয়াত নিয়মিত করছে, আলহামদুলিল্লাহ।</textarea>
+  </div>
+
+  <div style="margin-top: auto; padding: 16px 20px 30px; display: flex; flex-direction: column; gap: 10px">
+    <a class="cta" href="G2-Receipt.dc.html">জমা দিন</a>
+    <div style="text-align: center; font-size: 13.5px; color: #5B6670">২০ অক্টোবর পর্যন্ত সংশোধন করা যাবে</div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1420}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const bn = (n) => String(n).replace(/\d/g, (d) => '০১২৩৪৫৬৭৮৯'[d]);
+    const A = [
+      ['নিয়মিত ক্লাস করে কি না?', 'উপস্থিতি > ৯০%'], ['বাসায় নিয়মিত পড়া পড়ে কি না?', '২ ঘন্টা +'], ['হোমওয়ার্ক দেওয়া হলে নিয়মিত করে কি না?', 'নিয়মিত করে'],
+      ['নিজে থেকে মোবাইল বা ডিভাইস দেখে কি না?', 'সপ্তাহে ২/১ বার'], ['বাচ্চা মাদ্রাসা পছন্দ করে কি না?', 'অনেক পছন্দ করে'], ['পিতামাতার কথা ঠিকঠাক শোনে কি না?', 'মাঝে মাঝে শোনে না'],
+      ['ক্লাসে মারামারি বা বাজে কথার অভিযোগ মাদ্রাসা থেকে আসে কি না?', 'আসে না'], ['কুইজে শতকরা কত নাম্বার পায়?', '৭০%+'], ['বাচ্চার সার্বিক পড়াশোনায় আপনি সন্তুষ্ট কি না?', 'সন্তুষ্ট']
+    ];
+    return { answers: A.map(([q, a], i) => ({ n: bn(i + 1), q, a, color: '#1F2A2E', editLabel: 'প্রশ্ন ' + bn(i + 1) + ' বদলান' })) };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<title>রিপোর্ট (মোবাইল): ক্লাস</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Anek+Bangla:wght@500;600&amp;family=Hind+Siliguri:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+*{box-sizing:border-box}
+a{color:#875B3D}a:hover{color:#654321}
+.card{background:#FFFFFF;border:1px solid #E7E3DC;border-radius:16px;padding:16px}
+.h2{margin:0;font-family:'Anek Bangla',sans-serif;font-weight:600;font-size:18px}
+.num{font-family:'Anek Bangla',sans-serif;font-weight:600;font-variant-numeric:tabular-nums}
+.sel{height:44px;border-radius:12px;border:1px solid transparent;background:#F4F2EE;padding:0 12px;font:inherit;font-size:15px;font-weight:600;color:#1F2A2E}
+.seg{flex:1;height:38px;border-radius:9px;border:0;background:transparent;font:inherit;font-size:13.5px;font-weight:600;color:#5B6670;cursor:pointer}
+.seg[aria-pressed="true"]{background:#fff;color:#1F2A2E;box-shadow:0 1px 3px rgba(32,43,48,0.15)}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-height:56px;text-decoration:none;color:#5B6670;font-size:11.5px;font-weight:600}
+.tab[aria-current="page"]{color:#5E3B24}
+.sel:focus-visible,.seg:focus-visible,.tab:focus-visible,a:focus-visible{outline:3px solid #4F7FA6;outline-offset:2px}
+</style>
+</helmet>
+<div style="position: relative; width: 390px; height: 1800px; background: #F8F7F4; font-family: 'Hind Siliguri', sans-serif; color: #1F2A2E; overflow: hidden">
+  <header style="background: #FFFFFF; border-bottom: 1px solid #E7E3DC; padding: 12px 16px; display: flex; align-items: center; gap: 10px">
+    <div style="flex: 1; display: flex; flex-direction: column">
+      <h1 style="margin: 0; font-family: 'Anek Bangla', sans-serif; font-weight: 600; font-size: 22px">ক্লাস</h1>
+      <span style="font-size: 13px; color: #5B6670">অক্টোবর ২০২৬ · নমুনা ডেটা</span>
+    </div>
+    <label><span style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">শ্রেণি</span><select class="sel"><option>নার্সারি A</option></select></label>
+  </header>
+
+  <div style="padding: 14px 12px 100px; display: flex; flex-direction: column; gap: 12px">
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
+      <div class="card" style="padding: 14px"><div style="font-size: 13px; color: #5B6670; font-weight: 600">অভিভাবকের চোখে</div><div class="num" style="font-size: 26px">৭.৯</div><div style="font-size: 13px; color: #5B6670">স্কোর ৭৮ · ১৭/২০ জন</div></div>
+      <div class="card" style="padding: 14px"><div style="font-size: 13px; color: #5B6670; font-weight: 600">শিক্ষকের চোখে</div><div class="num" style="font-size: 26px">৭.৩</div><div style="font-size: 13px; color: #5B6670">স্কোর ৭২ · ৫/৬ বিষয়</div></div>
+    </div>
+
+    <section class="card" style="display: flex; flex-direction: column; gap: 10px">
+      <h2 class="h2">ক্ষেত্রভিত্তিক তুলনা</h2>
+      <div style="display: flex; gap: 14px; font-size: 13px; color: #5B6670">
+        <span style="display: flex; align-items: center; gap: 6px"><span style="width: 11px; height: 11px; border-radius: 50%; background: #B86A2E"></span>অভিভাবক</span>
+        <span style="display: flex; align-items: center; gap: 6px"><span style="width: 11px; height: 11px; border-radius: 50%; background: #2F6FA3"></span>শিক্ষক</span>
+      </div>
+      <sc-for list="{{areas}}" as="a" hint-placeholder-count="5">
+        <div style="display: flex; flex-direction: column; gap: 4px">
+          <div style="display: flex; justify-content: space-between; font-size: 13.5px"><span style="font-weight: 600">{{a.label}}</span><span style="color: #5B6670">অভি. {{a.g}} · শিক্ষক {{a.t}}</span></div>
+          <div style="position: relative; height: 18px" title="{{a.tip}}">
+            <div style="position: absolute; left: 0; right: 0; top: 8px; height: 2px; background: #F0ECE6"></div>
+            <div style="position: absolute; top: 7px; height: 4px; background: #D8D2C9; left: {{a.lo}}; width: {{a.span}}"></div>
+            <div style="position: absolute; top: 2px; left: {{a.gx}}; width: 13px; height: 13px; margin-left: -6px; border-radius: 50%; background: #B86A2E; box-shadow: 0 0 0 2px #fff"></div>
+            <div style="position: absolute; top: 2px; left: {{a.tx}}; width: 13px; height: 13px; margin-left: -6px; border-radius: 50%; background: #2F6FA3; box-shadow: 0 0 0 2px #fff"></div>
+          </div>
+        </div>
+      </sc-for>
+    </section>
+
+    <section class="card" style="display: flex; flex-direction: column; gap: 10px">
+      <div style="display: flex; justify-content: space-between; align-items: baseline"><h2 class="h2">শিক্ষার্থী</h2><span style="font-size: 13px; color: #5B6670">স্কোর ০–১০০</span></div>
+      <div role="group" aria-label="সাজানো" style="display: flex; gap: 4px; padding: 4px; border-radius: 12px; background: #F0ECE6">
+        <button class="seg" aria-pressed="true">মনোযোগ আগে</button>
+        <button class="seg" aria-pressed="false">রোল</button>
+        <button class="seg" aria-pressed="false">পার্থক্য</button>
+      </div>
+      <sc-for list="{{students}}" as="s" hint-placeholder-count="8">
+        <a href="RM4-Student.dc.html" style="display: flex; flex-direction: column; gap: 8px; padding: 12px; border-radius: 12px; border: 1px solid #E7E3DC; text-decoration: none; color: #1F2A2E">
+          <div style="display: flex; justify-content: space-between; gap: 8px; align-items: baseline">
+            <span style="font-weight: 600; font-size: 14.5px">{{s.name}}</span>
+            <span style="font-size: 13px; color: #5B6670; white-space: nowrap">রোল {{s.roll}}</span>
+          </div>
+          <div style="display: grid; grid-template-columns: 64px minmax(0, 1fr); gap: 8px; align-items: center; font-size: 13px">
+            <span style="color: #5B6670">অভি. <b class="num" style="color: #1F2A2E">{{s.g}}</b></span>
+            <span style="height: 6px; border-radius: 3px; background: #F0ECE6; display: block; overflow: hidden"><span style="display: block; height: 6px; background: #B86A2E; width: {{s.gw}}"></span></span>
+            <span style="color: #5B6670">শিক্ষক <b class="num" style="color: #1F2A2E">{{s.t}}</b></span>
+            <span style="height: 6px; border-radius: 3px; background: #F0ECE6; display: block; overflow: hidden"><span style="display: block; height: 6px; background: #2F6FA3; width: {{s.tw}}"></span></span>
+          </div>
+          <sc-if value="{{s.hasFlag}}" hint-placeholder-val="{{false}}">
+            <div style="display: flex; align-items: center; gap: 5px; font-size: 13px; color: #8A4416"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#8A4416" stroke-width="2.6" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 2 20h20L12 3z"></path></svg>{{s.flag}}</div>
+          </sc-if>
+        </a>
+      </sc-for>
+      <button style="height: 44px; border-radius: 12px; border: 1px solid #E2DDD5; background: #fff; font: inherit; font-weight: 600; font-size: 14px; color: #1F2A2E; cursor: pointer">আরও ১২ জন দেখুন</button>
+    </section>
+  </div>
+
+  <nav aria-label="রিপোর্ট মেনু" style="position: absolute; left: 0; right: 0; bottom: 0; background: #FFFFFF; border-top: 1px solid #E7E3DC; padding: 4px 6px 18px; display: flex">
+    <sc-for list="{{tabs}}" as="t" hint-placeholder-count="5">
+      <a class="tab" href="{{t.href}}" aria-current="{{t.cur}}">
+        <span style="width: 44px; height: 26px; border-radius: 13px; background: {{t.pill}}; display: flex; align-items: center; justify-content: center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{t.icon}}"></path></svg></span>
+        {{t.label}}
+      </a>
+    </sc-for>
+  </nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1800}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const bn = (n) => String(n).replace(/\d/g, (d) => '০১২৩৪৫৬৭৮৯'[d]);
+    const TABS = [
+      ['ওভারভিউ', 'RM1-Overview.dc.html', 'M4 13h6V4H4zM14 20h6v-9h-6zM4 20h6v-3H4zM14 4v3h6V4z'],
+      ['শিক্ষার মান', 'RM2-Teaching.dc.html', 'M4 20V10M10 20V4M16 20v-7M22 20H2'],
+      ['ক্লাস', 'RM3-Class.dc.html', 'M3 7l9-4 9 4-9 4zM7 9v5c0 1.5 2.5 3 5 3s5-1.5 5-3V9'],
+      ['ট্র্যাকার', 'RM6-Tracker.dc.html', 'M9 11l3 3 8-8M20 12v7a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h11'],
+      ['আরও', 'R5-Raters.dc.html', 'M5 12h.01M12 12h.01M19 12h.01']
+    ];
+    const cur = 'RM3-Class.dc.html';
+    const A = [['উপস্থিতি', 88, 84], ['মনোযোগ ও পড়ার অভ্যাস', 74, 62], ['আনুগত্য', 80, 71], ['সহপাঠীদের সাথে আচরণ', 85, 66], ['পড়াশোনার ফলাফল', 70, 64]];
+    const S = [
+      ['Zayan Mahmud', 7, 84, 46, 'অভিভাবক–শিক্ষক পার্থক্য ৩৮'], ['Hamza Rahim', 18, 62, 40, '২ জন শিক্ষক ৪ দিয়েছেন'], ['Maryam Binte Rafiq', 2, 64, 55, 'গত রাউন্ড থেকে ১৭ কমেছে'],
+      ['Talha Zubair', 11, 72, 58, ''], ['Musa Ibn Khalid', 9, 68, 60, ''], ['Ibrahim Hossain', 14, 58, 62, ''], ['Humaira Jannat', 6, 88, 74, ''], ['Omar Faruk Tamim', 16, 74, 70, '']
+    ];
+    return {
+      tabs: TABS.map(([label, href, icon]) => ({ label, href, icon, cur: href === cur ? 'page' : 'false', pill: href === cur ? '#F6EEE6' : 'transparent' })),
+      areas: A.map(([label, g, t]) => ({ label, g: bn(g), t: bn(t), gx: g + '%', tx: t + '%', lo: Math.min(g, t) + '%', span: Math.abs(g - t) + '%', tip: label + ': অভিভাবক ' + bn(g) + ', শিক্ষক ' + bn(t) })),
+      students: S.map(([name, roll, g, t, flag]) => ({ name, roll: bn(roll), g: bn(g), t: bn(t), gw: g + '%', tw: t + '%', flag, hasFlag: !!flag }))
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<title>শিক্ষকের রিভিউ: মার্ক বদলান</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Anek+Bangla:wght@500;600&amp;family=Hind+Siliguri:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+*{box-sizing:border-box}
+a{color:#875B3D}a:hover{color:#654321}
+.mk{height:56px;border-radius:14px;border:0;background:transparent;color:#1F2A2E;font-family:'Anek Bangla',sans-serif;font-weight:600;font-size:21px;cursor:pointer;padding:0}
+.mk[aria-checked="true"]{background:#F6EEE6;color:#5E3B24;box-shadow:inset 0 0 0 2px #875B3D}
+.btn{display:flex;align-items:center;justify-content:center;height:52px;border-radius:15px;text-decoration:none;font-family:'Anek Bangla',sans-serif;font-weight:600;font-size:17px}
+.mk:focus-visible,.btn:focus-visible{outline:3px solid #4F7FA6;outline-offset:2px}
+</style>
+</helmet>
+<div style="position: relative; width: 390px; height: 844px; background: #FCFBF8; font-family: 'Hind Siliguri', sans-serif; color: #1F2A2E; overflow: hidden">
+  <div style="padding: 70px 16px 0; display: flex; flex-direction: column; gap: 8px" aria-hidden="true">
+    <div style="font-family: 'Anek Bangla', sans-serif; font-weight: 600; font-size: 26px">দেখে নিয়ে জমা দিন</div>
+    <div style="height: 46px; border-radius: 12px; background: #fff"></div>
+    <div style="height: 46px; border-radius: 12px; background: #fff"></div>
+    <div style="height: 46px; border-radius: 12px; background: #fff"></div>
+    <div style="height: 46px; border-radius: 12px; background: #fff"></div>
+  </div>
+  <div style="position: absolute; inset: 0; background: rgba(32, 43, 48, 0.55)"></div>
+
+  <div role="dialog" aria-modal="true" aria-labelledby="emTitle" style="position: absolute; left: 0; right: 0; bottom: 0; background: #FFFFFF; border-radius: 26px 26px 0 0; padding: 12px 20px 30px; display: flex; flex-direction: column; gap: 14px">
+    <div style="align-self: center; width: 44px; height: 5px; border-radius: 3px; background: #EFECE6"></div>
+    <div style="display: flex; flex-direction: column; gap: 4px">
+      <div style="font-size: 14px; color: #5B6670">মার্ক বদলান</div>
+      <h2 id="emTitle" style="margin: 0; font-family: 'Anek Bangla', sans-serif; font-weight: 600; font-size: 22px; line-height: 1.4">Zayan Mahmud · প্রশ্ন ৩</h2>
+      <div style="font-size: 15px; line-height: 1.55; color: #3D4A53">অন্য বাচ্চাদের সাথে মারামারি বা বাজে কথা বলে কি না?</div>
+      <div style="align-self: flex-start; background: #FBF1E6; color: #8A4416; border-radius: 10px; padding: 5px 10px; font-size: 14px; font-weight: 600">১০ = সমস্যা নেই, ৪ = প্রায়ই করে</div>
+    </div>
+    <div role="radiogroup" aria-labelledby="emTitle" style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 2px; padding: 3px; border-radius: 16px; background: #EFECE6">
+      <sc-for list="{{marks}}" as="m" hint-placeholder-count="4">
+        <button class="mk" role="radio" aria-checked="{{m.sel}}" onClick="{{m.pick}}">{{m.v}}</button>
+      </sc-for>
+    </div>
+    <div style="display: flex; justify-content: space-between; font-size: 14px; color: #5B6670">
+      <a href="T1-EditMark.dc.html" style="padding: 8px 0">← আগের শিক্ষার্থী</a>
+      <a href="T1-EditMark.dc.html" style="padding: 8px 0">পরের শিক্ষার্থী →</a>
+    </div>
+    <a class="btn" href="T1-Review.dc.html" style="background: #875B3D; color: #fff">সম্পন্ন</a>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(p) { super(p); this.state = { v: 4 }; }
+  renderVals() {
+    const bn = (n) => String(n).replace(/\d/g, (d) => '০১২৩৪৫৬৭৮৯'[d]);
+    return { marks: [10, 8, 6, 4].map((v) => ({ v: bn(v), sel: this.state.v === v, pick: () => this.setState({ v }) })) };
+  }
+}
+</script>
+</body>
+</html>

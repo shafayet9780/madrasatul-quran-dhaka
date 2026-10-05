@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<title>অভিভাবক রিভিউ: বিষয়ভিত্তিক মার্কিং (ডেস্কটপ)</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Anek+Bangla:wght@500;600&amp;family=Hind+Siliguri:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+*{box-sizing:border-box}
+a{color:#875B3D}a:hover{color:#654321}
+.mk{height:46px;width:100%;border-radius:12px;border:0;background:#F4F2EE;color:#1F2A2E;font-family:'Anek Bangla',sans-serif;font-weight:600;font-size:19px;cursor:pointer;padding:0}
+.mk:hover{border-color:#875B3D}
+.mk[aria-checked="true"]{background:#F6EEE6;color:#5E3B24;box-shadow:inset 0 0 0 2px #875B3D}
+.step{width:100%;display:flex;align-items:center;gap:10px;min-height:40px;padding:6px 10px;border-radius:10px;border:0;background:transparent;font:inherit;font-size:14px;color:#3D4A53;text-align:left;cursor:pointer}
+.step:hover{background:#F4F2EE}
+.step[aria-current="step"]{background:#F6EEE6;color:#5E3B24;font-weight:600}
+.nav{display:flex;align-items:center;justify-content:center;gap:8px;height:50px;padding:0 22px;border-radius:14px;text-decoration:none;font-family:'Anek Bangla',sans-serif;font-weight:600;font-size:17px}
+.mk:focus-visible,.step:focus-visible,.nav:focus-visible{outline:3px solid #4F7FA6;outline-offset:2px}
+</style>
+</helmet>
+<div style="min-height: 960px; background: #FCFBF8; font-family: 'Hind Siliguri', sans-serif; color: #1F2A2E; display: flex; flex-direction: column">
+  <header style="background: #FFFFFF; border-bottom: 1px solid #E7E3DC">
+    <div style="max-width: 1200px; margin: 0 auto; padding: 14px 28px; display: flex; flex-wrap: wrap; align-items: center; gap: 16px">
+      <div style="display: flex; align-items: center; gap: 10px">
+        <div style="width: 34px; height: 34px; border-radius: 10px; background: #875B3D; color: #fff; display: flex; align-items: center; justify-content: center; font-family: 'Anek Bangla', sans-serif; font-weight: 600; font-size: 18px">ম</div>
+        <div style="display: flex; flex-direction: column"><span style="font-weight: 600; font-size: 15px">ক্লাস পরিচালনার উপর অভিভাবক রিভিউ</span><span style="font-size: 13px; color: #5B6670">অক্টোবর ২০২৬ · শেষ ২০ অক্টোবর</span></div>
+      </div>
+      <div style="margin-left: auto; display: flex; flex-wrap: wrap; align-items: center; gap: 16px; font-size: 14px">
+        <span style="font-weight: 600">Maryam Binte Rafiq · নার্সারি A</span>
+        <span style="color: #5B6670">রফিকুল ইসলাম (পিতা)</span>
+        <span style="background: #E7F1EC; color: #2E6A55; border-radius: 8px; padding: 2px 8px; font-size: 13px; font-weight: 600">যাচাইকৃত</span>
+      </div>
+    </div>
+  </header>
+
+  <div style="max-width: 1200px; width: 100%; margin: 0 auto; padding: 24px 28px 40px; display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start">
+    <aside style="flex: 1 1 280px; background: #FFFFFF; border: 1px solid #E7E3DC; border-radius: 16px; padding: 10px; display: flex; flex-direction: column; gap: 2px">
+      <div style="padding: 6px 10px 8px; display: flex; justify-content: space-between; font-size: 13px; color: #5B6670"><span style="font-weight: 600">১৪টি প্রশ্ন</span><span>২টি সম্পন্ন</span></div>
+      <sc-for list="{{steps}}" as="s" hint-placeholder-count="14">
+        <button class="step" aria-current="{{s.cur}}">
+          <span style="flex: none; width: 24px; height: 24px; border-radius: 50%; background: {{s.dotBg}}; color: {{s.dotFg}}; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 13px">{{s.dot}}</span>
+          <span>{{s.label}}</span>
+        </button>
+      </sc-for>
+    </aside>
+
+    <main style="flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column; gap: 16px">
+      <section style="position: sticky; top: 12px; z-index: 2; background: #FFFFFF; border: 1px solid #E7E3DC; border-radius: 18px; padding: 22px 24px; box-shadow: 0 4px 14px rgba(32,43,48,0.07); display: flex; flex-direction: column; gap: 10px">
+        <div style="font-size: 14px; color: #5B6670; font-weight: 600">প্রশ্ন ৩/১৪</div>
+        <h1 style="margin: 0; font-family: 'Anek Bangla', sans-serif; font-weight: 600; font-size: 28px; line-height: 1.35">অতিরিক্ত হোমওয়ার্ক দেওয়া হয় কি না?</h1>
+        <div style="align-self: flex-start; display: flex; align-items: center; gap: 6px; background: #FBF1E6; color: #8A4416; border-radius: 10px; padding: 6px 12px; font-size: 15px; font-weight: 500">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8A4416" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 8h.01M11 12h1v5h1"></path></svg>
+          ১০ = পরিমাণ ঠিক আছে, ৪ = অনেক বেশি
+        </div>
+      </section>
+
+      <section style="background: #FFFFFF; border: 1px solid #E7E3DC; border-radius: 18px; padding: 8px 20px 14px">
+        <div style="display: grid; grid-template-columns: minmax(140px, 1fr) repeat(4, minmax(64px, 96px)) 32px; gap: 10px; align-items: center; padding: 10px 0; border-bottom: 1px solid #E7E3DC; font-size: 13px; font-weight: 600; color: #5B6670">
+          <span>বিষয়</span><span style="text-align: center">১০</span><span style="text-align: center">৮</span><span style="text-align: center">৬</span><span style="text-align: center">৪</span><span></span>
+        </div>
+        <sc-for list="{{subjects}}" as="s" hint-placeholder-count="6">
+          <div style="display: grid; grid-template-columns: minmax(140px, 1fr) repeat(4, minmax(64px, 96px)) 32px; gap: 10px; align-items: center; padding: 9px 0; border-bottom: 1px solid #F0ECE6" role="radiogroup" aria-label="{{s.name}}: মার্ক">
+            <span style="font-size: 17px; font-weight: 600">{{s.name}}</span>
+            <sc-for list="{{s.marks}}" as="m" hint-placeholder-count="4">
+              <button class="mk" role="radio" aria-checked="{{m.sel}}" onClick="{{m.pick}}">{{m.v}}</button>
+            </sc-for>
+            <span style="display: flex; justify-content: center">
+              <sc-if value="{{s.done}}" hint-placeholder-val="{{false}}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2E6A55" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-label="সম্পন্ন"><path d="m5 12 5 5 9-10"></path></svg></sc-if>
+            </span>
+          </div>
+        </sc-for>
+      </section>
+
+      <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px">
+        <a class="nav" href="G-Match.dc.html" style="background: #F4F2EE; color: #1F2A2E; border: 0">← আগের প্রশ্ন</a>
+        <a class="nav" href="G1-Review.dc.html" style="background: #875B3D; color: #fff">{{nextLabel}}</a>
+      </div>
+    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":960}}'>
+class Component extends DCLogic {
+  constructor(p) { super(p); this.state = { marks: { 0: 10, 1: 8, 2: 10 } }; }
+  renderVals() {
+    const bn = (n) => String(n).replace(/\d/g, (d) => '০১২৩৪৫৬৭৮৯'[d]);
+    const Q = ['পড়া বুঝতে পারে', 'ক্লাসে পড়া শেষ হয়', 'অতিরিক্ত হোমওয়ার্ক', 'ক্লাসে উত্তম আচরণ', 'শিক্ষককে পছন্দ করে', 'কুইজ সিলেবাস রিভাইজ', 'ক্লাস ওয়ার্ক চেক', 'হোমওয়ার্ক চেক', 'লেসন শিখেছে', 'অভিভাবকের সাথে কোর্ডিনেশন', 'পরীক্ষার খাতা চেক', 'আদব-আখলাকে যত্ন', 'সমস্যা জানানো', 'সার্বিক সন্তুষ্টি'];
+    const S = ['কুরআন', 'আরবি', 'ইসলাম শিক্ষা', 'বাংলা', 'ইংরেজি', 'গণিত'];
+    const marks = this.state.marks;
+    const left = S.length - Object.keys(marks).length;
+    return {
+      steps: Q.map((label, i) => ({
+        label, cur: i === 2 ? 'step' : 'false',
+        dot: i < 2 ? '✓' : bn(i + 1),
+        dotBg: i < 2 ? '#E7F1EC' : i === 2 ? '#875B3D' : '#F0ECE6',
+        dotFg: i < 2 ? '#2E6A55' : i === 2 ? '#FFFFFF' : '#3D4A53'
+      })),
+      nextLabel: left ? 'পরের প্রশ্ন (' + bn(left) + 'টি বিষয় বাকি) →' : 'পরের প্রশ্ন →',
+      subjects: S.map((name, i) => ({
+        name, done: !!marks[i],
+        marks: [10, 8, 6, 4].map((v) => ({ v: bn(v), sel: marks[i] === v, pick: () => this.setState({ marks: Object.assign({}, marks, { [i]: v }) }) }))
+      }))
+    };
+  }
+}
+</script>
+</body>
+</html>

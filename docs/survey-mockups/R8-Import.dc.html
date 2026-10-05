@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<title>অ্যাডমিন: ERP ইমপোর্ট</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Anek+Bangla:wght@500;600&amp;family=Hind+Siliguri:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+*{box-sizing:border-box}
+a{color:#875B3D}a:hover{color:#654321}
+.nav{display:flex;align-items:center;gap:10px;min-height:42px;padding:8px 12px;border-radius:10px;color:#3D4A53;text-decoration:none;font-size:15px;font-weight:500}
+.nav:hover{background:#F4F2EE;color:#1F2A2E}
+.nav[aria-current="page"]{background:#F6EEE6;color:#5E3B24;font-weight:600}
+.card{background:#FFFFFF;border:1px solid #E7E3DC;border-radius:16px;padding:20px}
+.h2{margin:0;font-family:'Anek Bangla',sans-serif;font-weight:600;font-size:19px}
+.btn{height:48px;padding:0 18px;border-radius:12px;font-family:'Anek Bangla',sans-serif;font-weight:600;font-size:16px;cursor:pointer}
+.nav:focus-visible,.btn:focus-visible,a:focus-visible{outline:3px solid #4F7FA6;outline-offset:2px}
+.num{font-family:'Anek Bangla',sans-serif;font-weight:600;font-variant-numeric:tabular-nums}
+th{font-weight:600;color:#5B6670;font-size:13px;text-align:left;padding:9px 10px;border-bottom:1px solid #E7E3DC;white-space:nowrap}
+td{padding:10px;border-bottom:1px solid #F0ECE6;font-size:14px;vertical-align:top}
+</style>
+</helmet>
+<div style="min-height: 1400px; background: #F8F7F4; font-family: 'Hind Siliguri', sans-serif; color: #1F2A2E; display: flex; flex-wrap: wrap; align-items: flex-start">
+  <nav aria-label="রিপোর্ট মেনু" style="flex: 1 1 220px; max-width: 100%; padding: 22px 14px; display: flex; flex-direction: column; gap: 4px">
+    <div style="display: flex; align-items: center; gap: 10px; padding: 0 8px 18px">
+      <div style="width: 34px; height: 34px; border-radius: 10px; background: #875B3D; color: #fff; display: flex; align-items: center; justify-content: center; font-family: 'Anek Bangla', sans-serif; font-weight: 600; font-size: 18px">ম</div>
+      <div style="display: flex; flex-direction: column"><span style="font-weight: 600; font-size: 15px">রিভিউ রিপোর্ট</span><span style="font-size: 13px; color: #5B6670">মাদরাসাতুল কুরআন, ঢাকা</span></div>
+    </div>
+    <sc-for list="{{nav}}" as="n" hint-placeholder-count="8">
+      <sc-if value="{{n.head}}" hint-placeholder-val="{{false}}"><div style="padding: 16px 12px 6px; font-size: 13px; font-weight: 600; color: #5B6670">{{n.label}}</div></sc-if>
+      <sc-if value="{{n.link}}" hint-placeholder-val="{{true}}"><a class="nav" href="{{n.href}}" aria-current="{{n.cur}}">{{n.label}}</a></sc-if>
+    </sc-for>
+  </nav>
+
+  <main style="flex: 999 1 560px; min-width: 0; padding: 22px 28px 48px; display: flex; flex-direction: column; gap: 20px">
+    <div style="display: flex; flex-direction: column; gap: 4px">
+      <h1 style="margin: 0; font-family: 'Anek Bangla', sans-serif; font-weight: 600; font-size: 30px">ERP থেকে শিক্ষার্থী ইমপোর্ট</h1>
+      <div style="font-size: 14px; color: #5B6670">প্রতিটি রাউন্ড খোলার আগে হালনাগাদ করুন · শেষ ইমপোর্ট: ২৮ সেপ্টেম্বর</div>
+    </div>
+
+    <ol style="list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; font-size: 14px">
+      <li style="display: flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 999px; background: #E7F1EC; color: #2E6A55; font-weight: 600"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"></path></svg>১ ফাইল আপলোড</li>
+      <li aria-current="step" style="display: flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 999px; background: #875B3D; color: #fff; font-weight: 600">২ যাচাই ও প্রিভিউ</li>
+      <li style="display: flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 999px; background: #E7E3DC; color: #3D4A53; font-weight: 600">৩ নিশ্চিত</li>
+    </ol>
+
+    <section class="card" style="display: flex; flex-wrap: wrap; gap: 16px; align-items: center">
+      <div style="width: 44px; height: 44px; border-radius: 12px; background: #E7F1EC; display: flex; align-items: center; justify-content: center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2E6A55" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H6a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8z"></path><path d="M14 3v5h5M9 13h6M9 17h6"></path></svg></div>
+      <div style="flex: 1; display: flex; flex-direction: column; gap: 2px"><div style="font-weight: 600">students-2026-10-04.xlsx</div><div style="font-size: 13px; color: #5B6670">২৬৯টি সারি · কলাম মিলেছে: ID, Roll, Name, Class, Section, Father Name, Father Contact, Mother Contact · Photo উপেক্ষিত</div></div>
+      <a href="R8-Import.dc.html" style="font-size: 14px; font-weight: 600">অন্য ফাইল</a>
+    </section>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px">
+      <sc-for list="{{tiles}}" as="t" hint-placeholder-count="5">
+        <div class="card" style="padding: 14px 16px; display: flex; flex-direction: column; gap: 4px; border-color: {{t.bd}}">
+          <div style="font-size: 13px; color: #5B6670; font-weight: 600">{{t.label}}</div>
+          <div class="num" style="font-size: 28px">{{t.v}}</div>
+        </div>
+      </sc-for>
+    </div>
+
+    <section class="card" style="display: flex; flex-direction: column; gap: 12px">
+      <h2 class="h2" style="display: flex; align-items: center; gap: 8px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8A4416" stroke-width="2.2" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 2 20h20L12 3z"></path><path d="M12 10v4M12 17h.01"></path></svg>৩টি সারিতে সমস্যা · ২টি বাদ যাবে, ১টি নম্বর ছাড়া ইমপোর্ট হবে</h2>
+      <div style="overflow-x: auto">
+        <table style="width: 100%; min-width: 700px; border-collapse: collapse">
+          <thead><tr><th>সারি</th><th>ID</th><th>নাম</th><th>সমস্যা</th><th>কী হবে / করণীয়</th></tr></thead>
+          <tbody>
+            <tr><td class="num">৫৭</td><td class="num">১০১৭২</td><td>Nafisa Anjum</td><td>Class “Seven” · কোনো শ্রেণির সাথে ম্যাপ করা নেই</td><td>Studio-তে শ্রেণি যোগ বা ম্যাপ করুন; না হলে সারিটি বাদ যাবে</td></tr>
+            <tr><td class="num">১১২</td><td class="num">১০১৮৮</td><td>Rifat Hossain</td><td>Father Contact “+88017123” · নম্বর অসম্পূর্ণ</td><td>নম্বর ছাড়া ইমপোর্ট হবে; এই অভিভাবক যাচাই হবেন না</td></tr>
+            <tr><td class="num">২০৩</td><td class="num">১০১৯৪</td><td style="color: #5B6670">ফাঁকা</td><td>Name ফাঁকা</td><td>সারিটি বাদ যাবে</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <div style="display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start">
+      <section class="card" style="flex: 1 1 420px; min-width: 0; display: flex; flex-direction: column; gap: 10px">
+        <h2 class="h2">শ্রেণি ম্যাপিং</h2>
+        <div style="font-size: 13px; color: #5B6670">ERP-এর Class + Section → সিস্টেমের শ্রেণি (Studio-তে সেট করা)</div>
+        <sc-for list="{{map}}" as="m" hint-placeholder-count="8">
+          <div style="display: grid; grid-template-columns: minmax(0, 1fr) 24px minmax(0, 1fr) 48px; align-items: center; gap: 8px; padding: 7px 0; border-bottom: 1px solid #F0ECE6; font-size: 14px">
+            <span style="font-family: ui-monospace, Menlo, monospace; font-size: 13px; color: #3D4A53">{{m.erp}}</span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#A8A096" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg>
+            <span style="font-weight: 600; color: {{m.fg}}">{{m.ours}}</span>
+            <span class="num" style="text-align: right; font-size: 13px; color: #5B6670">{{m.n}}</span>
+          </div>
+        </sc-for>
+      </section>
+      <section class="card" style="flex: 1 1 420px; min-width: 0; display: flex; flex-direction: column; gap: 10px">
+        <h2 class="h2">পরিবর্তনের প্রিভিউ</h2>
+        <div style="font-size: 14px; font-weight: 600; color: #2E6A55">নতুন (৪)</div>
+        <div style="font-size: 14px; line-height: 1.7; color: #3D4A53">Sadia Rahman (কেজি A) · Muaz Bin Asad (প্লে) · Hafsa Kabir (প্রথম) · Tamim Iqbal (চতুর্থ)</div>
+        <div style="font-size: 14px; font-weight: 600; color: #3B6684">হালনাগাদ (১২)</div>
+        <div style="font-size: 14px; line-height: 1.7; color: #3D4A53">৭ জনের রোল, ৩ জনের মোবাইল, ২ জনের শাখা বদলেছে</div>
+        <div style="font-size: 14px; font-weight: 600; color: #3D4A53">নিষ্ক্রিয় হবে (২)</div>
+        <div style="font-size: 14px; line-height: 1.7; color: #3D4A53">ফাইলে নেই: Ariyan Sheikh (পঞ্চম), Lamia Noor (নার্সারি B) · আগের রিভিউ মুছে যাবে না</div>
+      </section>
+    </div>
+
+    <div style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: flex-end">
+      <button class="btn" style="background: #F4F2EE; color: #1F2A2E; border: 0; margin-right: auto">সমস্যার তালিকা ডাউনলোড (Excel)</button>
+      <button class="btn" style="background: #F4F2EE; color: #1F2A2E; border: 0">বাতিল</button>
+      <button class="btn" style="background: #875B3D; color: #fff; border: 0">ইমপোর্ট করুন (২টি সারি বাদ)</button>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1400}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const NAV = [
+      ['h', 'রিপোর্ট'], ['ওভারভিউ', 'R1-Overview.dc.html'], ['শিক্ষার মান (G1)', 'R2-Teaching.dc.html'], ['ক্লাস', 'R3-Class.dc.html'],
+      ['শিক্ষার্থী প্রোফাইল', 'R4-Student.dc.html'], ['শিক্ষকদের রেটিং প্যাটার্ন', 'R5-Raters.dc.html'], ['রেসপন্স ট্র্যাকার', 'R6-Tracker.dc.html'],
+      ['h', 'অ্যাডমিন'], ['রাউন্ড', 'R7-Rounds.dc.html'], ['ERP ইমপোর্ট', 'R8-Import.dc.html']
+    ];
+    const current = 'R8-Import.dc.html';
+    return {
+      nav: NAV.map(([a, b]) => a === 'h' ? { head: true, link: false, label: b } : { head: false, link: true, label: a, href: b, cur: b === current ? 'page' : 'false' }),
+      tiles: [
+        { label: 'নতুন', v: '৪', bd: '#E7E3DC' }, { label: 'হালনাগাদ', v: '১২', bd: '#E7E3DC' }, { label: 'অপরিবর্তিত', v: '২৫০', bd: '#E7E3DC' },
+        { label: 'নিষ্ক্রিয় হবে', v: '২', bd: '#E7E3DC' }, { label: 'সমস্যা', v: '৩', bd: '#E9D6C3' }
+      ],
+      map: [
+        ['Play · —', 'প্লে', '১৮'], ['Nursery · Section A', 'নার্সারি A', '২০'], ['Nursery · Section B', 'নার্সারি B', '১৯'], ['KG · Section A', 'কেজি A', '২১'],
+        ['Two · Male', 'দ্বিতীয় বালক', '১৯'], ['Three · Female', 'তৃতীয় বালিকা', '১৮'], ['Six · —', 'ষষ্ঠ', '১৬'], ['Seven · —', 'ম্যাপ নেই', '১']
+      ].map(([erp, ours, n]) => ({ erp, ours, n, fg: ours === 'ম্যাপ নেই' ? '#8A4416' : '#1F2A2E' }))
+    };
+  }
+}
+</script>
+</body>
+</html>

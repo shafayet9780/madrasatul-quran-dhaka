@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<title>রিপোর্ট: ওভারভিউ</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Anek+Bangla:wght@500;600&amp;family=Hind+Siliguri:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+*{box-sizing:border-box}
+a{color:#875B3D}a:hover{color:#654321}
+.nav{display:flex;align-items:center;gap:10px;min-height:42px;padding:8px 12px;border-radius:10px;color:#3D4A53;text-decoration:none;font-size:15px;font-weight:500}
+.nav:hover{background:#F4F2EE;color:#1F2A2E}
+.nav[aria-current="page"]{background:#F6EEE6;color:#5E3B24;font-weight:600}
+.card{background:#FFFFFF;border:1px solid #E7E3DC;border-radius:16px;padding:20px}
+.h2{margin:0;font-family:'Anek Bangla',sans-serif;font-weight:600;font-size:19px}
+.sel{height:40px;border-radius:10px;border:1px solid transparent;background:#F4F2EE;padding:0 10px;font:inherit;font-size:14px;color:#1F2A2E}
+.tbtn{height:40px;padding:0 14px;border-radius:10px;border:1px solid transparent;background:#F4F2EE;font:inherit;font-size:14px;font-weight:600;color:#1F2A2E;display:flex;align-items:center;gap:8px;cursor:pointer}
+.nav:focus-visible,.sel:focus-visible,.tbtn:focus-visible,a:focus-visible{outline:3px solid #4F7FA6;outline-offset:2px}
+.num{font-family:'Anek Bangla',sans-serif;font-weight:600;font-variant-numeric:tabular-nums}
+</style>
+</helmet>
+<div style="min-height: 1900px; background: #F8F7F4; font-family: 'Hind Siliguri', sans-serif; color: #1F2A2E; display: flex; flex-wrap: wrap; align-items: flex-start">
+  <nav aria-label="রিপোর্ট মেনু" style="flex: 1 1 220px; max-width: 100%; padding: 22px 14px; display: flex; flex-direction: column; gap: 4px">
+    <div style="display: flex; align-items: center; gap: 10px; padding: 0 8px 18px">
+      <div style="width: 34px; height: 34px; border-radius: 10px; background: #875B3D; color: #fff; display: flex; align-items: center; justify-content: center; font-family: 'Anek Bangla', sans-serif; font-weight: 600; font-size: 18px">ম</div>
+      <div style="display: flex; flex-direction: column"><span style="font-weight: 600; font-size: 15px">রিভিউ রিপোর্ট</span><span style="font-size: 13px; color: #5B6670">মাদরাসাতুল কুরআন, ঢাকা</span></div>
+    </div>
+    <sc-for list="{{nav}}" as="n" hint-placeholder-count="8">
+      <sc-if value="{{n.head}}" hint-placeholder-val="{{false}}"><div style="padding: 16px 12px 6px; font-size: 13px; font-weight: 600; color: #5B6670">{{n.label}}</div></sc-if>
+      <sc-if value="{{n.link}}" hint-placeholder-val="{{true}}"><a class="nav" href="{{n.href}}" aria-current="{{n.cur}}">{{n.label}}</a></sc-if>
+    </sc-for>
+  </nav>
+
+  <main style="flex: 999 1 560px; min-width: 0; padding: 22px 28px 48px; display: flex; flex-direction: column; gap: 20px">
+    <div style="display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px">
+      <div style="display: flex; flex-direction: column; gap: 4px">
+        <div style="display: flex; align-items: center; gap: 10px">
+          <h1 style="margin: 0; font-family: 'Anek Bangla', sans-serif; font-weight: 600; font-size: 30px">ওভারভিউ</h1>
+          <span style="background: #E7E3DC; color: #3D4A53; border-radius: 999px; padding: 2px 10px; font-size: 13px; font-weight: 600">নমুনা ডেটা</span>
+        </div>
+        <div style="font-size: 14px; color: #5B6670">অক্টোবর ২০২৬ রাউন্ড · চলমান · ২০ অক্টোবর বন্ধ হবে</div>
+      </div>
+      <div style="display: flex; gap: 8px">
+        <button class="tbtn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"></path></svg>Excel</button>
+        <button class="tbtn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 9V3h10v6M7 17H4v-7h16v7h-3M7 14h10v7H7z"></path></svg>প্রিন্ট / PDF</button>
+      </div>
+    </div>
+
+    <div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center; padding: 12px 14px; background: #FFFFFF; border: 1px solid #E7E3DC; border-radius: 14px">
+      <label style="display: flex; align-items: center; gap: 6px; font-size: 13px; color: #5B6670">রাউন্ড <select class="sel"><option>অক্টোবর ২০২৬</option></select></label>
+      <label style="display: flex; align-items: center; gap: 6px; font-size: 13px; color: #5B6670">তুলনা <select class="sel"><option>সেপ্টেম্বর ২০২৬</option></select></label>
+      <label style="display: flex; align-items: center; gap: 6px; font-size: 13px; color: #5B6670">শ্রেণি <select class="sel"><option>সব শ্রেণি</option></select></label>
+      <label style="display: flex; align-items: center; gap: 6px; font-size: 13px; color: #5B6670">বিষয় <select class="sel"><option>সব বিষয়</option></select></label>
+      <label style="display: flex; align-items: center; gap: 8px; font-size: 14px; margin-left: auto"><input type="checkbox" style="width: 18px; height: 18px; accent-color: #875B3D">শুধু যাচাইকৃত</label>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px">
+      <sc-for list="{{kpis}}" as="k" hint-placeholder-count="5">
+        <div class="card" style="padding: 16px 18px; display: flex; flex-direction: column; gap: 6px">
+          <div style="font-size: 13px; color: #5B6670; font-weight: 600">{{k.label}}</div>
+          <div style="display: flex; align-items: baseline; gap: 6px"><span class="num" style="font-size: 32px; line-height: 1.2">{{k.value}}</span><span style="font-size: 14px; color: #5B6670">{{k.unit}}</span></div>
+          <div style="font-size: 13px; color: #5B6670">{{k.sub}}</div>
+          <div style="font-size: 13px; font-weight: 600; color: #3D4A53">{{k.delta}}</div>
+        </div>
+      </sc-for>
+    </div>
+
+    <div style="display: flex; flex-wrap: wrap; gap: 16px; align-items: stretch">
+      <section class="card" style="flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column; gap: 14px">
+        <div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; align-items: baseline">
+          <h2 class="h2">শিক্ষার মান · শ্রেণি × বিষয় (G1 গড় মার্ক)</h2>
+          <a href="R2-Teaching.dc.html" style="font-size: 14px; font-weight: 600">বিস্তারিত →</a>
+        </div>
+        <div style="overflow-x: auto">
+          <div style="min-width: 720px; display: grid; grid-template-columns: 120px repeat(8, minmax(0, 1fr)); gap: 3px; font-size: 13px">
+            <div></div>
+            <sc-for list="{{subjects}}" as="s" hint-placeholder-count="8"><div style="text-align: center; color: #5B6670; font-weight: 600; padding-bottom: 6px">{{s}}</div></sc-for>
+            <sc-for list="{{heat}}" as="r" hint-placeholder-count="13">
+              <div style="display: flex; align-items: center; font-weight: 600; color: #3D4A53">{{r.cls}}</div>
+              <sc-for list="{{r.cells}}" as="c" hint-placeholder-count="8">
+                <div title="{{c.tip}}" style="height:  44px; border-radius: 6px; background: {{c.bg}}; color: {{c.fg}}; display: flex; flex-direction: column; align-items: center; justify-content: center; gap:  0px; line-height: 1.25; font-family: 'Anek Bangla', sans-serif; font-weight: 600; font-size: 14px"><span style="display: flex; align-items: center; gap: 3px"><sc-if value="{{c.low}}" hint-placeholder-val="{{false}}"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#8A4416" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-label="নিম্ন"><path d="M12 3 2 20h20L12 3z"></path><path d="M12 10v4"></path></svg></sc-if><span>{{c.v}}</span></span><span style="font-size: 12px; font-weight: 500; opacity: 0.9">{{c.nTxt}}</span></div>
+              </sc-for>
+            </sc-for>
+          </div>
+        </div>
+        <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 14px; font-size: 13px; color: #5B6670">
+          <div style="display: flex; align-items: center; gap: 6px">৪
+            <div style="display: flex; gap: 2px"><span style="width: 22px; height: 10px; border-radius: 2px; background: #EEF4F1"></span><span style="width: 22px; height: 10px; border-radius: 2px; background: #D3E5DD"></span><span style="width: 22px; height: 10px; border-radius: 2px; background: #A9CBBD"></span><span style="width: 22px; height: 10px; border-radius: 2px; background: #79AA97"></span><span style="width: 22px; height: 10px; border-radius: 2px; background: #467A69"></span><span style="width: 22px; height: 10px; border-radius: 2px; background: #3A6B5D"></span><span style="width: 22px; height: 10px; border-radius: 2px; background: #2B5248"></span></div>১০
+          </div>
+          <span>▲ চিহ্ন = গড় ৬.৫-এর নিচে</span>
+          <span>n = উত্তরদাতা অভিভাবক</span>
+          <span>ফাঁকা = বিষয়টি ঐ শ্রেণিতে নেই</span>
+        </div>
+      </section>
+
+      <section class="card" style="flex: 1 1 320px; min-width: 0; display: flex; flex-direction: column; gap: 12px">
+        <h2 class="h2">অভিভাবকের সাড়া · শ্রেণিভিত্তিক</h2>
+        <div style="display: flex; gap: 14px; font-size: 13px; color: #5B6670">
+          <span style="display: flex; align-items: center; gap: 6px"><span style="width: 12px; height: 12px; border-radius: 3px; background: #3A6B5D"></span>G1 শিক্ষার মান</span>
+          <span style="display: flex; align-items: center; gap: 6px"><span style="width: 12px; height: 12px; border-radius: 3px; background: #B86A2E"></span>G2 শিক্ষার্থী</span>
+        </div>
+        <sc-for list="{{progress}}" as="p" hint-placeholder-count="13">
+          <div style="display: grid; grid-template-columns: 92px minmax(0, 1fr) 40px; align-items: center; gap: 8px; font-size: 13px">
+            <div style="font-weight: 600; color: #3D4A53">{{p.cls}}</div>
+            <div style="display: flex; flex-direction: column; gap: 3px">
+              <div style="height: 7px; border-radius: 0 4px 4px 0; background: #3A6B5D; width: {{p.g1w}}" title="{{p.g1t}}"></div>
+              <div style="height: 7px; border-radius: 0 4px 4px 0; background: #B86A2E; width: {{p.g2w}}" title="{{p.g2t}}"></div>
+            </div>
+            <div class="num" style="text-align: right; font-size: 13px; color: #3D4A53; line-height: 1.3">{{p.g1}}<br>{{p.g2}}</div>
+          </div>
+        </sc-for>
+        <a href="R6-Tracker.dc.html" style="font-size: 14px; font-weight: 600; margin-top: auto">বাকিদের তালিকা →</a>
+      </section>
+    </div>
+
+    <div style="display: flex; flex-wrap: wrap; gap: 16px; align-items: stretch">
+      <section class="card" style="flex: 1 1 460px; min-width: 0; display: flex; flex-direction: column; gap: 10px">
+        <h2 class="h2">অভিভাবক বনাম শিক্ষক · রাউন্ডভিত্তিক গড়</h2>
+        <div style="display: flex; flex-wrap: wrap; gap: 14px; font-size: 13px; color: #5B6670">
+          <span style="display: flex; align-items: center; gap: 6px"><span style="width: 16px; height: 2px; background: #B86A2E"></span>G2 অভিভাবকের চোখে</span>
+          <span style="display: flex; align-items: center; gap: 6px"><span style="width: 16px; height: 2px; background: #2F6FA3"></span>T1 শিক্ষকের চোখে</span>
+        </div>
+        <svg viewBox="0 0 640 260" width="100%" role="img" aria-label="জুলাই থেকে অক্টোবর: G2 ৭.৭ থেকে ৭.৮, T1 ৭.০ থেকে ৭.৪" style="font-family: 'Hind Siliguri', sans-serif">
+          <g stroke="#E7E3DC" stroke-width="1"><line x1="44" y1="20" x2="600" y2="20"></line><line x1="44" y1="86.7" x2="600" y2="86.7"></line><line x1="44" y1="153.3" x2="600" y2="153.3"></line><line x1="44" y1="220" x2="600" y2="220" stroke="#D8D2C9"></line></g>
+          <g fill="#5B6670" font-size="12" text-anchor="end"><text x="36" y="24">১০</text><text x="36" y="91">৮</text><text x="36" y="157">৬</text><text x="36" y="224">৪</text></g>
+          <g fill="#5B6670" font-size="12" text-anchor="middle"><text x="70" y="244">জুলাই</text><text x="240" y="244">আগস্ট</text><text x="410" y="244">সেপ্টেম্বর</text><text x="560" y="244">অক্টোবর</text></g>
+          <polyline fill="none" stroke="#B86A2E" stroke-width="2" stroke-linejoin="round" points="70,96.7 240,90 410,90 560,93.3"></polyline>
+          <polyline fill="none" stroke="#2F6FA3" stroke-width="2" stroke-linejoin="round" points="70,120 240,116.7 410,110 560,106.7"></polyline>
+          <g stroke="#FFFFFF" stroke-width="2">
+            <circle cx="560" cy="93.3" r="5" fill="#B86A2E"><title>G2 অক্টোবর: ৭.৮</title></circle>
+            <circle cx="560" cy="106.7" r="5" fill="#2F6FA3"><title>T1 অক্টোবর: ৭.৪</title></circle>
+          </g>
+          <g font-size="13" font-weight="600" fill="#1F2A2E"><text x="572" y="97">৭.৮</text><text x="572" y="114">৭.৪</text></g>
+        </svg>
+        <div style="display: flex; align-items: center; gap: 8px; font-size: 14px; color: #3D4A53; border-top: 1px solid #E7E3DC; padding-top: 10px"><span style="width: 10px; height: 10px; border-radius: 50%; background: #3A6B5D"></span>শিক্ষার মান (G1) একই সময়ে: ৭.৬ → ৭.৮ → ৭.৯ → <b>৮.১</b></div>
+      </section>
+
+      <section class="card" style="flex: 1 1 460px; min-width: 0; display: flex; flex-direction: column; gap: 10px">
+        <div style="display: flex; justify-content: space-between; align-items: baseline">
+          <h2 class="h2">মনোযোগ প্রয়োজন</h2>
+          <span style="font-size: 13px; color: #5B6670">১২ জনের মধ্যে ৫ জন</span>
+        </div>
+        <sc-for list="{{attention}}" as="a" hint-placeholder-count="5">
+          <a href="R4-Student.dc.html" style="display: flex; flex-direction: column; gap: 6px; padding: 12px 14px; border-radius: 12px; border: 1px solid #E7E3DC; text-decoration: none; color: #1F2A2E">
+            <div style="display: flex; justify-content: space-between; gap: 8px"><span style="font-weight: 600">{{a.name}}</span><span style="font-size: 13px; color: #5B6670">{{a.cls}}</span></div>
+            <div style="display: flex; flex-wrap: wrap; gap: 6px">
+              <sc-for list="{{a.reasons}}" as="r" hint-placeholder-count="2">
+                <span style="display: flex; align-items: center; gap: 5px; background: #FBF1E6; color: #8A4416; border-radius: 8px; padding: 2px 8px; font-size: 13px; font-weight: 500">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#8A4416" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 2 20h20L12 3z"></path></svg>{{r}}
+                </span>
+              </sc-for>
+            </div>
+          </a>
+        </sc-for>
+      </section>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const bn = (n) => String(n).replace(/\d/g, (d) => '০১২৩৪৫৬৭৮৯'[d]);
+    const NAV = [
+      ['h', 'রিপোর্ট'], ['ওভারভিউ', 'R1-Overview.dc.html'], ['শিক্ষার মান (G1)', 'R2-Teaching.dc.html'], ['ক্লাস', 'R3-Class.dc.html'],
+      ['শিক্ষার্থী প্রোফাইল', 'R4-Student.dc.html'], ['শিক্ষকদের রেটিং প্যাটার্ন', 'R5-Raters.dc.html'], ['রেসপন্স ট্র্যাকার', 'R6-Tracker.dc.html'],
+      ['h', 'অ্যাডমিন'], ['রাউন্ড', 'R7-Rounds.dc.html'], ['ERP ইমপোর্ট', 'R8-Import.dc.html']
+    ];
+    const current = 'R1-Overview.dc.html';
+    const CLS = ['প্লে', 'নার্সারি A', 'নার্সারি B', 'কেজি A', 'কেজি B', 'প্রথম', 'দ্বিতীয় বালক', 'দ্বিতীয় বালিকা', 'তৃতীয় বালক', 'তৃতীয় বালিকা', 'চতুর্থ', 'পঞ্চম', 'ষষ্ঠ'];
+    const SUB = ['কুরআন', 'আরবি', 'ইসলাম', 'বাংলা', 'ইংরেজি', 'গণিত', 'বিজ্ঞান', 'ইতিহাস'];
+    const has = (ci, si) => si < 6 || (si === 6 && ci >= 5) || (si === 7 && ci >= 10);
+    const special = { '1-5': 6.4, '8-4': 6.8, '4-1': 7.0, '12-6': 9.2 };
+    const ramp = [[6, '#EEF4F1'], [6.75, '#D3E5DD'], [7.5, '#A9CBBD'], [8, '#79AA97'], [8.5, '#467A69'], [9, '#3A6B5D'], [99, '#2B5248']];
+    const fmt = (v) => bn(v.toFixed(1));
+    const heat = CLS.map((cls, ci) => ({
+      cls,
+      cells: SUB.map((s, si) => {
+        if (!has(ci, si)) return { v: '', bg: 'transparent', fg: '#1F2A2E', low: false, tip: cls + ' · ' + s + ': প্রযোজ্য নয়' };
+        const v = special[ci + '-' + si] ?? Math.round((8.1 + (((ci * 7 + si * 13) % 11) - 5) * 0.17) * 10) / 10;
+        const idx = ramp.findIndex(([t]) => v < t);
+        const n = 12 + ((ci * 5 + si * 3) % 9);
+        return { v: fmt(v), bg: ramp[idx][1], fg: idx >= 4 ? '#FFFFFF' : '#1F2A2E', low: v < 6.5, nTxt: "n " + bn(n), tip: cls + ' · ' + s + ': গড় ' + fmt(v) + ' · ' + bn(n) + ' জন অভিভাবক' };
+      })
+    }));
+    const prog = [[83, 89], [85, 90], [70, 75], [78, 82], [64, 71], [88, 92], [74, 79], [81, 86], [58, 63], [77, 80], [90, 94], [72, 76], [69, 74]];
+    return {
+      nav: NAV.map(([a, b]) => a === 'h' ? { head: true, link: false, label: b } : { head: false, link: true, label: a, href: b, cur: b === current ? 'page' : 'false' }),
+      kpis: [
+        { label: 'অভিভাবকের সাড়া', value: '৭৮%', unit: '', sub: '২০৭ / ২৬৫ শিক্ষার্থী', delta: '▲ ৬ পয়েন্ট (সেপ্টেম্বরের তুলনায়)' },
+        { label: 'শিক্ষার মান · G1', value: '৮.১', unit: '/ ১০', sub: '১০ পেয়েছে ৪৬% উত্তর', delta: '▲ ০.২' },
+        { label: 'অভিভাবকের চোখে · G2', value: '৭.৮', unit: '/ ১০', sub: '২০১ জন শিক্ষার্থী', delta: '▼ ০.১' },
+        { label: 'শিক্ষকের চোখে · T1', value: '৭.৪', unit: '/ ১০', sub: '৮৬ / ৯৪ ক্লাস-বিষয় কভার', delta: '▲ ০.১' },
+        { label: 'মনোযোগ প্রয়োজন', value: '১২', unit: 'জন', sub: '৪টি শ্রেণিতে', delta: 'গত রাউন্ডে ছিল ৯ জন' }
+      ],
+      subjects: SUB,
+      heat,
+      progress: CLS.map((cls, i) => ({
+        cls, g1w: prog[i][0] + '%', g2w: prog[i][1] + '%', g1: bn(prog[i][0]) + '%', g2: bn(prog[i][1]) + '%',
+        g1t: cls + ' G1: ' + bn(prog[i][0]) + '%', g2t: cls + ' G2: ' + bn(prog[i][1]) + '%'
+      })),
+      attention: [
+        { name: 'Zayan Mahmud', cls: 'নার্সারি A · রোল ৭', reasons: ['অভিভাবক–শিক্ষক পার্থক্য ২ ধাপ', '২ জন শিক্ষক ৪ দিয়েছেন'] },
+        { name: 'Maryam Binte Rafiq', cls: 'নার্সারি A · রোল ২', reasons: ['গত রাউন্ড থেকে ১.৫ কমেছে'] },
+        { name: 'Saad Al Amin', cls: 'তৃতীয় বালক · রোল ৪', reasons: ['২ জন শিক্ষক ৪ দিয়েছেন'] },
+        { name: 'Raisa Tabassum', cls: 'কেজি B · রোল ১১', reasons: ['অভিভাবক–শিক্ষক পার্থক্য ২ ধাপ'] },
+        { name: 'Arif Bin Habib', cls: 'পঞ্চম · রোল ৯', reasons: ['গত রাউন্ড থেকে ১.২ কমেছে', 'অযাচাইকৃত অভিভাবক'] }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

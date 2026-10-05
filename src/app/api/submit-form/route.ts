@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { google } from 'googleapis';
+import { getSheetsClient, sheetsConfigured } from '@/lib/google-sheets-server';
 
 /**
  * Convert a number to Excel column letter (1 -> A, 26 -> Z, 27 -> AA, etc.)
@@ -19,22 +19,33 @@ function numberToColumnLetter(num: number): string {
  * This route handles the server-side integration with Google Sheets API
  */
 
+// The spreadsheet and range are fixed server-side; any spreadsheetId or range in the body is ignored.
 interface FormSubmissionRequest {
   data: string[];
-  spreadsheetId: string;
-  range: string;
   fieldOrder?: string[];
   autoDetectRange?: boolean;
   attributionMetadata?: Record<string, unknown>;
 }
 
+const DEFAULT_RANGE = 'A:Z';
+const MAX_ATTRIBUTION_LENGTH = 2000;
+
 export async function POST(request: NextRequest) {
   try {
     const body: FormSubmissionRequest = await request.json();
-    const { data, spreadsheetId, range, fieldOrder, autoDetectRange, attributionMetadata } = body;
+    const { data, fieldOrder, autoDetectRange, attributionMetadata } = body;
+    const spreadsheetId = process.env.FORM_GOOGLE_SHEETS_ID;
+    // Attribution is a small client-built object; drop anything oversized rather than store it.
+    const attribution = attributionMetadata ? JSON.stringify(attributionMetadata) : '';
+    const attributionCell = attribution.length <= MAX_ATTRIBUTION_LENGTH ? attribution : '';
 
     // Validate request data
-    if (!data || !spreadsheetId || !range) {
+    if (
+      !Array.isArray(data) ||
+      !data.every((value) => typeof value === 'string') ||
+      (fieldOrder !== undefined &&
+        (!Array.isArray(fieldOrder) || !fieldOrder.every((key) => typeof key === 'string')))
+    ) {
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
@@ -44,31 +55,11 @@ export async function POST(request: NextRequest) {
     // Google Sheets API integration
     try {
       // Validate environment variables
-      if (
-        !process.env.GOOGLE_PROJECT_ID ||
-        !process.env.GOOGLE_PRIVATE_KEY ||
-        !process.env.GOOGLE_CLIENT_EMAIL
-      ) {
+      if (!sheetsConfigured() || !spreadsheetId) {
         throw new Error('Google Sheets credentials not configured');
       }
 
-      // Initialize Google Sheets API client
-      const auth = new google.auth.GoogleAuth({
-        credentials: {
-          type: 'service_account',
-          project_id: process.env.GOOGLE_PROJECT_ID,
-          private_key_id: process.env.GOOGLE_PRIVATE_KEY_ID,
-          private_key:
-            process.env.NODE_ENV === 'production'
-              ? process.env.GOOGLE_PRIVATE_KEY
-              : process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-          client_email: process.env.GOOGLE_CLIENT_EMAIL,
-          client_id: process.env.GOOGLE_CLIENT_ID,
-        },
-        scopes: ['https://www.googleapis.com/auth/spreadsheets'],
-      });
-
-      const sheets = google.sheets({ version: 'v4', auth });
+      const sheets = getSheetsClient();
 
       // First, try to get spreadsheet info to verify access
       try {
@@ -86,7 +77,7 @@ export async function POST(request: NextRequest) {
 
       // Get headers to determine the correct range and data order
       let headers: string[] = [];
-      let actualRange = range;
+      let actualRange = DEFAULT_RANGE;
 
       if (autoDetectRange || fieldOrder) {
         try {
@@ -111,7 +102,7 @@ export async function POST(request: NextRequest) {
           }
         } catch (headerError) {
           console.warn(
-            'Could not fetch headers, using provided range:',
+            'Could not fetch headers, using the default range:',
             headerError
           );
         }
@@ -158,9 +149,7 @@ export async function POST(request: NextRequest) {
           values: [
             [
               ...rowData,
-              ...(attributionMetadata
-                ? [JSON.stringify(attributionMetadata)]
-                : []),
+              ...(attributionCell ? [attributionCell] : []),
             ],
           ],
         },

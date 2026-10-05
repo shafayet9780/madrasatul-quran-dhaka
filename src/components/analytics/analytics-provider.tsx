@@ -7,7 +7,7 @@ import { buildPageView } from '@/lib/analytics/events';
 import { pushToDataLayer, setAnalyticsConsent } from '@/lib/analytics/push';
 import { shouldLoadGtm } from '@/lib/analytics/consent';
 import { captureAttributionFromUrl } from '@/lib/analytics/attribution';
-import { sanitizePathWithAllowedQuery } from '@/lib/analytics/url';
+import { isUntrackedPath, sanitizePathWithAllowedQuery } from '@/lib/analytics/url';
 import {
   AnalyticsProvider,
   pushConsentDefaultEvent,
@@ -22,7 +22,7 @@ function AnalyticsTracker() {
   const { consent } = useAnalytics();
   const [mounted, setMounted] = useState(false);
   const hasPushedDefault = useRef(false);
-  const gtmAllowed = shouldLoadGtm(consent);
+  const gtmAllowed = shouldLoadGtm(consent) && !isUntrackedPath(pathname);
 
   useEffect(() => {
     setMounted(true);

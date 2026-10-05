@@ -342,7 +342,7 @@ export interface PreAdmissionForm {
     formTitle: MultilingualText
     formDescription?: MultilingualText
     submissionDate: string
-    googleSheetsId: string
+    googleSheetsId?: string
   }
   generalQuestions: FormField[]
   studentInfoFields: FormField[]

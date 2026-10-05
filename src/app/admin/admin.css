@@ -1,0 +1,336 @@
+/* Admin and report pages (R1–R8 artboards). Tokens come from components/survey/tokens.css. */
+.sv-admin {
+  min-height: 100vh;
+  background: var(--sv-report);
+}
+
+.sv-admin a {
+  color: var(--sv-link);
+}
+.sv-admin a:hover {
+  color: var(--sv-link-hover);
+}
+
+.sv-admin .sv-nav-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 42px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  color: var(--sv-text-body);
+  text-decoration: none;
+  font-size: 15px;
+  font-weight: 500;
+}
+.sv-admin .sv-nav-link:hover {
+  background: var(--sv-stone);
+  color: var(--sv-text);
+}
+.sv-admin .sv-nav-link[aria-current='page'] {
+  background: var(--sv-tint);
+  color: var(--sv-bronze-ink);
+  font-weight: 600;
+}
+
+.sv-admin .sv-card {
+  background: #fff;
+  border: 1px solid var(--sv-hairline);
+  border-radius: 16px;
+  padding: 20px;
+}
+
+.sv-admin .sv-h2 {
+  margin: 0;
+  font-size: 19px;
+}
+
+/* Small row button: white with a hairline border; .is-primary is the one solid bronze action. */
+.sv-admin .sv-sbtn {
+  display: inline-flex;
+  align-items: center;
+  height: 34px;
+  padding: 0 10px;
+  border-radius: 9px;
+  border: 1px solid var(--sv-button-border);
+  background: #fff;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--sv-text);
+  cursor: pointer;
+  white-space: nowrap;
+  text-decoration: none;
+}
+.sv-admin a.sv-sbtn:hover {
+  color: var(--sv-text);
+}
+.sv-admin .sv-sbtn:hover {
+  background: var(--sv-stone);
+}
+.sv-admin .sv-sbtn.is-stone {
+  background: var(--sv-stone);
+  border-color: transparent;
+}
+.sv-admin .sv-sbtn.is-primary {
+  background: var(--sv-bronze);
+  border-color: var(--sv-bronze);
+  color: #fff;
+}
+.sv-admin .sv-sbtn.is-primary:hover {
+  background: var(--sv-bronze-pressed);
+}
+.sv-admin .sv-sbtn.is-tall {
+  height: 40px;
+}
+.sv-admin .sv-sbtn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.sv-admin .sv-pbtn {
+  height: 48px;
+  padding: 0 18px;
+  border-radius: 12px;
+  border: 0;
+  background: var(--sv-bronze);
+  color: #fff;
+  font-family: var(--sv-font-head), 'Anek Bangla', sans-serif;
+  font-weight: 600;
+  font-size: 17px;
+  cursor: pointer;
+  box-shadow: 0 1px 2px rgba(94, 59, 36, 0.28), 0 8px 20px rgba(135, 91, 61, 0.22);
+}
+.sv-admin .sv-pbtn:hover {
+  background: var(--sv-bronze-pressed);
+}
+.sv-admin .sv-pbtn:disabled {
+  background: var(--sv-track);
+  color: var(--sv-text-muted);
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+.sv-admin .sv-input {
+  height: 44px;
+  width: 100%;
+  border-radius: 10px;
+  border: 1px solid var(--sv-input-border);
+  padding: 0 12px;
+  font: inherit;
+  font-size: 15px;
+  color: var(--sv-text);
+  background: #fff;
+}
+
+.sv-admin .sv-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.sv-admin .sv-table th {
+  font-weight: 600;
+  color: var(--sv-text-muted);
+  font-size: 13px;
+  text-align: left;
+  padding: 10px;
+  border-bottom: 1px solid var(--sv-hairline);
+  white-space: nowrap;
+}
+.sv-admin .sv-table td {
+  padding: 11px 10px;
+  border-bottom: 1px solid var(--sv-hairline-soft);
+  font-size: 14px;
+  vertical-align: middle;
+}
+
+.sv-admin .sv-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 999px;
+  padding: 2px 10px;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.sv-admin .sv-chip::before {
+  content: '';
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.sv-admin .sv-tag {
+  background: var(--sv-report);
+  border-radius: 6px;
+  padding: 2px 8px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* Inline confirmation / editor panel under the table. */
+.sv-admin .sv-confirm {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: 1.5px solid var(--sv-tint-border);
+  background: var(--sv-tint);
+}
+
+.sv-admin .sv-note {
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-size: 14px;
+}
+.sv-admin .sv-note.is-ok {
+  background: var(--sv-ok-bg);
+  color: var(--sv-ok);
+}
+.sv-admin .sv-note.is-error {
+  background: var(--sv-error-bg);
+  color: var(--sv-error);
+}
+
+/* Narrow screens: each table row becomes a card with labelled cells. */
+@media (max-width: 720px) {
+  .sv-admin .sv-table.is-stackable {
+    min-width: 0 !important;
+  }
+  .sv-admin .sv-table.is-stackable thead {
+    display: none;
+  }
+  .sv-admin .sv-table.is-stackable tr {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 12px 4px;
+    border-bottom: 1px solid var(--sv-hairline);
+  }
+  .sv-admin .sv-table.is-stackable td {
+    display: flex;
+    gap: 10px;
+    align-items: baseline;
+    padding: 0 6px;
+    border: 0;
+  }
+  .sv-admin .sv-table.is-stackable td[data-label]::before {
+    content: attr(data-label);
+    flex: 0 0 64px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--sv-text-muted);
+  }
+}
+
+/* Tracker coverage grid (R6) */
+.sv-admin .sv-cover {
+  border-collapse: separate;
+  border-spacing: 3px;
+  min-width: 640px;
+  width: 100%;
+  font-size: 13px;
+}
+.sv-admin .sv-cover th {
+  font-weight: 600;
+  color: var(--sv-text-muted);
+  padding: 0 0 4px;
+  text-align: center;
+}
+.sv-admin .sv-cover th[scope='row'] {
+  width: 130px;
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  background: #fff;
+  text-align: left;
+  color: var(--sv-text-body);
+  white-space: nowrap;
+  padding-right: 8px;
+}
+.sv-admin .sv-cover td {
+  height: 34px;
+  border-radius: 6px;
+  text-align: center;
+  vertical-align: middle;
+}
+.sv-admin .sv-cover td svg {
+  display: inline-block;
+  vertical-align: middle;
+}
+.sv-admin .sv-cover td.is-done {
+  background: var(--sv-ok-bg);
+}
+.sv-admin .sv-cover td.is-draft {
+  background: var(--sv-info-bg);
+}
+.sv-admin .sv-cover td.is-dup {
+  background: var(--sv-warn-bg);
+}
+.sv-admin .sv-cover td.is-todo {
+  background: var(--sv-stone-soft);
+}
+.sv-admin .sv-jump {
+  display: inline-flex;
+  align-items: center;
+  height: 34px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: #fff;
+  border: 1px solid var(--sv-hairline);
+  font-size: 13.5px;
+  font-weight: 600;
+  text-decoration: none;
+  color: var(--sv-text) !important;
+}
+
+@media print {
+  .sv-admin nav[aria-label='রিপোর্ট মেনু'],
+  .sv-admin .sv-no-print {
+    display: none !important;
+  }
+  .sv-admin {
+    background: #fff;
+  }
+  .sv-admin .sv-card {
+    break-inside: avoid;
+  }
+  /* Let wide tables use the page instead of a scroll box. */
+  .sv-admin [style*='overflow-x'] {
+    overflow: visible !important;
+  }
+  .sv-admin .sv-cover {
+    min-width: 0;
+    font-size: 10px;
+  }
+  .sv-admin .sv-cover th[scope='row'] {
+    position: static;
+    white-space: normal;
+  }
+}
+
+/* Report flags and KPI tiles (R3–R5) */
+.sv-admin .sv-flag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--sv-warn-bg);
+  color: var(--sv-warn);
+  border-radius: 6px;
+  padding: 1px 7px;
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.sv-admin .sv-kpi {
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.sv-admin .sv-kpi.is-muted .sv-num {
+  color: var(--sv-text-muted);
+}

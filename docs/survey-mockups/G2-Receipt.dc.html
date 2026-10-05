@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<title>শিক্ষার্থী রিভিউ: রসিদ</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Anek+Bangla:wght@500;600&amp;family=Hind+Siliguri:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+*{box-sizing:border-box}
+.cta{display:flex;align-items:center;justify-content:center;gap:10px;height:56px;border-radius:16px;border:0;width:100%;background:#875B3D;color:#fff;font-family:'Anek Bangla',sans-serif;font-weight:600;font-size:18px;box-shadow:0 1px 2px rgba(94,59,36,0.28),0 8px 20px rgba(135,91,61,0.22);cursor:pointer}
+.sec{display:flex;align-items:center;justify-content:center;height:52px;border-radius:16px;background:#F4F2EE;color:#1F2A2E;text-decoration:none;font-family:'Anek Bangla',sans-serif;font-weight:600;font-size:17px}
+.cta:focus-visible,.sec:focus-visible{outline:3px solid #4F7FA6;outline-offset:2px}
+.q{font-size:14px;color:#5B6670;line-height:1.5}
+.a{font-size:16px;font-weight:600;line-height:1.5}
+</style>
+</helmet>
+<div style="width: 390px; height: 1420px; background: #FCFBF8; font-family: 'Hind Siliguri', sans-serif; color: #1F2A2E; display: flex; flex-direction: column; overflow: hidden">
+  <div style="padding: 36px 24px 0; display: flex; align-items: center; gap: 14px">
+    <div style="width: 48px; height: 48px; border-radius: 50%; background: #E7F1EC; display: flex; align-items: center; justify-content: center"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#2E5B52" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"></path></svg></div>
+    <div style="display: flex; flex-direction: column"><h1 style="margin: 0; font-family: 'Anek Bangla', sans-serif; font-weight: 600; font-size: 24px; line-height: 1.4">জমা হয়েছে</h1><span style="font-size: 14.5px; color: #5B6670">জাযাকাল্লাহু খাইরান</span></div>
+  </div>
+
+  <article style="margin: 24px 16px 0; background: #FFFFFF; border-radius: 20px; box-shadow: 0 1px 2px rgba(31,42,46,0.06), 0 8px 24px rgba(31,42,46,0.08); padding: 22px 20px 20px; display: flex; flex-direction: column; gap: 16px">
+    <div style="display: flex; flex-direction: column; gap: 6px; padding-bottom: 14px; border-bottom: 1px solid #875B3D">
+      <div style="font-family: 'Anek Bangla', sans-serif; font-weight: 600; font-size: 16px">মাদরাসাতুল কুরআন, ঢাকা</div>
+      <div style="font-size: 14px; color: #5B6670">শিক্ষার্থীর উপর অভিভাবক রিভিউ · অক্টোবর ২০২৬</div>
+    </div>
+    <div style="display: grid; grid-template-columns: 88px minmax(0, 1fr); row-gap: 8px; font-size: 14.5px">
+      <span style="color: #5B6670">শিক্ষার্থী</span><b>Maryam Binte Rafiq · নার্সারি A</b>
+      <span style="color: #5B6670">প্রদানকারী</span><span>রফিকুল ইসলাম (পিতা)</span>
+      <span style="color: #5B6670">যাচাই</span><span style="display: flex; gap: 6px; align-items: center; color: #2E6A55; font-weight: 600"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z"></path><path d="m9 12 2 2 4-4"></path></svg>যাচাইকৃত</span>
+      <span style="color: #5B6670">রেফারেন্স নং</span><span style="font-family: 'Anek Bangla', sans-serif; font-weight: 600; letter-spacing: 0.6px">৪৮৬২ ১৭০৩</span>
+    </div>
+    <div style="font-size: 13px; font-weight: 600; color: #7A4B2E; letter-spacing: 0.3px; padding-top: 4px">আপনার উত্তর</div>
+    <div style="display: flex; flex-direction: column">
+      <sc-for list="{{answers}}" as="x" hint-placeholder-count="9">
+        <div style="display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 8px; padding: 10px 0; border-top: 1px solid #F0ECE6">
+          <span style="font-family: 'Anek Bangla', sans-serif; font-weight: 600; font-size: 14px; color: #875B3D">{{x.n}}</span>
+          <span style="display: flex; flex-direction: column; gap: 2px"><span class="q">{{x.q}}</span><span class="a">{{x.a}}</span></span>
+        </div>
+      </sc-for>
+    </div>
+  </article>
+
+  <div style="padding: 20px 16px 30px; display: flex; flex-direction: column; gap: 10px">
+    <button class="cta"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"></path></svg>PDF ডাউনলোড</button>
+    <a class="sec" href="G-Class.dc.html">অন্য সন্তানের জন্য রিভিউ দিন</a>
+    <div style="font-size: 13.5px; color: #5B6670; text-align: center; line-height: 1.6">এই পাতার লিংকটি সংরক্ষণ করুন · iPhone: শেয়ার → প্রিন্ট → PDF</div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1420}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const bn = (n) => String(n).replace(/\d/g, (d) => '০১২৩৪৫৬৭৮৯'[d]);
+    const A = [['নিয়মিত ক্লাস করে কি না?', 'উপস্থিতি > ৯০%'], ['বাসায় নিয়মিত পড়া পড়ে কি না?', '২ ঘন্টা +'], ['হোমওয়ার্ক নিয়মিত করে কি না?', 'নিয়মিত করে'], ['নিজে থেকে মোবাইল দেখে কি না?', 'সপ্তাহে ২/১ বার'], ['মাদ্রাসা পছন্দ করে কি না?', 'অনেক পছন্দ করে'], ['পিতামাতার কথা শোনে কি না?', 'মাঝে মাঝে শোনে না'], ['মারামারির অভিযোগ আসে কি না?', 'আসে না'], ['কুইজে কত নাম্বার পায়?', '৭০%+'], ['সার্বিক পড়াশোনায় সন্তুষ্ট?', 'সন্তুষ্ট']];
+    return { answers: A.map(([q, a], i) => ({ n: bn(i + 1), q, a })) };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,537 @@
+{
+  "v": 3,
+  "attachments": {},
+  "boards": {
+    "G-Class.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "page": "surveys",
+      "title": "G · ২ শ্রেণি বাছাই",
+      "w": 390,
+      "x": 470,
+      "y": 2440
+    },
+    "G-Closed.dc.html": {
+      "h": 844,
+      "page": "surveys",
+      "title": "লিংক বন্ধ / মেয়াদোত্তীর্ণ",
+      "w": 390,
+      "x": 1880,
+      "y": 4560
+    },
+    "G-Identify-Error.dc.html": {
+      "h": 900,
+      "page": "surveys",
+      "title": "G · ৩ক খুঁজে পাওয়া যায়নি",
+      "w": 390,
+      "x": 1410,
+      "y": 2440
+    },
+    "G-Identify.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "page": "surveys",
+      "title": "G · ৩ আইডি বা মোবাইল",
+      "w": 390,
+      "x": 940,
+      "y": 2440
+    },
+    "G-Intro.dc.html": {
+      "h": 844,
+      "page": "surveys",
+      "title": "G1 · ১ পরিচিতি",
+      "w": 390,
+      "x": 0,
+      "y": 2440
+    },
+    "G-Match-Unverified.dc.html": {
+      "h": 1240,
+      "page": "surveys",
+      "title": "G · ৪ক একাধিক সন্তান ও অযাচাইকৃত",
+      "w": 390,
+      "x": 2350,
+      "y": 2440
+    },
+    "G-Match.dc.html": {
+      "h": 900,
+      "page": "surveys",
+      "title": "G · ৪ শিক্ষার্থী ও প্রদানকারী",
+      "w": 390,
+      "x": 1880,
+      "y": 2440
+    },
+    "G1-Rate-Desktop.dc.html": {
+      "expand": "fill",
+      "h": 960,
+      "is_interactive": true,
+      "page": "surveys",
+      "title": "ডেস্কটপ · G1 বিষয়ভিত্তিক মার্কিং",
+      "w": 1440,
+      "x": 3040,
+      "y": 7140
+    },
+    "G1-Rate.dc.html": {
+      "h": 1000,
+      "is_interactive": true,
+      "page": "surveys",
+      "title": "G1 · ৫ বিষয়ভিত্তিক মার্কিং",
+      "w": 390,
+      "x": 2820,
+      "y": 2440
+    },
+    "G1-Receipt.dc.html": {
+      "h": 1640,
+      "page": "surveys",
+      "title": "G1 · ৭ রসিদ",
+      "w": 390,
+      "x": 3760,
+      "y": 2440
+    },
+    "G1-Review.dc.html": {
+      "h": 1700,
+      "page": "surveys",
+      "title": "G1 · ৬ রিভিউ, মন্তব্য ও জমা",
+      "w": 390,
+      "x": 3290,
+      "y": 2440
+    },
+    "G2-DayCare.dc.html": {
+      "h": 1000,
+      "is_interactive": true,
+      "page": "surveys",
+      "title": "G2 · প্রযোজ্য নয় অপশন",
+      "w": 390,
+      "x": 470,
+      "y": 4560
+    },
+    "G2-Question-Desktop.dc.html": {
+      "expand": "fill",
+      "h": 1000,
+      "is_interactive": true,
+      "page": "surveys",
+      "title": "ডেস্কটপ · G2 প্রশ্ন ও অপশন",
+      "w": 1440,
+      "x": 4560,
+      "y": 7140
+    },
+    "G2-Question.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "page": "surveys",
+      "title": "G2 · বর্ণনামূলক অপশন",
+      "w": 390,
+      "x": 0,
+      "y": 4560
+    },
+    "G2-Receipt.dc.html": {
+      "h": 1420,
+      "page": "surveys",
+      "title": "G2 · রসিদ",
+      "w": 390,
+      "x": 1410,
+      "y": 4560
+    },
+    "Main.dc.html": {
+      "h": 844,
+      "page": "surveys",
+      "title": "T1 · ১ পরিচিতি",
+      "w": 390,
+      "x": 0,
+      "y": 300
+    },
+    "R-States.dc.html": {
+      "expand": "fill",
+      "h": 1100,
+      "page": "reports",
+      "title": "রিপোর্ট · খোঁজা ও খালি অবস্থা",
+      "w": 1440,
+      "x": 3224,
+      "y": 5540
+    },
+    "R1-Overview.dc.html": {
+      "expand": "fill",
+      "h": 1900,
+      "page": "reports",
+      "title": "রিপোর্ট · ওভারভিউ",
+      "w": 1440,
+      "x": 0,
+      "y": 300
+    },
+    "R2-Teaching.dc.html": {
+      "expand": "fill",
+      "h": 1900,
+      "page": "reports",
+      "title": "রিপোর্ট · শিক্ষার মান (G1)",
+      "w": 1440,
+      "x": 1520,
+      "y": 300
+    },
+    "R3-Class.dc.html": {
+      "expand": "fill",
+      "h": 1900,
+      "page": "reports",
+      "title": "রিপোর্ট · ক্লাস",
+      "w": 1440,
+      "x": 3040,
+      "y": 300
+    },
+    "R4-Print-Guardian.dc.html": {
+      "h": 1123,
+      "page": "reports",
+      "paper": "a4",
+      "title": "প্রিন্ট · অভিভাবকের জন্য প্রতিবেদন (A4)",
+      "w": 794,
+      "x": 2350,
+      "y": 5540
+    },
+    "R4-Student.dc.html": {
+      "expand": "fill",
+      "h": 2100,
+      "page": "reports",
+      "title": "রিপোর্ট · শিক্ষার্থী প্রোফাইল",
+      "w": 1440,
+      "x": 4560,
+      "y": 300
+    },
+    "R5-Raters.dc.html": {
+      "expand": "fill",
+      "h": 1300,
+      "page": "reports",
+      "title": "রিপোর্ট · শিক্ষকদের রেটিং প্যাটার্ন",
+      "w": 1440,
+      "x": 0,
+      "y": 2820
+    },
+    "R6-Tracker.dc.html": {
+      "expand": "fill",
+      "h": 2300,
+      "page": "reports",
+      "title": "রিপোর্ট · রেসপন্স ট্র্যাকার",
+      "w": 1440,
+      "x": 1520,
+      "y": 2820
+    },
+    "R7-Rounds.dc.html": {
+      "expand": "fill",
+      "h": 1300,
+      "page": "reports",
+      "title": "অ্যাডমিন · রাউন্ড",
+      "w": 1440,
+      "x": 3040,
+      "y": 2820
+    },
+    "R8-Import.dc.html": {
+      "expand": "fill",
+      "h": 1400,
+      "page": "reports",
+      "title": "অ্যাডমিন · ERP ইমপোর্ট",
+      "w": 1440,
+      "x": 4560,
+      "y": 2820
+    },
+    "RM1-Overview.dc.html": {
+      "h": 1900,
+      "page": "reports",
+      "title": "মোবাইল · ওভারভিউ",
+      "w": 390,
+      "x": 0,
+      "y": 5540
+    },
+    "RM2-Teaching.dc.html": {
+      "h": 1700,
+      "page": "reports",
+      "title": "মোবাইল · শিক্ষার মান",
+      "w": 390,
+      "x": 470,
+      "y": 5540
+    },
+    "RM3-Class.dc.html": {
+      "h": 1800,
+      "page": "reports",
+      "title": "মোবাইল · ক্লাস",
+      "w": 390,
+      "x": 940,
+      "y": 5540
+    },
+    "RM4-Student.dc.html": {
+      "h": 2000,
+      "page": "reports",
+      "title": "মোবাইল · শিক্ষার্থী প্রোফাইল",
+      "w": 390,
+      "x": 1410,
+      "y": 5540
+    },
+    "RM6-Tracker.dc.html": {
+      "h": 1600,
+      "page": "reports",
+      "title": "মোবাইল · রেসপন্স ট্র্যাকার",
+      "w": 390,
+      "x": 1880,
+      "y": 5540
+    },
+    "Survey-States.dc.html": {
+      "h": 2140,
+      "page": "surveys",
+      "title": "অবস্থা: সংরক্ষণ, জমা, খোঁজা, লিংক",
+      "w": 390,
+      "x": 2350,
+      "y": 4560
+    },
+    "T1-Class.dc.html": {
+      "h": 1040,
+      "is_interactive": true,
+      "page": "surveys",
+      "title": "T1 · ৩ শ্রেণি, শাখা ও বিষয়",
+      "w": 390,
+      "x": 940,
+      "y": 300
+    },
+    "T1-Duplicate.dc.html": {
+      "h": 844,
+      "page": "surveys",
+      "title": "T1 · ৩ক ডুপ্লিকেট সতর্কতা",
+      "w": 390,
+      "x": 1410,
+      "y": 300
+    },
+    "T1-EditMark.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "page": "surveys",
+      "title": "T1 · ৫ক মার্ক বদলান",
+      "w": 390,
+      "x": 2820,
+      "y": 300
+    },
+    "T1-Note.dc.html": {
+      "h": 844,
+      "page": "surveys",
+      "title": "T1 · ৫খ শিক্ষার্থীর নোট",
+      "w": 390,
+      "x": 3290,
+      "y": 300
+    },
+    "T1-Rate-Desktop.dc.html": {
+      "expand": "fill",
+      "h": 1150,
+      "is_interactive": true,
+      "page": "surveys",
+      "title": "ডেস্কটপ · T1 প্রশ্নভিত্তিক মার্কিং",
+      "w": 1440,
+      "x": 0,
+      "y": 7140
+    },
+    "T1-Rate.dc.html": {
+      "h": 1640,
+      "is_interactive": true,
+      "page": "surveys",
+      "title": "T1 · ৪ প্রশ্নভিত্তিক মার্কিং",
+      "w": 390,
+      "x": 1880,
+      "y": 300
+    },
+    "T1-Receipt.dc.html": {
+      "h": 1640,
+      "page": "surveys",
+      "title": "T1 · ৬ রসিদ",
+      "w": 390,
+      "x": 4230,
+      "y": 300
+    },
+    "T1-Review-Desktop.dc.html": {
+      "expand": "fill",
+      "h": 1300,
+      "page": "surveys",
+      "title": "ডেস্কটপ · T1 রিভিউ, নোট ও জমা",
+      "w": 1440,
+      "x": 1520,
+      "y": 7140
+    },
+    "T1-Review-Incomplete.dc.html": {
+      "h": 844,
+      "page": "surveys",
+      "title": "T1 · ৫গ অসম্পূর্ণ, জমা বন্ধ",
+      "w": 390,
+      "x": 3760,
+      "y": 300
+    },
+    "T1-Review.dc.html": {
+      "h": 1380,
+      "page": "surveys",
+      "title": "T1 · ৫ রিভিউ, নোট ও জমা",
+      "w": 390,
+      "x": 2350,
+      "y": 300
+    },
+    "T1-Teacher.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "page": "surveys",
+      "title": "T1 · ২ নাম বাছাই",
+      "w": 390,
+      "x": 470,
+      "y": 300
+    },
+    "V3-Components.dc.html": {
+      "h": 1300,
+      "page": "v3",
+      "title": "ডিজাইন সিস্টেম · ব্রোঞ্জ ও পাথর (লক করা)",
+      "w": 1200,
+      "x": 0,
+      "y": 300
+    },
+    "G2-Review.dc.html": {
+      "h": 1420,
+      "page": "surveys",
+      "title": "G2 · রিভিউ, মন্তব্য ও জমা",
+      "w": 390,
+      "x": 940,
+      "y": 4560
+    }
+  },
+  "createdOnFiles": {
+    "at": "2026-10-04T13:30:00Z",
+    "v": 1
+  },
+  "designSystems": [],
+  "launch": {
+    "page": "surveys",
+    "view": "canvas"
+  },
+  "notes": {
+    "rowDesk": {
+      "kind": "title1",
+      "maxW": 6000,
+      "page": "surveys",
+      "text": "ডেস্কটপ / ট্যাবলেট সংস্করণ",
+      "w": 240,
+      "x": 0,
+      "y": 6840
+    },
+    "rowG1": {
+      "kind": "title1",
+      "maxW": 4150,
+      "page": "surveys",
+      "text": "অভিভাবক: পরিচয় ও ক্লাস পরিচালনা রিভিউ (G1)",
+      "w": 240,
+      "x": 0,
+      "y": 2140
+    },
+    "rowG2": {
+      "kind": "title1",
+      "maxW": 2740,
+      "page": "surveys",
+      "text": "অভিভাবক: শিক্ষার্থী রিভিউ (G2) ও অবস্থা",
+      "w": 240,
+      "x": 0,
+      "y": 4260
+    },
+    "rowR1": {
+      "kind": "title1",
+      "maxW": 6000,
+      "page": "reports",
+      "text": "রিপোর্ট (প্রিন্সিপাল / অ্যাডমিন)",
+      "w": 240,
+      "x": 0,
+      "y": 0
+    },
+    "rowR2": {
+      "kind": "title1",
+      "maxW": 6000,
+      "page": "reports",
+      "text": "ট্র্যাকার ও অ্যাডমিন",
+      "w": 240,
+      "x": 0,
+      "y": 2520
+    },
+    "rowRM": {
+      "kind": "title1",
+      "maxW": 4664,
+      "page": "reports",
+      "text": "রিপোর্ট · মোবাইল, প্রিন্ট ও খালি অবস্থা",
+      "w": 240,
+      "x": 0,
+      "y": 5240
+    },
+    "rowT1": {
+      "kind": "title1",
+      "maxW": 4620,
+      "page": "surveys",
+      "text": "শিক্ষক: স্টুডেন্ট রিভিউ (T1)",
+      "w": 240,
+      "x": 0,
+      "y": 0
+    },
+    "rowV3": {
+      "kind": "title1",
+      "maxW": 1200,
+      "page": "v3",
+      "text": "ডিজাইন সিস্টেম · লক করা (২০২৬-১০-০৪)",
+      "w": 240,
+      "x": 0,
+      "y": 0
+    }
+  },
+  "order": [
+    "Main.dc.html",
+    "T1-Teacher.dc.html",
+    "T1-Class.dc.html",
+    "T1-Duplicate.dc.html",
+    "T1-Rate.dc.html",
+    "T1-Review.dc.html",
+    "T1-EditMark.dc.html",
+    "T1-Note.dc.html",
+    "T1-Review-Incomplete.dc.html",
+    "T1-Receipt.dc.html",
+    "G-Intro.dc.html",
+    "G-Class.dc.html",
+    "G-Identify.dc.html",
+    "G-Identify-Error.dc.html",
+    "G-Match.dc.html",
+    "G-Match-Unverified.dc.html",
+    "G1-Rate.dc.html",
+    "G1-Review.dc.html",
+    "G1-Receipt.dc.html",
+    "G2-Question.dc.html",
+    "G2-DayCare.dc.html",
+    "G2-Review.dc.html",
+    "G2-Receipt.dc.html",
+    "G-Closed.dc.html",
+    "Survey-States.dc.html",
+    "T1-Rate-Desktop.dc.html",
+    "T1-Review-Desktop.dc.html",
+    "G1-Rate-Desktop.dc.html",
+    "G2-Question-Desktop.dc.html",
+    "R1-Overview.dc.html",
+    "R2-Teaching.dc.html",
+    "R3-Class.dc.html",
+    "R4-Student.dc.html",
+    "R5-Raters.dc.html",
+    "R6-Tracker.dc.html",
+    "R7-Rounds.dc.html",
+    "R8-Import.dc.html",
+    "RM1-Overview.dc.html",
+    "RM2-Teaching.dc.html",
+    "RM3-Class.dc.html",
+    "RM4-Student.dc.html",
+    "RM6-Tracker.dc.html",
+    "R4-Print-Guardian.dc.html",
+    "R-States.dc.html",
+    "V3-Components.dc.html"
+  ],
+  "pages": [
+    {
+      "id": "v3",
+      "name": "Design system (locked)"
+    },
+    {
+      "id": "surveys",
+      "name": "Survey screens"
+    },
+    {
+      "id": "reports",
+      "name": "Reports & admin"
+    }
+  ],
+  "title": "Madrasatul Quran Survey Prototype (locked 2026-10-04)"
+}

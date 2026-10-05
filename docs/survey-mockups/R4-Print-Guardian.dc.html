@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<title>শিক্ষার্থী প্রতিবেদন: অভিভাবকের জন্য</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Anek+Bangla:wght@500;600&amp;family=Hind+Siliguri:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#FFFFFF}
+*{box-sizing:border-box}
+th{font-weight:600;font-size:13px;color:#3D4A53;text-align:left;padding:8px 10px;border-bottom:1.5px solid #3D4A53}
+td{font-size:14.5px;padding:8px 10px;border-bottom:1px solid #D8D2C9}
+</style>
+</helmet>
+<div style="width: 794px; height: 1123px; background: #FFFFFF; font-family: 'Hind Siliguri', sans-serif; color: #1F2A2E; padding: 56px 64px; display: flex; flex-direction: column; gap: 18px; overflow: hidden">
+  <div style="display: flex; align-items: center; justify-content: space-between; padding-bottom: 14px; border-bottom: 2px solid #875B3D">
+    <div style="display: flex; align-items: center; gap: 12px">
+      <div style="width: 44px; height: 44px; border-radius: 12px; background: #875B3D; color: #fff; display: flex; align-items: center; justify-content: center; font-family: 'Anek Bangla', sans-serif; font-weight: 600; font-size: 22px">ম</div>
+      <div style="display: flex; flex-direction: column"><span style="font-family: 'Anek Bangla', sans-serif; font-weight: 600; font-size: 20px">মাদরাসাতুল কুরআন, ঢাকা</span><span style="font-size: 13px; color: #5B6670">শিক্ষার্থীর অগ্রগতি প্রতিবেদন · অভিভাবক সভা</span></div>
+    </div>
+    <div style="text-align: right; font-size: 13px; color: #5B6670">অক্টোবর ২০২৬ রাউন্ড<br>প্রস্তুত: ১০ অক্টোবর ২০২৬</div>
+  </div>
+
+  <div style="display: flex; justify-content: space-between; align-items: flex-end">
+    <div style="display: flex; flex-direction: column; gap: 2px">
+      <h1 style="margin: 0; font-family: 'Anek Bangla', sans-serif; font-weight: 600; font-size: 28px; line-height: 1.4">Zayan Mahmud</h1>
+      <div style="font-size: 15px; color: #3D4A53">আইডি ১০০৩৭ · নার্সারি · শাখা A · রোল ৭ · পিতা: মো. মাহমুদুল করিম</div>
+    </div>
+    <div style="display: flex; gap: 18px; font-size: 14px">
+      <div style="text-align: right"><div style="color: #5B6670">অভিভাবকের মূল্যায়ন</div><div style="font-family: 'Anek Bangla', sans-serif; font-weight: 600; font-size: 22px">৯.০ / ১০</div></div>
+      <div style="text-align: right"><div style="color: #5B6670">শিক্ষকদের মূল্যায়ন</div><div style="font-family: 'Anek Bangla', sans-serif; font-weight: 600; font-size: 22px">৬.৮ / ১০</div></div>
+    </div>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 8px">
+    <h2 style="margin: 0; font-family: 'Anek Bangla', sans-serif; font-weight: 600; font-size: 18px">ক্ষেত্রভিত্তিক মূল্যায়ন (মার্ক, ১০-এর মধ্যে)</h2>
+    <table style="width: 100%; border-collapse: collapse">
+      <thead><tr><th>ক্ষেত্র</th><th style="text-align: right">অভিভাবক</th><th style="text-align: right">শিক্ষকদের গড়</th><th style="text-align: right">ক্লাসের গড়</th></tr></thead>
+      <tbody>
+        <sc-for list="{{areas}}" as="a" hint-placeholder-count="7">
+          <tr><td style="font-weight: 600">{{a.label}}</td><td style="text-align: right; font-family: 'Anek Bangla', sans-serif; font-weight: 600">{{a.g}}</td><td style="text-align: right; font-family: 'Anek Bangla', sans-serif; font-weight: 600">{{a.t}}</td><td style="text-align: right; color: #3D4A53">{{a.c}}</td></tr>
+        </sc-for>
+      </tbody>
+    </table>
+    <div style="font-size: 12.5px; color: #5B6670">শিক্ষকদের মূল্যায়ন ৫টি বিষয়ের শিক্ষকের গড়। — = এই ক্ষেত্রে প্রশ্ন নেই।</div>
+  </div>
+
+  <div style="display: flex; gap: 24px">
+    <div style="flex: 1; display: flex; flex-direction: column; gap: 8px">
+      <h2 style="margin: 0; font-family: 'Anek Bangla', sans-serif; font-weight: 600; font-size: 18px">শক্তির দিক</h2>
+      <div style="font-size: 15px; line-height: 1.65">নিয়মিত উপস্থিতি · পড়াশোনার ফলাফল ক্লাসের গড়ের কাছাকাছি · মাদরাসার প্রতি আগ্রহ ভালো</div>
+    </div>
+    <div style="flex: 1; display: flex; flex-direction: column; gap: 8px">
+      <h2 style="margin: 0; font-family: 'Anek Bangla', sans-serif; font-weight: 600; font-size: 18px">একসাথে যেখানে কাজ দরকার</h2>
+      <div style="font-size: 15px; line-height: 1.65">সহপাঠীদের সাথে আচরণ · শিক্ষকের নির্দেশ পালন · ক্লাসে মনোযোগ</div>
+    </div>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 6px">
+    <h2 style="margin: 0; font-family: 'Anek Bangla', sans-serif; font-weight: 600; font-size: 18px">গত চার রাউন্ড (মার্ক)</h2>
+    <svg viewBox="0 0 666 170" width="666" height="170" role="img" aria-label="অভিভাবক ৮.৮ থেকে ৯.০, শিক্ষক ৭.৫ থেকে ৬.৮" style="font-family: 'Hind Siliguri', sans-serif">
+      <g stroke="#D8D2C9"><line x1="40" y1="14" x2="600" y2="14"></line><line x1="40" y1="64" x2="600" y2="64"></line><line x1="40" y1="114" x2="600" y2="114"></line><line x1="40" y1="139" x2="600" y2="139" stroke="#3D4A53"></line></g>
+      <g font-size="12" fill="#3D4A53" text-anchor="end"><text x="32" y="18">১০</text><text x="32" y="68">৮</text><text x="32" y="118">৬</text><text x="32" y="143">৫</text></g>
+      <g font-size="12" fill="#3D4A53" text-anchor="middle"><text x="80" y="160">জুলাই</text><text x="250" y="160">আগস্ট</text><text x="420" y="160">সেপ্টেম্বর</text><text x="580" y="160">অক্টোবর</text></g>
+      <polyline fill="none" stroke="#1F2A2E" stroke-width="2.5" points="80,44 250,39 420,36.5 580,39"></polyline>
+      <polyline fill="none" stroke="#1F2A2E" stroke-width="2.5" stroke-dasharray="6 5" points="80,76.5 250,84 420,96.5 580,94"></polyline>
+      <g font-size="13" font-weight="600" fill="#1F2A2E"><text x="590" y="34">অভিভাবক ৯.০</text><text x="590" y="99">শিক্ষক ৬.৮</text></g>
+    </svg>
+    <div style="font-size: 12.5px; color: #5B6670">অক্ষ ৫ থেকে ১০; সাদা-কালো প্রিন্টে পড়ার জন্য অভিভাবক = টানা রেখা, শিক্ষক = ভাঙা রেখা।</div>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 6px">
+    <h2 style="margin: 0; font-family: 'Anek Bangla', sans-serif; font-weight: 600; font-size: 18px">সভার নোট</h2>
+    <div style="height: 1px; background: #D8D2C9; margin-top: 22px"></div>
+    <div style="height: 1px; background: #D8D2C9; margin-top: 26px"></div>
+  </div>
+
+  <div style="margin-top: auto; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px; font-size: 13.5px; color: #3D4A53">
+    <div style="border-top: 1px solid #3D4A53; padding-top: 6px">শ্রেণি শিক্ষক</div>
+    <div style="border-top: 1px solid #3D4A53; padding-top: 6px">প্রিন্সিপাল</div>
+    <div style="border-top: 1px solid #3D4A53; padding-top: 6px">অভিভাবক</div>
+  </div>
+  <div style="font-size: 12px; color: #5B6670; text-align: center">এই প্রতিবেদনে শিক্ষকদের নাম ও ব্যক্তিগত নোট অন্তর্ভুক্ত নয়।</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":794,"height":1123}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const A = [['উপস্থিতি', '৯.৪', '৮.৮', '৯.২'], ['মনোযোগ ও পড়ার অভ্যাস', '৮.৭', '৬.৬', '৮.১'], ['আনুগত্য', '৯.০', '৬.৪', '৮.৬'], ['সহপাঠীদের সাথে আচরণ', '১০.০', '৫.২', '৮.৫'], ['পড়াশোনার ফলাফল', '৮.৫', '৭.০', '৮.০'], ['আগ্রহ ও বাসার অভ্যাস', '৮.৩', '—', '৮.২'], ['অভিভাবকের সহযোগিতা', '—', '৭.১', '৮.৪']];
+    return { areas: A.map(([label, g, t, c]) => ({ label, g, t, c })) };
+  }
+}
+</script>
+</body>
+</html>

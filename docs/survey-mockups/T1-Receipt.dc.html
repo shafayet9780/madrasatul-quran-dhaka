@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<title>শিক্ষকের রিভিউ: রসিদ</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Anek+Bangla:wght@500;600&amp;family=Hind+Siliguri:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+*{box-sizing:border-box}
+a{color:#875B3D}a:hover{color:#654321}
+.btn{display:flex;align-items:center;justify-content:center;gap:10px;height:54px;border-radius:16px;text-decoration:none;font-family:'Anek Bangla',sans-serif;font-weight:600;font-size:18px}
+.btn:focus-visible{outline:3px solid #4F7FA6;outline-offset:2px}
+.cell{text-align:center;font-family:'Anek Bangla',sans-serif;font-weight:600;font-size:13px;font-variant-numeric:tabular-nums}
+</style>
+</helmet>
+<div style="width: 390px; height: 1640px; background: #FCFBF8; font-family: 'Hind Siliguri', sans-serif; color: #1F2A2E; display: flex; flex-direction: column; overflow: hidden">
+  <div style="padding: 36px 20px 0; display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center">
+    <div style="width: 64px; height: 64px; border-radius: 50%; background: #E7F1EC; display: flex; align-items: center; justify-content: center">
+      <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#2E6A55" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"></path></svg>
+    </div>
+    <h1 style="margin: 0; font-family: 'Anek Bangla', sans-serif; font-weight: 600; font-size: 26px">রিভিউ জমা হয়েছে</h1>
+    <div style="font-size: 15px; color: #5B6670">জাযাকাল্লাহু খাইরান</div>
+  </div>
+
+  <div style="margin: 18px 16px 0; background: #FFFFFF; border: 1px solid #E7E3DC; border-radius: 18px; padding: 16px 18px; display: grid; grid-template-columns: 96px minmax(0, 1fr); row-gap: 8px; column-gap: 8px; font-size: 14px">
+    <div style="color: #5B6670">রেফারেন্স নং</div><div style="font-family: 'Anek Bangla', sans-serif; font-weight: 600; letter-spacing: 0.5px">৭২৪১ ৯৩৫৮</div>
+    <div style="color: #5B6670">শিক্ষক</div><div style="font-weight: 600">উস্তাযা সুমাইয়া আক্তার</div>
+    <div style="color: #5B6670">ক্লাস ও বিষয়</div><div style="font-weight: 600">নার্সারি · শাখা A · কুরআন</div>
+    <div style="color: #5B6670">রাউন্ড</div><div>অক্টোবর ২০২৬</div>
+    <div style="color: #5B6670">জমার সময়</div><div>৪ অক্টোবর ২০২৬, রাত ৯:৪২</div>
+  </div>
+
+  <div style="margin: 14px 12px 0; background: #FFFFFF; border-radius: 16px; border: 1px solid #E7E3DC; overflow: hidden">
+    <div style="display: grid; grid-template-columns: 150px repeat(7, minmax(0, 1fr)); align-items: center; height: 36px; padding: 0 8px 0 10px; background: #F7F5F1; border-bottom: 1px solid #E7E3DC; font-size: 13px; font-weight: 600; color: #5B6670">
+      <div>শিক্ষার্থী</div>
+      <div class="cell">১</div><div class="cell">২</div><div class="cell">৩</div><div class="cell">৪</div><div class="cell">৫</div><div class="cell">৬</div><div class="cell">৭</div>
+    </div>
+    <sc-for list="{{rows}}" as="r" hint-placeholder-count="20">
+      <div style="display: grid; grid-template-columns: 150px repeat(7, minmax(0, 1fr)); align-items: center; height: 34px; padding: 0 8px 0 10px; border-bottom: 1px solid #F0ECE6">
+        <div style="display: flex; gap: 6px; min-width: 0; font-size: 13px">
+          <span style="flex: none; width: 16px; color: #5B6670">{{r.roll}}</span>
+          <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{r.name}}</span>
+        </div>
+        <sc-for list="{{r.cells}}" as="c" hint-placeholder-count="7">
+          <div class="cell">{{c}}</div>
+        </sc-for>
+      </div>
+    </sc-for>
+  </div>
+
+  <div style="margin: 14px 16px 0; background: #FFFFFF; border: 1px solid #E7E3DC; border-radius: 16px; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px">
+    <div style="font-size: 15px; font-weight: 600">নোট (২)</div>
+    <div style="font-size: 14px; line-height: 1.55"><b>৭ · Zayan Mahmud:</b> ক্লাসে মনোযোগ ভালো, তবে সহপাঠীদের সাথে মাঝে মাঝে ঝগড়া করে।</div>
+    <div style="font-size: 14px; line-height: 1.55"><b>৯ · Musa Ibn Khalid:</b> হোমওয়ার্ক প্রায়ই অসম্পূর্ণ থাকে।</div>
+  </div>
+  <div style="padding: 18px 16px 0; display: flex; flex-direction: column; gap: 10px">
+    <div style="font-size: 13.5px; color: #5B6670; text-align: center; line-height: 1.6">এই পাতার লিংকটি সংরক্ষণ করুন। পরে রসিদ দেখতে বা সংশোধন করতে এটি লাগবে।</div>
+    <button class="btn" style="width: 100%; border: 0; background: #875B3D; color: #fff; cursor: pointer">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"></path></svg>
+      PDF ডাউনলোড
+    </button>
+    <div style="font-size: 13px; color: #5B6670; text-align: center">iPhone: শেয়ার বাটন → প্রিন্ট → PDF হিসেবে সংরক্ষণ</div>
+    <a class="btn" href="T1-Review.dc.html" style="background: #F4F2EE; color: #1F2A2E; border: 0">সংশোধন করুন (২০ অক্টোবর পর্যন্ত)</a>
+    <a class="btn" href="T1-Class.dc.html" style="background: transparent; color: #6E4A31">আরেকটি ক্লাস / বিষয় রিভিউ করুন</a>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1640}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const bn = (n) => String(n).replace(/\d/g, (d) => '০১২৩৪৫৬৭৮৯'[d]);
+    const S = [
+      ['Ahmad Shafin Islam', 1], ['Maryam Binte Rafiq', 2], ['Abdullah Al Noman', 3], ['Safiya Rahman', 4],
+      ['Yahya Hasan', 5], ['Humaira Jannat', 6], ['Zayan Mahmud', 7], ['Aisha Siddika Noor', 8],
+      ['Musa Ibn Khalid', 9], ['Rumaisa Akter', 10], ['Talha Zubair', 11], ['Khadija Tul Kubra', 12],
+      ['Ibrahim Hossain', 14], ['Nusaiba Karim', 15], ['Omar Faruk Tamim', 16], ['Sumaya Binte Salam', 17],
+      ['Hamza Rahim', 18], ['Tasnia Islam', null], ['Abdur Rahman Fahim', null], ['Zainab Akter', null]
+    ];
+    const vals = [10, 8, 10, 6, 10, 8, 4, 10, 8, 10, 6, 8];
+    return {
+      rows: S.map(([name, roll], i) => ({
+        name,
+        roll: roll ? bn(roll) : '–',
+        cells: [0, 1, 2, 3, 4, 5, 6].map((q) => bn(vals[(i * 5 + q * 3 + (i % 3)) % vals.length]))
+      }))
+    };
+  }
+}
+</script>
+</body>
+</html>

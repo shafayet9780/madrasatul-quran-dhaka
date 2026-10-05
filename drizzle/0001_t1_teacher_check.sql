@@ -1,0 +1,2 @@
+ALTER TABLE "responses" ADD CONSTRAINT "responses_t1_teacher_chk" CHECK ("responses"."kind" <> 'T1' OR "responses"."teacher_key" IS NOT NULL);--> statement-breakpoint
+ALTER TABLE "submissions" ADD CONSTRAINT "submissions_t1_teacher_chk" CHECK ("submissions"."kind" <> 'T1' OR "submissions"."teacher_key" IS NOT NULL);

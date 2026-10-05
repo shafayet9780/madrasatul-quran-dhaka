@@ -1,0 +1,145 @@
+# Survey System — Implementation Plan (Phase 1: T1 + T1 reports)
+
+Status: **done** (M0–M8, 2026-10-04) · each milestone reviewed independently, fixed and re-checked. Admin how-to and go-live checklist: [`survey-admin-guide.md`](survey-admin-guide.md).
+
+Notes from the build (deviations and decisions beyond the plan):
+- Admin mutations are server actions on `/admin` pages and Studio calls go to `/studio/api/survey/…` (no `/api/admin`); every action calls `assertAdmin()`.
+- Draft rounds can also be opened from `/admin/rounds` with adjusted dates (R7).
+- Backups need a separate **private** Blob store (`PG_BACKUP_BLOB_READ_WRITE_TOKEN`); the site's store is public.
+- Sheet copy uses a claim column (`mirror_claimed_at`, migration 0002) so a killed function never marks a batch as copied.
+- A resolved duplicate (`duplicate_resolved_at`, migration 0003) stays resolved when either teacher edits later; a set-aside teacher resubmitting raises it again.
+- Duplicate resolution "keep one" supersedes the other teacher's batch; that teacher's receipt and Sheet rows say it was set aside by the admin.
+- Report "previous round" = the student's latest earlier round with marks. Flag thresholds are constants (`report-math.ts` `FLAGS`).
+- Notes live on the review screen (as in the locked T1 artboards), not beside names on the rating screen.
+- Migrations run on Vercel builds via `vercel-build` (skipped with a warning when `DATABASE_URL_UNPOOLED` is missing).
+- Final review leftovers for phase 2: receipt links carry the round key (fine for teachers, revisit for guardians); a status change mid-copy can append one Sheet row twice (harmless, append-only); "current/superseded/set-aside" is derived in three places and draft-progress counting in two — consolidate when G1/G2 add more; `stats.ts` uses a fixed top mark (১০) rather than the template scale; no unit tests for the submit/overview routes, receipt page or backup.
+- Remaining performance headroom: the site root layout preloads the public site's fonts on every route, survey pages included; moving the site into a route group with its own root layout would remove that (left for a decision because it touches the public site).
+Inputs: [`survey-system.md`](survey-system.md) (spec, locked) · [`survey-mockups/`](survey-mockups/README.md) (prototype + design system, locked)
+
+## 1. Decisions (from the planning interview)
+
+| Topic | Decision |
+|---|---|
+| Timeline | Flexible; build fast but complete — no half-finished screens or skipped states |
+| Scope | Spec phase 1 **plus T1 reports** (class view, student profile from teacher marks, rater patterns) |
+| Database | Neon Postgres (free) via Vercel Marketplace; owner creates it with step-by-step guidance |
+| Hosting | Vercel **Hobby** → cron jobs at most once a day |
+| Sheet copy | New dedicated "Survey Responses" spreadsheet, shared with the existing service account, one tab per round |
+| Seed data | Owner sends the teacher list and subjects per class; loaded by a setup script |
+| Delivery | Commits on `survey-form`; no PRs until the owner asks |
+| Pre-admission Sheets issue | Fixed in a separate commit using the new server-only Sheets module |
+
+## 2. Technical choices
+
+- **DB access:** Drizzle ORM + `drizzle-kit` migrations; `@neondatabase/serverless` HTTP driver with the pooled URL. A Neon **dev branch** for local work and tests; `main` branch for production.
+- **Validation:** `zod` schemas shared by API routes and client forms.
+- **Spreadsheets:** `exceljs` for XLSX import (ERP) and export; CSV with UTF-8 BOM as fallback.
+- **Charts:** hand-built SVG/HTML exactly as in the prototype — no chart library.
+- **Rate limiting:** small Postgres table (`rate_limits`) keyed by IP + action; no extra service.
+- **Styling:** Tailwind v4 with the locked tokens added as CSS variables (`--sv-bronze`, `--sv-tint`, `--sv-stone`, …) scoped to survey/admin routes, so the public site is untouched.
+- **Fonts:** Anek Bangla (500/600) + Hind Siliguri (400–600) via `next/font`, loaded only on survey/admin routes.
+- Rendering: survey and admin routes are dynamic (no caching); `cacheComponents` stays off.
+
+## 3. Code layout
+
+```
+src/app/survey/[slug]/page.tsx            # round entry (server: load round snapshot) → client flow
+src/app/survey/[slug]/t1/T1Flow.tsx       # client: teacher → class → rate → review (+ screens, useBatch autosave)
+src/app/survey/receipt/[token]/page.tsx   # receipt (print stylesheet)
+src/app/api/survey/[roundId]/draft/route.ts      # POST changed student rows (autosave, debounced)
+src/app/api/survey/[roundId]/submit/route.ts     # transactional submit + supersede + duplicate re-check
+src/app/api/survey/[roundId]/batch/route.ts      # roster + saved marks + other teachers' batches
+src/app/api/survey/[roundId]/overview/route.ts   # teacher's own batches (class picker, resume card)
+src/app/admin/tracker, src/app/admin/reports/…   # tracker, class, student, raters, Excel export
+src/app/admin/rounds/page.tsx             # open / copy link / extend / close (+ actions.ts server actions)
+src/app/admin/import/page.tsx             # ERP import with dry run
+src/app/studio/api/survey/…               # endpoints the Studio calls (Basic Auth path + same-origin check)
+src/app/api/cron/survey-daily/route.ts    # Sheet-copy retry + JSON backup to Blob
+src/lib/survey/                           # db client, schema, snapshot, scoring, normalise, sheets, stats
+sanity/schemas/survey*.ts                 # template, round, class, teacher, area
+sanity/actions/OpenRoundAction.tsx        # Studio document action → admin API
+scripts/survey-seed.ts                    # T1 template, areas, classes/subjects, teachers
+drizzle/                                  # migrations
+```
+
+`src/proxy.ts`: `/survey` → bengali locale header, no intl redirect; `/admin` → Basic Auth (same check as `/studio`), no intl redirect.
+
+Admin mutations are server actions on the `/admin` pages. A server action can be invoked through any route the proxy passes, so **every action must start with `assertAdmin()`** (Basic Auth in production, fails closed when unconfigured); Next's Origin check covers CSRF. Endpoints the Studio calls live under `/studio/api/…` for the same reason, following the existing downloads share-link route. No `/api/admin` routes. Analytics (GTM) never load on `/survey` or `/admin`.
+
+Testing: `pnpm test` (unit, offline) · `pnpm test:db` (`*.db.test.ts` against the Neon dev branch, self-cleaning) · `pnpm test:e2e`. `scripts/survey-dev-fixtures.ts` loads sample rounds (marked `fixture-`) into the dev database; `--remove` deletes them.
+
+## 4. Milestones
+
+Each milestone ends with its checks passing and a commit.
+
+### M0 — Environment (guided, owner + me)
+1. Create Neon via Vercel → Storage → Neon (free) → connect to project; create a `dev` branch; put both URLs in `.env.local`.
+2. Create the "Survey Responses" spreadsheet, share with the service account e-mail, set `SURVEY_SHEET_ID`.
+3. Add `CRON_SECRET` (exists) usage for the new cron; confirm `BLOB_READ_WRITE_TOKEN`.
+**Check:** `pnpm db:check` connects to both branches; Sheets test write succeeds.
+
+### M1 — Foundation
+- Drizzle schema + first migration: `students`, `survey_rounds`, `submissions`, `responses`, `answer_items`, `rate_limits`, `import_runs`.
+- `src/lib/survey`: Bengali-digit + mobile normalisation, title-case display, round snapshot types, marks/score maths (`(mark−4)/6×100`), stats helpers (n, mean, distribution, leniency, straight-lining).
+- Sanity schemas (immutable keys after create) + seed script: T1 template (7 questions, hints, areas), areas, classes/sections/subjects, teachers.
+- Server-only Sheets module; **separate commit**: pre-admission route reads the sheet ID from server config.
+- Proxy changes for `/survey` and `/admin`.
+**Check:** unit tests (normalisation, scoring, stats, snapshot); migration applies on `dev`; seed visible in Studio; proxy tests; pre-admission e2e still passes.
+
+### M2 — Round lifecycle
+- Studio **Open round** action → admin API: validates, snapshots template + classes + teachers into `survey_rounds`, generates link key.
+- `/admin/rounds`: list, copy link, extend (date picker), close with confirmation, refresh lists; draft rounds can also be opened here with adjusted dates (R7 artboard).
+**Check:** route tests (open/extend/close, auth required); opening twice is idempotent.
+
+### M3 — Teacher survey (phone + desktop)
+- Screens per prototype: intro, name pick (+ "not on list"), class/section/subject with own status, duplicate warning, question-first rating (pinned header, one-ring track, remaining jump, per-tap autosave), review (tap-to-edit, notes, incomplete state), submit, receipt (print), all states (saving/offline/failed/closed/grace/invalid/not open).
+- Submit: one transaction — validate complete, re-check duplicate, supersede previous batch, write `answer_items`, issue receipt token.
+  - Statement order in the `db.batch`: clear the old current rows (`is_current`, `superseded_by`, delete their `answer_items`) before promoting the draft; ids generated in the app.
+  - Section move mid-round: if this teacher already has a current response for a student in this subject from another section's batch, the new batch supersedes that one response (clear `is_current`, delete its `answer_items`) instead of failing on the unique index.
+  - Any status change on an already-copied submission (superseded, duplicate flag) sets `mirrored_at = NULL`, so the Sheet copy (M5) appends the new status.
+**Check:** unit tests for submit/supersede/duplicate logic; Playwright e2e on `dev` (full T1 flow phone + desktop viewport, resume after reload, duplicate warning, edit after submit); axe accessibility scan on each step.
+
+### M4 — ERP import
+- `/admin/import`: upload CSV/XLSX → dry run (adds/updates/deactivations/problems) → confirm; class mapping from Sanity `erpClassNames`; skipped-row Excel download.
+**Check:** fixture tests with real-format sample (mixed case, empty roll, missing contacts, unmapped class, short mobile).
+
+### M5 — Sheet copy + backup
+- After each submit: best-effort append (status column current/superseded/duplicate); failures marked for retry. Rows with `mirrored_at IS NULL` (new or status changed) are what the retry picks up.
+- Daily cron (`survey-daily`): retry failed copies + JSON backup of survey tables to Vercel Blob + prune import dry runs older than a day.
+  - The site's Blob store is public, so backups go to a **separate private Blob store** (env prefix `PG_BACKUP_BLOB` → `PG_BACKUP_BLOB_READ_WRITE_TOKEN`); without it the job skips the backup and says so.
+  - End-to-end tests run with `SURVEY_SHEET_ID` empty, so test submissions never reach the real sheet.
+**Check:** route tests with mocked Sheets/Blob; manual end-to-end on `dev`.
+
+### M6 — Tracker (T1)
+- Class × subject coverage (done / draft / missing / duplicate), drafts with last edit + device, duplicate resolution (keep one / keep both).
+**Check:** e2e on seeded data; counts match DB.
+
+### M7 — T1 reports
+- Class page: student list from teacher marks (marks /১০, n, trend once 2+ rounds), area bars.
+- Student profile: subject × question grid, teacher notes, history; guardian sections shown as "G2 শুরু হলে দেখা যাবে" until phase 2. Internal print.
+- Rater patterns: distribution, leniency vs peers, straight-lining flags; print.
+- Excel export for each table.
+**Check:** stats unit tests on fixture data; e2e renders with n<3 greying and first-round state.
+
+### M8 — Hardening & handover
+- Rate limits, `noindex`, error/404 pages, Neon cold-start warm-up, performance budget on a mid-range phone, final `/code-review`, docs update (spec + this plan marked done), admin how-to in `docs/`.
+**Check:** `pnpm lint`, `pnpm test`, `pnpm test:e2e`, `pnpm build` all green; Lighthouse accessibility ≥ 95 on survey pages.
+
+### After handover (2026-10-05)
+- Teachers start by typing their ERP ID instead of picking a name: new `POST /api/survey/[roundId]/teacher` lookup (rate limit `lookup`), the survey page no longer sends the teacher list, the teacher lives on the device (not the URL). Survey teacher key = ERP ID in Studio.
+- Desktop (≥960px): the short screens (intro, ID, class, receipt, status) sit in a card on stone under a school bar, with the action directly under the content; rating and review keep their own wide layout. Phones unchanged.
+- The ERP export puts an invisible U+200C before every phone number; `normaliseMobile` / `normaliseStudentId` now strip format characters (without this every mobile imported blank).
+
+## 5. Needed from the owner
+
+| Item | Needed by |
+|---|---|
+| Neon + Vercel setup (guided) | M0 |
+| New Google Sheet shared with the service account | M0 |
+| Teacher list (names; ERP id if any) | M1 — received 2026-10-05 (28 teachers, loaded with `survey-seed.ts --teachers`) |
+| Subjects per class (and which classes have sections) | M1 — received 2026-10-05 |
+| A real ERP export file | M4 — received 2026-10-05; dry run maps every class and section (148 students) |
+
+## 6. Out of scope for this phase
+
+Guardian surveys G1/G2 and their identity flow (G1 submit validation must tell N/A apart from an invalid value; `markFor` returns `undefined` for both today), guardian-side reports (overview, teaching-quality heatmap, guardian↔teacher comparison, guardian print). The data model and design system already support them; they are phase 2.

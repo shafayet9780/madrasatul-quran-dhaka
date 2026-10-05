@@ -1,0 +1,90 @@
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
+import { and, eq, isNotNull, like } from 'drizzle-orm';
+
+const { get, batchUpdate, update, append } = vi.hoisted(() => ({ get: vi.fn(), batchUpdate: vi.fn(), update: vi.fn(), append: vi.fn() }));
+vi.mock('@/lib/google-sheets-server', () => ({
+  sheetsConfigured: () => true,
+  getSheetsClient: () => ({ spreadsheets: { get, batchUpdate, values: { update, append } } }),
+}));
+
+import { getDb } from './db';
+import { students, submissions, surveyRounds } from './schema';
+import { mirrorPending } from './sheets-mirror';
+import { saveDraft, submitBatch } from './t1';
+import { t1FixtureSnapshot } from './testing/t1-fixture';
+
+const run = `test-mirror-${Date.now()}`;
+const hour = 60 * 60 * 1000;
+const meta = { ip: null, userAgent: 'vitest' };
+let roundId = '';
+
+beforeAll(async () => {
+  vi.stubEnv('SURVEY_SHEET_ID', 'sheet-id');
+  const db = getDb();
+  const snapshot = t1FixtureSnapshot();
+  snapshot.classes.push({ key: 'mirror-class', name: 'পরীক্ষা', sections: [], subjects: [{ key: 'quran', name: 'কুরআন' }] });
+  const [round] = await db
+    .insert(surveyRounds)
+    .values({ sanityRoundId: run, kind: 'T1', slug: run, label: 'পরীক্ষা', snapshot, opensAt: new Date(Date.now() - hour), closesAt: new Date(Date.now() + hour), linkKey: 'k' })
+    .returning();
+  roundId = round.id;
+  await db.insert(students).values([{ erpId: `${run}-1`, name: 'ZAINAB AKTER', classKey: 'mirror-class', sectionKey: '', roll: 1 }]);
+  const key = { teacherKey: '90001', classKey: 'mirror-class', sectionKey: '', subjectKey: 'quran' };
+  const answers = Object.fromEntries(snapshot.template.questions.map((q) => [q.key, 8]));
+  await saveDraft(round, key, [{ studentErpId: `${run}-1`, answers }], meta);
+  const result = await submitBatch(round, key, [], meta);
+  if (!result.ok) throw new Error(JSON.stringify(result));
+});
+
+afterAll(async () => {
+  const db = getDb();
+  await db.delete(submissions).where(and(eq(submissions.roundId, roundId), isNotNull(submissions.supersededBy)));
+  await db.delete(submissions).where(eq(submissions.roundId, roundId));
+  await db.delete(surveyRounds).where(eq(surveyRounds.id, roundId));
+  await db.delete(students).where(like(students.erpId, `${run}%`));
+  vi.unstubAllEnvs();
+});
+
+beforeEach(() => vi.clearAllMocks());
+
+const mirroredAt = async () =>
+  (await getDb().select({ m: submissions.mirroredAt }).from(submissions).where(eq(submissions.roundId, roundId)))[0].m;
+
+describe('mirrorPending', () => {
+  it('releases the claim when the append fails, so the daily job retries', async () => {
+    get.mockResolvedValue({ data: { sheets: [{ properties: { title: run } }] } });
+    append.mockRejectedValue(new Error('quota'));
+    expect(await mirrorPending({ roundId })).toEqual({ mirrored: 0, failed: 1 });
+    expect(await mirroredAt()).toBeNull();
+  });
+
+  it('creates the round tab with a header, appends one row per student and marks it copied', async () => {
+    get.mockResolvedValue({ data: { sheets: [{ properties: { title: 'Sheet1' } }] } });
+    append.mockResolvedValue({});
+    expect(await mirrorPending({ roundId })).toEqual({ mirrored: 1, failed: 0 });
+    expect(batchUpdate).toHaveBeenCalledWith(expect.objectContaining({ requestBody: { requests: [{ addSheet: expect.objectContaining({ properties: expect.objectContaining({ title: run }) }) }] } }));
+    expect(update.mock.calls[0][0].requestBody.values[0][0]).toBe('জমার সময়');
+    const rows = append.mock.calls[0][0].requestBody.values;
+    expect(rows).toHaveLength(1);
+    expect(rows[0].slice(2, 10)).toEqual(['বর্তমান', 'উস্তাদ আব্দুল্লাহ', 'পরীক্ষা', '', 'কুরআন', 1, `${run}-1`, 'Zainab Akter']);
+    expect(await mirroredAt()).not.toBeNull();
+  });
+
+  it('leaves a fresh claim alone and takes over an abandoned one', async () => {
+    const db = getDb();
+    await db.update(submissions).set({ mirroredAt: null, mirrorClaimedAt: new Date() }).where(eq(submissions.roundId, roundId));
+    expect(await mirrorPending({ roundId })).toEqual({ mirrored: 0, failed: 0 });
+    await db.update(submissions).set({ mirrorClaimedAt: new Date(Date.now() - 20 * 60 * 1000) }).where(eq(submissions.roundId, roundId));
+    get.mockResolvedValue({ data: { sheets: [{ properties: { title: run } }] } });
+    append.mockResolvedValue({});
+    expect(await mirrorPending({ roundId })).toEqual({ mirrored: 1, failed: 0 });
+    const [row] = await db.select().from(submissions).where(eq(submissions.roundId, roundId));
+    expect(row.mirroredAt).not.toBeNull();
+    expect(row.mirrorClaimedAt).toBeNull();
+  });
+
+  it('does nothing when everything is already copied', async () => {
+    expect(await mirrorPending({ roundId })).toEqual({ mirrored: 0, failed: 0 });
+    expect(append).not.toHaveBeenCalled();
+  });
+});
