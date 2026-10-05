@@ -95,7 +95,8 @@ export function GuardianFlow({ config }: { config: GuardianConfig }) {
     let cancelled = false;
     const timer = setTimeout(async () => {
       try {
-        const response = await api.post<VerifyResponse>('verify', { studentErpId: identity.childErpId, mobile });
+        // The raw number: the server normalises it once (a foreign number does not survive twice).
+        const response = await api.post<VerifyResponse>('verify', { studentErpId: identity.childErpId, mobile: identity.mobile });
         if (!cancelled) setVerify(response.status === 200 ? (response.data.verified ? 'verified' : 'unverified') : 'idle');
       } catch {
         if (!cancelled) setVerify('idle');
@@ -105,7 +106,7 @@ export function GuardianFlow({ config }: { config: GuardianConfig }) {
       cancelled = true;
       clearTimeout(timer);
     };
-  }, [api, step, identity.childErpId, mobile]);
+  }, [api, step, identity.childErpId, identity.mobile, mobile]);
 
   async function search() {
     setBusy(true);

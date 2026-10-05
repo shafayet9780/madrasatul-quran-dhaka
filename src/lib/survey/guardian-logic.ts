@@ -13,8 +13,11 @@ export function inputTail(value: string): string {
   return value.slice(-4);
 }
 
-/** Verified = the submitter's mobile is the student's father or mother mobile from the ERP. */
-export function isVerified(submitterMobile: string | null | undefined, student: { fatherMobile: string | null; motherMobile: string | null }): boolean {
-  const mobile = normaliseMobile(submitterMobile);
+/**
+ * Verified = the submitter's mobile is the student's father or mother mobile from the ERP.
+ * `mobile` is already canonical (normaliseMobile once, where it was typed): normalising a foreign
+ * number twice loses it, because the canonical form has no "+".
+ */
+export function isVerified(mobile: string | null, student: { fatherMobile: string | null; motherMobile: string | null }): boolean {
   return Boolean(mobile && (mobile === student.fatherMobile || mobile === student.motherMobile));
 }

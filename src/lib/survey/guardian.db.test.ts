@@ -67,10 +67,10 @@ describe('lookupChildren', () => {
 
 describe('verifyMobile', () => {
   it('checks a typed mobile against the father and mother numbers', async () => {
-    expect(await verifyMobile(`${run}-a`, '01915 000 111')).toBe(true);
-    expect(await verifyMobile(`${run}-a`, '+44 7911 000222')).toBe(true);
-    expect(await verifyMobile(`${run}-a`, '01855203941')).toBe(false);
-    expect(await verifyMobile(`${run}-d`, '01915000111')).toBe(false);
+    expect(await verifyMobile(`${run}-a`, FATHER)).toBe(true);
+    expect(await verifyMobile(`${run}-a`, MOTHER)).toBe(true);
+    expect(await verifyMobile(`${run}-a`, '8801855203941')).toBe(false);
+    expect(await verifyMobile(`${run}-d`, FATHER)).toBe(false);
   });
 });
 

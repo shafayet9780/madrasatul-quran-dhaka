@@ -38,6 +38,14 @@ describe('guardian verify route', () => {
     expect(verifyMobile).toHaveBeenCalledWith('10014', '8801915482736');
   });
 
+  it('passes a foreign number on in its canonical form', async () => {
+    selectRound.mockResolvedValue([round()]);
+    allow.mockResolvedValue(true);
+    verifyMobile.mockResolvedValue(true);
+    expect(await (await call({ studentErpId: '10014', mobile: '+44 7911 123456' })).json()).toEqual({ verified: true });
+    expect(verifyMobile).toHaveBeenCalledWith('10014', '447911123456');
+  });
+
   it('answers "not verified" for an impossible number without checking', async () => {
     selectRound.mockResolvedValue([round()]);
     allow.mockResolvedValue(true);

@@ -106,4 +106,7 @@ test('the back button returns to the search with the number kept, and a new sear
   await page.getByRole('button', { name: 'খুঁজুন' }).click();
   await expect(page.getByRole('heading', { name: 'কার জন্য রিভিউ দিচ্ছেন?' })).toBeVisible();
   await expect(page.getByLabel('আপনার মোবাইল নম্বর')).toHaveValue('+44 7700 900123');
+  await page.getByRole('radio', { name: /Yahya Hasan/ }).click();
+  // A parent abroad is verified too.
+  await expect(page.getByText('যাচাইকৃত · স্কুলের রেকর্ডের সাথে মিলেছে')).toBeVisible();
 });

@@ -39,7 +39,7 @@ export async function lookupChildren(round: Round, request: LookupRequest, ip: s
   return rows.map((r) => ({ erpId: r.erpId, name: titleCase(r.name), roll: r.roll, submittedAt: submittedAt.get(r.erpId) ?? null }));
 }
 
-/** Whether this mobile is the active student's father or mother mobile (false for an unknown student). */
+/** Whether this canonical mobile is the active student's father or mother mobile (false for an unknown student). */
 export async function verifyMobile(studentErpId: string, mobile: string): Promise<boolean> {
   const [student] = await getDb()
     .select({ fatherMobile: students.fatherMobile, motherMobile: students.motherMobile })

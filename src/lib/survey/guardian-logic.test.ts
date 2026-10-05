@@ -23,13 +23,13 @@ describe('inputTail', () => {
 
 describe('isVerified', () => {
   const student = { fatherMobile: '8801915482736', motherMobile: '447911123456' };
-  it('matches either parent, however the number is typed', () => {
-    expect(isVerified('01915 482 736', student)).toBe(true);
-    expect(isVerified('+447911123456', student)).toBe(true);
+  it('matches either parent on the canonical number, foreign numbers included', () => {
+    expect(isVerified(lookupValue('mobile', '01915 482 736'), student)).toBe(true);
+    expect(isVerified(lookupValue('mobile', '+44 7911 123456'), student)).toBe(true);
   });
-  it('is false for another number, an invalid one or a student without mobiles', () => {
-    expect(isVerified('01855203941', student)).toBe(false);
-    expect(isVerified('', student)).toBe(false);
-    expect(isVerified('01915482736', { fatherMobile: null, motherMobile: null })).toBe(false);
+  it('is false for another number, no number or a student without mobiles', () => {
+    expect(isVerified('8801855203941', student)).toBe(false);
+    expect(isVerified(null, student)).toBe(false);
+    expect(isVerified('8801915482736', { fatherMobile: null, motherMobile: null })).toBe(false);
   });
 });
