@@ -5,7 +5,6 @@ import type { RoundSnapshot } from '@/lib/survey/snapshot';
 /** What a guardian round page sends to the browser: the questions and classes, never students. */
 export type GuardianConfig = {
   roundId: string;
-  slug: string;
   linkKey: string;
   label: string;
   closesAt: string;
@@ -17,8 +16,6 @@ export type GuardianConfig = {
 export type GuardianStep = 'intro' | 'class' | 'identify' | 'match' | 'answer';
 
 export type Relation = 'father' | 'mother' | 'other';
-
-export const RELATION_LABEL: Record<Exclude<Relation, 'other'>, string> = { father: 'পিতা', mother: 'মাতা' };
 
 /** Who is answering and for which child, kept for this browser tab only (sessionStorage). */
 export type Identity = {

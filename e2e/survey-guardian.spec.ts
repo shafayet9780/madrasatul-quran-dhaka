@@ -87,3 +87,23 @@ test('a student ID only matches within the chosen class', async ({ page }) => {
   await expect(page.getByLabel('আপনার মোবাইল নম্বর')).toHaveValue('');
   await expectAccessible(page);
 });
+
+test('a link straight to a later step without an identity in this tab starts at the class', async ({ page }) => {
+  await page.goto(`${G2}&step=match`);
+  await expect(page.getByRole('heading', { name: 'আপনার সন্তান কোন শ্রেণিতে পড়ে?' })).toBeVisible();
+});
+
+test('the back button returns to the search with the number kept, and a new search replaces the prefilled mobile', async ({ page }) => {
+  await toIdentify(page);
+  const field = page.getByLabel('বাবা বা মায়ের মোবাইল নম্বর');
+  await field.fill('01700000001');
+  await page.getByRole('button', { name: 'খুঁজুন' }).click();
+  await expect(page.getByRole('heading', { name: 'এটি কি আপনার সন্তান?' })).toBeVisible();
+  await expect(page.getByLabel('আপনার মোবাইল নম্বর')).toHaveValue('01700000001');
+  await page.goBack();
+  await expect(field).toHaveValue('01700000001');
+  await field.fill('+44 7700 900123');
+  await page.getByRole('button', { name: 'খুঁজুন' }).click();
+  await expect(page.getByRole('heading', { name: 'কার জন্য রিভিউ দিচ্ছেন?' })).toBeVisible();
+  await expect(page.getByLabel('আপনার মোবাইল নম্বর')).toHaveValue('+44 7700 900123');
+});

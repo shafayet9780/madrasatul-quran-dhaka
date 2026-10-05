@@ -42,7 +42,6 @@ export default async function SurveyPage({ params, searchParams }: Props) {
   if (round.kind !== 'T1') {
     const guardian: GuardianConfig = {
       roundId: round.id,
-      slug: round.slug,
       linkKey: round.linkKey,
       label: round.label,
       closesAt: round.closesAt.toISOString(),

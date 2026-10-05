@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { LookupResponse, VerifyResponse } from '@/lib/survey/guardian-types';
 import { normaliseMobile } from '@/lib/survey/normalise';
 import { createApi } from '../t1/api';
@@ -26,12 +26,13 @@ export function GuardianFlow({ config }: { config: GuardianConfig }) {
   const api = useMemo(() => createApi(config.roundId, config.linkKey), [config.roundId, config.linkKey]);
   const storeKey = `sv-g-identity:${config.roundId}`;
   const [step, setStep] = useState<GuardianStep>('intro');
-  const [identity, setIdentity] = useState<Identity>(EMPTY);
+  /** null until read from this tab's storage after mounting; nothing is saved before that. */
+  const [stored, setIdentity] = useState<Identity | null>(null);
+  const identity = stored ?? EMPTY;
   const [value, setValue] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<LookupError | null>(null);
   const [verify, setVerify] = useState<VerifyState>('idle');
-  const restored = useRef(false);
 
   const go = useCallback(
     (next: GuardianStep, replace = false) => {
@@ -48,29 +49,29 @@ export function GuardianFlow({ config }: { config: GuardianConfig }) {
 
   // Identity lives in this tab's sessionStorage (names and mobiles stay out of the URL).
   useEffect(() => {
+    if (stored) return;
     let saved = EMPTY;
     try {
       saved = { ...EMPTY, ...JSON.parse(sessionStorage.getItem(storeKey) ?? '{}') };
     } catch {
       // Storage unavailable: start fresh.
     }
-    restored.current = true;
     setIdentity(saved);
     setValue(saved.searched);
     const wanted = new URLSearchParams(window.location.search).get('step') as GuardianStep | null;
     const start = allowedStep(config, saved, wanted && STEPS.includes(wanted) ? wanted : 'intro');
     if (start !== (wanted ?? 'intro')) go(start, true);
     else setStep(start);
-  }, [config, storeKey, go]);
+  }, [stored, config, storeKey, go]);
 
   useEffect(() => {
-    if (!restored.current) return;
+    if (!stored) return;
     try {
-      sessionStorage.setItem(storeKey, JSON.stringify(identity));
+      sessionStorage.setItem(storeKey, JSON.stringify(stored));
     } catch {
       // Storage unavailable.
     }
-  }, [identity, storeKey]);
+  }, [stored, storeKey]);
 
   useEffect(() => {
     const onPop = () => {
@@ -81,7 +82,7 @@ export function GuardianFlow({ config }: { config: GuardianConfig }) {
     return () => window.removeEventListener('popstate', onPop);
   }, [config, identity]);
 
-  const patch = useCallback((change: Partial<Identity>) => setIdentity((prev) => ({ ...prev, ...change })), []);
+  const patch = useCallback((change: Partial<Identity>) => setIdentity((prev) => ({ ...(prev ?? EMPTY), ...change })), []);
 
   // Live verified / unverified line: asked once per complete number, after typing pauses.
   const mobile = normaliseMobile(identity.mobile);
@@ -112,7 +113,7 @@ export function GuardianFlow({ config }: { config: GuardianConfig }) {
     try {
       const response = await api.post<LookupResponse>('lookup', { classKey: identity.classKey, sectionKey: identity.sectionKey, by: identity.by, value });
       if (response.status !== 200) {
-        setError(response.status === 429 ? 'rate-limited' : response.status === 403 ? 'closed' : 'network');
+        setError(response.status === 429 ? 'rate-limited' : response.status === 403 ? 'closed' : 'failed');
         return;
       }
       const { children } = response.data;
@@ -124,8 +125,9 @@ export function GuardianFlow({ config }: { config: GuardianConfig }) {
         children,
         searched: value,
         childErpId: children.length === 1 ? children[0].erpId : undefined,
-        // A parent's own number found the child: use it as the submitter mobile unless one is typed.
-        mobile: identity.by === 'mobile' && !identity.mobile ? value : identity.mobile,
+        // A parent's own number found the child: use it as the submitter mobile, unless the guardian
+        // typed a different one there (an earlier prefill is replaced by the new search).
+        mobile: identity.by === 'mobile' && (!identity.mobile || identity.mobile === identity.searched) ? value : identity.mobile,
       });
       go('match');
     } catch {
@@ -136,6 +138,13 @@ export function GuardianFlow({ config }: { config: GuardianConfig }) {
   }
 
   if (step === 'intro') return <IntroScreen config={config} onStart={() => go('class')} />;
+  if (!stored) {
+    return (
+      <main className="sv-screen" style={{ alignItems: 'center', justifyContent: 'center' }} aria-busy="true">
+        <p className="sv-muted">লোড হচ্ছে…</p>
+      </main>
+    );
+  }
   if (step === 'class') {
     return (
       <ClassScreen

@@ -58,6 +58,16 @@ describe('guardian lookup route', () => {
     expect(lookupChildren).not.toHaveBeenCalled();
   });
 
+  it('rejects a body that is not JSON', async () => {
+    selectRound.mockResolvedValue([round()]);
+    allow.mockResolvedValue(true);
+    const response = await POST(
+      new NextRequest(`https://school.test/api/survey/${ROUND_ID}/lookup`, { method: 'POST', body: '{oops', headers: { 'x-survey-key': 'secret-key' } }),
+      { params: Promise.resolve({ roundId: ROUND_ID }) }
+    );
+    expect(response.status).toBe(400);
+  });
+
   it('rejects a class or section that is not in the round', async () => {
     selectRound.mockResolvedValue([round()]);
     allow.mockResolvedValue(true);

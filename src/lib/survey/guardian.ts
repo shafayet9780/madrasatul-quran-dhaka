@@ -55,7 +55,6 @@ const LOOKUP_KEEP_MS = 90 * 24 * 60 * 60 * 1000;
 export async function pruneLookups(now = new Date()) {
   const result = await getDb()
     .delete(surveyLookups)
-    .where(lt(surveyLookups.createdAt, new Date(now.getTime() - LOOKUP_KEEP_MS)))
-    .returning({ id: surveyLookups.id });
-  return result.length;
+    .where(lt(surveyLookups.createdAt, new Date(now.getTime() - LOOKUP_KEEP_MS)));
+  return result.rowCount ?? 0;
 }

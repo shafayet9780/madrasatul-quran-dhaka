@@ -13,11 +13,11 @@ const longDate = new Intl.DateTimeFormat('bn-BD', { timeZone: 'Asia/Dhaka', day:
 
 const MINUTES: Record<GuardianConfig['kind'], string> = { G1: '৮–১২', G2: '৩–৫' };
 
-export type LookupError = 'not-found' | 'rate-limited' | 'closed' | 'network';
+export type LookupError = 'not-found' | 'rate-limited' | 'closed' | 'network' | 'failed';
 export type VerifyState = 'idle' | 'checking' | 'verified' | 'unverified';
 
 /** "নার্সারি · শাখা A", or the class alone. */
-export function placeLabel(config: GuardianConfig, classKey: string, sectionKey: string): string {
+function placeLabel(config: GuardianConfig, classKey: string, sectionKey: string): string {
   const cls = config.snapshot.classes.find((c) => c.key === classKey);
   if (!cls) return '';
   const section = cls.sections.find((s) => s.key === sectionKey);
@@ -162,6 +162,7 @@ const LOOKUP_ERRORS: Record<Exclude<LookupError, 'not-found'>, string> = {
   'rate-limited': 'অনেকবার খোঁজা হয়েছে। কয়েক মিনিট পরে আবার চেষ্টা করুন।',
   closed: 'এই রিভিউ এখন বন্ধ।',
   network: 'ইন্টারনেট সংযোগ নেই। সংযোগ দেখে আবার চেষ্টা করুন।',
+  failed: 'খোঁজা যায়নি। পাতাটি আবার লোড করে চেষ্টা করুন।',
 };
 
 export function IdentifyScreen({
@@ -232,7 +233,7 @@ export function IdentifyScreen({
               autoComplete={byMobile ? 'tel' : 'off'}
               maxLength={24}
               aria-invalid={error === 'not-found' || undefined}
-              aria-describedby={error ? 'lookup-error' : 'lookup-help'}
+              aria-describedby={error ? 'lookup-help lookup-error' : 'lookup-help'}
               style={{ fontSize: 19, letterSpacing: 0.5 }}
             />
           </label>

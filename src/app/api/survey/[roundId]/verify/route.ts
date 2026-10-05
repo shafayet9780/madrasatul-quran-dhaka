@@ -1,7 +1,7 @@
 import type { NextRequest } from 'next/server';
 import { verifyMobile } from '@/lib/survey/guardian';
 import { verifyRequestSchema, type VerifyResponse } from '@/lib/survey/guardian-types';
-import { normaliseStudentId } from '@/lib/survey/normalise';
+import { normaliseMobile, normaliseStudentId } from '@/lib/survey/normalise';
 import { authorizeRound, json, rateLimited, readBody, valueLimited } from '@/lib/survey/survey-request';
 
 /**
@@ -17,7 +17,10 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
   const body = await readBody(request, verifyRequestSchema);
   if (!body) return json({ reason: 'invalid' }, 400);
   const studentErpId = normaliseStudentId(body.studentErpId);
-  const valueLimit = await valueLimited(`verify:${studentErpId}`);
+  const mobile = normaliseMobile(body.mobile);
+  if (!mobile) return json({ verified: false } satisfies VerifyResponse);
+  // Per student, and per mobile with the same budget as a lookup of that mobile.
+  const valueLimit = (await valueLimited(`verify:${studentErpId}`)) ?? (await valueLimited(mobile));
   if (valueLimit) return valueLimit;
-  return json({ verified: await verifyMobile(studentErpId, body.mobile) } satisfies VerifyResponse);
+  return json({ verified: await verifyMobile(studentErpId, mobile) } satisfies VerifyResponse);
 }
