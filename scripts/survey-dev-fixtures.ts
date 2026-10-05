@@ -1,6 +1,7 @@
 /**
  * Loads sample survey data into the database in .env.local (the Neon dev branch) for local work
- * and end-to-end tests: two T1 rounds, students, three submitted batches (one duplicate) and one draft.
+ * and end-to-end tests: two T1 rounds, one G1 and one G2 round, students (a few with made-up parent
+ * mobiles, two siblings sharing one), three submitted batches (one duplicate) and one draft.
  * Every row it writes is marked "fixture"/"fx" and is removed by --remove.
  *
  *   pnpm survey:fixtures           # (re)load fixtures
@@ -18,6 +19,15 @@ if (process.env.SURVEY_DEV_DB !== '1') {
 
 const DAY = 24 * 60 * 60 * 1000;
 export const FIXTURE_LINK = '/survey/fixture-t1?k=fixture-open-link-key-000';
+export const FIXTURE_G1_LINK = '/survey/fixture-g1?k=fixture-g1-link-key-00000';
+export const FIXTURE_G2_LINK = '/survey/fixture-g2?k=fixture-g2-link-key-00000';
+
+// Made-up parent mobiles (stored form). Yahya and Hamza are siblings in Nursery A on one number.
+const MOBILES: Record<string, { fatherMobile?: string; motherMobile?: string }> = {
+  'Maryam Binte Rafiq': { fatherMobile: '8801700000001' },
+  'Yahya Hasan': { fatherMobile: '8801700000002', motherMobile: '447700900123' },
+  'HAMZA RAHIM': { fatherMobile: '8801700000002', motherMobile: '447700900123' },
+};
 
 // [roll, name] per class-section; null roll = not yet assigned in the ERP.
 const ROSTERS: Record<string, [number | null, string][]> = {
@@ -39,6 +49,7 @@ async function main() {
   const { students, submissions, surveyRounds } = await import('../src/lib/survey/schema');
   const { saveDraft, submitBatch } = await import('../src/lib/survey/t1');
   const { t1FixtureSnapshot } = await import('../src/lib/survey/testing/t1-fixture');
+  const { g1FixtureSnapshot, g2FixtureSnapshot } = await import('../src/lib/survey/testing/guardian-fixture');
   const db = getDb();
 
   const previous = await db.select({ id: surveyRounds.id }).from(surveyRounds).where(like(surveyRounds.sanityRoundId, 'fixture-%'));
@@ -60,7 +71,7 @@ async function main() {
   const rows = Object.entries(ROSTERS).flatMap(([place, list]) => {
     const [classKey, sectionKey] = place.split('|');
     // IDs follow the import's normal form (no dashes), so an imported list matches them.
-    return list.map(([roll, name]) => ({ erpId: `fx${id++}`, name, classKey, sectionKey, roll }));
+    return list.map(([roll, name]) => ({ erpId: `fx${id++}`, name, classKey, sectionKey, roll, ...MOBILES[name] }));
   });
   await db.insert(students).values(rows);
 
@@ -78,6 +89,26 @@ async function main() {
         opensAt: new Date(now - 3 * DAY),
         closesAt: new Date(now + 14 * DAY),
         linkKey: 'fixture-open-link-key-000',
+      },
+      {
+        sanityRoundId: 'fixture-g1-open',
+        kind: 'G1',
+        slug: 'fixture-g1',
+        label: 'অক্টোবর ২০২৬ · ক্লাস পরিচালনা (নমুনা)',
+        snapshot: g1FixtureSnapshot(),
+        opensAt: new Date(now - 3 * DAY),
+        closesAt: new Date(now + 14 * DAY),
+        linkKey: 'fixture-g1-link-key-00000',
+      },
+      {
+        sanityRoundId: 'fixture-g2-open',
+        kind: 'G2',
+        slug: 'fixture-g2',
+        label: 'অক্টোবর ২০২৬ · শিক্ষার্থী (নমুনা)',
+        snapshot: g2FixtureSnapshot(),
+        opensAt: new Date(now - 3 * DAY),
+        closesAt: new Date(now + 14 * DAY),
+        linkKey: 'fixture-g2-link-key-00000',
       },
       {
         sanityRoundId: 'fixture-t1-closed',
@@ -125,7 +156,7 @@ async function main() {
   const kg = rows.filter((s) => s.classKey === 'kg');
   await saveDraft(open, { teacherKey: '90002', classKey: 'kg', sectionKey: 'a', subjectKey: 'arabic' }, kg.slice(0, 3).map((s, i) => ({ studentErpId: s.erpId, answers: answersFor(i) })), meta);
 
-  console.log(`Loaded fixtures: ${rows.length} students, 2 rounds, 3 submitted batches (one duplicate), 1 draft. Open link: ${FIXTURE_LINK}`);
+  console.log(`Loaded fixtures: ${rows.length} students, 4 rounds, 3 submitted batches (one duplicate), 1 draft. Links: T1 ${FIXTURE_LINK} · G1 ${FIXTURE_G1_LINK} · G2 ${FIXTURE_G2_LINK}`);
 }
 
 main().catch((error) => {

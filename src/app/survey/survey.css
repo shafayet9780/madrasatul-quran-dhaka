@@ -289,6 +289,38 @@
   color: var(--sv-text);
 }
 
+/* Labelled field (guardian identity): stone fill, label inside; white with a bronze edge while typing. */
+.sv-field {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 16px;
+  border-radius: 16px;
+  background: var(--sv-stone);
+  border: 2px solid transparent;
+}
+.sv-field:focus-within {
+  background: #fff;
+  border-color: var(--sv-bronze);
+}
+.sv-field > span {
+  font-size: 13px;
+  color: var(--sv-text-muted);
+}
+.sv-field input {
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  padding: 0;
+  background: transparent;
+  font: inherit;
+  font-size: 17px;
+  color: var(--sv-text);
+}
+.sv-root .sv-field input:focus-visible {
+  outline: none;
+}
+
 /* Mark track: four marks in one stone track; the chosen one gets the bronze ring. */
 .sv-track {
   flex: none;

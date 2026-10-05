@@ -1,5 +1,5 @@
 import 'server-only';
-import { timingSafeEqual } from 'node:crypto';
+import { createHash, timingSafeEqual } from 'node:crypto';
 import { eq } from 'drizzle-orm';
 import { NextResponse, type NextRequest } from 'next/server';
 import { z } from 'zod';
@@ -50,6 +50,13 @@ export async function rateLimited(request: NextRequest, action: keyof typeof SUR
   const { limit, windowMs } = SURVEY_LIMITS[action];
   const ip = requestMeta(request).ip ?? 'unknown';
   return (await allow(`survey:${action}:${ip}`, limit, windowMs)) ? null : json({ reason: 'rate-limited' }, 429);
+}
+
+/** 429 once a looked-up value (student ID, mobile) is used up, from any IP. The key holds a hash, not the value. */
+export async function valueLimited(value: string): Promise<NextResponse | null> {
+  const { limit, windowMs } = SURVEY_LIMITS.guardianValue;
+  const hash = createHash('sha256').update(value).digest('hex').slice(0, 32);
+  return (await allow(`survey:guardianValue:${hash}`, limit, windowMs)) ? null : json({ reason: 'rate-limited' }, 429);
 }
 
 export async function readBody<T>(request: NextRequest, schema: z.ZodType<T>): Promise<T | null> {
