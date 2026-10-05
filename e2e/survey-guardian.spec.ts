@@ -110,3 +110,80 @@ test('the back button returns to the search with the number kept, and a new sear
   // A parent abroad is verified too.
   await expect(page.getByText('যাচাইকৃত · স্কুলের রেকর্ডের সাথে মিলেছে')).toBeVisible();
 });
+
+test.describe('G2 questions', () => {
+  async function toQuestions(page: Page) {
+    await toIdentify(page);
+    await page.getByLabel('বাবা বা মায়ের মোবাইল নম্বর').fill('01700000001');
+    await page.getByRole('button', { name: 'খুঁজুন' }).click();
+    await page.getByLabel('আপনার নাম').fill('রফিকুল ইসলাম');
+    await page.getByRole('radio', { name: 'পিতা' }).click();
+    await page.getByRole('button', { name: /রিভিউ শুরু করুন|প্রশ্ন শুরু করুন/ }).click();
+  }
+
+  test('a guardian answers, reviews, submits and gets a receipt; a second form replaces the first', async ({ page }) => {
+    await toQuestions(page);
+    await expect(page.getByRole('heading', { name: 'নিয়মিত ক্লাস করে কি না?' })).toBeVisible();
+    await expect(page.getByText('প্রশ্ন ১/৪')).toBeVisible();
+    await expectAccessible(page);
+    await page.getByRole('radio', { name: 'উপস্থিতি > ৯০%' }).click();
+    await page.getByRole('button', { name: 'পরের প্রশ্ন' }).click();
+
+    await expect(page.getByText('নন ডে কেয়ার শিক্ষার্থীদের জন্য প্রযোজ্য')).toBeVisible();
+    await page.getByRole('radio', { name: /প্রযোজ্য নয় \(ডে কেয়ার\)/ }).click();
+    await expectAccessible(page);
+    // A reload keeps the answers on this phone.
+    await page.reload();
+    await expect(page.getByRole('radio', { name: /প্রযোজ্য নয় \(ডে কেয়ার\)/ })).toHaveAttribute('aria-checked', 'true');
+    await page.getByRole('button', { name: 'পরের প্রশ্ন' }).click();
+    await page.getByRole('radio', { name: 'দেখে না' }).click();
+    await page.getByRole('button', { name: 'পরের প্রশ্ন' }).click();
+    // Skip the last question: review blocks the submit.
+    await page.getByRole('button', { name: 'দেখে নিয়ে জমা দিন' }).click();
+    await expect(page.getByRole('heading', { name: 'দেখে নিয়ে জমা দিন' })).toBeVisible();
+    await expect(page.getByText('উত্তর দেওয়া হয়নি')).toBeVisible();
+    await expect(page.getByRole('button', { name: 'জমা দিন' })).toBeDisabled();
+    await expectAccessible(page);
+    await page.getByRole('button', { name: 'প্রশ্ন ৪ বদলান' }).click();
+    await page.getByRole('radio', { name: 'আসে না' }).click();
+    await page.getByRole('button', { name: 'দেখে নিয়ে জমা দিন' }).click();
+    await page.getByLabel(/কোন পরামর্শ ও মন্তব্য/).fill('আলহামদুলিল্লাহ, ভালো লাগছে।');
+    await page.getByRole('button', { name: 'জমা দিন' }).click();
+
+    await expect(page).toHaveURL(/\/survey\/receipt\//);
+    await expect(page.getByRole('heading', { name: 'জমা হয়েছে' })).toBeVisible();
+    await expect(page.getByText('Maryam Binte Rafiq · নার্সারি A')).toBeVisible();
+    await expect(page.getByText('রফিকুল ইসলাম (পিতা)')).toBeVisible();
+    await expect(page.getByText('যাচাইকৃত', { exact: true })).toBeVisible();
+    await expect(page.getByText('প্রযোজ্য নয় (ডে কেয়ার)')).toBeVisible();
+    await expect(page.getByText('আলহামদুলিল্লাহ, ভালো লাগছে।')).toBeVisible();
+    await expectAccessible(page);
+    const firstReceipt = page.url();
+
+    // Another form for the same child: the guardian is warned first, and the new one counts.
+    await page.getByRole('link', { name: 'অন্য সন্তানের জন্য রিভিউ দিন' }).click();
+    await expect(page.getByRole('heading', { name: 'আপনার সন্তান কোন শ্রেণিতে পড়ে?' })).toBeVisible();
+    await page.getByRole('button', { name: 'নার্সারি · শাখা A · চালিয়ে যান' }).click();
+    await page.getByLabel('বাবা বা মায়ের মোবাইল নম্বর').fill('01700000001');
+    await page.getByRole('button', { name: 'খুঁজুন' }).click();
+    await expect(page.getByText('এই শিক্ষার্থীর রিভিউ আগেই জমা হয়েছে')).toBeVisible();
+    await expect(page.getByLabel('আপনার নাম')).toHaveValue('রফিকুল ইসলাম');
+    await page.getByRole('button', { name: 'নতুন রিভিউ শুরু করুন' }).click();
+    await expect(page.getByRole('radio', { name: 'উপস্থিতি > ৯০%' })).toHaveAttribute('aria-checked', 'false');
+    for (const answer of ['উপস্থিতি ৮০–৯০%', '২ ঘন্টা +', 'দেখে না', 'আসে না']) {
+      await page.getByRole('radio', { name: answer }).click();
+      await page.getByRole('button', { name: /পরের প্রশ্ন|দেখে নিয়ে জমা দিন/ }).click();
+    }
+    await page.getByRole('button', { name: 'জমা দিন' }).click();
+    await expect(page).toHaveURL(/\/survey\/receipt\//);
+    await page.goto(firstReceipt);
+    await expect(page.getByText('এই রিভিউ পরে সংশোধন করা হয়েছে।')).toBeVisible();
+  });
+
+  test('desktop shows the questions beside their list', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 1000 });
+    await toQuestions(page);
+    await expect(page.getByRole('navigation', { name: 'প্রশ্নসমূহ' })).toBeVisible();
+    await expectAccessible(page);
+  });
+});

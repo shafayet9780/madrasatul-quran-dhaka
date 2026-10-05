@@ -33,7 +33,7 @@ describe('guardian verify route', () => {
     selectRound.mockResolvedValue([round()]);
     allow.mockResolvedValue(true);
     verifyMobile.mockResolvedValue(true);
-    const response = await call({ studentErpId: '১০০১৪', mobile: '01915482736' });
+    const response = await call({ studentErpId: ' 10014 ', mobile: '01915482736' });
     expect(await response.json()).toEqual({ verified: true });
     expect(verifyMobile).toHaveBeenCalledWith('10014', '8801915482736');
   });

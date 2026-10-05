@@ -1,7 +1,7 @@
 import type { NextRequest } from 'next/server';
 import { verifyMobile } from '@/lib/survey/guardian';
 import { verifyRequestSchema, type VerifyResponse } from '@/lib/survey/guardian-types';
-import { normaliseMobile, normaliseStudentId } from '@/lib/survey/normalise';
+import { normaliseMobile } from '@/lib/survey/normalise';
 import { authorizeRound, json, rateLimited, readBody, valueLimited } from '@/lib/survey/survey-request';
 
 /**
@@ -16,7 +16,8 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
   if (round.kind === 'T1') return json({ reason: 'invalid' }, 404);
   const body = await readBody(request, verifyRequestSchema);
   if (!body) return json({ reason: 'invalid' }, 400);
-  const studentErpId = normaliseStudentId(body.studentErpId);
+  // Exactly as the lookup returned it.
+  const studentErpId = body.studentErpId.trim();
   const mobile = normaliseMobile(body.mobile);
   if (!mobile) return json({ verified: false } satisfies VerifyResponse);
   // Per student, and per mobile with the same budget as a lookup of that mobile.

@@ -50,12 +50,12 @@ export type RoundSnapshot = z.infer<typeof roundSnapshotSchema>;
 export type SnapshotQuestion = RoundSnapshot['template']['questions'][number];
 export type SnapshotClass = RoundSnapshot['classes'][number];
 
-export function findClass(snapshot: RoundSnapshot, classKey: string): SnapshotClass | undefined {
+export function findClass(snapshot: Pick<RoundSnapshot, 'classes'>, classKey: string): SnapshotClass | undefined {
   return snapshot.classes.find((c) => c.key === classKey);
 }
 
 /** "নার্সারি A" for a sectioned class, "প্লে" otherwise. sectionKey '' = no section. */
-export function classLabel(snapshot: RoundSnapshot, classKey: string, sectionKey: string): string {
+export function classLabel(snapshot: Pick<RoundSnapshot, 'classes'>, classKey: string, sectionKey: string): string {
   const cls = findClass(snapshot, classKey);
   if (!cls) return classKey;
   const section = cls.sections.find((s) => s.key === sectionKey);

@@ -13,7 +13,10 @@ export type GuardianConfig = {
   officePhone: OfficePhone | null;
 };
 
-export type GuardianStep = 'intro' | 'class' | 'identify' | 'match' | 'answer';
+export type GuardianStep = 'intro' | 'class' | 'identify' | 'match' | 'answer' | 'review';
+
+/** Answers kept on this device until submit, per round and child (cleared after submit). */
+export type DeviceForm = { submissionId: string; answers: Record<string, unknown>; comment: string };
 
 export type Relation = 'father' | 'mother' | 'other';
 

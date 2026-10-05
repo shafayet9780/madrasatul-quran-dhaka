@@ -4,7 +4,7 @@ import { SURVEY_KEY_HEADER } from '@/lib/survey/t1-types';
 
 export type SurveyApi = {
   /** Resolves with the status for any HTTP answer; rejects only when the network fails. */
-  post<T>(path: 'teacher' | 'overview' | 'batch' | 'draft' | 'submit' | 'lookup' | 'verify', body: unknown): Promise<{ status: number; data: T }>;
+  post<T>(path: 'teacher' | 'overview' | 'batch' | 'draft' | 'submit' | 'lookup' | 'verify' | 'guardian-submit', body: unknown): Promise<{ status: number; data: T }>;
 };
 
 export function createApi(roundId: string, linkKey: string): SurveyApi {

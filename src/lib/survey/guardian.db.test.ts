@@ -1,9 +1,10 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { eq, like } from 'drizzle-orm';
+import { randomUUID } from 'node:crypto';
+import { and, eq, isNotNull, like } from 'drizzle-orm';
 import { getDb } from './db';
-import { lookupChildren, pruneLookups, verifyMobile } from './guardian';
-import { responses, students, submissions, surveyLookups, surveyRounds } from './schema';
-import { t1FixtureSnapshot } from './testing/t1-fixture';
+import { lookupChildren, pruneLookups, submitGuardian, verifyMobile } from './guardian';
+import { answerItems, responses, students, submissions, surveyLookups, surveyRounds } from './schema';
+import { g2FixtureSnapshot } from './testing/guardian-fixture';
 
 const run = `test-guardian-${Date.now()}`;
 const hour = 60 * 60 * 1000;
@@ -15,8 +16,7 @@ const submittedAt = new Date('2026-10-12T15:00:00Z');
 
 beforeAll(async () => {
   const db = getDb();
-  const snapshot = t1FixtureSnapshot();
-  snapshot.template.kind = 'G2';
+  const snapshot = g2FixtureSnapshot();
   [round] = await db
     .insert(surveyRounds)
     .values({ sanityRoundId: run, kind: 'G2', slug: run, label: 'পরীক্ষা', snapshot, opensAt: new Date(Date.now() - hour), closesAt: new Date(Date.now() + hour), linkKey: 'k' })
@@ -36,6 +36,7 @@ beforeAll(async () => {
 
 afterAll(async () => {
   const db = getDb();
+  await db.delete(submissions).where(and(eq(submissions.roundId, round.id), isNotNull(submissions.supersededBy)));
   await db.delete(submissions).where(eq(submissions.roundId, round.id));
   await db.delete(surveyRounds).where(eq(surveyRounds.id, round.id));
   await db.delete(students).where(like(students.erpId, `${run}%`));
@@ -81,5 +82,71 @@ describe('pruneLookups', () => {
     expect(await pruneLookups()).toBeGreaterThanOrEqual(1);
     const left = await getDb().select().from(surveyLookups).where(eq(surveyLookups.roundId, round.id));
     expect(left.every((r) => r.createdAt > old)).toBe(true);
+  });
+});
+
+describe('submitGuardian', () => {
+  const meta = { ip: '203.0.113.9', userAgent: 'test' };
+  const answers = { attendance: 'above-90', 'study-at-home': 'na', devices: '1-2-weekly', 'peer-complaints': 'never' };
+  const form = (patch: Record<string, unknown> = {}) => ({
+    submissionId: randomUUID(),
+    classKey: 'kg',
+    sectionKey: 'a',
+    studentErpId: `${run}-b`,
+    submitter: { name: ' করিম ', relation: 'father' as const, relationOther: '', mobile: '01915 000 111' },
+    answers,
+    comment: '  আলহামদুলিল্লাহ ',
+    ...patch,
+  });
+  const current = async (erpId: string) =>
+    getDb()
+      .select({ submissionId: responses.submissionId })
+      .from(responses)
+      .where(and(eq(responses.roundId, round.id), eq(responses.studentErpId, erpId), eq(responses.isCurrent, true)));
+
+  it('stores a verified form with hidden marks, N/A kept out of the marks', async () => {
+    const input = form();
+    const result = await submitGuardian(round, input, meta);
+    expect(result.ok).toBe(true);
+    const [saved] = await getDb().select().from(submissions).where(eq(submissions.id, input.submissionId));
+    expect(saved).toMatchObject({ status: 'submitted', kind: 'G2', submitterName: 'করিম', submitterRelation: 'পিতা', submitterMobile: FATHER, verified: true, comment: 'আলহামদুলিল্লাহ', mirroredAt: null });
+    const items = await getDb().select().from(answerItems).where(eq(answerItems.submissionId, input.submissionId));
+    expect(items.map((i) => [i.questionKey, i.mark, i.isNa, i.optionKey, i.verified]).sort()).toEqual([
+      ['attendance', 10, false, 'above-90', true],
+      ['devices', 7, false, '1-2-weekly', true],
+      ['peer-complaints', 10, false, 'never', true],
+      ['study-at-home', null, true, null, true],
+    ]);
+  });
+
+  it('returns the same receipt for a repeated submit of the same form', async () => {
+    const input = form();
+    const first = await submitGuardian(round, input, meta);
+    const again = await submitGuardian(round, input, meta);
+    expect(again).toEqual(first);
+  });
+
+  it('lets the newest form count, keeping the earlier one superseded', async () => {
+    const before = await current(`${run}-b`);
+    const input = form({ submitter: { name: 'অন্য কেউ', relation: 'other', relationOther: 'মামা', mobile: '01855203941' } });
+    expect((await submitGuardian(round, input, meta)).ok).toBe(true);
+    expect(await current(`${run}-b`)).toEqual([{ submissionId: input.submissionId }]);
+    const [old] = await getDb().select().from(submissions).where(eq(submissions.id, before[0].submissionId));
+    expect(old.supersededBy).toBe(input.submissionId);
+    expect(await getDb().select().from(answerItems).where(eq(answerItems.submissionId, old.id))).toEqual([]);
+    const [saved] = await getDb().select().from(submissions).where(eq(submissions.id, input.submissionId));
+    expect(saved).toMatchObject({ submitterRelation: 'মামা', verified: false });
+  });
+
+  it('refuses incomplete answers, a child of another class and a missing relation', async () => {
+    expect(await submitGuardian(round, form({ answers: { attendance: 'above-90' } }), meta)).toEqual({ ok: false, reason: 'incomplete', missing: ['study-at-home', 'devices', 'peer-complaints'] });
+    expect(await submitGuardian(round, form({ studentErpId: `${run}-c` }), meta)).toEqual({ ok: false, reason: 'invalid' });
+    expect(await submitGuardian(round, form({ studentErpId: `${run}-d` }), meta)).toEqual({ ok: false, reason: 'invalid' });
+    expect(await submitGuardian(round, form({ submitter: { name: 'ক', relation: 'other', relationOther: ' ', mobile: '01915000111' } }), meta)).toEqual({ ok: false, reason: 'submitter' });
+  });
+
+  it('refuses after the grace period', async () => {
+    const closed = { ...round, closesAt: new Date(Date.now() - 20 * 60 * 1000) };
+    expect(await submitGuardian(closed, form(), meta)).toEqual({ ok: false, reason: 'closed' });
   });
 });

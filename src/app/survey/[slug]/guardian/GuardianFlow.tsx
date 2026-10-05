@@ -1,13 +1,17 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import type { LookupResponse, VerifyResponse } from '@/lib/survey/guardian-types';
+import { useRouter } from 'next/navigation';
+import { relationText } from '@/lib/survey/guardian-logic';
+import type { GuardianSubmitResult, LookupResponse, VerifyResponse } from '@/lib/survey/guardian-types';
 import { normaliseMobile } from '@/lib/survey/normalise';
+import { classLabel } from '@/lib/survey/snapshot';
 import { createApi } from '../t1/api';
+import { G2QuestionScreen, G2ReviewScreen, type SubmitError } from './G2Screens';
 import { ClassScreen, IdentifyScreen, IntroScreen, MatchScreen, type LookupError, type VerifyState } from './IdentityScreens';
-import type { GuardianConfig, GuardianStep, Identity } from './types';
+import type { DeviceForm, GuardianConfig, GuardianStep, Identity } from './types';
 
-const STEPS: GuardianStep[] = ['intro', 'class', 'identify', 'match', 'answer'];
+const STEPS: GuardianStep[] = ['intro', 'class', 'identify', 'match', 'answer', 'review'];
 const EMPTY: Identity = { classKey: '', sectionKey: '', by: 'mobile', searched: '', children: [], name: '', relationOther: '', mobile: '' };
 
 /** The furthest step the identity supports; a reload or the back button never lands past it. */
@@ -18,14 +22,32 @@ function allowedStep(config: GuardianConfig, identity: Identity, wanted: Guardia
   if (!placeOk) return 'class';
   if (wanted === 'identify') return wanted;
   if (!identity.children.length) return 'identify';
-  return wanted === 'answer' && !identity.childErpId ? 'match' : wanted;
+  if (wanted === 'match') return wanted;
+  // Questions need the child and a complete submitter, as the match screen requires.
+  const submitterOk = identity.name.trim() && identity.relation && relationText(identity.relation, identity.relationOther) && normaliseMobile(identity.mobile);
+  return identity.children.some((c) => c.erpId === identity.childErpId) && submitterOk ? wanted : 'match';
+}
+
+const formKey = (roundId: string, erpId: string) => `sv-g-form:${roundId}:${erpId}`;
+
+function readForm(roundId: string, erpId: string): DeviceForm {
+  try {
+    const saved = JSON.parse(localStorage.getItem(formKey(roundId, erpId)) ?? 'null');
+    if (saved && typeof saved.submissionId === 'string') return { submissionId: saved.submissionId, answers: saved.answers ?? {}, comment: saved.comment ?? '' };
+  } catch {
+    // Storage unavailable: the form lives in memory only.
+  }
+  return { submissionId: crypto.randomUUID(), answers: {}, comment: '' };
 }
 
 /** Guardian survey (G1/G2): identity first; the questions follow in the next steps. */
 export function GuardianFlow({ config }: { config: GuardianConfig }) {
   const api = useMemo(() => createApi(config.roundId, config.linkKey), [config.roundId, config.linkKey]);
   const storeKey = `sv-g-identity:${config.roundId}`;
+  const router = useRouter();
   const [step, setStep] = useState<GuardianStep>('intro');
+  const [q, setQ] = useState(0);
+  const [form, setForm] = useState<DeviceForm | null>(null);
   /** null until read from this tab's storage after mounting; nothing is saved before that. */
   const [stored, setIdentity] = useState<Identity | null>(null);
   const identity = stored ?? EMPTY;
@@ -35,9 +57,11 @@ export function GuardianFlow({ config }: { config: GuardianConfig }) {
   const [verify, setVerify] = useState<VerifyState>('idle');
 
   const go = useCallback(
-    (next: GuardianStep, replace = false) => {
+    (next: GuardianStep, replace = false, question = 0) => {
       const params = new URLSearchParams({ k: config.linkKey });
       if (next !== 'intro') params.set('step', next);
+      if (next === 'answer') params.set('q', String(question + 1));
+      setQ(question);
       const url = `${window.location.pathname}?${params.toString()}`;
       if (replace) window.history.replaceState(null, '', url);
       else window.history.pushState(null, '', url);
@@ -58,10 +82,15 @@ export function GuardianFlow({ config }: { config: GuardianConfig }) {
     }
     setIdentity(saved);
     setValue(saved.searched);
-    const wanted = new URLSearchParams(window.location.search).get('step') as GuardianStep | null;
+    const search = new URLSearchParams(window.location.search);
+    const wanted = search.get('step') as GuardianStep | null;
     const start = allowedStep(config, saved, wanted && STEPS.includes(wanted) ? wanted : 'intro');
+    const question = Math.min(Math.max(0, Number(search.get('q') ?? 1) - 1 || 0), config.snapshot.template.questions.length - 1);
     if (start !== (wanted ?? 'intro')) go(start, true);
-    else setStep(start);
+    else {
+      setStep(start);
+      setQ(question);
+    }
   }, [stored, config, storeKey, go]);
 
   useEffect(() => {
@@ -75,12 +104,71 @@ export function GuardianFlow({ config }: { config: GuardianConfig }) {
 
   useEffect(() => {
     const onPop = () => {
-      const wanted = new URLSearchParams(window.location.search).get('step') as GuardianStep | null;
+      const search = new URLSearchParams(window.location.search);
+      const wanted = search.get('step') as GuardianStep | null;
       setStep(allowedStep(config, identity, wanted && STEPS.includes(wanted) ? wanted : 'intro'));
+      setQ(Math.min(Math.max(0, Number(search.get('q') ?? 1) - 1 || 0), config.snapshot.template.questions.length - 1));
     };
     window.addEventListener('popstate', onPop);
     return () => window.removeEventListener('popstate', onPop);
   }, [config, identity]);
+
+  // The form for the chosen child: read from this device, saved on every change.
+  const childErpId = identity.childErpId;
+  useEffect(() => {
+    setForm(childErpId ? readForm(config.roundId, childErpId) : null);
+  }, [config.roundId, childErpId]);
+  const updateForm = useCallback(
+    (change: Partial<DeviceForm>) => {
+      setForm((prev) => {
+        if (!prev || !childErpId) return prev;
+        const next = { ...prev, ...change };
+        try {
+          localStorage.setItem(formKey(config.roundId, childErpId), JSON.stringify(next));
+        } catch {
+          // Storage unavailable.
+        }
+        return next;
+      });
+    },
+    [config.roundId, childErpId]
+  );
+
+  async function submit(): Promise<SubmitError | null> {
+    if (!form || !childErpId || !identity.relation) return 'failed';
+    try {
+      const response = await api.post<GuardianSubmitResult>('guardian-submit', {
+        submissionId: form.submissionId,
+        classKey: identity.classKey,
+        sectionKey: identity.sectionKey,
+        studentErpId: childErpId,
+        submitter: { name: identity.name, relation: identity.relation, relationOther: identity.relationOther, mobile: identity.mobile },
+        answers: form.answers,
+        comment: form.comment,
+      });
+      const result = response.data;
+      if (result.ok) {
+        try {
+          localStorage.removeItem(formKey(config.roundId, childErpId));
+          // Keep who is answering for "another child" from the receipt; the child is chosen again.
+          sessionStorage.setItem(storeKey, JSON.stringify({ ...identity, children: [], childErpId: undefined }));
+        } catch {
+          // Storage unavailable.
+        }
+        router.push(`/survey/receipt/${result.receiptToken}`);
+        return null;
+      }
+      if (response.status === 403) return 'closed';
+      if (result.reason === 'incomplete') return 'incomplete';
+      if (result.reason === 'submitter') {
+        go('match');
+        return null;
+      }
+      return 'failed';
+    } catch {
+      return 'network';
+    }
+  }
 
   const patch = useCallback((change: Partial<Identity>) => setIdentity((prev) => ({ ...(prev ?? EMPTY), ...change })), []);
 
@@ -188,7 +276,41 @@ export function GuardianFlow({ config }: { config: GuardianConfig }) {
   if (step === 'match') {
     return <MatchScreen config={config} identity={identity} verify={verify} onChange={patch} onSearchAgain={() => go('identify')} onStart={() => go('answer')} />;
   }
-  // The question screens (G2 in P3, G1 in P4) start here.
+  const child = identity.children.find((c) => c.erpId === childErpId);
+  if (form && child && config.kind === 'G2') {
+    const heading = {
+      child: `${child.name} · ${classLabel(config.snapshot, identity.classKey, identity.sectionKey)}`,
+      submitter: `${identity.name.trim()} (${relationText(identity.relation ?? 'other', identity.relationOther) ?? ''})`,
+      verified: verify === 'verified' ? true : verify === 'unverified' ? false : null,
+    };
+    if (step === 'answer') {
+      return (
+        <G2QuestionScreen
+          config={config}
+          heading={heading}
+          q={q}
+          answers={form.answers}
+          onAnswer={(key, value) => updateForm({ answers: { ...form.answers, [key]: value } })}
+          onQuestion={(next) => go('answer', false, next)}
+          onBack={() => go('match')}
+          onReview={() => go('review')}
+        />
+      );
+    }
+    return (
+      <G2ReviewScreen
+        config={config}
+        heading={heading}
+        answers={form.answers}
+        comment={form.comment}
+        onComment={(comment) => updateForm({ comment })}
+        onEdit={(question) => go('answer', false, question)}
+        onBack={() => go('answer', false, config.snapshot.template.questions.length - 1)}
+        onSubmit={submit}
+      />
+    );
+  }
+  // G1 question screens arrive in P4.
   return (
     <main className="sv-screen" style={{ alignItems: 'center', justifyContent: 'center' }} aria-busy="true">
       <p className="sv-muted">লোড হচ্ছে…</p>
