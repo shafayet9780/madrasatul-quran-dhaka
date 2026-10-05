@@ -82,6 +82,15 @@ describe('buildRound for guardian templates', () => {
     expect(t1.ok && t1.round.snapshot.template.layout).toBeUndefined();
   });
 
+  it('keeps the N/A label only on questions that allow N/A', () => {
+    const questions = [
+      { key: 'q1', text: 'প্রশ্ন', type: 'options', areaKey: 'attendance', allowNA: true, naLabel: 'প্রযোজ্য নয় (ডে কেয়ার)', options: [{ key: 'a', label: 'ক', mark: 10 }, { key: 'b', label: 'খ', mark: 4 }] },
+      { key: 'q2', text: 'প্রশ্ন', type: 'marks', areaKey: 'attendance', allowNA: false, naLabel: 'অপ্রয়োজনীয়' },
+    ];
+    const result = buildRound(withTemplate({ kind: 'G2', questions }), { now });
+    expect(result.ok && result.round.snapshot.template.questions.map((q) => q.naLabel)).toEqual(['প্রযোজ্য নয় (ডে কেয়ার)', undefined]);
+  });
+
   it('needs subjects in every class for G1', () => {
     const result = buildRound(withTemplate({ kind: 'G1' }), { now });
     expect(result.ok).toBe(false);

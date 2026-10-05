@@ -1,5 +1,5 @@
 import { toBengaliDigits } from './normalise';
-import { classSections, roundSnapshotSchema, t1PairCount, type RoundSnapshot } from './snapshot';
+import { classSections, NA, roundSnapshotSchema, t1PairCount, type RoundSnapshot } from './snapshot';
 
 type Named = { key?: string | null; name?: string | null };
 
@@ -31,6 +31,7 @@ export type RoundSource = {
             areaKey?: string | null;
             required?: boolean | null;
             allowNA?: boolean | null;
+            naLabel?: string | null;
           }[]
         | null;
     } | null;
@@ -93,6 +94,7 @@ export function buildLists(source: ListsSource): Pick<RoundSnapshot, 'classes' |
 /** Lists problems that would make the round unusable, in Bengali for the admin. */
 export function listProblems(kind: string, lists: Pick<RoundSnapshot, 'classes' | 'teachers'>): string[] {
   if (kind === 'G1') {
+    if (!lists.classes.length) return ['কোনো শ্রেণি নেই (Studio → Surveys → Classes & Subjects)।'];
     const missing = lists.classes.filter((c) => !c.subjects.length).map((c) => c.name);
     return missing.length ? [`এসব শ্রেণিতে বিষয় নেই: ${missing.join(', ')} (Studio → Surveys → Classes & Subjects)।`] : [];
   }
@@ -130,7 +132,7 @@ export function buildRound(
     if (!q.areaKey) errors.push(`প্রশ্ন ${n(i + 1)}: এরিয়া বাছাই করা হয়নি।`);
     if (q.type === 'options' && (q.options?.length ?? 0) < 2) errors.push(`প্রশ্ন ${n(i + 1)}: অন্তত দুটি অপশন দিন।`);
     if (q.type === 'options' && q.options?.some((o) => typeof o.mark !== 'number')) errors.push(`প্রশ্ন ${n(i + 1)}: প্রতিটি অপশনের মার্ক দিন।`);
-    if (q.options?.some((o) => o.key === 'na')) errors.push(`প্রশ্ন ${n(i + 1)}: অপশনের key "na" ব্যবহার করা যাবে না।`);
+    if (q.options?.some((o) => o.key === NA)) errors.push(`প্রশ্ন ${n(i + 1)}: অপশনের key "na" ব্যবহার করা যাবে না।`);
     if (q.allowNA && template?.kind === 'T1') errors.push(`প্রশ্ন ${n(i + 1)}: শিক্ষকের রিভিউতে "প্রযোজ্য নয়" রাখা যাবে না।`);
   });
   if (template && !questions.length) errors.push('টেমপ্লেটে কোনো প্রশ্ন নেই।');
@@ -161,6 +163,7 @@ export function buildRound(
         areaKey: q.areaKey,
         required: opt(q.required),
         allowNA: opt(q.allowNA),
+        naLabel: q.allowNA ? opt(q.naLabel) : undefined,
       })),
     },
     areas: source.areas.filter((a) => usedAreas.has(a.key)).map((a) => ({ key: a.key, name: a.name, group: a.group })),

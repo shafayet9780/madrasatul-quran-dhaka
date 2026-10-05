@@ -36,7 +36,6 @@ export const surveyTemplate = defineType({
         ],
         layout: 'radio',
       },
-      initialValue: 'by-subject',
       hidden: ({ document }) => document?.kind !== 'G1',
     }),
     defineField({
@@ -123,6 +122,13 @@ export const surveyTemplate = defineType({
                 Rule.custom((value, context) =>
                   value && (context.document as { kind?: string })?.kind === 'T1' ? 'Teacher reviews (T1) have no "not applicable".' : true
                 ),
+            }),
+            defineField({
+              name: 'naLabel',
+              title: '"Not applicable" label',
+              description: 'e.g. প্রযোজ্য নয় (ডে কেয়ার). Empty = প্রযোজ্য নয়.',
+              type: 'string',
+              hidden: ({ parent }) => !parent?.allowNA,
             }),
           ],
           preview: { select: { title: 'text', subtitle: 'key' } },

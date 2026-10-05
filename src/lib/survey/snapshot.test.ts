@@ -75,6 +75,8 @@ describe('classifyAnswer', () => {
   it('resolves hidden option marks', () => {
     expect(classifyAnswer(options, scale, 'one')).toEqual({ kind: 'mark', mark: 7 });
     expect(classifyAnswer(options, scale, 'other')).toEqual({ kind: 'invalid' });
+    expect(classifyAnswer(options, scale, 7)).toEqual({ kind: 'invalid' });
+    expect(classifyAnswer(marks, scale, Number.NaN)).toEqual({ kind: 'invalid' });
   });
   it('tells "not applicable" apart from an invalid value', () => {
     expect(classifyAnswer(marks, scale, 'na')).toEqual({ kind: 'invalid' });

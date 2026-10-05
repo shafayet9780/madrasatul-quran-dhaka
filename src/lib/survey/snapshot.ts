@@ -16,6 +16,8 @@ const question = z.object({
   // Sanity omits booleans an editor never toggled.
   required: z.boolean().default(true),
   allowNA: z.boolean().default(false),
+  // Label of the "not applicable" choice, e.g. প্রযোজ্য নয় (ডে কেয়ার); UI falls back to প্রযোজ্য নয়.
+  naLabel: z.string().optional(),
 });
 
 const named = z.object({ key, name: z.string().min(1) });
