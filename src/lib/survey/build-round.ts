@@ -163,7 +163,7 @@ export function buildRound(
         areaKey: q.areaKey,
         required: opt(q.required),
         allowNA: opt(q.allowNA),
-        naLabel: q.allowNA ? opt(q.naLabel) : undefined,
+        naLabel: q.allowNA && q.naLabel ? q.naLabel : undefined,
       })),
     },
     areas: source.areas.filter((a) => usedAreas.has(a.key)).map((a) => ({ key: a.key, name: a.name, group: a.group })),
