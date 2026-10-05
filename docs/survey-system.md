@@ -30,7 +30,7 @@ Source Google Forms (content migrated below):
 
 1. Open the round link → intro (title, instructions, scale legend `১০ = সবচেয়ে ভালো, ৪ = সন্তোষজনক নয়`). Guardian intros keep the school's amanat line and add: `আপনার নাম ও উত্তর শুধু প্রিন্সিপাল ও অ্যাডমিন দেখবেন; শিক্ষক দেখবেন না।` G1 time estimate: ৮–১২ মিনিট.
 2. Identify (see per-survey).
-3. Answer — **one question per screen**, progress bar, previous/next.
+3. Answer — **one question per screen** (G1 by default one *subject* per screen, see §2.3), progress bar, previous/next.
 4. Review screen → submit.
 5. Receipt page (see §5).
 
@@ -64,24 +64,25 @@ Marks: ১০ / ৮ / ৬ / ৪ for every question. All required.
 - Then capture submitter **name, relation to student, mobile**.
 - Mobile matches the ERP guardian mobile → response marked **verified**; otherwise **unverified** (still accepted).
 
-**Answer:** one question per screen; under it, the **subjects of the child's class** (from Studio), each with `১০ ৮ ৬ ৪`. Same rating component as T1. One optional comment at the end. No teacher is stored — only class + subject.
+**Answer:** the questions are rated for each **subject of the child's class** (from Studio), each with `১০ ৮ ৬ ৪`. The layout is a template setting (decided 2026-10-05):
+- **One subject, all questions** (default, as in the school's Google Form): one subject per screen ("বিষয় ২/৫"), every question under it with its own mark track.
+- **One question, all subjects**: one question per screen, every subject under it.
+Same rating component as T1. One optional comment at the end. No teacher is stored — only class + subject.
+
+Questions as in the school's current Google Form (updated 2026-10-05; 10 questions, replacing the earlier 14):
 
 | # | Question | Hint | Area |
 |---|---|---|---|
-| ১ | ক্লাসের পড়া আপনার সন্তান বুঝতে পারে কি না? | | পাঠদানের কার্যকারিতা |
-| ২ | ক্লাসের পড়া ক্লাসে শেষ হয় কি না? | | পাঠদানের কার্যকারিতা |
-| ৩ | অতিরিক্ত হোমওয়ার্ক দেওয়া হয় কি না? | ১০ = পরিমাণ ঠিক আছে, ৪ = অনেক বেশি | মূল্যায়ন ও খাতা দেখা |
-| ৪ | ক্লাসে উত্তম আচরণ করা হয় কি না? | | আচরণ ও তারবিয়াহ |
-| ৫ | আপনার সন্তান শিক্ষককে পছন্দ করে কি না? | | আচরণ ও তারবিয়াহ |
-| ৬ | কুইজের সিলেবাস ঠিকঠাক রিভাইজ করা হয় কি না? | | মূল্যায়ন ও খাতা দেখা |
-| ৭ | ক্লাস ওয়ার্ক ঠিকঠাক চেক করা হয় কি না? | | মূল্যায়ন ও খাতা দেখা |
-| ৮ | হোমওয়ার্ক নিয়মিত চেক করা হয় কি না? | | মূল্যায়ন ও খাতা দেখা |
-| ৯ | পড়ানো লেসন আপনার সন্তান শিখেছে কি না? | | পাঠদানের কার্যকারিতা |
-| ১০ | অভিভাবকের সাথে শিক্ষক ভালোভাবে কোর্ডিনেট করে কি না? | | অভিভাবকের সাথে যোগাযোগ |
-| ১১ | পরীক্ষার খাতা ঠিকঠাক চেক করে বাসায় পাঠানো হয় কি না? | | মূল্যায়ন ও খাতা দেখা |
-| ১২ | শিক্ষার্থীর আদব আখলাক শৃংখলার ব্যাপারে শিক্ষক যত্নশীল কি না? | | আচরণ ও তারবিয়াহ |
-| ১৩ | আপনার সন্তানের কোনো সমস্যা বা দূর্বলতা থাকলে আপনাকে অবগত করা হয় কিনা? | | অভিভাবকের সাথে যোগাযোগ |
-| ১৪ | সার্বিকভাবে আপনি শিক্ষকের কাজে সন্তুষ্ট কি না? | | সার্বিক সন্তুষ্টি |
+| ১ | পড়ানো লেসন আপনার সন্তান শিখেছে কি না? | | পাঠদানের কার্যকারিতা |
+| ২ | ক্লাসে উত্তম আচরণ করা হয় কি না? | | আচরণ ও তারবিয়াহ |
+| ৩ | ক্লাস ওয়ার্ক ঠিকঠাক চেক করা হয় কি না? | | মূল্যায়ন ও খাতা দেখা |
+| ৪ | হোমওয়ার্ক নিয়মিত চেক করা হয় কি না? | | মূল্যায়ন ও খাতা দেখা |
+| ৫ | অতিরিক্ত হোমওয়ার্ক দেওয়া হয় কি না? | ১০ = পরিমাণ ঠিক আছে, ৪ = অনেক বেশি | মূল্যায়ন ও খাতা দেখা |
+| ৬ | কুইজের সিলেবাস রিভাইজ করা হয় কি না? | | মূল্যায়ন ও খাতা দেখা |
+| ৭ | পরীক্ষার খাতা ঠিকঠাক চেক করে বাসায় পাঠানো হয় কি না? | | মূল্যায়ন ও খাতা দেখা |
+| ৮ | আপনার সন্তানের কোনো সমস্যা বা দুর্বলতা থাকলে আপনাকে অবগত করা হয় কি না? | | অভিভাবকের সাথে যোগাযোগ |
+| ৯ | আপনার সন্তান শিক্ষককে পছন্দ করে কি না? | | আচরণ ও তারবিয়াহ |
+| ১০ | সার্বিকভাবে আপনি শিক্ষকের কাজে সন্তুষ্ট কি না? | | সার্বিক সন্তুষ্টি |
 
 Comment: `বিশেষ কোন পরামর্শ ও মন্তব্য` (optional).
 
@@ -125,7 +126,7 @@ Every question carries an **area** tag, so guardian and teacher views of a stude
 | আগ্রহ ও বাসার অভ্যাস | ৪, ৫, ৯ | — | guardian only |
 | অভিভাবকের সহযোগিতা | — | ৫, ৬ | teacher only |
 
-**Teaching-quality areas (G1)**: পাঠদানের কার্যকারিতা (১, ২, ৯) · মূল্যায়ন ও খাতা দেখা (৩, ৬, ৭, ৮, ১১) · আচরণ ও তারবিয়াহ (৪, ৫, ১২) · অভিভাবকের সাথে যোগাযোগ (১০, ১৩) · সার্বিক সন্তুষ্টি (১৪).
+**Teaching-quality areas (G1)**: পাঠদানের কার্যকারিতা (১) · মূল্যায়ন ও খাতা দেখা (৩–৭) · আচরণ ও তারবিয়াহ (২, ৯) · অভিভাবকের সাথে যোগাযোগ (৮) · সার্বিক সন্তুষ্টি (১০). Two areas rest on one question each; reports show per-question n.
 
 ## 4. Rounds, links, responses
 
@@ -135,7 +136,7 @@ Every question carries an **area** tag, so guardian and teacher views of a stude
 - **Keys are immutable:** class, section, subject, teacher, question and area `key`s are read-only in Studio after creation, so stored responses never orphan. Responses also store the display names alongside keys.
 - **Changing marks or scale** = new template version; an open round is never affected.
 - **Link:** `/survey/{slug}?k={linkKey}` — unguessable key, `noindex`, expiry checked server-side on load and on submit (submit allows a 10-minute grace after close for someone already on the review screen).
-- **Round closing with drafts:** drafts are kept, listed in the tracker, and can be submitted if the admin extends the round; they never count in reports.
+- **Round closing with drafts:** drafts are kept, listed in the tracker, and can be submitted if the admin extends the round; they never count in reports. (T1 only: guardian answers stay on the guardian's phone until submit, so guardian rounds have no server drafts.)
 - **Submissions and history:** a *submission* is one guardian form (G1/G2) or one teacher class-batch (T1), identified by `submission_id`. Submitted rows are immutable. Reopening clones the current submission into a draft; submitting the draft supersedes the previous submission in one transaction (`superseded_by`). The current response is unique per (partial unique index on `status = 'submitted' AND superseded_by IS NULL`):
   - G1, G2: round + student
   - T1: round + teacher + subject + student
@@ -207,7 +208,7 @@ Trends appear from the second round. Every table exports to Excel; every page pr
 
 ## 8. Security & privacy
 
-"Not too secure" by design, but: unguessable link keys, `noindex`, server-side expiry, rate limiting on identity lookup (per IP **and** per looked-up value; T1 teacher-ID lookup 60 per 10 min per IP, sized for a staff meeting on the school's one IP) and on submit, lookups logged, lookup returns only child name + class (never other guardian data), no phone numbers on any public page, admin routes behind Basic Auth. Drafts record IP / user agent / last-edited time, shown in the tracker. Respondents' mobile numbers are stored for verification and follow-up only.
+"Not too secure" by design, but: unguessable link keys, `noindex`, server-side expiry, rate limiting on identity lookup (per IP **and** per looked-up value; T1 teacher-ID lookup 60 per 10 min per IP, sized for a staff meeting on the school's one IP) and on submit, lookups logged, lookup returns only child name + class (never other guardian data), no phone numbers on any public page, admin routes behind Basic Auth. T1 drafts record IP / user agent / last-edited time, shown in the tracker. Respondents' mobile numbers are stored for verification and follow-up only.
 
 ## 9. Build phases
 
@@ -219,7 +220,7 @@ Mockups (survey screens, then reports) precede each phase's build. Current mocku
 
 ## 9a. UX states (from design review, 2026-10-04)
 
-Designed in the mockups and required in the build: lookup not found (in this class) with *change class* / *search by ID* actions and office contact; lookup loading and rate-limited; siblings/twins on one number; unverified explanation; relation *অন্যান্য* with free text; autosave chip (saved / saving / offline) and offline banner; review blocks submit while marks are missing and links to each gap; submit pending (double-tap guard), failed, duplicate re-check at submit, round closed during review (10-minute grace, then drafts kept); link not yet open / invalid; teacher name missing from list. Rating screens keep the question and hint pinned while scrolling; mark buttons are a radio group (≥ 48 px tall); review cells are tappable to edit in place. Reports use marks (/১০) as the primary unit and the 0–100 score only in guardian↔teacher comparisons; trend axes start at the scale floor; heatmap cells show n; aggregates with n < 3 are greyed; first-round state hides trends and comparison. Guardian reminders are one message per guardian (never a group list).
+Designed in the mockups and required in the build: lookup not found (in this class) with *change class* / *search by ID* actions and office contact; lookup loading and rate-limited; siblings/twins on one number; unverified explanation; relation *অন্যান্য* with free text; autosave chip (saved / saving / offline; guardians: `এই ফোনে সংরক্ষিত`) and offline banner; guardian "already submitted for this child" warning before starting, date only (newest submission counts); review blocks submit while marks are missing and links to each gap; submit pending (double-tap guard), failed, duplicate re-check at submit, round closed during review (10-minute grace, then drafts kept); link not yet open / invalid; teacher name missing from list. Rating screens keep the question and hint pinned while scrolling; mark buttons are a radio group (≥ 48 px tall); review cells are tappable to edit in place. Reports use marks (/১০) as the primary unit and the 0–100 score only in guardian↔teacher comparisons; trend axes start at the scale floor; heatmap cells show n; aggregates with n < 3 are greyed; first-round state hides trends and comparison. Guardian reminders are one message per guardian (never a group list).
 
 ## 10. Implementation notes
 
@@ -236,3 +237,5 @@ Designed in the mockups and required in the build: lookup not found (in this cla
 2. **Guardian lookup** — class first, then student ID or mobile (see §2.3).
 3. **N/A in T1** — no; all T1 questions use ১০/৮/৬/৪ only.
 4. **ERP format** — taken from the ERP student list (see §6 ERP import). The exact export file's headers are confirmed on first import via the dry-run preview.
+5. **Guardian links (2026-10-05)** — G1 and G2 stay separate rounds with separate links, shared separately. G1 defaults to "one subject, all questions"; questions follow the school's current Google Forms (G1 updated to 10 questions; G2 unchanged).
+6. **Guardian resubmission and drafts (2026-10-05)** — the newest submission for a child counts (earlier kept, superseded, no duplicate flag), with a warning before starting when one exists; guardian answers stay on the phone until submit; tracker and reminders are per round.
