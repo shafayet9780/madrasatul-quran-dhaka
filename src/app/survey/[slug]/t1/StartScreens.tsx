@@ -1,11 +1,11 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { ChipRadioGroup, Icon, Progress, Topbar } from '@/components/survey/ui';
 import { batchLabel, bn, nameInitial, sectionDisplay } from '@/lib/survey/labels';
 import type { OverviewItem } from '@/lib/survey/t1-types';
 import { OfficeContact } from '../StatusScreens';
-import { sizeKey, type T1Config } from './types';
+import { sizeKey, type T1Config, type Teacher } from './types';
 
 const shortDate = new Intl.DateTimeFormat('bn-BD', { timeZone: 'Asia/Dhaka', day: 'numeric', month: 'short' });
 
@@ -74,69 +74,141 @@ export function IntroScreen({ config, onStart }: { config: T1Config; onStart: ()
   );
 }
 
+export type LookupResult = { ok: true; teacher: Teacher } | { ok: false; reason: 'not-found' | 'rate-limited' | 'closed' | 'network' };
+
+const LOOKUP_ERRORS: Record<Exclude<LookupResult, { ok: true }>['reason'], string> = {
+  'not-found': 'এই আইডির কোনো শিক্ষক তালিকায় নেই। আইডি কার্ড দেখে আবার লিখুন।',
+  'rate-limited': 'অনেকবার চেষ্টা হয়েছে। কয়েক মিনিট পরে আবার চেষ্টা করুন।',
+  closed: 'এই রাউন্ড এখন বন্ধ।',
+  network: 'ইন্টারনেট সংযোগ নেই। সংযোগ দেখে আবার চেষ্টা করুন।',
+};
+
+/** The teacher types the ERP ID from their ID card and confirms the name it belongs to. */
 export function TeacherScreen({
-  config,
-  selected,
-  onSelect,
+  remembered,
+  lookup,
+  onConfirm,
   onBack,
-  onNext,
-  onMissing,
+  onHelp,
 }: {
-  config: T1Config;
-  selected?: string;
-  onSelect: (key: string) => void;
+  /** The teacher who last confirmed on this device: they only confirm again. */
+  remembered: Teacher | null;
+  lookup: (id: string) => Promise<LookupResult>;
+  onConfirm: (teacher: Teacher) => void;
   onBack: () => void;
-  onNext: () => void;
-  onMissing: () => void;
+  onHelp: () => void;
 }) {
-  const [query, setQuery] = useState('');
-  const teachers = useMemo(() => {
-    const q = query.trim();
-    return q ? config.snapshot.teachers.filter((t) => t.name.includes(q)) : config.snapshot.teachers;
-  }, [config.snapshot.teachers, query]);
+  const [found, setFound] = useState<Teacher | null>(remembered);
+  const [id, setId] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function find() {
+    setBusy(true);
+    setError(null);
+    const result = await lookup(id);
+    setBusy(false);
+    if (result.ok) setFound(result.teacher);
+    else setError(LOOKUP_ERRORS[result.reason]);
+  }
+
+  if (found) {
+    return (
+      <main className="sv-screen">
+        <Progress total={2} done={(i) => i === 0} />
+        <Topbar label="শুরু · ধাপ ১/২" onBack={onBack} />
+        <div style={{ padding: '10px 20px 0' }}>
+          <h1 className="sv-head sv-h1" style={{ lineHeight: 1.4 }}>
+            আপনি কি এই শিক্ষক?
+          </h1>
+        </div>
+        <div style={{ padding: '18px 16px 12px' }}>
+          <div className="sv-option" style={{ borderColor: 'var(--sv-bronze)', background: 'var(--sv-tint)', cursor: 'default' }}>
+            <span className="sv-avatar" aria-hidden="true" style={{ background: '#fff' }}>
+              {nameInitial(found.name)}
+            </span>
+            <span className="flex flex-col" style={{ flex: 1, lineHeight: 1.45 }}>
+              <span style={{ fontSize: 17, fontWeight: 600 }}>{found.name}</span>
+              <span style={{ fontSize: 14, color: 'var(--sv-text-muted)' }}>আইডি {bn(found.key)}</span>
+            </span>
+          </div>
+        </div>
+        <div className="sv-footer">
+          <button
+            type="button"
+            className="sv-tertiary"
+            onClick={() => {
+              setFound(null);
+              setId('');
+            }}
+          >
+            না, অন্য আইডি লিখুন
+          </button>
+          <button type="button" className="sv-cta" onClick={() => onConfirm(found)}>
+            হ্যাঁ, পরবর্তী ধাপ
+          </button>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="sv-screen">
       <Progress total={2} done={(i) => i === 0} />
       <Topbar label="শুরু · ধাপ ১/২" onBack={onBack} />
-      <div style={{ padding: '10px 20px 0' }}>
-        <h1 className="sv-head sv-h1" style={{ lineHeight: 1.4 }}>
-          আপনার নাম বাছাই করুন
-        </h1>
-      </div>
-      <div style={{ padding: '14px 16px 6px' }}>
-        <label htmlFor="teacher-search" className="sv-visually-hidden">
-          শিক্ষকের নাম খুঁজুন
-        </label>
-        <div className="sv-search">
-          {Icon.search()}
-          <input id="teacher-search" value={query} onChange={(e) => setQuery(e.target.value)} placeholder="নাম লিখে খুঁজুন" autoComplete="off" />
-        </div>
-      </div>
-      <div className="flex flex-col gap-2" style={{ padding: '8px 16px 12px' }}>
-        {teachers.map((t) => (
-          <button key={t.key} type="button" className="sv-option" aria-pressed={selected === t.key} onClick={() => onSelect(t.key)}>
-            <span className="sv-avatar" aria-hidden="true">
-              {nameInitial(t.name)}
-            </span>
-            <span style={{ flex: 1, fontSize: 16, fontWeight: 500 }}>{t.name}</span>
-            {selected === t.key && Icon.checkCircle()}
-          </button>
-        ))}
-        {!teachers.length && (
-          <p className="sv-muted" style={{ margin: '12px 4px', fontSize: 15 }}>
-            “{query}” নামে কেউ নেই। বানান দেখে নিন, অথবা নিচের লিংকে চাপুন।
+      <form
+        className="contents"
+        onSubmit={(event) => {
+          event.preventDefault();
+          if (id.trim() && !busy) void find();
+        }}
+      >
+        <div className="flex flex-col gap-1.5" style={{ padding: '10px 20px 0' }}>
+          <h1 className="sv-head sv-h1" style={{ lineHeight: 1.4 }}>
+            আপনার আইডি লিখুন
+          </h1>
+          <p id="teacher-id-hint" style={{ margin: 0, fontSize: 15, color: 'var(--sv-text-muted)', lineHeight: 1.55 }}>
+            আইডি কার্ডে লেখা ERP আইডি, যেমন ২০০৯৯
           </p>
-        )}
-      </div>
-      <div className="sv-footer">
-        <button type="button" className="sv-tertiary" onClick={onMissing}>
-          আমার নাম তালিকায় নেই
-        </button>
-        <button type="button" className="sv-cta" disabled={!selected} onClick={onNext}>
-          পরবর্তী ধাপ
-        </button>
-      </div>
+        </div>
+        <div className="flex flex-col gap-2.5" style={{ padding: '18px 16px 12px' }}>
+          <label htmlFor="teacher-id" className="sv-visually-hidden">
+            শিক্ষকের আইডি
+          </label>
+          <div className="sv-search">
+            <input
+              id="teacher-id"
+              value={id}
+              onChange={(e) => {
+                setId(e.target.value);
+                setError(null);
+              }}
+              inputMode="numeric"
+              autoComplete="off"
+              enterKeyHint="go"
+              maxLength={20}
+              aria-invalid={error ? true : undefined}
+              aria-describedby={error ? 'teacher-id-error teacher-id-hint' : 'teacher-id-hint'}
+              style={{ fontSize: 20, letterSpacing: 1 }}
+            />
+          </div>
+          <div aria-live="polite">
+            {error && (
+              <p id="teacher-id-error" style={{ margin: 0, fontSize: 15, lineHeight: 1.55, color: 'var(--sv-warn)' }}>
+                {error}
+              </p>
+            )}
+          </div>
+        </div>
+        <div className="sv-footer">
+          <button type="button" className="sv-tertiary" onClick={onHelp}>
+            আইডি মিলছে না?
+          </button>
+          <button type="submit" className="sv-cta" disabled={!id.trim() || busy} aria-busy={busy || undefined}>
+            {busy ? 'খোঁজা হচ্ছে…' : 'পরবর্তী ধাপ'}
+          </button>
+        </div>
+      </form>
     </main>
   );
 }
@@ -144,18 +216,18 @@ export function TeacherScreen({
 export function MissingNameScreen({ config, onBack }: { config: T1Config; onBack: () => void }) {
   return (
     <main className="sv-screen">
-      <Topbar label="শিক্ষকের নাম" onBack={onBack} />
+      <Topbar label="শিক্ষকের আইডি" onBack={onBack} />
       <div className="flex flex-col gap-4" style={{ padding: '24px 20px' }}>
         <div className="sv-card">
           <h1 className="sv-head" style={{ margin: 0, fontSize: 21, lineHeight: 1.45 }}>
-            আপনার নাম যোগ করতে অ্যাডমিনকে জানান
+            আইডি মিলছে না?
           </h1>
           <p style={{ margin: 0, fontSize: 15, color: 'var(--sv-text-muted)', lineHeight: 1.6 }}>
-            অ্যাডমিন নাম যোগ করে তালিকা হালনাগাদ করলে এই একই লিংকে আপনার নাম দেখা যাবে।
+            আইডি কার্ডে লেখা ERP আইডিটি লিখুন। তবুও না মিললে অফিসে জানান; অ্যাডমিন আপনাকে তালিকায় যোগ করলে এই একই লিংকে কাজ করবে।
           </p>
           <OfficeContact phone={config.officePhone} />
           <button type="button" className="sv-secondary" onClick={onBack}>
-            তালিকায় ফিরে যান
+            আইডি লিখতে ফিরে যান
           </button>
         </div>
       </div>
@@ -165,7 +237,7 @@ export function MissingNameScreen({ config, onBack }: { config: T1Config; onBack
 
 export function ClassScreen({
   config,
-  teacherKey,
+  teacherName,
   overview,
   initial,
   onBack,
@@ -174,7 +246,7 @@ export function ClassScreen({
   error,
 }: {
   config: T1Config;
-  teacherKey: string;
+  teacherName: string;
   overview: OverviewItem[] | null;
   initial: { classKey?: string; sectionKey?: string; subjectKey?: string };
   onBack: () => void;
@@ -183,7 +255,6 @@ export function ClassScreen({
   error: string | null;
 }) {
   const { snapshot } = config;
-  const teacher = snapshot.teachers.find((t) => t.key === teacherKey);
   const [classKey, setClassKey] = useState(initial.classKey);
   const [sectionKey, setSectionKey] = useState(initial.sectionKey);
   const [subjectKey, setSubjectKey] = useState(initial.subjectKey);
@@ -208,7 +279,7 @@ export function ClassScreen({
       <div className="flex flex-col gap-1" style={{ padding: '8px 20px 0' }}>
         <div style={{ fontSize: 14, color: 'var(--sv-text-muted)' }}>আসসালামু আলাইকুম,</div>
         <h1 className="sv-head" style={{ margin: 0, fontSize: 24, lineHeight: 1.4 }}>
-          {teacher?.name}
+          {teacherName}
         </h1>
       </div>
 

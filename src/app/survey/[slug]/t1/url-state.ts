@@ -7,7 +7,6 @@ const STEPS: Step[] = ['intro', 'teacher', 'missing-name', 'class', 'rate', 'rev
 export function stateToSearch(state: FlowState, linkKey: string): string {
   const params = new URLSearchParams({ k: linkKey });
   if (state.step !== 'intro') params.set('step', state.step);
-  if (state.teacherKey) params.set('t', state.teacherKey);
   if (state.classKey) params.set('c', state.classKey);
   if (state.sectionKey) params.set('s', state.sectionKey);
   if (state.subjectKey) params.set('sub', state.subjectKey);
@@ -20,7 +19,6 @@ export function searchToState(search: URLSearchParams | Record<string, string | 
   const step = STEPS.includes(get('step') as Step) ? (get('step') as Step) : 'intro';
   return {
     step,
-    teacherKey: get('t'),
     classKey: get('c'),
     sectionKey: get('s'),
     subjectKey: get('sub'),

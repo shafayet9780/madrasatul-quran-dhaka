@@ -45,7 +45,8 @@ export default async function SurveyPage({ params, searchParams }: Props) {
     label: round.label,
     closesAt: round.closesAt.toISOString(),
     graceMs: SUBMIT_GRACE_MS,
-    snapshot: round.snapshot,
+    // The teacher list stays on the server: teachers start by typing their ERP ID.
+    snapshot: { template: round.snapshot.template, areas: round.snapshot.areas, classes: round.snapshot.classes },
     classSizes: Object.fromEntries(sizes.map((s) => [sizeKey(s.classKey, s.sectionKey), s.n])),
     officePhone,
   };

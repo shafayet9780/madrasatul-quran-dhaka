@@ -8,8 +8,17 @@ import type { T1Config } from './types';
 const dayMonth = new Intl.DateTimeFormat('bn-BD', { timeZone: 'Asia/Dhaka', day: 'numeric', month: 'long' });
 
 /** Desktop header bar (T1-Rate-Desktop / T1-Review-Desktop). */
-export function DeskHeader({ config, batchKey, saveState }: { config: T1Config; batchKey: BatchKeyInput; saveState?: SaveState }) {
-  const teacher = config.snapshot.teachers.find((t) => t.key === batchKey.teacherKey);
+export function DeskHeader({
+  config,
+  teacherName,
+  batchKey,
+  saveState,
+}: {
+  config: T1Config;
+  teacherName: string;
+  batchKey: BatchKeyInput;
+  saveState?: SaveState;
+}) {
   return (
     <header className="sv-desk-header">
       <div>
@@ -26,7 +35,7 @@ export function DeskHeader({ config, batchKey, saveState }: { config: T1Config; 
         </div>
         <div className="flex flex-wrap items-center gap-4" style={{ marginLeft: 'auto', fontSize: 14 }}>
           <span style={{ fontWeight: 600 }}>{batchLabel(config.snapshot, batchKey)}</span>
-          <span style={{ color: 'var(--sv-text-muted)' }}>{teacher?.name}</span>
+          <span style={{ color: 'var(--sv-text-muted)' }}>{teacherName}</span>
           {saveState && (
             <span aria-live="polite">
               <SaveChip state={saveState} />

@@ -29,7 +29,7 @@ beforeAll(async () => {
     .returning();
   roundId = round.id;
   await db.insert(students).values([{ erpId: `${run}-1`, name: 'ZAINAB AKTER', classKey: 'mirror-class', sectionKey: '', roll: 1 }]);
-  const key = { teacherKey: 'ustad-abdullah', classKey: 'mirror-class', sectionKey: '', subjectKey: 'quran' };
+  const key = { teacherKey: '90001', classKey: 'mirror-class', sectionKey: '', subjectKey: 'quran' };
   const answers = Object.fromEntries(snapshot.template.questions.map((q) => [q.key, 8]));
   await saveDraft(round, key, [{ studentErpId: `${run}-1`, answers }], meta);
   const result = await submitBatch(round, key, [], meta);

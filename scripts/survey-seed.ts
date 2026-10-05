@@ -4,10 +4,16 @@
  *
  *   pnpm exec tsx scripts/survey-seed.ts              # create missing documents only
  *   pnpm exec tsx scripts/survey-seed.ts --overwrite  # replace seeded documents (only before any round opens)
+ *   pnpm exec tsx scripts/survey-seed.ts --teachers ~/Downloads/teachers_list.xlsx
+ *                                                     # also create survey teachers from the ERP teacher export
+ *
+ * Teachers come from the export, not from this file: the repository is public and the ERP ID starts a survey.
  */
 import { createClient } from '@sanity/client';
 import { config } from 'dotenv';
+import ExcelJS from 'exceljs';
 import { resolve } from 'node:path';
+import { normaliseTeacherId, titleCase } from '../src/lib/survey/normalise';
 
 config({ path: resolve(process.cwd(), '.env.local') });
 const {
@@ -19,6 +25,8 @@ if (!projectId || !dataset || !token) throw new Error('Sanity project, dataset, 
 
 const client = createClient({ projectId, dataset, token, apiVersion: '2024-01-01', useCdn: false });
 const overwrite = process.argv.includes('--overwrite');
+const teachersFile = process.argv.includes('--teachers') ? process.argv[process.argv.indexOf('--teachers') + 1] : undefined;
+if (process.argv.includes('--teachers') && (!teachersFile || teachersFile.startsWith('--'))) throw new Error('--teachers needs the path of the ERP teacher export.');
 
 const AREAS: [key: string, name: string, group: 'student' | 'teaching'][] = [
   ['attendance', 'উপস্থিতি', 'student'],
@@ -50,27 +58,50 @@ const AB: Section[] = [
   ['a', 'A', ['Section A']],
   ['b', 'B', ['Section B']],
 ];
-// ERP section labels for the boys/girls sections are confirmed on the first import dry run.
 const BOYS_GIRLS: Section[] = [
-  ['male', 'বালক', []],
-  ['female', 'বালিকা', []],
+  ['male', 'বালক', ['Male']],
+  ['female', 'বালিকা', ['Female']],
 ];
 
-// Subjects per class: [key, Bengali name]. Filled in when the school sends the list.
+// Subjects per class: [key, Bengali name]. In Play one teacher teaches everything, so it is rated once.
+const PLAY: [string, string][] = [['all', 'সব বিষয়']];
+const PRIMARY: [string, string][] = [
+  ['arabic', 'আরবি'],
+  ['islam', 'ইসলাম শিক্ষা'],
+  ['bangla', 'বাংলা'],
+  ['english', 'ইংরেজি'],
+  ['math', 'গণিত'],
+];
+const SIX: [string, string][] = [...PRIMARY, ['science', 'বিজ্ঞান'], ['bgs', 'বাংলাদেশ ও বিশ্বপরিচয়']];
+
 const CLASSES: { key: string; name: string; erp: string; sections: Section[]; subjects: [string, string][] }[] = [
-  { key: 'play', name: 'প্লে', erp: 'Play', sections: [], subjects: [] },
-  { key: 'nursery', name: 'নার্সারি', erp: 'Nursery', sections: AB, subjects: [] },
-  { key: 'kg', name: 'কেজি', erp: 'KG', sections: AB, subjects: [] },
-  { key: 'one', name: 'প্রথম', erp: 'One', sections: [], subjects: [] },
-  { key: 'two', name: 'দ্বিতীয়', erp: 'Two', sections: BOYS_GIRLS, subjects: [] },
-  { key: 'three', name: 'তৃতীয়', erp: 'Three', sections: BOYS_GIRLS, subjects: [] },
-  { key: 'four', name: 'চতুর্থ', erp: 'Four', sections: [], subjects: [] },
-  { key: 'five', name: 'পঞ্চম', erp: 'Five', sections: [], subjects: [] },
-  { key: 'six', name: 'ষষ্ঠ', erp: 'Six', sections: [], subjects: [] },
+  { key: 'play', name: 'প্লে', erp: 'Play', sections: [], subjects: PLAY },
+  { key: 'nursery', name: 'নার্সারি', erp: 'Nursery', sections: AB, subjects: PRIMARY },
+  { key: 'kg', name: 'কেজি', erp: 'KG', sections: AB, subjects: PRIMARY },
+  { key: 'one', name: 'প্রথম', erp: 'One', sections: [], subjects: PRIMARY },
+  { key: 'two', name: 'দ্বিতীয়', erp: 'Two', sections: BOYS_GIRLS, subjects: PRIMARY },
+  { key: 'three', name: 'তৃতীয়', erp: 'Three', sections: BOYS_GIRLS, subjects: PRIMARY },
+  { key: 'four', name: 'চতুর্থ', erp: 'Four', sections: [], subjects: PRIMARY },
+  { key: 'five', name: 'পঞ্চম', erp: 'Five', sections: [], subjects: PRIMARY },
+  { key: 'six', name: 'ষষ্ঠ', erp: 'Six', sections: [], subjects: SIX },
 ];
 
-// Survey teachers: [key, Bengali name, ERP id]. Filled in when the school sends the list.
-const TEACHERS: [key: string, name: string, erpId?: string][] = [];
+/** Survey teachers from the ERP export (columns ID, Name, Name (Bangla)): [ERP ID, display name]. */
+async function readTeachers(file: string): Promise<[erpId: string, name: string][]> {
+  const workbook = new ExcelJS.Workbook();
+  await workbook.xlsx.readFile(file);
+  const sheet = workbook.worksheets[0];
+  const rows: string[][] = [];
+  sheet.eachRow((row) => rows.push((row.values as unknown[]).slice(1).map((v) => (v == null ? '' : String(v).trim()))));
+  const headerIndex = rows.findIndex((r) => r.some((c) => c.toLowerCase() === 'id') && r.some((c) => c.toLowerCase() === 'name'));
+  if (headerIndex === -1) throw new Error('No ID / Name header in the teacher export.');
+  const header = rows[headerIndex].map((c) => c.toLowerCase());
+  const [id, en, bn] = ['id', 'name', 'name (bangla)'].map((title) => header.indexOf(title));
+  return rows
+    .slice(headerIndex + 1)
+    .map((r): [string, string] => [normaliseTeacherId(r[id] ?? ''), (bn >= 0 && r[bn]) || titleCase(r[en] ?? '')])
+    .filter(([erpId, name]) => erpId && name);
+}
 
 const areaId = (key: string) => `survey-area-${key}`;
 
@@ -107,29 +138,44 @@ const documents: { _id: string; _type: string; [field: string]: unknown }[] = [
     sections: c.sections.map(([key, name, erpSectionNames]) => ({ _key: key, _type: 'surveySection', key, name, erpSectionNames })),
     subjects: c.subjects.map(([key, name]) => ({ _key: key, _type: 'surveySubject', key, name })),
   })),
-  ...TEACHERS.map(([key, name, erpId]) => ({
-    _id: `survey-teacher-${key}`,
-    _type: 'surveyTeacher',
-    key,
-    name,
-    ...(erpId ? { erpId } : {}),
-    active: true,
-  })),
 ];
 
 async function main() {
+  const TEACHERS = teachersFile ? await readTeachers(resolve(teachersFile.replace(/^~/, process.env.HOME ?? '~'))) : [];
+  documents.push(...TEACHERS.map(([erpId, name]) => ({ _id: `survey-teacher-${erpId}`, _type: 'surveyTeacher', key: erpId, name, active: true })));
   const existing = new Set<string>(await client.fetch('*[_id in $ids]._id', { ids: documents.map((d) => d._id) }));
   const tx = client.transaction();
   for (const doc of documents) {
-    if (overwrite) tx.createOrReplace(doc);
+    // Teachers are only ever added: the admin edits their names and Active flag in the Studio.
+    if (overwrite && doc._type !== 'surveyTeacher') tx.createOrReplace(doc);
     else if (!existing.has(doc._id)) tx.create(doc);
   }
-  const written = overwrite ? documents.length : documents.filter((d) => !existing.has(d._id)).length;
+  const written = documents.filter((d) => (overwrite && d._type !== 'surveyTeacher') || !existing.has(d._id)).length;
   if (written) await tx.commit();
   // Fields added after the first seed: fill them on existing documents without overwriting edits.
   if (!overwrite && existing.has('survey-template-t1-v1')) {
     const missing = Object.fromEntries(T1_QUESTIONS.map(([key, , shortLabel]) => [`questions[_key=="${key}"].shortLabel`, shortLabel]));
     await client.patch('survey-template-t1-v1').setIfMissing(missing).commit();
+  }
+  // Classes seeded before the school sent its lists: fill empty subject lists and ERP section names.
+  if (!overwrite) {
+    const seeded = await client.fetch<{ _id: string; subjects?: unknown[]; sections?: { _key: string; erpSectionNames?: string[] }[] }[]>(
+      '*[_type == "surveyClass" && _id in $ids]{ _id, subjects, sections[]{ _key, erpSectionNames } }',
+      { ids: CLASSES.map((c) => `survey-class-${c.key}`) }
+    );
+    for (const doc of seeded) {
+      const seed = documents.find((d) => d._id === doc._id) as unknown as { subjects: unknown[]; sections: { _key: string; erpSectionNames: string[] }[] };
+      const set: Record<string, unknown> = {};
+      if (!doc.subjects?.length && seed.subjects.length) set.subjects = seed.subjects;
+      for (const section of doc.sections ?? []) {
+        const names = seed.sections.find((s) => s._key === section._key)?.erpSectionNames ?? [];
+        if (!section.erpSectionNames?.length && names.length) set[`sections[_key=="${section._key}"].erpSectionNames`] = names;
+      }
+      if (Object.keys(set).length) {
+        await client.patch(doc._id).set(set).commit();
+        console.log(`Filled ${Object.keys(set).join(', ')} on ${doc._id}.`);
+      }
+    }
   }
   console.log(
     `${overwrite ? 'Replaced' : 'Created'} ${written} documents; ${overwrite ? 0 : existing.size} already existed. ` +
@@ -137,7 +183,7 @@ async function main() {
   );
   const missingSubjects = CLASSES.filter((c) => c.subjects.length === 0).length;
   if (missingSubjects) console.log(`Note: ${missingSubjects} classes have no subjects yet.`);
-  if (!TEACHERS.length) console.log('Note: no survey teachers yet.');
+  if (!TEACHERS.length) console.log('Note: no teachers created (pass --teachers <ERP teacher export .xlsx>).');
 }
 
 main().catch((error) => {

@@ -125,15 +125,19 @@ Each milestone ends with its checks passing and a commit.
 - Rate limits, `noindex`, error/404 pages, Neon cold-start warm-up, performance budget on a mid-range phone, final `/code-review`, docs update (spec + this plan marked done), admin how-to in `docs/`.
 **Check:** `pnpm lint`, `pnpm test`, `pnpm test:e2e`, `pnpm build` all green; Lighthouse accessibility ≥ 95 on survey pages.
 
+### After handover (2026-10-05)
+- Teachers start by typing their ERP ID instead of picking a name: new `POST /api/survey/[roundId]/teacher` lookup (rate limit `lookup`), the survey page no longer sends the teacher list, the teacher lives on the device (not the URL). Survey teacher key = ERP ID in Studio.
+- The ERP export puts an invisible U+200C before every phone number; `normaliseMobile` / `normaliseStudentId` now strip format characters (without this every mobile imported blank).
+
 ## 5. Needed from the owner
 
 | Item | Needed by |
 |---|---|
 | Neon + Vercel setup (guided) | M0 |
 | New Google Sheet shared with the service account | M0 |
-| Teacher list (names; ERP id if any) | M1 |
-| Subjects per class (and which classes have sections) | M1 |
-| A real ERP export file | M4 |
+| Teacher list (names; ERP id if any) | M1 — received 2026-10-05 (28 teachers, loaded with `survey-seed.ts --teachers`) |
+| Subjects per class (and which classes have sections) | M1 — received 2026-10-05 |
+| A real ERP export file | M4 — received 2026-10-05; dry run maps every class and section (148 students) |
 
 ## 6. Out of scope for this phase
 

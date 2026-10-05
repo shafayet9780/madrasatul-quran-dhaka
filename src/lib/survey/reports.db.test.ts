@@ -42,9 +42,9 @@ beforeAll(async () => {
     .returning();
   await db.insert(students).values([1, 2, 3, 4].map((n) => ({ erpId: id(n), name: `STUDENT ${n}`, classKey: CLASS, sectionKey: '', roll: n })));
   // September: everyone 10. October: student 1 drops and gets ৪ from two teachers.
-  await rate(sept, 'ustad-abdullah', 'quran', { [id(1)]: 10, [id(2)]: 10, [id(3)]: 10, [id(4)]: 10 });
-  await rate(oct, 'ustad-abdullah', 'quran', { [id(1)]: 4, [id(2)]: 10, [id(3)]: 8, [id(4)]: 8 }, 'খুব অমনোযোগী');
-  await rate(oct, 'ustad-hamza', 'math', { [id(1)]: 4, [id(2)]: 6, [id(3)]: 6, [id(4)]: 6 });
+  await rate(sept, '90001', 'quran', { [id(1)]: 10, [id(2)]: 10, [id(3)]: 10, [id(4)]: 10 });
+  await rate(oct, '90001', 'quran', { [id(1)]: 4, [id(2)]: 10, [id(3)]: 8, [id(4)]: 8 }, 'খুব অমনোযোগী');
+  await rate(oct, '90002', 'math', { [id(1)]: 4, [id(2)]: 6, [id(3)]: 6, [id(4)]: 6 });
 });
 
 afterAll(async () => {
@@ -97,8 +97,8 @@ describe('studentReport', () => {
 describe('raterReport', () => {
   it('shows distribution and leniency against colleagues on the same students', async () => {
     const rows = await raterReport(oct);
-    const abdullah = rows.find((r) => r.teacherKey === 'ustad-abdullah')!;
-    const hamza = rows.find((r) => r.teacherKey === 'ustad-hamza')!;
+    const abdullah = rows.find((r) => r.teacherKey === '90001')!;
+    const hamza = rows.find((r) => r.teacherKey === '90002')!;
     expect(abdullah).toMatchObject({ batches: 1, students: 4, mean: 7.5 });
     expect(abdullah.distribution.find((d) => d.mark === 8)!.count).toBe(14);
     // Quran is 2 marks kinder than Maths on the same students on average: (0 + 4 + 2 + 2) / 4.

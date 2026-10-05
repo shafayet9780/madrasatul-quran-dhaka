@@ -33,11 +33,11 @@ beforeAll(async () => {
     .values({ sanityRoundId: run, kind: 'T1', slug: run, label: 'পরীক্ষা', snapshot, opensAt: new Date(Date.now() - hour), closesAt: new Date(Date.now() + hour), linkKey: 'k' })
     .returning();
   await getDb().insert(students).values([{ erpId: `${run}-1`, name: 'Zainab', classKey: 'tracker-class', sectionKey: '', roll: 1 }]);
-  await submitAs('ustad-abdullah');
-  await submitAs('ustad-hamza');
-  await submitAs('ustad-abdullah', 'arabic');
-  await submitAs('ustad-hamza', 'arabic');
-  await saveDraft(round, { teacherKey: 'ustad-yusuf', classKey: 'tracker-class', sectionKey: '', subjectKey: 'math' }, [{ studentErpId: `${run}-1`, answers: { attendance: 10 } }], meta);
+  await submitAs('90001');
+  await submitAs('90002');
+  await submitAs('90001', 'arabic');
+  await submitAs('90002', 'arabic');
+  await saveDraft(round, { teacherKey: '90005', classKey: 'tracker-class', sectionKey: '', subjectKey: 'math' }, [{ studentErpId: `${run}-1`, answers: { attendance: 10 } }], meta);
 });
 
 afterAll(async () => {
@@ -76,9 +76,9 @@ describe('tracker', () => {
   });
 
   it('keeps both resolved when one of the teachers edits later', async () => {
-    await saveDraft(round, { teacherKey: 'ustad-abdullah', classKey: 'tracker-class', sectionKey: '', subjectKey: 'arabic' }, [{ studentErpId: `${run}-1`, answers: { attendance: 6 } }], meta);
+    await saveDraft(round, { teacherKey: '90001', classKey: 'tracker-class', sectionKey: '', subjectKey: 'arabic' }, [{ studentErpId: `${run}-1`, answers: { attendance: 6 } }], meta);
     // No acknowledgement needed and no new duplicate flag.
-    const result = await submitBatch(round, { teacherKey: 'ustad-abdullah', classKey: 'tracker-class', sectionKey: '', subjectKey: 'arabic' }, [], meta);
+    const result = await submitBatch(round, { teacherKey: '90001', classKey: 'tracker-class', sectionKey: '', subjectKey: 'arabic' }, [], meta);
     expect(result.ok).toBe(true);
     const after = await loadTracker(round.id);
     expect(after!.duplicates.map((d) => d.title)).toEqual(['পরীক্ষা · কুরআন']);
@@ -94,7 +94,7 @@ describe('tracker', () => {
     const after = await loadTracker(round.id);
     expect(after!.duplicates).toEqual([]);
     // The set-aside teacher reopening the class starts from their own marks.
-    const reopened = await loadBatch(round, { teacherKey: 'ustad-hamza', classKey: 'tracker-class', sectionKey: '', subjectKey: 'quran' });
+    const reopened = await loadBatch(round, { teacherKey: '90002', classKey: 'tracker-class', sectionKey: '', subjectKey: 'quran' });
     expect(reopened).toMatchObject({ status: 'new' });
     expect(Object.keys(reopened!.answers[`${run}-1`])).toHaveLength(round.snapshot.template.questions.length);
     expect(after!.coverage.rows.find((r) => r.classKey === 'tracker-class')!.cells[0].state).toBe('done');
@@ -102,8 +102,8 @@ describe('tracker', () => {
     const [kept] = await getDb().select().from(submissions).where(eq(submissions.id, keep.id));
     expect(kept).toMatchObject({ duplicateFlag: false, mirroredAt: null });
 
-    const dropped = await loadReceipt(tokens['ustad-hamza:quran']);
+    const dropped = await loadReceipt(tokens['90002:quran']);
     expect(dropped).toMatchObject({ setAside: true, replacedBy: null });
-    expect(await loadReceipt(tokens['ustad-abdullah:quran'])).toMatchObject({ setAside: false });
+    expect(await loadReceipt(tokens['90001:quran'])).toMatchObject({ setAside: false });
   });
 });

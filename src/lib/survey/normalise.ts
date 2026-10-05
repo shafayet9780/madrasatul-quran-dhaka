@@ -8,10 +8,16 @@ export function toBengaliDigits(input: string | number): string {
   return String(input).replace(/[0-9]/g, (d) => BENGALI_DIGITS[Number(d)]);
 }
 
-/** Student ID as typed: Bengali digits converted, spaces and dashes stripped. */
+// Invisible format characters (e.g. U+200C, which the ERP puts before every phone number).
+const FORMAT_CHARS = /\p{Cf}/gu;
+
+/** Student ID as typed: Bengali digits converted, spaces, dashes and invisible characters stripped. */
 export function normaliseStudentId(input: string): string {
-  return toAsciiDigits(input).replace(/[\s-]/g, '');
+  return toAsciiDigits(input).replace(FORMAT_CHARS, '').replace(/[\s-]/g, '');
 }
+
+/** A teacher's ERP ID as typed: same rules as a student ID. */
+export const normaliseTeacherId = normaliseStudentId;
 
 /**
  * Bangladeshi mobile in canonical form `8801XXXXXXXXX`, or null when invalid.
@@ -19,7 +25,7 @@ export function normaliseStudentId(input: string): string {
  */
 export function normaliseMobile(input: string | null | undefined): string | null {
   if (!input) return null;
-  const digits = toAsciiDigits(input).replace(/[\s\-()]/g, '').replace(/^\+/, '');
+  const digits = toAsciiDigits(input).replace(FORMAT_CHARS, '').replace(/[\s\-()]/g, '').replace(/^\+/, '');
   if (/^01[3-9]\d{8}$/.test(digits)) return `88${digits}`;
   if (/^8801[3-9]\d{8}$/.test(digits)) return digits;
   return null;

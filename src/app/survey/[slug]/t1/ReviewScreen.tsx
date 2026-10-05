@@ -31,6 +31,7 @@ function useGraceMinutes(closesAt: string, graceMs: number) {
 
 export function ReviewScreen({
   config,
+  teacherName,
   batchKey,
   students,
   answers,
@@ -45,6 +46,7 @@ export function ReviewScreen({
   onSubmit,
 }: {
   config: T1Config;
+  teacherName: string;
   batchKey: BatchKeyInput;
   students: RosterStudent[];
   answers: Record<string, Record<string, number>>;
@@ -176,7 +178,7 @@ export function ReviewScreen({
   if (missing.length) {
     return (
       <div className="sv-frame">
-        {desktop && <DeskHeader config={config} batchKey={batchKey} saveState={saveState} />}
+        {desktop && <DeskHeader config={config} teacherName={teacherName} batchKey={batchKey} saveState={saveState} />}
         <main className="sv-screen" style={{ minHeight: 0, flex: 1, width: '100%' }}>
           <Topbar label="শেষ ধাপ · দেখে নিয়ে জমা" onBack={onBack} backLabel="প্রশ্নে ফিরুন" />
           <div className="flex flex-col gap-2" style={{ padding: '6px 20px 0' }}>
@@ -235,7 +237,7 @@ export function ReviewScreen({
 
   return (
     <div className="sv-frame">
-      {desktop && <DeskHeader config={config} batchKey={batchKey} saveState={saveState} />}
+      {desktop && <DeskHeader config={config} teacherName={teacherName} batchKey={batchKey} saveState={saveState} />}
 
       {/* Phone (T1-Review) */}
       {!desktop && (

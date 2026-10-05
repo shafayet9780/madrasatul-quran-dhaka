@@ -30,6 +30,9 @@ export const submitRequestSchema = batchKeySchema.extend({
   acknowledgedDuplicates: z.array(z.uuid()).max(20).default([]),
 });
 export const overviewRequestSchema = z.object({ teacherKey: key });
+/** The ERP ID as the teacher typed it; the route normalises it. */
+export const teacherLookupSchema = z.object({ teacherId: z.string().max(40) });
+export type TeacherIdentity = { key: string; name: string };
 
 export type RosterStudent = { erpId: string; name: string; roll: number | null };
 

@@ -15,7 +15,7 @@ import { POST } from './route';
 const ROUND_ID = '6f1d2a8e-3b4c-4d5e-8f90-1a2b3c4d5e6f';
 const hour = 60 * 60 * 1000;
 const openRound = () => ({ id: ROUND_ID, linkKey: 'secret-key', opensAt: new Date(Date.now() - hour), closesAt: new Date(Date.now() + hour) });
-const body = { teacherKey: 'ustad-abdullah', classKey: 'nursery', sectionKey: 'a', subjectKey: 'quran', rows: [{ studentErpId: 's1', answers: { attendance: 10 } }] };
+const body = { teacherKey: '90001', classKey: 'nursery', sectionKey: 'a', subjectKey: 'quran', rows: [{ studentErpId: 's1', answers: { attendance: 10 } }] };
 
 function request(key: string | null, payload: unknown = body) {
   return new NextRequest(`https://school.test/api/survey/${ROUND_ID}/draft`, {
@@ -60,7 +60,7 @@ describe('survey draft route', () => {
     expect(response.headers.get('cache-control')).toBe('no-store');
     expect(saveDraft).toHaveBeenCalledWith(
       expect.objectContaining({ id: ROUND_ID }),
-      { teacherKey: 'ustad-abdullah', classKey: 'nursery', sectionKey: 'a', subjectKey: 'quran' },
+      { teacherKey: '90001', classKey: 'nursery', sectionKey: 'a', subjectKey: 'quran' },
       body.rows,
       expect.objectContaining({ userAgent: null })
     );

@@ -38,7 +38,7 @@ Closed or expired link → friendly "এই জরিপটি বন্ধ হ�
 
 ### 2.2 T1 — teacher rates students
 
-**Identify:** pick own name (teacher list) → class → section (step skipped when the class has none) → subject (subjects of that class). Students of that class-section load.
+**Identify:** type own ERP ID (printed on the staff ID card; Bengali digits accepted) → confirm the name it belongs to (`আপনি কি এই শিক্ষক?`) → class → section (step skipped when the class has none) → subject (subjects of that class). Students of that class-section load. The round's teacher list never reaches the browser: the server looks the ID up (rate-limited). The device remembers the confirmed teacher per round, so a return visit only asks for confirmation; the teacher is never in the URL, so a copied link does not carry their identity. Play has a single subject `সব বিষয়` (one teacher teaches everything there).
 
 **Answer:** one question per screen; every student listed (roll + name) with `১০ ৮ ৬ ৪` tap targets. Each tap autosaves (draft) so a teacher can stop and resume on any device. Optional **note per student** (note icon beside the name). Final review grid (students × questions) → submit.
 
@@ -85,7 +85,7 @@ Marks: ১০ / ৮ / ৬ / ৪ for every question. All required.
 
 Comment: `বিশেষ কোন পরামর্শ ও মন্তব্য` (optional).
 
-Subjects in the current form (to be configured per class in Studio): কুরআন, আরবি, ইসলাম শিক্ষা, বাংলা, ইংরেজি, গণিত, বিজ্ঞান, ইসলামের ইতিহাস.
+Subjects (configured per class in Studio): Play `সব বিষয়` only; Nursery–Five আরবি, ইসলাম শিক্ষা, বাংলা, ইংরেজি, গণিত; Six adds বিজ্ঞান and বাংলাদেশ ও বিশ্বপরিচয়.
 
 ### 2.4 G2 — guardian rates own child
 
@@ -207,7 +207,7 @@ Trends appear from the second round. Every table exports to Excel; every page pr
 
 ## 8. Security & privacy
 
-"Not too secure" by design, but: unguessable link keys, `noindex`, server-side expiry, rate limiting on identity lookup (per IP **and** per looked-up value) and on submit, lookups logged, lookup returns only child name + class (never other guardian data), no phone numbers on any public page, admin routes behind Basic Auth. Drafts record IP / user agent / last-edited time, shown in the tracker. Respondents' mobile numbers are stored for verification and follow-up only.
+"Not too secure" by design, but: unguessable link keys, `noindex`, server-side expiry, rate limiting on identity lookup (per IP **and** per looked-up value; T1 teacher-ID lookup 60 per 10 min per IP, sized for a staff meeting on the school's one IP) and on submit, lookups logged, lookup returns only child name + class (never other guardian data), no phone numbers on any public page, admin routes behind Basic Auth. Drafts record IP / user agent / last-edited time, shown in the tracker. Respondents' mobile numbers are stored for verification and follow-up only.
 
 ## 9. Build phases
 
@@ -232,7 +232,7 @@ Designed in the mockups and required in the build: lookup not found (in this cla
 
 ## 11. Resolved review questions (2026-10-04)
 
-1. **Teacher PIN** — not in this version; keep it simple (teachers pick their name).
+1. **Teacher PIN** — not in this version. Teachers type their ERP ID instead of picking a name (decided 2026-10-05): every teacher has one on their ID card and colleagues rarely know each other's. It is not a secret (IDs are sequential), so it stops mistaken or casual use of a colleague's name, not a determined colleague; per-teacher links would be the next step if that ever matters.
 2. **Guardian lookup** — class first, then student ID or mobile (see §2.3).
 3. **N/A in T1** — no; all T1 questions use ১০/৮/৬/৪ only.
 4. **ERP format** — taken from the ERP student list (see §6 ERP import). The exact export file's headers are confirmed on first import via the dry-run preview.

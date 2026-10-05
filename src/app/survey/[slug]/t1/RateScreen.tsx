@@ -9,6 +9,7 @@ import type { T1Config } from './types';
 
 export function RateScreen({
   config,
+  teacherName,
   batchKey,
   students,
   answers,
@@ -22,6 +23,7 @@ export function RateScreen({
   onMark,
 }: {
   config: T1Config;
+  teacherName: string;
   batchKey: BatchKeyInput;
   students: RosterStudent[];
   answers: Record<string, Record<string, number>>;
@@ -60,7 +62,7 @@ export function RateScreen({
       <span id="question-text" className="sv-visually-hidden">
         {question.text}
       </span>
-      {desktop && <DeskHeader config={config} batchKey={batchKey} saveState={saveState} />}
+      {desktop && <DeskHeader config={config} teacherName={teacherName} batchKey={batchKey} saveState={saveState} />}
 
       {!desktop && (
       <div className="sv-rate-head">

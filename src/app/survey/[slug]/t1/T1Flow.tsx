@@ -7,13 +7,23 @@ import type { BatchKeyInput, BatchState, DuplicateBatch, OverviewItem, SubmitRes
 import { createApi } from './api';
 import { RateScreen } from './RateScreen';
 import { DuplicateSheet, ReviewScreen, type SubmitOutcome } from './ReviewScreen';
-import { ClassScreen, IntroScreen, MissingNameScreen, TeacherScreen } from './StartScreens';
-import type { FlowState, T1Config } from './types';
+import { ClassScreen, IntroScreen, MissingNameScreen, TeacherScreen, type LookupResult } from './StartScreens';
+import type { FlowState, T1Config, Teacher } from './types';
 import { searchToState, stateToSearch } from './url-state';
 import { batchId, useBatch } from './useBatch';
 
 const ackKey = (roundId: string, id: string) => `sv-t1-ack:${roundId}:${id}`;
 const teacherKeyStore = (roundId: string) => `sv-t1-teacher:${roundId}`;
+
+/** The teacher who last confirmed their ID on this device for this round. */
+function readTeacher(roundId: string): Teacher | null {
+  try {
+    const saved = JSON.parse(localStorage.getItem(teacherKeyStore(roundId)) ?? 'null');
+    return typeof saved?.key === 'string' && typeof saved?.name === 'string' ? { key: saved.key, name: saved.name } : null;
+  } catch {
+    return null;
+  }
+}
 
 function readAck(roundId: string, id: string): string[] {
   try {
@@ -31,30 +41,29 @@ export function T1Flow({ config, initial }: { config: T1Config; initial: FlowSta
   // Ignore URL values that are not in this round.
   const sanitize = useCallback(
     (state: FlowState): FlowState => {
-      const teacherOk = snapshot.teachers.some((t) => t.key === state.teacherKey);
       const cls = snapshot.classes.find((c) => c.key === state.classKey);
       const batchOk =
-        teacherOk &&
         cls &&
         (cls.sections.length ? cls.sections.some((s) => s.key === state.sectionKey) : !state.sectionKey) &&
         cls.subjects.some((s) => s.key === state.subjectKey);
-      if ((state.step === 'rate' || state.step === 'review') && !batchOk) return { ...state, step: teacherOk ? 'class' : 'teacher' };
-      if (state.step === 'class' && !teacherOk) return { ...state, step: 'teacher' };
+      if ((state.step === 'rate' || state.step === 'review') && !batchOk) return { ...state, step: 'class' };
       return { ...state, q: Math.min(state.q, snapshot.template.questions.length - 1) };
     },
     [snapshot]
   );
 
   const [state, setState] = useState<FlowState>(() => sanitize(initial));
-  const [teacherChoice, setTeacherChoice] = useState<string | undefined>(state.teacherKey);
+  /** Read from the device after mounting: undefined until then, null when nobody has confirmed here. */
+  const [teacher, setTeacher] = useState<Teacher | null | undefined>(undefined);
+  const needsTeacher = state.step === 'class' || state.step === 'rate' || state.step === 'review';
   const [overview, setOverview] = useState<OverviewItem[] | null>(null);
   const [opening, setOpening] = useState(false);
   const [openError, setOpenError] = useState<string | null>(null);
   const [pendingDuplicate, setPendingDuplicate] = useState<{ key: BatchKeyInput; duplicates: DuplicateBatch[] } | null>(null);
 
   const batchKey: BatchKeyInput | null =
-    (state.step === 'rate' || state.step === 'review') && state.teacherKey && state.classKey && state.subjectKey
-      ? { teacherKey: state.teacherKey, classKey: state.classKey, sectionKey: state.sectionKey ?? '', subjectKey: state.subjectKey }
+    (state.step === 'rate' || state.step === 'review') && teacher && state.classKey && state.subjectKey
+      ? { teacherKey: teacher.key, classKey: state.classKey, sectionKey: state.sectionKey ?? '', subjectKey: state.subjectKey }
       : null;
   const session = useBatch(api, config.roundId, batchKey);
 
@@ -75,16 +84,31 @@ export function T1Flow({ config, initial }: { config: T1Config; initial: FlowSta
     return () => window.removeEventListener('popstate', onPop);
   }, [sanitize]);
 
-  // Remember the teacher on this device so the list opens with their name selected.
+  useEffect(() => setTeacher(readTeacher(config.roundId)), [config.roundId]);
+
+  // Class, rating and review belong to a teacher: without one on this device, ask for the ID first.
   useEffect(() => {
-    if (teacherChoice) return;
+    if (teacher === null && needsTeacher) go({ ...state, step: 'teacher' }, true);
+  }, [teacher, needsTeacher, state, go]);
+
+  const forgetTeacher = useCallback(() => {
     try {
-      const saved = localStorage.getItem(teacherKeyStore(config.roundId));
-      if (saved && snapshot.teachers.some((t) => t.key === saved)) setTeacherChoice(saved);
+      localStorage.removeItem(teacherKeyStore(config.roundId));
     } catch {
       // Storage unavailable.
     }
-  }, [config.roundId, snapshot.teachers, teacherChoice]);
+    setTeacher(null);
+  }, [config.roundId]);
+
+  async function lookup(id: string): Promise<LookupResult> {
+    try {
+      const response = await api.post<Teacher>('teacher', { teacherId: id });
+      if (response.status === 200) return { ok: true, teacher: { key: response.data.key, name: response.data.name } };
+      return { ok: false, reason: response.status === 404 ? 'not-found' : response.status === 429 ? 'rate-limited' : response.status === 403 ? 'closed' : 'network' };
+    } catch {
+      return { ok: false, reason: 'network' };
+    }
+  }
 
   const loadOverview = useCallback(
     async (teacherKey: string) => {
@@ -92,16 +116,18 @@ export function T1Flow({ config, initial }: { config: T1Config; initial: FlowSta
       try {
         const response = await api.post<{ items: OverviewItem[] }>('overview', { teacherKey });
         if (response.status === 200) setOverview(response.data.items);
+        // The admin removed this teacher from the round's list: ask for the ID again.
+        else if (response.status === 400) forgetTeacher();
       } catch {
         setOverview([]);
       }
     },
-    [api]
+    [api, forgetTeacher]
   );
 
   useEffect(() => {
-    if (state.step === 'class' && state.teacherKey) void loadOverview(state.teacherKey);
-  }, [state.step, state.teacherKey, loadOverview]);
+    if (state.step === 'class' && teacher) void loadOverview(teacher.key);
+  }, [state.step, teacher, loadOverview]);
 
   async function openBatch(key: BatchKeyInput, skipDuplicateCheck = false) {
     setOpening(true);
@@ -121,7 +147,7 @@ export function T1Flow({ config, initial }: { config: T1Config; initial: FlowSta
       }
       const { questions, scale } = snapshot.template;
       const firstGap = questions.findIndex((q) => batch.students.some((s) => !scale.includes(batch.answers[s.erpId]?.[q.key])));
-      const base = { ...state, ...key, teacherKey: key.teacherKey };
+      const base = { ...state, classKey: key.classKey, sectionKey: key.sectionKey, subjectKey: key.subjectKey };
       if (batch.status === 'submitted' || (batch.status === 'draft' && firstGap === -1)) go({ ...base, step: 'review', q: 0 });
       else go({ ...base, step: 'rate', q: Math.max(0, firstGap) });
     } catch {
@@ -167,41 +193,49 @@ export function T1Flow({ config, initial }: { config: T1Config; initial: FlowSta
   if (state.step === 'intro') {
     return <IntroScreen config={config} onStart={() => go({ ...state, step: 'teacher' })} />;
   }
-  if (state.step === 'teacher') {
+  if (state.step === 'missing-name') {
+    return <MissingNameScreen config={config} onBack={() => go({ ...state, step: 'teacher' })} />;
+  }
+  if (teacher === undefined || (needsTeacher && !teacher)) {
+    return (
+      <main className="sv-screen" style={{ alignItems: 'center', justifyContent: 'center' }} aria-busy="true">
+        <p className="sv-muted">লোড হচ্ছে…</p>
+      </main>
+    );
+  }
+  if (state.step === 'teacher' || !teacher) {
     return (
       <TeacherScreen
-        config={config}
-        selected={teacherChoice}
-        onSelect={setTeacherChoice}
+        key={teacher?.key}
+        remembered={teacher}
+        lookup={lookup}
         onBack={() => go({ ...state, step: 'intro' })}
-        onMissing={() => go({ ...state, step: 'missing-name' })}
-        onNext={() => {
+        onHelp={() => go({ ...state, step: 'missing-name' })}
+        onConfirm={(confirmed) => {
           try {
-            localStorage.setItem(teacherKeyStore(config.roundId), teacherChoice!);
+            localStorage.setItem(teacherKeyStore(config.roundId), JSON.stringify(confirmed));
           } catch {
             // Storage unavailable.
           }
-          go({ step: 'class', teacherKey: teacherChoice, q: 0 });
+          setTeacher(confirmed);
+          go({ ...state, step: 'class', q: 0 });
         }}
       />
     );
-  }
-  if (state.step === 'missing-name') {
-    return <MissingNameScreen config={config} onBack={() => go({ ...state, step: 'teacher' })} />;
   }
   if (state.step === 'class') {
     return (
       <>
         <ClassScreen
-          key={state.teacherKey}
+          key={teacher.key}
           config={config}
-          teacherKey={state.teacherKey!}
+          teacherName={teacher.name}
           overview={overview}
           initial={state}
           busy={opening}
           error={openError}
           onBack={() => go({ ...state, step: 'teacher' })}
-          onStart={(key) => void openBatch({ ...key, teacherKey: state.teacherKey! })}
+          onStart={(key) => void openBatch({ ...key, teacherKey: teacher.key })}
         />
         {pendingDuplicate && (
           <DuplicateSheet
@@ -225,7 +259,7 @@ export function T1Flow({ config, initial }: { config: T1Config; initial: FlowSta
   }
 
   // rate / review
-  const toClass = () => go({ step: 'class', teacherKey: state.teacherKey, classKey: state.classKey, sectionKey: state.sectionKey, subjectKey: state.subjectKey, q: 0 });
+  const toClass = () => go({ step: 'class', classKey: state.classKey, sectionKey: state.sectionKey, subjectKey: state.subjectKey, q: 0 });
   if (session.loadError) {
     return (
       <main className="sv-screen" style={{ padding: 20, gap: 16, justifyContent: 'center' }}>
@@ -256,6 +290,7 @@ export function T1Flow({ config, initial }: { config: T1Config; initial: FlowSta
     return (
       <RateScreen
         config={config}
+        teacherName={teacher.name}
         batchKey={batchKey}
         students={students}
         answers={session.answers}
@@ -273,6 +308,7 @@ export function T1Flow({ config, initial }: { config: T1Config; initial: FlowSta
   return (
     <ReviewScreen
       config={config}
+      teacherName={teacher.name}
       batchKey={batchKey}
       students={students}
       answers={session.answers}

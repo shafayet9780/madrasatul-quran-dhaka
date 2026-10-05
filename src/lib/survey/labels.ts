@@ -9,7 +9,7 @@ export function sectionDisplay(name: string): string {
 type Key = { classKey: string; sectionKey: string; subjectKey?: string };
 
 /** "নার্সারি · শাখা A · কুরআন" (long) or "নার্সারি A · কুরআন" (short). */
-export function batchLabel(snapshot: RoundSnapshot, key: Key, form: 'long' | 'short' = 'long'): string {
+export function batchLabel(snapshot: Pick<RoundSnapshot, 'classes'>, key: Key, form: 'long' | 'short' = 'long'): string {
   const cls = snapshot.classes.find((c) => c.key === key.classKey);
   if (!cls) return key.classKey;
   const section = cls.sections.find((s) => s.key === key.sectionKey);

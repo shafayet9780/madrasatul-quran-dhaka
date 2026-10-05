@@ -17,7 +17,7 @@ let closedRound: Round;
 const ids = { s1: `${run}-s1`, s2: `${run}-s2`, s3: `${run}-s3` };
 // A class of its own, so dev fixture students never mix into these rosters.
 const CLASS = 'test-class';
-const keyA = { teacherKey: 'ustad-abdullah', classKey: CLASS, sectionKey: 'a', subjectKey: 'quran' };
+const keyA = { teacherKey: '90001', classKey: CLASS, sectionKey: 'a', subjectKey: 'quran' };
 
 function testSnapshot() {
   const snapshot = t1FixtureSnapshot();
@@ -25,7 +25,7 @@ function testSnapshot() {
   snapshot.classes.push({ ...nursery, key: CLASS, name: 'পরীক্ষা শ্রেণি' });
   return snapshot;
 }
-const keyB = { ...keyA, teacherKey: 'ustad-hamza' };
+const keyB = { ...keyA, teacherKey: '90002' };
 
 async function insertRound(suffix: string, opensAt: Date, closesAt: Date) {
   const [row] = await getDb()
@@ -158,7 +158,7 @@ describe('T1 draft and submit', () => {
       .select({ teacherKey: submissions.teacherKey, duplicateFlag: submissions.duplicateFlag })
       .from(submissions)
       .where(and(eq(submissions.roundId, round.id), eq(submissions.status, 'submitted')));
-    expect(flagged.filter((s) => s.duplicateFlag).map((s) => s.teacherKey).sort()).toEqual(['ustad-abdullah', 'ustad-hamza']);
+    expect(flagged.filter((s) => s.duplicateFlag).map((s) => s.teacherKey).sort()).toEqual(['90001', '90002']);
   });
 
   it('handles a student who moved section mid-round', async () => {
@@ -170,12 +170,12 @@ describe('T1 draft and submit', () => {
     const current = await getDb()
       .select({ submissionId: responses.submissionId })
       .from(responses)
-      .where(and(eq(responses.roundId, round.id), eq(responses.teacherKey, 'ustad-abdullah'), eq(responses.studentErpId, ids.s3), eq(responses.isCurrent, true)));
+      .where(and(eq(responses.roundId, round.id), eq(responses.teacherKey, '90001'), eq(responses.studentErpId, ids.s3), eq(responses.isCurrent, true)));
     expect(current).toHaveLength(1);
     const items = await getDb()
       .select()
       .from(answerItems)
-      .where(and(eq(answerItems.roundId, round.id), eq(answerItems.teacherKey, 'ustad-abdullah'), eq(answerItems.studentErpId, ids.s3)));
+      .where(and(eq(answerItems.roundId, round.id), eq(answerItems.teacherKey, '90001'), eq(answerItems.studentErpId, ids.s3)));
     expect(items.every((i) => i.sectionKey === 'b' && i.mark === 6)).toBe(true);
     expect(items).toHaveLength(QUESTIONS.length);
   });
@@ -203,7 +203,7 @@ describe('T1 draft and submit', () => {
 
   it('summarises the teacher’s batches for the class picker', async () => {
     await saveDraft(round, { ...keyA, subjectKey: 'arabic' }, [{ studentErpId: ids.s1, answers: full(10) }], meta);
-    const overview = await teacherOverview(round, 'ustad-abdullah');
+    const overview = await teacherOverview(round, '90001');
     expect(overview.find((o) => o.subjectKey === 'arabic')).toMatchObject({ status: 'draft', done: 1, total: 2 });
     // The student who moved to section B no longer counts towards section A.
     expect(overview.find((o) => o.subjectKey === 'quran' && o.sectionKey === 'a')).toMatchObject({ status: 'submitted', done: 2, total: 2 });

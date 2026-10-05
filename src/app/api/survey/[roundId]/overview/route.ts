@@ -6,7 +6,8 @@ import { overviewRequestSchema } from '@/lib/survey/t1-types';
 export async function POST(request: NextRequest, { params }: { params: Promise<{ roundId: string }> }) {
   const limited = await rateLimited(request, 'read');
   if (limited) return limited;
-  const { round, response } = await authorizeRound(request, (await params).roundId, { allowGrace: false });
+  // Read-only, so allowed in the grace period: a receipt's edit link lands on the class step.
+  const { round, response } = await authorizeRound(request, (await params).roundId);
   if (response) return response;
   const body = await readBody(request, overviewRequestSchema);
   if (!body || !round.snapshot.teachers.some((t) => t.key === body.teacherKey)) return json({ reason: 'invalid' }, 400);

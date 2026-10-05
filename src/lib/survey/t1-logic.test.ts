@@ -3,7 +3,7 @@ import { findMissing, resolveBatch, t1AnswerItems, validRowAnswers } from './t1-
 import { t1FixtureSnapshot } from './testing/t1-fixture';
 
 const snapshot = t1FixtureSnapshot(new Date('2026-10-04T00:00:00Z'));
-const key = { teacherKey: 'ustad-abdullah', classKey: 'nursery', sectionKey: 'a', subjectKey: 'quran' };
+const key = { teacherKey: '90001', classKey: 'nursery', sectionKey: 'a', subjectKey: 'quran' };
 
 describe('resolveBatch', () => {
   it('returns display names for a valid key', () => {

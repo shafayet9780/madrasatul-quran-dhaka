@@ -68,12 +68,13 @@ export function t1FixtureSnapshot(takenAt = new Date()): RoundSnapshot {
       sections: sections as { key: string; name: string }[],
       subjects: SUBJECTS,
     })),
+    // Keys are ERP IDs, as in the Studio.
     teachers: [
-      ['ustad-abdullah', 'উস্তাদ আব্দুল্লাহ'],
-      ['ustad-hamza', 'উস্তাদ হামযা'],
-      ['ustaza-maryam', 'উস্তাযা মারইয়াম'],
-      ['ustaza-sumaiya', 'উস্তাযা সুমাইয়া'],
-      ['ustad-yusuf', 'উস্তাদ ইউসুফ'],
+      ['90001', 'উস্তাদ আব্দুল্লাহ'],
+      ['90002', 'উস্তাদ হামযা'],
+      ['90003', 'উস্তাযা মারইয়াম'],
+      ['90004', 'উস্তাযা সুমাইয়া'],
+      ['90005', 'উস্তাদ ইউসুফ'],
     ].map(([key, name]) => ({ key, name })),
   };
 }

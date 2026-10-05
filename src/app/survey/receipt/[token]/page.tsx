@@ -24,8 +24,9 @@ export default async function ReceiptPage({ params }: { params: Promise<{ token:
   const label = batchLabel(round.snapshot, key);
   const access = surveyAccess(round);
   const canEdit = !replacedBy && !setAside && (access === 'open' || access === 'grace');
-  const surveyBase = `/survey/${round.slug}?k=${encodeURIComponent(round.linkKey)}&t=${submission.teacherKey}`;
-  const editHref = `${surveyBase}&step=review&c=${key.classKey}${key.sectionKey ? `&s=${key.sectionKey}` : ''}&sub=${key.subjectKey}`;
+  const surveyBase = `/survey/${round.slug}?k=${encodeURIComponent(round.linkKey)}`;
+  // Through the class step, so a shared device shows whose name it will edit under before opening the batch.
+  const editHref = `${surveyBase}&step=class&c=${key.classKey}${key.sectionKey ? `&s=${key.sectionKey}` : ''}&sub=${key.subjectKey}`;
   const noted = rows.filter((r) => r.note);
 
   return (

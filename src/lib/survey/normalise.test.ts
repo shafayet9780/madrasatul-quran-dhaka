@@ -9,6 +9,7 @@ describe('digits', () => {
   });
   it('normalises a typed student ID', () => {
     expect(normaliseStudentId(' ২০২৪-০০ ১৫ ')).toBe('20240015');
+    expect(normaliseStudentId('\u200c90001')).toBe('90001');
   });
 });
 
@@ -16,6 +17,8 @@ describe('normaliseMobile', () => {
   it.each([
     ['01712345678', '8801712345678'],
     ['8801712345678', '8801712345678'],
+    // The ERP export puts a zero-width non-joiner before every number.
+    ['\u200c+8801712345678', '8801712345678'],
     ['+8801712345678', '8801712345678'],
     ['+880 1712-345678', '8801712345678'],
     ['০১৯১২৩৪৫৬৭৮', '8801912345678'],

@@ -26,6 +26,8 @@ const MINUTE = 60 * 1000;
  */
 export const SURVEY_LIMITS = {
   read: { limit: 600, windowMs: 10 * MINUTE },
+  // Typing an ERP ID. The school shares one IP, so this allows a staff meeting, not guessing at speed.
+  lookup: { limit: 60, windowMs: 10 * MINUTE },
   draft: { limit: 3000, windowMs: 10 * MINUTE },
   submit: { limit: 120, windowMs: 10 * MINUTE },
 } as const;

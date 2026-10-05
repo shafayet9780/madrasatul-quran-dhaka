@@ -98,7 +98,7 @@ async function main() {
   const old = rounds.find((r) => r.sanityRoundId === 'fixture-t1-closed')!;
   const marks = [10, 8, 10, 6, 10, 8, 4, 10, 8, 10, 6, 8];
   const answersFor = (i: number) => Object.fromEntries(snapshot.template.questions.map((q, n) => [q.key, marks[(i * 7 + n * 5 + (i % 3)) % marks.length]]));
-  const teacher = 'ustad-abdullah';
+  const teacher = '90001';
   for (const sectionKey of ['a', 'b']) {
     const key = { teacherKey: teacher, classKey: 'nursery', sectionKey, subjectKey: 'quran' };
     const roster = rows.filter((s) => s.classKey === 'nursery' && s.sectionKey === sectionKey);
@@ -108,7 +108,7 @@ async function main() {
   }
   // A second teacher also submits Nursery B Quran: a duplicate for the tracker to resolve.
   const nurseryB = rows.filter((s) => s.classKey === 'nursery' && s.sectionKey === 'b');
-  const dupKey = { teacherKey: 'ustaza-sumaiya', classKey: 'nursery', sectionKey: 'b', subjectKey: 'quran' };
+  const dupKey = { teacherKey: '90004', classKey: 'nursery', sectionKey: 'b', subjectKey: 'quran' };
   await saveDraft(open, dupKey, nurseryB.map((s, i) => ({ studentErpId: s.erpId, answers: answersFor(i + 3) })), meta);
   const others = await db.select({ id: submissions.id }).from(submissions).where(and(eq(submissions.roundId, open.id), eq(submissions.status, 'submitted')));
   const dup = await submitBatch(open, dupKey, others.map((o) => o.id), meta);
@@ -123,7 +123,7 @@ async function main() {
   await db.update(surveyRounds).set({ opensAt: new Date(now - 40 * DAY), closesAt: new Date(now - 20 * DAY) }).where(eq(surveyRounds.id, old.id));
 
   const kg = rows.filter((s) => s.classKey === 'kg');
-  await saveDraft(open, { teacherKey: 'ustad-hamza', classKey: 'kg', sectionKey: 'a', subjectKey: 'arabic' }, kg.slice(0, 3).map((s, i) => ({ studentErpId: s.erpId, answers: answersFor(i) })), meta);
+  await saveDraft(open, { teacherKey: '90002', classKey: 'kg', sectionKey: 'a', subjectKey: 'arabic' }, kg.slice(0, 3).map((s, i) => ({ studentErpId: s.erpId, answers: answersFor(i) })), meta);
 
   console.log(`Loaded fixtures: ${rows.length} students, 2 rounds, 3 submitted batches (one duplicate), 1 draft. Open link: ${FIXTURE_LINK}`);
 }
