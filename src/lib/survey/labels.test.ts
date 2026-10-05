@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { batchLabel, nameInitial, sectionDisplay } from './labels';
+import { batchLabel, displayMobile, nameInitial, sectionDisplay } from './labels';
 import { t1FixtureSnapshot } from './testing/t1-fixture';
 
 const snapshot = t1FixtureSnapshot();
@@ -19,5 +19,14 @@ describe('labels', () => {
     expect(nameInitial('উস্তাযা সুমাইয়া আক্তার')).toBe('স');
     expect(nameInitial('মো. সাইফুল ইসলাম')).toBe('স');
     expect(nameInitial('নুসরাত জাহান')).toBe('ন');
+  });
+});
+
+describe('displayMobile', () => {
+  it('shows Bangladeshi numbers locally and foreign ones with their code', () => {
+    expect(displayMobile('8801915000111')).toBe('০১৯১৫-০০০১১১');
+    expect(displayMobile('8801915000111', false)).toBe('01915-000111');
+    expect(displayMobile('447911123456', false)).toBe('+447911123456');
+    expect(displayMobile(null)).toBe('');
   });
 });

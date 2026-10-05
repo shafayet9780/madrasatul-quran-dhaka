@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useEffect, useState, useTransition } from 'react';
 import { formatDateTime } from '@/lib/survey/dates';
 import { resolveDuplicateAction } from './actions';
 
@@ -74,11 +74,15 @@ export function DuplicateResolver({
 /** Copies one guardian's reminder (never a group list); the admin sends it on WhatsApp. */
 export function CopyReminder({ text, child }: { text: string; child: string }) {
   const [copied, setCopied] = useState(false);
+  useEffect(() => {
+    if (!copied) return;
+    const timer = setTimeout(() => setCopied(false), 2000);
+    return () => clearTimeout(timer);
+  }, [copied]);
   async function copy() {
     try {
       await navigator.clipboard.writeText(text);
       setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
     } catch {
       window.prompt('বার্তাটি কপি করুন', text);
     }

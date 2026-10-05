@@ -18,6 +18,8 @@ export async function GuardianTracker({ roundId, rounds, place, now }: { roundId
   if (!data) return null;
   const { round, places, done, total, verified, unverified, multiple } = data;
   const status = roundStatus(round, now);
+  // A closed round's link no longer works: no reminders (extend the round on the rounds page first).
+  const closed = status === 'closed';
   const daysLeft = Math.ceil((round.closesAt.getTime() - now.getTime()) / DAY);
   const when =
     status === 'open' ? `বন্ধ হতে ${bn(daysLeft)} দিন বাকি` : status === 'scheduled' ? `খুলবে ${formatDateTime(round.opensAt)}` : `বন্ধ হয়েছে ${formatDateTime(round.closesAt)}`;
@@ -124,7 +126,9 @@ export async function GuardianTracker({ roundId, rounds, place, now }: { roundId
                 {chosen.label} · এখনো জমা হয়নি ({bn(chosen.pending.length)})
               </h2>
               <div style={{ fontSize: 13.5, color: 'var(--sv-text-muted)' }}>
-                প্রত্যেক অভিভাবককে আলাদা বার্তা পাঠান। গ্রুপে নাম তালিকা পাঠাবেন না। বার্তায় শুধু এই রাউন্ডের লিংক থাকে।
+                {closed
+                  ? 'রাউন্ড বন্ধ, তাই বার্তা পাঠানো যাবে না। আরও সময় দিতে রাউন্ড পাতায় মেয়াদ বাড়ান।'
+                  : 'প্রত্যেক অভিভাবককে আলাদা বার্তা পাঠান। গ্রুপে নাম তালিকা পাঠাবেন না। বার্তায় শুধু এই রাউন্ডের লিংক থাকে।'}
               </div>
             </div>
             {chosen.pending.length === 0 ? (
@@ -132,7 +136,7 @@ export async function GuardianTracker({ roundId, rounds, place, now }: { roundId
                 এই শ্রেণির সব অভিভাবক জমা দিয়েছেন।
               </p>
             ) : (
-              <div role="region" aria-labelledby="pending-title" tabIndex={0} style={{ overflowX: 'auto' }}>
+              <div role="region" aria-label="জমা হয়নি এমন শিক্ষার্থীর তালিকা" tabIndex={0} style={{ overflowX: 'auto' }}>
                 <table className="sv-table" style={{ minWidth: 560 }}>
                   <thead>
                     <tr>
@@ -152,7 +156,9 @@ export async function GuardianTracker({ roundId, rounds, place, now }: { roundId
                         </td>
                         <td style={{ fontSize: 13.5 }}>{contact(c) || 'কোনো নম্বর নেই'}</td>
                         <td style={{ textAlign: 'right' }}>
-                          {c.fatherMobile || c.motherMobile ? (
+                          {closed ? (
+                            <span style={{ fontSize: 13, color: 'var(--sv-text-muted)' }}>রাউন্ড বন্ধ</span>
+                          ) : c.fatherMobile || c.motherMobile ? (
                             <CopyReminder text={message(c.name)} child={c.name} />
                           ) : (
                             <span style={{ fontSize: 13, color: 'var(--sv-warn)' }}>ERP-তে নম্বর যোগ করুন</span>
@@ -164,9 +170,11 @@ export async function GuardianTracker({ roundId, rounds, place, now }: { roundId
                 </table>
               </div>
             )}
-            <div style={{ padding: '12px 14px', borderRadius: 12, background: 'var(--sv-stone-soft)', fontSize: 14, lineHeight: 1.6 }}>
-              <b>বার্তার নমুনা:</b> “{message('[শিক্ষার্থীর নাম]')}”
-            </div>
+            {!closed && (
+              <div style={{ padding: '12px 14px', borderRadius: 12, background: 'var(--sv-stone-soft)', fontSize: 14, lineHeight: 1.6 }}>
+                <b>বার্তার নমুনা:</b> “{message('[শিক্ষার্থীর নাম]')}”
+              </div>
+            )}
           </section>
         )}
       </div>
@@ -203,7 +211,7 @@ export async function GuardianTracker({ roundId, rounds, place, now }: { roundId
               </div>
               {m.forms.map((f) => (
                 <div key={f.submissionId} className="flex flex-wrap items-center gap-2" style={{ fontSize: 13.5 }}>
-                  <span className={`sv-chip ${f.current ? 'is-ok' : ''}`}>{f.current ? 'গণ্য' : 'আগের'}</span>
+                  <span className={`sv-chip ${f.current ? 'is-ok' : 'is-muted'}`}>{f.current ? 'গণ্য' : 'আগের'}</span>
                   <span>
                     {f.who} ({f.relation}) · {f.verified ? 'যাচাইকৃত' : 'অযাচাইকৃত'}
                   </span>

@@ -119,7 +119,8 @@ export function guardianSheetRows(
   const front = [
     formatSheetTime(submission.submittedAt),
     referenceNumber(submission.id, false),
-    submission.supersededBy ? STATUS_LABEL.superseded : STATUS_LABEL.current,
+    // The newer form may be another guardian's, so not "corrected": just earlier.
+    submission.supersededBy ? 'আগের' : STATUS_LABEL.current,
     cls?.name ?? submission.classKey,
     section?.name ?? '',
     response.roll ?? '',
@@ -139,7 +140,7 @@ export function guardianSheetRows(
     subject.name,
     ...template.questions.map((q) => {
       const answer = classifyAnswer(q, template.scale, (response.answers[q.key] as Record<string, unknown> | undefined)?.[subject.key]);
-      return answer.kind === 'mark' ? answer.mark : answer.kind === 'na' ? 'প্রযোজ্য নয়' : '';
+      return answer.kind === 'mark' ? answer.mark : '';
     }),
     comment,
   ]);

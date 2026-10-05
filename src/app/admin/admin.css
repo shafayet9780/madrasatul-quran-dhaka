@@ -334,3 +334,13 @@
 .sv-admin .sv-kpi.is-muted .sv-num {
   color: var(--sv-text-muted);
 }
+
+/* Status tags on the guardian tracker (গণ্য / আগের). */
+.sv-admin .sv-chip.is-ok {
+  background: var(--sv-ok-bg);
+  color: var(--sv-ok);
+}
+.sv-admin .sv-chip.is-muted {
+  background: var(--sv-neutral-bg);
+  color: var(--sv-text-body);
+}

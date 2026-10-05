@@ -190,6 +190,13 @@ describe('loadGuardianTracker', () => {
     const multiple = data!.multiple.find((m) => m.child.erpId === `${run}-b`)!;
     expect(multiple.forms.filter((f) => f.current)).toHaveLength(1);
     expect(multiple.forms[0].current).toBe(true);
+    // Every active child of the class is either done or pending (the inactive one is neither).
+    expect(kgA.total).toBe(kgA.done + kgA.pending.length);
+    expect(kgA.done).toBeGreaterThanOrEqual(2);
+    // Husain's current form came from a number not on record; Hasan's is verified.
+    expect(ours(data!.unverified.map((f) => f.child.erpId))).toEqual([`${run}-b`]);
+    expect(data!.verified).toBe(data!.done - data!.unverified.length);
     expect(await loadGuardianTracker('not-a-round')).toBeNull();
+    expect(await loadGuardianTracker(randomUUID())).toBeNull();
   });
 });

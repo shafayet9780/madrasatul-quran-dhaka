@@ -73,7 +73,7 @@ describe('guardian sheet rows', () => {
     const rows = guardianSheetRows(snapshot, { ...submission, supersededBy: 'x', verified: false }, { studentErpId: '10012', studentName: 'Maryam', roll: null, answers });
     expect(rows).toHaveLength(subjects.length);
     expect(rows[0]).toHaveLength(guardianSheetHeader(snapshot).length);
-    expect(rows[1].slice(2, 3)).toEqual(['পুরনো (সংশোধিত)']);
+    expect(rows[1].slice(2, 3)).toEqual(['আগের']);
     expect(rows[1].slice(11, 16)).toEqual(['অযাচাইকৃত', subjects[1].name, 8, 6, 4]);
   });
 });

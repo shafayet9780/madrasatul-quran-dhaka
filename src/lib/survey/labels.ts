@@ -44,3 +44,6 @@ export function displayMobile(mobile: string | null, bengali = true): string {
   const text = mobile.startsWith('8801') ? `${mobile.slice(2, 7)}-${mobile.slice(7)}` : `+${mobile}`;
   return bengali ? toBengaliDigits(text) : text;
 }
+
+/** Short survey names for round pickers: teacher review, guardian on teaching, guardian on the child. */
+export const KIND_LABEL = { T1: 'শিক্ষক', G1: 'ক্লাস পরিচালনা', G2: 'শিক্ষার্থী' } as const;

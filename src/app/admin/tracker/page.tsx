@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { formatDateTime } from '@/lib/survey/dates';
+import { KIND_LABEL } from '@/lib/survey/labels';
 import { toBengaliDigits as bn } from '@/lib/survey/normalise';
 import { roundStatus } from '@/lib/survey/round-status';
 import { listTrackerRounds, loadTracker } from '@/lib/survey/tracker';
@@ -38,8 +39,6 @@ function StateIcon({ state }: { state: CellState }) {
   if (state === 'todo') return <span aria-hidden="true" style={{ display: 'inline-block', width: 12, height: 2, background: 'var(--sv-icon-muted)' }} />;
   return null;
 }
-
-const KIND_LABEL = { T1: 'শিক্ষক', G1: 'ক্লাস পরিচালনা', G2: 'শিক্ষার্থী' } as const;
 
 export default async function TrackerPage({ searchParams }: { searchParams: Promise<{ round?: string; place?: string }> }) {
   const [{ round: requested, place }, rounds] = await Promise.all([searchParams, listTrackerRounds()]);

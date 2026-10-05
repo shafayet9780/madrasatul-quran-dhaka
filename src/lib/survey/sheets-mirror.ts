@@ -56,7 +56,7 @@ async function mirrorOne(spreadsheetId: string, submissionId: string, knownTabs:
     const [[round], rows, replacement] = await Promise.all([
       db.select().from(surveyRounds).where(eq(surveyRounds.id, claimed.roundId)),
       db.select().from(responses).where(eq(responses.submissionId, claimed.id)),
-      claimed.supersededBy
+      claimed.supersededBy && claimed.kind === 'T1'
         ? db.select({ teacherKey: submissions.teacherKey }).from(submissions).where(eq(submissions.id, claimed.supersededBy))
         : Promise.resolve([]),
     ]);
