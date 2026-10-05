@@ -39,6 +39,8 @@ export function guardianAnswerItems(
   const missing: string[] = [];
   const clean: Record<string, unknown> = {};
   const subjects = template.kind === 'G1' ? (snapshot.classes.find((c) => c.key === classKey)?.subjects ?? []) : [];
+  // A G1 form for a class without subjects would hold no answers at all.
+  if (template.kind === 'G1' && !subjects.length) return { items: [], missing: ['subjects'], clean: {} };
   for (const question of template.questions) {
     const given = answers[question.key];
     if (template.kind === 'G1') {

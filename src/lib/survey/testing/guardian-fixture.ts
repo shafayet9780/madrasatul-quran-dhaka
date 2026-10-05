@@ -27,7 +27,7 @@ const options = (key: string, text: string, areaKey: string, list: [string, stri
   ...(extra.naLabel ? { naLabel: extra.naLabel } : {}),
 });
 
-export function g1FixtureSnapshot(takenAt = new Date()): RoundSnapshot {
+export function g1FixtureSnapshot(takenAt = new Date(), layout: 'by-subject' | 'by-question' = 'by-subject'): RoundSnapshot {
   const base = t1FixtureSnapshot(takenAt);
   return {
     ...base,
@@ -38,7 +38,7 @@ export function g1FixtureSnapshot(takenAt = new Date()): RoundSnapshot {
       title: 'ক্লাস পরিচালনার উপর অভিভাবক রিভিউ',
       intro: INTRO,
       commentLabel: 'বিশেষ কোন পরামর্শ ও মন্তব্য',
-      layout: 'by-subject',
+      layout,
       scale: [10, 8, 6, 4],
       questions: [
         marks('lesson-learned', 'পড়ানো লেসন আপনার সন্তান শিখেছে কি না?', 'teaching-effectiveness'),

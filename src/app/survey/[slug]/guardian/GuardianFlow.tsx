@@ -7,6 +7,7 @@ import type { GuardianSubmitResult, LookupResponse, VerifyResponse } from '@/lib
 import { normaliseMobile } from '@/lib/survey/normalise';
 import { classLabel } from '@/lib/survey/snapshot';
 import { createApi } from '../t1/api';
+import { G1RateScreen, G1ReviewScreen, g1ScreenCount } from './G1Screens';
 import { G2QuestionScreen, G2ReviewScreen, type SubmitError } from './G2Screens';
 import { ClassScreen, IdentifyScreen, IntroScreen, MatchScreen, type LookupError, type VerifyState } from './IdentityScreens';
 import type { DeviceForm, GuardianConfig, GuardianStep, Identity } from './types';
@@ -298,18 +299,57 @@ export function GuardianFlow({ config }: { config: GuardianConfig }) {
     return <MatchScreen config={config} identity={identity} verify={verify} onChange={patch} onSearchAgain={() => go('identify')} onStart={() => go('answer')} />;
   }
   const child = identity.children.find((c) => c.erpId === childErpId);
-  if (form && child && config.kind === 'G2') {
-    const heading = {
-      child: `${child.name} · ${classLabel(config.snapshot, identity.classKey, identity.sectionKey)}`,
-      submitter: `${identity.name.trim()} (${relationText(identity.relation ?? 'other', identity.relationOther) ?? ''})`,
-      // The last check for this child and number; a child found by this very number is on record.
-      verified:
-        identity.verified?.key === `${childErpId}|${mobile}`
-          ? identity.verified.value
-          : identity.by === 'mobile' && mobile !== null && normaliseMobile(identity.searched) === mobile
-            ? true
-            : null,
-    };
+  const heading = child && {
+    child: `${child.name} · ${classLabel(config.snapshot, identity.classKey, identity.sectionKey)}`,
+    submitter: `${identity.name.trim()} (${relationText(identity.relation ?? 'other', identity.relationOther) ?? ''})`,
+    // The last check for this child and number; a child found by this very number is on record.
+    verified:
+      identity.verified?.key === `${childErpId}|${mobile}`
+        ? identity.verified.value
+        : identity.by === 'mobile' && mobile !== null && normaliseMobile(identity.searched) === mobile
+          ? true
+          : null,
+  };
+  if (form && heading && config.kind === 'G1') {
+    const { questions } = config.snapshot.template;
+    const layout = config.snapshot.template.layout ?? 'by-subject';
+    const subjects = config.snapshot.classes.find((c) => c.key === identity.classKey)?.subjects ?? [];
+    const count = g1ScreenCount(layout, questions, subjects);
+    const index = Math.min(q, count - 1);
+    if (step === 'answer') {
+      return (
+        <G1RateScreen
+          config={config}
+          heading={heading}
+          layout={layout}
+          subjects={subjects}
+          index={index}
+          answers={form.answers}
+          onMark={(questionKey, subjectKey, mark) =>
+            updateForm({ answers: { ...form.answers, [questionKey]: { ...((form.answers[questionKey] as Record<string, unknown> | undefined) ?? {}), [subjectKey]: mark } } })
+          }
+          onIndex={(next) => go('answer', false, next)}
+          onBack={() => go('match')}
+          onReview={() => go('review')}
+        />
+      );
+    }
+    return (
+      <G1ReviewScreen
+        config={config}
+        heading={heading}
+        layout={layout}
+        subjects={subjects}
+        answers={form.answers}
+        comment={form.comment}
+        onComment={(comment) => updateForm({ comment })}
+        onEdit={(next) => go('answer', false, next)}
+        onBack={() => go('answer', false, count - 1)}
+        onSubmit={submit}
+      />
+    );
+  }
+  if (form && heading) {
     if (step === 'answer') {
       return (
         <G2QuestionScreen
@@ -337,7 +377,7 @@ export function GuardianFlow({ config }: { config: GuardianConfig }) {
       />
     );
   }
-  // G1 question screens arrive in P4.
+  // Until the form is read from this device.
   return (
     <main className="sv-screen" style={{ alignItems: 'center', justifyContent: 'center' }} aria-busy="true">
       <p className="sv-muted">লোড হচ্ছে…</p>

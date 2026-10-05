@@ -189,3 +189,63 @@ test.describe('G2 questions', () => {
     await expectAccessible(page);
   });
 });
+
+test.describe('G1 teaching review', () => {
+  async function toRating(page: Page, link: string) {
+    await toIdentify(page, link);
+    await page.getByLabel('বাবা বা মায়ের মোবাইল নম্বর').fill('01700000001');
+    await page.getByRole('button', { name: 'খুঁজুন' }).click();
+    await page.getByLabel('আপনার নাম').fill('রফিকুল ইসলাম');
+    await page.getByRole('radio', { name: 'পিতা' }).click();
+    await page.getByRole('button', { name: /শুরু করুন/ }).click();
+  }
+
+  /** Marks every row on the screen with the first mark (১০). */
+  async function markAll(page: Page) {
+    for (const group of await page.getByRole('radiogroup').all()) await group.getByRole('radio').first().click();
+  }
+
+  test('one subject per screen: every question per subject, review by subject, receipt', async ({ page }) => {
+    await toRating(page, G1);
+    await expect(page.getByRole('heading', { name: 'কুরআন' })).toBeVisible();
+    await expect(page.getByText('বিষয় ১/৫')).toBeVisible();
+    await expect(page.getByText('১০ = পরিমাণ ঠিক আছে, ৪ = অনেক বেশি')).toBeVisible();
+    await expectAccessible(page);
+    for (let subject = 0; subject < 5; subject++) {
+      await markAll(page);
+      await page.getByRole('button', { name: subject === 4 ? 'দেখে নিয়ে জমা দিন' : 'পরের বিষয়' }).click();
+    }
+    await expect(page.getByRole('heading', { name: 'দেখে নিয়ে জমা দিন' })).toBeVisible();
+    await expect(page.getByText('৫টি বিষয় × ৩টি প্রশ্ন', { exact: false })).toBeVisible();
+    await expectAccessible(page);
+    // Change one mark from the review.
+    await page.getByRole('button', { name: 'গণিত বদলান' }).click();
+    await page.getByRole('radiogroup').nth(1).getByRole('radio', { name: '৬ মার্ক' }).click();
+    await page.getByRole('button', { name: 'দেখে নিয়ে জমা দিন' }).click();
+    await page.getByRole('button', { name: 'জমা দিন' }).click();
+    await expect(page).toHaveURL(/\/survey\/receipt\//);
+    await expect(page.getByRole('heading', { name: 'জমা হয়েছে' })).toBeVisible();
+    await expect(page.getByText('গণিত ৬')).toBeVisible();
+    await expectAccessible(page);
+  });
+
+  test('one question per screen: every subject per question', async ({ page }) => {
+    await toRating(page, '/survey/fixture-g1-q?k=fixture-g1q-link-key-0000');
+    await expect(page.getByRole('heading', { name: 'পড়ানো লেসন আপনার সন্তান শিখেছে কি না?' })).toBeVisible();
+    await expect(page.getByText('প্রশ্ন ১/৩')).toBeVisible();
+    await expect(page.getByRole('radiogroup')).toHaveCount(5);
+    await expectAccessible(page);
+    for (let question = 0; question < 3; question++) {
+      await markAll(page);
+      await page.getByRole('button', { name: question === 2 ? 'দেখে নিয়ে জমা দিন' : 'পরের প্রশ্ন' }).click();
+    }
+    await expect(page.getByRole('button', { name: 'জমা দিন' })).toBeEnabled();
+  });
+
+  test('desktop lists the subjects beside the questions', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 1000 });
+    await toRating(page, G1);
+    await expect(page.getByRole('navigation', { name: 'বিষয়সমূহ' })).toBeVisible();
+    await expectAccessible(page);
+  });
+});

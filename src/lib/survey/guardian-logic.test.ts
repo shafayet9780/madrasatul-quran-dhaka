@@ -70,6 +70,11 @@ describe('guardianAnswerItems (G1)', () => {
     expect(items[0]).toEqual({ questionKey: 'lesson-learned', subjectKey: subjects[0], areaKey: 'teaching-effectiveness', optionKey: null, mark: 8, isNa: false });
   });
 
+  it('refuses a class without subjects', () => {
+    const noSubjects = { ...snapshot, classes: snapshot.classes.map((c) => ({ ...c, subjects: [] })) };
+    expect(guardianAnswerItems(noSubjects, 'kg', {}).missing).toEqual(['subjects']);
+  });
+
   it('names the missing question and subject pairs', () => {
     const answers = { 'lesson-learned': { ...all(10), [subjects[1]]: 7 }, 'extra-homework': all(6) };
     const { missing } = guardianAnswerItems(snapshot, 'kg', answers);

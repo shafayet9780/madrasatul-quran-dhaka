@@ -21,6 +21,7 @@ const DAY = 24 * 60 * 60 * 1000;
 export const FIXTURE_LINK = '/survey/fixture-t1?k=fixture-open-link-key-000';
 export const FIXTURE_G1_LINK = '/survey/fixture-g1?k=fixture-g1-link-key-00000';
 export const FIXTURE_G2_LINK = '/survey/fixture-g2?k=fixture-g2-link-key-00000';
+export const FIXTURE_G1Q_LINK = '/survey/fixture-g1-q?k=fixture-g1q-link-key-0000';
 
 // Made-up parent mobiles (stored form). Yahya and Hamza are siblings in Nursery A on one number.
 const MOBILES: Record<string, { fatherMobile?: string; motherMobile?: string }> = {
@@ -103,6 +104,16 @@ async function main() {
         linkKey: 'fixture-g1-link-key-00000',
       },
       {
+        sanityRoundId: 'fixture-g1q-open',
+        kind: 'G1',
+        slug: 'fixture-g1-q',
+        label: 'অক্টোবর ২০২৬ · প্রশ্নভিত্তিক (নমুনা)',
+        snapshot: g1FixtureSnapshot(new Date(), 'by-question'),
+        opensAt: new Date(now - 3 * DAY),
+        closesAt: new Date(now + 14 * DAY),
+        linkKey: 'fixture-g1q-link-key-0000',
+      },
+      {
         sanityRoundId: 'fixture-g2-open',
         kind: 'G2',
         slug: 'fixture-g2',
@@ -158,7 +169,7 @@ async function main() {
   const kg = rows.filter((s) => s.classKey === 'kg');
   await saveDraft(open, { teacherKey: '90002', classKey: 'kg', sectionKey: 'a', subjectKey: 'arabic' }, kg.slice(0, 3).map((s, i) => ({ studentErpId: s.erpId, answers: answersFor(i) })), meta);
 
-  console.log(`Loaded fixtures: ${rows.length} students, 4 rounds, 3 submitted batches (one duplicate), 1 draft. Links: T1 ${FIXTURE_LINK} · G1 ${FIXTURE_G1_LINK} · G2 ${FIXTURE_G2_LINK}`);
+  console.log(`Loaded fixtures: ${rows.length} students, 5 rounds, 3 submitted batches (one duplicate), 1 draft. Links: T1 ${FIXTURE_LINK} · G1 ${FIXTURE_G1_LINK} · G1 by question ${FIXTURE_G1Q_LINK} · G2 ${FIXTURE_G2_LINK}`);
 }
 
 main().catch((error) => {
