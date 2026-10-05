@@ -1,11 +1,11 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 import { Icon, Topbar, useIsDesktop } from '@/components/survey/ui';
 import { answerText } from '@/lib/survey/guardian-logic';
 import { bn } from '@/lib/survey/labels';
 import { NA, type SnapshotQuestion } from '@/lib/survey/snapshot';
-import { ChoiceGroup, GuardianDeskHeader, Segments, type Choice } from './GuardianChrome';
+import { ChoiceGroup, GuardianDeskHeader, Segments, useFocusOnChange, type Choice } from './GuardianChrome';
 import type { GuardianConfig } from './types';
 
 const dayMonth = new Intl.DateTimeFormat('bn-BD', { timeZone: 'Asia/Dhaka', day: 'numeric', month: 'long' });
@@ -49,14 +49,8 @@ export function G2QuestionScreen({
   const goBack = () => (q === 0 ? onBack() : onQuestion(q - 1));
   const goNext = () => (last ? onReview() : onQuestion(q + 1));
   const value = answers[question.key];
-  // A new question is announced: focus moves to its heading (not on the first render).
-  const headingRef = useRef<HTMLHeadingElement>(null);
-  const shownQ = useRef(q);
-  useEffect(() => {
-    if (shownQ.current === q) return;
-    shownQ.current = q;
-    headingRef.current?.focus();
-  }, [q]);
+  // A new question is announced: focus moves to its heading.
+  const headingRef = useFocusOnChange(q);
 
   const title = (
     <>
@@ -138,7 +132,7 @@ export function G2QuestionScreen({
   );
 }
 
-const SUBMIT_ERRORS: Record<SubmitError, string> = {
+export const SUBMIT_ERRORS: Record<SubmitError, string> = {
   closed: 'এই রিভিউ এখন বন্ধ, তাই জমা দেওয়া যায়নি।',
   network: 'ইন্টারনেট সংযোগ নেই। আপনার উত্তর এই ফোনে রাখা আছে; সংযোগ ফিরলে আবার জমা দিন।',
   failed: 'জমা দেওয়া যায়নি। আবার চেষ্টা করুন।',

@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, type KeyboardEvent, type ReactNode } from 'react';
+import { useEffect, useRef, type KeyboardEvent, type ReactNode } from 'react';
 import type { GuardianConfig } from './types';
 
 const dayMonth = new Intl.DateTimeFormat('bn-BD', { timeZone: 'Asia/Dhaka', day: 'numeric', month: 'long' });
@@ -96,4 +96,16 @@ export function ChoiceGroup({ choices, value, onChange, labelledBy }: { choices:
       )}
     </div>
   );
+}
+
+/** Focus moves to the screen's heading when the question or subject changes (not on first show). */
+export function useFocusOnChange(index: number) {
+  const ref = useRef<HTMLHeadingElement>(null);
+  const shown = useRef(index);
+  useEffect(() => {
+    if (shown.current === index) return;
+    shown.current = index;
+    ref.current?.focus();
+  }, [index]);
+  return ref;
 }

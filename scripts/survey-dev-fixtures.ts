@@ -28,6 +28,7 @@ const MOBILES: Record<string, { fatherMobile?: string; motherMobile?: string }> 
   'Maryam Binte Rafiq': { fatherMobile: '8801700000001' },
   'Yahya Hasan': { fatherMobile: '8801700000002', motherMobile: '447700900123' },
   'HAMZA RAHIM': { fatherMobile: '8801700000002', motherMobile: '447700900123' },
+  'Adiba Rahman': { fatherMobile: '8801700000003' },
 };
 
 // [roll, name] per class-section; null roll = not yet assigned in the ERP.

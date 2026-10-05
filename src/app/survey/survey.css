@@ -371,6 +371,10 @@
   border-radius: 50%;
   background: var(--sv-bronze);
 }
+/* Desktop G1 table: each row's marks fill their column. */
+.sv-fill-tracks .sv-track {
+  grid-template-columns: repeat(var(--sv-marks, 4), minmax(0, 1fr));
+}
 .sv-segments {
   display: grid;
   gap: 4px;

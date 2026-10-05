@@ -120,7 +120,7 @@ export const surveyTemplate = defineType({
               initialValue: false,
               validation: (Rule) =>
                 Rule.custom((value, context) =>
-                  value && (context.document as { kind?: string })?.kind === 'T1' ? 'Teacher reviews (T1) have no "not applicable".' : true
+                  value && (context.document as { kind?: string })?.kind !== 'G2' ? '"Not applicable" is only for G2 (guardian rates own child).' : true
                 ),
             }),
             defineField({

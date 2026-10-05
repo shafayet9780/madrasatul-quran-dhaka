@@ -29,6 +29,23 @@ function allowedStep(config: GuardianConfig, identity: Identity, wanted: Guardia
   return identity.children.some((c) => c.erpId === identity.childErpId) && submitterOk ? wanted : 'match';
 }
 
+/**
+ * The answer screens: G2 has one per question; G1 one per subject or per question from the
+ * template, except that a class with a single subject (Play) always rates on one screen.
+ */
+function answerScreens(config: GuardianConfig, classKey: string) {
+  const { questions } = config.snapshot.template;
+  const subjects = config.snapshot.classes.find((c) => c.key === classKey)?.subjects ?? [];
+  const layout = subjects.length === 1 ? 'by-subject' : (config.snapshot.template.layout ?? 'by-subject');
+  const count = config.kind === 'G1' ? g1ScreenCount(layout, questions, subjects) : questions.length;
+  return { subjects, layout, count };
+}
+
+/** The screen index from `?q=` (1-based), within the screens this child's class has. */
+function screenFromUrl(search: URLSearchParams, count: number): number {
+  return Math.min(Math.max(0, Number(search.get('q') ?? 1) - 1 || 0), Math.max(0, count - 1));
+}
+
 const formKey = (roundId: string, erpId: string) => `sv-g-form:${roundId}:${erpId}`;
 
 function readForm(roundId: string, erpId: string): DeviceForm {
@@ -86,7 +103,7 @@ export function GuardianFlow({ config }: { config: GuardianConfig }) {
     const search = new URLSearchParams(window.location.search);
     const wanted = search.get('step') as GuardianStep | null;
     const start = allowedStep(config, saved, wanted && STEPS.includes(wanted) ? wanted : 'intro');
-    const question = Math.min(Math.max(0, Number(search.get('q') ?? 1) - 1 || 0), config.snapshot.template.questions.length - 1);
+    const question = screenFromUrl(search, answerScreens(config, saved.classKey).count);
     if (start !== (wanted ?? 'intro')) go(start, true);
     else {
       setStep(start);
@@ -108,7 +125,7 @@ export function GuardianFlow({ config }: { config: GuardianConfig }) {
       const search = new URLSearchParams(window.location.search);
       const wanted = search.get('step') as GuardianStep | null;
       setStep(allowedStep(config, identity, wanted && STEPS.includes(wanted) ? wanted : 'intro'));
-      setQ(Math.min(Math.max(0, Number(search.get('q') ?? 1) - 1 || 0), config.snapshot.template.questions.length - 1));
+      setQ(screenFromUrl(search, answerScreens(config, identity.classKey).count));
     };
     window.addEventListener('popstate', onPop);
     return () => window.removeEventListener('popstate', onPop);
@@ -311,11 +328,16 @@ export function GuardianFlow({ config }: { config: GuardianConfig }) {
           : null,
   };
   if (form && heading && config.kind === 'G1') {
-    const { questions } = config.snapshot.template;
-    const layout = config.snapshot.template.layout ?? 'by-subject';
-    const subjects = config.snapshot.classes.find((c) => c.key === identity.classKey)?.subjects ?? [];
-    const count = g1ScreenCount(layout, questions, subjects);
-    const index = Math.min(q, count - 1);
+    const { subjects, layout, count } = answerScreens(config, identity.classKey);
+    // A round never opens with a class without subjects (build-round refuses it); stay safe anyway.
+    if (!count) {
+      return (
+        <main className="sv-screen" style={{ padding: 20, justifyContent: 'center' }}>
+          <p className="sv-card" style={{ margin: 0 }}>এই শ্রেণির বিষয় তালিকা নেই। অফিসে জানান।</p>
+        </main>
+      );
+    }
+    const index = q;
     if (step === 'answer') {
       return (
         <G1RateScreen

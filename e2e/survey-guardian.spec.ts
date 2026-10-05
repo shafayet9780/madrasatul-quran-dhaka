@@ -6,6 +6,7 @@ import { expect, test, type Page } from '@playwright/test';
 const loadFixtures = () => execFileSync('pnpm', ['survey:fixtures'], { stdio: 'ignore' });
 const G2 = '/survey/fixture-g2?k=fixture-g2-link-key-00000';
 const G1 = '/survey/fixture-g1?k=fixture-g1-link-key-00000';
+const G1Q = '/survey/fixture-g1-q?k=fixture-g1q-link-key-0000';
 
 test.describe.configure({ mode: 'serial' });
 test.beforeAll(loadFixtures);
@@ -191,9 +192,13 @@ test.describe('G2 questions', () => {
 });
 
 test.describe('G1 teaching review', () => {
-  async function toRating(page: Page, link: string) {
-    await toIdentify(page, link);
-    await page.getByLabel('বাবা বা মায়ের মোবাইল নম্বর').fill('01700000001');
+  async function toRating(page: Page, link: string, mobile = '01700000001', place: [RegExp, string | null] = [/^নার্সারি/, 'শাখা A']) {
+    await page.goto(link);
+    await page.getByRole('button', { name: 'শুরু করুন' }).click();
+    await page.getByRole('radio', { name: place[0] }).click();
+    if (place[1]) await page.getByRole('radio', { name: place[1] }).click();
+    await page.getByRole('button', { name: /চালিয়ে যান/ }).click();
+    await page.getByLabel('বাবা বা মায়ের মোবাইল নম্বর').fill(mobile);
     await page.getByRole('button', { name: 'খুঁজুন' }).click();
     await page.getByLabel('আপনার নাম').fill('রফিকুল ইসলাম');
     await page.getByRole('radio', { name: 'পিতা' }).click();
@@ -205,7 +210,7 @@ test.describe('G1 teaching review', () => {
     for (const group of await page.getByRole('radiogroup').all()) await group.getByRole('radio').first().click();
   }
 
-  test('one subject per screen: every question per subject, review by subject, receipt', async ({ page }) => {
+  test('one subject per screen: every question per subject, review by subject, receipt table', async ({ page }) => {
     await toRating(page, G1);
     await expect(page.getByRole('heading', { name: 'কুরআন' })).toBeVisible();
     await expect(page.getByText('বিষয় ১/৫')).toBeVisible();
@@ -213,39 +218,69 @@ test.describe('G1 teaching review', () => {
     await expectAccessible(page);
     for (let subject = 0; subject < 5; subject++) {
       await markAll(page);
-      await page.getByRole('button', { name: subject === 4 ? 'দেখে নিয়ে জমা দিন' : 'পরের বিষয়' }).click();
+      if (subject === 0) {
+        await expectAccessible(page);
+        await expect(page.getByRole('button', { name: 'পরের বিষয়: আরবি' })).toBeVisible();
+      }
+      if (subject === 3) {
+        // A reload keeps the subject and its marks.
+        await page.reload();
+        await expect(page.getByRole('heading', { name: 'ইংরেজি' })).toBeVisible();
+        await expect(page.getByText('বিষয় ৪/৫')).toBeVisible();
+      }
+      await page.getByRole('button', { name: subject === 4 ? 'দেখে নিয়ে জমা দিন' : /পরের বিষয়/ }).click();
     }
     await expect(page.getByRole('heading', { name: 'দেখে নিয়ে জমা দিন' })).toBeVisible();
     await expect(page.getByText('৫টি বিষয় × ৩টি প্রশ্ন', { exact: false })).toBeVisible();
     await expectAccessible(page);
-    // Change one mark from the review.
     await page.getByRole('button', { name: 'গণিত বদলান' }).click();
     await page.getByRole('radiogroup').nth(1).getByRole('radio', { name: '৬ মার্ক' }).click();
     await page.getByRole('button', { name: 'দেখে নিয়ে জমা দিন' }).click();
     await page.getByRole('button', { name: 'জমা দিন' }).click();
     await expect(page).toHaveURL(/\/survey\/receipt\//);
     await expect(page.getByRole('heading', { name: 'জমা হয়েছে' })).toBeVisible();
-    await expect(page.getByText('গণিত ৬')).toBeVisible();
+    const row = page.getByRole('row', { name: /অতিরিক্ত হোমওয়ার্ক/ });
+    await expect(row.getByRole('cell').nth(4)).toHaveText('৬');
     await expectAccessible(page);
   });
 
-  test('one question per screen: every subject per question', async ({ page }) => {
-    await toRating(page, '/survey/fixture-g1-q?k=fixture-g1q-link-key-0000');
+  test('one question per screen: every subject per question, a missing mark blocks submit', async ({ page }) => {
+    await toRating(page, G1Q);
     await expect(page.getByRole('heading', { name: 'পড়ানো লেসন আপনার সন্তান শিখেছে কি না?' })).toBeVisible();
     await expect(page.getByText('প্রশ্ন ১/৩')).toBeVisible();
     await expect(page.getByRole('radiogroup')).toHaveCount(5);
-    await expectAccessible(page);
     for (let question = 0; question < 3; question++) {
-      await markAll(page);
-      await page.getByRole('button', { name: question === 2 ? 'দেখে নিয়ে জমা দিন' : 'পরের প্রশ্ন' }).click();
+      if (question < 2) await markAll(page);
+      else await page.getByRole('radiogroup').first().getByRole('radio').first().click();
+      await page.getByRole('button', { name: question === 2 ? 'দেখে নিয়ে জমা দিন' : /পরের প্রশ্ন/ }).click();
     }
+    await expect(page.getByText('৩টি প্রশ্ন × ৫টি বিষয়', { exact: false })).toBeVisible();
+    await expect(page.getByText('৪টি মার্ক বাকি', { exact: false })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'জমা দিন' })).toBeDisabled();
+    await expectAccessible(page);
+    await page.getByRole('button', { name: 'প্রশ্ন ৩ বদলান' }).click();
+    await markAll(page);
+    await page.getByRole('button', { name: 'দেখে নিয়ে জমা দিন' }).click();
+    await page.getByRole('button', { name: 'জমা দিন' }).click();
+    await expect(page.getByRole('heading', { name: 'জমা হয়েছে' })).toBeVisible();
+  });
+
+  test('a class with one subject (Play) rates on one screen', async ({ page }) => {
+    await toRating(page, G1Q, '01700000003', [/^প্লে/, null]);
+    await expect(page.getByRole('heading', { name: 'সব বিষয়' })).toBeVisible();
+    await expect(page.getByText('বিষয় ১/১')).toBeVisible();
+    await markAll(page);
+    await page.getByRole('button', { name: 'দেখে নিয়ে জমা দিন' }).click();
     await expect(page.getByRole('button', { name: 'জমা দিন' })).toBeEnabled();
   });
 
-  test('desktop lists the subjects beside the questions', async ({ page }) => {
+  test('desktop shows one table of marks beside the list', async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 1000 });
     await toRating(page, G1);
     await expect(page.getByRole('navigation', { name: 'বিষয়সমূহ' })).toBeVisible();
+    await markAll(page);
     await expectAccessible(page);
+    await toRating(page, G1Q);
+    await expect(page.getByRole('navigation', { name: 'প্রশ্নসমূহ' })).toBeVisible();
   });
 });

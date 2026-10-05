@@ -31,6 +31,8 @@ export function g1FixtureSnapshot(takenAt = new Date(), layout: 'by-subject' | '
   const base = t1FixtureSnapshot(takenAt);
   return {
     ...base,
+    // As at the school: one teacher teaches Play everything, so it has one subject.
+    classes: base.classes.map((c) => (c.key === 'play' ? { ...c, subjects: [{ key: 'all', name: 'সব বিষয়' }] } : c)),
     template: {
       id: 'survey-template-g1-v1',
       version: 1,

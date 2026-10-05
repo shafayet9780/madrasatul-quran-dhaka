@@ -1,16 +1,16 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 import { Icon, MarkTrack, Topbar, useIsDesktop } from '@/components/survey/ui';
 import { bn, questionLabel } from '@/lib/survey/labels';
-import type { SnapshotQuestion } from '@/lib/survey/snapshot';
-import type { Answers, Heading, SubmitError } from './G2Screens';
-import { GuardianDeskHeader, Segments } from './GuardianChrome';
+import type { RoundSnapshot, SnapshotQuestion } from '@/lib/survey/snapshot';
+import { SUBMIT_ERRORS, type Answers, type Heading, type SubmitError } from './G2Screens';
+import { GuardianDeskHeader, Segments, useFocusOnChange } from './GuardianChrome';
 import type { GuardianConfig } from './types';
 
 const dayMonth = new Intl.DateTimeFormat('bn-BD', { timeZone: 'Asia/Dhaka', day: 'numeric', month: 'long' });
 
-type Subject = { key: string; name: string };
+type Subject = RoundSnapshot['classes'][number]['subjects'][number];
 export type G1Layout = 'by-subject' | 'by-question';
 
 /** The mark given for a question and subject, if it is one of the scale's marks. */
@@ -22,17 +22,6 @@ export function markOf(answers: Answers, scale: number[], questionKey: string, s
 /** One screen per subject (default) or per question; `index` counts screens in that order. */
 export function g1ScreenCount(layout: G1Layout, questions: SnapshotQuestion[], subjects: Subject[]): number {
   return layout === 'by-subject' ? subjects.length : questions.length;
-}
-
-function useFocusOnChange(index: number) {
-  const ref = useRef<HTMLHeadingElement>(null);
-  const shown = useRef(index);
-  useEffect(() => {
-    if (shown.current === index) return;
-    shown.current = index;
-    ref.current?.focus();
-  }, [index]);
-  return ref;
 }
 
 export function G1RateScreen({
@@ -66,35 +55,42 @@ export function G1RateScreen({
   const mark = (q: SnapshotQuestion, s: Subject) => markOf(answers, scale, q.key, s.key);
   // The rows on this screen: questions of one subject, or subjects of one question.
   const rows = bySubject
-    ? questions.map((q) => ({ key: q.key, label: `${bn(questions.indexOf(q) + 1)}. ${q.text}`, hint: q.hint, question: q, subject: subjects[index] }))
+    ? questions.map((q, qi) => ({ key: q.key, label: `${bn(qi + 1)}. ${q.text}`, hint: q.hint, question: q, subject: subjects[index] }))
     : subjects.map((s) => ({ key: s.key, label: s.name, hint: undefined, question: questions[index], subject: s }));
-  const screenDone = (i: number) =>
-    bySubject ? questions.every((q) => mark(q, subjects[i]) !== undefined) : subjects.every((s) => mark(questions[i], s) !== undefined);
-  const left = rows.filter((r) => mark(r.question, r.subject) === undefined).length;
+  const doneOn = (i: number) => (bySubject ? questions.filter((q) => mark(q, subjects[i]) !== undefined).length : subjects.filter((s) => mark(questions[i], s) !== undefined).length);
+  const perScreen = bySubject ? questions.length : subjects.length;
+  const screenDone = (i: number) => doneOn(i) === perScreen;
+  const left = perScreen - doneOn(index);
   const last = index === count - 1;
   const goBack = () => (index === 0 ? onBack() : onIndex(index - 1));
   const goNext = () => (last ? onReview() : onIndex(index + 1));
-  const place = bySubject ? `বিষয় ${bn(index + 1)}/${bn(count)}` : `প্রশ্ন ${bn(index + 1)}/${bn(count)}`;
+  const unit = bySubject ? 'বিষয়' : 'প্রশ্ন';
+  const place = `${unit} ${bn(index + 1)}/${bn(count)}`;
   const title = bySubject ? subjects[index].name : questions[index].text;
-  const nextLabel = last ? 'দেখে নিয়ে জমা দিন' : bySubject ? (left ? `পরের বিষয় (${bn(left)}টি বাকি)` : 'পরের বিষয়') : left ? `পরের প্রশ্ন (${bn(left)}টি বাকি)` : 'পরের প্রশ্ন';
+  const nextName = !last && bySubject ? subjects[index + 1].name : null;
+  const nextLabel = last ? 'দেখে নিয়ে জমা দিন' : left ? `পরের ${unit} (${bn(left)}টি বাকি)` : nextName ? `পরের বিষয়: ${nextName}` : `পরের ${unit}`;
   const titleHint = !bySubject ? questions[index].hint : undefined;
+  const titleHintId = titleHint ? 'g1-title-hint' : undefined;
+  const legend = '১০ = সবচেয়ে ভালো · ৪ = সন্তোষজনক নয়';
 
-  const rowsList = rows.map((row) => {
-    const value = mark(row.question, row.subject);
-    const labelId = `g1-row-${row.key}`;
+  const track = (row: (typeof rows)[number], large: boolean) => {
+    const hintId = row.hint ? `g1-hint-${row.key}` : titleHintId;
     return (
-      <div key={row.key} className="flex flex-col gap-2.5" style={{ background: '#fff', border: `1px solid ${value === undefined ? 'var(--sv-tint-border)' : 'var(--sv-hairline)'}`, borderRadius: 16, padding: '12px 12px 12px 14px' }}>
-        <div className="flex items-start gap-2.5">
-          <div id={labelId} style={{ flex: 1, fontSize: bySubject ? 16.5 : 17, fontWeight: 600, lineHeight: 1.5 }}>
-            {row.label}
-          </div>
-          {value !== undefined && <span style={{ flex: 'none', marginTop: 3, color: 'var(--sv-ok)' }} aria-label="সম্পন্ন">{Icon.check({ size: 18 })}</span>}
-        </div>
-        {row.hint && <div className="sv-hint">{row.hint}</div>}
-        <MarkTrack large marks={scale} value={value} labelledBy={`g1-title ${labelId}`} onChange={(m) => onMark(row.question.key, row.subject.key, m)} />
-      </div>
+      <MarkTrack
+        large={large}
+        marks={scale}
+        value={mark(row.question, row.subject)}
+        labelledBy={`g1-title g1-row-${row.key}`}
+        describedBy={hintId}
+        onChange={(m) => onMark(row.question.key, row.subject.key, m)}
+      />
     );
-  });
+  };
+  const doneIcon = (
+    <span aria-hidden="true" style={{ flex: 'none', color: 'var(--sv-ok)' }}>
+      {Icon.check({ size: 18 })}
+    </span>
+  );
 
   if (desktop) {
     const steps = bySubject ? subjects.map((s) => s.name) : questions.map((q) => q.shortLabel ?? q.text);
@@ -104,32 +100,64 @@ export function G1RateScreen({
         <div className="sv-frame-body">
           <aside className="sv-frame-aside">
             <nav aria-label={bySubject ? 'বিষয়সমূহ' : 'প্রশ্নসমূহ'} className="sv-panel flex flex-col gap-0.5" style={{ padding: 10 }}>
+              <div className="flex justify-between" style={{ padding: '6px 10px 8px', fontSize: 13, color: 'var(--sv-text-muted)' }}>
+                <span style={{ fontWeight: 600 }}>
+                  {bn(count)}টি {unit}
+                </span>
+                <span>{bn(steps.filter((_, i) => screenDone(i)).length)}টি সম্পন্ন</span>
+              </div>
               {steps.map((label, i) => (
                 <button key={label + i} type="button" className="sv-step" aria-current={i === index ? 'step' : undefined} onClick={() => onIndex(i)}>
                   <span className={`sv-step-dot${screenDone(i) ? ' is-done' : ''}`}>{screenDone(i) ? '✓' : bn(i + 1)}</span>
-                  <span>{label}</span>
+                  <span style={{ flex: 1 }}>{label}</span>
+                  <span className="sv-num" style={{ fontSize: 13, color: 'var(--sv-text-muted)' }}>
+                    {bn(doneOn(i))}/{bn(perScreen)}
+                  </span>
                 </button>
               ))}
             </nav>
-            <div className="sv-panel flex flex-col gap-2" style={{ padding: '14px 16px' }}>
-              <div style={{ fontSize: 13, color: 'var(--sv-text-muted)', fontWeight: 600 }}>মার্কিং</div>
-              <div style={{ fontSize: 14 }}>১০ = সবচেয়ে ভালো · ৪ = সন্তোষজনক নয়</div>
-            </div>
           </aside>
           <main className="sv-frame-main">
-            <section className="sv-panel flex flex-col gap-2" style={{ padding: '20px 24px', borderRadius: 18 }}>
-              <div style={{ fontSize: 14, color: 'var(--sv-text-muted)', fontWeight: 600 }}>{place}</div>
-              <h1 ref={titleRef} tabIndex={-1} id="g1-title" className="sv-head" style={{ margin: 0, fontSize: 28, lineHeight: 1.35, outline: 'none' }}>
-                {title}
-              </h1>
-              {titleHint && <div className="sv-hint">{titleHint}</div>}
+            <section className="sv-panel flex flex-wrap items-end justify-between gap-2" style={{ padding: '20px 24px', borderRadius: 18 }}>
+              <div className="flex flex-col gap-1.5">
+                <div style={{ fontSize: 14, color: 'var(--sv-text-muted)', fontWeight: 600 }}>{place}</div>
+                <h1 ref={titleRef} tabIndex={-1} id="g1-title" className="sv-head" style={{ margin: 0, fontSize: 28, lineHeight: 1.35, outline: 'none' }}>
+                  {title}
+                </h1>
+                {titleHint && (
+                  <div id={titleHintId} className="sv-hint">
+                    {titleHint}
+                  </div>
+                )}
+              </div>
+              <div style={{ fontSize: 14.5, color: 'var(--sv-text-muted)' }}>{legend}</div>
             </section>
-            <div className="grid gap-2.5" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(380px, 1fr))' }}>
-              {rowsList}
-            </div>
+            <section className="sv-panel sv-fill-tracks" style={{ padding: '6px 20px 12px', borderRadius: 18 }}>
+              <div className="grid items-center" style={{ gridTemplateColumns: 'minmax(240px, 1fr) minmax(220px, 300px) 24px', gap: 16, padding: '10px 0', borderBottom: '1px solid var(--sv-hairline)', fontSize: 13, fontWeight: 600, color: 'var(--sv-text-muted)' }}>
+                <span>{bySubject ? 'প্রশ্ন' : 'বিষয়'}</span>
+                <span>মার্ক</span>
+                <span />
+              </div>
+              {rows.map((row) => (
+                <div key={row.key} className="grid items-center" style={{ gridTemplateColumns: 'minmax(240px, 1fr) minmax(220px, 300px) 24px', gap: 16, padding: '10px 0', borderBottom: '1px solid var(--sv-hairline-soft)' }}>
+                  <span className="flex flex-col gap-1">
+                    <span id={`g1-row-${row.key}`} style={{ fontSize: 16, fontWeight: 600, lineHeight: 1.45 }}>
+                      {row.label}
+                    </span>
+                    {row.hint && (
+                      <span id={`g1-hint-${row.key}`} className="sv-hint" style={{ alignSelf: 'flex-start' }}>
+                        {row.hint}
+                      </span>
+                    )}
+                  </span>
+                  {track(row, false)}
+                  <span className="flex justify-center">{mark(row.question, row.subject) !== undefined && doneIcon}</span>
+                </div>
+              ))}
+            </section>
             <div className="flex flex-wrap items-center justify-between gap-3">
               <button type="button" className="sv-secondary" style={{ width: 'auto', padding: '0 22px' }} onClick={goBack}>
-                ← {index === 0 ? 'আগের ধাপ' : bySubject ? 'আগের বিষয়' : 'আগের প্রশ্ন'}
+                ← {index === 0 ? 'আগের ধাপ' : `আগের ${unit}`}
               </button>
               <button type="button" className="sv-cta" style={{ width: 'auto', padding: '0 24px' }} onClick={goNext}>
                 {nextLabel} {Icon.next()}
@@ -153,17 +181,40 @@ export function G1RateScreen({
           <h1 ref={titleRef} tabIndex={-1} id="g1-title" className="sv-head" style={{ margin: 0, fontSize: bySubject ? 28 : 22, lineHeight: 1.4, outline: 'none' }}>
             {title}
           </h1>
-          {titleHint && <div className="sv-hint">{titleHint}</div>}
+          {titleHint && (
+            <div id={titleHintId} className="sv-hint">
+              {titleHint}
+            </div>
+          )}
           <div className="flex items-center justify-between gap-2" style={{ fontSize: 13.5, color: 'var(--sv-text-muted)' }}>
             <span>
-              {bn(rows.length)}টি {bySubject ? 'প্রশ্ন' : 'বিষয়'} · {bn(rows.length - left)}টি সম্পন্ন
+              {bn(perScreen)}টি {bySubject ? 'প্রশ্ন' : 'বিষয়'} · {bn(perScreen - left)}টি সম্পন্ন
             </span>
             <span style={{ color: 'var(--sv-ok)', fontWeight: 600 }}>এই ফোনে সংরক্ষিত</span>
           </div>
         </div>
       </div>
       <div className="flex flex-col gap-2.5" style={{ padding: '14px 12px 12px' }}>
-        {rowsList}
+        {rows.map((row) => (
+          <div
+            key={row.key}
+            className="flex flex-col gap-2.5"
+            style={{ background: '#fff', border: `1px solid ${mark(row.question, row.subject) === undefined ? 'var(--sv-tint-border)' : 'var(--sv-hairline)'}`, borderRadius: 16, padding: '12px 12px 12px 14px' }}
+          >
+            <div className="flex items-start gap-2.5">
+              <div id={`g1-row-${row.key}`} style={{ flex: 1, fontSize: bySubject ? 16.5 : 17, fontWeight: 600, lineHeight: 1.5 }}>
+                {row.label}
+              </div>
+              {mark(row.question, row.subject) !== undefined && doneIcon}
+            </div>
+            {row.hint && (
+              <div id={`g1-hint-${row.key}`} className="sv-hint">
+                {row.hint}
+              </div>
+            )}
+            {track(row, true)}
+          </div>
+        ))}
       </div>
       <div className="sv-footer" style={{ display: 'grid', gridTemplateColumns: '116px minmax(0, 1fr)', gap: 10 }}>
         <button type="button" className="sv-secondary" onClick={goBack}>
@@ -177,13 +228,7 @@ export function G1RateScreen({
   );
 }
 
-const SUBMIT_ERRORS: Record<SubmitError, string> = {
-  closed: 'এই রিভিউ এখন বন্ধ, তাই জমা দেওয়া যায়নি।',
-  network: 'ইন্টারনেট সংযোগ নেই। আপনার উত্তর এই ফোনে রাখা আছে; সংযোগ ফিরলে আবার জমা দিন।',
-  failed: 'জমা দেওয়া যায়নি। আবার চেষ্টা করুন।',
-  incomplete: 'কিছু মার্ক বাকি আছে।',
-  'rate-limited': 'এই মুহূর্তে অনেক রিভিউ জমা হচ্ছে। কয়েক মিনিট পরে আবার জমা দিন; আপনার উত্তর এই ফোনে রাখা আছে।',
-};
+const G1_SUBMIT_ERRORS: Record<SubmitError, string> = { ...SUBMIT_ERRORS, incomplete: 'কিছু মার্ক বাকি আছে।' };
 
 export function G1ReviewScreen({
   config,
@@ -235,7 +280,7 @@ export function G1ReviewScreen({
       <div className="flex flex-col gap-1.5" style={{ padding: '6px 20px 0' }}>
         <h1 className="sv-head sv-h1">দেখে নিয়ে জমা দিন</h1>
         <div style={{ fontSize: 15, color: 'var(--sv-text-muted)' }}>
-          {heading.child} · {bn(subjects.length)}টি বিষয় × {bn(questions.length)}টি প্রশ্ন
+          {heading.child} · {bySubject ? `${bn(subjects.length)}টি বিষয় × ${bn(questions.length)}টি প্রশ্ন` : `${bn(questions.length)}টি প্রশ্ন × ${bn(subjects.length)}টি বিষয়`}
         </div>
       </div>
       <div className="flex flex-col gap-2" style={{ margin: '14px 12px 0' }}>
@@ -282,7 +327,7 @@ export function G1ReviewScreen({
       )}
       <div className="sv-footer">
         <div aria-live="polite">
-          {error && <p style={{ margin: '0 0 4px', fontSize: 14.5, lineHeight: 1.55, color: 'var(--sv-warn)' }}>{SUBMIT_ERRORS[error]}</p>}
+          {error && <p style={{ margin: '0 0 4px', fontSize: 14.5, lineHeight: 1.55, color: 'var(--sv-warn)' }}>{G1_SUBMIT_ERRORS[error]}</p>}
           {!error && missing > 0 && <p style={{ margin: '0 0 4px', fontSize: 14.5, color: 'var(--sv-warn)' }}>{bn(missing)}টি মার্ক বাকি। সব দিলে জমা দিতে পারবেন।</p>}
         </div>
         <button type="button" className="sv-cta" disabled={missing > 0 || busy} aria-busy={busy || undefined} onClick={() => void submit()}>

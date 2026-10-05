@@ -74,6 +74,7 @@ export function MarkTrack({
   value,
   onChange,
   labelledBy,
+  describedBy,
   label,
   large,
   autoFocusSelected,
@@ -83,6 +84,7 @@ export function MarkTrack({
   value: number | undefined;
   onChange: (mark: number) => void;
   labelledBy?: string;
+  describedBy?: string;
   label?: string;
   large?: boolean;
 }) {
@@ -103,6 +105,7 @@ export function MarkTrack({
       className={`sv-track${large ? ' is-large' : ''}`}
       role="radiogroup"
       aria-labelledby={labelledBy}
+      aria-describedby={describedBy}
       aria-label={label}
       style={{ ['--sv-marks' as string]: marks.length }}
     >

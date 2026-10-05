@@ -72,33 +72,55 @@ export function GuardianReceipt({ receipt }: { receipt: Receipt }) {
         </dl>
 
         <div style={{ borderTop: '1px solid var(--sv-hairline)', paddingTop: 12, fontSize: 15, fontWeight: 600 }}>আপনার উত্তর</div>
-        <ol className="flex flex-col gap-2.5" style={{ margin: 0, padding: 0, listStyle: 'none' }}>
-          {template.questions.map((question, q) => (
-            <li key={question.key} className="flex gap-2.5" style={{ fontSize: 14, lineHeight: 1.5 }}>
-              <span className="sv-num sv-muted" style={{ flex: 'none', width: 22 }}>
-                {bn(q + 1)}
-              </span>
-              <span className="flex flex-col gap-1" style={{ minWidth: 0 }}>
-                <span className="sv-muted">{template.kind === 'G1' ? questionLabel(question) : question.text}</span>
-                {template.kind === 'G1' ? (
-                  <span className="flex flex-wrap gap-1.5">
+        {template.kind === 'G1' ? (
+          // Scrolls sideways on a phone, so keyboard users can reach it too.
+          <div role="region" aria-label="বিষয়ভিত্তিক মার্ক" tabIndex={0} style={{ overflowX: 'auto', margin: '0 -6px' }}>
+            <table className="sv-receipt-table">
+              <caption className="sv-visually-hidden">প্রতিটি প্রশ্নে বিষয়ভিত্তিক মার্ক</caption>
+              <thead>
+                <tr>
+                  <th scope="col">প্রশ্ন</th>
+                  {subjects.map((subject) => (
+                    <th key={subject.key} scope="col">
+                      {subject.name}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {template.questions.map((question, q) => (
+                  <tr key={question.key}>
+                    <th scope="row" style={{ fontWeight: 400 }}>
+                      {bn(q + 1)}. {questionLabel(question)}
+                    </th>
                     {subjects.map((subject) => {
-                      const value = (answers[question.key] as Record<string, unknown> | undefined)?.[subject.key];
-                      const answer = classifyAnswer(question, template.scale, value);
+                      const answer = classifyAnswer(question, template.scale, (answers[question.key] as Record<string, unknown> | undefined)?.[subject.key]);
                       return (
-                        <span key={subject.key} style={{ background: 'var(--sv-stone)', borderRadius: 8, padding: '1px 8px', fontSize: 13 }}>
-                          {subject.name} <b className="sv-num">{answer.kind === 'mark' ? bn(answer.mark) : answer.kind === 'na' ? 'প্রযোজ্য নয়' : '–'}</b>
-                        </span>
+                        <td key={subject.key} className="sv-num">
+                          {answer.kind === 'mark' ? bn(answer.mark) : '–'}
+                        </td>
                       );
                     })}
-                  </span>
-                ) : (
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <ol className="flex flex-col gap-2.5" style={{ margin: 0, padding: 0, listStyle: 'none' }}>
+            {template.questions.map((question, q) => (
+              <li key={question.key} className="flex gap-2.5" style={{ fontSize: 14, lineHeight: 1.5 }}>
+                <span className="sv-num sv-muted" style={{ flex: 'none', width: 22 }}>
+                  {bn(q + 1)}
+                </span>
+                <span className="flex flex-col gap-1" style={{ minWidth: 0 }}>
+                  <span className="sv-muted">{question.text}</span>
                   <b style={{ fontWeight: 600 }}>{answerText(question, template.scale, answers[question.key]) ?? '–'}</b>
-                )}
-              </span>
-            </li>
-          ))}
-        </ol>
+                </span>
+              </li>
+            ))}
+          </ol>
+        )}
         {submission.comment && (
           <div style={{ borderTop: '1px solid var(--sv-hairline)', paddingTop: 12, fontSize: 14, lineHeight: 1.6 }}>
             <div className="sv-muted">{template.commentLabel ?? 'মন্তব্য'}</div>
