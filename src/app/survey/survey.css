@@ -851,3 +851,35 @@
     border-radius: 16px;
   }
 }
+
+/* Desktop: the short screens (start, ID, class, receipt, status) sit in a card under a school bar,
+   with the action right below the content instead of pinned to the window bottom. */
+.sv-site-bar {
+  display: none;
+}
+@media (min-width: 960px) {
+  .sv-survey:has(> .sv-screen) {
+    background: var(--sv-stone);
+  }
+  .sv-survey:has(> .sv-screen) > .sv-site-bar {
+    display: block;
+  }
+  .sv-survey > .sv-screen {
+    min-height: 0;
+    margin: 40px auto 56px;
+    background: var(--sv-paper);
+    border: 1px solid var(--sv-hairline);
+    border-radius: 20px;
+    box-shadow: 0 1px 2px rgb(31 42 46 / 4%), 0 8px 28px rgb(31 42 46 / 6%);
+    overflow: hidden;
+  }
+  /* Status and loading screens have no action bar: keep them from collapsing. */
+  .sv-survey > .sv-screen:not(:has(.sv-footer)) {
+    min-height: 480px;
+  }
+  .sv-survey > .sv-screen .sv-footer {
+    position: static;
+    margin-top: 8px;
+    padding: 16px 16px 24px;
+  }
+}

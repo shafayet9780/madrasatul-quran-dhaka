@@ -11,5 +11,18 @@ export const metadata: Metadata = {
 export const viewport: Viewport = { themeColor: '#FCFBF8' };
 
 export default function SurveyLayout({ children }: { children: React.ReactNode }) {
-  return <div className={`sv-root sv-survey ${surveyFontVariables}`}>{children}</div>;
+  return (
+    <div className={`sv-root sv-survey ${surveyFontVariables}`}>
+      {/* Desktop only, above the card screens; rating and review pages have their own header. */}
+      <header className="sv-desk-header sv-site-bar">
+        <div>
+          <div className="sv-logo" aria-hidden="true">
+            ম
+          </div>
+          <span style={{ fontWeight: 600, fontSize: 15 }}>মাদরাসাতুল কুরআন, ঢাকা</span>
+        </div>
+      </header>
+      {children}
+    </div>
+  );
 }

@@ -22,7 +22,7 @@ export function OfficeContact({ phone, prefix = 'সমস্যা থাকল
 function StatePage({ icon, title, children }: { icon: React.ReactNode; title: string; children: React.ReactNode }) {
   return (
     <main className="sv-screen">
-      <div className="flex items-center gap-2.5" style={{ padding: '22px 20px 6px' }}>
+      <div className="sv-mobile-only flex items-center gap-2.5" style={{ padding: '22px 20px 6px' }}>
         <div className="sv-logo" aria-hidden="true">
           ম
         </div>

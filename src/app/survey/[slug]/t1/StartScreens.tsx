@@ -13,7 +13,7 @@ export function IntroScreen({ config, onStart }: { config: T1Config; onStart: ()
   const { template } = config.snapshot;
   return (
     <main className="sv-screen">
-      <div className="flex items-center gap-3" style={{ padding: '28px 24px 0' }}>
+      <div className="sv-mobile-only flex items-center gap-3" style={{ padding: '28px 24px 0' }}>
         <div
           aria-hidden="true"
           className="sv-head flex items-center justify-center"
@@ -27,6 +27,10 @@ export function IntroScreen({ config, onStart }: { config: T1Config; onStart: ()
         </div>
       </div>
       <div className="flex flex-col gap-3.5" style={{ padding: '40px 24px 0' }}>
+        {/* On desktop the school bar replaces the brand row above; the round stays named here. */}
+        <div className="sv-desktop-only" style={{ fontSize: 13.5, color: 'var(--sv-text-muted)' }}>
+          শিক্ষকের রিভিউ · {config.label}
+        </div>
         <div aria-hidden="true" style={{ width: 40, height: 2, background: 'var(--sv-bronze)' }} />
         <h1 className="sv-head sv-h1" style={{ fontSize: 30, lineHeight: 1.4 }}>
           {template.title}

@@ -127,6 +127,7 @@ Each milestone ends with its checks passing and a commit.
 
 ### After handover (2026-10-05)
 - Teachers start by typing their ERP ID instead of picking a name: new `POST /api/survey/[roundId]/teacher` lookup (rate limit `lookup`), the survey page no longer sends the teacher list, the teacher lives on the device (not the URL). Survey teacher key = ERP ID in Studio.
+- Desktop (≥960px): the short screens (intro, ID, class, receipt, status) sit in a card on stone under a school bar, with the action directly under the content; rating and review keep their own wide layout. Phones unchanged.
 - The ERP export puts an invisible U+200C before every phone number; `normaliseMobile` / `normaliseStudentId` now strip format characters (without this every mobile imported blank).
 
 ## 5. Needed from the owner
