@@ -191,6 +191,8 @@ export const answerItems = pgTable(
     optionKey: text('option_key'),
     mark: numeric('mark', { precision: 3, scale: 1, mode: 'number' }),
     isNa: boolean('is_na').notNull().default(false),
+    // Guardian rows only (copied from the submission) so the verified-only report filter needs no join.
+    verified: boolean('verified'),
   },
   (t) => [
     primaryKey({ columns: [t.responseId, t.questionKey, t.subjectKey] }),
@@ -198,6 +200,28 @@ export const answerItems = pgTable(
     index('answer_items_student_idx').on(t.studentErpId, t.roundId),
     index('answer_items_teacher_idx').on(t.roundId, t.teacherKey),
   ]
+);
+
+/**
+ * Guardian identity lookups, kept for investigating abuse in the database only (no UI reads it).
+ * Stores the last 4 digits of the typed ID or mobile, never the whole value. Pruned after 90 days.
+ */
+export const surveyLookups = pgTable(
+  'survey_lookups',
+  {
+    id: bigserial('id', { mode: 'number' }).primaryKey(),
+    roundId: uuid('round_id')
+      .notNull()
+      .references(() => surveyRounds.id, { onDelete: 'cascade' }),
+    classKey: text('class_key').notNull(),
+    sectionKey: text('section_key').notNull().default(''),
+    by: text('by', { enum: ['id', 'mobile'] }).notNull(),
+    inputTail: text('input_tail').notNull(),
+    matched: text('matched').array().notNull().default(sql`'{}'::text[]`),
+    ip: text('ip'),
+    createdAt: ts('created_at').notNull().defaultNow(),
+  },
+  (t) => [index('survey_lookups_created_idx').on(t.createdAt)]
 );
 
 /** Fixed-window counters keyed by action + IP or action + looked-up value. */

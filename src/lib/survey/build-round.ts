@@ -18,6 +18,7 @@ export type RoundSource = {
       title?: string | null;
       intro?: string | null;
       commentLabel?: string | null;
+      layout?: string | null;
       scale?: number[] | null;
       questions?:
         | {
@@ -91,6 +92,10 @@ export function buildLists(source: ListsSource): Pick<RoundSnapshot, 'classes' |
 
 /** Lists problems that would make the round unusable, in Bengali for the admin. */
 export function listProblems(kind: string, lists: Pick<RoundSnapshot, 'classes' | 'teachers'>): string[] {
+  if (kind === 'G1') {
+    const missing = lists.classes.filter((c) => !c.subjects.length).map((c) => c.name);
+    return missing.length ? [`এসব শ্রেণিতে বিষয় নেই: ${missing.join(', ')} (Studio → Surveys → Classes & Subjects)।`] : [];
+  }
   if (kind !== 'T1') return [];
   const errors: string[] = [];
   if (!lists.teachers.length) errors.push('কোনো সক্রিয় শিক্ষক নেই (Studio → Surveys → Teachers)।');
@@ -124,6 +129,9 @@ export function buildRound(
   questions.forEach((q, i) => {
     if (!q.areaKey) errors.push(`প্রশ্ন ${n(i + 1)}: এরিয়া বাছাই করা হয়নি।`);
     if (q.type === 'options' && (q.options?.length ?? 0) < 2) errors.push(`প্রশ্ন ${n(i + 1)}: অন্তত দুটি অপশন দিন।`);
+    if (q.type === 'options' && q.options?.some((o) => typeof o.mark !== 'number')) errors.push(`প্রশ্ন ${n(i + 1)}: প্রতিটি অপশনের মার্ক দিন।`);
+    if (q.options?.some((o) => o.key === 'na')) errors.push(`প্রশ্ন ${n(i + 1)}: অপশনের key "na" ব্যবহার করা যাবে না।`);
+    if (q.allowNA && template?.kind === 'T1') errors.push(`প্রশ্ন ${n(i + 1)}: শিক্ষকের রিভিউতে "প্রযোজ্য নয়" রাখা যাবে না।`);
   });
   if (template && !questions.length) errors.push('টেমপ্লেটে কোনো প্রশ্ন নেই।');
 
@@ -141,6 +149,7 @@ export function buildRound(
       title: template.title,
       intro: opt(template.intro),
       commentLabel: opt(template.commentLabel),
+      layout: template.kind === 'G1' ? (template.layout === 'by-question' ? 'by-question' : 'by-subject') : undefined,
       scale: template.scale ?? [],
       questions: questions.map((q) => ({
         key: q.key,

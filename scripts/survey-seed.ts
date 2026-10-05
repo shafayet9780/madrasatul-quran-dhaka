@@ -1,5 +1,5 @@
 /**
- * Seeds survey reference data into Sanity: areas, the T1 template, classes and survey teachers.
+ * Seeds survey reference data into Sanity: areas, the T1/G1/G2 templates, classes and survey teachers.
  * Writes published documents with fixed IDs to the dataset in .env.local.
  *
  *   pnpm exec tsx scripts/survey-seed.ts              # create missing documents only
@@ -51,6 +51,36 @@ const T1_QUESTIONS: [key: string, text: string, shortLabel: string, area: string
   ['guardian-coordination', 'অভিভাবক শিক্ষকের সাথে সঠিক কোর্ডিনেশন করে কি না?', 'অভিভাবকের কোর্ডিনেশন', 'guardian-cooperation'],
   ['guardian-off-hours', 'অভিভাবক নির্ধারিত সময়ের বাইরে শিক্ষকের সাথে যোগাযোগ করে কি না?', 'নির্ধারিত সময়ের বাইরে যোগাযোগ', 'guardian-cooperation', '১০ = কখনো করেন না, ৪ = প্রায়ই করেন'],
   ['assessment-80', 'কুইজ বা অন্যান্য এসেসমেন্ট এ শতকরা আশিভাগ মার্ক পায় কি না?', 'এসেসমেন্টে ৮০%', 'results'],
+];
+
+const GUARDIAN_INTRO = 'দয়া করে পূর্ণ আমানতদারিতার সাথে রিভিউ দিবেন (উপযুক্ত প্রমাণ চাওয়া হতে পারে)।';
+
+// G1 (guardian rates teaching, per subject): the school's current Google Form, 2026-10-05.
+const G1_QUESTIONS: [key: string, text: string, shortLabel: string, area: string, hint?: string][] = [
+  ['lesson-learned', 'পড়ানো লেসন আপনার সন্তান শিখেছে কি না?', 'লেসন শেখা', 'teaching-effectiveness'],
+  ['class-conduct', 'ক্লাসে উত্তম আচরণ করা হয় কি না?', 'ক্লাসে আচরণ', 'conduct-tarbiyah'],
+  ['classwork-checked', 'ক্লাস ওয়ার্ক ঠিকঠাক চেক করা হয় কি না?', 'ক্লাস ওয়ার্ক চেক', 'assessment'],
+  ['homework-checked', 'হোমওয়ার্ক নিয়মিত চেক করা হয় কি না?', 'হোমওয়ার্ক চেক', 'assessment'],
+  ['extra-homework', 'অতিরিক্ত হোমওয়ার্ক দেওয়া হয় কি না?', 'অতিরিক্ত হোমওয়ার্ক', 'assessment', '১০ = পরিমাণ ঠিক আছে, ৪ = অনেক বেশি'],
+  ['quiz-revision', 'কুইজের সিলেবাস রিভাইজ করা হয় কি না?', 'কুইজ রিভিশন', 'assessment'],
+  ['exam-scripts', 'পরীক্ষার খাতা ঠিকঠাক চেক করে বাসায় পাঠানো হয় কি না?', 'পরীক্ষার খাতা', 'assessment'],
+  ['informs-problems', 'আপনার সন্তানের কোনো সমস্যা বা দুর্বলতা থাকলে আপনাকে অবগত করা হয় কি না?', 'সমস্যা জানানো', 'guardian-communication'],
+  ['child-likes-teacher', 'আপনার সন্তান শিক্ষককে পছন্দ করে কি না?', 'শিক্ষককে পছন্দ', 'conduct-tarbiyah'],
+  ['overall-satisfaction', 'সার্বিকভাবে আপনি শিক্ষকের কাজে সন্তুষ্ট কি না?', 'সার্বিক সন্তুষ্টি', 'overall-satisfaction'],
+];
+
+// G2 (guardian rates own child): descriptive options with hidden marks (spec §2.4), shown in this order.
+type G2Question = { key: string; text: string; shortLabel: string; area: string; options: [key: string, label: string, mark: number][]; allowNA?: boolean };
+const G2_QUESTIONS: G2Question[] = [
+  { key: 'attendance', text: 'নিয়মিত ক্লাস করে কি না?', shortLabel: 'উপস্থিতি', area: 'attendance', options: [['above-90', 'উপস্থিতি > ৯০%', 10], ['80-90', 'উপস্থিতি ৮০–৯০%', 8], ['70-80', 'উপস্থিতি ৭০–৮০%', 6], ['below-70', 'উপস্থিতি < ৭০%', 4]] },
+  { key: 'study-at-home', text: 'বাসায় নিয়মিত পড়া পড়ে কি না? (নন ডে কেয়ারদের জন্য প্রযোজ্য)', shortLabel: 'বাসায় পড়া', area: 'focus-habits', allowNA: true, options: [['4h', '৪ ঘন্টা +', 10], ['3h', '৩ ঘন্টা +', 8.5], ['2h', '২ ঘন্টা +', 7], ['1h', '১ ঘন্টা +', 5.5], ['under-1h', '১ ঘন্টার কম', 4]] },
+  { key: 'homework', text: 'হোমওয়ার্ক দেওয়া হলে নিয়মিত করে কি না?', shortLabel: 'হোমওয়ার্ক', area: 'focus-habits', options: [['regular', 'নিয়মিত করে', 10], ['sometimes-missed', 'মাঝে মাঝে বাদ যায়', 8], ['sometimes', 'মাঝে মাঝে করে', 6], ['never', 'করে না', 4]] },
+  { key: 'devices', text: 'নিজে থেকে মোবাইল বা ডিভাইস দেখে কি না?', shortLabel: 'মোবাইল/ডিভাইস', area: 'interest-home', options: [['never', 'দেখে না', 10], ['1-2-weekly', 'সপ্তাহে ২/১ বার', 7], ['3-plus-weekly', 'সপ্তাহে ৩/৪ বার বা তার বেশি', 4]] },
+  { key: 'likes-madrasa', text: 'বাচ্চা মাদ্রাসা পছন্দ করে কি না?', shortLabel: 'মাদ্রাসা পছন্দ', area: 'interest-home', options: [['very', 'অনেক পছন্দ করে', 10], ['fairly', 'মোটামুটি পছন্দ করে', 8], ['little', 'কম পছন্দ করে', 6], ['not', 'পছন্দ করে না', 4]] },
+  { key: 'listens-parents', text: 'পিতামাতার কথা ঠিকঠাক শোনে কি না?', shortLabel: 'কথা শোনা', area: 'obedience', options: [['always', 'ঠিকঠাক শোনে', 10], ['sometimes-not', 'মাঝে মাঝে শোনে না', 8], ['sometimes', 'মাঝে মাঝে শোনে', 6], ['never', 'শোনে না', 4]] },
+  { key: 'peer-complaints', text: 'ক্লাসে অন্য বাচ্চাদের সাথে মারামারি বা বাজে কথা বলে এই অভিযোগ মাদ্রাসা থেকে আসে কি না?', shortLabel: 'মারামারির অভিযোগ', area: 'peer-conduct', options: [['often', 'প্রায়ই আসে', 4], ['sometimes', 'মাঝে মাঝে আসে', 7], ['never', 'আসে না', 10]] },
+  { key: 'quiz-score', text: 'কুইজে শতকরা কত নাম্বার পায়?', shortLabel: 'কুইজের নম্বর', area: 'results', options: [['80', '৮০%+', 10], ['70', '৭০%+', 8.5], ['60', '৬০%+', 7], ['50', '৫০%+', 5.5], ['below-50', '৫০% এর কম', 4]] },
+  { key: 'study-satisfaction', text: 'বাচ্চার সার্বিক পড়াশোনায় আপনি সন্তুষ্ট কি না?', shortLabel: 'পড়াশোনায় সন্তুষ্টি', area: 'interest-home', options: [['satisfied', 'সন্তুষ্ট', 10], ['fairly', 'মোটামুটি সন্তুষ্ট', 7], ['not', 'সন্তুষ্ট নই', 4]] },
 ];
 
 type Section = [key: string, name: string, erpSectionNames: string[]];
@@ -128,6 +158,51 @@ const documents: { _id: string; _type: string; [field: string]: unknown }[] = [
       allowNA: false,
     })),
   },
+  {
+    _id: 'survey-template-g1-v1',
+    _type: 'surveyTemplate',
+    kind: 'G1',
+    version: 1,
+    title: 'ক্লাস পরিচালনার উপর অভিভাবক রিভিউ',
+    intro: GUARDIAN_INTRO,
+    commentLabel: 'বিশেষ কোন পরামর্শ ও মন্তব্য',
+    layout: 'by-subject',
+    scale: [10, 8, 6, 4],
+    questions: G1_QUESTIONS.map(([key, text, shortLabel, area, hint]) => ({
+      _key: key,
+      _type: 'surveyQuestion',
+      key,
+      text,
+      shortLabel,
+      ...(hint ? { hint } : {}),
+      type: 'marks',
+      area: { _type: 'reference', _ref: areaId(area) },
+      required: true,
+      allowNA: false,
+    })),
+  },
+  {
+    _id: 'survey-template-g2-v1',
+    _type: 'surveyTemplate',
+    kind: 'G2',
+    version: 1,
+    title: 'শিক্ষার্থীর উপর অভিভাবক রিভিউ',
+    intro: GUARDIAN_INTRO,
+    commentLabel: 'কোন পরামর্শ ও মন্তব্য',
+    scale: [10, 8, 6, 4],
+    questions: G2_QUESTIONS.map((q) => ({
+      _key: q.key,
+      _type: 'surveyQuestion',
+      key: q.key,
+      text: q.text,
+      shortLabel: q.shortLabel,
+      type: 'options',
+      options: q.options.map(([key, label, mark]) => ({ _key: key, _type: 'surveyOption', key, label, mark })),
+      area: { _type: 'reference', _ref: areaId(q.area) },
+      required: true,
+      allowNA: q.allowNA ?? false,
+    })),
+  },
   ...CLASSES.map((c, i) => ({
     _id: `survey-class-${c.key}`,
     _type: 'surveyClass',
@@ -179,7 +254,7 @@ async function main() {
   }
   console.log(
     `${overwrite ? 'Replaced' : 'Created'} ${written} documents; ${overwrite ? 0 : existing.size} already existed. ` +
-      `Areas ${AREAS.length}, T1 questions ${T1_QUESTIONS.length}, classes ${CLASSES.length}, teachers ${TEACHERS.length}.`
+      `Areas ${AREAS.length}, T1 questions ${T1_QUESTIONS.length}, G1 ${G1_QUESTIONS.length}, G2 ${G2_QUESTIONS.length}, classes ${CLASSES.length}, teachers ${TEACHERS.length}.`
   );
   const missingSubjects = CLASSES.filter((c) => c.subjects.length === 0).length;
   if (missingSubjects) console.log(`Note: ${missingSubjects} classes have no subjects yet.`);

@@ -65,6 +65,43 @@ describe('buildRound', () => {
   });
 });
 
+describe('buildRound for guardian templates', () => {
+  const now = new Date('2026-10-05T00:00:00Z');
+  const withTemplate = (patch: Record<string, unknown>, classes?: ReturnType<typeof source>['classes']) => {
+    const base = source();
+    return { ...base, ...(classes ? { classes } : {}), round: { ...base.round!, template: { ...base.round!.template!, ...patch } } };
+  };
+  const withSubjects = source().classes.map((c) => ({ ...c, subjects: c.subjects ?? [{ key: 'math', name: 'গণিত' }] }));
+
+  it('snapshots the G1 layout, defaulting to one subject per screen', () => {
+    const byDefault = buildRound(withTemplate({ kind: 'G1' }, withSubjects), { now });
+    expect(byDefault.ok && byDefault.round.snapshot.template.layout).toBe('by-subject');
+    const byQuestion = buildRound(withTemplate({ kind: 'G1', layout: 'by-question' }, withSubjects), { now });
+    expect(byQuestion.ok && byQuestion.round.snapshot.template.layout).toBe('by-question');
+    const t1 = buildRound(withTemplate({ layout: 'by-question' }), { now });
+    expect(t1.ok && t1.round.snapshot.template.layout).toBeUndefined();
+  });
+
+  it('needs subjects in every class for G1', () => {
+    const result = buildRound(withTemplate({ kind: 'G1' }), { now });
+    expect(result.ok).toBe(false);
+    expect(!result.ok && result.errors.join(' ')).toContain('ষষ্ঠ');
+  });
+
+  it('rejects N/A on T1 questions, a reserved option key and options without marks', () => {
+    const questions = [
+      { key: 'q1', text: 'প্রশ্ন', type: 'marks', areaKey: 'attendance', allowNA: true },
+      { key: 'q2', text: 'প্রশ্ন', type: 'options', areaKey: 'attendance', options: [{ key: 'na', label: 'ক', mark: 10 }, { key: 'b', label: 'খ', mark: null }] },
+    ];
+    const result = buildRound(withTemplate({ questions }), { now });
+    expect(result.ok).toBe(false);
+    const text = !result.ok ? result.errors.join(' | ') : '';
+    expect(text).toContain('প্রযোজ্য নয়');
+    expect(text).toContain('"na"');
+    expect(text).toContain('মার্ক দিন');
+  });
+});
+
 describe('roundStatus', () => {
   const round = { opensAt: new Date('2026-10-05T00:00:00Z'), closesAt: new Date('2026-10-20T00:00:00Z') };
   it('is scheduled, open, then closed', () => {

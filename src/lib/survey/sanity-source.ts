@@ -18,7 +18,7 @@ export function fetchRoundSource(sanityRoundId: string): Promise<RoundSource> {
       "round": *[_type == "surveyRound" && _id == $id][0] {
         _id, label, "slug": slug.current, plannedOpensAt, plannedClosesAt,
         "template": template-> {
-          _id, kind, version, title, intro, commentLabel, scale,
+          _id, kind, version, title, intro, commentLabel, layout, scale,
           questions[] { key, text, shortLabel, hint, type, options[] { key, label, mark }, "areaKey": area->key, required, allowNA }
         }
       },

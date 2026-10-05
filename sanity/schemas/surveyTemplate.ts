@@ -25,6 +25,21 @@ export const surveyTemplate = defineType({
     defineField({ name: 'intro', title: 'Intro (Bengali)', type: 'text', rows: 3 }),
     defineField({ name: 'commentLabel', title: 'Comment label', description: 'Leave empty for no overall comment box.', type: 'string' }),
     defineField({
+      name: 'layout',
+      title: 'Layout',
+      description: 'How guardians rate the subjects. Fixed for a round once it opens.',
+      type: 'string',
+      options: {
+        list: [
+          { title: 'One subject per screen, all questions', value: 'by-subject' },
+          { title: 'One question per screen, all subjects', value: 'by-question' },
+        ],
+        layout: 'radio',
+      },
+      initialValue: 'by-subject',
+      hidden: ({ document }) => document?.kind !== 'G1',
+    }),
+    defineField({
       name: 'scale',
       title: 'Marks',
       description: 'Marks shown for rating questions, best first.',
@@ -87,6 +102,7 @@ export const surveyTemplate = defineType({
                 Rule.custom((options, context) => {
                   if ((context.parent as { type?: string })?.type !== 'options') return true
                   if (!options || options.length < 2) return 'Add at least two options.'
+                  if (options.some((o) => (o as { key?: string }).key === 'na')) return 'The key "na" is reserved for "not applicable".'
                   return uniqueItemKeys(options)
                 }),
             }),
@@ -98,7 +114,16 @@ export const surveyTemplate = defineType({
               validation: (Rule) => Rule.required(),
             }),
             defineField({ name: 'required', title: 'Required', type: 'boolean', initialValue: true }),
-            defineField({ name: 'allowNA', title: 'Allow "not applicable"', type: 'boolean', initialValue: false }),
+            defineField({
+              name: 'allowNA',
+              title: 'Allow "not applicable"',
+              type: 'boolean',
+              initialValue: false,
+              validation: (Rule) =>
+                Rule.custom((value, context) =>
+                  value && (context.document as { kind?: string })?.kind === 'T1' ? 'Teacher reviews (T1) have no "not applicable".' : true
+                ),
+            }),
           ],
           preview: { select: { title: 'text', subtitle: 'key' } },
         }),
