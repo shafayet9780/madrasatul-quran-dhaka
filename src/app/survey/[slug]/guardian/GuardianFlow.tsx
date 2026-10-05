@@ -122,7 +122,8 @@ export function GuardianFlow({ config }: { config: GuardianConfig }) {
     (change: Partial<DeviceForm>) => {
       setForm((prev) => {
         if (!prev || !childErpId) return prev;
-        const next = { ...prev, ...change };
+        // A changed form is a new submission (a resend after a lost reply must not return the old receipt).
+        const next = { ...prev, ...change, submissionId: crypto.randomUUID() };
         try {
           localStorage.setItem(formKey(config.roundId, childErpId), JSON.stringify(next));
         } catch {
@@ -159,7 +160,14 @@ export function GuardianFlow({ config }: { config: GuardianConfig }) {
         return null;
       }
       if (response.status === 403) return 'closed';
+      if (response.status === 429) return 'rate-limited';
       if (result.reason === 'incomplete') return 'incomplete';
+      if (result.reason === 'invalid') {
+        // The child left this class (roster re-imported) or the form no longer fits: search again.
+        setError('changed');
+        go('identify');
+        return null;
+      }
       if (result.reason === 'submitter') {
         go('match');
         return null;
@@ -175,7 +183,9 @@ export function GuardianFlow({ config }: { config: GuardianConfig }) {
   // Live verified / unverified line: asked once per complete number, after typing pauses.
   const mobile = normaliseMobile(identity.mobile);
   useEffect(() => {
-    if (step !== 'match' || !identity.childErpId || !mobile) {
+    // Checked on the match screen; the answer is kept for the question screens.
+    if (step !== 'match') return;
+    if (!identity.childErpId || !mobile) {
       setVerify('idle');
       return;
     }
@@ -185,7 +195,9 @@ export function GuardianFlow({ config }: { config: GuardianConfig }) {
       try {
         // The raw number: the server normalises it once (a foreign number does not survive twice).
         const response = await api.post<VerifyResponse>('verify', { studentErpId: identity.childErpId, mobile: identity.mobile });
-        if (!cancelled) setVerify(response.status === 200 ? (response.data.verified ? 'verified' : 'unverified') : 'idle');
+        if (cancelled) return;
+        setVerify(response.status === 200 ? (response.data.verified ? 'verified' : 'unverified') : 'idle');
+        if (response.status === 200) patch({ verified: { key: `${identity.childErpId}|${mobile}`, value: response.data.verified } });
       } catch {
         if (!cancelled) setVerify('idle');
       }
@@ -194,7 +206,7 @@ export function GuardianFlow({ config }: { config: GuardianConfig }) {
       cancelled = true;
       clearTimeout(timer);
     };
-  }, [api, step, identity.childErpId, identity.mobile, mobile]);
+  }, [api, step, identity.childErpId, identity.mobile, mobile, patch]);
 
   async function search() {
     setBusy(true);
@@ -281,7 +293,13 @@ export function GuardianFlow({ config }: { config: GuardianConfig }) {
     const heading = {
       child: `${child.name} · ${classLabel(config.snapshot, identity.classKey, identity.sectionKey)}`,
       submitter: `${identity.name.trim()} (${relationText(identity.relation ?? 'other', identity.relationOther) ?? ''})`,
-      verified: verify === 'verified' ? true : verify === 'unverified' ? false : null,
+      // The last check for this child and number; a child found by this very number is on record.
+      verified:
+        identity.verified?.key === `${childErpId}|${mobile}`
+          ? identity.verified.value
+          : identity.by === 'mobile' && mobile !== null && normaliseMobile(identity.searched) === mobile
+            ? true
+            : null,
     };
     if (step === 'answer') {
       return (

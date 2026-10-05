@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { formatDateTime } from '@/lib/survey/dates';
+import { answerText } from '@/lib/survey/guardian-logic';
 import { bn, questionLabel, referenceNumber } from '@/lib/survey/labels';
 import { surveyAccess } from '@/lib/survey/round-status';
 import { classifyAnswer, classLabel } from '@/lib/survey/snapshot';
@@ -15,17 +16,9 @@ export function GuardianReceipt({ receipt }: { receipt: Receipt }) {
   const row = rows[0];
   const answers = (row?.answers ?? {}) as Record<string, unknown>;
   const access = surveyAccess(round);
-  const open = access === 'open' || access === 'grace';
+  const canCorrect = !replacedBy && !setAside && (access === 'open' || access === 'grace');
   const subjects = classes.find((c) => c.key === submission.classKey)?.subjects ?? [];
 
-  const optionText = (index: number) => {
-    const question = template.questions[index];
-    const value = answers[question.key];
-    const answer = classifyAnswer(question, template.scale, value);
-    if (answer.kind === 'na') return question.naLabel ?? 'প্রযোজ্য নয়';
-    if (answer.kind === 'invalid') return '–';
-    return question.type === 'options' ? (question.options.find((o) => o.key === value)?.label ?? '–') : bn(answer.mark);
-  };
 
   return (
     <main className="sv-screen" style={{ paddingBottom: 32 }}>
@@ -100,7 +93,7 @@ export function GuardianReceipt({ receipt }: { receipt: Receipt }) {
                     })}
                   </span>
                 ) : (
-                  <b style={{ fontWeight: 600 }}>{optionText(q)}</b>
+                  <b style={{ fontWeight: 600 }}>{answerText(question, template.scale, answers[question.key]) ?? '–'}</b>
                 )}
               </span>
             </li>
@@ -121,7 +114,7 @@ export function GuardianReceipt({ receipt }: { receipt: Receipt }) {
         </Link>
         <div style={{ fontSize: 13, color: 'var(--sv-text-muted)', textAlign: 'center', lineHeight: 1.6 }}>
           এই পাতার লিংকটি সংরক্ষণ করুন · iPhone: শেয়ার → প্রিন্ট → PDF
-          {open && (
+          {canCorrect && (
             <>
               <br />
               সংশোধন করতে {dayMonth.format(round.closesAt)} পর্যন্ত একই লিংকে আবার রিভিউ দিন।

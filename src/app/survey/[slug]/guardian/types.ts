@@ -33,4 +33,6 @@ export type Identity = {
   relation?: Relation;
   relationOther: string;
   mobile: string;
+  /** Last verification answer, for "child|canonical mobile"; shown on the question screens too. */
+  verified?: { key: string; value: boolean };
 };

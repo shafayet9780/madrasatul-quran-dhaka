@@ -1,16 +1,17 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Icon, Topbar, useIsDesktop } from '@/components/survey/ui';
+import { answerText } from '@/lib/survey/guardian-logic';
 import { bn } from '@/lib/survey/labels';
-import { classifyAnswer, NA, type SnapshotQuestion } from '@/lib/survey/snapshot';
+import { NA, type SnapshotQuestion } from '@/lib/survey/snapshot';
 import { ChoiceGroup, GuardianDeskHeader, Segments, type Choice } from './GuardianChrome';
 import type { GuardianConfig } from './types';
 
 const dayMonth = new Intl.DateTimeFormat('bn-BD', { timeZone: 'Asia/Dhaka', day: 'numeric', month: 'long' });
 
 export type Answers = Record<string, unknown>;
-export type SubmitError = 'closed' | 'network' | 'failed' | 'incomplete';
+export type SubmitError = 'closed' | 'network' | 'failed' | 'incomplete' | 'rate-limited';
 
 /** Who and for which child, as the question screens show it. */
 export type Heading = { child: string; submitter: string; verified: boolean | null };
@@ -19,14 +20,6 @@ function choicesFor(question: SnapshotQuestion): Choice[] {
   const choices: Choice[] = question.options.map((o) => ({ value: o.key, label: o.label }));
   if (question.allowNA) choices.push({ value: NA, label: question.naLabel ?? 'প্রযোজ্য নয়', caption: 'স্কোরে গণনা হবে না', na: true });
   return choices;
-}
-
-/** The answer as the guardian chose it, for review lists; null when unanswered. */
-export function answerText(question: SnapshotQuestion, scale: number[], value: unknown): string | null {
-  const answer = classifyAnswer(question, scale, value);
-  if (answer.kind === 'invalid') return null;
-  if (answer.kind === 'na') return question.naLabel ?? 'প্রযোজ্য নয়';
-  return question.type === 'options' ? (question.options.find((o) => o.key === value)?.label ?? null) : bn(answer.mark);
 }
 
 export function G2QuestionScreen({
@@ -56,10 +49,20 @@ export function G2QuestionScreen({
   const goBack = () => (q === 0 ? onBack() : onQuestion(q - 1));
   const goNext = () => (last ? onReview() : onQuestion(q + 1));
   const value = answers[question.key];
+  // A new question is announced: focus moves to its heading (not on the first render).
+  const headingRef = useRef<HTMLHeadingElement>(null);
+  const firstRender = useRef(true);
+  useEffect(() => {
+    if (firstRender.current) {
+      firstRender.current = false;
+      return;
+    }
+    headingRef.current?.focus();
+  }, [q]);
 
   const title = (
     <>
-      <h1 id="g2-question" className="sv-head" style={{ margin: 0, fontSize: desktop ? 28 : 24, lineHeight: 1.4 }}>
+      <h1 ref={headingRef} tabIndex={-1} id="g2-question" className="sv-head" style={{ margin: 0, fontSize: desktop ? 28 : 24, lineHeight: 1.4, outline: 'none' }}>
         {question.text}
       </h1>
       {question.hint && <div style={{ fontSize: 14.5, color: 'var(--sv-text-muted)' }}>{question.hint}</div>}
@@ -142,6 +145,7 @@ const SUBMIT_ERRORS: Record<SubmitError, string> = {
   network: 'ইন্টারনেট সংযোগ নেই। আপনার উত্তর এই ফোনে রাখা আছে; সংযোগ ফিরলে আবার জমা দিন।',
   failed: 'জমা দেওয়া যায়নি। আবার চেষ্টা করুন।',
   incomplete: 'কিছু প্রশ্নের উত্তর বাকি আছে।',
+  'rate-limited': 'এই মুহূর্তে অনেক রিভিউ জমা হচ্ছে। কয়েক মিনিট পরে আবার জমা দিন; আপনার উত্তর এই ফোনে রাখা আছে।',
 };
 
 export function G2ReviewScreen({
@@ -218,7 +222,7 @@ export function G2ReviewScreen({
       <div className="sv-footer">
         <div aria-live="polite">
           {error && (
-            <p role="alert" style={{ margin: '0 0 4px', fontSize: 14.5, lineHeight: 1.55, color: 'var(--sv-warn)' }}>
+            <p style={{ margin: '0 0 4px', fontSize: 14.5, lineHeight: 1.55, color: 'var(--sv-warn)' }}>
               {SUBMIT_ERRORS[error]}
             </p>
           )}

@@ -73,15 +73,20 @@ export async function submitGuardian(round: Round, input: GuardianSubmitInput, m
   if (access !== 'open' && access !== 'grace') return { ok: false, reason: 'closed' };
   const db = getDb();
 
-  const [again] = await db
-    .select({ token: submissions.receiptToken, roundId: submissions.roundId })
-    .from(submissions)
-    .where(eq(submissions.id, input.submissionId))
-    .limit(1);
-  if (again) return again.roundId === round.id && again.token ? { ok: true, receiptToken: again.token } : { ok: false, reason: 'invalid' };
-
   // Exactly as the lookup returned it.
   const erpId = input.studentErpId.trim();
+  const [again] = await db
+    .select({ token: submissions.receiptToken, roundId: submissions.roundId, mobile: submissions.submitterMobile, erpId: responses.studentErpId })
+    .from(submissions)
+    .leftJoin(responses, eq(responses.submissionId, submissions.id))
+    .where(eq(submissions.id, input.submissionId))
+    .limit(1);
+  if (again) {
+    // The same form sent again (double tap, lost answer): its receipt, and only to the same sender.
+    const same = again.roundId === round.id && again.erpId === erpId && again.mobile === normaliseMobile(input.submitter.mobile);
+    return same && again.token ? { ok: true, receiptToken: again.token } : { ok: false, reason: 'invalid' };
+  }
+
   const [student] = await db
     .select()
     .from(students)

@@ -3,6 +3,7 @@ import { randomUUID } from 'node:crypto';
 import { and, eq, isNotNull, like } from 'drizzle-orm';
 import { getDb } from './db';
 import { lookupChildren, pruneLookups, submitGuardian, verifyMobile } from './guardian';
+import { loadReceipt } from './t1';
 import { answerItems, responses, students, submissions, surveyLookups, surveyRounds } from './schema';
 import { g2FixtureSnapshot } from './testing/guardian-fixture';
 
@@ -143,6 +144,30 @@ describe('submitGuardian', () => {
     expect(await submitGuardian(round, form({ studentErpId: `${run}-c` }), meta)).toEqual({ ok: false, reason: 'invalid' });
     expect(await submitGuardian(round, form({ studentErpId: `${run}-d` }), meta)).toEqual({ ok: false, reason: 'invalid' });
     expect(await submitGuardian(round, form({ submitter: { name: 'ক', relation: 'other', relationOther: ' ', mobile: '01915000111' } }), meta)).toEqual({ ok: false, reason: 'submitter' });
+  });
+
+  it('sends a receipt again only to the same sender of the same form', async () => {
+    const input = form({ studentErpId: `${run}-a` });
+    expect((await submitGuardian(round, input, meta)).ok).toBe(true);
+    expect(await submitGuardian(round, { ...input, submitter: { ...input.submitter, mobile: '01855203941' } }, meta)).toEqual({ ok: false, reason: 'invalid' });
+    expect(await submitGuardian(round, { ...input, studentErpId: `${run}-b` }, meta)).toEqual({ ok: false, reason: 'invalid' });
+  });
+
+  it('links a replaced receipt to the newer one only for the same mobile', async () => {
+    const first = await submitGuardian(round, form({ studentErpId: `${run}-a` }), meta);
+    const sameParent = await submitGuardian(round, form({ studentErpId: `${run}-a` }), meta);
+    const otherPerson = await submitGuardian(round, form({ studentErpId: `${run}-a`, submitter: { name: 'অন্য', relation: 'mother', relationOther: '', mobile: '+44 7911 000222' } }), meta);
+    if (!first.ok || !sameParent.ok || !otherPerson.ok) throw new Error('submit failed');
+    const firstReceipt = await loadReceipt(first.receiptToken);
+    expect(firstReceipt).toMatchObject({ replacedBy: sameParent.receiptToken, setAside: false });
+    const secondReceipt = await loadReceipt(sameParent.receiptToken);
+    expect(secondReceipt).toMatchObject({ replacedBy: null, setAside: true });
+  });
+
+  it('keeps exactly one current form when two arrive at once', async () => {
+    const results = await Promise.all([submitGuardian(round, form({ studentErpId: `${run}-a` }), meta), submitGuardian(round, form({ studentErpId: `${run}-a` }), meta)]);
+    expect(results.every((r) => r.ok)).toBe(true);
+    expect(await current(`${run}-a`)).toHaveLength(1);
   });
 
   it('refuses after the grace period', async () => {

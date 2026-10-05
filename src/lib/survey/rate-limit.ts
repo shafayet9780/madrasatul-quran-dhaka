@@ -30,6 +30,7 @@ export const SURVEY_LIMITS = {
   lookup: { limit: 60, windowMs: 10 * MINUTE },
   // Guardians arrive from mobile carriers behind shared IPs; the per-value limit below stops guessing.
   guardianLookup: { limit: 300, windowMs: 10 * MINUTE },
+  guardianSubmit: { limit: 300, windowMs: 10 * MINUTE },
   /** Per looked-up value (a student ID or mobile), whatever the IP. */
   guardianValue: { limit: 10, windowMs: 10 * MINUTE },
   draft: { limit: 3000, windowMs: 10 * MINUTE },

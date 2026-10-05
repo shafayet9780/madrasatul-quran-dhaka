@@ -5,7 +5,7 @@ import { authorizeRound, json, rateLimited, readBody, requestMeta } from '@/lib/
 
 /** Submits a guardian's G1/G2 form; allowed in the grace period so a form on screen can still be sent. */
 export async function POST(request: NextRequest, { params }: { params: Promise<{ roundId: string }> }) {
-  const limited = await rateLimited(request, 'submit');
+  const limited = await rateLimited(request, 'guardianSubmit');
   if (limited) return limited;
   const { round, response } = await authorizeRound(request, (await params).roundId);
   if (response) return response;

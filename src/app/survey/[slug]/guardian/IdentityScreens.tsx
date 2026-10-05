@@ -13,7 +13,7 @@ const longDate = new Intl.DateTimeFormat('bn-BD', { timeZone: 'Asia/Dhaka', day:
 
 const MINUTES: Record<GuardianConfig['kind'], string> = { G1: '৮–১২', G2: '৩–৫' };
 
-export type LookupError = 'not-found' | 'rate-limited' | 'closed' | 'network' | 'failed';
+export type LookupError = 'not-found' | 'rate-limited' | 'closed' | 'network' | 'failed' | 'changed';
 export type VerifyState = 'idle' | 'checking' | 'verified' | 'unverified';
 
 /** "নার্সারি · শাখা A", or the class alone. */
@@ -163,6 +163,7 @@ const LOOKUP_ERRORS: Record<Exclude<LookupError, 'not-found'>, string> = {
   closed: 'এই রিভিউ এখন বন্ধ।',
   network: 'ইন্টারনেট সংযোগ নেই। সংযোগ দেখে আবার চেষ্টা করুন।',
   failed: 'খোঁজা যায়নি। পাতাটি আবার লোড করে চেষ্টা করুন।',
+  changed: 'শিক্ষার্থীর তথ্য স্কুলের রেকর্ডে বদলেছে। আবার খুঁজে নিন; আপনার উত্তর এই ফোনে রাখা আছে।',
 };
 
 export function IdentifyScreen({

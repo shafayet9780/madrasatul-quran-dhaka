@@ -1,6 +1,7 @@
 import type { LookupRequest } from './guardian-types';
 import { normaliseMobile, normaliseStudentId } from './normalise';
-import { classifyAnswer, type RoundSnapshot } from './snapshot';
+import { toBengaliDigits } from './normalise';
+import { classifyAnswer, type RoundSnapshot, type SnapshotQuestion } from './snapshot';
 
 /** The typed ID or mobile in the stored form, or null when it cannot match anything. */
 export function lookupValue(by: LookupRequest['by'], input: string): string | null {
@@ -79,4 +80,12 @@ export function relationText(relation: 'father' | 'mother' | 'other', other: str
   if (relation === 'father') return 'পিতা';
   if (relation === 'mother') return 'মাতা';
   return other.trim() || null;
+}
+
+/** The answer as the guardian chose it (option label, N/A label or mark); null when unanswered. */
+export function answerText(question: SnapshotQuestion, scale: number[], value: unknown): string | null {
+  const answer = classifyAnswer(question, scale, value);
+  if (answer.kind === 'invalid') return null;
+  if (answer.kind === 'na') return question.naLabel ?? 'প্রযোজ্য নয়';
+  return question.type === 'options' ? (question.options.find((o) => o.key === value)?.label ?? null) : toBengaliDigits(answer.mark);
 }

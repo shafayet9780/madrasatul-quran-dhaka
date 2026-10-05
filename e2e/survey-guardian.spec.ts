@@ -184,6 +184,8 @@ test.describe('G2 questions', () => {
     await page.setViewportSize({ width: 1440, height: 1000 });
     await toQuestions(page);
     await expect(page.getByRole('navigation', { name: 'প্রশ্নসমূহ' })).toBeVisible();
+    // The verified answer from the match screen stays with the guardian on the questions.
+    await expect(page.locator('header').getByText('যাচাইকৃত', { exact: true })).toBeVisible();
     await expectAccessible(page);
   });
 });
