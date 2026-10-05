@@ -272,6 +272,11 @@
 }
 .sv-search:focus-within {
   border-color: var(--sv-bronze);
+  box-shadow: 0 0 0 1px var(--sv-bronze);
+}
+/* The field's bronze border is the focus indicator; no second ring inside it. */
+.sv-root .sv-search input:focus-visible {
+  outline: none;
 }
 .sv-search input {
   flex: 1;
