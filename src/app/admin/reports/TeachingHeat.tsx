@@ -59,7 +59,8 @@ export function TeachingHeat({
                       title={cell.teacher ? `শিক্ষক: ${cell.teacher}` : undefined}
                       aria-current={current ? 'true' : undefined}
                       className="sv-heat-cell"
-                      style={{ background: colour.bg, color: colour.fg, outline: current ? '3px solid var(--sv-bronze)' : undefined }}
+                      data-selected={current || undefined}
+                      style={{ background: colour.bg, color: colour.fg }}
                     >
                       <span className="sv-num" style={{ fontSize: 15 }}>
                         {low && '⚠ '}
