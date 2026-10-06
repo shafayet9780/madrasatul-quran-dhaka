@@ -158,13 +158,13 @@ export default async function ClassReportPage({ searchParams }: { searchParams: 
               শিক্ষক (T1)
             </span>
           </div>
-          <div style={{ fontSize: 13, color: 'var(--sv-text-muted)' }}>স্কোর ০–১০০, প্রত্যেক শিক্ষার্থীর গড় থেকে · n = শিক্ষার্থী · ৩ জনের কম হলে ধূসর</div>
+          <div style={{ fontSize: 13, color: 'var(--sv-text-muted)' }}>স্কোর ০–১০০, প্রত্যেক শিক্ষার্থীর গড় থেকে · ৩ জনের কম হলে ধূসর</div>
           {guardian.areas.map((area) => {
             const teacher = teacherAreas.get(area.areaKey);
             const g = area.mean;
             const t = teacher?.mean ?? null;
             const side = (name: string, mean: number | null, n: number, reliable: boolean) =>
-              mean === null ? `${name} —` : `${name} ${points(mean)} (n=${bn(n)}${reliable ? '' : ', n<৩'})`;
+              mean === null ? `${name} —` : `${name} ${points(mean)} (${bn(n)} জন${reliable ? '' : ', n<৩'})`;
             const text = [side('অভিভাবক', g, area.students, area.reliable), side('শিক্ষক', t, teacher?.students ?? 0, teacher?.reliable ?? false)];
             const gap = area.reliable && teacher?.reliable && g !== null && t !== null ? Math.round(Math.abs(score100(g) - score100(t))) : null;
             return (

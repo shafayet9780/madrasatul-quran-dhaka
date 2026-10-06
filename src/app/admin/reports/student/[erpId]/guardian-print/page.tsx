@@ -34,7 +34,7 @@ function PrintTrend({ points }: { points: { label: string; guardian: number | nu
   const gl = last('guardian');
   const tl = last('teacher');
   const mid = gl !== null && tl !== null ? (y(gl) + y(tl)) / 2 : 0;
-  const apart = gl !== null && tl !== null && Math.abs(y(gl) - y(tl)) < 16;
+  const apart = gl !== null && tl !== null && Math.abs(y(gl) - y(tl)) < 24;
   const labelY = (key: 'guardian' | 'teacher', mark: number) => {
     if (!apart) return y(mark) + 4;
     const guardianHigher = y(gl!) <= y(tl!);

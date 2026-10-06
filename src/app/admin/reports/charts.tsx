@@ -269,7 +269,8 @@ export function GapScatter({ points }: { points: { erpId: string; name: string; 
   // edge; below the dot, else above, else further out, skipping places another name already took.
   const labels: { erpId: string; name: string; x: number; y: number; end: boolean; width: number }[] = [];
   for (const p of [...points].filter((q) => q.flagged).sort((a, b) => a.guardian - b.guardian)) {
-    const width = p.name.length * 7;
+    // Rough text width at 12px bold; Bengali letters run wider than Latin.
+    const width = p.name.length * (/[\u0980-\u09FF]/.test(p.name) ? 9 : 7);
     const end = x(p.guardian) + width > right - 4;
     const lx = end ? x(p.guardian) + 10 : x(p.guardian) - 10;
     const span = (l: { x: number; end: boolean; width: number }) => (l.end ? [l.x - l.width, l.x] : [l.x, l.x + l.width]);
