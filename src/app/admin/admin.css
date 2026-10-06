@@ -340,6 +340,10 @@
   background: var(--sv-ok-bg);
   color: var(--sv-ok);
 }
+.sv-admin .sv-chip.is-warn {
+  background: var(--sv-warn-bg);
+  color: var(--sv-warn);
+}
 .sv-admin .sv-chip.is-muted {
   background: var(--sv-neutral-bg);
   color: var(--sv-text-body);

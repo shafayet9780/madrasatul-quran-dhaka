@@ -241,11 +241,12 @@ export async function guardianTrackerWorkbook(roundId: string): Promise<Book | n
         { header: 'শিক্ষার্থী', key: 'name', width: 28 },
         { header: 'অবস্থা', key: 'status', width: 10 },
         { header: 'প্রদানকারী', key: 'who', width: 28 },
+        { header: 'মোবাইল', key: 'mobile', width: 16 },
         { header: 'যাচাই', key: 'verified', width: 12 },
         { header: 'জমার সময়', key: 'when', width: 18 },
       ],
       rows: data.multiple.flatMap((m) =>
-        m.forms.map((f) => ({ place: m.place, name: m.child.name, status: f.current ? 'গণ্য' : 'আগের', who: who(f), verified: f.verified ? 'যাচাইকৃত' : 'অযাচাইকৃত', when: formatSheetTime(f.submittedAt) }))
+        m.forms.map((f) => ({ place: m.place, name: m.child.name, status: f.current ? 'গণ্য' : 'আগের', who: who(f), mobile: displayMobile(f.mobile, false), verified: f.verified ? 'যাচাইকৃত' : 'অযাচাইকৃত', when: formatSheetTime(f.submittedAt) }))
       ),
     },
   ]);

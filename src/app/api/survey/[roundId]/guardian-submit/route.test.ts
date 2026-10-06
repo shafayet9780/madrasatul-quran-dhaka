@@ -1,10 +1,10 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { NextRequest } from 'next/server';
 
-const { selectRound, submitGuardian } = vi.hoisted(() => ({ selectRound: vi.fn(), submitGuardian: vi.fn() }));
+const { selectRound, submitGuardian, allow } = vi.hoisted(() => ({ selectRound: vi.fn(), submitGuardian: vi.fn(), allow: vi.fn(async (_key: string) => true) }));
 
 vi.mock('server-only', () => ({}));
-vi.mock('@/lib/survey/rate-limit', () => ({ allow: async () => true, SURVEY_LIMITS: { guardianSubmit: {} } }));
+vi.mock('@/lib/survey/rate-limit', () => ({ allow, SURVEY_LIMITS: { guardianSubmit: {}, guardianValue: {} } }));
 vi.mock('@/lib/survey/db', () => ({
   getDb: () => ({ select: () => ({ from: () => ({ where: () => ({ limit: selectRound }) }) }) }),
 }));
@@ -36,7 +36,10 @@ const call = (payload: unknown) =>
     { params: Promise.resolve({ roundId: ROUND_ID }) }
   );
 
-afterEach(() => vi.clearAllMocks());
+afterEach(() => {
+  vi.clearAllMocks();
+  allow.mockImplementation(async () => true);
+});
 
 describe('guardian submit route', () => {
   it('passes a valid form on and answers with its receipt', async () => {
@@ -63,5 +66,12 @@ describe('guardian submit route', () => {
     expect((await call(body)).status).toBe(403);
     selectRound.mockResolvedValue([round('T1')]);
     expect((await call(body)).status).toBe(404);
+  });
+
+  it('stops repeated forms for one child, whatever the IP', async () => {
+    selectRound.mockResolvedValue([round()]);
+    allow.mockImplementation(async (key: string) => !key.startsWith('survey:guardianValue:'));
+    expect((await call(body)).status).toBe(429);
+    expect(submitGuardian).not.toHaveBeenCalled();
   });
 });

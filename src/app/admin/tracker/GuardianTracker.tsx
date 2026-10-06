@@ -201,7 +201,9 @@ export async function GuardianTracker({ roundId, rounds, place, now }: { roundId
           <h2 id="multiple-title" style={{ margin: 0, fontSize: 16, fontWeight: 600 }}>
             একাধিক জমা ({bn(multiple.length)})
           </h2>
-          <div style={{ fontSize: 13.5, color: 'var(--sv-text-muted)' }}>একই শিক্ষার্থীর জন্য একাধিক রিভিউ এসেছে। সর্বশেষটি গণ্য হয়; আগেরগুলো রাখা আছে। অস্বাভাবিক মনে হলে অভিভাবককে ফোন করুন।</div>
+          <div style={{ fontSize: 13.5, color: 'var(--sv-text-muted)' }}>
+            একই শিক্ষার্থীর জন্য একাধিক রিভিউ এসেছে। সর্বশেষটি গণ্য হয়; আগেরগুলো রাখা আছে। গণ্য ফর্মটি অন্য নম্বর থেকে এলে চিহ্নিত থাকে — অস্বাভাবিক মনে হলে অভিভাবককে ফোন করুন।
+          </div>
           {multiple.length === 0 && <p className="sv-muted" style={{ margin: 0 }}>নেই।</p>}
           {multiple.map((m) => (
             <div key={m.child.erpId} className="flex flex-col gap-1.5" style={{ padding: '10px 12px', borderRadius: 12, border: '1px solid var(--sv-hairline)' }}>
@@ -213,9 +215,10 @@ export async function GuardianTracker({ roundId, rounds, place, now }: { roundId
                 <div key={f.submissionId} className="flex flex-wrap items-center gap-2" style={{ fontSize: 13.5 }}>
                   <span className={`sv-chip ${f.current ? 'is-ok' : 'is-muted'}`}>{f.current ? 'গণ্য' : 'আগের'}</span>
                   <span>
-                    {f.who} ({f.relation}) · {f.verified ? 'যাচাইকৃত' : 'অযাচাইকৃত'}
+                    {f.who} ({f.relation}) · {displayMobile(f.mobile)} · {f.verified ? 'যাচাইকৃত' : 'অযাচাইকৃত'}
                   </span>
                   <span style={{ color: 'var(--sv-text-muted)' }}>{formatDateTime(f.submittedAt)}</span>
+                  {f.current && m.forms.some((o) => !o.current && o.mobile !== f.mobile) && <span className="sv-chip is-warn">আগের ফর্ম অন্য নম্বর থেকে</span>}
                 </div>
               ))}
             </div>

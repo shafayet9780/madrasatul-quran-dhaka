@@ -58,6 +58,10 @@ test('a guardian round shows response by class, reminders, unverified and repeat
   await expect(multiple.getByText('Hamza Rahim')).toBeVisible();
   await expect(multiple.getByText('গণ্য', { exact: true })).toBeVisible();
   await expect(multiple.getByText('আগের', { exact: true })).toBeVisible();
+  // The counted form came from the uncle's number, not the father's: flagged with both numbers shown.
+  await expect(multiple.getByText('আগের ফর্ম অন্য নম্বর থেকে')).toBeVisible();
+  await expect(multiple.getByText(/০১৮৫৫-০০০০০০/)).toBeVisible();
+  await expect(multiple.getByText(/০১৭০০-০০০০০২/)).toBeVisible();
 
   const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).analyze();
   expect(results.violations.map((v) => v.id)).toEqual([]);

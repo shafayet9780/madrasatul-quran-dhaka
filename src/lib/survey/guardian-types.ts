@@ -46,7 +46,10 @@ export const guardianSubmitSchema = z.object({
     mobile: z.string().max(40),
   }),
   /** G2: {questionKey: optionKey | 'na'} · G1: {questionKey: {subjectKey: mark | 'na'}} */
-  answers: z.record(z.string().max(64), z.union([answerValue, z.record(z.string().max(64), answerValue)])),
+  // Bounded: a template has a few questions and a class at most ~10 subjects.
+  answers: z
+    .record(z.string().max(64), z.union([answerValue, z.record(z.string().max(64), answerValue).refine((o) => Object.keys(o).length <= 40)]))
+    .refine((o) => Object.keys(o).length <= 64),
   comment: z.string().max(2000).default(''),
 });
 export type GuardianSubmitInput = z.infer<typeof guardianSubmitSchema>;

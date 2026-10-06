@@ -4,7 +4,7 @@ import { NextRequest } from 'next/server';
 const { selectRound, lookupChildren, allow } = vi.hoisted(() => ({ selectRound: vi.fn(), lookupChildren: vi.fn(), allow: vi.fn() }));
 
 vi.mock('server-only', () => ({}));
-vi.mock('@/lib/survey/rate-limit', () => ({ allow, SURVEY_LIMITS: { guardianLookup: {}, guardianValue: {} } }));
+vi.mock('@/lib/survey/rate-limit', () => ({ allow, SURVEY_LIMITS: { guardianLookup: {}, guardianLookupDaily: {}, guardianValue: {} } }));
 vi.mock('@/lib/survey/db', () => ({
   getDb: () => ({ select: () => ({ from: () => ({ where: () => ({ limit: selectRound }) }) }) }),
 }));
@@ -84,6 +84,13 @@ describe('guardian lookup route', () => {
     expect((await call({ classKey: 'play', sectionKey: '', by: 'id', value: '10014' })).status).toBe(404);
     selectRound.mockResolvedValue([round('G2', -5 * 60 * 1000)]);
     expect((await call({ classKey: 'play', sectionKey: '', by: 'id', value: '10014' })).status).toBe(403);
+  });
+
+  it('stops an address that looks up too much in a day', async () => {
+    selectRound.mockResolvedValue([round()]);
+    allow.mockImplementation(async (key: string) => !key.startsWith('survey:guardianLookupDaily:'));
+    expect((await call({ classKey: 'play', sectionKey: '', by: 'id', value: '10014' })).status).toBe(429);
+    expect(lookupChildren).not.toHaveBeenCalled();
   });
 
   it('stops repeated lookups of one value, whatever the IP', async () => {

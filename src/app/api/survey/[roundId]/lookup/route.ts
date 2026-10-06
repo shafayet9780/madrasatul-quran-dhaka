@@ -9,7 +9,7 @@ import { authorizeRound, json, rateLimited, readBody, requestMeta, valueLimited 
  * class-section. Returns names and rolls only; "no such ID" and "ID in another class" look the same.
  */
 export async function POST(request: NextRequest, { params }: { params: Promise<{ roundId: string }> }) {
-  const limited = await rateLimited(request, 'guardianLookup');
+  const limited = (await rateLimited(request, 'guardianLookup')) ?? (await rateLimited(request, 'guardianLookupDaily'));
   if (limited) return limited;
   const { round, response } = await authorizeRound(request, (await params).roundId, { allowGrace: false });
   if (response) return response;
