@@ -7,7 +7,7 @@ export { pickKindRound, previousRound, resolveRounds } from './guardian-report-m
 import { questionLabel } from './labels';
 import { titleCase, toBengaliDigits as bn } from './normalise';
 import { areaMeans, childRows, dropSince, GUARDIAN_AREAS, studentAggregates, studentAreaMeans, studentFlags } from './report-math';
-import { summarise } from './stats';
+import { MIN_N, summarise } from './stats';
 import { t1Marks } from './reports';
 import { answerItems, responses, students, submissions, surveyRounds } from './schema';
 import { classLabel, classSections, type RoundSnapshot } from './snapshot';
@@ -115,8 +115,9 @@ async function subjectTeachers(t1: Round | undefined) {
 }
 
 /** R2: class × subject means of a G1 round (optionally one area), change against another G1 round. */
-export async function teachingQuality(g1: Round, compare: Round | undefined, options: ReportOptions & { areaKey?: string }, rounds: Round[] = []) {
-  const [all, teacherOf] = await Promise.all([guardianItems([g1.id, compare?.id], options), subjectTeachers(pairedRound(g1, rounds, 'T1'))]);
+export async function teachingQuality(g1: Round, compare: Round | undefined, options: ReportOptions & { areaKey?: string }, rounds: Round[] = [], t1?: Round) {
+  // Teacher names come from the teacher round given (the overview's), else the one paired by date.
+  const [all, teacherOf] = await Promise.all([guardianItems([g1.id, compare?.id], options), subjectTeachers(t1 ?? pairedRound(g1, rounds, 'T1'))]);
   const items = all.filter((i) => !options.areaKey || i.areaKey === options.areaKey);
   const now = items.filter((i) => i.roundId === g1.id);
   const before = items.filter((i) => i.roundId === compare?.id);
@@ -172,7 +173,7 @@ export async function overviewReport(t1: Round, rounds: Round[], picked: { g1?: 
     // Teachers' marks about the child only (the guardian questions are left out, GUARDIAN_AREAS).
     t1Marks([...new Set([...history.map((r) => r.id), compareT1?.id].filter((id): id is string => Boolean(id)))]).then(childRows),
     guardianItems([g1?.id, g2?.id, cg1?.id, cg2?.id, ...pairs.flatMap((p) => [p.g1?.id, p.g2?.id])], options),
-    g1 ? teachingQuality(g1, cg1, options, rounds) : Promise.resolve(null),
+    g1 ? teachingQuality(g1, cg1, options, rounds, t1) : Promise.resolve(null),
     getDb()
       .select({ erpId: students.erpId, name: students.name, classKey: students.classKey, sectionKey: students.sectionKey })
       .from(students)
@@ -376,8 +377,10 @@ export async function questionResults(t1: Round, rounds: Round[], picked: { g1?:
     g1 ? guardianComments(g1.id, at, options) : Promise.resolve([]),
     g2 ? guardianComments(g2.id, at, options) : Promise.resolve([]),
   ]);
-  const weakestFirst = (a: { lowShare: number | null; mean: number | null }, b: { lowShare: number | null; mean: number | null }) =>
-    (b.lowShare ?? -1) - (a.lowShare ?? -1) || (a.mean ?? 99) - (b.mean ?? 99);
+  // Questions with fewer than 3 children are hidden on the page, so they sort last.
+  type Sortable = { lowShare: number | null; mean: number | null; children: number };
+  const shown = (q: Sortable) => (q.children >= MIN_N ? (q.lowShare ?? -1) : -2);
+  const weakestFirst = (a: Sortable, b: Sortable) => shown(b) - shown(a) || (a.mean ?? 99) - (b.mean ?? 99);
   const perQuestion = <T extends { questionKey: string; studentErpId: string; mark: number | null }>(round: Round | undefined, list: T[]) =>
     (round?.snapshot.template.questions ?? [])
       .map((q) => {

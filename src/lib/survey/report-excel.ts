@@ -6,7 +6,8 @@ import { optionCounts } from './guardian-report-math';
 import { allReportRounds, classGuardian, guardianItems, previousRound, questionResults, studentGuardian, teachingQuality, withGuardian } from './guardian-reports';
 import { GUARDIAN_AREAS } from './report-math';
 import { classSections } from './snapshot';
-import { displayMobile } from './labels';
+import { displayMobile, KIND_LABEL } from './labels';
+import { MIN_N } from './stats';
 import { loadGuardianTracker, loadTracker } from './tracker';
 import type { surveyRounds } from './schema';
 
@@ -156,13 +157,13 @@ export async function ratersWorkbook(round: Round): Promise<Book> {
       name: 'শিক্ষক',
       columns: [
         { header: 'শিক্ষক', key: 'name', width: 26 },
-        { header: 'ব্যাচ', key: 'batches', width: 8 },
+        { header: 'ক্লাস-বিষয়', key: 'batches', width: 10 },
         { header: 'শিক্ষার্থী', key: 'students', width: 10 },
         { header: 'গড় মার্ক', key: 'mean', width: 10 },
         ...marks.map((m) => ({ header: `${m} মার্ক (সংখ্যা)`, key: `m${m}`, width: 14 })),
         { header: 'সহকর্মীদের তুলনায় (মার্ক)', key: 'leniency', width: 22 },
         { header: 'তুলনার শিক্ষার্থী', key: 'paired', width: 16 },
-        { header: 'একই মার্কের ব্যাচ', key: 'flat', width: 40 },
+        { header: 'প্রায় সবাইকে একই মার্ক (ক্লাস-বিষয়)', key: 'flat', width: 40 },
       ],
       rows: rows.map((r) => ({
         name: r.name,
@@ -310,7 +311,8 @@ export async function questionsWorkbook(roundId: string, placeKey: string, picke
     { header: 'শিক্ষার্থী', key: 'children', width: 10 },
     { header: 'উত্তর', key: 'n', width: 8 },
   ];
-  const markRows = (list: typeof report.teacher) => list.map((q) => ({ ...q, mean: round1(q.mean), low: pct(q.lowShare) }));
+  // Hidden below 3 children, as on the page.
+  const markRows = (list: typeof report.teacher) => list.map((q) => ({ ...q, mean: q.children >= MIN_N ? round1(q.mean) : null, low: q.children >= MIN_N ? pct(q.lowShare) : null }));
   return book(`প্রশ্নভিত্তিক ফলাফল - ${at ? at.label : 'পুরো মাদরাসা'} - ${t1.label}.xlsx`, [
     { name: 'ক্লাস পরিচালনা', columns: markColumns, rows: markRows(report.teaching) },
     {
@@ -337,7 +339,7 @@ export async function questionsWorkbook(roundId: string, placeKey: string, picke
       ],
       rows: report.comments.map((c) => ({
         ...c,
-        kind: c.kind === 'G1' ? 'ক্লাস পরিচালনা' : 'শিক্ষার্থী',
+        kind: KIND_LABEL[c.kind],
         who: `${c.who}${c.relation ? ` (${c.relation})` : ''}`,
         verified: c.verified ? 'যাচাইকৃত' : 'অযাচাইকৃত',
         when: c.submittedAt ? formatSheetTime(c.submittedAt) : '',

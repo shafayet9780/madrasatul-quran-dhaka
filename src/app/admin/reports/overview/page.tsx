@@ -174,7 +174,7 @@ export default async function OverviewPage({ searchParams }: { searchParams: Pro
                 ))}
               </span>
               <span className="sv-num" style={{ fontSize: 12.5, textAlign: 'right', lineHeight: 1.3 }}>
-                <span style={{ color: 'var(--sv-text-muted)', fontWeight: 400 }}>ক্লাস </span>
+                <span style={{ color: 'var(--sv-text-muted)', fontWeight: 400 }}>পরিচালনা </span>
                 {bn(p.g1)}/{bn(p.total)}
                 <br />
                 <span style={{ color: 'var(--sv-text-muted)', fontWeight: 400 }}>শিক্ষার্থী </span>

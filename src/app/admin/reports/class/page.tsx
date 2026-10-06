@@ -129,9 +129,11 @@ export default async function ClassReportPage({ searchParams }: { searchParams: 
 
       <div className="flex flex-wrap gap-4 items-stretch">
         <details className="sv-card flex flex-col gap-2.5 min-w-0 sv-no-print" style={{ flex: '1 1 460px', alignSelf: 'flex-start' }}>
-          <summary className="sv-head sv-h2" style={{ cursor: 'pointer' }}>
-            অভিভাবক বনাম শিক্ষক · প্রত্যেক শিক্ষার্থীর চিত্র
-            <span style={{ display: 'block', fontFamily: 'inherit', fontSize: 13, fontWeight: 400, color: 'var(--sv-text-muted)' }}>বিস্তারিত দেখতে চাপ দিন · একই তথ্য নিচের তালিকায়ও আছে</span>
+          <summary style={{ cursor: 'pointer' }}>
+            <h2 className="sv-head sv-h2" style={{ display: 'inline' }}>
+              অভিভাবক বনাম শিক্ষক · প্রত্যেক শিক্ষার্থীর চিত্র
+            </h2>
+            <span style={{ display: 'block', fontSize: 13, fontWeight: 400, color: 'var(--sv-text-muted)' }}>বিস্তারিত দেখতে চাপ দিন · একই তথ্য নিচের তালিকায়ও আছে (শুধু পর্দায়, প্রিন্টে আসে না)</span>
           </summary>
           <div style={{ fontSize: 13, color: 'var(--sv-text-muted)' }}>যেসব ক্ষেত্রে অভিভাবক ও শিক্ষক দুজনেই মার্ক দিয়েছেন, সেগুলোর গড় মার্ক · রেখা = মার্ক ৮</div>
           {both.length ? (

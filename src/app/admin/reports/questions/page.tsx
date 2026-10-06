@@ -2,11 +2,12 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { formatDateTime } from '@/lib/survey/dates';
 import { allReportRounds, pickKindRound, questionResults } from '@/lib/survey/guardian-reports';
+import { KIND_LABEL } from '@/lib/survey/labels';
 import { toBengaliDigits as bn } from '@/lib/survey/normalise';
 import { formatMark } from '@/lib/survey/report-math';
 import { classSections } from '@/lib/survey/snapshot';
 import { MIN_N } from '@/lib/survey/stats';
-import { DIST_COLORS, Distribution, GUARDIAN } from '../charts';
+import { DIST_COLORS, Distribution, GUARDIAN, MANY_LOW } from '../charts';
 import { ReportFilters } from '../ReportFilters';
 import { ReportTools } from '../ReportTools';
 
@@ -41,7 +42,7 @@ function MarkTable({ caption, questions, unit }: { caption: string; questions: M
             const shown = q.children >= MIN_N;
             return (
               <tr key={q.key} style={{ opacity: shown ? 1 : 0.55 }}>
-                <th scope="row" style={{ fontWeight: 500, textAlign: 'left' }}>
+                <th scope="row" style={{ fontWeight: 500, textAlign: 'left', whiteSpace: 'normal' }}>
                   {q.label}
                   <div style={{ fontSize: 12.5, color: 'var(--sv-text-muted)', fontWeight: 400 }}>
                     {q.area}
@@ -51,7 +52,7 @@ function MarkTable({ caption, questions, unit }: { caption: string; questions: M
                 <td data-label="গড়" className="sv-num">
                   {shown ? formatMark(q.mean, bn) : '—'}
                 </td>
-                <td data-label="৭ বা কম" className="sv-num" style={{ color: shown && (q.lowShare ?? 0) >= 0.25 ? 'var(--sv-warn)' : undefined, fontWeight: 600 }}>
+                <td data-label="৭ বা কম" className="sv-num" style={{ color: shown && (q.lowShare ?? 0) >= MANY_LOW ? 'var(--sv-warn)' : undefined, fontWeight: 600 }}>
                   {shown ? percent(q.lowShare) : '—'}
                 </td>
                 <td data-label={unit} className="sv-num">
@@ -148,7 +149,7 @@ export default async function QuestionsPage({ searchParams }: { searchParams: Pr
           </h2>
           <div style={{ fontSize: 13, color: 'var(--sv-text-muted)' }}>{report.g1 ? `${report.g1.label} · সব বিষয় মিলিয়ে` : 'এই রাউন্ডের সাথে ক্লাস পরিচালনার রিভিউ নেই'}</div>
         </div>
-        {report.g1 && <MarkTable caption="ক্লাস পরিচালনার প্রশ্নভিত্তিক ফলাফল" questions={report.teaching} unit="উত্তর দেওয়া অভিভাবক" />}
+        {report.g1 && <MarkTable caption="ক্লাস পরিচালনার প্রশ্নভিত্তিক ফলাফল" questions={report.teaching} unit="অভিভাবক" />}
       </section>
 
       <section className="sv-card flex flex-col gap-3" aria-labelledby="child-title">
@@ -158,7 +159,7 @@ export default async function QuestionsPage({ searchParams }: { searchParams: Pr
           </h2>
           <div style={{ fontSize: 13, color: 'var(--sv-text-muted)' }}>{report.g2 ? `${report.g2.label} · কতজন অভিভাবক কোন উত্তর দিয়েছেন` : 'এই রাউন্ডের সাথে শিক্ষার্থীর উপর অভিভাবক রিভিউ নেই'}</div>
         </div>
-        <div className="grid gap-4" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))' }}>
+        <div className="grid gap-4" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(min(300px, 100%), 1fr))' }}>
           {report.child.map((q) => {
             const total = q.options.reduce((sum, o) => sum + o.count, 0);
             return (
@@ -166,7 +167,7 @@ export default async function QuestionsPage({ searchParams }: { searchParams: Pr
                 <div className="flex justify-between gap-2" style={{ fontSize: 14.5 }}>
                   <span style={{ fontWeight: 600 }}>{q.label}</span>
                   <span className="sv-num" style={{ color: 'var(--sv-text-muted)', fontSize: 13, whiteSpace: 'nowrap' }}>
-                    {q.unscored ? 'মার্ক নেই' : q.n >= MIN_N ? `গড় ${formatMark(q.mean, bn)} · ${percent(q.lowShare)} কম` : `${bn(q.answered)} জন`}
+                    {q.unscored ? 'মার্ক নেই' : q.n >= MIN_N ? `গড় ${formatMark(q.mean, bn)} · ${percent(q.lowShare)} উত্তর ৭ বা কম` : `${bn(q.answered)} জন`}
                   </span>
                 </div>
                 <ul style={{ margin: 0, padding: 0, listStyle: 'none' }} className="flex flex-col gap-1.5">
@@ -207,7 +208,7 @@ export default async function QuestionsPage({ searchParams }: { searchParams: Pr
           {report.comments.map((c, i) => (
             <li key={i} className="flex flex-col gap-1" style={{ padding: '10px 12px', borderRadius: 12, border: '1px solid var(--sv-hairline)', fontSize: 14 }}>
               <div className="flex flex-wrap gap-2" style={{ fontSize: 13 }}>
-                <span className="sv-tag">{c.kind === 'G1' ? 'ক্লাস পরিচালনা' : 'শিক্ষার্থী'}</span>
+                <span className="sv-tag">{KIND_LABEL[c.kind]}</span>
                 <b>{c.place}</b>
                 <span className="sv-muted">
                   {c.child} · {c.who}

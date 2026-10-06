@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 // Report pages join this list as they are built (M6–M7).
 const SECTIONS: { heading: string; links: { label: string; href: string }[] }[] = [
@@ -38,7 +38,15 @@ export function AdminNav() {
   const pathname = usePathname();
   // Phones: the links fold behind a menu button that names the current page.
   const [open, setOpen] = useState(false);
-  useEffect(() => setOpen(false), [pathname]);
+  const toggle = useRef<HTMLButtonElement>(null);
+  const openRef = useRef(open);
+  openRef.current = open;
+  // After choosing a page from the open menu, close it and keep focus on the menu button.
+  useEffect(() => {
+    if (!openRef.current) return;
+    setOpen(false);
+    toggle.current?.focus();
+  }, [pathname]);
   const current = SECTIONS.flatMap((s) => s.links).find((l) => isCurrent(pathname, l.href));
   return (
     <nav aria-label="রিপোর্ট মেনু" className="sv-admin-nav flex flex-col gap-1 max-w-full" style={{ flex: '1 1 220px' }}>
@@ -54,7 +62,7 @@ export function AdminNav() {
           <span style={{ fontWeight: 600, fontSize: 15 }}>রিভিউ রিপোর্ট</span>
           <span style={{ fontSize: 13, color: 'var(--sv-text-muted)' }}>মাদরাসাতুল কুরআন, ঢাকা</span>
         </div>
-        <button type="button" className="sv-sbtn sv-admin-nav-toggle" aria-expanded={open} aria-controls="admin-nav-links" onClick={() => setOpen((o) => !o)}>
+        <button ref={toggle} type="button" className="sv-sbtn sv-admin-nav-toggle" aria-expanded={open} aria-controls="admin-nav-links" onClick={() => setOpen((o) => !o)}>
           মেনু{current ? ` · ${current.label}` : ''}
         </button>
       </div>

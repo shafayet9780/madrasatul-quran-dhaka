@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { MARK_FLOOR } from '@/lib/survey/scoring';
 import { toBengaliDigits as bn } from '@/lib/survey/normalise';
 import { formatMark } from '@/lib/survey/report-math';
 import { pickRound, raterReport, t1Rounds } from '@/lib/survey/reports';
@@ -19,11 +20,13 @@ const LIKE_COLLEAGUES = 0.5;
 /** One plain sentence per teacher: generosity against colleagues on the same students, ৪s, same-mark batches. */
 function verdict(r: { leniency: { delta: number; pairedStudents: number } | null; distribution: { mark: number; count: number }[]; n: number; flatBatches: unknown[] }) {
   const parts: string[] = [];
+  // The rounded number decides, as the "সহকর্মীদের তুলনায়" column shows it.
+  const delta = r.leniency ? Math.round(r.leniency.delta * 10) / 10 : 0;
   if (!r.leniency || r.leniency.pairedStudents < MIN_N) parts.push('তুলনার মতো যথেষ্ট সহকর্মী নেই');
-  else if (r.leniency.delta >= LIKE_COLLEAGUES) parts.push(`সহকর্মীদের চেয়ে গড়ে ${bn(r.leniency.delta.toFixed(1))} মার্ক বেশি দেন`);
-  else if (r.leniency.delta <= -LIKE_COLLEAGUES) parts.push(`সহকর্মীদের চেয়ে গড়ে ${bn(Math.abs(r.leniency.delta).toFixed(1))} মার্ক কম দেন`);
+  else if (delta >= LIKE_COLLEAGUES) parts.push(`সহকর্মীদের চেয়ে গড়ে ${bn(delta.toFixed(1))} মার্ক বেশি দেন`);
+  else if (delta <= -LIKE_COLLEAGUES) parts.push(`সহকর্মীদের চেয়ে গড়ে ${bn(Math.abs(delta).toFixed(1))} মার্ক কম দেন`);
   else parts.push('সহকর্মীদের মতোই মার্ক দেন');
-  const lowest = r.distribution.find((d) => d.mark === 4)?.count ?? 0;
+  const lowest = r.distribution.find((d) => d.mark === MARK_FLOOR)?.count ?? 0;
   if (r.n) parts.push(`${bn(Math.round((lowest / r.n) * 100))}% উত্তরে ৪ দিয়েছেন`);
   if (r.flatBatches.length) parts.push('কোনো ক্লাসে প্রায় সবাইকে একই মার্ক — দেখে নিন');
   return parts.join(' · ');
@@ -88,8 +91,8 @@ export default async function RatersPage({ searchParams }: { searchParams: Promi
         {rows.length === 0 ? (
           <p style={{ margin: 0, color: 'var(--sv-text-muted)' }}>এই রাউন্ডে এখনো কোনো জমা নেই।</p>
         ) : (
-          <div style={{ overflowX: 'auto' }}>
-            <table className="sv-table is-stackable" style={{ minWidth: 1100 }}>
+          <div role="region" aria-label="শিক্ষকভিত্তিক সারাংশের টেবিল" tabIndex={0} style={{ overflowX: 'auto' }}>
+            <table className="sv-table is-stackable" style={{ minWidth: 980 }}>
               <thead>
                 <tr>
                   <th scope="col">শিক্ষক</th>

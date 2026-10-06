@@ -317,7 +317,7 @@ export default async function StudentProfilePage({ params, searchParams }: { par
           <h2 id="answers-title" className="sv-head sv-h2">
             অভিভাবকের উত্তর{guardian.g2 ? ` · ${guardian.g2.label}` : ''}
           </h2>
-          {!guardian.g2 && <p style={{ margin: 0, fontSize: 14, color: 'var(--sv-text-muted)' }}>এই রাউন্ডের সাথে অভিভাবকের রিভিউ (G2) নেই।</p>}
+          {!guardian.g2 && <p style={{ margin: 0, fontSize: 14, color: 'var(--sv-text-muted)' }}>এই রাউন্ডের সাথে অভিভাবকের রিভিউ নেই।</p>}
           {guardian.g2 && !guardian.form && <p style={{ margin: 0, fontSize: 14, color: 'var(--sv-text-muted)' }}>অভিভাবক এখনো জমা দেননি।</p>}
           {guardian.form && (
             <>
