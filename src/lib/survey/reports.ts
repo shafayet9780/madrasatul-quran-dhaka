@@ -13,6 +13,7 @@ import {
   type MarkRow,
 } from './report-math';
 import { answerItems, responses, students, submissions, surveyRounds } from './schema';
+import { sheetStatus } from './sheet-rows';
 import { classLabel as classLabelOf, compareStudents, type RoundSnapshot } from './snapshot';
 import { leniency, straightLining, summarise } from './stats';
 
@@ -297,16 +298,7 @@ export async function studentReport(round: Round, erpId: string) {
     questions: snapshot.template.questions.map((q, i) => ({ n: i + 1, label: questionLabel(q) })),
     grid,
     notes: notes.filter((n) => n.note).map((n) => ({ ...n, note: n.note! })),
-    log: log.map((l) => ({
-      ...l,
-      status: l.supersededBy
-        ? l.replacementTeacher && l.replacementTeacher !== l.teacherKey
-          ? ('set-aside' as const)
-          : ('superseded' as const)
-        : l.duplicateFlag
-          ? ('duplicate' as const)
-          : ('current' as const),
-    })),
+    log: log.map((l) => ({ ...l, status: sheetStatus({ ...l, setAside: Boolean(l.replacementTeacher && l.replacementTeacher !== l.teacherKey) }) })),
   };
 }
 

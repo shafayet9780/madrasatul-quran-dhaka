@@ -2,7 +2,8 @@ import 'server-only';
 import ExcelJS from 'exceljs';
 import { formatSheetTime } from './dates';
 import { classReport, raterReport, studentReport } from './reports';
-import { allReportRounds, classGuardian, previousRound, studentGuardian, teachingQuality, withGuardian } from './guardian-reports';
+import { optionCounts } from './guardian-report-math';
+import { allReportRounds, classGuardian, guardianItems, previousRound, studentGuardian, teachingQuality, withGuardian } from './guardian-reports';
 import { displayMobile } from './labels';
 import { loadGuardianTracker, loadTracker } from './tracker';
 import type { surveyRounds } from './schema';
@@ -32,6 +33,8 @@ export async function classWorkbook(round: Round, classKey: string, sectionKey: 
   if (!report) return null;
   const guardian = await classGuardian(round, rounds, { classKey, sectionKey }, { verifiedOnly });
   const rows = withGuardian(report.rows, guardian);
+  const g2 = guardian.g2.round;
+  const answers = g2 ? optionCounts(await guardianItems([g2.id], { verifiedOnly }, { classKey, sectionKey }), g2.snapshot.template.questions) : [];
   const teacherAreas = new Map(report.areas.map((a) => [a.areaKey, a]));
   return book(`${report.label} - ${round.label}.xlsx`, [
     {
@@ -74,6 +77,20 @@ export async function classWorkbook(round: Round, classKey: string, sectionKey: 
         };
       }),
     },
+    ...(g2
+      ? [
+          {
+            name: 'অভিভাবকের উত্তর (G2)',
+            columns: [
+              { header: 'প্রশ্ন', key: 'question', width: 44 },
+              { header: 'উত্তর', key: 'answer', width: 28 },
+              { header: 'মার্ক', key: 'mark', width: 8 },
+              { header: 'শিক্ষার্থী', key: 'count', width: 10 },
+            ],
+            rows: answers,
+          },
+        ]
+      : []),
   ]);
 }
 

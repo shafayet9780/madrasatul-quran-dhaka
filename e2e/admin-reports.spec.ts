@@ -84,6 +84,9 @@ test('student profile shows the guardian answers and prints a page for the guard
     await expect(sheet.getByText(text, { exact: false })).toHaveCount(0);
   }
   await page.screenshot({ path: process.env.SHOT_DIR ? `${process.env.SHOT_DIR}/r4-print.png` : undefined, fullPage: true });
+  // All 7 student areas and the trend fit on one A4 page.
+  const pdf = (await page.pdf({ preferCSSPageSize: true, printBackground: true, path: process.env.SHOT_DIR ? `${process.env.SHOT_DIR}/print.pdf` : undefined })).toString('latin1');
+  expect(pdf.match(/\/Type\s*\/Page[^s]/g)).toHaveLength(1);
   await expectAccessible(page);
 });
 
@@ -92,6 +95,24 @@ test('a "not applicable" answer shows its label', async ({ page }) => {
   await page.getByLabel('নাম, আইডি বা রোল').fill('safiya');
   await page.getByRole('link', { name: /Safiya Rahman/ }).click();
   await expect(page.getByText('প্রযোজ্য নয় (ডে কেয়ার)')).toBeVisible();
+});
+
+test('report pages handle unknown students, classes and bad parameters', async ({ page }) => {
+  for (const url of ['/admin/reports/student/nobody', '/admin/reports/student/nobody/guardian-print']) {
+    await page.goto(url);
+    await expect(page.getByText('শিক্ষার্থী পাওয়া যায়নি।')).toBeVisible();
+  }
+  await page.goto('/admin/reports/class?class=nope');
+  await expect(page.getByText('শ্রেণিটি এই রাউন্ডে নেই।')).toBeVisible();
+  // Unknown ids fall back to the defaults instead of failing.
+  await page.goto('/admin/reports/teaching?round=bad&compare=bad&area=bad&cell=x|y|z');
+  await expect(page.getByRole('heading', { name: 'নির্বাচিত ঘর' })).toBeVisible();
+  await page.goto('/admin/reports/overview?round=bad&g1=bad&g2=bad&compare=bad');
+  await expect(page.getByRole('heading', { name: 'মনোযোগ প্রয়োজন' })).toBeVisible();
+  await page.goto('/admin/reports/class?class=nursery&section=a&round=bad&verified=1');
+  await expect(page.getByRole('heading', { name: 'শিক্ষার্থী তালিকা' })).toBeVisible();
+  const response = await page.request.get('/admin/reports/export?kind=class&round=bad&class=nursery&section=a');
+  expect(response.status()).toBe(404);
 });
 
 test('rater patterns compare teachers', async ({ page }) => {

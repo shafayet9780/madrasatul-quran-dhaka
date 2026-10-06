@@ -202,7 +202,8 @@ Statistics rules:
 - **Teacher leniency** = paired mean difference vs other teachers on the same students in the same round. **Straight-lining** = ≥ 90% identical marks across ≥ 10 students in one batch.
 - **Δ vs comparison round** is computed on the cohort of students present in both rounds.
 - **T1 coverage** (no fixed assignments) = class × subject pairs with at least one submitted batch; guardian response rate = students with a current G1/G2 submission ÷ active students.
-- Flags (thresholds editable): drop ≥ X vs previous round, ≥ 2 teachers at ৪ on the same student, guardian–teacher area gap band ≥ Y.
+- Flags (thresholds in `FLAGS`, `report-math.ts`): the teachers' average dropped ≥ 1 mark vs the student's previous round, ≥ 2 teachers at ৪ on the same student, the student's guardian (G2) and teacher (T1) averages ≥ 33 points apart.
+- Reports are for a teacher round; the G1 and G2 rounds are paired with it by date (most overlap, else the nearest opening within 30 days); the overview lets the admin pick others. Detailed report rules (units, print strengths) are in `docs/survey-phase2-plan.md` §1.
 
 Trends appear from the second round. Every table exports to Excel; every page prints to PDF.
 

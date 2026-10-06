@@ -1,4 +1,5 @@
 import { FLAGS, type Flag } from './report-math';
+import type { SnapshotQuestion } from './snapshot';
 import { MIN_N, summarise, type Summary } from './stats';
 
 // Pure maths for the guardian reports (R1–R4 and the guardian print), from answer_items rows.
@@ -181,4 +182,13 @@ export function strengthsAndWork(areas: { name: string; guardian: number | null;
     strengths: marked.filter((a) => a.low >= PRINT_STRENGTH).sort((a, b) => b.low - a.low).slice(0, 3).map((a) => a.name),
     work: marked.filter((a) => a.low < PRINT_WORK).sort((a, b) => a.low - b.low).slice(0, 3).map((a) => a.name),
   };
+}
+
+/** Spec §7 "G2 also shows raw option counts": per question, how many children got each option (and N/A). */
+export function optionCounts(items: GuardianItem[], questions: SnapshotQuestion[]) {
+  return questions.flatMap((q) => {
+    const here = items.filter((i) => i.questionKey === q.key);
+    const rows = q.options.map((o) => ({ question: q.text, answer: o.label, mark: o.mark as number | null, count: here.filter((i) => i.optionKey === o.key).length }));
+    return q.allowNA ? [...rows, { question: q.text, answer: q.naLabel ?? 'প্রযোজ্য নয়', mark: null, count: here.filter((i) => i.mark === null).length }] : rows;
+  });
 }

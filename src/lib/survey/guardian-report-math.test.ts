@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { cellStats, childWeightedMean, cohortDelta, delta, gapFlag, pairedRound, perStudentMeans, questionDistributions, resolveRounds, roundHistory, score100, strengthsAndWork, type GuardianItem } from './guardian-report-math';
+import { cellStats, childWeightedMean, cohortDelta, delta, gapFlag, pairedRound, perStudentMeans, optionCounts, questionDistributions, resolveRounds, roundHistory, score100, strengthsAndWork, type GuardianItem } from './guardian-report-math';
 
 const day = (d: number) => new Date(Date.UTC(2026, 9, d));
 const round = (id: string, kind: string, opens: number, closes: number) => ({ id, kind, opensAt: day(opens), closesAt: day(closes) });
@@ -133,5 +133,13 @@ describe('roundHistory', () => {
     expect(roundHistory(t1, rounds, { g2 }).map((p) => [p.t1.id, p.g2?.id])).toEqual([['t1-old', 'g2-picked'], ['t1', 'g2']]);
     // The shared G2 round goes with the later teacher round only.
     expect(roundHistory(t1, [old, g2, t1], { g2 }).map((p) => p.g2?.id)).toEqual([undefined, 'g2']);
+  });
+});
+
+describe('optionCounts', () => {
+  it('counts each option and N/A per question', () => {
+    const question = { key: 'q', text: 'প্রশ্ন', type: 'options', areaKey: 'a', required: true, allowNA: true, naLabel: 'ডে কেয়ার', options: [{ key: 'yes', label: 'হ্যাঁ', mark: 10 }, { key: 'no', label: 'না', mark: 4 }] } as never;
+    const items = [{ ...item('a', 10), questionKey: 'q', optionKey: 'yes' }, { ...item('b', 10), questionKey: 'q', optionKey: 'yes' }, { ...item('c', null), questionKey: 'q', optionKey: null }];
+    expect(optionCounts(items, [question]).map((r) => [r.answer, r.count])).toEqual([['হ্যাঁ', 2], ['না', 0], ['ডে কেয়ার', 1]]);
   });
 });

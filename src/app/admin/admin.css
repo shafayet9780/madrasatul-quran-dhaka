@@ -441,4 +441,19 @@
   .sv-admin .sv-print-sheet section {
     break-inside: avoid;
   }
+  /* One A4 page: no page chrome around the sheet and tighter spacing than on screen. */
+  .sv-admin main:has(.sv-print-sheet) {
+    padding: 0 !important;
+  }
+  .sv-admin .sv-print-sheet {
+    gap: 10px !important;
+  }
+  .sv-admin .sv-print-sheet th,
+  .sv-admin .sv-print-sheet td {
+    padding-top: 4px !important;
+    padding-bottom: 4px !important;
+  }
+  .sv-admin .sv-print-sheet svg {
+    max-height: 150px;
+  }
 }
