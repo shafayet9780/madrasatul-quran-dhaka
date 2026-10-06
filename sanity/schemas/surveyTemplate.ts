@@ -25,6 +25,20 @@ export const surveyTemplate = defineType({
     defineField({ name: 'intro', title: 'Intro (Bengali)', type: 'text', rows: 3 }),
     defineField({ name: 'commentLabel', title: 'Comment label', description: 'Leave empty for no overall comment box.', type: 'string' }),
     defineField({
+      name: 'layout',
+      title: 'Layout',
+      description: 'How guardians rate the subjects. Fixed for a round once it opens.',
+      type: 'string',
+      options: {
+        list: [
+          { title: 'One subject per screen, all questions', value: 'by-subject' },
+          { title: 'One question per screen, all subjects', value: 'by-question' },
+        ],
+        layout: 'radio',
+      },
+      hidden: ({ document }) => document?.kind !== 'G1',
+    }),
+    defineField({
       name: 'scale',
       title: 'Marks',
       description: 'Marks shown for rating questions, best first.',
@@ -87,6 +101,7 @@ export const surveyTemplate = defineType({
                 Rule.custom((options, context) => {
                   if ((context.parent as { type?: string })?.type !== 'options') return true
                   if (!options || options.length < 2) return 'Add at least two options.'
+                  if (options.some((o) => (o as { key?: string }).key === 'na')) return 'The key "na" is reserved for "not applicable".'
                   return uniqueItemKeys(options)
                 }),
             }),
@@ -98,7 +113,36 @@ export const surveyTemplate = defineType({
               validation: (Rule) => Rule.required(),
             }),
             defineField({ name: 'required', title: 'Required', type: 'boolean', initialValue: true }),
-            defineField({ name: 'allowNA', title: 'Allow "not applicable"', type: 'boolean', initialValue: false }),
+            defineField({
+              name: 'allowNA',
+              title: 'Allow "not applicable"',
+              type: 'boolean',
+              initialValue: false,
+              validation: (Rule) =>
+                Rule.custom((value, context) =>
+                  value && (context.document as { kind?: string })?.kind !== 'G2' ? '"Not applicable" is only for G2 (guardian rates own child).' : true
+                ),
+            }),
+            defineField({
+              name: 'naLabel',
+              title: '"Not applicable" label',
+              description: 'e.g. প্রযোজ্য নয় (ডে কেয়ার). Empty = প্রযোজ্য নয়.',
+              type: 'string',
+              hidden: ({ parent }) => !parent?.allowNA,
+            }),
+            defineField({
+              name: 'unscored',
+              title: 'Not marked (answer shown only)',
+              description: 'মার্ক গণনা হবে না — শুধু উত্তর দেখানো হবে। The answer is kept and shown in reports (e.g. how many study 2 hours) but left out of every average, gap and flag. Option marks are ignored.',
+              type: 'boolean',
+              initialValue: false,
+              validation: (Rule) =>
+                Rule.custom((value, context) =>
+                  value && ((context.document as { kind?: string })?.kind !== 'G2' || (context.parent as { type?: string })?.type !== 'options')
+                    ? '"Not marked" is only for G2 questions with answer options.'
+                    : true
+                ),
+            }),
           ],
           preview: { select: { title: 'text', subtitle: 'key' } },
         }),

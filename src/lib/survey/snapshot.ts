@@ -16,6 +16,10 @@ const question = z.object({
   // Sanity omits booleans an editor never toggled.
   required: z.boolean().default(true),
   allowNA: z.boolean().default(false),
+  // Label of the "not applicable" choice, e.g. প্রযোজ্য নয় (ডে কেয়ার); UI falls back to প্রযোজ্য নয়.
+  naLabel: z.string().optional(),
+  // G2: the answer is kept and shown, but never marked (no average, gap or flag), e.g. study hours at home.
+  unscored: z.boolean().default(false),
 });
 
 const named = z.object({ key, name: z.string().min(1) });
@@ -29,6 +33,8 @@ export const roundSnapshotSchema = z.object({
     title: z.string().min(1),
     intro: z.string().optional(),
     commentLabel: z.string().optional(),
+    // G1 only: one subject per screen (default) or one question per screen.
+    layout: z.enum(['by-subject', 'by-question']).optional(),
     scale: z.array(z.number()).min(2),
     questions: z.array(question).min(1),
   }),
@@ -46,24 +52,31 @@ export type RoundSnapshot = z.infer<typeof roundSnapshotSchema>;
 export type SnapshotQuestion = RoundSnapshot['template']['questions'][number];
 export type SnapshotClass = RoundSnapshot['classes'][number];
 
-export function findClass(snapshot: RoundSnapshot, classKey: string): SnapshotClass | undefined {
+export function findClass(snapshot: Pick<RoundSnapshot, 'classes'>, classKey: string): SnapshotClass | undefined {
   return snapshot.classes.find((c) => c.key === classKey);
 }
 
 /** "নার্সারি A" for a sectioned class, "প্লে" otherwise. sectionKey '' = no section. */
-export function classLabel(snapshot: RoundSnapshot, classKey: string, sectionKey: string): string {
+export function classLabel(snapshot: Pick<RoundSnapshot, 'classes'>, classKey: string, sectionKey: string): string {
   const cls = findClass(snapshot, classKey);
   if (!cls) return classKey;
   const section = cls.sections.find((s) => s.key === sectionKey);
   return section ? `${cls.name} ${section.name}` : cls.name;
 }
 
-/** Mark for an answer value; undefined for N/A or an unknown value. */
-export function markFor(question: SnapshotQuestion, scale: number[], value: unknown): number | undefined {
+/** Stored answer value for "not applicable" (questions with allowNA, G1 and G2 only). */
+export const NA = 'na';
+
+export type AnswerClass = { kind: 'mark'; mark: number } | { kind: 'na' } | { kind: 'invalid' };
+
+/** What a stored answer value means: a mark (scale or hidden option mark), N/A, or invalid. */
+export function classifyAnswer(question: SnapshotQuestion, scale: number[], value: unknown): AnswerClass {
+  if (value === NA) return question.allowNA ? { kind: 'na' } : { kind: 'invalid' };
   if (question.type === 'marks') {
-    return typeof value === 'number' && scale.includes(value) ? value : undefined;
+    return typeof value === 'number' && scale.includes(value) ? { kind: 'mark', mark: value } : { kind: 'invalid' };
   }
-  return question.options.find((o) => o.key === value)?.mark;
+  const option = question.options.find((o) => o.key === value);
+  return option ? { kind: 'mark', mark: option.mark } : { kind: 'invalid' };
 }
 
 type Orderable = { roll: number | null; name: string; erpId: string };

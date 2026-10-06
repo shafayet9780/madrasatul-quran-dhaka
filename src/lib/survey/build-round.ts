@@ -1,5 +1,5 @@
 import { toBengaliDigits } from './normalise';
-import { classSections, roundSnapshotSchema, t1PairCount, type RoundSnapshot } from './snapshot';
+import { classSections, NA, roundSnapshotSchema, t1PairCount, type RoundSnapshot } from './snapshot';
 
 type Named = { key?: string | null; name?: string | null };
 
@@ -18,6 +18,7 @@ export type RoundSource = {
       title?: string | null;
       intro?: string | null;
       commentLabel?: string | null;
+      layout?: string | null;
       scale?: number[] | null;
       questions?:
         | {
@@ -30,6 +31,8 @@ export type RoundSource = {
             areaKey?: string | null;
             required?: boolean | null;
             allowNA?: boolean | null;
+            naLabel?: string | null;
+            unscored?: boolean | null;
           }[]
         | null;
     } | null;
@@ -91,6 +94,11 @@ export function buildLists(source: ListsSource): Pick<RoundSnapshot, 'classes' |
 
 /** Lists problems that would make the round unusable, in Bengali for the admin. */
 export function listProblems(kind: string, lists: Pick<RoundSnapshot, 'classes' | 'teachers'>): string[] {
+  if (kind === 'G1') {
+    if (!lists.classes.length) return ['কোনো শ্রেণি নেই (Studio → Surveys → Classes & Subjects)।'];
+    const missing = lists.classes.filter((c) => !c.subjects.length).map((c) => c.name);
+    return missing.length ? [`এসব শ্রেণিতে বিষয় নেই: ${missing.join(', ')} (Studio → Surveys → Classes & Subjects)।`] : [];
+  }
   if (kind !== 'T1') return [];
   const errors: string[] = [];
   if (!lists.teachers.length) errors.push('কোনো সক্রিয় শিক্ষক নেই (Studio → Surveys → Teachers)।');
@@ -124,6 +132,10 @@ export function buildRound(
   questions.forEach((q, i) => {
     if (!q.areaKey) errors.push(`প্রশ্ন ${n(i + 1)}: এরিয়া বাছাই করা হয়নি।`);
     if (q.type === 'options' && (q.options?.length ?? 0) < 2) errors.push(`প্রশ্ন ${n(i + 1)}: অন্তত দুটি অপশন দিন।`);
+    if (q.type === 'options' && q.options?.some((o) => typeof o.mark !== 'number')) errors.push(`প্রশ্ন ${n(i + 1)}: প্রতিটি অপশনের মার্ক দিন।`);
+    if (q.options?.some((o) => o.key === NA)) errors.push(`প্রশ্ন ${n(i + 1)}: অপশনের key "na" ব্যবহার করা যাবে না।`);
+    if (q.allowNA && template?.kind !== 'G2') errors.push(`প্রশ্ন ${n(i + 1)}: "প্রযোজ্য নয়" শুধু শিক্ষার্থীর উপর অভিভাবক রিভিউতে (G2) রাখা যায়।`);
+    if (q.unscored && (template?.kind !== 'G2' || q.type !== 'options')) errors.push(`প্রশ্ন ${n(i + 1)}: "মার্ক গণনা হবে না" শুধু শিক্ষার্থীর উপর অভিভাবক রিভিউর (G2) উত্তর-বাছাই প্রশ্নে রাখা যায়।`);
   });
   if (template && !questions.length) errors.push('টেমপ্লেটে কোনো প্রশ্ন নেই।');
 
@@ -141,6 +153,7 @@ export function buildRound(
       title: template.title,
       intro: opt(template.intro),
       commentLabel: opt(template.commentLabel),
+      layout: template.kind === 'G1' ? (template.layout === 'by-question' ? 'by-question' : 'by-subject') : undefined,
       scale: template.scale ?? [],
       questions: questions.map((q) => ({
         key: q.key,
@@ -152,6 +165,8 @@ export function buildRound(
         areaKey: q.areaKey,
         required: opt(q.required),
         allowNA: opt(q.allowNA),
+        naLabel: q.allowNA && q.naLabel ? q.naLabel : undefined,
+        unscored: opt(q.unscored),
       })),
     },
     areas: source.areas.filter((a) => usedAreas.has(a.key)).map((a) => ({ key: a.key, name: a.name, group: a.group })),

@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
 
-// The overview (R1) becomes the landing page once guardian reports exist (phase 2).
+// The overview is the landing page.
 export default function AdminHome() {
-  redirect('/admin/tracker');
+  redirect('/admin/reports/overview');
 }

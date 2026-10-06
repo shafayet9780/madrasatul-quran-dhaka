@@ -1,14 +1,19 @@
 'use client';
 
 import Link from 'next/link';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { normaliseStudentId, toBengaliDigits as bn } from '@/lib/survey/normalise';
 
 type Student = { erpId: string; name: string; roll: number | null; label: string };
 
 /** Find a student by name, ID or roll (R-States "শিক্ষার্থী প্রোফাইল · খুঁজুন"). */
-export function StudentSearch({ students, roundId }: { students: Student[]; roundId: string }) {
+export function StudentSearch({ students, roundId, focus = false }: { students: Student[]; roundId: string; focus?: boolean }) {
   const [query, setQuery] = useState('');
+  // Opened from the sidebar's "শিক্ষার্থী খুঁজুন" (or ⌘K): ready to type.
+  const input = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    if (focus) input.current?.focus();
+  }, [focus]);
   const matches = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return [];
@@ -27,6 +32,7 @@ export function StudentSearch({ students, roundId }: { students: Student[]; roun
         নাম, আইডি বা রোল
       </label>
       <input
+        ref={input}
         id="student-search"
         className="sv-input"
         style={{ height: 50, fontSize: 16, borderColor: 'var(--sv-bronze)' }}

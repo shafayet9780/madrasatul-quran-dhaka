@@ -21,11 +21,13 @@ function snapshot() {
   s.classes.push({ key: `${CLASS}-b`, name: 'রিপোর্ট খ', sections: [], subjects: [{ key: 'quran', name: 'কুরআন' }] });
   return s;
 }
-const all = (mark: number) => Object.fromEntries(t1FixtureSnapshot().template.questions.map((q) => [q.key, mark]));
+/** Every question the same mark; the two questions about the guardian can get another one. */
+const all = (mark: number, guardianMark = mark) =>
+  Object.fromEntries(t1FixtureSnapshot().template.questions.map((q) => [q.key, q.areaKey === 'guardian-cooperation' ? guardianMark : mark]));
 
-async function rate(round: Round, teacherKey: string, subjectKey: string, marks: Record<string, number>, note?: string) {
+async function rate(round: Round, teacherKey: string, subjectKey: string, marks: Record<string, number>, note?: string, guardianMark?: number) {
   const key = { teacherKey, classKey: CLASS, sectionKey: '', subjectKey };
-  await saveDraft(round, key, Object.entries(marks).map(([erp, mark]) => ({ studentErpId: erp, answers: all(mark), ...(note && erp === id(1) ? { note } : {}) })), meta);
+  await saveDraft(round, key, Object.entries(marks).map(([erp, mark]) => ({ studentErpId: erp, answers: all(mark, guardianMark ?? mark), ...(note && erp === id(1) ? { note } : {}) })), meta);
   const result = await submitBatch(round, key, [], meta);
   if (!result.ok) throw new Error(JSON.stringify(result));
 }
@@ -43,7 +45,8 @@ beforeAll(async () => {
   await db.insert(students).values([1, 2, 3, 4].map((n) => ({ erpId: id(n), name: `STUDENT ${n}`, classKey: CLASS, sectionKey: '', roll: n })));
   // September: everyone 10. October: student 1 drops and gets ৪ from two teachers.
   await rate(sept, '90001', 'quran', { [id(1)]: 10, [id(2)]: 10, [id(3)]: 10, [id(4)]: 10 });
-  await rate(oct, '90001', 'quran', { [id(1)]: 4, [id(2)]: 10, [id(3)]: 8, [id(4)]: 8 }, 'খুব অমনোযোগী');
+  // The Quran teacher gives ৪ to every guardian question: about the parents, not the children.
+  await rate(oct, '90001', 'quran', { [id(1)]: 4, [id(2)]: 10, [id(3)]: 8, [id(4)]: 8 }, 'খুব অমনোযোগী', 4);
   await rate(oct, '90002', 'math', { [id(1)]: 4, [id(2)]: 6, [id(3)]: 6, [id(4)]: 6 });
 });
 
@@ -67,6 +70,18 @@ describe('classReport', () => {
     expect(report!.kpis).toMatchObject({ ratedStudents: 4, flagged: expect.any(Number), subjectsCovered: 2, subjectsTotal: 2 });
     expect(report!.areas.find((a) => a.areaKey === 'attendance')).toMatchObject({ students: 4, reliable: true });
     expect(await classReport(oct, CLASS, 'a')).toBeNull();
+  });
+
+  it('leaves the teachers\' guardian questions out of the child\'s average and flags, but lists them as an area', async () => {
+    const report = await classReport(oct, CLASS, '');
+    const s2 = report!.rows.find((r) => r.erpId === id(2))!;
+    // Quran ১০ and math ৬ on the child questions; the Quran teacher's ৪s on the guardian questions do not count.
+    expect(s2.mean).toBe(8);
+    expect(s2.flags.map((f) => f.kind)).not.toContain('low-teachers');
+    // Per child: ৪ (child 1, both teachers) and ৫ (the others: ৪ and ৬) → ৪.৭৫.
+    expect(report!.areas.find((a) => a.areaKey === 'guardian-cooperation')).toMatchObject({ mean: 4.75, students: 4 });
+    const profile = await studentReport(oct, id(2));
+    expect(profile!.mean).toBe(8);
   });
 });
 
@@ -99,11 +114,12 @@ describe('raterReport', () => {
     const rows = await raterReport(oct);
     const abdullah = rows.find((r) => r.teacherKey === '90001')!;
     const hamza = rows.find((r) => r.teacherKey === '90002')!;
-    expect(abdullah).toMatchObject({ batches: 1, students: 4, mean: 7.5 });
-    expect(abdullah.distribution.find((d) => d.mark === 8)!.count).toBe(14);
-    // Quran is 2 marks kinder than Maths on the same students on average: (0 + 4 + 2 + 2) / 4.
-    expect(abdullah.leniency!.delta).toBeCloseTo(2, 5);
-    expect(hamza.leniency!.delta).toBeCloseTo(-2, 5);
+    // Rater patterns keep every question, the guardian ones (all ৪ from the Quran teacher) included.
+    expect(abdullah).toMatchObject({ batches: 1, students: 4, mean: 6.5 });
+    expect(abdullah.distribution.find((d) => d.mark === 8)!.count).toBe(10);
+    // Per student, Quran (7 questions) against Maths: 0, 58/7 − 6, 48/7 − 6, 48/7 − 6 → 1 on average.
+    expect(abdullah.leniency!.delta).toBeCloseTo(1, 5);
+    expect(hamza.leniency!.delta).toBeCloseTo(-1, 5);
     expect(abdullah.flatBatches).toEqual([]); // fewer than 10 students
   });
 });

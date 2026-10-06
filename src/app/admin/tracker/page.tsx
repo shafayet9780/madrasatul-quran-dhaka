@@ -1,12 +1,16 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { formatDateTime } from '@/lib/survey/dates';
+import { KIND_LABEL } from '@/lib/survey/labels';
 import { toBengaliDigits as bn } from '@/lib/survey/normalise';
 import { roundStatus } from '@/lib/survey/round-status';
-import { listT1Rounds, loadTracker } from '@/lib/survey/tracker';
+import { chosenRoundId } from '@/lib/survey/admin-shell';
+import { listTrackerRounds, loadTracker } from '@/lib/survey/tracker';
 import type { CellState } from '@/lib/survey/coverage';
 import { RoundPicker } from '../RoundPicker';
+import { GuardianTracker } from './GuardianTracker';
 import { DuplicateResolver, PrintButton } from './TrackerControls';
+import { PageTop } from '../AdminShell';
 
 export const metadata: Metadata = { title: 'রেসপন্স ট্র্যাকার' };
 export const dynamic = 'force-dynamic';
@@ -38,26 +42,30 @@ function StateIcon({ state }: { state: CellState }) {
   return null;
 }
 
-export default async function TrackerPage({ searchParams }: { searchParams: Promise<{ round?: string }> }) {
-  const [{ round: requested }, rounds] = await Promise.all([searchParams, listT1Rounds()]);
+export default async function TrackerPage({ searchParams }: { searchParams: Promise<{ round?: string; place?: string }> }) {
+  const [{ round: requested, place }, rounds] = await Promise.all([searchParams, listTrackerRounds()]);
   const now = new Date();
 
   if (!rounds.length) {
     return (
       <>
+        <PageTop crumbs={[{ label: 'সংগ্রহ' }, { label: 'রেসপন্স ট্র্যাকার' }]} round={false} />
         <h1 className="sv-head" style={{ margin: 0, fontSize: 30 }}>
           রেসপন্স ট্র্যাকার
         </h1>
         <div className="sv-card" style={{ padding: 20 }}>
-          এখনো কোনো শিক্ষক রিভিউ (T1) রাউন্ড খোলা হয়নি। <Link href="/admin/rounds">রাউন্ড পাতায়</Link> গিয়ে একটি রাউন্ড খুলুন।
+          এখনো কোনো রাউন্ড খোলা হয়নি। <Link href="/admin/rounds">রাউন্ড পাতায়</Link> গিয়ে একটি রাউন্ড খুলুন।
         </div>
       </>
     );
   }
 
-  // Default: the open round, else the latest.
+  // Default: the teacher round chosen in the sidebar, else the open round, else the latest.
+  const sidebar = await chosenRoundId();
   const chosen =
-    rounds.find((r) => r.id === requested) ?? rounds.find((r) => roundStatus(r, now) === 'open') ?? rounds[0];
+    rounds.find((r) => r.id === requested) ?? rounds.find((r) => r.id === sidebar) ?? rounds.find((r) => roundStatus(r, now) === 'open') ?? rounds[0];
+  const picker = rounds.map((r) => ({ id: r.id, label: `${KIND_LABEL[r.kind]} · ${r.label}` }));
+  if (chosen.kind !== 'T1') return <GuardianTracker roundId={chosen.id} rounds={picker} place={place} now={now} />;
   const data = await loadTracker(chosen.id);
   if (!data) return null;
   const { round, coverage, drafts, duplicates } = data;
@@ -68,6 +76,7 @@ export default async function TrackerPage({ searchParams }: { searchParams: Prom
 
   return (
     <>
+      <PageTop crumbs={[{ label: 'সংগ্রহ' }, { label: 'রেসপন্স ট্র্যাকার' }]} round={false} />
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div className="flex flex-col gap-1">
           <h1 className="sv-head" style={{ margin: 0, fontSize: 30 }}>
@@ -78,7 +87,7 @@ export default async function TrackerPage({ searchParams }: { searchParams: Prom
           </div>
         </div>
         <div className="flex flex-wrap gap-2 items-center sv-no-print">
-          <RoundPicker rounds={rounds.map((r) => ({ id: r.id, label: r.label }))} value={round.id} basePath="/admin/tracker" />
+          <RoundPicker rounds={picker} value={round.id} basePath="/admin/tracker" label="জরিপ ও রাউন্ড" />
           <a className="sv-sbtn" href={`/admin/reports/export?kind=tracker&round=${round.id}`}>
             Excel
           </a>
@@ -95,10 +104,6 @@ export default async function TrackerPage({ searchParams }: { searchParams: Prom
           খসড়া ও ডুপ্লিকেট ({bn(drafts.length + duplicates.length)})
         </a>
       </nav>
-
-      <div className="sv-card" style={{ fontSize: 14, color: 'var(--sv-text-muted)' }}>
-        অভিভাবক রিভিউ (G1, G2) দ্বিতীয় ধাপে চালু হবে; তখন এখানে শ্রেণিভিত্তিক সাড়া ও বাকি অভিভাবকদের তালিকা দেখা যাবে।
-      </div>
 
       <h2 id="coverage" className="sv-head sv-h2" style={{ fontSize: 22, paddingTop: 4 }}>
         শিক্ষক কভারেজ
@@ -149,6 +154,11 @@ export default async function TrackerPage({ searchParams }: { searchParams: Prom
                         <td key={cell.subjectKey} className={cell.state === 'na' ? undefined : `is-${cell.state}`} title={`${row.label} · ${subject}: ${text}`}>
                           <StateIcon state={cell.state} />
                           <span className="sv-visually-hidden">{text}</span>
+                          {cell.teachers.length > 0 && (
+                            <span aria-hidden="true" style={{ display: 'block', fontSize: 11, lineHeight: 1.3, marginTop: 2, fontWeight: 400 }}>
+                              {cell.teachers.join(', ')}
+                            </span>
+                          )}
                         </td>
                       );
                     })}

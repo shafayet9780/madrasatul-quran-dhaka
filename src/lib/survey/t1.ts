@@ -410,13 +410,20 @@ export async function loadReceipt(token: string): Promise<Receipt | null> {
   const [[round], saved, replacement] = await Promise.all([
     db.select().from(surveyRounds).where(eq(surveyRounds.id, submission.roundId)),
     db.select().from(responses).where(eq(responses.submissionId, submission.id)),
-    // Only link to the teacher's own newer batch: a duplicate resolved in favour of another
-    // teacher must not reveal that teacher's marks and notes.
+    // Only link to the same person's newer submission: another teacher's batch (a resolved
+    // duplicate) or another guardian's form must not reveal their answers.
     submission.supersededBy
       ? db
           .select({ token: submissions.receiptToken })
           .from(submissions)
-          .where(and(eq(submissions.id, submission.supersededBy), eq(submissions.teacherKey, submission.teacherKey ?? '')))
+          .where(
+            and(
+              eq(submissions.id, submission.supersededBy),
+              submission.kind === 'T1'
+                ? eq(submissions.teacherKey, submission.teacherKey ?? '')
+                : eq(submissions.submitterMobile, submission.submitterMobile ?? '')
+            )
+          )
       : Promise.resolve([]),
   ]);
   const rows = saved

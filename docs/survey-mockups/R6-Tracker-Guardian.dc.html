@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<title>রিপোর্ট: অভিভাবক রাউন্ডের ট্র্যাকার</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Anek+Bangla:wght@500;600&amp;family=Hind+Siliguri:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+*{box-sizing:border-box}
+a{color:#875B3D}a:hover{color:#654321}
+.nav{display:flex;align-items:center;gap:10px;min-height:42px;padding:8px 12px;border-radius:10px;color:#3D4A53;text-decoration:none;font-size:15px;font-weight:500}
+.nav:hover{background:#F4F2EE;color:#1F2A2E}
+.nav[aria-current="page"]{background:#F6EEE6;color:#5E3B24;font-weight:600}
+.card{background:#FFFFFF;border:1px solid #E7E3DC;border-radius:16px;padding:20px}
+.sel{height:40px;border-radius:10px;border:1px solid transparent;background:#F4F2EE;padding:0 10px;font:inherit;font-size:14px;color:#1F2A2E}
+.tbtn{height:40px;padding:0 14px;border-radius:10px;border:1px solid transparent;background:#F4F2EE;font:inherit;font-size:14px;font-weight:600;color:#1F2A2E;display:flex;align-items:center;gap:8px;cursor:pointer;white-space:nowrap}
+.sbtn{height:36px;padding:0 10px;border-radius:9px;border:1px solid transparent;background:#F4F2EE;font:inherit;font-size:13px;font-weight:600;color:#1F2A2E;display:inline-flex;align-items:center;gap:6px;cursor:pointer;white-space:nowrap;text-decoration:none}
+.jump{height:38px;padding:0 14px;border-radius:999px;background:#FFFFFF;border:1px solid #E7E3DC;display:inline-flex;align-items:center;font-size:14px;font-weight:600;color:#1F2A2E;text-decoration:none}
+.nav:focus-visible,.sel:focus-visible,.tbtn:focus-visible,.sbtn:focus-visible,.jump:focus-visible,a:focus-visible,button:focus-visible{outline:3px solid #4F7FA6;outline-offset:2px}
+.num{font-family:'Anek Bangla',sans-serif;font-weight:600;font-variant-numeric:tabular-nums}
+th{font-weight:600;color:#5B6670;font-size:13px;text-align:left;padding:9px 10px;border-bottom:1px solid #E7E3DC;white-space:nowrap}
+td{padding:9px 10px;border-bottom:1px solid #F0ECE6;font-size:14px;vertical-align:middle}
+</style>
+</helmet>
+<div style="min-height: 1900px; background: #F8F7F4; font-family: 'Hind Siliguri', sans-serif; color: #1F2A2E; display: flex; flex-wrap: wrap; align-items: flex-start">
+  <nav aria-label="রিপোর্ট মেনু" style="flex: 1 1 220px; max-width: 100%; padding: 22px 14px; display: flex; flex-direction: column; gap: 4px">
+    <div style="display: flex; align-items: center; gap: 10px; padding: 0 8px 18px">
+      <div style="width: 34px; height: 34px; border-radius: 10px; background: #875B3D; color: #fff; display: flex; align-items: center; justify-content: center; font-family: 'Anek Bangla', sans-serif; font-weight: 600; font-size: 18px">ম</div>
+      <div style="display: flex; flex-direction: column"><span style="font-weight: 600; font-size: 15px">রিভিউ রিপোর্ট</span><span style="font-size: 13px; color: #5B6670">মাদরাসাতুল কুরআন, ঢাকা</span></div>
+    </div>
+    <sc-for list="{{nav}}" as="n" hint-placeholder-count="8">
+      <sc-if value="{{n.head}}" hint-placeholder-val="{{false}}"><div style="padding: 16px 12px 6px; font-size: 13px; font-weight: 600; color: #5B6670">{{n.label}}</div></sc-if>
+      <sc-if value="{{n.link}}" hint-placeholder-val="{{true}}"><a class="nav" href="{{n.href}}" aria-current="{{n.cur}}">{{n.label}}</a></sc-if>
+    </sc-for>
+  </nav>
+
+  <main style="flex: 999 1 560px; min-width: 0; padding: 22px 28px 48px; display: flex; flex-direction: column; gap: 20px">
+    <div style="display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px">
+      <div style="display: flex; flex-direction: column; gap: 4px">
+        <div style="display: flex; align-items: center; gap: 10px">
+          <h1 style="margin: 0; font-family: 'Anek Bangla', sans-serif; font-weight: 600; font-size: 30px">রেসপন্স ট্র্যাকার</h1>
+          <span style="background: #E7E3DC; color: #3D4A53; border-radius: 999px; padding: 2px 10px; font-size: 13px; font-weight: 600">নমুনা ডেটা</span>
+        </div>
+        <div style="font-size: 14px; color: #5B6670">শিক্ষার্থীর উপর অভিভাবক রিভিউ (G2) · অক্টোবর ২০২৬ · বন্ধ হতে ৯ দিন বাকি</div>
+      </div>
+      <div style="display: flex; gap: 8px; flex-wrap: wrap">
+        <label style="display: flex; align-items: center; gap: 6px; font-size: 13px; color: #5B6670">রাউন্ড <select class="sel"><option>G2 · শিক্ষার্থী রিভিউ · অক্টোবর ২০২৬</option><option>G1 · ক্লাস পরিচালনা · অক্টোবর ২০২৬</option><option>T1 · শিক্ষকের রিভিউ · অক্টোবর ২০২৬</option></select></label>
+        <button class="tbtn">Excel</button>
+        <button class="tbtn">প্রিন্ট / PDF</button>
+      </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px">
+      <sc-for list="{{kpis}}" as="k" hint-placeholder-count="4">
+        <div class="card" style="padding: 16px 18px; display: flex; flex-direction: column; gap: 4px">
+          <span style="font-size: 13.5px; color: #5B6670">{{k.label}}</span>
+          <span class="num" style="font-size: 28px">{{k.value}}</span>
+          <span style="font-size: 13px; color: #5B6670">{{k.note}}</span>
+        </div>
+      </sc-for>
+    </div>
+
+    <nav aria-label="এই পাতায়" style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center">
+      <span style="font-size: 13px; color: #5B6670; margin-right: 4px">এই পাতায়:</span>
+      <a class="jump" href="#p">জমা হয়নি</a>
+      <a class="jump" href="#u">অযাচাইকৃত (৯)</a>
+      <a class="jump" href="#m">একাধিক জমা (৩)</a>
+    </nav>
+
+    <div id="p" style="display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start">
+      <section class="card" style="flex: 1 1 360px; min-width: 0; display: flex; flex-direction: column; gap: 8px">
+        <h2 style="margin: 0; font-size: 16px; font-weight: 600">শ্রেণিভিত্তিক সাড়া</h2>
+        <sc-for list="{{classes}}" as="c" hint-placeholder-count="13">
+          <button style="display: grid; grid-template-columns: 110px minmax(0, 1fr) 56px; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 10px; border: 1px solid {{c.border}}; background: {{c.bg}}; font: inherit; color: #1F2A2E; text-align: left; cursor: pointer" aria-pressed="{{c.sel}}">
+            <span style="font-weight: 600; font-size: 14px">{{c.cls}}</span>
+            <span style="height: 8px; border-radius: 4px; background: #F0ECE6; overflow: hidden; display: block"><span style="display: block; height: 8px; background: #B86A2E; width: {{c.w}}"></span></span>
+            <span class="num" style="font-size: 13px; text-align: right">{{c.t}}</span>
+          </button>
+        </sc-for>
+      </section>
+
+      <section class="card" style="flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column; gap: 12px">
+        <div style="display: flex; flex-direction: column; gap: 2px">
+          <h2 style="margin: 0; font-family: 'Anek Bangla', sans-serif; font-weight: 600; font-size: 19px">নার্সারি A · এখনো জমা হয়নি (৪)</h2>
+          <div style="font-size: 13.5px; color: #5B6670">প্রত্যেক অভিভাবককে আলাদা বার্তা পাঠান। গ্রুপে নাম তালিকা পাঠাবেন না। বার্তায় শুধু এই রাউন্ডের লিংক থাকে।</div>
+        </div>
+        <div style="overflow-x: auto">
+          <table style="width: 100%; min-width: 600px; border-collapse: collapse">
+            <thead><tr><th>শিক্ষার্থী</th><th>যোগাযোগ</th><th style="text-align: right">কাজ</th></tr></thead>
+            <tbody>
+              <sc-for list="{{pending}}" as="p" hint-placeholder-count="4">
+                <tr>
+                  <td><div style="font-weight: 600">{{p.name}}</div><div style="font-size: 13px; color: #5B6670">{{p.roll}}</div></td>
+                  <td style="font-size: 13.5px; color: #3D4A53">{{p.contact}}</td>
+                  <td style="text-align: right">
+                    <sc-if value="{{p.canMsg}}" hint-placeholder-val="{{true}}">
+                      <button class="sbtn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"></rect><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"></path></svg>বার্তা কপি</button>
+                    </sc-if>
+                    <sc-if value="{{p.noContact}}" hint-placeholder-val="{{false}}"><span style="font-size: 13px; color: #8A4416">ERP-তে নম্বর যোগ করুন</span></sc-if>
+                  </td>
+                </tr>
+              </sc-for>
+            </tbody>
+          </table>
+        </div>
+        <div style="padding: 12px 14px; border-radius: 12px; background: #F7F5F1; font-size: 14px; line-height: 1.6; color: #3D4A53"><b>বার্তার নমুনা (Yahya Hasan):</b> “আসসালামু আলাইকুম। Yahya Hasan-এর অক্টোবর মাসের অভিভাবক রিভিউ (শিক্ষার্থী) এখনো জমা হয়নি। লিংক: [এই রাউন্ডের লিংক] · শেষ সময় ২০ অক্টোবর। জাযাকাল্লাহু খাইরান।”</div>
+      </section>
+    </div>
+
+    <div style="display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start">
+      <section id="u" class="card" style="flex: 1 1 460px; min-width: 0; display: flex; flex-direction: column; gap: 10px">
+        <h2 style="margin: 0; font-size: 16px; font-weight: 600">অযাচাইকৃত জমা (৯)</h2>
+        <div style="font-size: 13.5px; color: #5B6670">প্রদানকারীর মোবাইল ERP-র বাবা বা মায়ের নম্বরের সাথে মেলেনি। জমা গণ্য হয়েছে; রিপোর্টে “শুধু যাচাইকৃত” ফিল্টারে বাদ যায়।</div>
+        <sc-for list="{{unverified}}" as="u" hint-placeholder-count="3">
+          <div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center; padding: 10px 12px; border-radius: 12px; border: 1px solid #E7E3DC">
+            <div style="flex: 1 1 220px; display: flex; flex-direction: column"><span style="font-weight: 600">{{u.who}}</span><span style="font-size: 13px; color: #5B6670">{{u.meta}}</span></div>
+          </div>
+        </sc-for>
+      </section>
+      <section id="m" class="card" style="flex: 1 1 460px; min-width: 0; display: flex; flex-direction: column; gap: 10px">
+        <h2 style="margin: 0; font-size: 16px; font-weight: 600">একাধিক জমা (৩)</h2>
+        <div style="font-size: 13.5px; color: #5B6670">একই শিক্ষার্থীর জন্য একাধিক রিভিউ এসেছে। সর্বশেষটি গণ্য হয়; আগেরগুলো রাখা আছে। অস্বাভাবিক মনে হলে অভিভাবককে ফোন করুন।</div>
+        <sc-for list="{{multi}}" as="m" hint-placeholder-count="3">
+          <div style="display: flex; flex-direction: column; gap: 6px; padding: 10px 12px; border-radius: 12px; border: 1px solid #E7E3DC">
+            <div style="display: flex; justify-content: space-between; gap: 8px"><span style="font-weight: 600">{{m.child}}</span><span style="font-size: 13px; color: #5B6670">{{m.cls}}</span></div>
+            <sc-for list="{{m.subs}}" as="s" hint-placeholder-count="2">
+              <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: 13.5px">
+                <span style="border-radius: 6px; padding: 1px 7px; font-size: 12.5px; font-weight: 600; background: {{s.tagBg}}; color: {{s.tagFg}}">{{s.tag}}</span>
+                <span>{{s.who}}</span>
+                <span style="color: #5B6670">{{s.meta}}</span>
+              </div>
+            </sc-for>
+          </div>
+        </sc-for>
+      </section>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const bn = (n) => String(n).replace(/\d/g, (d) => '০১২৩৪৫৬৭৮৯'[d]);
+    const NAV = [
+      ['h', 'রিপোর্ট'], ['ওভারভিউ', 'R1-Overview.dc.html'], ['শিক্ষার মান (G1)', 'R2-Teaching.dc.html'], ['ক্লাস', 'R3-Class.dc.html'],
+      ['শিক্ষার্থী প্রোফাইল', 'R4-Student.dc.html'], ['শিক্ষকদের রেটিং প্যাটার্ন', 'R5-Raters.dc.html'], ['রেসপন্স ট্র্যাকার', 'R6-Tracker-Guardian.dc.html'],
+      ['h', 'অ্যাডমিন'], ['রাউন্ড', 'R7-Rounds.dc.html'], ['ERP ইমপোর্ট', 'R8-Import.dc.html']
+    ];
+    const current = 'R6-Tracker-Guardian.dc.html';
+    const CLS = ['প্লে', 'নার্সারি A', 'নার্সারি B', 'কেজি A', 'কেজি B', 'প্রথম', 'দ্বিতীয় বালক', 'দ্বিতীয় বালিকা', 'তৃতীয় বালক', 'তৃতীয় বালিকা', 'চতুর্থ', 'পঞ্চম', 'ষষ্ঠ'];
+    const TOT = [13, 15, 15, 17, 17, 20, 8, 10, 11, 9, 3, 4, 6];
+    const DONE = [10, 11, 13, 14, 12, 17, 6, 9, 8, 8, 3, 3, 5];
+    const done = DONE.reduce((a, b) => a + b, 0);
+    const tot = TOT.reduce((a, b) => a + b, 0);
+    return {
+      nav: NAV.map(([a, b]) => a === 'h' ? { head: true, link: false, label: b } : { head: false, link: true, label: a, href: b, cur: b === current ? 'page' : 'false' }),
+      kpis: [
+        { label: 'সাড়া', value: bn(done) + '/' + bn(tot), note: bn(Math.round((done / tot) * 100)) + '% শিক্ষার্থীর অভিভাবক' },
+        { label: 'যাচাইকৃত', value: bn(done - 9), note: 'মোবাইল ERP-র সাথে মিলেছে' },
+        { label: 'অযাচাইকৃত', value: '৯', note: 'গণ্য, তবে আলাদা দেখানো' },
+        { label: 'একাধিক জমা', value: '৩', note: 'সর্বশেষটি গণ্য' }
+      ],
+      classes: CLS.map((cls, i) => ({ cls, w: Math.round((DONE[i] / TOT[i]) * 100) + '%', t: bn(DONE[i]) + '/' + bn(TOT[i]), sel: i === 1, bg: i === 1 ? '#F6EEE6' : '#FFFFFF', border: i === 1 ? '#875B3D' : '#E7E3DC' })),
+      pending: [
+        { name: 'Yahya Hasan', roll: 'রোল ৫', contact: 'বাবা ০১৭২০-৪৪১৮৫৩ · মা ০১৯৮৮-২১০৬৭৪', canMsg: true, noContact: false },
+        { name: 'Tasnia Islam', roll: 'রোল নেই · আইডি ১০১৬১', contact: 'বাবা +৪৪ ৭৯০০ ১২৩ ৪৫৬', canMsg: true, noContact: false },
+        { name: 'Zainab Akter', roll: 'রোল নেই · আইডি ১০১৬৬', contact: 'কোনো নম্বর নেই', canMsg: false, noContact: true },
+        { name: 'Hamza Rahim', roll: 'রোল ১৮', contact: 'বাবা ০১৮১২-৭৭০৪১৫', canMsg: true, noContact: false }
+      ],
+      unverified: [
+        { who: 'আব্দুল করিম (চাচা) · Hasan Ibn Karim', meta: 'কেজি A · ০১৮৫৫-২০৩৯৪১ · ৩ অক্টো' },
+        { who: 'মো. কামরুল হাসান (অন্যান্য: মামা) · Talha Zubair', meta: 'নার্সারি A · ০১৭৩৩-৫১০২৮৮ · ২ অক্টো' },
+        { who: 'সালমা বেগম (মাতা) · Abdur Rahman Fahim', meta: 'নার্সারি A · ০১৯১১-৬৮৪৩২০ · ২ অক্টো' }
+      ],
+      multi: [
+        { child: 'Maryam Binte Rafiq', cls: 'নার্সারি A', subs: [
+          { tag: 'গণ্য', tagBg: '#E7F1EC', tagFg: '#2E6A55', who: 'নাসরিন আক্তার (মাতা) · যাচাইকৃত', meta: '১২ অক্টো রাত ৯:১৪' },
+          { tag: 'আগের', tagBg: '#F4F2EE', tagFg: '#3D4A53', who: 'রফিকুল ইসলাম (পিতা) · যাচাইকৃত', meta: '৮ অক্টো সকাল ৭:৪০' }
+        ] },
+        { child: 'Ibrahim Hossain', cls: 'কেজি B', subs: [
+          { tag: 'গণ্য', tagBg: '#E7F1EC', tagFg: '#2E6A55', who: 'আনোয়ার হোসেন (পিতা) · যাচাইকৃত', meta: '১১ অক্টো' },
+          { tag: 'আগের', tagBg: '#F4F2EE', tagFg: '#3D4A53', who: 'আনোয়ার হোসেন (পিতা) · যাচাইকৃত', meta: '১১ অক্টো (সংশোধন)' }
+        ] },
+        { child: 'Sumaya Binte Salam', cls: 'প্রথম', subs: [
+          { tag: 'গণ্য', tagBg: '#E7F1EC', tagFg: '#2E6A55', who: 'রাশেদ কবির (অন্যান্য: মামা) · অযাচাইকৃত', meta: '১০ অক্টো' },
+          { tag: 'আগের', tagBg: '#F4F2EE', tagFg: '#3D4A53', who: 'আব্দুস সালাম (পিতা) · যাচাইকৃত', meta: '৬ অক্টো' }
+        ] }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

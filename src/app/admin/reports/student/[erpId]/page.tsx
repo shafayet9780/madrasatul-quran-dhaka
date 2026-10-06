@@ -1,13 +1,17 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { formatDateTime } from '@/lib/survey/dates';
+import { KIND_LABEL } from '@/lib/survey/labels';
+import { gapFlag, sharedAreaGap } from '@/lib/survey/guardian-report-math';
+import { allReportRounds, studentGuardian } from '@/lib/survey/guardian-reports';
 import { toBengaliDigits as bn } from '@/lib/survey/normalise';
-import { formatMark } from '@/lib/survey/report-math';
-import { pickRound, studentReport, t1Rounds } from '@/lib/survey/reports';
-import { RoundPicker } from '../../../RoundPicker';
-import { MarkAxis, MarkBar, markCell, TEACHER, TrendChart } from '../../charts';
+import { formatMark, GUARDIAN_AREAS } from '@/lib/survey/report-math';
+import { chosenRoundId } from '@/lib/survey/admin-shell';
+import { pickRound, studentReport } from '@/lib/survey/reports';
+import { GUARDIAN, MarkAxis, markCell, PairBar, PairTrendChart, TEACHER, TrendChart } from '../../charts';
 import { NoRounds } from '../../NoRounds';
 import { ReportTools } from '../../ReportTools';
+import { PageTop } from '../../../AdminShell';
 
 export const metadata: Metadata = { title: 'শিক্ষার্থী প্রোফাইল' };
 export const dynamic = 'force-dynamic';
@@ -27,31 +31,57 @@ const STATUS = {
   'set-aside': { label: 'বাদ (অ্যাডমিন সিদ্ধান্ত)', bg: 'var(--sv-neutral-bg)', fg: 'var(--sv-text-body)' },
 } as const;
 
+
+
 export default async function StudentProfilePage({ params, searchParams }: { params: Promise<{ erpId: string }>; searchParams: Promise<{ round?: string }> }) {
-  const [{ erpId: rawId }, search, rounds] = await Promise.all([params, searchParams, t1Rounds()]);
+  const [{ erpId: rawId }, search, all] = await Promise.all([params, searchParams, allReportRounds()]);
+  const rounds = all.filter((r) => r.kind === 'T1');
   // Next has already decoded the segment.
   const erpId = rawId;
-  const round = pickRound(rounds, search.round);
+  const round = pickRound(rounds, await chosenRoundId(search.round));
   if (!round) return <NoRounds />;
   const report = await studentReport(round, erpId);
   if (!report) {
     return (
-      <div className="sv-card" style={{ padding: 20 }}>
-        শিক্ষার্থী পাওয়া যায়নি। <Link href={`/admin/reports?round=${round.id}`}>খুঁজুন</Link>
-      </div>
+      <>
+        <PageTop crumbs={[{ label: 'ক্লাস ও শিক্ষার্থী', href: '/admin/reports' }, { label: 'পাওয়া যায়নি' }]} />
+        <div className="sv-card" style={{ padding: 20 }}>
+          শিক্ষার্থী পাওয়া যায়নি। <Link href={`/admin/reports?round=${round.id}`}>খুঁজুন</Link>
+        </div>
+      </>
     );
   }
   const { student } = report;
+  const guardian = await studentGuardian(round, all, erpId, student, { verifiedOnly: false });
+  const marked = (list: { areaKey: string; mean: number | null }[]) => new Map(list.filter((a) => a.mean !== null).map((a) => [a.areaKey, a.mean!]));
+  // Guardian against teachers on the areas both rated (the gap tile and flag).
+  const shared = sharedAreaGap(marked(guardian.areas), marked(report.areas));
+  const flags = [...report.flags, gapFlag(shared, bn)].filter((f) => f !== null);
+  const guardianAreas = new Map(guardian.areas.map((a) => [a.areaKey, a]));
+  const teacherAreas = new Map(report.areas.map((a) => [a.areaKey, a]));
+  const areas = [...new Set([...report.areas.map((a) => a.areaKey), ...guardian.areas.map((a) => a.areaKey)])].map((key) => {
+    const g = guardianAreas.get(key);
+    const t = teacherAreas.get(key);
+    // The class average beside the child is the teachers' (the same raters as the teacher mark).
+    return { key, name: (t ?? g)!.name, guardian: g?.mean ?? null, teacher: t?.mean ?? null, classMean: t?.classMean ?? null };
+  });
+  const widest = areas
+    .filter((a) => a.guardian !== null && a.teacher !== null)
+    .filter((a) => !GUARDIAN_AREAS.has(a.key))
+    .map((a) => ({ name: a.name, marks: Math.abs(a.guardian! - a.teacher!) }))
+    .sort((a, b) => b.marks - a.marks)[0];
+  const teacherByRound = new Map(report.trend.map((p) => [p.roundId, p.mean]));
+  const pairTrend = guardian.trend
+    .map((p) => ({ label: p.label, guardian: p.mean, teacher: teacherByRound.get(p.roundId) ?? null }))
+    .filter((p) => p.guardian !== null || p.teacher !== null);
+  const showPairTrend = guardian.g2 !== undefined && pairTrend.length >= 2;
   const father = localMobile(student.fatherMobile);
   const mother = localMobile(student.motherMobile);
   const classHref = `/admin/reports/class?${new URLSearchParams({ round: round.id, class: student.classKey, section: student.sectionKey })}`;
 
   return (
     <>
-      <Link href={classHref} className="sv-no-print" style={{ fontSize: 14, fontWeight: 600, alignSelf: 'flex-start' }}>
-        ← {student.label}
-      </Link>
-
+      <PageTop crumbs={[{ label: 'ক্লাস ও শিক্ষার্থী', href: '/admin/reports' }, { label: student.label, href: classHref }, { label: student.name }]} actions={<ReportTools exportHref={`/admin/reports/export?${new URLSearchParams({ kind: 'student', round: round.id, student: erpId })}`} printLabel="অভ্যন্তরীণ প্রিন্ট (নোটসহ)" />} />
       <section className="sv-card flex flex-wrap gap-5 items-center justify-between">
         <div className="flex gap-4 items-center">
           <div
@@ -77,16 +107,33 @@ export default async function StudentProfilePage({ params, searchParams }: { par
           </div>
         </div>
         <div className="flex flex-wrap gap-2 items-center">
-          <span className="sv-no-print">
-            <RoundPicker rounds={[...rounds].reverse().map((r) => ({ id: r.id, label: r.label }))} value={round.id} basePath={`/admin/reports/student/${encodeURIComponent(erpId)}`} />
-          </span>
-          <ReportTools exportHref={`/admin/reports/export?${new URLSearchParams({ kind: 'student', round: round.id, student: erpId })}`} printLabel="অভ্যন্তরীণ প্রিন্ট (নোটসহ)" />
+          {guardian.g2 && (
+            <Link
+              href={`/admin/reports/student/${encodeURIComponent(erpId)}/guardian-print?round=${round.id}`}
+              className="sv-sbtn sv-no-print"
+              style={{ height: 38, display: 'inline-flex', alignItems: 'center' }}
+            >
+              অভিভাবকের জন্য প্রিন্ট
+            </Link>
+          )}
         </div>
       </section>
 
       <div className="grid gap-3" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))' }}>
         <div className="sv-card sv-kpi">
-          <div style={{ fontSize: 13, color: 'var(--sv-text-muted)', fontWeight: 600 }}>শিক্ষকের চোখে · T1</div>
+          <div style={{ fontSize: 13, color: 'var(--sv-text-muted)', fontWeight: 600 }}>অভিভাবকের রিভিউ</div>
+          <div className="flex items-baseline gap-1">
+            <span className="sv-num" style={{ fontSize: 30 }}>
+              {formatMark(guardian.mean, bn)}
+            </span>
+            <span style={{ fontSize: 14, color: 'var(--sv-text-muted)' }}>/ ১০</span>
+          </div>
+          <div style={{ fontSize: 13, color: 'var(--sv-text-muted)' }}>
+            {!guardian.g2 ? 'এই রাউন্ডের সাথে অভিভাবকের রিভিউ নেই' : guardian.mean === null ? 'অভিভাবক এখনো জমা দেননি' : `ক্লাসের অভিভাবকদের গড় ${formatMark(guardian.classMean, bn)}`}
+          </div>
+        </div>
+        <div className="sv-card sv-kpi">
+          <div style={{ fontSize: 13, color: 'var(--sv-text-muted)', fontWeight: 600 }}>শিক্ষকের রিভিউ</div>
           <div className="flex items-baseline gap-1">
             <span className="sv-num" style={{ fontSize: 30 }}>
               {formatMark(report.mean, bn)}
@@ -98,13 +145,23 @@ export default async function StudentProfilePage({ params, searchParams }: { par
           </div>
         </div>
         <div className="sv-card sv-kpi">
-          <div style={{ fontSize: 13, color: 'var(--sv-text-muted)', fontWeight: 600 }}>অভিভাবকের চোখে · G2</div>
-          <div style={{ fontSize: 14, color: 'var(--sv-text-muted)', lineHeight: 1.6 }}>G2 শুরু হলে দেখা যাবে</div>
+          <div style={{ fontSize: 13, color: 'var(--sv-text-muted)', fontWeight: 600 }}>অভিভাবক–শিক্ষক পার্থক্য</div>
+          <div className="flex items-baseline gap-1">
+            <span className="sv-num" style={{ fontSize: 30 }}>
+              {shared ? bn(Math.abs(shared.gap).toFixed(1)) : '—'}
+            </span>
+            <span style={{ fontSize: 14, color: 'var(--sv-text-muted)' }}>মার্ক</span>
+          </div>
+          <div style={{ fontSize: 13, color: 'var(--sv-text-muted)' }}>
+            {shared
+              ? `${Math.round(shared.gap * 10) === 0 ? 'দুই দিকে সমান' : `${shared.gap > 0 ? 'অভিভাবক' : 'শিক্ষক'} বেশি দিয়েছেন`} · একই ${bn(shared.areas)}টি ক্ষেত্রে${widest ? ` · সবচেয়ে বেশি: ${widest.name} (${bn(widest.marks.toFixed(1))})` : ''}`
+              : 'দুই দিকের মার্ক লাগবে'}
+          </div>
         </div>
         <div className="sv-card sv-kpi">
           <div style={{ fontSize: 13, color: 'var(--sv-text-muted)', fontWeight: 600 }}>ফ্ল্যাগ</div>
-          {report.flags.length ? (
-            report.flags.map((f) => (
+          {flags.length ? (
+            flags.map((f) => (
               <span key={f.kind} className="sv-flag" style={{ alignSelf: 'flex-start' }}>
                 ⚠ {f.label}
               </span>
@@ -115,35 +172,48 @@ export default async function StudentProfilePage({ params, searchParams }: { par
         </div>
       </div>
 
-      <div className="flex flex-wrap gap-4 items-stretch">
-        <section className="sv-card flex flex-col gap-3 min-w-0" style={{ flex: '999 1 520px' }} aria-labelledby="areas-title">
+      <div className="sv-split">
+        <section className="sv-card flex flex-col gap-3 min-w-0" aria-labelledby="areas-title">
           <h2 id="areas-title" className="sv-head sv-h2">
             ক্ষেত্রভিত্তিক তুলনা
           </h2>
           <div className="flex flex-wrap gap-4" style={{ fontSize: 13, color: 'var(--sv-text-muted)' }} aria-hidden="true">
+            <span className="flex items-center gap-1.5">
+              <span style={{ width: 12, height: 12, borderRadius: '50%', background: GUARDIAN }} />
+              অভিভাবক
+            </span>
             <span className="flex items-center gap-1.5">
               <span style={{ width: 12, height: 12, borderRadius: '50%', background: TEACHER }} />
               শিক্ষকদের গড়
             </span>
             <span className="flex items-center gap-1.5">
               <span style={{ width: 3, height: 14, background: 'var(--sv-text-body)' }} />
-              ক্লাসের গড়
+              ক্লাসের গড় (শিক্ষকদের)
             </span>
           </div>
-          {report.areas.map((area) => (
-            <div key={area.areaKey} className="grid items-center gap-3" style={{ gridTemplateColumns: 'minmax(120px, 190px) minmax(0, 1fr) 110px', fontSize: 14, minHeight: 34 }}>
-              <div style={{ fontWeight: 600 }}>{area.name}</div>
-              <MarkBar
-                value={area.mean}
-                reference={area.classMean}
-                label={`${area.name}: ${formatMark(area.mean, bn)}, ক্লাসের গড় ${formatMark(area.classMean, bn)}`}
-              />
-              <div style={{ fontSize: 13, color: 'var(--sv-text-muted)', textAlign: 'right' }}>
-                {formatMark(area.mean, bn)} · ক্লাস {formatMark(area.classMean, bn)}
+          <div style={{ fontSize: 13, color: 'var(--sv-text-muted)' }}>গড় মার্ক, ১০-এর মধ্যে</div>
+          {areas.map((area) => {
+            const text = [
+              area.guardian !== null && `অভিভাবক ${formatMark(area.guardian, bn)}`,
+              area.teacher !== null && `শিক্ষক ${formatMark(area.teacher, bn)}`,
+              area.classMean !== null && `ক্লাস ${formatMark(area.classMean, bn)}`,
+            ]
+              .filter(Boolean)
+              .join(' · ');
+            return (
+              <div key={area.key} className="sv-pair-row" style={{ fontSize: 14, minHeight: 34 }}>
+                <div style={{ fontWeight: 600 }}>
+                  {area.name}
+                  {GUARDIAN_AREAS.has(area.key) && <div style={{ fontWeight: 400, fontSize: 12.5, color: 'var(--sv-text-muted)' }}>অভিভাবক সম্পর্কে · শিক্ষার্থীর গড়ে ধরা হয়নি</div>}
+                </div>
+                <PairBar guardian={area.guardian} teacher={area.teacher} reference={area.classMean} label={`${area.name}: ${text}`} />
+                <div className="sv-pair-text" style={{ fontSize: 12.5, color: 'var(--sv-text-muted)' }}>
+                  {text}
+                </div>
               </div>
-            </div>
-          ))}
-          <div className="grid gap-3" style={{ gridTemplateColumns: 'minmax(120px, 190px) minmax(0, 1fr) 110px' }}>
+            );
+          })}
+          <div className="sv-pair-row" aria-hidden="true">
             <div />
             <MarkAxis />
             <div />
@@ -153,7 +223,9 @@ export default async function StudentProfilePage({ params, searchParams }: { par
           <h2 id="trend-title" className="sv-head sv-h2">
             রাউন্ডভিত্তিক গড়
           </h2>
-          {report.trend.length >= 2 ? (
+          {showPairTrend ? (
+            <PairTrendChart points={pairTrend} width={380} />
+          ) : report.trend.length >= 2 ? (
             <TrendChart points={report.trend} />
           ) : (
             <div
@@ -237,16 +309,62 @@ export default async function StudentProfilePage({ params, searchParams }: { par
         </div>
       </section>
 
-      <div className="flex flex-wrap gap-4 items-start">
-        <section className="sv-card flex flex-col gap-2 min-w-0" style={{ flex: '1 1 420px' }}>
-          <h2 className="sv-head sv-h2">অভিভাবকের উত্তর</h2>
-          <p style={{ margin: 0, fontSize: 14, color: 'var(--sv-text-muted)' }}>G2 শুরু হলে দেখা যাবে। অভিভাবকের জন্য প্রিন্টও তখন চালু হবে।</p>
+      <div className="sv-split is-even">
+        <section className="sv-card flex flex-col gap-2 min-w-0" aria-labelledby="answers-title">
+          <h2 id="answers-title" className="sv-head sv-h2">
+            অভিভাবকের উত্তর{guardian.g2 ? ` · ${guardian.g2.label}` : ''}
+          </h2>
+          {!guardian.g2 && <p style={{ margin: 0, fontSize: 14, color: 'var(--sv-text-muted)' }}>এই রাউন্ডের সাথে অভিভাবকের রিভিউ নেই।</p>}
+          {guardian.g2 && !guardian.form && <p style={{ margin: 0, fontSize: 14, color: 'var(--sv-text-muted)' }}>অভিভাবক এখনো জমা দেননি।</p>}
+          {guardian.form && (
+            <>
+              <div style={{ fontSize: 13, color: 'var(--sv-text-muted)' }}>
+                {guardian.form.who}
+                {guardian.form.relation ? ` (${guardian.form.relation})` : ''}
+                {guardian.form.submittedAt ? ` · ${formatDateTime(guardian.form.submittedAt)}` : ''} ·{' '}
+                <span style={{ color: guardian.form.verified ? 'var(--sv-ok)' : 'var(--sv-warn)', fontWeight: 600 }}>{guardian.form.verified ? 'যাচাইকৃত' : 'অযাচাইকৃত'}</span>
+              </div>
+              <dl style={{ margin: 0 }}>
+                {guardian.answers.map((a) => (
+                  <div key={a.label} className="grid items-baseline gap-3" style={{ gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 150px) 56px', padding: '8px 0', borderBottom: '1px solid var(--sv-hairline-soft)', fontSize: 14 }}>
+                    <dt>{a.label}</dt>
+                    <dd style={{ margin: 0, fontWeight: 600 }}>{a.answer ?? '—'}</dd>
+                    <dd className="sv-num" style={{ margin: 0, textAlign: 'right', color: 'var(--sv-text-muted)' }} title={a.unscored ? 'এই প্রশ্নে মার্ক গণনা হয় না' : undefined}>
+                      {a.unscored ? 'মার্ক নেই' : a.mark === null ? '' : bn(a.mark)}
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+              {guardian.form.comment && <div style={{ fontSize: 14, lineHeight: 1.6 }}>মন্তব্য: “{guardian.form.comment}”</div>}
+            </>
+          )}
         </section>
         <section className="sv-card flex flex-col gap-2 min-w-0" style={{ flex: '1 1 420px' }} aria-labelledby="log-title">
           <h2 id="log-title" className="sv-head sv-h2" style={{ marginBottom: 4 }}>
             সব জমা · ইতিহাসসহ
           </h2>
-          {report.log.length === 0 && <p style={{ margin: 0, fontSize: 14, color: 'var(--sv-text-muted)' }}>এখনো কোনো জমা নেই।</p>}
+          {report.log.length === 0 && guardian.log.length === 0 && <p style={{ margin: 0, fontSize: 14, color: 'var(--sv-text-muted)' }}>এখনো কোনো জমা নেই।</p>}
+          {guardian.log.map((entry, i) => {
+            const status = STATUS[entry.supersededBy ? 'superseded' : 'current'];
+            return (
+              <div key={`g${i}`} className="flex gap-3 items-start" style={{ padding: '10px 12px', borderRadius: 12, border: '1px solid var(--sv-hairline)', opacity: entry.supersededBy ? 0.7 : 1 }}>
+                <span className="sv-tag" style={{ flex: 'none' }}>
+                  {KIND_LABEL[entry.kind as keyof typeof KIND_LABEL]}
+                </span>
+                <div className="flex flex-col gap-0.5" style={{ flex: 1, fontSize: 14 }}>
+                  <div style={{ fontWeight: 600 }}>
+                    {entry.who}
+                    {entry.relation ? ` (${entry.relation})` : ''}
+                  </div>
+                  <div style={{ fontSize: 13, color: 'var(--sv-text-muted)' }}>
+                    {entry.roundLabel}
+                    {entry.submittedAt ? ` · ${formatDateTime(entry.submittedAt)}` : ''} · {entry.verified ? 'যাচাইকৃত' : 'অযাচাইকৃত'}
+                  </div>
+                </div>
+                <span style={{ flex: 'none', background: status.bg, color: status.fg, borderRadius: 6, padding: '2px 8px', fontSize: 13, fontWeight: 600 }}>{status.label}</span>
+              </div>
+            );
+          })}
           {report.log.map((entry, i) => {
             const status = STATUS[entry.status];
             return (
@@ -256,7 +374,7 @@ export default async function StudentProfilePage({ params, searchParams }: { par
                 style={{ padding: '10px 12px', borderRadius: 12, border: '1px solid var(--sv-hairline)', opacity: entry.status === 'superseded' || entry.status === 'set-aside' ? 0.7 : 1 }}
               >
                 <span className="sv-tag" style={{ flex: 'none' }}>
-                  T1
+                  {KIND_LABEL.T1}
                 </span>
                 <div className="flex flex-col gap-0.5" style={{ flex: 1, fontSize: 14 }}>
                   <div style={{ fontWeight: 600 }}>

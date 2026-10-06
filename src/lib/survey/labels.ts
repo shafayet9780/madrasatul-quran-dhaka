@@ -37,3 +37,13 @@ export function referenceNumber(submissionId: string, bengali = true): string {
   const text = `${digits.slice(0, 4)} ${digits.slice(4)}`;
   return bengali ? toBengaliDigits(text) : text;
 }
+
+/** A stored mobile for people: 8801915000111 → ০১৯১৫-০০০১১১; a foreign one keeps its code: +৪৪…. */
+export function displayMobile(mobile: string | null, bengali = true): string {
+  if (!mobile) return '';
+  const text = mobile.startsWith('8801') ? `${mobile.slice(2, 7)}-${mobile.slice(7)}` : `+${mobile}`;
+  return bengali ? toBengaliDigits(text) : text;
+}
+
+/** Short survey names for round pickers: teacher review, guardian on teaching, guardian on the child. */
+export const KIND_LABEL = { T1: 'শিক্ষক', G1: 'ক্লাস পরিচালনা', G2: 'শিক্ষার্থী' } as const;

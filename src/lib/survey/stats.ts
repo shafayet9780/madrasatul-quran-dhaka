@@ -1,4 +1,4 @@
-import { MARK_TOP } from './scoring';
+import { MARK_LOW, MARK_TOP } from './scoring';
 
 /** Aggregates with fewer responses than this are greyed out. */
 export const MIN_N = 3;
@@ -8,20 +8,23 @@ export type Summary = {
   mean: number | null;
   /** Share of marks at the top mark (১০), 0–1. */
   topShare: number | null;
+  /** Share of low marks (MARK_LOW or less), 0–1: the unhappy minority an average hides. */
+  lowShare: number | null;
   /** Count per mark. */
   distribution: Map<number, number>;
 };
 
-/** n, mean, top-mark share and distribution; null entries (N/A) are excluded entirely. */
+/** n, mean, top- and low-mark shares and distribution; null entries (N/A, unmarked) are excluded entirely. */
 export function summarise(marks: ReadonlyArray<number | null>): Summary {
   const valid = marks.filter((m): m is number => m !== null);
   const distribution = new Map<number, number>();
   for (const m of valid) distribution.set(m, (distribution.get(m) ?? 0) + 1);
-  if (valid.length === 0) return { n: 0, mean: null, topShare: null, distribution };
+  if (valid.length === 0) return { n: 0, mean: null, topShare: null, lowShare: null, distribution };
   return {
     n: valid.length,
     mean: valid.reduce((sum, m) => sum + m, 0) / valid.length,
     topShare: (distribution.get(MARK_TOP) ?? 0) / valid.length,
+    lowShare: valid.filter((m) => m <= MARK_LOW).length / valid.length,
     distribution,
   };
 }

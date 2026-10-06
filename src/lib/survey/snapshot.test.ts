@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { classLabel, classSections, compareStudents, markFor, roundSnapshotSchema, t1PairCount, type RoundSnapshot } from './snapshot';
+import { classifyAnswer, classLabel, classSections, compareStudents, roundSnapshotSchema, t1PairCount, type RoundSnapshot } from './snapshot';
 import { t1FixtureSnapshot } from './testing/t1-fixture';
 
 const snapshot: RoundSnapshot = roundSnapshotSchema.parse({
@@ -64,16 +64,24 @@ describe('classLabel', () => {
   });
 });
 
-describe('markFor', () => {
+describe('classifyAnswer', () => {
   const [marks, options] = snapshot.template.questions;
+  const { scale } = snapshot.template;
   it('accepts only marks on the scale', () => {
-    expect(markFor(marks, snapshot.template.scale, 8)).toBe(8);
-    expect(markFor(marks, snapshot.template.scale, 7)).toBeUndefined();
-    expect(markFor(marks, snapshot.template.scale, 'na')).toBeUndefined();
+    expect(classifyAnswer(marks, scale, 8)).toEqual({ kind: 'mark', mark: 8 });
+    expect(classifyAnswer(marks, scale, 7)).toEqual({ kind: 'invalid' });
+    expect(classifyAnswer(marks, scale, '8')).toEqual({ kind: 'invalid' });
   });
   it('resolves hidden option marks', () => {
-    expect(markFor(options, snapshot.template.scale, 'one')).toBe(7);
-    expect(markFor(options, snapshot.template.scale, 'other')).toBeUndefined();
+    expect(classifyAnswer(options, scale, 'one')).toEqual({ kind: 'mark', mark: 7 });
+    expect(classifyAnswer(options, scale, 'other')).toEqual({ kind: 'invalid' });
+    expect(classifyAnswer(options, scale, 7)).toEqual({ kind: 'invalid' });
+    expect(classifyAnswer(marks, scale, Number.NaN)).toEqual({ kind: 'invalid' });
+  });
+  it('tells "not applicable" apart from an invalid value', () => {
+    expect(classifyAnswer(marks, scale, 'na')).toEqual({ kind: 'invalid' });
+    expect(classifyAnswer({ ...options, allowNA: true }, scale, 'na')).toEqual({ kind: 'na' });
+    expect(classifyAnswer({ ...marks, allowNA: true }, scale, 'na')).toEqual({ kind: 'na' });
   });
 });
 

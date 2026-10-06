@@ -1,10 +1,12 @@
 /**
  * Loads sample survey data into the database in .env.local (the Neon dev branch) for local work
- * and end-to-end tests: two T1 rounds, students, three submitted batches (one duplicate) and one draft.
+ * and end-to-end tests: two T1 rounds, one G1 and one G2 round, students (a few with made-up parent
+ * mobiles, two siblings sharing one), three submitted batches (one duplicate) and one draft.
  * Every row it writes is marked "fixture"/"fx" and is removed by --remove.
  *
  *   pnpm survey:fixtures           # (re)load fixtures
  *   pnpm survey:fixtures --remove  # remove them
+ *   pnpm survey:fixtures --rate-limits  # only clear the request counters
  */
 import { config } from 'dotenv';
 import { resolve } from 'node:path';
@@ -18,6 +20,20 @@ if (process.env.SURVEY_DEV_DB !== '1') {
 
 const DAY = 24 * 60 * 60 * 1000;
 export const FIXTURE_LINK = '/survey/fixture-t1?k=fixture-open-link-key-000';
+export const FIXTURE_G1_LINK = '/survey/fixture-g1?k=fixture-g1-link-key-00000';
+export const FIXTURE_G2_LINK = '/survey/fixture-g2?k=fixture-g2-link-key-00000';
+export const FIXTURE_G1Q_LINK = '/survey/fixture-g1-q?k=fixture-g1q-link-key-0000';
+
+// Made-up parent mobiles (stored form). Yahya and Hamza are siblings in Nursery A on one number.
+const MOBILES: Record<string, { fatherMobile?: string; motherMobile?: string }> = {
+  'Maryam Binte Rafiq': { fatherMobile: '8801700000001' },
+  'Yahya Hasan': { fatherMobile: '8801700000002', motherMobile: '447700900123' },
+  'HAMZA RAHIM': { fatherMobile: '8801700000002', motherMobile: '447700900123' },
+  'Adiba Rahman': { fatherMobile: '8801700000003' },
+  'ZAYAN MAHMUD': { fatherMobile: '8801700000004' },
+  'Abdullah Al Noman': { motherMobile: '8801700000005' },
+  'Safiya Rahman': { fatherMobile: '8801700000006' },
+};
 
 // [roll, name] per class-section; null roll = not yet assigned in the ERP.
 const ROSTERS: Record<string, [number | null, string][]> = {
@@ -36,11 +52,19 @@ async function main() {
   // Imported after dotenv so the database URL is set.
   const { and, eq, inArray, isNotNull, like } = await import('drizzle-orm');
   const { getDb } = await import('../src/lib/survey/db');
-  const { students, submissions, surveyRounds } = await import('../src/lib/survey/schema');
+  const { rateLimits, students, submissions, surveyRounds } = await import('../src/lib/survey/schema');
   const { saveDraft, submitBatch } = await import('../src/lib/survey/t1');
+  const { submitGuardian } = await import('../src/lib/survey/guardian');
   const { t1FixtureSnapshot } = await import('../src/lib/survey/testing/t1-fixture');
+  const { g1FixtureSnapshot, g2FixtureSnapshot } = await import('../src/lib/survey/testing/guardian-fixture');
   const db = getDb();
 
+  if (process.argv.includes('--rate-limits')) {
+    // Only the request counters, for an e2e group that looks the same sample number up again.
+    await db.delete(rateLimits);
+    console.log('Cleared rate limits.');
+    return;
+  }
   const previous = await db.select({ id: surveyRounds.id }).from(surveyRounds).where(like(surveyRounds.sanityRoundId, 'fixture-%'));
   const ids = previous.map((r) => r.id);
   if (ids.length) {
@@ -51,6 +75,8 @@ async function main() {
   }
   // Also covers IDs from the import e2e file (fx20001…: the import strips dashes).
   await db.delete(students).where(like(students.erpId, 'fx%'));
+  // Repeated test runs look the same sample numbers up many times: start each run with fresh limits.
+  await db.delete(rateLimits);
   if (process.argv.includes('--remove')) {
     console.log(`Removed ${ids.length} fixture rounds and their students.`);
     return;
@@ -60,7 +86,7 @@ async function main() {
   const rows = Object.entries(ROSTERS).flatMap(([place, list]) => {
     const [classKey, sectionKey] = place.split('|');
     // IDs follow the import's normal form (no dashes), so an imported list matches them.
-    return list.map(([roll, name]) => ({ erpId: `fx${id++}`, name, classKey, sectionKey, roll }));
+    return list.map(([roll, name]) => ({ erpId: `fx${id++}`, name, classKey, sectionKey, roll, ...MOBILES[name] }));
   });
   await db.insert(students).values(rows);
 
@@ -78,6 +104,36 @@ async function main() {
         opensAt: new Date(now - 3 * DAY),
         closesAt: new Date(now + 14 * DAY),
         linkKey: 'fixture-open-link-key-000',
+      },
+      {
+        sanityRoundId: 'fixture-g1-open',
+        kind: 'G1',
+        slug: 'fixture-g1',
+        label: 'অক্টোবর ২০২৬ · ক্লাস পরিচালনা (নমুনা)',
+        snapshot: g1FixtureSnapshot(),
+        opensAt: new Date(now - 4 * DAY),
+        closesAt: new Date(now + 14 * DAY),
+        linkKey: 'fixture-g1-link-key-00000',
+      },
+      {
+        sanityRoundId: 'fixture-g1q-open',
+        kind: 'G1',
+        slug: 'fixture-g1-q',
+        label: 'অক্টোবর ২০২৬ · প্রশ্নভিত্তিক (নমুনা)',
+        snapshot: g1FixtureSnapshot(new Date(), 'by-question'),
+        opensAt: new Date(now - 5 * DAY), // older, so reports pick the by-subject G1 round
+        closesAt: new Date(now + 14 * DAY),
+        linkKey: 'fixture-g1q-link-key-0000',
+      },
+      {
+        sanityRoundId: 'fixture-g2-open',
+        kind: 'G2',
+        slug: 'fixture-g2',
+        label: 'অক্টোবর ২০২৬ · শিক্ষার্থী (নমুনা)',
+        snapshot: g2FixtureSnapshot(),
+        opensAt: new Date(now - 4 * DAY),
+        closesAt: new Date(now + 14 * DAY),
+        linkKey: 'fixture-g2-link-key-00000',
       },
       {
         sanityRoundId: 'fixture-t1-closed',
@@ -125,7 +181,52 @@ async function main() {
   const kg = rows.filter((s) => s.classKey === 'kg');
   await saveDraft(open, { teacherKey: '90002', classKey: 'kg', sectionKey: 'a', subjectKey: 'arabic' }, kg.slice(0, 3).map((s, i) => ({ studentErpId: s.erpId, answers: answersFor(i) })), meta);
 
-  console.log(`Loaded fixtures: ${rows.length} students, 2 rounds, 3 submitted batches (one duplicate), 1 draft. Open link: ${FIXTURE_LINK}`);
+  // Guardian forms for the tracker (Maryam stays free for the end-to-end tests).
+  const g2 = rounds.find((r) => r.sanityRoundId === 'fixture-g2-open')!;
+  const g1 = rounds.find((r) => r.sanityRoundId === 'fixture-g1-open')!;
+  const byName = (name: string) => rows.find((s) => s.name === name)!;
+  const g2Answers = { attendance: 'above-90', 'study-at-home': '2h', devices: '1-2-weekly', 'peer-complaints': 'never' };
+  const guardianForm = (round: typeof g2, name: string, submitter: { name: string; relation: 'father' | 'mother' | 'other'; relationOther?: string; mobile: string }, answers: Parameters<typeof submitGuardian>[1]['answers'], comment = '') =>
+    submitGuardian(
+      round,
+      { submissionId: crypto.randomUUID(), classKey: byName(name).classKey, sectionKey: byName(name).sectionKey, studentErpId: byName(name).erpId, submitter: { relationOther: '', ...submitter }, answers, comment },
+      meta
+    );
+  for (const result of [
+    await guardianForm(g2, 'Yahya Hasan', { name: 'নাসরিন আক্তার', relation: 'mother', mobile: '+447700900123' }, g2Answers),
+    await guardianForm(g2, 'HAMZA RAHIM', { name: 'আব্দুর রহিম', relation: 'father', mobile: '01700000002' }, g2Answers),
+    await guardianForm(g2, 'HAMZA RAHIM', { name: 'রাশেদ কবির', relation: 'other', relationOther: 'মামা', mobile: '01855000000' }, { ...g2Answers, devices: 'never' }),
+    // Three verified Nursery A forms for the class and student reports (Zayan: guardian and teachers far apart).
+    await guardianForm(g2, 'ZAYAN MAHMUD', { name: 'মো. মাহমুদুল করিম', relation: 'father', mobile: '01700000004' }, { attendance: 'above-90', 'study-at-home': '4h', devices: 'never', 'peer-complaints': 'never' }, 'বাসায় খুব শান্ত থাকে, মাদরাসা থেকে কোনো অভিযোগ আসেনি।'),
+    await guardianForm(g2, 'Abdullah Al Noman', { name: 'ফারজানা ইয়াসমিন', relation: 'mother', mobile: '01700000005' }, g2Answers),
+    await guardianForm(g2, 'Safiya Rahman', { name: 'আব্দুস সালাম', relation: 'father', mobile: '01700000006' }, { ...g2Answers, 'study-at-home': 'na', 'peer-complaints': 'sometimes' }),
+    await guardianForm(g1, 'Yahya Hasan', { name: 'আব্দুর রহিম', relation: 'father', mobile: '01700000002' }, Object.fromEntries(g1.snapshot.template.questions.map((q) => [q.key, Object.fromEntries((g1.snapshot.classes.find((c) => c.key === 'nursery')?.subjects ?? []).map((sub) => [sub.key, 8]))]))),
+  ]) {
+    if (!result.ok) throw new Error(`fixture guardian form failed: ${JSON.stringify(result)}`);
+  }
+  // More G1 forms in Nursery A (numbers not on record: unverified), so the teaching-quality
+  // heatmap has cells with at least 3 guardians.
+  const nurserySubjects = g1.snapshot.classes.find((c) => c.key === 'nursery')?.subjects ?? [];
+  const g1Marks = [10, 8, 10, 6, 8, 10, 4, 8];
+  const g1Children = ['AHMAD SHAFIN ISLAM', 'Abdullah Al Noman', 'Safiya Rahman', 'Humaira Jannat', 'ZAYAN MAHMUD', 'Aisha Siddika Noor'];
+  for (const [i, name] of g1Children.entries()) {
+    const answers = Object.fromEntries(
+      g1.snapshot.template.questions.map((q, qi) => [q.key, Object.fromEntries(nurserySubjects.map((sub, si) => [sub.key, g1Marks[(i + qi * 3 + si * 2) % g1Marks.length]]))])
+    );
+    const form = {
+      submissionId: crypto.randomUUID(),
+      classKey: 'nursery',
+      sectionKey: 'a',
+      studentErpId: byName(name).erpId,
+      submitter: { name: `অভিভাবক ${i + 1}`, relation: (i % 2 ? 'mother' : 'father') as 'father' | 'mother', relationOther: '', mobile: `0181100000${i}` },
+      answers,
+      comment: i === 1 ? 'গণিতের হোমওয়ার্ক একটু কমালে ভালো হয়।' : i === 4 ? 'আলহামদুলিল্লাহ, শিক্ষকরা খুব যত্নশীল।' : '',
+    };
+    const result = await submitGuardian(g1, form, meta);
+    if (!result.ok) throw new Error(`fixture G1 form failed: ${JSON.stringify(result)}`);
+  }
+
+  console.log(`Loaded fixtures: ${rows.length} students, 5 rounds, 3 submitted batches (one duplicate), 1 draft. Links: T1 ${FIXTURE_LINK} · G1 ${FIXTURE_G1_LINK} · G1 by question ${FIXTURE_G1Q_LINK} · G2 ${FIXTURE_G2_LINK}`);
 }
 
 main().catch((error) => {

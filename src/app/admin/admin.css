@@ -11,28 +11,6 @@
   color: var(--sv-link-hover);
 }
 
-.sv-admin .sv-nav-link {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  min-height: 42px;
-  padding: 8px 12px;
-  border-radius: 10px;
-  color: var(--sv-text-body);
-  text-decoration: none;
-  font-size: 15px;
-  font-weight: 500;
-}
-.sv-admin .sv-nav-link:hover {
-  background: var(--sv-stone);
-  color: var(--sv-text);
-}
-.sv-admin .sv-nav-link[aria-current='page'] {
-  background: var(--sv-tint);
-  color: var(--sv-bronze-ink);
-  font-weight: 600;
-}
-
 .sv-admin .sv-card {
   background: #fff;
   border: 1px solid var(--sv-hairline);
@@ -224,6 +202,23 @@
     font-weight: 600;
     color: var(--sv-text-muted);
   }
+  /* Charts inside a card cell take the rest of the row (they have no width of their own). */
+  .sv-admin .sv-table.is-stackable td > [role='img'] {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  .sv-admin .sv-table.is-stackable .sv-phone-hide {
+    display: none;
+  }
+  /* Compact cards (class list): two cells per line, the name across. */
+  .sv-admin .sv-table.is-stackable.is-compact tr {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px 12px;
+  }
+  .sv-admin .sv-table.is-stackable.is-compact td.sv-span-2 {
+    grid-column: 1 / -1;
+  }
 }
 
 /* Tracker coverage grid (R6) */
@@ -288,7 +283,6 @@
 }
 
 @media print {
-  .sv-admin nav[aria-label='রিপোর্ট মেনু'],
   .sv-admin .sv-no-print {
     display: none !important;
   }
@@ -333,4 +327,574 @@
 }
 .sv-admin .sv-kpi.is-muted .sv-num {
   color: var(--sv-text-muted);
+}
+
+/* Status tags on the guardian tracker (গণ্য / আগের). */
+.sv-admin .sv-chip.is-ok {
+  background: var(--sv-ok-bg);
+  color: var(--sv-ok);
+}
+.sv-admin .sv-chip.is-warn {
+  background: var(--sv-warn-bg);
+  color: var(--sv-warn);
+}
+.sv-admin .sv-chip.is-muted {
+  background: var(--sv-neutral-bg);
+  color: var(--sv-text-body);
+}
+
+/* Teaching-quality heatmap (R1/R2): one link per class × subject cell. */
+.sv-admin .sv-heat {
+  border-collapse: separate;
+  border-spacing: 3px;
+  min-width: 560px;
+  width: 100%;
+}
+.sv-admin .sv-heat th {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--sv-text-muted);
+  text-align: center;
+  padding: 0 2px 4px;
+}
+.sv-admin .sv-heat th[scope='row'] {
+  text-align: left;
+  color: var(--sv-text-body);
+  white-space: nowrap;
+  padding-right: 8px;
+}
+.sv-admin .sv-heat td {
+  padding: 0;
+  min-width: 64px;
+}
+.sv-admin .sv-heat-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  min-height: 48px;
+  border-radius: 8px;
+  text-decoration: none;
+  line-height: 1.2;
+}
+/* Hover, keyboard focus and the opened cell use the heatmap's own dark green, around the cell's
+   rounded corners (not the site's bronze/blue, which clash with the green ramp). */
+.sv-admin .sv-heat-cell:hover {
+  box-shadow: inset 0 0 0 2px #2b5246;
+}
+.sv-admin .sv-heat-cell[data-selected],
+.sv-admin .sv-heat-cell:focus-visible {
+  outline: 3px solid #2b5246;
+  outline-offset: 2px;
+  box-shadow: none;
+}
+
+@media print {
+  /* Heatmaps, bars and tags keep their colours on paper. */
+  .sv-admin * {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+}
+
+/* Guardian print (R4-Print-Guardian): an A4 sheet on screen, the page itself on paper. */
+.sv-admin .sv-print-sheet {
+  background: #fff;
+  border: 1px solid var(--sv-hairline);
+  border-radius: 16px;
+  padding: 48px 56px;
+  max-width: 794px;
+  width: 100%;
+}
+@media (max-width: 640px) {
+  .sv-admin .sv-print-sheet {
+    padding: 20px 16px;
+  }
+}
+@media print {
+  @page {
+    size: A4;
+    margin: 14mm;
+  }
+  .sv-admin .sv-print-sheet {
+    border: 0;
+    padding: 0;
+    max-width: none;
+  }
+}
+
+/* Student area rows: name · bar · values; on phones the values wrap under the bar. */
+.sv-admin .sv-pair-row {
+  display: grid;
+  grid-template-columns: minmax(120px, 180px) minmax(0, 1fr) 200px;
+  gap: 12px;
+  align-items: center;
+}
+.sv-admin .sv-pair-text {
+  text-align: right;
+}
+@media (max-width: 720px) {
+  .sv-admin .sv-pair-row {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 4px;
+  }
+  .sv-admin .sv-pair-text {
+    text-align: left;
+  }
+}
+@media print {
+  .sv-admin .sv-print-sheet section {
+    break-inside: avoid;
+  }
+  /* One A4 page: no page chrome around the sheet and tighter spacing than on screen. */
+  .sv-admin main:has(.sv-print-sheet) {
+    padding: 0 !important;
+  }
+  .sv-admin .sv-print-sheet {
+    gap: 10px !important;
+  }
+  .sv-admin .sv-print-sheet th,
+  .sv-admin .sv-print-sheet td {
+    padding-top: 4px !important;
+    padding-bottom: 4px !important;
+  }
+  .sv-admin .sv-print-sheet svg {
+    max-height: 150px;
+  }
+}
+
+
+/* ---- App shell (dashboard frames D1–D4): sidebar, top bar, phone tabs and menu sheet. ---- */
+.sv-admin .sv-shell {
+  display: flex;
+  align-items: flex-start;
+  min-height: 100vh;
+}
+.sv-admin .sv-side {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  width: 256px;
+  flex: none;
+  overflow-y: auto;
+  background: #fff;
+  border-right: 1px solid var(--sv-hairline);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 12px;
+}
+.sv-admin .sv-side-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 2px 4px 4px;
+}
+.sv-admin .sv-side-logo {
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  background: var(--sv-bronze);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 17px;
+  flex: none;
+}
+.sv-admin .sv-icon-btn {
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  color: var(--sv-text);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex: none;
+}
+.sv-admin .sv-icon-btn:hover {
+  background: var(--sv-stone);
+}
+.sv-admin .sv-round-select {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 9px 12px;
+  border: 1px solid var(--sv-hairline);
+  border-radius: 10px;
+  background: var(--sv-paper, #faf8f5);
+  font-size: 14px;
+  cursor: pointer;
+}
+.sv-admin .sv-round-select:hover {
+  background: var(--sv-stone-soft);
+}
+.sv-admin .sv-round-select:focus-within {
+  outline: 3px solid var(--sv-focus);
+  outline-offset: 2px;
+}
+.sv-admin .sv-round-select select {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+  font-size: 16px;
+}
+.sv-admin .sv-round-select-label {
+  font-size: 12px;
+  color: var(--sv-text-muted);
+}
+.sv-admin .sv-round-select-value {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  min-width: 0;
+}
+.sv-admin .sv-round-select-value svg {
+  margin-left: auto;
+  color: var(--sv-icon-muted);
+}
+.sv-admin .sv-round-select-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sv-admin .sv-round-select-status {
+  font-size: 12.5px;
+  color: var(--sv-text-muted);
+  font-weight: 400;
+  white-space: nowrap;
+}
+.sv-admin .sv-round-select.is-compact {
+  padding: 8px 12px;
+  min-height: 44px;
+  justify-content: center;
+}
+.sv-admin .sv-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--sv-icon-muted);
+  flex: none;
+}
+.sv-admin .sv-dot[data-open='true'] {
+  background: var(--sv-ok);
+}
+.sv-admin .sv-side-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 36px;
+  padding: 0 10px;
+  border: 1px solid var(--sv-hairline);
+  border-radius: 8px;
+  color: var(--sv-text-muted) !important;
+  font-size: 14px;
+  text-decoration: none;
+}
+.sv-admin .sv-side-search:hover {
+  background: var(--sv-stone-soft);
+}
+.sv-admin .sv-side-search kbd {
+  margin-left: auto;
+  font: inherit;
+  font-size: 12px;
+  border: 1px solid var(--sv-hairline);
+  border-radius: 5px;
+  padding: 0 5px;
+}
+.sv-admin .sv-side-group {
+  padding: 12px 10px 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--sv-text-muted);
+}
+.sv-admin .sv-side-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 38px;
+  padding: 0 10px;
+  border-radius: 8px;
+  color: var(--sv-text-body) !important;
+  text-decoration: none;
+  font-size: 14.5px;
+  font-weight: 500;
+}
+.sv-admin .sv-side-link svg {
+  color: var(--sv-icon-muted);
+}
+.sv-admin .sv-side-link:hover {
+  background: var(--sv-stone);
+  color: var(--sv-text) !important;
+}
+.sv-admin .sv-side-link[aria-current='page'] {
+  background: var(--sv-tint);
+  color: var(--sv-bronze-ink) !important;
+  font-weight: 600;
+}
+.sv-admin .sv-side-link[aria-current='page'] svg {
+  color: var(--sv-bronze);
+}
+.sv-admin .sv-side-badge {
+  margin-left: auto;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--sv-warn);
+  background: var(--sv-warn-bg);
+  border-radius: 999px;
+  padding: 1px 8px;
+  white-space: nowrap;
+}
+.sv-admin .sv-side-footer {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  border-top: 1px solid var(--sv-hairline-soft);
+  padding-top: 10px;
+}
+/* Collapsed: icons only (labels stay for screen readers). */
+.sv-admin .sv-shell[data-collapsed='true'] .sv-side {
+  width: 68px;
+  padding: 14px 10px;
+}
+.sv-admin .sv-shell[data-collapsed='true'] .sv-side-text,
+.sv-admin .sv-shell[data-collapsed='true'] .sv-side-group,
+.sv-admin .sv-shell[data-collapsed='true'] .sv-side-badge {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+.sv-admin .sv-shell[data-collapsed='true'] .sv-side-brand {
+  flex-direction: column;
+}
+.sv-admin .sv-shell[data-collapsed='true'] .sv-side-link {
+  justify-content: center;
+  padding: 0;
+}
+
+.sv-admin .sv-shell-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 0 28px 48px;
+}
+.sv-admin .sv-shell-main > :not(.sv-pagetop) {
+  width: 100%;
+  max-width: 1280px;
+}
+/* A page without a top bar (error, not found) still starts below the edge. */
+.sv-admin .sv-shell-main > :first-child:not(.sv-pagetop) {
+  margin-top: 24px;
+}
+@media print {
+  .sv-admin .sv-shell-main {
+    padding: 0;
+  }
+}
+.sv-admin .sv-pagetop {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  margin: 0 -28px;
+  background: rgba(248, 247, 244, 0.94);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--sv-hairline);
+}
+.sv-admin .sv-pagetop-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 60px;
+  padding: 0 28px;
+}
+.sv-admin .sv-crumbs {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  font-size: 14px;
+  color: var(--sv-text-muted);
+}
+.sv-admin .sv-crumb {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+.sv-admin .sv-crumb a {
+  color: var(--sv-text-muted) !important;
+  text-decoration: none;
+}
+.sv-admin .sv-crumb a:hover {
+  color: var(--sv-text) !important;
+}
+.sv-admin .sv-crumb[data-last='true'] {
+  color: var(--sv-text);
+  font-weight: 600;
+  min-width: 0;
+}
+.sv-admin .sv-crumb-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sv-admin .sv-pagetop-actions {
+  margin-left: auto;
+  display: flex;
+  gap: 8px;
+}
+.sv-admin .sv-phone-only,
+.sv-admin .sv-tabs {
+  display: none !important;
+}
+.sv-admin .sv-sheet-wrap {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+}
+.sv-admin .sv-sheet-scrim {
+  position: absolute;
+  inset: 0;
+  background: rgba(31, 42, 46, 0.38);
+}
+.sv-admin .sv-sheet {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: min(312px, 86vw);
+  background: #fff;
+  box-shadow: 8px 0 24px rgba(31, 42, 46, 0.16);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+  overflow-y: auto;
+}
+.sv-admin .sv-sheet .sv-side-link {
+  min-height: 46px;
+  font-size: 15px;
+}
+
+@media (max-width: 860px) {
+  .sv-admin .sv-side {
+    display: none;
+  }
+  .sv-admin .sv-shell-main {
+    padding: 0 16px 96px;
+    gap: 14px;
+  }
+  .sv-admin .sv-pagetop {
+    margin: 0 -16px;
+    background: rgba(255, 255, 255, 0.96);
+  }
+  .sv-admin .sv-pagetop-bar {
+    padding: 4px 8px;
+    min-height: 52px;
+    gap: 4px;
+  }
+  .sv-admin .sv-pagetop .sv-icon-btn {
+    width: 44px;
+    height: 44px;
+  }
+  .sv-admin .sv-phone-only {
+    display: flex !important;
+  }
+  .sv-admin .sv-pagetop-round {
+    padding: 0 16px 10px;
+    flex-direction: column;
+  }
+  .sv-admin .sv-pagetop-actions {
+    display: none;
+  }
+  /* Phones show only the page name as the title, in the top bar (the page's h1 stays for screen readers). */
+  .sv-admin .sv-crumb:not([data-last='true']) {
+    display: none;
+  }
+  .sv-admin .sv-shell-main h1.sv-head:not(.sv-print-sheet h1):not(.sv-card h1) {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+  .sv-admin .sv-crumbs {
+    flex: 1;
+    font-size: 17px;
+    font-family: var(--sv-font-head), 'Anek Bangla', sans-serif;
+  }
+  .sv-admin .sv-tabs {
+    display: flex !important;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 10;
+    background: #fff;
+    border-top: 1px solid var(--sv-hairline);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .sv-admin .sv-tab {
+    flex: 1;
+    min-height: 56px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    font: inherit;
+    font-size: 12px;
+    color: var(--sv-text-muted) !important;
+    text-decoration: none;
+    border: 0;
+    background: none;
+    cursor: pointer;
+  }
+  .sv-admin .sv-tab[aria-current='page'] {
+    color: var(--sv-bronze-ink) !important;
+    font-weight: 600;
+  }
+}
+
+/* Report rows of two cards: a flexible main column and a fixed side column (or two equal halves),
+   the same on every row so cards line up; one column on narrower screens. */
+.sv-admin .sv-split {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+@media (min-width: 1100px) {
+  .sv-admin .sv-split {
+    grid-template-columns: minmax(0, 1fr) 360px;
+  }
+  .sv-admin .sv-split.is-even {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+.sv-admin .sv-split > * {
+  min-width: 0;
+}
+
+/* The site's html/body overflow-x: hidden makes body a scroll container, which stops the sidebar
+   and top bar from sticking; clip keeps horizontal scroll away without that. Admin pages only. */
+html:has(.sv-admin),
+html:has(.sv-admin) body {
+  overflow-x: clip;
 }

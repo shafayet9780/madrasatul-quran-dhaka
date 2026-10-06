@@ -1,38 +1,53 @@
 import type { Metadata } from 'next';
+import { chosenRoundId } from '@/lib/survey/admin-shell';
+import { MARK_FLOOR } from '@/lib/survey/scoring';
 import { toBengaliDigits as bn } from '@/lib/survey/normalise';
 import { formatMark } from '@/lib/survey/report-math';
 import { pickRound, raterReport, t1Rounds } from '@/lib/survey/reports';
 import { MIN_N } from '@/lib/survey/stats';
-import { RoundPicker } from '../../RoundPicker';
 import { DIST_COLORS, Distribution, LeniencyDot } from '../charts';
 import { NoRounds } from '../NoRounds';
 import { ReportTools } from '../ReportTools';
+import { PageTop } from '../../AdminShell';
 
 export const metadata: Metadata = { title: 'শিক্ষকদের রেটিং প্যাটার্ন' };
 export const dynamic = 'force-dynamic';
 
 const signed = (delta: number) => `${delta > 0 ? '+' : delta < 0 ? '−' : ''}${bn(Math.abs(delta).toFixed(1))}`;
 
+/** How far from colleagues (marks) still reads as "like colleagues" in the summary sentence. */
+const LIKE_COLLEAGUES = 0.5;
+
+/** One plain sentence per teacher: generosity against colleagues on the same students, ৪s, same-mark batches. */
+function verdict(r: { leniency: { delta: number; pairedStudents: number } | null; distribution: { mark: number; count: number }[]; n: number; flatBatches: unknown[] }) {
+  const parts: string[] = [];
+  // The rounded number decides, as the "সহকর্মীদের তুলনায়" column shows it.
+  const delta = r.leniency ? Math.round(r.leniency.delta * 10) / 10 : 0;
+  if (!r.leniency || r.leniency.pairedStudents < MIN_N) parts.push('তুলনার মতো যথেষ্ট সহকর্মী নেই');
+  else if (delta >= LIKE_COLLEAGUES) parts.push(`সহকর্মীদের চেয়ে গড়ে ${bn(delta.toFixed(1))} মার্ক বেশি দেন`);
+  else if (delta <= -LIKE_COLLEAGUES) parts.push(`সহকর্মীদের চেয়ে গড়ে ${bn(Math.abs(delta).toFixed(1))} মার্ক কম দেন`);
+  else parts.push('সহকর্মীদের মতোই মার্ক দেন');
+  const lowest = r.distribution.find((d) => d.mark === MARK_FLOOR)?.count ?? 0;
+  if (r.n) parts.push(`${bn(Math.round((lowest / r.n) * 100))}% উত্তরে ৪ দিয়েছেন`);
+  if (r.flatBatches.length) parts.push('কোনো ক্লাসে প্রায় সবাইকে একই মার্ক — দেখে নিন');
+  return parts.join(' · ');
+}
+
 export default async function RatersPage({ searchParams }: { searchParams: Promise<{ round?: string }> }) {
   const [search, rounds] = await Promise.all([searchParams, t1Rounds()]);
-  const round = pickRound(rounds, search.round);
+  const round = pickRound(rounds, await chosenRoundId(search.round));
   if (!round) return <NoRounds />;
   const rows = await raterReport(round);
 
   return (
     <>
+      <PageTop crumbs={[{ label: 'রিপোর্ট' }, { label: 'শিক্ষকদের রেটিং প্যাটার্ন' }]} actions={<ReportTools exportHref={`/admin/reports/export?${new URLSearchParams({ kind: 'raters', round: round.id })}`} />} />
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div className="flex flex-col gap-1">
           <h1 className="sv-head" style={{ margin: 0, fontSize: 30 }}>
             শিক্ষকদের রেটিং প্যাটার্ন
           </h1>
-          <div style={{ fontSize: 14, color: 'var(--sv-text-muted)' }}>T1 · {round.label} · কে কেমন মার্ক দেন, যাতে তুলনা ন্যায্য হয়</div>
-        </div>
-        <div className="flex flex-wrap gap-2 items-center">
-          <span className="sv-no-print">
-            <RoundPicker rounds={[...rounds].reverse().map((r) => ({ id: r.id, label: r.label }))} value={round.id} basePath="/admin/reports/raters" />
-          </span>
-          <ReportTools exportHref={`/admin/reports/export?${new URLSearchParams({ kind: 'raters', round: round.id })}`} />
+          <div style={{ fontSize: 14, color: 'var(--sv-text-muted)' }}>শিক্ষকের রিভিউ · {round.label} · কে কেমন মার্ক দেন, যাতে তুলনা ন্যায্য হয়</div>
         </div>
       </div>
 
@@ -50,7 +65,7 @@ export default async function RatersPage({ searchParams }: { searchParams: Promi
             ⚠
           </span>
           <div>
-            <b>একই মার্ক</b>: কোনো ব্যাচে ১০+ শিক্ষার্থীর ৯০% বা বেশি উত্তরে একই মার্ক হলে চিহ্নিত হয়।
+            <b>একই মার্ক</b>: কোনো ক্লাস-বিষয়ে ১০+ শিক্ষার্থীর ৯০% বা বেশি উত্তরে একই মার্ক হলে চিহ্নিত হয়। ভালো ক্লাসে এটা স্বাভাবিকও হতে পারে — অভিযোগ নয়, দেখে নেওয়ার বিষয়।
           </div>
         </div>
       </div>
@@ -72,12 +87,15 @@ export default async function RatersPage({ searchParams }: { searchParams: Promi
         {rows.length === 0 ? (
           <p style={{ margin: 0, color: 'var(--sv-text-muted)' }}>এই রাউন্ডে এখনো কোনো জমা নেই।</p>
         ) : (
-          <div style={{ overflowX: 'auto' }}>
-            <table className="sv-table is-stackable" style={{ minWidth: 900 }}>
+          <div role="region" aria-label="শিক্ষকভিত্তিক সারাংশের টেবিল" tabIndex={0} style={{ overflowX: 'auto' }}>
+            <table className="sv-table is-stackable" style={{ minWidth: 980 }}>
               <thead>
                 <tr>
                   <th scope="col">শিক্ষক</th>
-                  <th scope="col">ব্যাচ</th>
+                  <th scope="col" style={{ width: 260 }}>
+                    সারকথা
+                  </th>
+                  <th scope="col">ক্লাস-বিষয়</th>
                   <th scope="col">শিক্ষার্থী</th>
                   <th scope="col">গড় মার্ক</th>
                   <th scope="col" style={{ width: 240 }}>
@@ -97,7 +115,10 @@ export default async function RatersPage({ searchParams }: { searchParams: Promi
                       <td data-label="শিক্ষক" style={{ fontWeight: 600 }}>
                         {r.name}
                       </td>
-                      <td data-label="ব্যাচ" className="sv-num">
+                      <td data-label="সারকথা" style={{ fontSize: 13.5, lineHeight: 1.5 }}>
+                        {verdict(r)}
+                      </td>
+                      <td data-label="ক্লাস-বিষয়" className="sv-num">
                         {bn(r.batches)}
                       </td>
                       <td data-label="শিক্ষার্থী" className="sv-num">

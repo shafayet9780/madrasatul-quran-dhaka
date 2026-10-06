@@ -18,6 +18,7 @@ The `.dc.html` files are the canvas source (Design Component format): each file 
 | Admin, desktop | `R7-Rounds`, `R8-Import` |
 | Reports, phone | `RM1-Overview`, `RM2-Teaching`, `RM3-Class`, `RM4-Student`, `RM6-Tracker` |
 | Print | `R4-Print-Guardian` (A4, guardian-safe) |
+| **Phase 2 additions (approved by the owner 2026-10-05)** | `G-Match-Submitted` ("already submitted" warning, date only), `G1-Rate-Subject` + `G1-Rate-Subject-Desktop` (G1 default: one subject, all questions), `G1-Review-Subject`, `R6-Tracker-Guardian` (one guardian round, no drafts). The locked `G1-Rate`/`G1-Review`/`G1-Rate-Desktop` remain the "one question, all subjects" option; the locked `R6-Tracker`/`RM6-Tracker` combined guardian view is replaced by the per-round tracker. |
 
 ## Design system (locked 2026-10-04): Bronze & Stone
 

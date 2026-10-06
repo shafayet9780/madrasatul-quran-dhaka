@@ -6,6 +6,7 @@ import { surveyAccess } from '@/lib/survey/round-status';
 import { fetchOfficePhone } from '@/lib/survey/sanity-source';
 import { loadReceipt } from '@/lib/survey/t1';
 import { LinkInvalid } from '../../[slug]/StatusScreens';
+import { GuardianReceipt } from './GuardianReceipt';
 import { PrintButton } from './PrintButton';
 
 export const dynamic = 'force-dynamic';
@@ -16,7 +17,8 @@ const dayMonth = new Intl.DateTimeFormat('bn-BD', { timeZone: 'Asia/Dhaka', day:
 export default async function ReceiptPage({ params }: { params: Promise<{ token: string }> }) {
   const { token } = await params;
   const receipt = /^[A-Za-z0-9_-]{8,64}$/.test(token) ? await loadReceipt(token) : null;
-  if (!receipt || receipt.submission.kind !== 'T1') return <LinkInvalid phone={await fetchOfficePhone().catch(() => null)} />;
+  if (!receipt) return <LinkInvalid phone={await fetchOfficePhone().catch(() => null)} />;
+  if (receipt.submission.kind !== 'T1') return <GuardianReceipt receipt={receipt} />;
 
   const { submission, round, rows, replacedBy, setAside } = receipt;
   const { questions } = round.snapshot.template;
@@ -82,7 +84,7 @@ export default async function ReceiptPage({ params }: { params: Promise<{ token:
         <dd style={{ margin: 0 }}>{formatDateTime(submission.submittedAt!)}</dd>
       </dl>
 
-      <div style={{ margin: '14px 12px 0', background: '#fff', borderRadius: 16, border: '1px solid var(--sv-hairline)', overflowX: 'auto' }}>
+      <div role="region" aria-label="শিক্ষার্থীদের মার্ক" tabIndex={0} style={{ margin: '14px 12px 0', background: '#fff', borderRadius: 16, border: '1px solid var(--sv-hairline)', overflowX: 'auto' }}>
         <table className="sv-receipt-table">
           <caption className="sv-visually-hidden">প্রতিটি শিক্ষার্থীর মার্ক, প্রশ্ন অনুযায়ী</caption>
           <thead>

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { toBengaliDigits as bn } from './normalise';
-import { areaMeans, formatMark, roundMeans, studentAggregates, studentAreaMeans, studentFlags, type MarkRow } from './report-math';
+import { areaMeans, childRows, dropSince, formatLow, formatMark, roundMeans, studentAggregates, studentAreaMeans, studentFlags, type MarkRow } from './report-math';
 
 const row = (over: Partial<MarkRow>): MarkRow => ({
   roundId: 'r2',
@@ -29,8 +29,8 @@ const current = rows.filter((r) => r.roundId === 'r2');
 describe('studentAggregates', () => {
   it('averages marks and counts teachers and lowest marks', () => {
     const agg = studentAggregates(current, 4);
-    expect(agg.get('a')).toEqual({ erpId: 'a', mean: 6, n: 3, teachers: 3, lowTeachers: 2 });
-    expect(agg.get('b')).toMatchObject({ mean: 7, teachers: 1, lowTeachers: 0 });
+    expect(agg.get('a')).toEqual({ erpId: 'a', mean: 6, n: 3, teachers: 3, lowQuestion: { questionKey: 'q1', teachers: 2 } });
+    expect(agg.get('b')).toMatchObject({ mean: 7, teachers: 1, lowQuestion: null });
   });
 });
 
@@ -51,10 +51,36 @@ describe('areaMeans', () => {
 });
 
 describe('studentFlags', () => {
-  it('flags a drop since last round and lowest marks from several teachers', () => {
+  const name = (key: string) => ({ q1: 'মনোযোগ' })[key] ?? key;
+  it('flags a drop since last round and the question several teachers gave the lowest mark on', () => {
     const agg = studentAggregates(current, 4).get('a');
-    expect(studentFlags(agg, 10, bn).map((f) => f.label)).toEqual(['আগের রাউন্ড থেকে ৪.০ কমেছে', '২ জন শিক্ষক ৪ দিয়েছেন']);
-    expect(studentFlags(studentAggregates(current, 4).get('b'), 7.5, bn)).toEqual([]);
+    expect(studentFlags(agg, 4, bn, 4, name).map((f) => f.label)).toEqual(['আগের রাউন্ড থেকে ৪.০ কমেছে', '২ জন শিক্ষক “মনোযোগ”-এ ৪ দিয়েছেন']);
+    expect(studentFlags(studentAggregates(current, 4).get('b'), 0.5, bn, 4, name)).toEqual([]);
+  });
+  it('counts lowest marks per question, so two teachers on different questions do not flag', () => {
+    const split = [row({ teacherKey: 't1', mark: 4, questionKey: 'q1' }), row({ teacherKey: 't2', mark: 4, questionKey: 'q2' })];
+    expect(studentFlags(studentAggregates(split, 4).get('a'), null, bn, 4, name)).toEqual([]);
+  });
+});
+
+describe('child-only marks and drops', () => {
+  it('leaves the teachers\' guardian questions out of the child\'s marks', () => {
+    expect(childRows([row({ areaKey: 'guardian-cooperation' }), row({})]).map((r) => r.areaKey)).toEqual(['attendance']);
+  });
+  it('compares only subjects rated in both rounds, against the latest earlier round with marks', () => {
+    const drop = [
+      row({ roundId: 'r1', subjectKey: 'quran', mark: 10 }),
+      row({ roundId: 'r1', subjectKey: 'math', mark: 10 }),
+      row({ roundId: 'r3', subjectKey: 'quran', mark: 8 }),
+      row({ roundId: 'r3', subjectKey: 'arabic', mark: 4 }),
+    ];
+    // r2 has no marks for the child: compared with r1, on Quran only (Arabic was not rated in r1).
+    expect(dropSince(drop, ['r1', 'r2', 'r3'], 'a')).toBe(2);
+    expect(dropSince(drop, ['r3'], 'a')).toBeNull();
+  });
+  it('writes the share of low answers', () => {
+    expect(formatLow(0.25, bn)).toBe('২৫% উত্তর ৭ বা কম');
+    expect(formatLow(null, bn)).toBe('');
   });
 });
 

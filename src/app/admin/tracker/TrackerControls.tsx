@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useEffect, useState, useTransition } from 'react';
 import { formatDateTime } from '@/lib/survey/dates';
 import { resolveDuplicateAction } from './actions';
 
@@ -68,5 +68,28 @@ export function DuplicateResolver({
       </div>
       <div style={{ fontSize: 12.5, color: 'var(--sv-text-muted)' }}>যেটি রাখবেন না সেটি রিপোর্টে গণ্য হবে না, তবে মুছে যাবে না।</div>
     </fieldset>
+  );
+}
+
+/** Copies one guardian's reminder (never a group list); the admin sends it on WhatsApp. */
+export function CopyReminder({ text, child }: { text: string; child: string }) {
+  const [copied, setCopied] = useState(false);
+  useEffect(() => {
+    if (!copied) return;
+    const timer = setTimeout(() => setCopied(false), 2000);
+    return () => clearTimeout(timer);
+  }, [copied]);
+  async function copy() {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+    } catch {
+      window.prompt('বার্তাটি কপি করুন', text);
+    }
+  }
+  return (
+    <button type="button" className="sv-sbtn" aria-label={`${child}: বার্তা কপি`} onClick={() => void copy()}>
+      <span aria-live="polite">{copied ? 'কপি হয়েছে' : 'বার্তা কপি'}</span>
+    </button>
   );
 }

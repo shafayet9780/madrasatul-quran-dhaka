@@ -10,7 +10,9 @@ vi.mock('@/lib/google-sheets-server', () => ({
 import { getDb } from './db';
 import { students, submissions, surveyRounds } from './schema';
 import { mirrorPending } from './sheets-mirror';
+import { submitGuardian } from './guardian';
 import { saveDraft, submitBatch } from './t1';
+import { g2FixtureSnapshot } from './testing/guardian-fixture';
 import { t1FixtureSnapshot } from './testing/t1-fixture';
 
 const run = `test-mirror-${Date.now()}`;
@@ -86,5 +88,52 @@ describe('mirrorPending', () => {
   it('does nothing when everything is already copied', async () => {
     expect(await mirrorPending({ roundId })).toEqual({ mirrored: 0, failed: 0 });
     expect(append).not.toHaveBeenCalled();
+  });
+});
+
+describe('mirrorPending for a guardian round', () => {
+  const gRun = `${run}-g`;
+  let gRoundId = '';
+  const form = (mobile: string) => ({
+    submissionId: crypto.randomUUID(),
+    classKey: 'kg',
+    sectionKey: 'a',
+    studentErpId: `${gRun}-1`,
+    submitter: { name: 'করিম', relation: 'father' as const, relationOther: '', mobile },
+    answers: { attendance: 'above-90', 'study-at-home': 'na', devices: 'never', 'peer-complaints': 'never' },
+    comment: '',
+  });
+
+  beforeAll(async () => {
+    const db = getDb();
+    const [round] = await db
+      .insert(surveyRounds)
+      .values({ sanityRoundId: gRun, kind: 'G2', slug: gRun, label: 'পরীক্ষা', snapshot: g2FixtureSnapshot(), opensAt: new Date(Date.now() - hour), closesAt: new Date(Date.now() + hour), linkKey: 'k' })
+      .returning();
+    gRoundId = round.id;
+    await db.insert(students).values([{ erpId: `${gRun}-1`, name: 'HASAN', classKey: 'kg', sectionKey: 'a', roll: 3, fatherMobile: '8801700000009' }]);
+    for (const mobile of ['01700000009', '01855000001']) {
+      const result = await submitGuardian(round, form(mobile), meta);
+      if (!result.ok) throw new Error(JSON.stringify(result));
+    }
+  });
+
+  afterAll(async () => {
+    const db = getDb();
+    await db.delete(submissions).where(and(eq(submissions.roundId, gRoundId), isNotNull(submissions.supersededBy)));
+    await db.delete(submissions).where(eq(submissions.roundId, gRoundId));
+    await db.delete(surveyRounds).where(eq(surveyRounds.id, gRoundId));
+  });
+
+  it('copies each form with the guardian columns, the earlier one marked as replaced', async () => {
+    get.mockResolvedValue({ data: { sheets: [{ properties: { title: 'Sheet1' } }] } });
+    append.mockResolvedValue({});
+    expect(await mirrorPending({ roundId: gRoundId })).toEqual({ mirrored: 2, failed: 0 });
+    expect(update.mock.calls[0][0].requestBody.values[0].slice(8, 12)).toEqual(['প্রদানকারী', 'সম্পর্ক', 'মোবাইল', 'যাচাই']);
+    const rows = append.mock.calls.map((call) => call[0].requestBody.values[0]);
+    expect(rows.map((r) => [r[2], r[10], r[11], r[13]])).toEqual([
+      ['আগের', '+8801700000009', 'যাচাইকৃত', 'প্রযোজ্য নয় (ডে কেয়ার)'],
+      ['বর্তমান', '+8801855000001', 'অযাচাইকৃত', 'প্রযোজ্য নয় (ডে কেয়ার)'],
+    ]);
   });
 });

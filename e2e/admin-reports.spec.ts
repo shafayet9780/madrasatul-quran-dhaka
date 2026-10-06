@@ -21,7 +21,8 @@ test('finds a student and opens the profile', async ({ page }) => {
   await page.getByLabel('নাম, আইডি বা রোল').fill('zayan');
   await page.getByRole('link', { name: /Zayan Mahmud/ }).click();
   await expect(page.getByRole('heading', { name: 'Zayan Mahmud', level: 1 })).toBeVisible();
-  await expect(page.getByRole('img', { name: /শিক্ষকদের গড় মার্ক:/ })).toBeVisible(); // two rounds → trend
+  // Two teacher rounds and an October G2 form → the guardian and teacher trend.
+  await expect(page.getByRole('img', { name: /শিক্ষকের রিভিউ: সেপ্টেম্বর/ })).toBeVisible();
   await expect(page.getByText('ক্লাসে মনোযোগ ভালো, তবে সহপাঠীদের সাথে মাঝে মাঝে ঝগড়া করে।')).toBeVisible();
   await expectAccessible(page);
 });
@@ -41,10 +42,134 @@ test('class page lists every student, sorts and exports', async ({ page }) => {
   expect((await download).suggestedFilename()).toMatch(/^নার্সারি A - অক্টোবর ২০২৬ \(নমুনা\)\.xlsx$/);
 });
 
+test('class page sets guardians beside teachers', async ({ page }) => {
+  await page.goto('/admin/reports');
+  await page.getByRole('link', { name: /নার্সারি A/ }).click();
+  await expect(page.getByText(/অভিভাবকের সাড়া ৫\/২০/)).toBeVisible();
+  const table = page.getByRole('table');
+  await expect(table.getByRole('columnheader', { name: /অভিভাবক \(\/১০\)/ })).toBeVisible();
+  const zayan = table.getByRole('row', { name: /Zayan Mahmud/ });
+  await expect(zayan.getByText('১০.০')).toBeVisible();
+  await expect(zayan.getByText('যাচাইকৃত')).toBeVisible();
+  await expect(table.getByRole('row', { name: /Maryam Binte Rafiq/ }).getByText('সাড়া নেই')).toBeVisible();
+  await page.getByText('অভিভাবক বনাম শিক্ষক · প্রত্যেক শিক্ষার্থীর চিত্র').click();
+  await expect(page.getByRole('img', { name: /জন শিক্ষার্থীর অভিভাবক ও শিক্ষকদের গড় মার্ক/ })).toBeVisible();
+  await expect(page.getByRole('img', { name: /^উপস্থিতি: অভিভাবক/ })).toBeVisible();
+  await page.screenshot({ path: process.env.SHOT_DIR ? `${process.env.SHOT_DIR}/r3.png` : undefined, fullPage: true });
+  await expectAccessible(page);
+  // Verified only: Hamza's current form (his uncle, a number not on record) drops out; 4 guardians remain.
+  await expect(page.getByText(/৫\/২০ জনের অভিভাবক/)).toBeVisible();
+  await page.getByRole('link', { name: 'শুধু যাচাইকৃত' }).click();
+  await expect(page.getByText('· শুধু যাচাইকৃত অভিভাবক')).toBeVisible();
+  await expect(page.getByText(/৪\/২০ জনের অভিভাবক/)).toBeVisible();
+});
+
+test('student profile shows the guardian answers and prints a page for the guardian', async ({ page }) => {
+  await page.goto('/admin/reports');
+  await page.getByLabel('নাম, আইডি বা রোল').fill('zayan');
+  await page.getByRole('link', { name: /Zayan Mahmud/ }).click();
+  await expect(page.getByRole('heading', { name: /অভিভাবকের উত্তর · অক্টোবর/ })).toBeVisible();
+  await expect(page.getByText('উপস্থিতি > ৯০%')).toBeVisible();
+  await expect(page.getByText('মন্তব্য: “বাসায় খুব শান্ত থাকে, মাদরাসা থেকে কোনো অভিযোগ আসেনি।”')).toBeVisible();
+  await expect(page.getByText('মো. মাহমুদুল করিম (পিতা)').first()).toBeVisible();
+  await page.screenshot({ path: process.env.SHOT_DIR ? `${process.env.SHOT_DIR}/r4.png` : undefined, fullPage: true });
+  await expectAccessible(page);
+
+  await page.getByRole('link', { name: 'অভিভাবকের জন্য প্রিন্ট' }).click();
+  const sheet = page.getByRole('article', { name: 'অভিভাবকের জন্য প্রতিবেদন' });
+  await expect(sheet.getByRole('heading', { name: 'Zayan Mahmud', level: 1 })).toBeVisible();
+  await expect(sheet.getByRole('row', { name: /উপস্থিতি/ })).toBeVisible();
+  await expect(sheet.getByRole('heading', { name: 'শক্তির দিক' })).toBeVisible();
+  // No teacher names or notes on the guardian's copy (every fixture teacher and the fixture note).
+  for (const text of ['উস্তাদ আব্দুল্লাহ', 'উস্তাদ হামযা', 'উস্তাযা মারইয়াম', 'উস্তাযা সুমাইয়া', 'উস্তাদ ইউসুফ', 'ক্লাসে মনোযোগ ভালো']) {
+    await expect(sheet.getByText(text, { exact: false })).toHaveCount(0);
+  }
+  await page.screenshot({ path: process.env.SHOT_DIR ? `${process.env.SHOT_DIR}/r4-print.png` : undefined, fullPage: true });
+  // All 7 student areas and the trend fit on one A4 page.
+  const pdf = (await page.pdf({ preferCSSPageSize: true, printBackground: true, path: process.env.SHOT_DIR ? `${process.env.SHOT_DIR}/print.pdf` : undefined })).toString('latin1');
+  expect(pdf.match(/\/Type\s*\/Page[^s]/g)).toHaveLength(1);
+  await expectAccessible(page);
+});
+
+test('a "not applicable" answer shows its label', async ({ page }) => {
+  await page.goto('/admin/reports');
+  await page.getByLabel('নাম, আইডি বা রোল').fill('safiya');
+  await page.getByRole('link', { name: /Safiya Rahman/ }).click();
+  await expect(page.getByText('প্রযোজ্য নয় (ডে কেয়ার)')).toBeVisible();
+});
+
+test('report pages handle unknown students, classes and bad parameters', async ({ page }) => {
+  for (const url of ['/admin/reports/student/nobody', '/admin/reports/student/nobody/guardian-print']) {
+    await page.goto(url);
+    await expect(page.getByText('শিক্ষার্থী পাওয়া যায়নি।')).toBeVisible();
+  }
+  await page.goto('/admin/reports/class?class=nope');
+  await expect(page.getByText('শ্রেণিটি এই রাউন্ডে নেই।')).toBeVisible();
+  // Unknown ids fall back to the defaults instead of failing.
+  await page.goto('/admin/reports/teaching?round=bad&compare=bad&area=bad&cell=x|y|z');
+  await expect(page.getByRole('heading', { name: 'নির্বাচিত ঘর' })).toBeVisible();
+  await page.goto('/admin/reports/overview?round=bad&g1=bad&g2=bad&compare=bad');
+  await expect(page.getByRole('heading', { name: 'মনোযোগ প্রয়োজন' })).toBeVisible();
+  await page.goto('/admin/reports/class?class=nursery&section=a&round=bad&verified=1');
+  await expect(page.getByRole('heading', { name: 'শিক্ষার্থী তালিকা' })).toBeVisible();
+  const response = await page.request.get('/admin/reports/export?kind=class&round=bad&class=nursery&section=a');
+  expect(response.status()).toBe(404);
+});
+
+test('question results show every question, answer counts and comments', async ({ page }) => {
+  await page.goto('/admin/reports');
+  await page.getByRole('link', { name: 'প্রশ্নভিত্তিক ফলাফল' }).click();
+  await expect(page.getByRole('heading', { name: 'প্রশ্নভিত্তিক ফলাফল', level: 1 })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'শিক্ষার্থী · শিক্ষকদের মার্ক' })).toBeVisible();
+  await expect(page.getByText('গণিতের হোমওয়ার্ক একটু কমালে ভালো হয়।')).toBeVisible();
+  await expect(page.getByText('মার্ক নেই').first()).toBeVisible();
+  await expectAccessible(page);
+  const download = page.waitForEvent('download');
+  await page.getByRole('link', { name: 'Excel' }).click();
+  expect((await download).suggestedFilename()).toContain('প্রশ্নভিত্তিক ফলাফল');
+});
+
 test('rater patterns compare teachers', async ({ page }) => {
   await page.goto('/admin/reports/raters');
   await expect(page.getByRole('heading', { name: 'শিক্ষকদের রেটিং প্যাটার্ন', level: 1 })).toBeVisible();
   await expect(page.getByRole('row', { name: /উস্তাদ আব্দুল্লাহ/ })).toBeVisible();
   await expect(page.getByRole('row', { name: /উস্তাযা সুমাইয়া/ })).toBeVisible();
   await expectAccessible(page);
+});
+
+test('the overview pairs guardian rounds with the teacher round and lists children needing attention', async ({ page }) => {
+  await page.goto('/admin/reports/overview');
+  await expect(page.getByRole('heading', { name: 'ওভারভিউ', level: 1 })).toBeVisible();
+  // The guardian rounds that ran with the October teacher round were picked by date.
+  await expect(page.getByLabel('ক্লাস পরিচালনার রিভিউ')).toContainText('স্বয়ংক্রিয় (অক্টোবর ২০২৬ · ক্লাস পরিচালনা (নমুনা))');
+  await expect(page.getByText('শিক্ষার মান · শ্রেণি × বিষয় (অভিভাবকদের গড় মার্ক)')).toBeVisible();
+  await expect(page.getByRole('link', { name: /নার্সারি A · কুরআন: গড়/ })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'মনোযোগ প্রয়োজন' })).toBeVisible();
+  await expectAccessible(page);
+});
+
+test('teaching quality shows the class × subject heatmap with details, verified-only and Excel', async ({ page }) => {
+  await page.goto('/admin/reports/teaching');
+  await expect(page.getByRole('heading', { name: 'শিক্ষার মান', level: 1 })).toBeVisible();
+  const cell = page.getByRole('link', { name: /নার্সারি A · কুরআন: গড় .*, ৭ জন উত্তরদাতা/ });
+  await expect(cell).toBeVisible();
+  // Fewer than 3 guardians elsewhere: hidden.
+  await expect(page.getByRole('link', { name: /কেজি A · কুরআন: ০ জন উত্তরদাতা, ফলাফল লুকানো/ })).toBeVisible();
+  await expectAccessible(page);
+
+  await cell.click();
+  const detail = page.getByRole('region', { name: 'নার্সারি A · কুরআন' });
+  await expect(detail.getByText('প্রশ্নভিত্তিক মার্কের বণ্টন')).toBeVisible();
+  await expect(detail.getByText('৭', { exact: true })).toBeVisible();
+  await expect(detail.getByText('গণিতের হোমওয়ার্ক একটু কমালে ভালো হয়।')).toBeVisible();
+  await expectAccessible(page);
+
+  // Only one Nursery A form is verified: with "শুধু যাচাইকৃত" the cell is hidden.
+  await page.getByLabel('শুধু যাচাইকৃত').check();
+  await page.getByRole('button', { name: 'দেখান' }).click();
+  await expect(page.getByRole('link', { name: /নার্সারি A · কুরআন: ১ জন উত্তরদাতা, ফলাফল লুকানো/ })).toBeVisible();
+
+  const download = page.waitForEvent('download');
+  await page.getByRole('link', { name: 'Excel' }).click();
+  expect((await download).suggestedFilename()).toContain('শিক্ষার মান');
 });

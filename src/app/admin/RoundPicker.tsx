@@ -2,15 +2,15 @@
 
 import { useRouter } from 'next/navigation';
 
-/** Round select for tracker and report pages; keeps other query parameters (class, section). */
-export function RoundPicker({ rounds, value, basePath, params = {} }: { rounds: { id: string; label: string }[]; value: string; basePath: string; params?: Record<string, string> }) {
+/** Round select for the tracker (which survey and round); keeps other query parameters. */
+export function RoundPicker({ rounds, value, basePath, params = {}, label = 'রাউন্ড' }: { rounds: { id: string; label: string }[]; value: string; basePath: string; params?: Record<string, string>; label?: string }) {
   const router = useRouter();
   return (
-    <label className="flex items-center gap-1.5" style={{ fontSize: 13, color: 'var(--sv-text-muted)' }}>
-      রাউন্ড
+    <label className="flex items-center gap-1.5" style={{ fontSize: 13, color: 'var(--sv-text-muted)', maxWidth: '100%', minWidth: 0 }}>
+      {label}
       <select
         className="sv-input"
-        style={{ height: 36, width: 'auto', fontSize: 14 }}
+        style={{ height: 36, width: 'auto', maxWidth: '100%', minWidth: 0, fontSize: 14 }}
         value={value}
         onChange={(e) => router.push(`${basePath}?${new URLSearchParams({ ...params, round: e.target.value })}`)}
       >

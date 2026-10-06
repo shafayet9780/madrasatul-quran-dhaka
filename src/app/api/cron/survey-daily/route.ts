@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { isAuthorizedCleanupRequest } from '@/lib/downloads/cleanup';
 import { backupSurveyTables } from '@/lib/survey/backup';
 import { pruneDryRuns } from '@/lib/survey/erp-import-server';
+import { pruneLookups } from '@/lib/survey/guardian';
 import { pruneRateLimits } from '@/lib/survey/rate-limit';
 import { mirrorPending } from '@/lib/survey/sheets-mirror';
 
@@ -41,6 +42,7 @@ export async function GET(request: NextRequest) {
   try {
     result.prunedDryRuns = await pruneDryRuns();
     result.prunedRateLimits = await pruneRateLimits();
+    result.prunedLookups = await pruneLookups();
   } catch (error) {
     ok = false;
     result.prunedDryRuns = { error: error instanceof Error ? error.message : 'failed' };

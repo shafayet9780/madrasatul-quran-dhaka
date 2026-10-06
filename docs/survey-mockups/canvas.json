@@ -387,6 +387,50 @@
       "w": 390,
       "x": 940,
       "y": 4560
+    },
+    "G-Match-Submitted.dc.html": {
+      "h": 1000,
+      "page": "surveys",
+      "title": "G · ৪খ আগেই জমা হয়েছে (সতর্কতা)",
+      "w": 390,
+      "x": 0,
+      "y": 8860
+    },
+    "G1-Rate-Subject.dc.html": {
+      "h": 1640,
+      "is_interactive": true,
+      "page": "surveys",
+      "title": "G1 · ৫ এক বিষয়ের সব প্রশ্ন (ডিফল্ট)",
+      "w": 390,
+      "x": 470,
+      "y": 8860
+    },
+    "G1-Review-Subject.dc.html": {
+      "h": 1500,
+      "page": "surveys",
+      "title": "G1 · ৬ বিষয়ভিত্তিক রিভিউ ও জমা",
+      "w": 390,
+      "x": 940,
+      "y": 8860
+    },
+    "G1-Rate-Subject-Desktop.dc.html": {
+      "expand": "fill",
+      "h": 1180,
+      "is_interactive": true,
+      "page": "surveys",
+      "title": "ডেস্কটপ · G1 এক বিষয়ের সব প্রশ্ন",
+      "w": 1440,
+      "x": 1410,
+      "y": 8860
+    },
+    "R6-Tracker-Guardian.dc.html": {
+      "expand": "fill",
+      "h": 1900,
+      "page": "reports",
+      "title": "রিপোর্ট · অভিভাবক রাউন্ডের ট্র্যাকার (প্রতি রাউন্ড)",
+      "w": 1440,
+      "x": 0,
+      "y": 8180
     }
   },
   "createdOnFiles": {
@@ -470,6 +514,24 @@
       "w": 240,
       "x": 0,
       "y": 0
+    },
+    "rowP2": {
+      "kind": "title1",
+      "maxW": 2850,
+      "page": "surveys",
+      "text": "ফেজ ২ পরিবর্তন (২০২৬-১০-০৫): G1 বিষয়ভিত্তিক ও আগেই জমার সতর্কতা",
+      "w": 240,
+      "x": 0,
+      "y": 8580
+    },
+    "rowP2r": {
+      "kind": "title1",
+      "maxW": 1440,
+      "page": "reports",
+      "text": "ফেজ ২: অভিভাবক রাউন্ডের ট্র্যাকার",
+      "w": 240,
+      "x": 0,
+      "y": 7880
     }
   },
   "order": [
@@ -517,7 +579,12 @@
     "RM6-Tracker.dc.html",
     "R4-Print-Guardian.dc.html",
     "R-States.dc.html",
-    "V3-Components.dc.html"
+    "V3-Components.dc.html",
+    "G-Match-Submitted.dc.html",
+    "G1-Rate-Subject.dc.html",
+    "G1-Review-Subject.dc.html",
+    "G1-Rate-Subject-Desktop.dc.html",
+    "R6-Tracker-Guardian.dc.html"
   ],
   "pages": [
     {

@@ -1,0 +1,163 @@
+import { describe, expect, it } from 'vitest';
+import { cellStats, childAreaMeans, childWeightedMean, cohortDelta, delta, gapFlag, pairedRound, perStudentMeans, optionCounts, questionDistributions, resolveRounds, roundHistory, sharedAreaGap, strengthsAndWork, type GuardianItem } from './guardian-report-math';
+
+const day = (d: number) => new Date(Date.UTC(2026, 9, d));
+const round = (id: string, kind: string, opens: number, closes: number) => ({ id, kind, opensAt: day(opens), closesAt: day(closes) });
+
+describe('pairedRound', () => {
+  const t1 = round('t1', 'T1', 5, 20);
+  it('takes the guardian round that overlaps the teacher round most', () => {
+    const rounds = [round('a', 'G2', 1, 7), round('b', 'G2', 10, 25), round('c', 'G1', 6, 19)];
+    expect(pairedRound(t1, rounds, 'G2')?.id).toBe('b');
+    expect(pairedRound(t1, rounds, 'G1')?.id).toBe('c');
+  });
+  it('breaks ties by the nearest opening', () => {
+    expect(pairedRound(t1, [round('far', 'G2', 1, 25), round('near', 'G2', 5, 29)], 'G2')?.id).toBe('near');
+  });
+  it('falls back to the nearest opening within 30 days, else none', () => {
+    expect(pairedRound(t1, [round('later', 'G2', 22, 30)], 'G2')?.id).toBe('later');
+    expect(pairedRound(round('t', 'T1', 1, 2), [round('g', 'G2', 28, 30)], 'G2')?.id).toBe('g');
+    expect(pairedRound(round('t', 'T1', 1, 2), [round('g', 'G2', 32, 32)], 'G2')).toBeUndefined();
+    expect(pairedRound(t1, [], 'G1')).toBeUndefined();
+  });
+});
+
+const item = (studentErpId: string, mark: number | null, questionKey = 'q1'): GuardianItem => ({
+  roundId: 'r',
+  studentErpId,
+  classKey: 'kg',
+  sectionKey: 'a',
+  subjectKey: 'math',
+  questionKey,
+  areaKey: 'assessment',
+  mark,
+});
+
+describe('cellStats', () => {
+  it('leaves N/A out of the mean and counts children, not answers', () => {
+    const stats = cellStats([item('a', 10), item('a', 6), item('b', null), item('c', 8), item('d', 8)]);
+    expect(stats.mean).toBe(8);
+    expect(stats.respondents).toBe(3);
+    expect(stats.topShare).toBeCloseTo(1 / 4);
+    expect(stats.reliable).toBe(true);
+    expect(cellStats([item('a', 10), item('b', 4)]).reliable).toBe(false);
+  });
+});
+
+describe('questionDistributions', () => {
+  it('counts each mark per question in scale order', () => {
+    const [q1, q2] = questionDistributions([item('a', 10), item('b', 10), item('c', 4), item('a', 8, 'q2')], ['q1', 'q2'], [10, 8, 6, 4]);
+    expect(q1.counts).toEqual([{ mark: 10, count: 2 }, { mark: 8, count: 0 }, { mark: 6, count: 0 }, { mark: 4, count: 1 }]);
+    expect(q1.mean).toBe(8);
+    expect(q2.n).toBe(1);
+  });
+});
+
+describe('perStudentMeans and delta', () => {
+  it('averages per child and rounds differences', () => {
+    expect(Object.fromEntries(perStudentMeans([item('a', 10), item('a', 6), item('b', null)]))).toEqual({ a: 8 });
+    expect(delta(7.84, 7.2)).toBe(0.6);
+    expect(delta(null, 7)).toBeNull();
+  });
+});
+
+describe('cohort and child weighting', () => {
+  it('compares only children present in both rounds', () => {
+    const now = new Map([['a', 8], ['b', 6], ['c', 10]]);
+    const before = new Map([['a', 7], ['b', 7], ['d', 4]]);
+    expect(cohortDelta(now, before)).toEqual({ delta: 0, cohort: 2 });
+    expect(cohortDelta(now, new Map())).toEqual({ delta: null, cohort: 0 });
+  });
+  it('weighs every child once, however many subjects', () => {
+    const many = ['s1', 's2', 's3'].map((s) => ({ ...item('a', 10), subjectKey: s }));
+    expect(childWeightedMean([...many, item('b', 4)])).toBe(7);
+  });
+  it('does not count a child whose answers are all N/A', () => {
+    expect(cellStats([item('a', null), item('b', 8)]).respondents).toBe(1);
+  });
+});
+
+describe('resolveRounds', () => {
+  const at = (id: string, kind: string, opens: number, closes: number) => ({ id, kind, opensAt: new Date(Date.UTC(2026, 9, opens)), closesAt: new Date(Date.UTC(2026, 9, closes)) });
+  const t1Old = at('t1-old', 'T1', 1, 10);
+  const t1 = at('t1', 'T1', 20, 30);
+  const g2 = at('g2', 'G2', 12, 18);
+
+  it('pairs by date and never compares a guardian round with itself', () => {
+    // One G2 round between two teacher rounds pairs with both: the comparison drops it.
+    const resolved = resolveRounds(t1, [t1Old, g2, t1], {});
+    expect(resolved.g2?.id).toBe('g2');
+    expect(resolved.compareT1?.id).toBe('t1-old');
+    expect(resolved.cg2).toBeUndefined();
+  });
+
+  it('honours "no comparison" and a picked guardian round', () => {
+    const resolved = resolveRounds(t1, [t1Old, g2, t1], { compare: 'none', g2: 'g2' });
+    expect(resolved.compareT1).toBeUndefined();
+    expect(resolved.g2?.id).toBe('g2');
+  });
+});
+
+describe('guardian and teacher side by side', () => {
+  const bn = (n: number | string) => String(n);
+  it('compares guardian and teachers only on the areas both rated, in marks', () => {
+    const guardian = new Map([['attendance', 10], ['interest-home', 4]]);
+    const teacher = new Map([['attendance', 7], ['guardian-cooperation', 4], ['results', 8]]);
+    // Home habits (guardian only), results (teachers only) and the guardian questions are left out.
+    expect(sharedAreaGap(guardian, teacher)).toEqual({ guardian: 10, teacher: 7, gap: 3, areas: 1 });
+    expect(sharedAreaGap(new Map([['interest-home', 4]]), teacher)).toBeNull();
+    expect(sharedAreaGap(undefined, teacher)).toBeNull();
+  });
+  it('flags a gap of 2 marks or more, as the rounded number on screen says', () => {
+    expect(gapFlag({ gap: -2.2 }, bn)).toEqual({ kind: 'gap', label: 'অভিভাবক ও শিক্ষকের মতে 2.2 মার্ক পার্থক্য' });
+    expect(gapFlag({ gap: 1.96 }, bn)?.label).toBe('অভিভাবক ও শিক্ষকের মতে 2.0 মার্ক পার্থক্য');
+    expect(gapFlag({ gap: 1.9 }, bn)).toBeNull();
+    expect(gapFlag(null, bn)).toBeNull();
+  });
+  it('gives each child their own area means', () => {
+    const items = [item('a', 10), item('a', 6), { ...item('a', 8), areaKey: 'x' }, item('b', null)];
+    expect(childAreaMeans(items)).toEqual(new Map([['a', new Map([['assessment', 8], ['x', 8]])]]));
+  });
+  it('praises an area only when every side gave ৮+, and lists any side below ৭ as work', () => {
+    const result = strengthsAndWork([
+      { key: 'a', name: 'a', guardian: 10, teacher: 8 },
+      { key: 'b', name: 'b', guardian: null, teacher: 6 },
+      { key: 'c', name: 'c', guardian: 7, teacher: 7.5 },
+      { key: 'd', name: 'd', guardian: 4, teacher: 6 },
+      { key: 'e', name: 'e', guardian: null, teacher: null },
+      { key: 'gap', name: 'gap', guardian: 10, teacher: 4.5 },
+      { key: 'one', name: 'one side', guardian: 9, teacher: null },
+      // About the parent, not the child: never a strength or work.
+      { key: 'guardian-cooperation', name: 'অভিভাবকের সহযোগিতা', guardian: null, teacher: 4 },
+    ]);
+    expect(result).toEqual({ strengths: ['one side', 'a'], work: ['d', 'gap', 'b'] });
+  });
+});
+
+describe('roundHistory', () => {
+  const at = (id: string, kind: string, opens: number, closes: number) => ({ id, kind, opensAt: new Date(Date.UTC(2026, 9, opens)), closesAt: new Date(Date.UTC(2026, 9, closes)) });
+  it('keeps the picked rounds for the current teacher round and never repeats a guardian round', () => {
+    const old = at('t1-old', 'T1', 1, 10);
+    const t1 = at('t1', 'T1', 20, 30);
+    const g2 = at('g2', 'G2', 12, 18);
+    const picked = at('g2-picked', 'G2', 2, 3);
+    const rounds = [old, picked, g2, t1];
+    expect(roundHistory(t1, rounds, { g2 }).map((p) => [p.t1.id, p.g2?.id])).toEqual([['t1-old', 'g2-picked'], ['t1', 'g2']]);
+    // The shared G2 round goes with the later teacher round only.
+    expect(roundHistory(t1, [old, g2, t1], { g2 }).map((p) => p.g2?.id)).toEqual([undefined, 'g2']);
+  });
+});
+
+describe('optionCounts', () => {
+  it('counts each option and N/A per question', () => {
+    const question = { key: 'q', text: 'প্রশ্ন', type: 'options', areaKey: 'a', required: true, allowNA: true, naLabel: 'ডে কেয়ার', options: [{ key: 'yes', label: 'হ্যাঁ', mark: 10 }, { key: 'no', label: 'না', mark: 4 }] } as never;
+    const items = [{ ...item('a', 10), questionKey: 'q', optionKey: 'yes' }, { ...item('b', 10), questionKey: 'q', optionKey: 'yes' }, { ...item('c', null), questionKey: 'q', optionKey: null, isNa: true }];
+    expect(optionCounts(items, [question]).map((r) => [r.answer, r.count])).toEqual([['হ্যাঁ', 2], ['না', 0], ['ডে কেয়ার', 1]]);
+  });
+  it('counts an unmarked question by option, without marks', () => {
+    const question = { key: 'q', text: 'পড়া', type: 'options', areaKey: 'a', required: true, allowNA: false, unscored: true, options: [{ key: '2h', label: '২ ঘন্টা', mark: 7 }] } as never;
+    // Stored without a mark, but with the option: not "not applicable".
+    const items = [{ ...item('a', null), questionKey: 'q', optionKey: '2h', isNa: false }];
+    expect(optionCounts(items, [question])).toEqual([{ question: 'পড়া', answer: '২ ঘন্টা', mark: null, count: 1 }]);
+  });
+});
