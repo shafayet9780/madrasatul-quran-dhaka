@@ -16,6 +16,7 @@ Inputs: [`survey-system.md`](survey-system.md) (spec: §2.1 common flow, §2.3 G
 | Receipts | As the locked `G1-Receipt` / `G2-Receipt` frames: receipt token page, "অন্য সন্তানের জন্য রিভিউ দিন" leads back to the round link (it carries the round key; acceptable, the link is sent to every guardian anyway). A correction is a new submission through the same link (`G2-Review`: "… পর্যন্ত সংশোধন করা যাবে"). |
 | Second submission for the same child | **Newest counts**; the earlier one is kept but superseded; no duplicate flag (owner, 2026-10-05). **Before starting**, when the child already has a current submission in this round, the guardian sees a warning: `এই শিক্ষার্থীর জন্য ১২ অক্টোবর একটি রিভিউ জমা হয়েছে। নতুন রিভিউ জমা দিলে আগেরটির বদলে এটি গণ্য হবে।` with continue / go back. It shows only the date (never who submitted). The tracker lists children with more than one submission. |
 | Tracker / reminders | **Per round** (owner): each round has its own tracker view; each reminder carries that round's link. |
+| Pairing rounds in reports | **By dates, automatically** (owner, 2026-10-06): a report is for a teacher (T1) round; the G1 and G2 rounds whose open period overlaps it most are used with it (ties: nearest opening). A picker shows them and lets the admin choose others. |
 | Drafts | **On the phone only** (owner): answers stay on the device, keyed by round + student ERP ID and cleared on submit, so a second child on the same phone starts empty (a reload keeps them); no server drafts, no guardian draft list in the tracker; the save chip reads `এই ফোনে সংরক্ষিত`. Spec §4/§8/§9a amended. |
 
 ## 2. What already exists (phase 1)
@@ -70,7 +71,7 @@ Each milestone ends with its checks green, an independent review, fixes, a re-re
 - Consolidate the phase-1 leftover "current / superseded / set aside" logic (derived in three places) now that guardians add more; draft-progress consolidation stays T1-only.
 **Check:** db tests for tracker queries; Sheet rows in a test spreadsheet; e2e tracker.
 
-### P6 — Guardian reports
+### P6 — Guardian reports (in two reviewed parts: P6a data + overview + teaching quality; P6b class, student, guardian print)
 - Overview (`R1`/`RM1`): KPI tiles, response progress, class × subject heatmap, needs-attention list.
 - Teaching quality (`R2`/`RM2`): G1 class × subject heatmap (mean, % at ১০, n), drill-down to per-question distribution (with per-question n) and responses.
 - Class (`R3`): guardian average beside teacher average, gap, guardian-vs-teacher scatter.
