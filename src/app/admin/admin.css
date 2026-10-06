@@ -818,7 +818,7 @@
   .sv-admin .sv-crumb:not([data-last='true']) {
     display: none;
   }
-  .sv-admin .sv-shell-main h1.sv-head:not(.sv-print-sheet h1) {
+  .sv-admin .sv-shell-main h1.sv-head:not(.sv-print-sheet h1):not(.sv-card h1) {
     position: absolute;
     width: 1px;
     height: 1px;

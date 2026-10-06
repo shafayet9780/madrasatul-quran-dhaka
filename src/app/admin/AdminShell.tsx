@@ -132,7 +132,10 @@ export function AdminShell({ data, children }: { data: ShellData; children: Reac
   const params = useSearchParams();
   // A page opened with ?round= of a teacher round shows that one; otherwise the chosen one.
   const requested = params.get('round');
-  const roundId = requested && data.rounds.some((r) => r.id === requested) ? requested : data.chosenId;
+  // The chosen round is also kept here: a soft navigation does not re-render the layout's data.
+  const [chosenId, setChosenId] = useState(data.chosenId);
+  useEffect(() => setChosenId(data.chosenId), [data.chosenId]);
+  const roundId = requested && data.rounds.some((r) => r.id === requested) ? requested : chosenId;
 
   // Folded sidebar: kept in a cookie so the server renders it folded (no jump on load).
   const [collapsed, setCollapsed] = useState(data.collapsed);
@@ -200,7 +203,8 @@ export function AdminShell({ data, children }: { data: ShellData; children: Reac
 
   const chooseRound = (id: string) => {
     document.cookie = `sv-round=${id}; path=/admin; max-age=31536000; samesite=lax`;
-    setMenuOpen(false);
+    setChosenId(id);
+    if (menuOpenRef.current) closeMenu();
     const next = new URLSearchParams(params);
     next.delete('round');
     const url = `${pathname}${next.size ? `?${next}` : ''}`;
@@ -220,7 +224,17 @@ export function AdminShell({ data, children }: { data: ShellData; children: Reac
           </Brand>
           {collapsed ? (
             <div className="flex flex-col items-center" style={{ gap: 4 }}>
-              <button type="button" className="sv-icon-btn" aria-label="রাউন্ড বদলান (সাইডবার বড় করে)" title="রাউন্ড" onClick={() => setFolded(false)}>
+              <button
+                type="button"
+                className="sv-icon-btn"
+                aria-label="রাউন্ড বদলান (সাইডবার বড় করে)"
+                title="রাউন্ড"
+                onClick={() => {
+                  setFolded(false);
+                  // The round picker replaces this button: keep the keyboard there.
+                  requestAnimationFrame(() => document.querySelector<HTMLSelectElement>('.sv-side .sv-round-select select')?.focus());
+                }}
+              >
                 <Icon name="rounds" />
               </button>
               <Link href="/admin/reports?find=1" className="sv-icon-btn" aria-label="শিক্ষার্থী খুঁজুন" title="শিক্ষার্থী খুঁজুন">
