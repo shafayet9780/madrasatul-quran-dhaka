@@ -74,7 +74,7 @@ export default async function RoundsPage() {
 
   return (
     <>
-      <PageTop crumbs={[{ label: 'অ্যাডমিন' }, { label: 'রাউন্ড' }]} />
+      <PageTop crumbs={[{ label: 'অ্যাডমিন' }, { label: 'রাউন্ড' }]} round={false} />
       <div className="flex flex-col gap-1">
         <h1 className="sv-head" style={{ margin: 0, fontSize: 30 }}>রাউন্ড</h1>
         <p style={{ margin: 0, fontSize: 14, color: 'var(--sv-text-muted)' }}>

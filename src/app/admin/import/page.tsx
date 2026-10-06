@@ -11,7 +11,7 @@ export default async function ImportPage() {
   const last = await lastAppliedImport();
   return (
     <>
-      <PageTop crumbs={[{ label: 'অ্যাডমিন' }, { label: 'ERP ইমপোর্ট' }]} />
+      <PageTop crumbs={[{ label: 'অ্যাডমিন' }, { label: 'ERP ইমপোর্ট' }]} round={false} />
       <div className="flex flex-col gap-1">
         <h1 className="sv-head" style={{ margin: 0, fontSize: 30 }}>
           ERP থেকে শিক্ষার্থী ইমপোর্ট

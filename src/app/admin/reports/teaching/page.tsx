@@ -23,7 +23,8 @@ export default async function TeachingPage({ searchParams }: { searchParams: Pro
   const [search, rounds] = await Promise.all([searchParams, allReportRounds()]);
   // The class-management round: the one picked here, else the one paired with the sidebar's teacher round.
   const t1 = pickKindRound(rounds, 'T1', await chosenRoundId());
-  const g1 = pickKindRound(rounds, 'G1', search.round ?? (t1 ? pairedRound(t1, rounds, 'G1')?.id : undefined));
+  const picked = rounds.some((r) => r.kind === 'G1' && r.id === search.round) ? search.round : undefined;
+  const g1 = pickKindRound(rounds, 'G1', picked ?? (t1 ? pairedRound(t1, rounds, 'G1')?.id : undefined));
   if (!g1) {
     return (
       <>

@@ -103,9 +103,12 @@ export default async function GuardianPrintPage({ params, searchParams }: { para
   const report = await studentReport(round, erpId);
   if (!report) {
     return (
-      <div className="sv-card" style={{ padding: 20 }}>
-        শিক্ষার্থী পাওয়া যায়নি। <Link href={`/admin/reports?round=${round.id}`}>খুঁজুন</Link>
-      </div>
+      <>
+        <PageTop crumbs={[{ label: 'ক্লাস ও শিক্ষার্থী', href: '/admin/reports' }, { label: 'পাওয়া যায়নি' }]} />
+        <div className="sv-card" style={{ padding: 20 }}>
+          শিক্ষার্থী পাওয়া যায়নি। <Link href={`/admin/reports?round=${round.id}`}>খুঁজুন</Link>
+        </div>
+      </>
     );
   }
   const { student } = report;

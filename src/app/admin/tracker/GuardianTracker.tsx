@@ -41,7 +41,7 @@ export async function GuardianTracker({ roundId, rounds, place, now }: { roundId
 
   return (
     <>
-      <PageTop crumbs={[{ label: 'সংগ্রহ' }, { label: 'রেসপন্স ট্র্যাকার' }]} />
+      <PageTop crumbs={[{ label: 'সংগ্রহ' }, { label: 'রেসপন্স ট্র্যাকার' }]} round={false} />
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div className="flex flex-col gap-1">
           <h1 className="sv-head" style={{ margin: 0, fontSize: 30 }}>

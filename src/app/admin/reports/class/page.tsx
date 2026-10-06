@@ -42,9 +42,12 @@ export default async function ClassReportPage({ searchParams }: { searchParams: 
   const [report, guardian] = search.class ? await Promise.all([classReport(round, place.classKey, place.sectionKey), classGuardian(round, all, place, { verifiedOnly })]) : [null, null];
   if (!report || !guardian) {
     return (
-      <div className="sv-card" style={{ padding: 20 }}>
-        শ্রেণিটি এই রাউন্ডে নেই। <Link href={`/admin/reports?round=${round.id}`}>ক্লাস বাছাই করুন</Link>
-      </div>
+      <>
+        <PageTop crumbs={[{ label: 'ক্লাস ও শিক্ষার্থী', href: '/admin/reports' }, { label: 'পাওয়া যায়নি' }]} />
+        <div className="sv-card" style={{ padding: 20 }}>
+          শ্রেণিটি এই রাউন্ডে নেই। <Link href={`/admin/reports?round=${round.id}`}>ক্লাস বাছাই করুন</Link>
+        </div>
+      </>
     );
   }
   const { kpis } = report;

@@ -49,7 +49,7 @@ export default async function TrackerPage({ searchParams }: { searchParams: Prom
   if (!rounds.length) {
     return (
       <>
-        <PageTop crumbs={[{ label: 'সংগ্রহ' }, { label: 'রেসপন্স ট্র্যাকার' }]} />
+        <PageTop crumbs={[{ label: 'সংগ্রহ' }, { label: 'রেসপন্স ট্র্যাকার' }]} round={false} />
         <h1 className="sv-head" style={{ margin: 0, fontSize: 30 }}>
           রেসপন্স ট্র্যাকার
         </h1>
@@ -76,7 +76,7 @@ export default async function TrackerPage({ searchParams }: { searchParams: Prom
 
   return (
     <>
-      <PageTop crumbs={[{ label: 'সংগ্রহ' }, { label: 'রেসপন্স ট্র্যাকার' }]} />
+      <PageTop crumbs={[{ label: 'সংগ্রহ' }, { label: 'রেসপন্স ট্র্যাকার' }]} round={false} />
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div className="flex flex-col gap-1">
           <h1 className="sv-head" style={{ margin: 0, fontSize: 30 }}>

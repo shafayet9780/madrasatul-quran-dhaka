@@ -41,15 +41,6 @@ function isCurrent(pathname: string, href: string) {
   return matches.sort((a, b) => b.length - a.length)[0] === href;
 }
 
-const dayMonth = new Intl.DateTimeFormat('bn-BD', { timeZone: 'Asia/Dhaka', day: 'numeric', month: 'short' });
-
-function roundStatus(round: { opensAt: string; closesAt: string }) {
-  const now = Date.now();
-  if (now < Date.parse(round.opensAt)) return { open: false, text: `${dayMonth.format(new Date(round.opensAt))} খুলবে` };
-  if (now <= Date.parse(round.closesAt)) return { open: true, text: `চলমান · ${dayMonth.format(new Date(round.closesAt))} বন্ধ` };
-  return { open: false, text: `বন্ধ · ${dayMonth.format(new Date(round.closesAt))}` };
-}
-
 type Shell = { data: ShellData; roundId: string | null; chooseRound: (id: string) => void; openMenu: () => void };
 const ShellContext = createContext<Shell | null>(null);
 
@@ -64,7 +55,7 @@ export function RoundSelect({ compact = false }: { compact?: boolean }) {
   const { data, roundId, chooseRound } = useShell();
   const round = data.rounds.find((r) => r.id === roundId);
   if (!round) return null;
-  const status = roundStatus(round);
+  const { status } = round;
   return (
     <label className={`sv-round-select${compact ? ' is-compact' : ''}`}>
       {!compact && <span className="sv-round-select-label">রাউন্ড</span>}
@@ -96,11 +87,7 @@ function NavLinks({ pathname, pending, compact }: { pathname: string; pending: n
             <Link key={link.href} href={link.href} className="sv-side-link" aria-current={isCurrent(pathname, link.href) ? 'page' : undefined} title={compact ? link.label : undefined}>
               <Icon name={link.icon} />
               <span className="sv-side-text">{link.label}</span>
-              {link.badge && pending ? (
-                <span className="sv-side-badge" aria-label={`${bn(pending)} জন অভিভাবক বাকি`}>
-                  {bn(pending)} বাকি
-                </span>
-              ) : null}
+              {link.badge && pending ? <span className="sv-side-badge">{bn(pending)} বাকি</span> : null}
             </Link>
           ))}
         </div>
@@ -147,19 +134,12 @@ export function AdminShell({ data, children }: { data: ShellData; children: Reac
   const requested = params.get('round');
   const roundId = requested && data.rounds.some((r) => r.id === requested) ? requested : data.chosenId;
 
-  const [collapsed, setCollapsed] = useState(false);
-  useEffect(() => {
-    try {
-      setCollapsed(localStorage.getItem('sv-side-collapsed') === '1');
-    } catch {}
-  }, []);
-  const toggleCollapsed = () =>
-    setCollapsed((c) => {
-      try {
-        localStorage.setItem('sv-side-collapsed', c ? '0' : '1');
-      } catch {}
-      return !c;
-    });
+  // Folded sidebar: kept in a cookie so the server renders it folded (no jump on load).
+  const [collapsed, setCollapsed] = useState(data.collapsed);
+  const setFolded = (folded: boolean) => {
+    document.cookie = `sv-side=${folded ? '1' : '0'}; path=/admin; max-age=31536000; samesite=lax`;
+    setCollapsed(folded);
+  };
 
   // Phone menu sheet: opens from the top bar or the "আরও" tab, closes on Escape or navigation.
   const [menuOpen, setMenuOpen] = useState(false);
@@ -169,23 +149,50 @@ export function AdminShell({ data, children }: { data: ShellData; children: Reac
     opener.current = document.activeElement as HTMLElement | null;
     setMenuOpen(true);
   };
+  const sheet = useRef<HTMLDivElement>(null);
   const closeMenu = () => {
     setMenuOpen(false);
     opener.current?.focus();
   };
+  // While open: focus starts on the close button, Tab stays inside, the page behind does not scroll.
   useEffect(() => {
-    if (menuOpen) closeButton.current?.focus();
+    if (!menuOpen) return;
+    closeButton.current?.focus();
+    const overflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = overflow;
+    };
   }, [menuOpen]);
+  const trapTab = (e: React.KeyboardEvent) => {
+    if (e.key !== 'Tab' || !sheet.current) return;
+    const focusable = sheet.current.querySelectorAll<HTMLElement>('a[href], button, select');
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    if (e.shiftKey && document.activeElement === first) {
+      e.preventDefault();
+      last.focus();
+    } else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault();
+      first.focus();
+    }
+  };
   useEffect(() => setMenuOpen(false), [pathname]);
 
-  // ⌘K / Ctrl+K: find a student.
+  // ⌘K / Ctrl+K: find a student (focus the search box when it is already on the page).
+  const menuOpenRef = useRef(menuOpen);
+  menuOpenRef.current = menuOpen;
+  const closeRef = useRef(closeMenu);
+  closeRef.current = closeMenu;
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+      if ((e.metaKey || e.ctrlKey) && !e.shiftKey && !e.altKey && e.key.toLowerCase() === 'k') {
         e.preventDefault();
-        router.push('/admin/reports?find=1');
+        const search = document.getElementById('student-search');
+        if (search) search.focus();
+        else router.push('/admin/reports?find=1');
       }
-      if (e.key === 'Escape') setMenuOpen(false);
+      if (e.key === 'Escape' && menuOpenRef.current) closeRef.current();
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
@@ -193,10 +200,13 @@ export function AdminShell({ data, children }: { data: ShellData; children: Reac
 
   const chooseRound = (id: string) => {
     document.cookie = `sv-round=${id}; path=/admin; max-age=31536000; samesite=lax`;
+    setMenuOpen(false);
     const next = new URLSearchParams(params);
     next.delete('round');
-    router.push(`${pathname}${next.size ? `?${next}` : ''}`);
-    router.refresh();
+    const url = `${pathname}${next.size ? `?${next}` : ''}`;
+    // The cookie is read on the server: a new URL re-renders; the same URL needs a refresh.
+    if (url !== `${pathname}${params.size ? `?${params}` : ''}`) router.push(url);
+    else router.refresh();
   };
 
   return (
@@ -204,25 +214,36 @@ export function AdminShell({ data, children }: { data: ShellData; children: Reac
       <div className="sv-shell" data-collapsed={collapsed}>
         <aside className="sv-side sv-no-print" aria-label="অ্যাপ মেনু">
           <Brand>
-            <button type="button" className="sv-icon-btn" aria-label={collapsed ? 'মেনু বড় করুন' : 'মেনু ছোট করুন'} aria-pressed={collapsed} onClick={toggleCollapsed}>
+            <button type="button" className="sv-icon-btn" aria-label={collapsed ? 'সাইডবার বড় করুন' : 'সাইডবার ছোট করুন'} onClick={() => setFolded(!collapsed)}>
               <Icon name="panel" />
             </button>
           </Brand>
-          <div className="sv-side-text flex flex-col" style={{ gap: 8 }}>
-            <RoundSelect />
-            <Link href="/admin/reports?find=1" className="sv-side-search">
-              <Icon name="search" size={16} />
-              শিক্ষার্থী খুঁজুন
-              <kbd>⌘K</kbd>
-            </Link>
-          </div>
+          {collapsed ? (
+            <div className="flex flex-col items-center" style={{ gap: 4 }}>
+              <button type="button" className="sv-icon-btn" aria-label="রাউন্ড বদলান (সাইডবার বড় করে)" title="রাউন্ড" onClick={() => setFolded(false)}>
+                <Icon name="rounds" />
+              </button>
+              <Link href="/admin/reports?find=1" className="sv-icon-btn" aria-label="শিক্ষার্থী খুঁজুন" title="শিক্ষার্থী খুঁজুন">
+                <Icon name="search" />
+              </Link>
+            </div>
+          ) : (
+            <div className="flex flex-col" style={{ gap: 8 }}>
+              <RoundSelect />
+              <Link href="/admin/reports?find=1" className="sv-side-search">
+                <Icon name="search" size={16} />
+                শিক্ষার্থী খুঁজুন
+                <kbd>⌘K</kbd>
+              </Link>
+            </div>
+          )}
           <nav aria-label="রিপোর্ট মেনু" className="flex flex-col" style={{ gap: 4 }}>
             <NavLinks pathname={pathname} pending={data.pending} compact={collapsed} />
           </nav>
           <FooterLinks compact={collapsed} />
         </aside>
 
-        <div className="sv-shell-main">{children}</div>
+        <main className="sv-shell-main">{children}</main>
 
         <nav className="sv-tabs sv-no-print" aria-label="প্রধান মেনু">
           {(
@@ -246,7 +267,7 @@ export function AdminShell({ data, children }: { data: ShellData; children: Reac
         {menuOpen && (
           <div className="sv-sheet-wrap sv-no-print">
             <div className="sv-sheet-scrim" aria-hidden="true" onClick={closeMenu} />
-            <div className="sv-sheet" role="dialog" aria-modal="true" aria-label="মেনু">
+            <div ref={sheet} className="sv-sheet" role="dialog" aria-modal="true" aria-label="মেনু" onKeyDown={trapTab}>
               <Brand>
                 <button ref={closeButton} type="button" className="sv-icon-btn" aria-label="মেনু বন্ধ করুন" onClick={closeMenu}>
                   <Icon name="close" size={20} />
@@ -266,7 +287,7 @@ export function AdminShell({ data, children }: { data: ShellData; children: Reac
 }
 
 /** Each page's sticky top bar: menu button (phone), breadcrumbs, page actions; the round on phones. */
-export function PageTop({ crumbs, actions }: { crumbs: { label: string; href?: string }[]; actions?: ReactNode }) {
+export function PageTop({ crumbs, actions, round = true }: { crumbs: { label: string; href?: string }[]; actions?: ReactNode; round?: boolean }) {
   const { openMenu } = useShell();
   return (
     <header className="sv-pagetop sv-no-print">
@@ -282,7 +303,9 @@ export function PageTop({ crumbs, actions }: { crumbs: { label: string; href?: s
                 {c.href && !last ? (
                   <Link href={c.href}>{c.label}</Link>
                 ) : (
-                  <span aria-current={last ? 'page' : undefined}>{c.label}</span>
+                  <span className="sv-crumb-text" aria-current={last ? 'page' : undefined}>
+                    {c.label}
+                  </span>
                 )}
                 {!last && <Icon name="chevron" size={14} />}
               </span>
@@ -294,9 +317,11 @@ export function PageTop({ crumbs, actions }: { crumbs: { label: string; href?: s
         </Link>
         {actions && <div className="sv-pagetop-actions">{actions}</div>}
       </div>
-      <div className="sv-phone-only sv-pagetop-round">
-        <RoundSelect compact />
-      </div>
+      {round && (
+        <div className="sv-phone-only sv-pagetop-round">
+          <RoundSelect compact />
+        </div>
+      )}
     </header>
   );
 }

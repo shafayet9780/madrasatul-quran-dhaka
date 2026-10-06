@@ -283,7 +283,6 @@
 }
 
 @media print {
-  .sv-admin nav[aria-label='রিপোর্ট মেনু'],
   .sv-admin .sv-no-print {
     display: none !important;
   }
@@ -568,6 +567,8 @@
 }
 .sv-admin .sv-round-select.is-compact {
   padding: 8px 12px;
+  min-height: 44px;
+  justify-content: center;
 }
 .sv-admin .sv-dot {
   width: 8px;
@@ -688,6 +689,15 @@
   width: 100%;
   max-width: 1280px;
 }
+/* A page without a top bar (error, not found) still starts below the edge. */
+.sv-admin .sv-shell-main > :first-child:not(.sv-pagetop) {
+  margin-top: 24px;
+}
+@media print {
+  .sv-admin .sv-shell-main {
+    padding: 0;
+  }
+}
 .sv-admin .sv-pagetop {
   position: sticky;
   top: 0;
@@ -728,8 +738,12 @@
 .sv-admin .sv-crumb[data-last='true'] {
   color: var(--sv-text);
   font-weight: 600;
+  min-width: 0;
+}
+.sv-admin .sv-crumb-text {
   overflow: hidden;
   text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .sv-admin .sv-pagetop-actions {
   margin-left: auto;
@@ -800,9 +814,17 @@
   .sv-admin .sv-pagetop-actions {
     display: none;
   }
-  /* Phones show only the page name as the title. */
+  /* Phones show only the page name as the title, in the top bar (the page's h1 stays for screen readers). */
   .sv-admin .sv-crumb:not([data-last='true']) {
     display: none;
+  }
+  .sv-admin .sv-shell-main h1.sv-head:not(.sv-print-sheet h1) {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
   }
   .sv-admin .sv-crumbs {
     flex: 1;
