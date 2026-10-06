@@ -118,11 +118,11 @@ describe('guardian parts of the class and student reports', () => {
     const report = await studentGuardian(t1(), [g1, g2, t1()], `${run}-1`, place, { verifiedOnly: false });
     expect(report.answers.map((a) => a.answer)).toEqual(['উপস্থিতি > ৯০%', 'প্রযোজ্য নয় (ডে কেয়ার)', 'দেখে না', 'আসে না']);
     expect(report.form?.comment).toBe('শান্ত থাকে');
-    // Newest first: the current G2 and G1 forms, then the replaced G2 form.
+    // Oldest first, like the teachers' history: the replaced G2 form, the current one, then G1.
     expect(report.log.map((l) => [l.kind, Boolean(l.supersededBy)])).toEqual([
-      ['G1', false],
-      ['G2', false],
       ['G2', true],
+      ['G2', false],
+      ['G1', false],
     ]);
   });
 });

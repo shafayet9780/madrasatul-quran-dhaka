@@ -417,3 +417,28 @@
     max-width: none;
   }
 }
+
+/* Student area rows: name · bar · values; on phones the values wrap under the bar. */
+.sv-admin .sv-pair-row {
+  display: grid;
+  grid-template-columns: minmax(120px, 180px) minmax(0, 1fr) 200px;
+  gap: 12px;
+  align-items: center;
+}
+.sv-admin .sv-pair-text {
+  text-align: right;
+}
+@media (max-width: 720px) {
+  .sv-admin .sv-pair-row {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 4px;
+  }
+  .sv-admin .sv-pair-text {
+    text-align: left;
+  }
+}
+@media print {
+  .sv-admin .sv-print-sheet section {
+    break-inside: avoid;
+  }
+}

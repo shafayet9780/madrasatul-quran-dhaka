@@ -130,11 +130,16 @@ export function score100(mark: number): number {
   return ((mark - 4) / 6) * 100;
 }
 
-/** Spec §7 flag: the guardian's and the teachers' averages for a child at least FLAGS.guardianTeacherGap apart. */
+/** Guardian minus teachers in score points (spec §7: comparisons use the 0–100 score); null without both. */
+export function gapPoints(guardian: number | null, teacher: number | null): number | null {
+  return guardian === null || teacher === null ? null : score100(guardian) - score100(teacher);
+}
+
+/** Spec §7 flag: the guardian's and the teachers' averages for a child at least FLAGS.guardianTeacherGapPoints apart. */
 export function gapFlag(guardian: number | null, teacher: number | null, bn: (n: number | string) => string): Flag | null {
-  if (guardian === null || teacher === null) return null;
-  const gap = Math.abs(guardian - teacher);
-  return gap >= FLAGS.guardianTeacherGap ? { kind: 'gap', label: `অভিভাবক–শিক্ষক পার্থক্য ${bn(gap.toFixed(1))}` } : null;
+  const gap = gapPoints(guardian, teacher);
+  if (gap === null || Math.round(Math.abs(gap)) < FLAGS.guardianTeacherGapPoints) return null;
+  return { kind: 'gap', label: `অভিভাবক–শিক্ষক পার্থক্য ${bn(Math.round(Math.abs(gap)))} পয়েন্ট` };
 }
 
 /**
@@ -158,16 +163,22 @@ export function averageOf(marks: (number | null)[]): number | null {
   return shown.length ? shown.reduce((a, b) => a + b, 0) / shown.length : null;
 }
 
-/** Guardian print: a strength is an area the child averages ৮+ in, work is below ৭ (guardian and teachers together). */
+/**
+ * Guardian print: a strength is an area where every side that marked it gave ৮+; work is an area
+ * where either side is below ৭ (so a wide guardian–teacher gap is discussed, never praised).
+ */
 export const PRINT_STRENGTH = 8;
 export const PRINT_WORK = 7;
 
 export function strengthsAndWork(areas: { name: string; guardian: number | null; teacher: number | null }[]) {
-  const both = areas
-    .map((a) => ({ name: a.name, mean: averageOf([a.guardian, a.teacher]) }))
-    .filter((a): a is { name: string; mean: number } => a.mean !== null);
+  const marked = areas
+    .map((a) => {
+      const sides = [a.guardian, a.teacher].filter((m): m is number => m !== null);
+      return { name: a.name, low: Math.min(...sides), high: Math.max(...sides), sides: sides.length };
+    })
+    .filter((a) => a.sides > 0);
   return {
-    strengths: both.filter((a) => a.mean >= PRINT_STRENGTH).sort((a, b) => b.mean - a.mean).slice(0, 3).map((a) => a.name),
-    work: both.filter((a) => a.mean < PRINT_WORK).sort((a, b) => a.mean - b.mean).slice(0, 3).map((a) => a.name),
+    strengths: marked.filter((a) => a.low >= PRINT_STRENGTH).sort((a, b) => b.low - a.low).slice(0, 3).map((a) => a.name),
+    work: marked.filter((a) => a.low < PRINT_WORK).sort((a, b) => a.low - b.low).slice(0, 3).map((a) => a.name),
   };
 }

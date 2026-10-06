@@ -293,7 +293,7 @@ export async function studentReport(round: Round, erpId: string) {
       name: snapshot.areas.find((x) => x.key === a.areaKey)!.name,
       classMean: classMeans[i].mean,
     })),
-    trend: trend.map((p) => ({ label: p.label, mean: p.mean! })),
+    trend: trend.map((p) => ({ roundId: p.roundId, label: p.label, mean: p.mean! })),
     questions: snapshot.template.questions.map((q, i) => ({ n: i + 1, label: questionLabel(q) })),
     grid,
     notes: notes.filter((n) => n.note).map((n) => ({ ...n, note: n.note! })),

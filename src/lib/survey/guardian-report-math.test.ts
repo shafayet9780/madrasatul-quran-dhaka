@@ -102,19 +102,23 @@ describe('guardian and teacher side by side', () => {
   const bn = (n: number | string) => String(n);
   it('scores ৪ as 0 and ১০ as 100, and flags gaps of 2 marks', () => {
     expect([score100(4), score100(7), score100(10)]).toEqual([0, 50, 100]);
-    expect(gapFlag(9, 6.8, bn)).toEqual({ kind: 'gap', label: 'অভিভাবক–শিক্ষক পার্থক্য 2.2' });
+    expect(gapFlag(9, 6.8, bn)).toEqual({ kind: 'gap', label: 'অভিভাবক–শিক্ষক পার্থক্য 37 পয়েন্ট' });
+    // 1.98 marks shows as 33 points, so it is flagged like the number on screen says.
+    expect(gapFlag(8, 6.02, bn)?.label).toBe('অভিভাবক–শিক্ষক পার্থক্য 33 পয়েন্ট');
     expect(gapFlag(8, 6.5, bn)).toBeNull();
     expect(gapFlag(null, 4, bn)).toBeNull();
   });
-  it('picks strengths (৮+) and work (below ৭) from both sides', () => {
+  it('praises an area only when every side gave ৮+, and lists any side below ৭ as work', () => {
     const result = strengthsAndWork([
       { name: 'a', guardian: 10, teacher: 8 },
       { name: 'b', guardian: null, teacher: 6 },
       { name: 'c', guardian: 7, teacher: 7.5 },
       { name: 'd', guardian: 4, teacher: 6 },
       { name: 'e', guardian: null, teacher: null },
+      { name: 'gap', guardian: 10, teacher: 4.5 },
+      { name: 'one side', guardian: 9, teacher: null },
     ]);
-    expect(result).toEqual({ strengths: ['a'], work: ['d', 'b'] });
+    expect(result).toEqual({ strengths: ['one side', 'a'], work: ['d', 'gap', 'b'] });
   });
 });
 

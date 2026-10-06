@@ -1,3 +1,4 @@
+import { score100 } from '@/lib/survey/guardian-report-math';
 import { toBengaliDigits as bn } from '@/lib/survey/normalise';
 
 // Hand-built charts for the T1 reports. Teacher marks are one series (#2F6FA3), so no legend box;
@@ -208,14 +209,29 @@ export function PairTrendChart({ points, width = 620 }: { points: { label: strin
 }
 
 // Guardian ↔ teacher comparisons use the 0–100 score (spec §7): (mark − ৪) ÷ ৬ × ১০০.
-const score = (mark: number) => pos(mark) * 100;
+const score = (mark: number) => Math.max(0, Math.min(100, score100(mark)));
 /** The R3 frame marks an area when guardian and teachers are this many points apart. */
 export const AREA_GAP_POINTS = 15;
 
 /** One area: guardian dot, teacher dot, the span between them and an optional class-average tick. */
-export function PairBar({ guardian, teacher, reference, label }: { guardian: number | null; teacher: number | null; reference?: number | null; label: string }) {
-  const dot = (mark: number, color: string) => (
-    <div style={{ position: 'absolute', top: 3, left: `${score(mark)}%`, width: 14, height: 14, marginLeft: -7, borderRadius: '50%', background: color, boxShadow: '0 0 0 2px #fff' }} />
+export function PairBar({
+  guardian,
+  teacher,
+  reference,
+  muted = {},
+  label,
+}: {
+  guardian: number | null;
+  teacher: number | null;
+  reference?: number | null;
+  /** A side with fewer than 3 children: drawn faint (spec §7 greys n < 3). */
+  muted?: { guardian?: boolean; teacher?: boolean };
+  label: string;
+}) {
+  const dot = (mark: number, color: string, faint?: boolean) => (
+    <div
+      style={{ position: 'absolute', top: 3, left: `${score(mark)}%`, width: 14, height: 14, marginLeft: -7, borderRadius: '50%', background: color, boxShadow: '0 0 0 2px #fff', opacity: faint ? 0.35 : 1 }}
+    />
   );
   return (
     <div style={{ position: 'relative', height: 20 }} title={label} role="img" aria-label={label}>
@@ -224,8 +240,8 @@ export function PairBar({ guardian, teacher, reference, label }: { guardian: num
         <div style={{ position: 'absolute', top: 8, height: 4, background: 'var(--sv-hairline)', left: `${score(Math.min(guardian, teacher))}%`, width: `${Math.abs(score(guardian) - score(teacher))}%` }} />
       )}
       {reference != null && <div style={{ position: 'absolute', top: 1, left: `${score(reference)}%`, width: 3, height: 18, marginLeft: -1, background: 'var(--sv-text-body)' }} />}
-      {guardian !== null && dot(guardian, GUARDIAN)}
-      {teacher !== null && dot(teacher, TEACHER)}
+      {guardian !== null && dot(guardian, GUARDIAN, muted.guardian)}
+      {teacher !== null && dot(teacher, TEACHER, muted.teacher)}
     </div>
   );
 }
@@ -249,13 +265,19 @@ export function GapScatter({ points }: { points: { erpId: string; name: string; 
   const x = (mark: number) => left + (score(mark) / 100) * (right - left);
   const y = (mark: number) => bottom - (score(mark) / 100) * (bottom - top);
   const ticks = [0, 50, 100];
-  // Names of flagged children under their dots; a name that would overlap one already placed moves down a line.
-  const labels: { erpId: string; name: string; x: number; y: number }[] = [];
+  // Names of flagged children beside their dots, kept inside the plot: right-aligned near the right
+  // edge; below the dot, else above, else further out, skipping places another name already took.
+  const labels: { erpId: string; name: string; x: number; y: number; end: boolean; width: number }[] = [];
   for (const p of [...points].filter((q) => q.flagged).sort((a, b) => a.guardian - b.guardian)) {
-    const lx = Math.min(x(p.guardian) - 10, right - 90);
-    let ly = Math.min(y(p.teacher) + 22, bottom - 4);
-    while (labels.some((l) => Math.abs(l.x - lx) < 90 && Math.abs(l.y - ly) < 15)) ly += 15;
-    labels.push({ erpId: p.erpId, name: p.name, x: lx, y: ly });
+    const width = p.name.length * 7;
+    const end = x(p.guardian) + width > right - 4;
+    const lx = end ? x(p.guardian) + 10 : x(p.guardian) - 10;
+    const span = (l: { x: number; end: boolean; width: number }) => (l.end ? [l.x - l.width, l.x] : [l.x, l.x + l.width]);
+    const [a0, a1] = span({ x: lx, end, width });
+    const free = (ly: number) => ly > top + 12 && ly < bottom - 4 && !labels.some((l) => Math.abs(l.y - ly) < 15 && span(l)[0] < a1 && a0 < span(l)[1]);
+    const dy = y(p.teacher);
+    const ly = [22, -12, 37, -27, 52, -42].map((d) => dy + d).find(free) ?? Math.min(Math.max(dy + 22, top + 14), bottom - 6);
+    labels.push({ erpId: p.erpId, name: p.name, x: lx, y: ly, end, width });
   }
   return (
     <svg viewBox="0 0 500 410" width="100%" style={{ maxWidth: 560 }} role="img" aria-label={`${bn(points.length)} জন শিক্ষার্থীর অভিভাবক ও শিক্ষকের স্কোর; বিস্তারিত নিচের তালিকায়`}>
@@ -299,7 +321,7 @@ export function GapScatter({ points }: { points: { erpId: string; name: string; 
         </circle>
       ))}
       {labels.map((l) => (
-        <text key={`n${l.erpId}`} x={l.x} y={l.y} fontSize="12" fontWeight="600" fill="var(--sv-text)">
+        <text key={`n${l.erpId}`} x={l.x} y={l.y} textAnchor={l.end ? 'end' : 'start'} fontSize="12" fontWeight="600" fill="var(--sv-text)">
           {l.name}
         </text>
       ))}

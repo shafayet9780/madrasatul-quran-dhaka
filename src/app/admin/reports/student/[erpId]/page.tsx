@@ -27,7 +27,6 @@ const STATUS = {
   duplicate: { label: 'ডুপ্লিকেট', bg: 'var(--sv-warn-bg)', fg: 'var(--sv-warn)' },
   superseded: { label: 'পুরনো', bg: 'var(--sv-neutral-bg)', fg: 'var(--sv-text-body)' },
   'set-aside': { label: 'বাদ (অ্যাডমিন সিদ্ধান্ত)', bg: 'var(--sv-neutral-bg)', fg: 'var(--sv-text-body)' },
-  replaced: { label: 'প্রতিস্থাপিত', bg: 'var(--sv-neutral-bg)', fg: 'var(--sv-text-body)' },
 } as const;
 
 const points = (mark: number | null) => (mark === null ? '—' : bn(Math.round(score100(mark))));
@@ -62,9 +61,11 @@ export default async function StudentProfilePage({ params, searchParams }: { par
     .filter((a) => a.guardian !== null && a.teacher !== null)
     .map((a) => ({ name: a.name, points: Math.abs(score100(a.guardian!) - score100(a.teacher!)) }))
     .sort((a, b) => b.points - a.points)[0];
-  const teacherByRound = new Map(report.trend.map((p) => [p.label, p.mean]));
-  const pairTrend = guardian.trend.map((p) => ({ label: p.label, guardian: p.mean, teacher: teacherByRound.get(p.label) ?? null }));
-  const showPairTrend = guardian.g2 !== undefined && pairTrend.filter((p) => p.guardian !== null || p.teacher !== null).length >= 2;
+  const teacherByRound = new Map(report.trend.map((p) => [p.roundId, p.mean]));
+  const pairTrend = guardian.trend
+    .map((p) => ({ label: p.label, guardian: p.mean, teacher: teacherByRound.get(p.roundId) ?? null }))
+    .filter((p) => p.guardian !== null || p.teacher !== null);
+  const showPairTrend = guardian.g2 !== undefined && pairTrend.length >= 2;
   const father = localMobile(student.fatherMobile);
   const mother = localMobile(student.motherMobile);
   const classHref = `/admin/reports/class?${new URLSearchParams({ round: round.id, class: student.classKey, section: student.sectionKey })}`;
@@ -189,14 +190,16 @@ export default async function StudentProfilePage({ params, searchParams }: { par
           {areas.map((area) => {
             const text = [area.guardian !== null && `অভিভাবক ${points(area.guardian)}`, area.teacher !== null && `শিক্ষক ${points(area.teacher)}`, `ক্লাস ${points(area.classMean)}`].filter(Boolean).join(' · ');
             return (
-              <div key={area.key} className="grid items-center gap-3" style={{ gridTemplateColumns: 'minmax(120px, 180px) minmax(0, 1fr) 200px', fontSize: 14, minHeight: 34 }}>
+              <div key={area.key} className="sv-pair-row" style={{ fontSize: 14, minHeight: 34 }}>
                 <div style={{ fontWeight: 600 }}>{area.name}</div>
                 <PairBar guardian={area.guardian} teacher={area.teacher} reference={area.classMean} label={`${area.name}: ${text}`} />
-                <div style={{ fontSize: 12.5, color: 'var(--sv-text-muted)', textAlign: 'right' }}>{text}</div>
+                <div className="sv-pair-text" style={{ fontSize: 12.5, color: 'var(--sv-text-muted)' }}>
+                  {text}
+                </div>
               </div>
             );
           })}
-          <div className="grid gap-3" style={{ gridTemplateColumns: 'minmax(120px, 180px) minmax(0, 1fr) 200px' }}>
+          <div className="sv-pair-row" aria-hidden="true">
             <div />
             <ScoreAxis />
             <div />
@@ -328,7 +331,7 @@ export default async function StudentProfilePage({ params, searchParams }: { par
           </h2>
           {report.log.length === 0 && guardian.log.length === 0 && <p style={{ margin: 0, fontSize: 14, color: 'var(--sv-text-muted)' }}>এখনো কোনো জমা নেই।</p>}
           {guardian.log.map((entry, i) => {
-            const status = STATUS[entry.supersededBy ? 'replaced' : 'current'];
+            const status = STATUS[entry.supersededBy ? 'superseded' : 'current'];
             return (
               <div key={`g${i}`} className="flex gap-3 items-start" style={{ padding: '10px 12px', borderRadius: 12, border: '1px solid var(--sv-hairline)', opacity: entry.supersededBy ? 0.7 : 1 }}>
                 <span className="sv-tag" style={{ flex: 'none' }}>

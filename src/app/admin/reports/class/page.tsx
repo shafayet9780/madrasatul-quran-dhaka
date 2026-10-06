@@ -158,24 +158,24 @@ export default async function ClassReportPage({ searchParams }: { searchParams: 
               শিক্ষক (T1)
             </span>
           </div>
-          <div style={{ fontSize: 13, color: 'var(--sv-text-muted)' }}>স্কোর ০–১০০, প্রত্যেক শিক্ষার্থীর গড় থেকে · ৩ জনের কম হলে দেখানো হয় না</div>
+          <div style={{ fontSize: 13, color: 'var(--sv-text-muted)' }}>স্কোর ০–১০০, প্রত্যেক শিক্ষার্থীর গড় থেকে · n = শিক্ষার্থী · ৩ জনের কম হলে ধূসর</div>
           {guardian.areas.map((area) => {
             const teacher = teacherAreas.get(area.areaKey);
-            const g = area.reliable ? area.mean : null;
-            const t = teacher?.reliable ? teacher.mean : null;
-            const gap = g !== null && t !== null ? Math.round(Math.abs(score100(g) - score100(t))) : null;
+            const g = area.mean;
+            const t = teacher?.mean ?? null;
+            const side = (name: string, mean: number | null, n: number, reliable: boolean) =>
+              mean === null ? `${name} —` : `${name} ${points(mean)} (n=${bn(n)}${reliable ? '' : ', n<৩'})`;
+            const text = [side('অভিভাবক', g, area.students, area.reliable), side('শিক্ষক', t, teacher?.students ?? 0, teacher?.reliable ?? false)];
+            const gap = area.reliable && teacher?.reliable && g !== null && t !== null ? Math.round(Math.abs(score100(g) - score100(t))) : null;
             return (
               <div key={area.areaKey} className="flex flex-col gap-1.5" style={{ padding: '4px 0' }}>
                 <div className="flex flex-wrap justify-between gap-2" style={{ fontSize: 14 }}>
                   <span style={{ fontWeight: 600 }}>{area.name}</span>
-                  <span style={{ color: 'var(--sv-text-muted)' }}>
-                    অভিভাবক <b className="sv-num" style={{ color: 'var(--sv-text)' }}>{points(g)}</b> · শিক্ষক{' '}
-                    <b className="sv-num" style={{ color: 'var(--sv-text)' }}>
-                      {points(t)}
-                    </b>
+                  <span className="sv-num" style={{ color: 'var(--sv-text-muted)', fontWeight: 400 }}>
+                    {text.join(' · ')}
                   </span>
                 </div>
-                <PairBar guardian={g} teacher={t} label={`${area.name}: অভিভাবক ${points(g)}, শিক্ষক ${points(t)}`} />
+                <PairBar guardian={g} teacher={t} muted={{ guardian: !area.reliable, teacher: !teacher?.reliable }} label={`${area.name}: ${text.join(', ')}`} />
                 {gap !== null && gap >= AREA_GAP_POINTS && (
                   <span className="sv-flag" style={{ alignSelf: 'flex-start' }}>
                     ⚠ পার্থক্য {bn(gap)} পয়েন্ট

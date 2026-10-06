@@ -1,7 +1,7 @@
 import 'server-only';
 import { and, asc, eq, inArray, isNotNull, isNull, ne } from 'drizzle-orm';
 import { getDb } from './db';
-import { cellStats, childWeightedMean, cohortDelta, gapFlag, perStudentMeans, questionDistributions, resolveRounds, roundHistory, type GuardianItem } from './guardian-report-math';
+import { cellStats, childWeightedMean, cohortDelta, gapFlag, gapPoints, perStudentMeans, questionDistributions, resolveRounds, roundHistory, type GuardianItem } from './guardian-report-math';
 
 export { pickKindRound, previousRound, resolveRounds } from './guardian-report-math';
 import { questionLabel } from './labels';
@@ -301,12 +301,12 @@ export async function studentGuardian(t1: Round, rounds: Round[], erpId: string,
         })
       : [],
     form: form ?? null,
-    trend: pairs.map((p) => ({ label: p.t1.label, mean: childWeightedMean(mine.filter((i) => i.roundId === p.g2?.id)) })),
-    log: forms.reverse().map((f) => ({ ...f, roundLabel: roundOf.get(f.roundId)?.label ?? '' })),
+    trend: pairs.map((p) => ({ roundId: p.t1.id, label: p.t1.label, mean: childWeightedMean(mine.filter((i) => i.roundId === p.g2?.id)) })),
+    log: forms.map((f) => ({ ...f, roundLabel: roundOf.get(f.roundId)?.label ?? '' })),
   };
 }
 
-/** Class rows with the guardian average, the gap (guardian − teachers, marks), form status and the gap flag. */
+/** Class rows with the guardian average, the gap (guardian − teachers, score points), form status and the gap flag. */
 export function withGuardian<R extends { erpId: string; mean: number | null; flags: { kind: string; label: string }[] }>(rows: R[], guardian: Awaited<ReturnType<typeof classGuardian>>) {
   return rows.map((r) => {
     const g = guardian.means.get(r.erpId) ?? null;
@@ -314,7 +314,7 @@ export function withGuardian<R extends { erpId: string; mean: number | null; fla
     return {
       ...r,
       guardian: g,
-      gap: g !== null && r.mean !== null ? g - r.mean : null,
+      gap: gapPoints(g, r.mean),
       form: guardian.status.get(r.erpId) ?? ('none' as const),
       flags: flag ? [...r.flags, flag] : r.flags,
     };

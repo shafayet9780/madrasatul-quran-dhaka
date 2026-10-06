@@ -19,8 +19,8 @@ export const FLAGS = {
   dropMarks: 1,
   /** At least this many different teachers gave the lowest mark on some question. */
   lowMarkTeachers: 2,
-  /** Guardian (G2) and teacher (T1) averages at least this many marks apart (2 marks = a 33-point band). */
-  guardianTeacherGap: 2,
+  /** Guardian (G2) and teacher (T1) averages at least this many points apart on the 0–100 score (33 ≈ 2 marks). */
+  guardianTeacherGapPoints: 33,
 };
 
 export type StudentAggregate = {

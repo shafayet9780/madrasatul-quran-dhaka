@@ -194,8 +194,9 @@ test.describe('G2 questions', () => {
 });
 
 test.describe('G1 teaching review', () => {
-  // The earlier tests use up the test mobile's lookup budget (10 per 10 minutes); fresh fixtures reset it.
-  test.beforeAll(loadFixtures);
+  // The earlier groups look 01700000001 up about 7 times; the per-number lookup limit is 10 in 10
+  // minutes (guardianValue), so this group starts with fresh counters.
+  test.beforeAll(() => execFileSync('pnpm', ['survey:fixtures', '--rate-limits'], { stdio: 'ignore' }));
 
   async function toRating(page: Page, link: string, mobile = '01700000001', place: [RegExp, string | null] = [/^নার্সারি/, 'শাখা A']) {
     await page.goto(link);

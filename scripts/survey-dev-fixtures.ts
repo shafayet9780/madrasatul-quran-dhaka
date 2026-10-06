@@ -6,6 +6,7 @@
  *
  *   pnpm survey:fixtures           # (re)load fixtures
  *   pnpm survey:fixtures --remove  # remove them
+ *   pnpm survey:fixtures --rate-limits  # only clear the request counters
  */
 import { config } from 'dotenv';
 import { resolve } from 'node:path';
@@ -58,6 +59,12 @@ async function main() {
   const { g1FixtureSnapshot, g2FixtureSnapshot } = await import('../src/lib/survey/testing/guardian-fixture');
   const db = getDb();
 
+  if (process.argv.includes('--rate-limits')) {
+    // Only the request counters, for an e2e group that looks the same sample number up again.
+    await db.delete(rateLimits);
+    console.log('Cleared rate limits.');
+    return;
+  }
   const previous = await db.select({ id: surveyRounds.id }).from(surveyRounds).where(like(surveyRounds.sanityRoundId, 'fixture-%'));
   const ids = previous.map((r) => r.id);
   if (ids.length) {

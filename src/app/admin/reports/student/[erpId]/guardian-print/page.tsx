@@ -30,6 +30,16 @@ function PrintTrend({ points }: { points: { label: string; guardian: number | nu
       .filter(Boolean)
       .join(' ');
   const last = (key: 'guardian' | 'teacher') => [...points].reverse().find((p) => p[key] !== null)?.[key] ?? null;
+  // End labels at least 16px apart: the higher series' label goes up, the other down.
+  const gl = last('guardian');
+  const tl = last('teacher');
+  const mid = gl !== null && tl !== null ? (y(gl) + y(tl)) / 2 : 0;
+  const apart = gl !== null && tl !== null && Math.abs(y(gl) - y(tl)) < 16;
+  const labelY = (key: 'guardian' | 'teacher', mark: number) => {
+    if (!apart) return y(mark) + 4;
+    const guardianHigher = y(gl!) <= y(tl!);
+    return mid + ((key === 'guardian') === guardianHigher ? -6 : 12);
+  };
   const describe = (key: 'guardian' | 'teacher', name: string) =>
     `${name}: ${points
       .filter((p) => p[key] !== null)
@@ -67,12 +77,12 @@ function PrintTrend({ points }: { points: { label: string; guardian: number | nu
       ))}
       <g fontSize="13" fontWeight="600" fill={ink}>
         {last('guardian') !== null && (
-          <text x={right + 8} y={y(last('guardian')!) - 4}>
+          <text x={right + 8} y={labelY('guardian', last('guardian')!)}>
             অভিভাবক {bn(last('guardian')!.toFixed(1))}
           </text>
         )}
         {last('teacher') !== null && (
-          <text x={right + 8} y={y(last('teacher')!) + 14}>
+          <text x={right + 8} y={labelY('teacher', last('teacher')!)}>
             শিক্ষক {bn(last('teacher')!.toFixed(1))}
           </text>
         )}
@@ -106,9 +116,9 @@ export default async function GuardianPrintPage({ params, searchParams }: { para
     return { name: (t ?? g)!.name, guardian: g?.mean ?? null, teacher: t?.mean ?? null, classMean: averageOf([g?.classMean ?? null, t?.classMean ?? null]) };
   });
   const { strengths, work } = strengthsAndWork(areas);
-  const teacherByRound = new Map(report.trend.map((p) => [p.label, p.mean]));
+  const teacherByRound = new Map(report.trend.map((p) => [p.roundId, p.mean]));
   const trend = guardian.trend
-    .map((p) => ({ label: p.label, guardian: p.mean, teacher: teacherByRound.get(p.label) ?? null }))
+    .map((p) => ({ label: p.label, guardian: p.mean, teacher: teacherByRound.get(p.roundId) ?? null }))
     .filter((p) => p.guardian !== null || p.teacher !== null)
     .slice(-4);
   const subjects = new Set(report.grid.filter((g) => g.marks).map((g) => g.subject)).size;

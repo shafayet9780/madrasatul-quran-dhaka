@@ -79,8 +79,10 @@ test('student profile shows the guardian answers and prints a page for the guard
   await expect(sheet.getByRole('heading', { name: 'Zayan Mahmud', level: 1 })).toBeVisible();
   await expect(sheet.getByRole('row', { name: /উপস্থিতি/ })).toBeVisible();
   await expect(sheet.getByRole('heading', { name: 'শক্তির দিক' })).toBeVisible();
-  // No teacher names or notes on the guardian's copy.
-  await expect(sheet.getByText(/উস্তাযা|উস্তাদ|ঝগড়া/)).toHaveCount(0);
+  // No teacher names or notes on the guardian's copy (every fixture teacher and the fixture note).
+  for (const text of ['উস্তাদ আব্দুল্লাহ', 'উস্তাদ হামযা', 'উস্তাযা মারইয়াম', 'উস্তাযা সুমাইয়া', 'উস্তাদ ইউসুফ', 'ক্লাসে মনোযোগ ভালো']) {
+    await expect(sheet.getByText(text, { exact: false })).toHaveCount(0);
+  }
   await page.screenshot({ path: process.env.SHOT_DIR ? `${process.env.SHOT_DIR}/r4-print.png` : undefined, fullPage: true });
   await expectAccessible(page);
 });

@@ -46,13 +46,13 @@ export async function classWorkbook(round: Round, classKey: string, sectionKey: 
         ...(guardian.g2.round
           ? [
               { header: 'অভিভাবক (G2, /১০)', key: 'guardian', width: 18 },
-              { header: 'পার্থক্য (অভিভাবক − শিক্ষক)', key: 'gap', width: 22 },
+              { header: 'পার্থক্য (অভিভাবক − শিক্ষক, পয়েন্ট ০–১০০)', key: 'gap', width: 26 },
               { header: 'অভিভাবকের ফর্ম', key: 'form', width: 16 },
             ]
           : []),
         { header: 'ফ্ল্যাগ', key: 'flags', width: 40 },
       ],
-      rows: rows.map((r) => ({ ...r, mean: round1(r.mean), guardian: round1(r.guardian), gap: round1(r.gap), form: FORM_LABEL[r.form], flags: r.flags.map((f) => f.label).join('; ') })),
+      rows: rows.map((r) => ({ ...r, mean: round1(r.mean), guardian: round1(r.guardian), gap: r.gap === null ? null : Math.round(r.gap), form: FORM_LABEL[r.form], flags: r.flags.map((f) => f.label).join('; ') })),
     },
     {
       name: 'ক্ষেত্র',

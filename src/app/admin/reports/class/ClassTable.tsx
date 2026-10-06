@@ -26,7 +26,7 @@ const FORM = {
   none: { label: 'সাড়া নেই', bg: 'var(--sv-neutral-bg)', fg: 'var(--sv-text-body)' },
 } as const;
 
-const signed = (d: number) => `${d > 0 ? '+' : d < 0 ? '−' : ''}${bn(Math.abs(d).toFixed(1))}`;
+const signed = (d: number) => `${Math.round(d) > 0 ? '+' : Math.round(d) < 0 ? '−' : ''}${bn(Math.abs(Math.round(d)))}`;
 
 /** Student list (R3): teacher marks, and with a G2 round the guardian's average and the gap; sortable. */
 export function ClassTable({ rows, roundId, showTrend, showGuardian }: { rows: Row[]; roundId: string; showTrend: boolean; showGuardian: boolean }) {
@@ -71,7 +71,7 @@ export function ClassTable({ rows, roundId, showTrend, showGuardian }: { rows: R
             {header('name', 'নাম')}
             {showGuardian && header('guardian', 'অভিভাবক (/১০)')}
             {header('mean', 'শিক্ষকদের গড় (/১০)')}
-            {showGuardian && header('gap', 'পার্থক্য')}
+            {showGuardian && header('gap', 'পার্থক্য (পয়েন্ট)')}
             {header('teachers', 'শিক্ষক')}
             {showTrend && <th scope="col">প্রবণতা</th>}
             {header('flags', 'ফ্ল্যাগ')}
