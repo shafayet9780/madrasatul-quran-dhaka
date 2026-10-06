@@ -4,11 +4,13 @@ import { formatDateTime } from '@/lib/survey/dates';
 import { KIND_LABEL } from '@/lib/survey/labels';
 import { toBengaliDigits as bn } from '@/lib/survey/normalise';
 import { roundStatus } from '@/lib/survey/round-status';
+import { chosenRoundId } from '@/lib/survey/admin-shell';
 import { listTrackerRounds, loadTracker } from '@/lib/survey/tracker';
 import type { CellState } from '@/lib/survey/coverage';
 import { RoundPicker } from '../RoundPicker';
 import { GuardianTracker } from './GuardianTracker';
 import { DuplicateResolver, PrintButton } from './TrackerControls';
+import { PageTop } from '../AdminShell';
 
 export const metadata: Metadata = { title: 'রেসপন্স ট্র্যাকার' };
 export const dynamic = 'force-dynamic';
@@ -47,6 +49,7 @@ export default async function TrackerPage({ searchParams }: { searchParams: Prom
   if (!rounds.length) {
     return (
       <>
+        <PageTop crumbs={[{ label: 'সংগ্রহ' }, { label: 'রেসপন্স ট্র্যাকার' }]} />
         <h1 className="sv-head" style={{ margin: 0, fontSize: 30 }}>
           রেসপন্স ট্র্যাকার
         </h1>
@@ -57,9 +60,10 @@ export default async function TrackerPage({ searchParams }: { searchParams: Prom
     );
   }
 
-  // Default: the open round, else the latest.
+  // Default: the teacher round chosen in the sidebar, else the open round, else the latest.
+  const sidebar = await chosenRoundId();
   const chosen =
-    rounds.find((r) => r.id === requested) ?? rounds.find((r) => roundStatus(r, now) === 'open') ?? rounds[0];
+    rounds.find((r) => r.id === requested) ?? rounds.find((r) => r.id === sidebar) ?? rounds.find((r) => roundStatus(r, now) === 'open') ?? rounds[0];
   const picker = rounds.map((r) => ({ id: r.id, label: `${KIND_LABEL[r.kind]} · ${r.label}` }));
   if (chosen.kind !== 'T1') return <GuardianTracker roundId={chosen.id} rounds={picker} place={place} now={now} />;
   const data = await loadTracker(chosen.id);
@@ -72,6 +76,7 @@ export default async function TrackerPage({ searchParams }: { searchParams: Prom
 
   return (
     <>
+      <PageTop crumbs={[{ label: 'সংগ্রহ' }, { label: 'রেসপন্স ট্র্যাকার' }]} />
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div className="flex flex-col gap-1">
           <h1 className="sv-head" style={{ margin: 0, fontSize: 30 }}>
@@ -82,7 +87,7 @@ export default async function TrackerPage({ searchParams }: { searchParams: Prom
           </div>
         </div>
         <div className="flex flex-wrap gap-2 items-center sv-no-print">
-          <RoundPicker rounds={picker} value={round.id} basePath="/admin/tracker" />
+          <RoundPicker rounds={picker} value={round.id} basePath="/admin/tracker" label="জরিপ ও রাউন্ড" />
           <a className="sv-sbtn" href={`/admin/reports/export?kind=tracker&round=${round.id}`}>
             Excel
           </a>

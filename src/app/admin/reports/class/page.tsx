@@ -3,13 +3,14 @@ import Link from 'next/link';
 import { allReportRounds, classGuardian, withGuardian } from '@/lib/survey/guardian-reports';
 import { toBengaliDigits as bn } from '@/lib/survey/normalise';
 import { formatLow, formatMark, GUARDIAN_AREAS } from '@/lib/survey/report-math';
+import { chosenRoundId } from '@/lib/survey/admin-shell';
 import { classReport, pickRound } from '@/lib/survey/reports';
 import { MIN_N } from '@/lib/survey/stats';
-import { RoundPicker } from '../../RoundPicker';
 import { AREA_GAP_MARKS, GapScatter, GUARDIAN, MarkAxis, PairBar, TEACHER } from '../charts';
 import { NoRounds } from '../NoRounds';
 import { ReportTools } from '../ReportTools';
 import { ClassTable } from './ClassTable';
+import { PageTop } from '../../AdminShell';
 
 export const metadata: Metadata = { title: 'ক্লাস রিপোর্ট' };
 export const dynamic = 'force-dynamic';
@@ -34,7 +35,7 @@ function Kpi({ label, value, unit, sub, muted }: { label: string; value: string;
 export default async function ClassReportPage({ searchParams }: { searchParams: Promise<Search> }) {
   const [search, all] = await Promise.all([searchParams, allReportRounds()]);
   const rounds = all.filter((r) => r.kind === 'T1');
-  const round = pickRound(rounds, search.round);
+  const round = pickRound(rounds, await chosenRoundId(search.round));
   if (!round) return <NoRounds />;
   const verifiedOnly = search.verified === '1';
   const place = { classKey: search.class ?? '', sectionKey: search.section ?? '' };
@@ -59,9 +60,7 @@ export default async function ClassReportPage({ searchParams }: { searchParams: 
 
   return (
     <>
-      <Link href={`/admin/reports?round=${round.id}`} className="sv-no-print" style={{ fontSize: 14, fontWeight: 600, alignSelf: 'flex-start' }}>
-        ← সব ক্লাস
-      </Link>
+      <PageTop crumbs={[{ label: 'ক্লাস ও শিক্ষার্থী', href: '/admin/reports' }, { label: report.label }]} actions={<ReportTools exportHref={`/admin/reports/export?${new URLSearchParams({ kind: 'class', round: round.id, ...params, ...(verifiedOnly ? { verified: '1' } : {}) })}`} />} />
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div className="flex flex-col gap-1">
           <h1 className="sv-head" style={{ margin: 0, fontSize: 30 }}>
@@ -74,23 +73,16 @@ export default async function ClassReportPage({ searchParams }: { searchParams: 
         </div>
         <div className="flex flex-wrap gap-2 items-center">
           <span className="sv-no-print flex flex-wrap gap-2 items-center">
-            <RoundPicker
-              rounds={[...rounds].reverse().map((r) => ({ id: r.id, label: r.label }))}
-              value={round.id}
-              basePath="/admin/reports/class"
-              params={{ ...params, ...(verifiedOnly ? { verified: '1' } : {}) }}
-            />
             {g2.round && (
               <Link href={toggle} className="sv-sbtn" style={{ height: 38, display: 'inline-flex', alignItems: 'center' }}>
                 {verifiedOnly ? 'সব অভিভাবক দেখান' : 'শুধু যাচাইকৃত'}
               </Link>
             )}
           </span>
-          <ReportTools exportHref={`/admin/reports/export?${new URLSearchParams({ kind: 'class', round: round.id, ...params, ...(verifiedOnly ? { verified: '1' } : {}) })}`} />
         </div>
       </div>
 
-      <div className="grid gap-3" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))' }}>
+      <div className="grid gap-3" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))' }}>
         <Kpi
           label="অভিভাবকের রিভিউ · শিক্ষার্থী"
           value={g2.round && g2.reliable ? formatMark(g2.mean, bn) : '—'}

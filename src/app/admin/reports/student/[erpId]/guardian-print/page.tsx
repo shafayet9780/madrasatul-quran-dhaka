@@ -5,9 +5,11 @@ import { strengthsAndWork } from '@/lib/survey/guardian-report-math';
 import { allReportRounds, studentGuardian } from '@/lib/survey/guardian-reports';
 import { toBengaliDigits as bn } from '@/lib/survey/normalise';
 import { formatMark } from '@/lib/survey/report-math';
+import { chosenRoundId } from '@/lib/survey/admin-shell';
 import { pickRound, studentReport } from '@/lib/survey/reports';
 import { NoRounds } from '../../../NoRounds';
 import { ReportTools } from '../../../ReportTools';
+import { PageTop } from '../../../../AdminShell';
 
 export const metadata: Metadata = { title: 'অভিভাবকের জন্য প্রতিবেদন' };
 export const dynamic = 'force-dynamic';
@@ -95,7 +97,7 @@ export default async function GuardianPrintPage({ params, searchParams }: { para
   const [{ erpId }, search, all] = await Promise.all([params, searchParams, allReportRounds()]);
   const round = pickRound(
     all.filter((r) => r.kind === 'T1'),
-    search.round
+    await chosenRoundId(search.round)
   );
   if (!round) return <NoRounds />;
   const report = await studentReport(round, erpId);
@@ -128,12 +130,7 @@ export default async function GuardianPrintPage({ params, searchParams }: { para
 
   return (
     <>
-      <div className="flex flex-wrap items-center justify-between gap-3 sv-no-print">
-        <Link href={`/admin/reports/student/${encodeURIComponent(erpId)}?round=${round.id}`} style={{ fontSize: 14, fontWeight: 600 }}>
-          ← {student.name}
-        </Link>
-        <ReportTools printLabel="প্রিন্ট / PDF" />
-      </div>
+      <PageTop crumbs={[{ label: 'ক্লাস ও শিক্ষার্থী', href: '/admin/reports' }, { label: student.name, href: `/admin/reports/student/${encodeURIComponent(erpId)}?round=${round.id}` }, { label: 'অভিভাবকের প্রিন্ট' }]} actions={<ReportTools printLabel="প্রিন্ট / PDF" />} />
       <article className="sv-print-sheet flex flex-col" style={{ gap: 18, color: ink }} aria-label="অভিভাবকের জন্য প্রতিবেদন">
         <header className="flex items-center justify-between" style={{ paddingBottom: 14, borderBottom: '2px solid var(--sv-bronze)' }}>
           <div className="flex items-center gap-3">

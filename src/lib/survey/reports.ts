@@ -27,7 +27,7 @@ export async function t1Rounds() {
 }
 
 /** The requested round, else the newest one that has opened. */
-export function pickRound(rounds: Round[], requested?: string, now = new Date()): Round | undefined {
+export function pickRound<R extends { id: string; opensAt: Date }>(rounds: R[], requested?: string, now = new Date()): R | undefined {
   return rounds.find((r) => r.id === requested) ?? [...rounds].reverse().find((r) => r.opensAt <= now) ?? rounds[rounds.length - 1];
 }
 

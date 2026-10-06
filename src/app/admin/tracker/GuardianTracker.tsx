@@ -8,6 +8,7 @@ import { surveyPath } from '@/lib/survey/rounds';
 import { loadGuardianTracker } from '@/lib/survey/tracker';
 import { RoundPicker } from '../RoundPicker';
 import { CopyReminder, PrintButton } from './TrackerControls';
+import { PageTop } from '../AdminShell';
 
 const DAY = 24 * 60 * 60 * 1000;
 const dayMonth = new Intl.DateTimeFormat('bn-BD', { timeZone: 'Asia/Dhaka', day: 'numeric', month: 'long' });
@@ -40,6 +41,7 @@ export async function GuardianTracker({ roundId, rounds, place, now }: { roundId
 
   return (
     <>
+      <PageTop crumbs={[{ label: 'সংগ্রহ' }, { label: 'রেসপন্স ট্র্যাকার' }]} />
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div className="flex flex-col gap-1">
           <h1 className="sv-head" style={{ margin: 0, fontSize: 30 }}>
@@ -50,7 +52,7 @@ export async function GuardianTracker({ roundId, rounds, place, now }: { roundId
           </div>
         </div>
         <div className="flex flex-wrap gap-2 items-center sv-no-print">
-          <RoundPicker rounds={rounds} value={round.id} basePath="/admin/tracker" />
+          <RoundPicker rounds={rounds} value={round.id} basePath="/admin/tracker" label="জরিপ ও রাউন্ড" />
           <a className="sv-sbtn" href={`/admin/reports/export?kind=guardian-tracker&round=${round.id}`}>
             Excel
           </a>

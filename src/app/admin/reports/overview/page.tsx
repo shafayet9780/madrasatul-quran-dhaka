@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { chosenRoundId } from '@/lib/survey/admin-shell';
 import Link from 'next/link';
 import { allReportRounds, overviewReport, pickKindRound } from '@/lib/survey/guardian-reports';
 import { formatDateTime } from '@/lib/survey/dates';
@@ -10,6 +11,7 @@ import { GUARDIAN, PairTrendChart, TEACHING } from '../charts';
 import { ReportFilters } from '../ReportFilters';
 import { ReportTools } from '../ReportTools';
 import { TeachingHeat } from '../TeachingHeat';
+import { PageTop } from '../../AdminShell';
 
 export const metadata: Metadata = { title: 'ওভারভিউ' };
 export const dynamic = 'force-dynamic';
@@ -21,10 +23,11 @@ const percent = (part: number, total: number) => (total ? `${bn(Math.round((part
 
 export default async function OverviewPage({ searchParams }: { searchParams: Promise<Search> }) {
   const [search, rounds] = await Promise.all([searchParams, allReportRounds()]);
-  const t1 = pickKindRound(rounds, 'T1', search.round);
+  const t1 = pickKindRound(rounds, 'T1', await chosenRoundId(search.round));
   if (!t1) {
     return (
       <>
+        <PageTop crumbs={[{ label: 'রিপোর্ট' }, { label: 'ওভারভিউ' }]} />
         <h1 className="sv-head" style={{ margin: 0, fontSize: 30 }}>
           ওভারভিউ
         </h1>
@@ -74,6 +77,7 @@ export default async function OverviewPage({ searchParams }: { searchParams: Pro
 
   return (
     <>
+      <PageTop crumbs={[{ label: 'রিপোর্ট' }, { label: 'ওভারভিউ' }]} actions={<ReportTools />} />
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div className="flex flex-col gap-1">
           <h1 className="sv-head" style={{ margin: 0, fontSize: 30 }}>
@@ -85,21 +89,19 @@ export default async function OverviewPage({ searchParams }: { searchParams: Pro
             {verifiedOnly ? ' · শুধু যাচাইকৃত' : ''}
           </div>
         </div>
-        <ReportTools />
       </div>
 
       <ReportFilters
         action="/admin/reports/overview"
         verifiedOnly={verifiedOnly}
         selects={[
-          { name: 'round', label: 'রাউন্ড', value: t1.id, options: [...rounds].reverse().filter((r) => r.kind === 'T1').map((r) => ({ value: r.id, label: r.label })) },
           { name: 'compare', label: 'তুলনা', value: compareId ?? 'none', options: [{ value: 'none', label: 'তুলনা নয়' }, ...[...earlier].reverse().map((r) => ({ value: r.id, label: r.label }))] },
           { name: 'g1', label: 'ক্লাস পরিচালনার রিভিউ', value: search.g1 ?? '', options: kindOptions('G1', report.g1?.label) },
           { name: 'g2', label: 'শিক্ষার্থীর উপর অভিভাবক রিভিউ', value: search.g2 ?? '', options: kindOptions('G2', report.g2?.label) },
         ]}
       />
 
-      <div className="grid gap-3" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))' }}>
+      <div className="grid gap-3" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))' }}>
         {tiles.map((t) => (
           <div key={t.label} className="sv-card flex flex-col gap-1" style={{ padding: '16px 18px' }}>
             <span style={{ fontSize: 13.5, color: 'var(--sv-text-muted)' }}>{t.label}</span>

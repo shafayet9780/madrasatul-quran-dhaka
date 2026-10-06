@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { chosenRoundId } from '@/lib/survey/admin-shell';
 import Link from 'next/link';
 import { formatDateTime } from '@/lib/survey/dates';
 import { allReportRounds, pickKindRound, questionResults } from '@/lib/survey/guardian-reports';
@@ -10,6 +11,7 @@ import { MIN_N } from '@/lib/survey/stats';
 import { DIST_COLORS, Distribution, GUARDIAN, MANY_LOW } from '../charts';
 import { ReportFilters } from '../ReportFilters';
 import { ReportTools } from '../ReportTools';
+import { PageTop } from '../../AdminShell';
 
 export const metadata: Metadata = { title: 'প্রশ্নভিত্তিক ফলাফল' };
 export const dynamic = 'force-dynamic';
@@ -80,10 +82,11 @@ function MarkTable({ caption, questions, unit }: { caption: string; questions: M
 
 export default async function QuestionsPage({ searchParams }: { searchParams: Promise<Search> }) {
   const [search, rounds] = await Promise.all([searchParams, allReportRounds()]);
-  const t1 = pickKindRound(rounds, 'T1', search.round);
+  const t1 = pickKindRound(rounds, 'T1', await chosenRoundId(search.round));
   if (!t1) {
     return (
       <>
+        <PageTop crumbs={[{ label: 'রিপোর্ট' }, { label: 'প্রশ্নভিত্তিক ফলাফল' }]} />
         <h1 className="sv-head" style={{ margin: 0, fontSize: 30 }}>
           প্রশ্নভিত্তিক ফলাফল
         </h1>
@@ -105,6 +108,16 @@ export default async function QuestionsPage({ searchParams }: { searchParams: Pr
 
   return (
     <>
+      <PageTop crumbs={[{ label: 'রিপোর্ট' }, { label: 'প্রশ্নভিত্তিক ফলাফল' }]} actions={<ReportTools
+          exportHref={`/admin/reports/export?${new URLSearchParams({
+            kind: 'questions',
+            round: t1.id,
+            ...(at ? { place: `${at.classKey}|${at.sectionKey}` } : {}),
+            ...(search.g1 ? { g1: search.g1 } : {}),
+            ...(search.g2 ? { g2: search.g2 } : {}),
+            ...(verifiedOnly ? { verified: '1' } : {}),
+          })}`}
+        />} />
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div className="flex flex-col gap-1">
           <h1 className="sv-head" style={{ margin: 0, fontSize: 30 }}>
@@ -115,23 +128,12 @@ export default async function QuestionsPage({ searchParams }: { searchParams: Pr
             {verifiedOnly ? ' · শুধু যাচাইকৃত অভিভাবক' : ''}
           </div>
         </div>
-        <ReportTools
-          exportHref={`/admin/reports/export?${new URLSearchParams({
-            kind: 'questions',
-            round: t1.id,
-            ...(at ? { place: `${at.classKey}|${at.sectionKey}` } : {}),
-            ...(search.g1 ? { g1: search.g1 } : {}),
-            ...(search.g2 ? { g2: search.g2 } : {}),
-            ...(verifiedOnly ? { verified: '1' } : {}),
-          })}`}
-        />
       </div>
 
       <ReportFilters
         action="/admin/reports/questions"
         verifiedOnly={verifiedOnly}
         selects={[
-          { name: 'round', label: 'রাউন্ড', value: t1.id, options: [...rounds].reverse().filter((r) => r.kind === 'T1').map((r) => ({ value: r.id, label: r.label })) },
           { name: 'place', label: 'শ্রেণি', value: at ? `${at.classKey}|${at.sectionKey}` : '', options: [{ value: '', label: 'পুরো মাদরাসা' }, ...places.map((p) => ({ value: `${p.classKey}|${p.sectionKey}`, label: p.label }))] },
           { name: 'g1', label: 'ক্লাস পরিচালনার রিভিউ', value: search.g1 ?? '', options: kindOptions('G1', report.g1?.label) },
           { name: 'g2', label: 'শিক্ষার্থীর উপর অভিভাবক রিভিউ', value: search.g2 ?? '', options: kindOptions('G2', report.g2?.label) },

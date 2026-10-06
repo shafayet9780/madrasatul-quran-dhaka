@@ -1,13 +1,14 @@
 import type { Metadata } from 'next';
+import { chosenRoundId } from '@/lib/survey/admin-shell';
 import { MARK_FLOOR } from '@/lib/survey/scoring';
 import { toBengaliDigits as bn } from '@/lib/survey/normalise';
 import { formatMark } from '@/lib/survey/report-math';
 import { pickRound, raterReport, t1Rounds } from '@/lib/survey/reports';
 import { MIN_N } from '@/lib/survey/stats';
-import { RoundPicker } from '../../RoundPicker';
 import { DIST_COLORS, Distribution, LeniencyDot } from '../charts';
 import { NoRounds } from '../NoRounds';
 import { ReportTools } from '../ReportTools';
+import { PageTop } from '../../AdminShell';
 
 export const metadata: Metadata = { title: 'শিক্ষকদের রেটিং প্যাটার্ন' };
 export const dynamic = 'force-dynamic';
@@ -34,24 +35,19 @@ function verdict(r: { leniency: { delta: number; pairedStudents: number } | null
 
 export default async function RatersPage({ searchParams }: { searchParams: Promise<{ round?: string }> }) {
   const [search, rounds] = await Promise.all([searchParams, t1Rounds()]);
-  const round = pickRound(rounds, search.round);
+  const round = pickRound(rounds, await chosenRoundId(search.round));
   if (!round) return <NoRounds />;
   const rows = await raterReport(round);
 
   return (
     <>
+      <PageTop crumbs={[{ label: 'রিপোর্ট' }, { label: 'শিক্ষকদের রেটিং প্যাটার্ন' }]} actions={<ReportTools exportHref={`/admin/reports/export?${new URLSearchParams({ kind: 'raters', round: round.id })}`} />} />
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div className="flex flex-col gap-1">
           <h1 className="sv-head" style={{ margin: 0, fontSize: 30 }}>
             শিক্ষকদের রেটিং প্যাটার্ন
           </h1>
           <div style={{ fontSize: 14, color: 'var(--sv-text-muted)' }}>শিক্ষকের রিভিউ · {round.label} · কে কেমন মার্ক দেন, যাতে তুলনা ন্যায্য হয়</div>
-        </div>
-        <div className="flex flex-wrap gap-2 items-center">
-          <span className="sv-no-print">
-            <RoundPicker rounds={[...rounds].reverse().map((r) => ({ id: r.id, label: r.label }))} value={round.id} basePath="/admin/reports/raters" />
-          </span>
-          <ReportTools exportHref={`/admin/reports/export?${new URLSearchParams({ kind: 'raters', round: round.id })}`} />
         </div>
       </div>
 

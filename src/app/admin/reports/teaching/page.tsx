@@ -1,4 +1,6 @@
 import type { Metadata } from 'next';
+import { chosenRoundId } from '@/lib/survey/admin-shell';
+import { pairedRound } from '@/lib/survey/guardian-report-math';
 import { allReportRounds, pickKindRound, previousRound, teachingCell, teachingQuality } from '@/lib/survey/guardian-reports';
 import { formatDateTime } from '@/lib/survey/dates';
 import { toBengaliDigits as bn } from '@/lib/survey/normalise';
@@ -8,6 +10,7 @@ import { DIST_COLORS, Distribution, TEACHING } from '../charts';
 import { ReportFilters } from '../ReportFilters';
 import { ReportTools } from '../ReportTools';
 import { TeachingHeat } from '../TeachingHeat';
+import { PageTop } from '../../AdminShell';
 
 export const metadata: Metadata = { title: 'শিক্ষার মান' };
 export const dynamic = 'force-dynamic';
@@ -18,10 +21,13 @@ const signed = (d: number | null) => (d === null || d === 0 ? '' : `${d > 0 ? '�
 
 export default async function TeachingPage({ searchParams }: { searchParams: Promise<Search> }) {
   const [search, rounds] = await Promise.all([searchParams, allReportRounds()]);
-  const g1 = pickKindRound(rounds, 'G1', search.round);
+  // The class-management round: the one picked here, else the one paired with the sidebar's teacher round.
+  const t1 = pickKindRound(rounds, 'T1', await chosenRoundId());
+  const g1 = pickKindRound(rounds, 'G1', search.round ?? (t1 ? pairedRound(t1, rounds, 'G1')?.id : undefined));
   if (!g1) {
     return (
       <>
+        <PageTop crumbs={[{ label: 'রিপোর্ট' }, { label: 'শিক্ষার মান' }]} />
         <h1 className="sv-head" style={{ margin: 0, fontSize: 30 }}>
           শিক্ষার মান
         </h1>
@@ -46,6 +52,7 @@ export default async function TeachingPage({ searchParams }: { searchParams: Pro
 
   return (
     <>
+      <PageTop crumbs={[{ label: 'রিপোর্ট' }, { label: 'শিক্ষার মান' }]} actions={<ReportTools exportHref={`/admin/reports/export?${new URLSearchParams({ kind: 'teaching', round: g1.id, compare: compare?.id ?? 'none', ...(areaKey ? { area: areaKey } : {}), ...(verifiedOnly ? { verified: '1' } : {}) })}`} />} />
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div className="flex flex-col gap-1">
           <h1 className="sv-head" style={{ margin: 0, fontSize: 30 }}>
@@ -55,14 +62,13 @@ export default async function TeachingPage({ searchParams }: { searchParams: Pro
             {g1.snapshot.template.title} · {g1.label} · {bn(report.respondents)} জন শিক্ষার্থীর অভিভাবক{verifiedOnly ? ' · শুধু যাচাইকৃত' : ''}
           </div>
         </div>
-        <ReportTools exportHref={`/admin/reports/export?${new URLSearchParams({ kind: 'teaching', round: g1.id, compare: compare?.id ?? 'none', ...(areaKey ? { area: areaKey } : {}), ...(verifiedOnly ? { verified: '1' } : {}) })}`} />
       </div>
 
       <ReportFilters
         action="/admin/reports/teaching"
         verifiedOnly={verifiedOnly}
         selects={[
-          { name: 'round', label: 'রাউন্ড', value: g1.id, options: [...rounds].reverse().filter((r) => r.kind === 'G1').map((r) => ({ value: r.id, label: r.label })) },
+          { name: 'round', label: 'ক্লাস পরিচালনার রিভিউ', value: g1.id, options: [...rounds].reverse().filter((r) => r.kind === 'G1').map((r) => ({ value: r.id, label: r.label })) },
           { name: 'compare', label: 'তুলনা', value: compare?.id ?? 'none', options: [{ value: 'none', label: 'তুলনা নয়' }, ...[...earlier].reverse().map((r) => ({ value: r.id, label: r.label }))] },
           { name: 'area', label: 'ক্ষেত্র', value: areaKey ?? '', options: [{ value: '', label: 'সব ক্ষেত্র' }, ...g1.snapshot.areas.filter((a) => a.group === 'teaching').map((a) => ({ value: a.key, label: a.name }))] },
         ]}

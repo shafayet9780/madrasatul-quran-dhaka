@@ -6,11 +6,12 @@ import { gapFlag, sharedAreaGap } from '@/lib/survey/guardian-report-math';
 import { allReportRounds, studentGuardian } from '@/lib/survey/guardian-reports';
 import { toBengaliDigits as bn } from '@/lib/survey/normalise';
 import { formatMark, GUARDIAN_AREAS } from '@/lib/survey/report-math';
+import { chosenRoundId } from '@/lib/survey/admin-shell';
 import { pickRound, studentReport } from '@/lib/survey/reports';
-import { RoundPicker } from '../../../RoundPicker';
 import { GUARDIAN, MarkAxis, markCell, PairBar, PairTrendChart, TEACHER, TrendChart } from '../../charts';
 import { NoRounds } from '../../NoRounds';
 import { ReportTools } from '../../ReportTools';
+import { PageTop } from '../../../AdminShell';
 
 export const metadata: Metadata = { title: 'শিক্ষার্থী প্রোফাইল' };
 export const dynamic = 'force-dynamic';
@@ -37,7 +38,7 @@ export default async function StudentProfilePage({ params, searchParams }: { par
   const rounds = all.filter((r) => r.kind === 'T1');
   // Next has already decoded the segment.
   const erpId = rawId;
-  const round = pickRound(rounds, search.round);
+  const round = pickRound(rounds, await chosenRoundId(search.round));
   if (!round) return <NoRounds />;
   const report = await studentReport(round, erpId);
   if (!report) {
@@ -77,10 +78,7 @@ export default async function StudentProfilePage({ params, searchParams }: { par
 
   return (
     <>
-      <Link href={classHref} className="sv-no-print" style={{ fontSize: 14, fontWeight: 600, alignSelf: 'flex-start' }}>
-        ← {student.label}
-      </Link>
-
+      <PageTop crumbs={[{ label: 'ক্লাস ও শিক্ষার্থী', href: '/admin/reports' }, { label: student.label, href: classHref }, { label: student.name }]} actions={<ReportTools exportHref={`/admin/reports/export?${new URLSearchParams({ kind: 'student', round: round.id, student: erpId })}`} printLabel="অভ্যন্তরীণ প্রিন্ট (নোটসহ)" />} />
       <section className="sv-card flex flex-wrap gap-5 items-center justify-between">
         <div className="flex gap-4 items-center">
           <div
@@ -106,9 +104,6 @@ export default async function StudentProfilePage({ params, searchParams }: { par
           </div>
         </div>
         <div className="flex flex-wrap gap-2 items-center">
-          <span className="sv-no-print">
-            <RoundPicker rounds={[...rounds].reverse().map((r) => ({ id: r.id, label: r.label }))} value={round.id} basePath={`/admin/reports/student/${encodeURIComponent(erpId)}`} />
-          </span>
           {guardian.g2 && (
             <Link
               href={`/admin/reports/student/${encodeURIComponent(erpId)}/guardian-print?round=${round.id}`}
@@ -118,11 +113,10 @@ export default async function StudentProfilePage({ params, searchParams }: { par
               অভিভাবকের জন্য প্রিন্ট
             </Link>
           )}
-          <ReportTools exportHref={`/admin/reports/export?${new URLSearchParams({ kind: 'student', round: round.id, student: erpId })}`} printLabel="অভ্যন্তরীণ প্রিন্ট (নোটসহ)" />
         </div>
       </section>
 
-      <div className="grid gap-3" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))' }}>
+      <div className="grid gap-3" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))' }}>
         <div className="sv-card sv-kpi">
           <div style={{ fontSize: 13, color: 'var(--sv-text-muted)', fontWeight: 600 }}>অভিভাবকের রিভিউ</div>
           <div className="flex items-baseline gap-1">
