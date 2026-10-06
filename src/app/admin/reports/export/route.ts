@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { assertAdmin } from '@/lib/survey/admin-auth';
-import { classWorkbook, guardianTrackerWorkbook, ratersWorkbook, studentWorkbook, teachingWorkbook, trackerWorkbook } from '@/lib/survey/report-excel';
+import { classWorkbook, guardianTrackerWorkbook, questionsWorkbook, ratersWorkbook, studentWorkbook, teachingWorkbook, trackerWorkbook } from '@/lib/survey/report-excel';
 import { pickRound, t1Rounds } from '@/lib/survey/reports';
 
 // Excel downloads for the report tables (admin only: under /admin and checked here).
@@ -14,6 +14,10 @@ export async function GET(request: NextRequest) {
   if (q.get('kind') === 'teaching') {
     const teaching = await teachingWorkbook(q.get('round') ?? '', q.get('compare'), q.get('area') || undefined, q.get('verified') === '1');
     return teaching ? download(teaching) : new NextResponse('Not found', { status: 404 });
+  }
+  if (q.get('kind') === 'questions') {
+    const questions = await questionsWorkbook(q.get('round') ?? '', q.get('place') ?? '', { g1: q.get('g1') || undefined, g2: q.get('g2') || undefined }, q.get('verified') === '1');
+    return questions ? download(questions) : new NextResponse('Not found', { status: 404 });
   }
   if (q.get('kind') === 'guardian-tracker') {
     const guardian = await guardianTrackerWorkbook(q.get('round') ?? '');

@@ -10,6 +10,7 @@ const SECTIONS: { heading: string; links: { label: string; href: string }[] }[] 
     links: [
       { label: 'ওভারভিউ', href: '/admin/reports/overview' },
       { label: 'শিক্ষার মান (G1)', href: '/admin/reports/teaching' },
+      { label: 'প্রশ্নভিত্তিক ফলাফল', href: '/admin/reports/questions' },
       { label: 'ক্লাস ও শিক্ষার্থী', href: '/admin/reports' },
       { label: 'শিক্ষকদের রেটিং প্যাটার্ন', href: '/admin/reports/raters' },
       { label: 'রেসপন্স ট্র্যাকার', href: '/admin/tracker' },

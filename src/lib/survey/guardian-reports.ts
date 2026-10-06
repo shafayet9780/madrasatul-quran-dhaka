@@ -1,16 +1,16 @@
 import 'server-only';
 import { and, asc, eq, inArray, isNotNull, isNull, ne } from 'drizzle-orm';
 import { getDb } from './db';
-import { cellStats, childAreaMeans, childWeightedMean, cohortDelta, gapFlag, perStudentMeans, questionDistributions, resolveRounds, roundHistory, sharedAreaGap, type GuardianItem } from './guardian-report-math';
+import { cellStats, childAreaMeans, childWeightedMean, cohortDelta, gapFlag, optionCounts, perStudentMeans, questionDistributions, resolveRounds, roundHistory, sharedAreaGap, type GuardianItem } from './guardian-report-math';
 
 export { pickKindRound, previousRound, resolveRounds } from './guardian-report-math';
 import { questionLabel } from './labels';
 import { titleCase, toBengaliDigits as bn } from './normalise';
-import { areaMeans, childRows, dropSince, studentAggregates, studentAreaMeans, studentFlags } from './report-math';
+import { areaMeans, childRows, dropSince, GUARDIAN_AREAS, studentAggregates, studentAreaMeans, studentFlags } from './report-math';
 import { summarise } from './stats';
 import { t1Marks } from './reports';
 import { answerItems, responses, students, submissions, surveyRounds } from './schema';
-import { classSections, type RoundSnapshot } from './snapshot';
+import { classLabel, classSections, type RoundSnapshot } from './snapshot';
 
 // Guardian reports (spec §7): R1 overview, R2 teaching quality from G1, and the guardian parts of
 // R3 class and R4 student (a teacher round with the guardian rounds paired to it by date). Aggregates read answer_items of current forms only.
@@ -55,8 +55,8 @@ export async function guardianItems(roundIds: (string | undefined)[], { verified
   return rows.map((r) => ({ ...r, mark: r.mark === null ? null : Number(r.mark) }));
 }
 
-/** Comments of the current forms of a guardian round in one class-section, oldest first. */
-export async function guardianComments(roundId: string, at: Place, { verifiedOnly }: ReportOptions) {
+/** Comments of the current forms of a guardian round, in one class-section or the whole school (null), oldest first. */
+export async function guardianComments(roundId: string, at: Place | null, { verifiedOnly }: ReportOptions) {
   const rows = await getDb()
     .select({
       who: submissions.submitterName,
@@ -66,6 +66,8 @@ export async function guardianComments(roundId: string, at: Place, { verifiedOnl
       text: submissions.comment,
       child: responses.studentName,
       erpId: responses.studentErpId,
+      classKey: responses.classKey,
+      sectionKey: responses.sectionKey,
     })
     .from(submissions)
     .innerJoin(responses, eq(responses.submissionId, submissions.id))
@@ -75,8 +77,8 @@ export async function guardianComments(roundId: string, at: Place, { verifiedOnl
         eq(submissions.status, 'submitted'),
         isNull(submissions.supersededBy),
         isNotNull(submissions.comment),
-        eq(responses.classKey, at.classKey),
-        eq(responses.sectionKey, at.sectionKey),
+        at ? eq(responses.classKey, at.classKey) : undefined,
+        at ? eq(responses.sectionKey, at.sectionKey) : undefined,
         verifiedOnly ? eq(submissions.verified, true) : undefined
       )
     )
@@ -340,4 +342,59 @@ export function withGuardian<R extends { erpId: string; mean: number | null; fla
       flags: flag ? [...r.flags, flag] : r.flags,
     };
   });
+}
+
+/**
+ * School-wide (or one class-section) results per question for a teacher round and its guardian
+ * rounds: T1 and G1 average, low share and n, weakest first (most low answers); G2 answer counts;
+ * all guardian comments, newest first.
+ */
+export async function questionResults(t1: Round, rounds: Round[], picked: { g1?: string; g2?: string }, at: Place | null, options: ReportOptions) {
+  const { g1, g2 } = resolveRounds(t1, rounds, picked);
+  const where = at ?? {};
+  const [teacher, guardian, g1Comments, g2Comments] = await Promise.all([
+    t1Marks([t1.id], where),
+    guardianItems([g1?.id, g2?.id], options, where),
+    g1 ? guardianComments(g1.id, at, options) : Promise.resolve([]),
+    g2 ? guardianComments(g2.id, at, options) : Promise.resolve([]),
+  ]);
+  const weakestFirst = (a: { lowShare: number | null; mean: number | null }, b: { lowShare: number | null; mean: number | null }) =>
+    (b.lowShare ?? -1) - (a.lowShare ?? -1) || (a.mean ?? 99) - (b.mean ?? 99);
+  const perQuestion = <T extends { questionKey: string; studentErpId: string; mark: number | null }>(round: Round | undefined, list: T[]) =>
+    (round?.snapshot.template.questions ?? [])
+      .map((q) => {
+        const here = list.filter((i) => i.questionKey === q.key);
+        return {
+          key: q.key,
+          label: questionLabel(q),
+          text: q.text,
+          area: round!.snapshot.areas.find((a) => a.key === q.areaKey)?.name ?? '',
+          aboutGuardian: GUARDIAN_AREAS.has(q.areaKey),
+          ...summarise(here.map((i) => i.mark)),
+          children: new Set(here.filter((i) => i.mark !== null).map((i) => i.studentErpId)).size,
+        };
+      })
+      .sort(weakestFirst);
+  const g2Items = guardian.filter((i) => i.roundId === g2?.id);
+  const place = (c: { classKey: string; sectionKey: string }, round: Round) => classLabel(round.snapshot, c.classKey, c.sectionKey);
+  return {
+    g1,
+    g2,
+    teacher: perQuestion(t1, teacher),
+    teaching: perQuestion(g1, guardian.filter((i) => i.roundId === g1?.id)),
+    child: (g2?.snapshot.template.questions ?? []).map((q) => {
+      const here = g2Items.filter((i) => i.questionKey === q.key);
+      return {
+        key: q.key,
+        label: questionLabel(q),
+        unscored: q.unscored,
+        ...summarise(here.map((i) => i.mark)),
+        answered: new Set(here.map((i) => i.studentErpId)).size,
+        options: optionCounts(here, [q]),
+      };
+    }),
+    comments: [...g1Comments.map((c) => ({ ...c, kind: 'G1' as const, place: place(c, g1!) })), ...g2Comments.map((c) => ({ ...c, kind: 'G2' as const, place: place(c, g2!) }))].sort(
+      (a, b) => (b.submittedAt?.getTime() ?? 0) - (a.submittedAt?.getTime() ?? 0)
+    ),
+  };
 }

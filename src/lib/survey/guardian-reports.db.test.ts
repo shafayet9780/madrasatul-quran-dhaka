@@ -3,7 +3,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { and, eq, isNotNull, like } from 'drizzle-orm';
 import { getDb } from './db';
 import { submitGuardian } from './guardian';
-import { classGuardian, guardianComments, guardianItems, studentGuardian, teachingCell, teachingQuality } from './guardian-reports';
+import { classGuardian, guardianComments, guardianItems, questionResults, studentGuardian, teachingCell, teachingQuality } from './guardian-reports';
 import { students, submissions, surveyRounds } from './schema';
 import { g1FixtureSnapshot, g2FixtureSnapshot } from './testing/guardian-fixture';
 import { t1FixtureSnapshot } from './testing/t1-fixture';
@@ -114,6 +114,22 @@ describe('guardian parts of the class and student reports', () => {
     expect(Object.fromEntries(report.status)).toEqual({ [`${run}-1`]: 'verified', [`${run}-2`]: 'unverified' });
     const verified = await classGuardian(t1(), [g1, g2, t1()], place, { verifiedOnly: true });
     expect([...verified.means.keys()]).toEqual([`${run}-1`]);
+  });
+
+  it('lists results per question: answer counts (study at home unmarked) and every comment', async () => {
+    const report = await questionResults(t1(), [g1, g2, t1()], {}, place, { verifiedOnly: false });
+    const study = report.child.find((q) => q.key === 'study-at-home')!;
+    expect(study.unscored).toBe(true);
+    expect(study.n).toBe(0);
+    expect(study.options.filter((o) => o.count).map((o) => [o.answer, o.count, o.mark])).toEqual([
+      ['৪ ঘন্টা +', 1, null],
+      ['প্রযোজ্য নয় (ডে কেয়ার)', 1, null],
+    ]);
+    expect(report.comments.map((c) => [c.kind, c.text])).toContainEqual(['G2', 'শান্ত থাকে']);
+    expect(report.comments.filter((c) => c.kind === 'G1').map((c) => c.text).sort()).toEqual(['নতুন মন্তব্য', 'ভালো']);
+    // Weakest first: most low answers on top.
+    const lows = report.teaching.map((q) => q.lowShare ?? -1);
+    expect([...lows].sort((x, y) => y - x)).toEqual(lows);
   });
 
   it('shows one child\'s answers, N/A label and every form', async () => {

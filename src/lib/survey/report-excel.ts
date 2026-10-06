@@ -3,7 +3,8 @@ import ExcelJS from 'exceljs';
 import { formatSheetTime } from './dates';
 import { classReport, raterReport, studentReport } from './reports';
 import { optionCounts } from './guardian-report-math';
-import { allReportRounds, classGuardian, guardianItems, previousRound, studentGuardian, teachingQuality, withGuardian } from './guardian-reports';
+import { allReportRounds, classGuardian, guardianItems, previousRound, questionResults, studentGuardian, teachingQuality, withGuardian } from './guardian-reports';
+import { classSections } from './snapshot';
 import { displayMobile } from './labels';
 import { loadGuardianTracker, loadTracker } from './tracker';
 import type { surveyRounds } from './schema';
@@ -287,5 +288,57 @@ export async function teachingWorkbook(roundId: string, compareId: string | null
       rows,
     },
     { name: 'ক্ষেত্র', columns: [{ header: 'ক্ষেত্র', key: 'name', width: 26 }, { header: 'গড় মার্ক', key: 'mean', width: 10 }], rows: report.areas.map((a) => ({ name: a.name, mean: round1(a.mean) })) },
+  ]);
+}
+
+/** "প্রশ্নভিত্তিক ফলাফল" as a workbook: one sheet per survey plus the comments. */
+export async function questionsWorkbook(roundId: string, placeKey: string, picked: { g1?: string; g2?: string }, verifiedOnly: boolean): Promise<Book | null> {
+  const rounds = await allReportRounds();
+  const t1 = rounds.find((r) => r.id === roundId && r.kind === 'T1');
+  if (!t1) return null;
+  const at = classSections(t1.snapshot).find((p) => `${p.classKey}|${p.sectionKey}` === placeKey) ?? null;
+  const report = await questionResults(t1, rounds, picked, at, { verifiedOnly });
+  const pct = (share: number | null) => (share === null ? null : Math.round(share * 100));
+  const markColumns = [
+    { header: 'প্রশ্ন', key: 'label', width: 40 },
+    { header: 'ক্ষেত্র', key: 'area', width: 24 },
+    { header: 'গড় (/১০)', key: 'mean', width: 10 },
+    { header: '৭ বা কম (%)', key: 'low', width: 12 },
+    { header: 'শিক্ষার্থী', key: 'children', width: 10 },
+    { header: 'উত্তর', key: 'n', width: 8 },
+  ];
+  const markRows = (list: typeof report.teacher) => list.map((q) => ({ ...q, mean: round1(q.mean), low: pct(q.lowShare) }));
+  return book(`প্রশ্নভিত্তিক ফলাফল - ${at ? at.label : 'পুরো মাদরাসা'} - ${t1.label}.xlsx`, [
+    { name: 'ক্লাস পরিচালনা', columns: markColumns, rows: markRows(report.teaching) },
+    {
+      name: 'শিক্ষার্থী (অভিভাবক)',
+      columns: [
+        { header: 'প্রশ্ন', key: 'question', width: 44 },
+        { header: 'উত্তর', key: 'answer', width: 28 },
+        { header: 'মার্ক', key: 'mark', width: 8 },
+        { header: 'শিক্ষার্থী', key: 'count', width: 10 },
+      ],
+      rows: report.child.flatMap((q) => q.options),
+    },
+    { name: 'শিক্ষার্থী (শিক্ষক)', columns: markColumns, rows: markRows(report.teacher) },
+    {
+      name: 'মন্তব্য',
+      columns: [
+        { header: 'রিভিউ', key: 'kind', width: 16 },
+        { header: 'শ্রেণি', key: 'place', width: 14 },
+        { header: 'শিক্ষার্থী', key: 'child', width: 24 },
+        { header: 'অভিভাবক', key: 'who', width: 24 },
+        { header: 'যাচাই', key: 'verified', width: 12 },
+        { header: 'সময়', key: 'when', width: 18 },
+        { header: 'মন্তব্য', key: 'text', width: 80 },
+      ],
+      rows: report.comments.map((c) => ({
+        ...c,
+        kind: c.kind === 'G1' ? 'ক্লাস পরিচালনা' : 'শিক্ষার্থী',
+        who: `${c.who}${c.relation ? ` (${c.relation})` : ''}`,
+        verified: c.verified ? 'যাচাইকৃত' : 'অযাচাইকৃত',
+        when: c.submittedAt ? formatSheetTime(c.submittedAt) : '',
+      })),
+    },
   ]);
 }

@@ -115,6 +115,19 @@ test('report pages handle unknown students, classes and bad parameters', async (
   expect(response.status()).toBe(404);
 });
 
+test('question results show every question, answer counts and comments', async ({ page }) => {
+  await page.goto('/admin/reports');
+  await page.getByRole('link', { name: 'প্রশ্নভিত্তিক ফলাফল' }).click();
+  await expect(page.getByRole('heading', { name: 'প্রশ্নভিত্তিক ফলাফল', level: 1 })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'শিক্ষার্থী · শিক্ষকদের মার্ক' })).toBeVisible();
+  await expect(page.getByText('গণিতের হোমওয়ার্ক একটু কমালে ভালো হয়।')).toBeVisible();
+  await expect(page.getByText('মার্ক নেই').first()).toBeVisible();
+  await expectAccessible(page);
+  const download = page.waitForEvent('download');
+  await page.getByRole('link', { name: 'Excel' }).click();
+  expect((await download).suggestedFilename()).toContain('প্রশ্নভিত্তিক ফলাফল');
+});
+
 test('rater patterns compare teachers', async ({ page }) => {
   await page.goto('/admin/reports/raters');
   await expect(page.getByRole('heading', { name: 'শিক্ষকদের রেটিং প্যাটার্ন', level: 1 })).toBeVisible();
