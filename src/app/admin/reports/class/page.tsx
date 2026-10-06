@@ -122,7 +122,7 @@ export default async function ClassReportPage({ searchParams }: { searchParams: 
         <Kpi label="মনোযোগ প্রয়োজন" value={bn(rows.filter((r) => r.flags.length).length)} unit="জন" sub="নিচের তালিকায় চিহ্নিত" />
       </div>
 
-      <div className="flex flex-wrap gap-4 items-stretch">
+      <div className="sv-split is-even">
         <details className="sv-card flex flex-col gap-2.5 min-w-0 sv-no-print" style={{ flex: '1 1 460px', alignSelf: 'flex-start' }}>
           <summary style={{ cursor: 'pointer' }}>
             <h2 className="sv-head sv-h2" style={{ display: 'inline' }}>

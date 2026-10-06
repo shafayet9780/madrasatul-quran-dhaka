@@ -863,3 +863,30 @@
     font-weight: 600;
   }
 }
+
+/* Report rows of two cards: a flexible main column and a fixed side column (or two equal halves),
+   the same on every row so cards line up; one column on narrower screens. */
+.sv-admin .sv-split {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+@media (min-width: 1100px) {
+  .sv-admin .sv-split {
+    grid-template-columns: minmax(0, 1fr) 360px;
+  }
+  .sv-admin .sv-split.is-even {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+.sv-admin .sv-split > * {
+  min-width: 0;
+}
+
+/* The site's html/body overflow-x: hidden makes body a scroll container, which stops the sidebar
+   and top bar from sticking; clip keeps horizontal scroll away without that. Admin pages only. */
+html:has(.sv-admin),
+html:has(.sv-admin) body {
+  overflow-x: clip;
+}

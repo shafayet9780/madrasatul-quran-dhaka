@@ -172,8 +172,8 @@ export default async function StudentProfilePage({ params, searchParams }: { par
         </div>
       </div>
 
-      <div className="flex flex-wrap gap-4 items-stretch">
-        <section className="sv-card flex flex-col gap-3 min-w-0" style={{ flex: '999 1 520px' }} aria-labelledby="areas-title">
+      <div className="sv-split">
+        <section className="sv-card flex flex-col gap-3 min-w-0" aria-labelledby="areas-title">
           <h2 id="areas-title" className="sv-head sv-h2">
             ক্ষেত্রভিত্তিক তুলনা
           </h2>
@@ -309,8 +309,8 @@ export default async function StudentProfilePage({ params, searchParams }: { par
         </div>
       </section>
 
-      <div className="flex flex-wrap gap-4 items-start">
-        <section className="sv-card flex flex-col gap-2 min-w-0" style={{ flex: '1 1 420px' }} aria-labelledby="answers-title">
+      <div className="sv-split is-even">
+        <section className="sv-card flex flex-col gap-2 min-w-0" aria-labelledby="answers-title">
           <h2 id="answers-title" className="sv-head sv-h2">
             অভিভাবকের উত্তর{guardian.g2 ? ` · ${guardian.g2.label}` : ''}
           </h2>

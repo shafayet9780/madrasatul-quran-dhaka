@@ -75,8 +75,8 @@ export default async function TeachingPage({ searchParams }: { searchParams: Pro
         ]}
       />
 
-      <div className="flex flex-wrap gap-4 items-start">
-        <section className="sv-card flex flex-col gap-3" style={{ flex: '999 1 620px', minWidth: 0 }} aria-labelledby="heat-title">
+      <div className="sv-split">
+        <section className="sv-card flex flex-col gap-3" style={{ minWidth: 0 }} aria-labelledby="heat-title">
           <div className="flex flex-col gap-0.5">
             <h2 id="heat-title" className="sv-head sv-h2">
               শ্রেণি × বিষয় · গড় মার্ক

@@ -121,7 +121,7 @@ export default async function OverviewPage({ searchParams }: { searchParams: Pro
         ))}
       </div>
 
-      <div className="flex flex-wrap gap-4 items-start">
+      <div className="sv-split">
         <section className="sv-card flex flex-col gap-3" style={{ flex: '999 1 600px', minWidth: 0 }} aria-labelledby="ov-heat">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
             <h2 id="ov-heat" className="sv-head sv-h2">
@@ -188,7 +188,7 @@ export default async function OverviewPage({ searchParams }: { searchParams: Pro
         </section>
       </div>
 
-      <div className="flex flex-wrap gap-4 items-start">
+      <div className="sv-split">
         <section className="sv-card flex flex-col gap-2" style={{ flex: '999 1 520px', minWidth: 0 }} aria-labelledby="ov-trend">
           <h2 id="ov-trend" className="sv-head sv-h2">
             অভিভাবক বনাম শিক্ষক · রাউন্ডভিত্তিক গড়
