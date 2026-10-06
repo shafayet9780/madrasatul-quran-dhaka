@@ -74,4 +74,14 @@ describe('guardian submit route', () => {
     expect((await call(body)).status).toBe(429);
     expect(submitGuardian).not.toHaveBeenCalled();
   });
+
+  it('counts a padded student ID as the same child', async () => {
+    selectRound.mockResolvedValue([round()]);
+    submitGuardian.mockResolvedValue({ ok: true, receiptToken: 'tok' });
+    await call(body);
+    await call({ ...body, studentErpId: ' 10014\t' });
+    const keys = allow.mock.calls.map(([key]) => key).filter((key: string) => key.startsWith('survey:guardianValue:'));
+    expect(new Set(keys).size).toBe(1);
+    expect(submitGuardian.mock.calls[1][1].studentErpId).toBe('10014');
+  });
 });

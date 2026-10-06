@@ -38,7 +38,8 @@ export const guardianSubmitSchema = z.object({
   submissionId: z.uuid(),
   classKey: key,
   sectionKey,
-  studentErpId: z.string().min(1).max(40),
+  // Trimmed once here, so the per-child limit and the roster match see the same ID.
+  studentErpId: z.string().trim().min(1).max(40),
   submitter: z.object({
     name: z.string().max(80),
     relation: z.enum(['father', 'mother', 'other']),
