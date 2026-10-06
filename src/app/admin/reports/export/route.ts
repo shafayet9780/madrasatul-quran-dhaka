@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
   const kind = q.get('kind');
   const file =
     kind === 'class'
-      ? await classWorkbook(round, q.get('class') ?? '', q.get('section') ?? '')
+      ? await classWorkbook(round, q.get('class') ?? '', q.get('section') ?? '', q.get('verified') === '1')
       : kind === 'student'
         ? await studentWorkbook(round, q.get('student') ?? '')
         : kind === 'raters'

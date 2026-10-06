@@ -13,23 +13,36 @@ type Row = {
   teachers: number;
   trend: { label: string; mean: number }[];
   flags: { kind: string; label: string }[];
+  guardian: number | null;
+  gap: number | null;
+  form: 'verified' | 'unverified' | 'none';
 };
 
-type SortKey = 'roll' | 'name' | 'mean' | 'teachers' | 'flags';
+type SortKey = 'roll' | 'name' | 'mean' | 'teachers' | 'flags' | 'guardian' | 'gap';
 
-/** Student list from teacher marks (R3), sortable by column. */
-export function ClassTable({ rows, roundId, showTrend }: { rows: Row[]; roundId: string; showTrend: boolean }) {
+const FORM = {
+  verified: { label: 'যাচাইকৃত', bg: 'var(--sv-ok-bg)', fg: 'var(--sv-ok)' },
+  unverified: { label: 'অযাচাইকৃত', bg: 'var(--sv-warn-bg)', fg: 'var(--sv-warn)' },
+  none: { label: 'সাড়া নেই', bg: 'var(--sv-neutral-bg)', fg: 'var(--sv-text-body)' },
+} as const;
+
+const signed = (d: number) => `${d > 0 ? '+' : d < 0 ? '−' : ''}${bn(Math.abs(d).toFixed(1))}`;
+
+/** Student list (R3): teacher marks, and with a G2 round the guardian's average and the gap; sortable. */
+export function ClassTable({ rows, roundId, showTrend, showGuardian }: { rows: Row[]; roundId: string; showTrend: boolean; showGuardian: boolean }) {
   const [sort, setSort] = useState<{ key: SortKey; dir: 1 | -1 }>({ key: 'roll', dir: 1 });
   const value = (row: Row, key: SortKey): number | string => {
     if (key === 'roll') return row.roll ?? Number.MAX_SAFE_INTEGER;
     if (key === 'name') return row.name;
     if (key === 'mean') return row.mean ?? -1;
     if (key === 'teachers') return row.teachers;
+    if (key === 'guardian') return row.guardian ?? -1;
+    if (key === 'gap') return row.gap === null ? -1 : Math.abs(row.gap);
     return row.flags.length;
   };
   const sorted = [...rows].sort((a, b) => {
     // Students without a roll or without marks stay at the bottom in both directions.
-    const missing = (row: Row) => (sort.key === 'roll' ? row.roll === null : sort.key === 'mean' ? row.mean === null : false);
+    const missing = (row: Row) => (sort.key === 'roll' || sort.key === 'mean' || sort.key === 'guardian' || sort.key === 'gap') && row[sort.key] === null;
     if (missing(a) !== missing(b)) return missing(a) ? 1 : -1;
     const x = value(a, sort.key);
     const y = value(b, sort.key);
@@ -40,7 +53,7 @@ export function ClassTable({ rows, roundId, showTrend }: { rows: Row[]; roundId:
     <th scope="col" aria-sort={sort.key === key ? (sort.dir === 1 ? 'ascending' : 'descending') : 'none'}>
       <button
         type="button"
-        onClick={() => setSort((s) => ({ key, dir: s.key === key ? (s.dir === 1 ? -1 : 1) : key === 'mean' || key === 'flags' ? -1 : 1 }))}
+        onClick={() => setSort((s) => ({ key, dir: s.key === key ? (s.dir === 1 ? -1 : 1) : key === 'roll' || key === 'name' ? 1 : -1 }))}
         style={{ border: 0, background: 'transparent', font: 'inherit', color: 'inherit', padding: 0, cursor: 'pointer' }}
       >
         {label}
@@ -51,15 +64,18 @@ export function ClassTable({ rows, roundId, showTrend }: { rows: Row[]; roundId:
 
   return (
     <div style={{ overflowX: 'auto' }}>
-      <table className="sv-table is-stackable" style={{ minWidth: 720 }}>
+      <table className="sv-table is-stackable" style={{ minWidth: showGuardian ? 900 : 720 }}>
         <thead>
           <tr>
             {header('roll', 'রোল')}
             {header('name', 'নাম')}
+            {showGuardian && header('guardian', 'অভিভাবক (/১০)')}
             {header('mean', 'শিক্ষকদের গড় (/১০)')}
+            {showGuardian && header('gap', 'পার্থক্য')}
             {header('teachers', 'শিক্ষক')}
             {showTrend && <th scope="col">প্রবণতা</th>}
             {header('flags', 'ফ্ল্যাগ')}
+            {showGuardian && <th scope="col">অভিভাবকের ফর্ম</th>}
           </tr>
         </thead>
         <tbody>
@@ -74,9 +90,19 @@ export function ClassTable({ rows, roundId, showTrend }: { rows: Row[]; roundId:
                 </Link>
                 {row.roll === null && <div style={{ fontSize: 12.5, color: 'var(--sv-text-muted)' }}>আইডি {bn(row.erpId)}</div>}
               </td>
+              {showGuardian && (
+                <td data-label="অভিভাবক" className="sv-num">
+                  {row.guardian === null ? <span style={{ color: 'var(--sv-text-muted)' }}>—</span> : bn(row.guardian.toFixed(1))}
+                </td>
+              )}
               <td data-label="গড়" className="sv-num">
                 {row.mean === null ? <span style={{ color: 'var(--sv-text-muted)' }}>রিভিউ নেই</span> : bn(row.mean.toFixed(1))}
               </td>
+              {showGuardian && (
+                <td data-label="পার্থক্য" className="sv-num">
+                  {row.gap === null ? <span style={{ color: 'var(--sv-text-muted)' }}>—</span> : signed(row.gap)}
+                </td>
+              )}
               <td data-label="শিক্ষক" className="sv-num">
                 {bn(row.teachers)}
               </td>
@@ -95,6 +121,13 @@ export function ClassTable({ rows, roundId, showTrend }: { rows: Row[]; roundId:
                   {!row.flags.length && <span style={{ color: 'var(--sv-text-muted)' }}>—</span>}
                 </div>
               </td>
+              {showGuardian && (
+                <td data-label="অভিভাবকের ফর্ম">
+                  <span style={{ background: FORM[row.form].bg, color: FORM[row.form].fg, borderRadius: 6, padding: '2px 8px', fontSize: 13, fontWeight: 600, whiteSpace: 'nowrap' }}>
+                    {FORM[row.form].label}
+                  </span>
+                </td>
+              )}
             </tr>
           ))}
         </tbody>

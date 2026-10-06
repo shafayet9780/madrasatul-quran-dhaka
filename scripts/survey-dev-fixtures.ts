@@ -29,6 +29,9 @@ const MOBILES: Record<string, { fatherMobile?: string; motherMobile?: string }> 
   'Yahya Hasan': { fatherMobile: '8801700000002', motherMobile: '447700900123' },
   'HAMZA RAHIM': { fatherMobile: '8801700000002', motherMobile: '447700900123' },
   'Adiba Rahman': { fatherMobile: '8801700000003' },
+  'ZAYAN MAHMUD': { fatherMobile: '8801700000004' },
+  'Abdullah Al Noman': { motherMobile: '8801700000005' },
+  'Safiya Rahman': { fatherMobile: '8801700000006' },
 };
 
 // [roll, name] per class-section; null roll = not yet assigned in the ERP.
@@ -176,16 +179,20 @@ async function main() {
   const g1 = rounds.find((r) => r.sanityRoundId === 'fixture-g1-open')!;
   const byName = (name: string) => rows.find((s) => s.name === name)!;
   const g2Answers = { attendance: 'above-90', 'study-at-home': '2h', devices: '1-2-weekly', 'peer-complaints': 'never' };
-  const guardianForm = (round: typeof g2, name: string, submitter: { name: string; relation: 'father' | 'mother' | 'other'; relationOther?: string; mobile: string }, answers: Parameters<typeof submitGuardian>[1]['answers']) =>
+  const guardianForm = (round: typeof g2, name: string, submitter: { name: string; relation: 'father' | 'mother' | 'other'; relationOther?: string; mobile: string }, answers: Parameters<typeof submitGuardian>[1]['answers'], comment = '') =>
     submitGuardian(
       round,
-      { submissionId: crypto.randomUUID(), classKey: byName(name).classKey, sectionKey: byName(name).sectionKey, studentErpId: byName(name).erpId, submitter: { relationOther: '', ...submitter }, answers, comment: '' },
+      { submissionId: crypto.randomUUID(), classKey: byName(name).classKey, sectionKey: byName(name).sectionKey, studentErpId: byName(name).erpId, submitter: { relationOther: '', ...submitter }, answers, comment },
       meta
     );
   for (const result of [
     await guardianForm(g2, 'Yahya Hasan', { name: 'নাসরিন আক্তার', relation: 'mother', mobile: '+447700900123' }, g2Answers),
     await guardianForm(g2, 'HAMZA RAHIM', { name: 'আব্দুর রহিম', relation: 'father', mobile: '01700000002' }, g2Answers),
     await guardianForm(g2, 'HAMZA RAHIM', { name: 'রাশেদ কবির', relation: 'other', relationOther: 'মামা', mobile: '01855000000' }, { ...g2Answers, devices: 'never' }),
+    // Three verified Nursery A forms for the class and student reports (Zayan: guardian and teachers far apart).
+    await guardianForm(g2, 'ZAYAN MAHMUD', { name: 'মো. মাহমুদুল করিম', relation: 'father', mobile: '01700000004' }, { attendance: 'above-90', 'study-at-home': '4h', devices: 'never', 'peer-complaints': 'never' }, 'বাসায় খুব শান্ত থাকে, মাদরাসা থেকে কোনো অভিযোগ আসেনি।'),
+    await guardianForm(g2, 'Abdullah Al Noman', { name: 'ফারজানা ইয়াসমিন', relation: 'mother', mobile: '01700000005' }, g2Answers),
+    await guardianForm(g2, 'Safiya Rahman', { name: 'আব্দুস সালাম', relation: 'father', mobile: '01700000006' }, { ...g2Answers, 'study-at-home': 'na', 'peer-complaints': 'sometimes' }),
     await guardianForm(g1, 'Yahya Hasan', { name: 'আব্দুর রহিম', relation: 'father', mobile: '01700000002' }, Object.fromEntries(g1.snapshot.template.questions.map((q) => [q.key, Object.fromEntries((g1.snapshot.classes.find((c) => c.key === 'nursery')?.subjects ?? []).map((sub) => [sub.key, 8]))]))),
   ]) {
     if (!result.ok) throw new Error(`fixture guardian form failed: ${JSON.stringify(result)}`);

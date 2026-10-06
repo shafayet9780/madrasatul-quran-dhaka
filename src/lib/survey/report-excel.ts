@@ -2,7 +2,7 @@ import 'server-only';
 import ExcelJS from 'exceljs';
 import { formatSheetTime } from './dates';
 import { classReport, raterReport, studentReport } from './reports';
-import { allReportRounds, previousRound, teachingQuality } from './guardian-reports';
+import { allReportRounds, classGuardian, previousRound, studentGuardian, teachingQuality, withGuardian } from './guardian-reports';
 import { displayMobile } from './labels';
 import { loadGuardianTracker, loadTracker } from './tracker';
 import type { surveyRounds } from './schema';
@@ -25,9 +25,14 @@ async function book(fileName: string, sheets: { name: string; columns: { header:
   return { fileName: safeName(fileName), buffer: (await workbook.xlsx.writeBuffer()) as ArrayBuffer };
 }
 
-export async function classWorkbook(round: Round, classKey: string, sectionKey: string): Promise<Book | null> {
-  const report = await classReport(round, classKey, sectionKey);
+const FORM_LABEL = { verified: 'যাচাইকৃত', unverified: 'অযাচাইকৃত', none: 'সাড়া নেই' } as const;
+
+export async function classWorkbook(round: Round, classKey: string, sectionKey: string, verifiedOnly = false): Promise<Book | null> {
+  const [report, rounds] = await Promise.all([classReport(round, classKey, sectionKey), allReportRounds()]);
   if (!report) return null;
+  const guardian = await classGuardian(round, rounds, { classKey, sectionKey }, { verifiedOnly });
+  const rows = withGuardian(report.rows, guardian);
+  const teacherAreas = new Map(report.areas.map((a) => [a.areaKey, a]));
   return book(`${report.label} - ${round.label}.xlsx`, [
     {
       name: 'শিক্ষার্থী',
@@ -38,26 +43,44 @@ export async function classWorkbook(round: Round, classKey: string, sectionKey: 
         { header: 'শিক্ষকদের গড় (/১০)', key: 'mean', width: 18 },
         { header: 'মার্ক সংখ্যা', key: 'n', width: 12 },
         { header: 'শিক্ষক', key: 'teachers', width: 10 },
+        ...(guardian.g2.round
+          ? [
+              { header: 'অভিভাবক (G2, /১০)', key: 'guardian', width: 18 },
+              { header: 'পার্থক্য (অভিভাবক − শিক্ষক)', key: 'gap', width: 22 },
+              { header: 'অভিভাবকের ফর্ম', key: 'form', width: 16 },
+            ]
+          : []),
         { header: 'ফ্ল্যাগ', key: 'flags', width: 40 },
       ],
-      rows: report.rows.map((r) => ({ ...r, mean: round1(r.mean), flags: r.flags.map((f) => f.label).join('; ') })),
+      rows: rows.map((r) => ({ ...r, mean: round1(r.mean), guardian: round1(r.guardian), gap: round1(r.gap), form: FORM_LABEL[r.form], flags: r.flags.map((f) => f.label).join('; ') })),
     },
     {
       name: 'ক্ষেত্র',
       columns: [
         { header: 'ক্ষেত্র', key: 'name', width: 28 },
-        { header: 'ক্লাসের গড় (/১০)', key: 'mean', width: 18 },
-        { header: 'শিক্ষার্থী', key: 'students', width: 12 },
-        { header: 'যথেষ্ট উত্তর (n≥৩)', key: 'reliable', width: 18 },
+        { header: 'শিক্ষকদের ক্লাস গড় (/১০)', key: 'mean', width: 22 },
+        { header: 'শিক্ষার্থী (শিক্ষক)', key: 'students', width: 16 },
+        { header: 'অভিভাবকদের ক্লাস গড় (/১০)', key: 'guardian', width: 24 },
+        { header: 'শিক্ষার্থী (অভিভাবক)', key: 'guardianStudents', width: 18 },
       ],
-      rows: report.areas.map((a) => ({ ...a, mean: round1(a.mean), reliable: a.reliable ? 'হ্যাঁ' : 'না' })),
+      rows: guardian.areas.map((g) => {
+        const t = teacherAreas.get(g.areaKey);
+        return {
+          name: g.name,
+          mean: round1(t?.mean ?? null),
+          students: t?.students ?? 0,
+          guardian: round1(g.mean),
+          guardianStudents: g.students,
+        };
+      }),
     },
   ]);
 }
 
 export async function studentWorkbook(round: Round, erpId: string): Promise<Book | null> {
-  const report = await studentReport(round, erpId);
+  const [report, rounds] = await Promise.all([studentReport(round, erpId), allReportRounds()]);
   if (!report) return null;
+  const guardian = await studentGuardian(round, rounds, erpId, report.student, { verifiedOnly: false });
   return book(`${report.student.name} - ${round.label}.xlsx`, [
     {
       name: 'বিষয় × প্রশ্ন',
@@ -87,6 +110,21 @@ export async function studentWorkbook(round: Round, erpId: string): Promise<Book
         { header: 'নোট', key: 'note', width: 80 },
       ],
       rows: report.notes.map((n) => ({ ...n, when: n.submittedAt ? formatSheetTime(n.submittedAt) : '' })),
+    },
+    {
+      name: 'অভিভাবকের উত্তর',
+      columns: [
+        { header: 'প্রশ্ন', key: 'label', width: 40 },
+        { header: 'উত্তর', key: 'answer', width: 28 },
+        { header: 'মার্ক', key: 'mark', width: 10 },
+      ],
+      rows: [
+        ...guardian.answers,
+        ...(guardian.form
+          ? [{ label: 'জমা দিয়েছেন', answer: `${guardian.form.who}${guardian.form.relation ? ` (${guardian.form.relation})` : ''} · ${guardian.form.verified ? 'যাচাইকৃত' : 'অযাচাইকৃত'}`, mark: null }]
+          : []),
+        ...(guardian.form?.comment ? [{ label: 'মন্তব্য', answer: guardian.form.comment, mark: null }] : []),
+      ],
     },
   ]);
 }

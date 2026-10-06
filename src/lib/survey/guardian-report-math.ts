@@ -1,6 +1,7 @@
+import { FLAGS, type Flag } from './report-math';
 import { MIN_N, summarise, type Summary } from './stats';
 
-// Pure maths for the guardian reports (R1 overview, R2 teaching quality), from answer_items rows.
+// Pure maths for the guardian reports (R1–R4 and the guardian print), from answer_items rows.
 
 export type GuardianItem = {
   roundId: string;
@@ -121,5 +122,52 @@ export function resolveRounds<R extends Window>(t1: R, rounds: R[], picked: { g1
     compareT1,
     cg1: other(compareT1 && pairedRound(compareT1, rounds, 'G1'), g1),
     cg2: other(compareT1 && pairedRound(compareT1, rounds, 'G2'), g2),
+  };
+}
+
+/** A mark (৪–১০) as the 0–100 score used only where guardian and teacher are compared (spec §7). */
+export function score100(mark: number): number {
+  return ((mark - 4) / 6) * 100;
+}
+
+/** Spec §7 flag: the guardian's and the teachers' averages for a child at least FLAGS.guardianTeacherGap apart. */
+export function gapFlag(guardian: number | null, teacher: number | null, bn: (n: number | string) => string): Flag | null {
+  if (guardian === null || teacher === null) return null;
+  const gap = Math.abs(guardian - teacher);
+  return gap >= FLAGS.guardianTeacherGap ? { kind: 'gap', label: `অভিভাবক–শিক্ষক পার্থক্য ${bn(gap.toFixed(1))}` } : null;
+}
+
+/**
+ * Each teacher round up to `t1` (oldest first) with its guardian rounds, for trends. `t1` keeps the
+ * given g1/g2 (they may be picked); a guardian round already shown with a later teacher round is
+ * not repeated.
+ */
+export function roundHistory<R extends Window>(t1: R, rounds: R[], current: { g1?: R; g2?: R }) {
+  const history = rounds.filter((r) => r.kind === 'T1' && r.opensAt <= t1.opensAt);
+  const used = new Set<string>();
+  const take = (round: R | undefined) => (round && !used.has(round.id) ? (used.add(round.id), round) : undefined);
+  return [...history]
+    .reverse()
+    .map((r) => ({ t1: r, g1: take(r.id === t1.id ? current.g1 : pairedRound(r, rounds, 'G1')), g2: take(r.id === t1.id ? current.g2 : pairedRound(r, rounds, 'G2')) }))
+    .reverse();
+}
+
+/** Mean of the marks that exist (a class average shown beside a child: guardian and teachers together). */
+export function averageOf(marks: (number | null)[]): number | null {
+  const shown = marks.filter((m): m is number => m !== null);
+  return shown.length ? shown.reduce((a, b) => a + b, 0) / shown.length : null;
+}
+
+/** Guardian print: a strength is an area the child averages ৮+ in, work is below ৭ (guardian and teachers together). */
+export const PRINT_STRENGTH = 8;
+export const PRINT_WORK = 7;
+
+export function strengthsAndWork(areas: { name: string; guardian: number | null; teacher: number | null }[]) {
+  const both = areas
+    .map((a) => ({ name: a.name, mean: averageOf([a.guardian, a.teacher]) }))
+    .filter((a): a is { name: string; mean: number } => a.mean !== null);
+  return {
+    strengths: both.filter((a) => a.mean >= PRINT_STRENGTH).sort((a, b) => b.mean - a.mean).slice(0, 3).map((a) => a.name),
+    work: both.filter((a) => a.mean < PRINT_WORK).sort((a, b) => a.mean - b.mean).slice(0, 3).map((a) => a.name),
   };
 }

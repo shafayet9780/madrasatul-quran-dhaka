@@ -50,13 +50,16 @@ export function studentAggregates(rows: MarkRow[], lowestMark: number): Map<stri
   return out;
 }
 
+/** Area means need only these fields, so guardian answer items work too. */
+type AreaRow = Pick<MarkRow, 'studentErpId' | 'areaKey' | 'mark'>;
+
 export type AreaMean = { areaKey: string; mean: number | null; students: number; reliable: boolean };
 
 /**
  * Class mean per area: each student's own area mean first, so a student rated by more teachers
  * does not weigh more. Greyed (`reliable: false`) below MIN_N students.
  */
-export function areaMeans(rows: MarkRow[], areaKeys: string[]): AreaMean[] {
+export function areaMeans(rows: AreaRow[], areaKeys: string[]): AreaMean[] {
   return areaKeys.map((areaKey) => {
     const perStudent = new Map<string, (number | null)[]>();
     for (const row of rows.filter((r) => r.areaKey === areaKey)) perStudent.set(row.studentErpId, [...(perStudent.get(row.studentErpId) ?? []), row.mark]);
@@ -67,14 +70,14 @@ export function areaMeans(rows: MarkRow[], areaKeys: string[]): AreaMean[] {
 }
 
 /** One student's mean per area (for the profile), with the number of marks behind it. */
-export function studentAreaMeans(rows: MarkRow[], erpId: string, areaKeys: string[]) {
+export function studentAreaMeans(rows: AreaRow[], erpId: string, areaKeys: string[]) {
   return areaKeys.map((areaKey) => {
     const { mean, n } = summarise(rows.filter((r) => r.studentErpId === erpId && r.areaKey === areaKey).map((r) => r.mark));
     return { areaKey, mean, n };
   });
 }
 
-export type Flag = { kind: 'drop' | 'low-teachers'; label: string };
+export type Flag = { kind: 'drop' | 'low-teachers' | 'gap'; label: string };
 
 export function studentFlags(current: StudentAggregate | undefined, previousMean: number | null, bn: (n: number | string) => string, lowestMark = 4): Flag[] {
   const flags: Flag[] = [];

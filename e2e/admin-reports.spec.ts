@@ -21,7 +21,8 @@ test('finds a student and opens the profile', async ({ page }) => {
   await page.getByLabel('নাম, আইডি বা রোল').fill('zayan');
   await page.getByRole('link', { name: /Zayan Mahmud/ }).click();
   await expect(page.getByRole('heading', { name: 'Zayan Mahmud', level: 1 })).toBeVisible();
-  await expect(page.getByRole('img', { name: /শিক্ষকদের গড় মার্ক:/ })).toBeVisible(); // two rounds → trend
+  // Two teacher rounds and an October G2 form → the guardian and teacher trend.
+  await expect(page.getByRole('img', { name: /T1 শিক্ষকের চোখে: সেপ্টেম্বর/ })).toBeVisible();
   await expect(page.getByText('ক্লাসে মনোযোগ ভালো, তবে সহপাঠীদের সাথে মাঝে মাঝে ঝগড়া করে।')).toBeVisible();
   await expectAccessible(page);
 });
@@ -39,6 +40,56 @@ test('class page lists every student, sorts and exports', async ({ page }) => {
   const download = page.waitForEvent('download');
   await page.getByRole('link', { name: 'Excel' }).click();
   expect((await download).suggestedFilename()).toMatch(/^নার্সারি A - অক্টোবর ২০২৬ \(নমুনা\)\.xlsx$/);
+});
+
+test('class page sets guardians beside teachers', async ({ page }) => {
+  await page.goto('/admin/reports');
+  await page.getByRole('link', { name: /নার্সারি A/ }).click();
+  await expect(page.getByText(/অভিভাবকের সাড়া ৫\/২০/)).toBeVisible();
+  const table = page.getByRole('table');
+  await expect(table.getByRole('columnheader', { name: /অভিভাবক \(\/১০\)/ })).toBeVisible();
+  const zayan = table.getByRole('row', { name: /Zayan Mahmud/ });
+  await expect(zayan.getByText('১০.০')).toBeVisible();
+  await expect(zayan.getByText('যাচাইকৃত')).toBeVisible();
+  await expect(table.getByRole('row', { name: /Maryam Binte Rafiq/ }).getByText('সাড়া নেই')).toBeVisible();
+  await expect(page.getByRole('img', { name: /জন শিক্ষার্থীর অভিভাবক ও শিক্ষকের স্কোর/ })).toBeVisible();
+  await expect(page.getByRole('img', { name: /^উপস্থিতি: অভিভাবক/ })).toBeVisible();
+  await page.screenshot({ path: process.env.SHOT_DIR ? `${process.env.SHOT_DIR}/r3.png` : undefined, fullPage: true });
+  await expectAccessible(page);
+  // Verified only: Hamza's current form (his uncle, a number not on record) drops out; 4 guardians remain.
+  await expect(page.getByText(/স্কোর \S+ · ৫ জন/)).toBeVisible();
+  await page.getByRole('link', { name: 'শুধু যাচাইকৃত' }).click();
+  await expect(page.getByText('· শুধু যাচাইকৃত অভিভাবক')).toBeVisible();
+  await expect(page.getByText(/স্কোর \S+ · ৪ জন/)).toBeVisible();
+});
+
+test('student profile shows the guardian answers and prints a page for the guardian', async ({ page }) => {
+  await page.goto('/admin/reports');
+  await page.getByLabel('নাম, আইডি বা রোল').fill('zayan');
+  await page.getByRole('link', { name: /Zayan Mahmud/ }).click();
+  await expect(page.getByRole('heading', { name: /অভিভাবকের উত্তর · G2/ })).toBeVisible();
+  await expect(page.getByText('উপস্থিতি > ৯০%')).toBeVisible();
+  await expect(page.getByText('মন্তব্য: “বাসায় খুব শান্ত থাকে, মাদরাসা থেকে কোনো অভিযোগ আসেনি।”')).toBeVisible();
+  await expect(page.getByText('মো. মাহমুদুল করিম (পিতা)').first()).toBeVisible();
+  await page.screenshot({ path: process.env.SHOT_DIR ? `${process.env.SHOT_DIR}/r4.png` : undefined, fullPage: true });
+  await expectAccessible(page);
+
+  await page.getByRole('link', { name: 'অভিভাবকের জন্য প্রিন্ট' }).click();
+  const sheet = page.getByRole('article', { name: 'অভিভাবকের জন্য প্রতিবেদন' });
+  await expect(sheet.getByRole('heading', { name: 'Zayan Mahmud', level: 1 })).toBeVisible();
+  await expect(sheet.getByRole('row', { name: /উপস্থিতি/ })).toBeVisible();
+  await expect(sheet.getByRole('heading', { name: 'শক্তির দিক' })).toBeVisible();
+  // No teacher names or notes on the guardian's copy.
+  await expect(sheet.getByText(/উস্তাযা|উস্তাদ|ঝগড়া/)).toHaveCount(0);
+  await page.screenshot({ path: process.env.SHOT_DIR ? `${process.env.SHOT_DIR}/r4-print.png` : undefined, fullPage: true });
+  await expectAccessible(page);
+});
+
+test('a "not applicable" answer shows its label', async ({ page }) => {
+  await page.goto('/admin/reports');
+  await page.getByLabel('নাম, আইডি বা রোল').fill('safiya');
+  await page.getByRole('link', { name: /Safiya Rahman/ }).click();
+  await expect(page.getByText('প্রযোজ্য নয় (ডে কেয়ার)')).toBeVisible();
 });
 
 test('rater patterns compare teachers', async ({ page }) => {

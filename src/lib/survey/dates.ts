@@ -39,6 +39,11 @@ function period(hour: number): string {
   return 'রাত';
 }
 
+/** "১০ অক্টোবর ২০২৬" */
+export function formatDate(date: Date): string {
+  return `${dayMonth.format(date)} ${toBengaliDigits(dhakaParts(date).year)}`;
+}
+
 /** "২০ অক্টোবর, রাত ১১:৫৯" */
 export function formatDateTime(date: Date): string {
   const { hour, minute } = dhakaParts(date);

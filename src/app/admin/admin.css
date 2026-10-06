@@ -391,3 +391,29 @@
     -webkit-print-color-adjust: exact;
   }
 }
+
+/* Guardian print (R4-Print-Guardian): an A4 sheet on screen, the page itself on paper. */
+.sv-admin .sv-print-sheet {
+  background: #fff;
+  border: 1px solid var(--sv-hairline);
+  border-radius: 16px;
+  padding: 48px 56px;
+  max-width: 794px;
+  width: 100%;
+}
+@media (max-width: 640px) {
+  .sv-admin .sv-print-sheet {
+    padding: 20px 16px;
+  }
+}
+@media print {
+  @page {
+    size: A4;
+    margin: 14mm;
+  }
+  .sv-admin .sv-print-sheet {
+    border: 0;
+    padding: 0;
+    max-width: none;
+  }
+}

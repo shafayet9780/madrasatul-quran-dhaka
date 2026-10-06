@@ -36,12 +36,12 @@ test('a guardian round shows response by class, reminders, unverified and repeat
   await page.goto('/admin/tracker');
   await page.getByLabel('রাউন্ড').selectOption({ label: 'শিক্ষার্থী · অক্টোবর ২০২৬ · শিক্ষার্থী (নমুনা)' });
   await expect(page.getByText('শিক্ষার্থীর উপর অভিভাবক রিভিউ · অক্টোবর ২০২৬ · শিক্ষার্থী (নমুনা)', { exact: false })).toBeVisible();
-  // Yahya and Hamza (Nursery A) have a current form: 2 of 35 children.
-  await expect(page.getByText('২/৩৫')).toBeVisible();
-  await expect(page.getByRole('link', { name: /নার্সারি A/ })).toContainText('২/২০');
+  // Yahya, Hamza, Zayan, Abdullah and Safiya (Nursery A) have a current form: 5 of 35 children.
+  await expect(page.getByText('৫/৩৫')).toBeVisible();
+  await expect(page.getByRole('link', { name: /নার্সারি A/ })).toContainText('৫/২০');
 
   await page.getByRole('link', { name: /নার্সারি A/ }).click();
-  const pending = page.getByRole('region', { name: /নার্সারি A · এখনো জমা হয়নি \(১৮\)/ });
+  const pending = page.getByRole('region', { name: /নার্সারি A · এখনো জমা হয়নি \(১৫\)/ });
   await expect(pending.getByText('Maryam Binte Rafiq')).toBeVisible();
   await expect(pending.getByText('বাবা ০১৭০০-০০০০০১')).toBeVisible();
   await pending.getByRole('button', { name: 'Maryam Binte Rafiq: বার্তা কপি' }).click();

@@ -68,46 +68,6 @@ export function TrendChart({ points }: { points: { label: string; mean: number }
   );
 }
 
-/** A mark on the ৪–১০ track, with an optional class-average tick (R3/R4 area rows). */
-export function MarkBar({ value, reference, muted, label }: { value: number | null; reference?: number | null; muted?: boolean; label: string }) {
-  return (
-    <div style={{ position: 'relative', height: 22 }} title={label} role="img" aria-label={label}>
-      <div style={{ position: 'absolute', left: 0, right: 0, top: 10, height: 2, background: 'var(--sv-hairline-soft)' }} />
-      {value !== null && (
-        <div style={{ position: 'absolute', left: 0, top: 9, height: 4, width: `${pos(value) * 100}%`, background: muted ? 'var(--sv-dashed)' : '#C9DCEE', borderRadius: 2 }} />
-      )}
-      {reference != null && (
-        <div style={{ position: 'absolute', top: 2, left: `${pos(reference) * 100}%`, width: 3, height: 18, marginLeft: -1, background: 'var(--sv-text-body)' }} />
-      )}
-      {value !== null && (
-        <div
-          style={{
-            position: 'absolute',
-            top: 4,
-            left: `${pos(value) * 100}%`,
-            width: 14,
-            height: 14,
-            marginLeft: -7,
-            borderRadius: '50%',
-            background: muted ? 'var(--sv-icon-muted)' : TEACHER,
-            boxShadow: '0 0 0 2px #fff',
-          }}
-        />
-      )}
-    </div>
-  );
-}
-
-export function MarkAxis() {
-  return (
-    <div className="flex justify-between" style={{ fontSize: 13, color: 'var(--sv-text-muted)' }} aria-hidden="true">
-      <span>৪</span>
-      <span>৭</span>
-      <span>১০</span>
-    </div>
-  );
-}
-
 /** Mark-cell colours for the subject × question grid (R4 ramp, teacher blue). */
 export function markCell(mark: number | null): { bg: string; fg: string } {
   if (mark === null) return { bg: 'var(--sv-stone-soft)', fg: '#A8A096' };
@@ -178,11 +138,11 @@ export function teachingCell(mean: number | null, hidden = false): { bg: string;
 }
 
 /** Guardian (G2) vs teacher (T1) average per round, both lines labelled at the end (R1). */
-export function PairTrendChart({ points }: { points: { label: string; guardian: number | null; teacher: number | null }[] }) {
-  const w = 620;
+export function PairTrendChart({ points, width = 620 }: { points: { label: string; guardian: number | null; teacher: number | null }[]; width?: number }) {
+  const w = width;
   const h = 250;
   const left = 44;
-  const right = 560;
+  const right = w - 60;
   const top = 20;
   const bottom = 220;
   const x = (i: number) => (points.length === 1 ? (left + right) / 2 : left + 26 + (i * (right - left - 52)) / (points.length - 1));
@@ -244,5 +204,105 @@ export function PairTrendChart({ points }: { points: { label: string; guardian: 
         })}
       </svg>
     </div>
+  );
+}
+
+// Guardian ↔ teacher comparisons use the 0–100 score (spec §7): (mark − ৪) ÷ ৬ × ১০০.
+const score = (mark: number) => pos(mark) * 100;
+/** The R3 frame marks an area when guardian and teachers are this many points apart. */
+export const AREA_GAP_POINTS = 15;
+
+/** One area: guardian dot, teacher dot, the span between them and an optional class-average tick. */
+export function PairBar({ guardian, teacher, reference, label }: { guardian: number | null; teacher: number | null; reference?: number | null; label: string }) {
+  const dot = (mark: number, color: string) => (
+    <div style={{ position: 'absolute', top: 3, left: `${score(mark)}%`, width: 14, height: 14, marginLeft: -7, borderRadius: '50%', background: color, boxShadow: '0 0 0 2px #fff' }} />
+  );
+  return (
+    <div style={{ position: 'relative', height: 20 }} title={label} role="img" aria-label={label}>
+      <div style={{ position: 'absolute', left: 0, right: 0, top: 9, height: 2, background: 'var(--sv-hairline-soft)' }} />
+      {guardian !== null && teacher !== null && (
+        <div style={{ position: 'absolute', top: 8, height: 4, background: 'var(--sv-hairline)', left: `${score(Math.min(guardian, teacher))}%`, width: `${Math.abs(score(guardian) - score(teacher))}%` }} />
+      )}
+      {reference != null && <div style={{ position: 'absolute', top: 1, left: `${score(reference)}%`, width: 3, height: 18, marginLeft: -1, background: 'var(--sv-text-body)' }} />}
+      {guardian !== null && dot(guardian, GUARDIAN)}
+      {teacher !== null && dot(teacher, TEACHER)}
+    </div>
+  );
+}
+
+export function ScoreAxis() {
+  return (
+    <div className="flex justify-between" style={{ fontSize: 13, color: 'var(--sv-text-muted)' }} aria-hidden="true">
+      <span>০</span>
+      <span>৫০</span>
+      <span>১০০</span>
+    </div>
+  );
+}
+
+/** R3 scatter: each child's guardian score (x) against the teachers' (y); lines at mark ৮. */
+export function GapScatter({ points }: { points: { erpId: string; name: string; guardian: number; teacher: number; flagged: boolean }[] }) {
+  const left = 50;
+  const right = 480;
+  const top = 40;
+  const bottom = 360;
+  const x = (mark: number) => left + (score(mark) / 100) * (right - left);
+  const y = (mark: number) => bottom - (score(mark) / 100) * (bottom - top);
+  const ticks = [0, 50, 100];
+  // Names of flagged children under their dots; a name that would overlap one already placed moves down a line.
+  const labels: { erpId: string; name: string; x: number; y: number }[] = [];
+  for (const p of [...points].filter((q) => q.flagged).sort((a, b) => a.guardian - b.guardian)) {
+    const lx = Math.min(x(p.guardian) - 10, right - 90);
+    let ly = Math.min(y(p.teacher) + 22, bottom - 4);
+    while (labels.some((l) => Math.abs(l.x - lx) < 90 && Math.abs(l.y - ly) < 15)) ly += 15;
+    labels.push({ erpId: p.erpId, name: p.name, x: lx, y: ly });
+  }
+  return (
+    <svg viewBox="0 0 500 410" width="100%" style={{ maxWidth: 560 }} role="img" aria-label={`${bn(points.length)} জন শিক্ষার্থীর অভিভাবক ও শিক্ষকের স্কোর; বিস্তারিত নিচের তালিকায়`}>
+      <rect x={left} y={top} width={right - left} height={bottom - top} fill="#fff" />
+      <g stroke="var(--sv-icon-muted)" strokeDasharray="4 4">
+        <line x1={x(8)} y1={top} x2={x(8)} y2={bottom} />
+        <line x1={left} y1={y(8)} x2={right} y2={y(8)} />
+      </g>
+      <line x1={left} y1={bottom} x2={right} y2={bottom} stroke="var(--sv-hairline)" />
+      <line x1={left} y1={top} x2={left} y2={bottom} stroke="var(--sv-hairline)" />
+      <g fill="var(--sv-text-muted)" fontSize="12">
+        {ticks.map((t) => (
+          <text key={`x${t}`} x={left + (t / 100) * (right - left)} y={bottom + 18} textAnchor="middle">
+            {bn(t)}
+          </text>
+        ))}
+        {ticks.map((t) => (
+          <text key={`y${t}`} x={left - 8} y={bottom - (t / 100) * (bottom - top) + 4} textAnchor="end">
+            {bn(t)}
+          </text>
+        ))}
+      </g>
+      <text x={(left + right) / 2} y={bottom + 40} textAnchor="middle" fontSize="13" fontWeight="600" fill="var(--sv-text-body)">
+        অভিভাবকের স্কোর (G2) →
+      </text>
+      <text x={14} y={(top + bottom) / 2} textAnchor="middle" fontSize="13" fontWeight="600" fill="var(--sv-text-body)" transform={`rotate(-90 14 ${(top + bottom) / 2})`}>
+        শিক্ষকের স্কোর (T1) →
+      </text>
+      <g fontSize="12.5" fill="var(--sv-text-muted)" textAnchor="end">
+        <text x={right - 8} y={top + 18}>দুই দিকেই ভালো</text>
+        <text x={right - 8} y={y(8) + 20}>অভিভাবক বেশি দেখছেন</text>
+        <text x={x(8) - 8} y={top + 18}>শিক্ষক বেশি দেখছেন</text>
+        <text x={x(8) - 8} y={y(8) + 20}>দুই দিকেই দুর্বল</text>
+      </g>
+      <text x={x(8)} y={top - 7} textAnchor="middle" fontSize="12" fontWeight="600" fill="var(--sv-text-muted)">
+        মার্ক ৮
+      </text>
+      {points.map((p) => (
+        <circle key={p.erpId} cx={x(p.guardian)} cy={y(p.teacher)} r={p.flagged ? 7 : 5} fill={p.flagged ? '#8A4416' : TEACHER} stroke="#fff" strokeWidth="2">
+          <title>{`${p.name}: অভিভাবক ${bn(Math.round(score(p.guardian)))}, শিক্ষক ${bn(Math.round(score(p.teacher)))}`}</title>
+        </circle>
+      ))}
+      {labels.map((l) => (
+        <text key={`n${l.erpId}`} x={l.x} y={l.y} fontSize="12" fontWeight="600" fill="var(--sv-text)">
+          {l.name}
+        </text>
+      ))}
+    </svg>
   );
 }

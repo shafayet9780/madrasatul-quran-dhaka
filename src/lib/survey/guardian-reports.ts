@@ -1,18 +1,18 @@
 import 'server-only';
 import { and, asc, eq, inArray, isNotNull, isNull, ne } from 'drizzle-orm';
 import { getDb } from './db';
-import { cellStats, childWeightedMean, cohortDelta, pairedRound, perStudentMeans, questionDistributions, resolveRounds, type GuardianItem } from './guardian-report-math';
+import { cellStats, childWeightedMean, cohortDelta, gapFlag, perStudentMeans, questionDistributions, resolveRounds, roundHistory, type GuardianItem } from './guardian-report-math';
 
 export { pickKindRound, previousRound, resolveRounds } from './guardian-report-math';
 import { questionLabel } from './labels';
 import { titleCase, toBengaliDigits as bn } from './normalise';
-import { FLAGS, studentAggregates, studentFlags } from './report-math';
+import { areaMeans, studentAggregates, studentAreaMeans, studentFlags } from './report-math';
 import { t1Marks } from './reports';
 import { answerItems, responses, students, submissions, surveyRounds } from './schema';
 import { classSections, type RoundSnapshot } from './snapshot';
 
-// Guardian reports (spec §7): R2 teaching quality from G1 and R1 overview (T1 round with the
-// guardian rounds paired to it by date). Aggregates read answer_items of current forms only.
+// Guardian reports (spec §7): R1 overview, R2 teaching quality from G1, and the guardian parts of
+// R3 class and R4 student (a teacher round with the guardian rounds paired to it by date). Aggregates read answer_items of current forms only.
 // Changes between rounds use the shared cohort; school-wide means weigh every child once.
 
 type Round = typeof surveyRounds.$inferSelect;
@@ -144,14 +144,8 @@ export async function teachingCell(g1: Round, compare: Round | undefined, at: Pl
 /** R1: one teacher round with its paired guardian rounds; the comparison is the previous teacher round's. */
 export async function overviewReport(t1: Round, rounds: Round[], picked: { g1?: string; g2?: string; compare?: string }, options: ReportOptions) {
   const { g1, g2, compareT1, cg1, cg2 } = resolveRounds(t1, rounds, picked);
-  // Trend: each earlier teacher round with its own guardian rounds; a guardian round already shown
-  // with a later teacher round is not repeated.
-  const history = rounds.filter((r) => r.kind === 'T1' && r.opensAt <= t1.opensAt);
-  const used = new Set<string>();
-  const pairs = [...history].reverse().map((r) => {
-    const take = (round: Round | undefined) => (round && !used.has(round.id) ? (used.add(round.id), round) : undefined);
-    return { t1: r, g1: take(r.id === t1.id ? g1 : pairedRound(r, rounds, 'G1')), g2: take(r.id === t1.id ? g2 : pairedRound(r, rounds, 'G2')) };
-  }).reverse();
+  const pairs = roundHistory(t1, rounds, { g1, g2 });
+  const history = pairs.map((p) => p.t1);
   const [teacher, guardian, heat, roster] = await Promise.all([
     t1Marks([...new Set([...history.map((r) => r.id), compareT1?.id].filter((id): id is string => Boolean(id)))]),
     guardianItems([g1?.id, g2?.id, cg1?.id, cg2?.id, ...pairs.flatMap((p) => [p.g1?.id, p.g2?.id])], options),
@@ -191,7 +185,8 @@ export async function overviewReport(t1: Round, rounds: Round[], picked: { g1?: 
       const t = teacherNow.get(erpId) ?? null;
       const g = guardianNow.get(erpId) ?? null;
       const reasons = studentFlags(aggregates.get(erpId), previousMean(erpId), bn, lowest).map((f) => f.label);
-      if (g !== null && t !== null && Math.abs(g - t) >= FLAGS.guardianTeacherGap) reasons.push(`অভিভাবক ও শিক্ষকের মতে ${bn(Math.abs(g - t).toFixed(1))} পার্থক্য`);
+      const gap = gapFlag(g, t, bn);
+      if (gap) reasons.push(gap.label);
       const student = roster.find((s) => s.erpId === erpId)!;
       return reasons.length ? { erpId, name: titleCase(student.name), place: placeOf.get(erpId)!.label, reasons } : null;
     })
@@ -220,3 +215,108 @@ export async function overviewReport(t1: Round, rounds: Round[], picked: { g1?: 
   };
 }
 
+
+/** Guardian forms of one child (all statuses), or the current ones of a class-section, oldest first. */
+async function guardianForms(roundIds: (string | undefined)[], where: { erpId?: string; place?: Place; currentOnly: boolean }) {
+  const ids = [...new Set(roundIds.filter((id): id is string => Boolean(id)))];
+  if (!ids.length) return [];
+  return getDb()
+    .select({
+      roundId: submissions.roundId,
+      kind: submissions.kind,
+      erpId: responses.studentErpId,
+      who: submissions.submitterName,
+      relation: submissions.submitterRelation,
+      verified: submissions.verified,
+      submittedAt: submissions.submittedAt,
+      supersededBy: submissions.supersededBy,
+      comment: submissions.comment,
+    })
+    .from(submissions)
+    .innerJoin(responses, eq(responses.submissionId, submissions.id))
+    .where(
+      and(
+        inArray(submissions.roundId, ids),
+        ne(submissions.kind, 'T1'),
+        eq(submissions.status, 'submitted'),
+        where.currentOnly ? isNull(submissions.supersededBy) : undefined,
+        where.erpId ? eq(responses.studentErpId, where.erpId) : undefined,
+        where.place ? and(eq(responses.classKey, where.place.classKey), eq(responses.sectionKey, where.place.sectionKey)) : undefined
+      )
+    )
+    .orderBy(asc(submissions.submittedAt));
+}
+
+/** Student areas of a teacher round and its G2 round, teacher areas first. */
+function studentAreas(t1: Round, g2: Round | undefined) {
+  const all = [...t1.snapshot.areas, ...(g2?.snapshot.areas ?? [])].filter((a) => a.group === 'student');
+  return all.filter((a, i) => all.findIndex((b) => b.key === a.key) === i);
+}
+
+/** R3 guardian part: each child's G2 average and form status, guardian area means, G1 for the class. */
+export async function classGuardian(t1: Round, rounds: Round[], at: Place, options: ReportOptions) {
+  const { g1, g2 } = resolveRounds(t1, rounds, {});
+  const [items, forms] = await Promise.all([guardianItems([g1?.id, g2?.id], options, at), guardianForms([g2?.id], { place: at, currentOnly: true })]);
+  const g2Items = items.filter((i) => i.roundId === g2?.id);
+  const g1Items = items.filter((i) => i.roundId === g1?.id);
+  const subjects = (g1?.snapshot.classes.find((c) => c.key === at.classKey)?.subjects ?? [])
+    .map((s) => ({ name: s.name, ...cellStats(g1Items.filter((i) => i.subjectKey === s.key)) }))
+    .filter((s) => s.reliable && s.mean !== null);
+  const areas = studentAreas(t1, g2);
+  return {
+    means: perStudentMeans(g2Items),
+    status: new Map(forms.map((f) => [f.erpId, f.verified ? ('verified' as const) : ('unverified' as const)])),
+    g2: { round: g2, ...cellStats(g2Items), mean: childWeightedMean(g2Items) },
+    g1: { round: g1, ...cellStats(g1Items), mean: childWeightedMean(g1Items), lowest: [...subjects].sort((a, b) => a.mean! - b.mean!)[0] ?? null },
+    areas: areaMeans(g2Items, areas.map((a) => a.key)).map((a, i) => ({ ...a, name: areas[i].name })),
+  };
+}
+
+/** R4 guardian part and the guardian print: one child's G2 answers, areas, trend and form history. */
+export async function studentGuardian(t1: Round, rounds: Round[], erpId: string, place: Place, options: ReportOptions) {
+  const { g1, g2 } = resolveRounds(t1, rounds, {});
+  const pairs = roundHistory(t1, rounds, { g1, g2 });
+  const guardianRounds = rounds.filter((r) => r.kind !== 'T1');
+  const [mine, classItems, forms] = await Promise.all([
+    guardianItems(pairs.map((p) => p.g2?.id), options, { erpIds: [erpId] }),
+    guardianItems([g2?.id], options, place),
+    guardianForms(guardianRounds.map((r) => r.id), { erpId, currentOnly: false }),
+  ]);
+  const now = mine.filter((i) => i.roundId === g2?.id);
+  const areas = studentAreas(t1, g2);
+  const keys = areas.map((a) => a.key);
+  const classMeans = areaMeans(classItems, keys);
+  const form = forms.find((f) => f.roundId === g2?.id && !f.supersededBy);
+  const roundOf = new Map(guardianRounds.map((r) => [r.id, r]));
+  return {
+    g2,
+    mean: childWeightedMean(now),
+    classMean: childWeightedMean(classItems),
+    areas: studentAreaMeans(now, erpId, keys).map((a, i) => ({ ...a, name: areas[i].name, classMean: classMeans[i].mean })),
+    answers: g2
+      ? g2.snapshot.template.questions.map((q) => {
+          const item = now.find((i) => i.questionKey === q.key);
+          const option = q.options.find((o) => o.key === item?.optionKey);
+          return { label: questionLabel(q), answer: !item ? null : (option?.label ?? (item.mark === null ? (q.naLabel ?? 'প্রযোজ্য নয়') : bn(item.mark))), mark: item?.mark ?? null };
+        })
+      : [],
+    form: form ?? null,
+    trend: pairs.map((p) => ({ label: p.t1.label, mean: childWeightedMean(mine.filter((i) => i.roundId === p.g2?.id)) })),
+    log: forms.reverse().map((f) => ({ ...f, roundLabel: roundOf.get(f.roundId)?.label ?? '' })),
+  };
+}
+
+/** Class rows with the guardian average, the gap (guardian − teachers, marks), form status and the gap flag. */
+export function withGuardian<R extends { erpId: string; mean: number | null; flags: { kind: string; label: string }[] }>(rows: R[], guardian: Awaited<ReturnType<typeof classGuardian>>) {
+  return rows.map((r) => {
+    const g = guardian.means.get(r.erpId) ?? null;
+    const flag = gapFlag(g, r.mean, bn);
+    return {
+      ...r,
+      guardian: g,
+      gap: g !== null && r.mean !== null ? g - r.mean : null,
+      form: guardian.status.get(r.erpId) ?? ('none' as const),
+      flags: flag ? [...r.flags, flag] : r.flags,
+    };
+  });
+}

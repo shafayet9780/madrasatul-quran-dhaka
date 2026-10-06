@@ -194,6 +194,9 @@ test.describe('G2 questions', () => {
 });
 
 test.describe('G1 teaching review', () => {
+  // The earlier tests use up the test mobile's lookup budget (10 per 10 minutes); fresh fixtures reset it.
+  test.beforeAll(loadFixtures);
+
   async function toRating(page: Page, link: string, mobile = '01700000001', place: [RegExp, string | null] = [/^নার্সারি/, 'শাখা A']) {
     await page.goto(link);
     await page.getByRole('button', { name: 'শুরু করুন' }).click();

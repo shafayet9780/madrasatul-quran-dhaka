@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { cellStats, childWeightedMean, cohortDelta, delta, pairedRound, perStudentMeans, questionDistributions, resolveRounds, type GuardianItem } from './guardian-report-math';
+import { cellStats, childWeightedMean, cohortDelta, delta, gapFlag, pairedRound, perStudentMeans, questionDistributions, resolveRounds, roundHistory, score100, strengthsAndWork, type GuardianItem } from './guardian-report-math';
 
 const day = (d: number) => new Date(Date.UTC(2026, 9, d));
 const round = (id: string, kind: string, opens: number, closes: number) => ({ id, kind, opensAt: day(opens), closesAt: day(closes) });
@@ -95,5 +95,39 @@ describe('resolveRounds', () => {
     const resolved = resolveRounds(t1, [t1Old, g2, t1], { compare: 'none', g2: 'g2' });
     expect(resolved.compareT1).toBeUndefined();
     expect(resolved.g2?.id).toBe('g2');
+  });
+});
+
+describe('guardian and teacher side by side', () => {
+  const bn = (n: number | string) => String(n);
+  it('scores ৪ as 0 and ১০ as 100, and flags gaps of 2 marks', () => {
+    expect([score100(4), score100(7), score100(10)]).toEqual([0, 50, 100]);
+    expect(gapFlag(9, 6.8, bn)).toEqual({ kind: 'gap', label: 'অভিভাবক–শিক্ষক পার্থক্য 2.2' });
+    expect(gapFlag(8, 6.5, bn)).toBeNull();
+    expect(gapFlag(null, 4, bn)).toBeNull();
+  });
+  it('picks strengths (৮+) and work (below ৭) from both sides', () => {
+    const result = strengthsAndWork([
+      { name: 'a', guardian: 10, teacher: 8 },
+      { name: 'b', guardian: null, teacher: 6 },
+      { name: 'c', guardian: 7, teacher: 7.5 },
+      { name: 'd', guardian: 4, teacher: 6 },
+      { name: 'e', guardian: null, teacher: null },
+    ]);
+    expect(result).toEqual({ strengths: ['a'], work: ['d', 'b'] });
+  });
+});
+
+describe('roundHistory', () => {
+  const at = (id: string, kind: string, opens: number, closes: number) => ({ id, kind, opensAt: new Date(Date.UTC(2026, 9, opens)), closesAt: new Date(Date.UTC(2026, 9, closes)) });
+  it('keeps the picked rounds for the current teacher round and never repeats a guardian round', () => {
+    const old = at('t1-old', 'T1', 1, 10);
+    const t1 = at('t1', 'T1', 20, 30);
+    const g2 = at('g2', 'G2', 12, 18);
+    const picked = at('g2-picked', 'G2', 2, 3);
+    const rounds = [old, picked, g2, t1];
+    expect(roundHistory(t1, rounds, { g2 }).map((p) => [p.t1.id, p.g2?.id])).toEqual([['t1-old', 'g2-picked'], ['t1', 'g2']]);
+    // The shared G2 round goes with the later teacher round only.
+    expect(roundHistory(t1, [old, g2, t1], { g2 }).map((p) => p.g2?.id)).toEqual([undefined, 'g2']);
   });
 });
