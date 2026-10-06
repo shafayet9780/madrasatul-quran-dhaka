@@ -12,7 +12,11 @@ export type GuardianItem = {
   areaKey: string;
   /** null for "not applicable" (left out of every mean). */
   mark: number | null;
+  /** G2 only: the chosen option (null for N/A). */
+  optionKey?: string | null;
 };
+
+type Marked = { studentErpId: string; mark: number | null };
 
 type Window = { id: string; kind: string; opensAt: Date; closesAt: Date };
 
@@ -42,7 +46,8 @@ export type CellStats = Summary & { respondents: number; reliable: boolean };
 /** Mean (N/A left out), share of ১০ and how many children's guardians answered; greyed below MIN_N. */
 export function cellStats(items: GuardianItem[]): CellStats {
   const summary = summarise(items.map((i) => i.mark));
-  const respondents = new Set(items.map((i) => i.studentErpId)).size;
+  // Children with at least one counted mark (an all-N/A answer adds nothing to the mean).
+  const respondents = new Set(items.filter((i) => i.mark !== null).map((i) => i.studentErpId)).size;
   return { ...summary, respondents, reliable: respondents >= MIN_N };
 }
 
@@ -55,7 +60,7 @@ export function questionDistributions(items: GuardianItem[], questionKeys: strin
 }
 
 /** Each child's own mean first, so a child answered for in more subjects does not weigh more. */
-export function perStudentMeans(items: GuardianItem[]): Map<string, number> {
+export function perStudentMeans(items: Marked[]): Map<string, number> {
   const byStudent = new Map<string, (number | null)[]>();
   for (const item of items) byStudent.set(item.studentErpId, [...(byStudent.get(item.studentErpId) ?? []), item.mark]);
   const means = new Map<string, number>();
@@ -69,4 +74,21 @@ export function perStudentMeans(items: GuardianItem[]): Map<string, number> {
 /** A difference in marks for a Δ line, or null when either side is missing. */
 export function delta(current: number | null, previous: number | null): number | null {
   return current === null || previous === null ? null : Math.round((current - previous) * 10) / 10;
+}
+
+/** Mean of each child's own mean: every child weighs the same, whatever their number of subjects. */
+export function childWeightedMean(items: Marked[]): number | null {
+  const means = [...perStudentMeans(items).values()];
+  return means.length ? means.reduce((a, b) => a + b, 0) / means.length : null;
+}
+
+/**
+ * Change between two rounds on the shared cohort (spec §7): only children with marks in both,
+ * each child's own mean first. `cohort` = how many children that is.
+ */
+export function cohortDelta(now: Map<string, number>, before: Map<string, number>): { delta: number | null; cohort: number } {
+  const shared = [...now.keys()].filter((erpId) => before.has(erpId));
+  if (!shared.length) return { delta: null, cohort: 0 };
+  const mean = (m: Map<string, number>) => shared.reduce((sum, erpId) => sum + m.get(erpId)!, 0) / shared.length;
+  return { delta: delta(mean(now), mean(before)), cohort: shared.length };
 }

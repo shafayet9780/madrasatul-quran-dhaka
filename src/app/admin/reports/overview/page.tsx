@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { allReportRounds, overviewReport, pickKindRound, previousRound } from '@/lib/survey/guardian-reports';
+import { allReportRounds, overviewReport, pickKindRound } from '@/lib/survey/guardian-reports';
 import { formatDateTime } from '@/lib/survey/dates';
 import { toBengaliDigits as bn } from '@/lib/survey/normalise';
 import { formatMark } from '@/lib/survey/report-math';
@@ -15,7 +15,7 @@ export const dynamic = 'force-dynamic';
 
 type Search = { round?: string; compare?: string; g1?: string; g2?: string; verified?: string };
 
-const signed = (d: number | null) => (d === null ? '' : `${d > 0 ? '▲' : d < 0 ? '▼' : '='} ${bn(Math.abs(d).toFixed(1))}`);
+const signed = (d: number | null) => (d === null || d === 0 ? '' : `${d > 0 ? '▲' : '▼'} ${bn(Math.abs(d).toFixed(1))}`);
 const percent = (part: number, total: number) => (total ? `${bn(Math.round((part / total) * 100))}%` : '—');
 
 export default async function OverviewPage({ searchParams }: { searchParams: Promise<Search> }) {
@@ -35,9 +35,9 @@ export default async function OverviewPage({ searchParams }: { searchParams: Pro
   }
   const verifiedOnly = search.verified === '1';
   const earlier = rounds.filter((r) => r.kind === 'T1' && r.opensAt < t1.opensAt);
-  const compareId = search.compare === 'none' ? undefined : (earlier.find((r) => r.id === search.compare) ?? previousRound(rounds, t1))?.id;
-  const report = await overviewReport(t1, rounds, { g1: search.g1 || undefined, g2: search.g2 || undefined, compare: compareId ?? 'none' }, { verifiedOnly });
-  const compareLabel = compareId ? report.compareT1?.label : undefined;
+  const report = await overviewReport(t1, rounds, { g1: search.g1 || undefined, g2: search.g2 || undefined, compare: search.compare }, { verifiedOnly });
+  const compareId = report.compareT1?.id;
+  const compareLabel = report.compareT1?.label;
   const status = roundStatus(t1, new Date());
   const { kpis } = report;
   const tiles = [
@@ -116,6 +116,7 @@ export default async function OverviewPage({ searchParams }: { searchParams: Pro
               <div className="flex flex-wrap gap-4" style={{ fontSize: 13, color: 'var(--sv-text-muted)' }}>
                 <span>▲ = গড় ৬.৫-এর নিচে</span>
                 <span>n = উত্তরদাতা অভিভাবক · n&lt;৩ হলে ফলাফল লুকানো</span>
+                <span>ফাঁকা = বিষয়টি ঐ শ্রেণিতে নেই</span>
               </div>
             </>
           ) : (
@@ -152,9 +153,11 @@ export default async function OverviewPage({ searchParams }: { searchParams: Pro
                   </span>
                 ))}
               </span>
-              <span className="sv-num" style={{ fontSize: 12.5, textAlign: 'right', lineHeight: 1.3 }} aria-label={`${p.label}: G1 ${bn(p.g1)}, G2 ${bn(p.g2)}, মোট ${bn(p.total)} জন`}>
+              <span className="sv-num" style={{ fontSize: 12.5, textAlign: 'right', lineHeight: 1.3 }}>
+                <span className="sv-visually-hidden">G1 </span>
                 {bn(p.g1)}/{bn(p.total)}
                 <br />
+                <span className="sv-visually-hidden">G2 </span>
                 {bn(p.g2)}/{bn(p.total)}
               </span>
             </div>
@@ -200,7 +203,9 @@ export default async function OverviewPage({ searchParams }: { searchParams: Pro
             </span>
           </div>
           {report.attention.length === 0 && <p className="sv-muted" style={{ margin: 0 }}>কেউ নেই।</p>}
+          <ul className="flex flex-col gap-2" style={{ margin: 0, padding: 0, listStyle: 'none' }}>
           {report.attention.slice(0, 12).map((a) => (
+            <li key={a.erpId}>
             <Link
               key={a.erpId}
               href={`/admin/reports/student/${encodeURIComponent(a.erpId)}?round=${t1.id}`}
@@ -219,7 +224,9 @@ export default async function OverviewPage({ searchParams }: { searchParams: Pro
                 ))}
               </span>
             </Link>
+            </li>
           ))}
+          </ul>
           {report.attention.length > 12 && (
             <span style={{ fontSize: 13, color: 'var(--sv-text-muted)' }}>আরও {bn(report.attention.length - 12)} জন: ক্লাস রিপোর্টে দেখুন।</span>
           )}

@@ -9,10 +9,10 @@ const SECTIONS: { heading: string; links: { label: string; href: string }[] }[] 
     heading: 'রিপোর্ট',
     links: [
       { label: 'ওভারভিউ', href: '/admin/reports/overview' },
-      { label: 'রেসপন্স ট্র্যাকার', href: '/admin/tracker' },
       { label: 'শিক্ষার মান (G1)', href: '/admin/reports/teaching' },
       { label: 'ক্লাস ও শিক্ষার্থী', href: '/admin/reports' },
       { label: 'শিক্ষকদের রেটিং প্যাটার্ন', href: '/admin/reports/raters' },
+      { label: 'রেসপন্স ট্র্যাকার', href: '/admin/tracker' },
     ],
   },
   {

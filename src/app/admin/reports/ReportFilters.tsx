@@ -3,18 +3,13 @@ export function ReportFilters({
   action,
   selects,
   verifiedOnly,
-  hidden = {},
 }: {
   action: string;
   selects: { name: string; label: string; value: string; options: { value: string; label: string }[] }[];
   verifiedOnly?: boolean;
-  hidden?: Record<string, string>;
 }) {
   return (
     <form method="get" action={action} className="flex flex-wrap items-end gap-3 sv-no-print" aria-label="ফিল্টার">
-      {Object.entries(hidden).map(([name, value]) => (
-        <input key={name} type="hidden" name={name} value={value} />
-      ))}
       {selects.map((s) => (
         <label key={s.name} className="flex flex-col gap-1" style={{ fontSize: 13, color: 'var(--sv-text-muted)' }}>
           {s.label}

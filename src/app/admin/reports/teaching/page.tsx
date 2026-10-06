@@ -14,7 +14,7 @@ export const dynamic = 'force-dynamic';
 
 type Search = { round?: string; compare?: string; area?: string; verified?: string; cell?: string };
 
-const signed = (d: number) => `${d > 0 ? '▲' : d < 0 ? '▼' : ''} ${bn(Math.abs(d).toFixed(1))}`;
+const signed = (d: number | null) => (d === null || d === 0 ? '' : `${d > 0 ? '▲' : '▼'} ${bn(Math.abs(d).toFixed(1))}`);
 
 export default async function TeachingPage({ searchParams }: { searchParams: Promise<Search> }) {
   const [search, rounds] = await Promise.all([searchParams, allReportRounds()]);
@@ -38,7 +38,8 @@ export default async function TeachingPage({ searchParams }: { searchParams: Pro
   const report = await teachingQuality(g1, compare, { verifiedOnly, areaKey });
   const [cClass, cSection, cSubject] = (search.cell ?? '').split('|');
   const cellAt = cClass && cSubject ? { classKey: cClass, sectionKey: cSection ?? '', subjectKey: cSubject } : null;
-  const detail = cellAt && report.rows.some((r) => r.classKey === cellAt.classKey && r.sectionKey === cellAt.sectionKey) ? await teachingCell(g1, compare, cellAt, { verifiedOnly }) : null;
+  const validCell = cellAt && report.rows.some((r) => r.classKey === cellAt.classKey && r.sectionKey === cellAt.sectionKey && r.cells.some((c) => c?.subjectKey === cellAt.subjectKey));
+  const detail = cellAt && validCell ? await teachingCell(g1, compare, cellAt, { verifiedOnly }) : null;
   const subjectName = (key: string) => report.subjects.find((s) => s.key === key)?.name ?? key;
   const query = (extra: Record<string, string>) =>
     `/admin/reports/teaching?${new URLSearchParams({ round: g1.id, compare: compare?.id ?? 'none', ...(areaKey ? { area: areaKey } : {}), ...(verifiedOnly ? { verified: '1' } : {}), ...extra })}`;
@@ -94,7 +95,7 @@ export default async function TeachingPage({ searchParams }: { searchParams: Pro
                 </dd>
                 <dd className="sv-num" style={{ margin: 0, fontSize: 14, textAlign: 'right' }}>
                   {formatMark(a.mean, bn)}
-                  {a.mean !== null && a.before !== null && <span style={{ display: 'block', fontSize: 11.5, color: 'var(--sv-text-muted)' }}>{signed(Math.round((a.mean - a.before) * 10) / 10)}</span>}
+                  {signed(a.delta) && <span style={{ display: 'block', fontSize: 11.5, color: 'var(--sv-text-muted)' }}>{signed(a.delta)}</span>}
                 </dd>
               </div>
             ))}
@@ -121,7 +122,7 @@ export default async function TeachingPage({ searchParams }: { searchParams: Pro
               </div>
               <dl className="grid grid-cols-3 gap-2" style={{ margin: 0 }}>
                 {[
-                  ['গড় মার্ক', detail.reliable ? formatMark(detail.mean, bn) : '—', detail.delta !== null && detail.reliable ? `${signed(detail.delta)} (${compare?.label})` : ''],
+                  ['গড় মার্ক', detail.reliable ? formatMark(detail.mean, bn) : '—', detail.reliable && signed(detail.delta) ? `${signed(detail.delta)} (${compare?.label})` : ''],
                   ['উত্তরদাতা', bn(detail.respondents), `${bn(detail.classSize)} জনের মধ্যে`],
                   ['১০ দিয়েছেন', detail.reliable && detail.topShare !== null ? `${bn(Math.round(detail.topShare * 100))}%` : '—', 'সব উত্তরের'],
                 ].map(([label, value, note]) => (
