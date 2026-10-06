@@ -1,0 +1,72 @@
+import { MIN_N, summarise, type Summary } from './stats';
+
+// Pure maths for the guardian reports (R1 overview, R2 teaching quality), from answer_items rows.
+
+export type GuardianItem = {
+  roundId: string;
+  studentErpId: string;
+  classKey: string;
+  sectionKey: string;
+  subjectKey: string;
+  questionKey: string;
+  areaKey: string;
+  /** null for "not applicable" (left out of every mean). */
+  mark: number | null;
+};
+
+type Window = { id: string; kind: string; opensAt: Date; closesAt: Date };
+
+const DAY = 24 * 60 * 60 * 1000;
+
+function overlap(a: Window, b: Window): number {
+  return Math.max(0, Math.min(a.closesAt.getTime(), b.closesAt.getTime()) - Math.max(a.opensAt.getTime(), b.opensAt.getTime()));
+}
+
+/**
+ * The guardian round of `kind` that goes with a teacher round (owner decision 2026-10-06): the one
+ * whose open period overlaps it most (ties: the nearest opening); without any overlap, the one
+ * opening nearest within 30 days; else none.
+ */
+export function pairedRound<R extends Window>(t1: Window, rounds: R[], kind: 'G1' | 'G2'): R | undefined {
+  const candidates = rounds.filter((r) => r.kind === kind);
+  const gap = (r: R) => Math.abs(r.opensAt.getTime() - t1.opensAt.getTime());
+  const byFit = [...candidates].sort((a, b) => overlap(b, t1) - overlap(a, t1) || gap(a) - gap(b));
+  const best = byFit[0];
+  if (!best) return undefined;
+  if (overlap(best, t1) > 0) return best;
+  return gap(best) <= 30 * DAY ? best : undefined;
+}
+
+export type CellStats = Summary & { respondents: number; reliable: boolean };
+
+/** Mean (N/A left out), share of ১০ and how many children's guardians answered; greyed below MIN_N. */
+export function cellStats(items: GuardianItem[]): CellStats {
+  const summary = summarise(items.map((i) => i.mark));
+  const respondents = new Set(items.map((i) => i.studentErpId)).size;
+  return { ...summary, respondents, reliable: respondents >= MIN_N };
+}
+
+/** Marks given per question, in template order, for a distribution chart. */
+export function questionDistributions(items: GuardianItem[], questionKeys: string[], scale: number[]) {
+  return questionKeys.map((questionKey) => {
+    const stats = summarise(items.filter((i) => i.questionKey === questionKey).map((i) => i.mark));
+    return { questionKey, mean: stats.mean, n: stats.n, counts: scale.map((mark) => ({ mark, count: stats.distribution.get(mark) ?? 0 })) };
+  });
+}
+
+/** Each child's own mean first, so a child answered for in more subjects does not weigh more. */
+export function perStudentMeans(items: GuardianItem[]): Map<string, number> {
+  const byStudent = new Map<string, (number | null)[]>();
+  for (const item of items) byStudent.set(item.studentErpId, [...(byStudent.get(item.studentErpId) ?? []), item.mark]);
+  const means = new Map<string, number>();
+  for (const [erpId, marks] of byStudent) {
+    const { mean } = summarise(marks);
+    if (mean !== null) means.set(erpId, mean);
+  }
+  return means;
+}
+
+/** A difference in marks for a Δ line, or null when either side is missing. */
+export function delta(current: number | null, previous: number | null): number | null {
+  return current === null || previous === null ? null : Math.round((current - previous) * 10) / 10;
+}

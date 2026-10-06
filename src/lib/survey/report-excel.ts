@@ -2,6 +2,7 @@ import 'server-only';
 import ExcelJS from 'exceljs';
 import { formatSheetTime } from './dates';
 import { classReport, raterReport, studentReport } from './reports';
+import { allReportRounds, previousRound, teachingQuality } from './guardian-reports';
 import { displayMobile } from './labels';
 import { loadGuardianTracker, loadTracker } from './tracker';
 import type { surveyRounds } from './schema';
@@ -192,5 +193,41 @@ export async function guardianTrackerWorkbook(roundId: string): Promise<Book | n
         m.forms.map((f) => ({ place: m.place, name: m.child.name, status: f.current ? 'গণ্য' : 'আগের', who: who(f), verified: f.verified ? 'যাচাইকৃত' : 'অযাচাইকৃত', when: formatSheetTime(f.submittedAt) }))
       ),
     },
+  ]);
+}
+
+/** R2 heatmap as a table: mean, respondents and share of ১০ per class × subject; hidden below 3. */
+export async function teachingWorkbook(roundId: string, compareId: string | null, areaKey: string | undefined, verifiedOnly: boolean): Promise<Book | null> {
+  const rounds = await allReportRounds();
+  const g1 = rounds.find((r) => r.id === roundId && r.kind === 'G1');
+  if (!g1) return null;
+  const compare = compareId === 'none' ? undefined : (rounds.find((r) => r.id === compareId && r.kind === 'G1' && r.opensAt < g1.opensAt) ?? previousRound(rounds, g1));
+  const report = await teachingQuality(g1, compare, { verifiedOnly, areaKey });
+  const rows = report.rows.flatMap((row) =>
+    row.cells
+      .filter((cell): cell is NonNullable<typeof cell> => cell !== null)
+      .map((cell) => ({
+        place: row.label,
+        subject: report.subjects.find((s) => s.key === cell.subjectKey)?.name ?? cell.subjectKey,
+        mean: cell.reliable ? round1(cell.mean) : null,
+        respondents: cell.respondents,
+        top: cell.reliable && cell.topShare !== null ? Math.round(cell.topShare * 100) : null,
+        delta: cell.reliable ? cell.delta : null,
+      }))
+  );
+  return book(`শিক্ষার মান - ${g1.label}.xlsx`, [
+    {
+      name: 'শ্রেণি × বিষয়',
+      columns: [
+        { header: 'শ্রেণি', key: 'place', width: 16 },
+        { header: 'বিষয়', key: 'subject', width: 22 },
+        { header: 'গড় মার্ক', key: 'mean', width: 10 },
+        { header: 'উত্তরদাতা', key: 'respondents', width: 11 },
+        { header: '১০ (%)', key: 'top', width: 9 },
+        { header: compare ? `পরিবর্তন (${compare.label})` : 'পরিবর্তন', key: 'delta', width: 22 },
+      ],
+      rows,
+    },
+    { name: 'ক্ষেত্র', columns: [{ header: 'ক্ষেত্র', key: 'name', width: 26 }, { header: 'গড় মার্ক', key: 'mean', width: 10 }], rows: report.areas.map((a) => ({ name: a.name, mean: round1(a.mean) })) },
   ]);
 }

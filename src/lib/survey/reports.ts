@@ -27,7 +27,8 @@ export function pickRound(rounds: Round[], requested?: string, now = new Date())
   return rounds.find((r) => r.id === requested) ?? [...rounds].reverse().find((r) => r.opensAt <= now) ?? rounds[rounds.length - 1];
 }
 
-async function marks(roundIds: string[], where: { classKey?: string; sectionKey?: string; erpIds?: string[] } = {}): Promise<MarkRow[]> {
+/** Teacher (T1) marks of these rounds, optionally for one class-section or some students. */
+export async function t1Marks(roundIds: string[], where: { classKey?: string; sectionKey?: string; erpIds?: string[] } = {}): Promise<MarkRow[]> {
   if (!roundIds.length || (where.erpIds && !where.erpIds.length)) return [];
   const rows = await getDb()
     .select({
@@ -117,7 +118,7 @@ export async function classReport(round: Round, classKey: string, sectionKey: st
   if (!cls || (cls.sections.length ? !cls.sections.some((s) => s.key === sectionKey) : sectionKey !== '')) return null;
   const db = getDb();
   const history = await roundsUpTo(round);
-  const current = await marks([round.id], { classKey, sectionKey });
+  const current = await t1Marks([round.id], { classKey, sectionKey });
 
   // Students rated in this class in this round (their snapshot), plus anyone on the roster now.
   const [snapshots, roster, batches] = await Promise.all([
@@ -167,7 +168,7 @@ export async function classReport(round: Round, classKey: string, sectionKey: st
     : new Set<string>();
   const people = new Map([...roster.filter((s) => !ratedElsewhere.has(s.erpId)), ...snapshots].map((s) => [s.erpId, s]));
   const ids = [...people.keys()];
-  const past = await marks(history.map((h) => h.id), { erpIds: ids });
+  const past = await t1Marks(history.map((h) => h.id), { erpIds: ids });
   const aggregates = studentAggregates(current, lowest(snapshot));
 
   const rows = [...people.values()]
@@ -220,8 +221,8 @@ export async function studentReport(round: Round, erpId: string) {
   const history = await roundsUpTo(round);
   const replacement = alias(submissions, 'replacement');
   const [mine, classRows, notes, log] = await Promise.all([
-    marks(history.map((h) => h.id), { erpIds: [erpId] }),
-    marks([round.id], { classKey: place.classKey, sectionKey: place.sectionKey }),
+    t1Marks(history.map((h) => h.id), { erpIds: [erpId] }),
+    t1Marks([round.id], { classKey: place.classKey, sectionKey: place.sectionKey }),
     db
       .select({ note: responses.note, teacherName: submissions.teacherName, subjectName: submissions.subjectName, submittedAt: submissions.submittedAt })
       .from(responses)
@@ -313,7 +314,7 @@ export async function studentReport(round: Round, erpId: string) {
 export async function raterReport(round: Round) {
   const db = getDb();
   const [rows, batches] = await Promise.all([
-    marks([round.id]),
+    t1Marks([round.id]),
     db
       .select({ id: submissions.id, teacherKey: submissions.teacherKey, teacherName: submissions.teacherName, classKey: submissions.classKey, sectionKey: submissions.sectionKey, subjectKey: submissions.subjectKey })
       .from(submissions)

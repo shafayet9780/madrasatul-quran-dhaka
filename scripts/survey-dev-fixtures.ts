@@ -111,7 +111,7 @@ async function main() {
         slug: 'fixture-g1-q',
         label: 'অক্টোবর ২০২৬ · প্রশ্নভিত্তিক (নমুনা)',
         snapshot: g1FixtureSnapshot(new Date(), 'by-question'),
-        opensAt: new Date(now - 4 * DAY),
+        opensAt: new Date(now - 5 * DAY), // older, so reports pick the by-subject G1 round
         closesAt: new Date(now + 14 * DAY),
         linkKey: 'fixture-g1q-link-key-0000',
       },
@@ -189,6 +189,27 @@ async function main() {
     await guardianForm(g1, 'Yahya Hasan', { name: 'আব্দুর রহিম', relation: 'father', mobile: '01700000002' }, Object.fromEntries(g1.snapshot.template.questions.map((q) => [q.key, Object.fromEntries((g1.snapshot.classes.find((c) => c.key === 'nursery')?.subjects ?? []).map((sub) => [sub.key, 8]))]))),
   ]) {
     if (!result.ok) throw new Error(`fixture guardian form failed: ${JSON.stringify(result)}`);
+  }
+  // More G1 forms in Nursery A (numbers not on record: unverified), so the teaching-quality
+  // heatmap has cells with at least 3 guardians.
+  const nurserySubjects = g1.snapshot.classes.find((c) => c.key === 'nursery')?.subjects ?? [];
+  const g1Marks = [10, 8, 10, 6, 8, 10, 4, 8];
+  const g1Children = ['AHMAD SHAFIN ISLAM', 'Abdullah Al Noman', 'Safiya Rahman', 'Humaira Jannat', 'ZAYAN MAHMUD', 'Aisha Siddika Noor'];
+  for (const [i, name] of g1Children.entries()) {
+    const answers = Object.fromEntries(
+      g1.snapshot.template.questions.map((q, qi) => [q.key, Object.fromEntries(nurserySubjects.map((sub, si) => [sub.key, g1Marks[(i + qi * 3 + si * 2) % g1Marks.length]]))])
+    );
+    const form = {
+      submissionId: crypto.randomUUID(),
+      classKey: 'nursery',
+      sectionKey: 'a',
+      studentErpId: byName(name).erpId,
+      submitter: { name: `অভিভাবক ${i + 1}`, relation: (i % 2 ? 'mother' : 'father') as 'father' | 'mother', relationOther: '', mobile: `0181100000${i}` },
+      answers,
+      comment: i === 1 ? 'গণিতের হোমওয়ার্ক একটু কমালে ভালো হয়।' : i === 4 ? 'আলহামদুলিল্লাহ, শিক্ষকরা খুব যত্নশীল।' : '',
+    };
+    const result = await submitGuardian(g1, form, meta);
+    if (!result.ok) throw new Error(`fixture G1 form failed: ${JSON.stringify(result)}`);
   }
 
   console.log(`Loaded fixtures: ${rows.length} students, 5 rounds, 3 submitted batches (one duplicate), 1 draft. Links: T1 ${FIXTURE_LINK} · G1 ${FIXTURE_G1_LINK} · G1 by question ${FIXTURE_G1Q_LINK} · G2 ${FIXTURE_G2_LINK}`);

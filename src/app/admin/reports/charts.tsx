@@ -162,3 +162,87 @@ export function LeniencyDot({ delta, label }: { delta: number; label: string }) 
     </div>
   );
 }
+
+export const GUARDIAN = '#B86A2E';
+export const TEACHING = '#3A6B5D';
+/** A teaching-quality (G1) mean below this is marked ▲ (R1/R2). */
+export const LOW_TEACHING = 6.5;
+
+/** Sage sequential ramp for the teaching-quality heatmap (G1); greyed when hidden (n < 3). */
+export function teachingCell(mean: number | null, hidden = false): { bg: string; fg: string } {
+  if (hidden || mean === null) return { bg: 'var(--sv-stone-soft)', fg: 'var(--sv-text-muted)' };
+  if (mean >= 8.5) return { bg: TEACHING, fg: '#FFFFFF' };
+  if (mean >= 7.5) return { bg: '#9DC4B2', fg: '#1F2A2E' };
+  if (mean >= 6.5) return { bg: '#CFE2D9', fg: '#1F2A2E' };
+  return { bg: '#EEF4F1', fg: '#1F2A2E' };
+}
+
+/** Guardian (G2) vs teacher (T1) average per round, both lines labelled at the end (R1). */
+export function PairTrendChart({ points }: { points: { label: string; guardian: number | null; teacher: number | null }[] }) {
+  const w = 620;
+  const h = 250;
+  const left = 44;
+  const right = 560;
+  const top = 20;
+  const bottom = 220;
+  const x = (i: number) => (points.length === 1 ? (left + right) / 2 : left + 26 + (i * (right - left - 52)) / (points.length - 1));
+  const y = (mark: number) => bottom - pos(mark) * (bottom - top);
+  const series = [
+    { key: 'guardian' as const, color: GUARDIAN, name: 'G2 অভিভাবকের চোখে' },
+    { key: 'teacher' as const, color: TEACHER, name: 'T1 শিক্ষকের চোখে' },
+  ];
+  const description = series
+    .map((s) => `${s.name}: ${points.map((p) => `${p.label} ${p[s.key] === null ? '—' : bn(p[s.key]!.toFixed(1))}`).join(', ')}`)
+    .join('। ');
+  return (
+    <div className="flex flex-col gap-2">
+      <div className="flex flex-wrap gap-4" style={{ fontSize: 13, color: 'var(--sv-text-muted)' }} aria-hidden="true">
+        {series.map((s) => (
+          <span key={s.key} className="flex items-center gap-1.5">
+            <span style={{ width: 14, height: 3, borderRadius: 2, background: s.color }} />
+            {s.name}
+          </span>
+        ))}
+      </div>
+      <svg viewBox={`0 0 ${w} ${h + 20}`} width="100%" role="img" aria-label={description}>
+        <g stroke="var(--sv-hairline)">
+          {[10, 8, 6, 4].map((m) => (
+            <line key={m} x1={left} x2={right} y1={y(m)} y2={y(m)} />
+          ))}
+        </g>
+        <g fill="var(--sv-text-muted)" fontSize="12" textAnchor="end">
+          {[10, 8, 6, 4].map((m) => (
+            <text key={m} x={left - 8} y={y(m) + 4}>
+              {bn(m)}
+            </text>
+          ))}
+        </g>
+        <g fill="var(--sv-text-muted)" fontSize="12" textAnchor="middle">
+          {points.map((p, i) => (
+            <text key={p.label + i} x={x(i)} y={h + 12}>
+              {p.label}
+            </text>
+          ))}
+        </g>
+        {series.map((s) => {
+          const shown = points.map((p, i) => ({ i, v: p[s.key] })).filter((p): p is { i: number; v: number } => p.v !== null);
+          if (!shown.length) return null;
+          const last = shown[shown.length - 1];
+          return (
+            <g key={s.key}>
+              <polyline fill="none" stroke={s.color} strokeWidth="2" strokeLinejoin="round" points={shown.map((p) => `${x(p.i)},${y(p.v)}`).join(' ')} />
+              {shown.map((p) => (
+                <circle key={p.i} cx={x(p.i)} cy={y(p.v)} r={p === last ? 5 : 3.5} fill={s.color} stroke="#fff" strokeWidth="2">
+                  <title>{`${s.name} · ${points[p.i].label}: ${bn(p.v.toFixed(1))}`}</title>
+                </circle>
+              ))}
+              <text x={x(last.i) + 10} y={y(last.v) + 4} fontSize="13" fontWeight="600" fill="var(--sv-text)">
+                {bn(last.v.toFixed(1))}
+              </text>
+            </g>
+          );
+        })}
+      </svg>
+    </div>
+  );
+}
