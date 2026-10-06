@@ -1,7 +1,9 @@
 import 'server-only';
 import { and, asc, eq, inArray, isNotNull, isNull, ne } from 'drizzle-orm';
 import { getDb } from './db';
-import { cellStats, childWeightedMean, cohortDelta, pairedRound, perStudentMeans, questionDistributions, type GuardianItem } from './guardian-report-math';
+import { cellStats, childWeightedMean, cohortDelta, pairedRound, perStudentMeans, questionDistributions, resolveRounds, type GuardianItem } from './guardian-report-math';
+
+export { pickKindRound, previousRound, resolveRounds } from './guardian-report-math';
 import { questionLabel } from './labels';
 import { titleCase, toBengaliDigits as bn } from './normalise';
 import { FLAGS, studentAggregates, studentFlags } from './report-math';
@@ -20,37 +22,6 @@ type Place = { classKey: string; sectionKey: string };
 /** Every opened round, oldest first. */
 export async function allReportRounds(): Promise<Round[]> {
   return getDb().select().from(surveyRounds).orderBy(asc(surveyRounds.opensAt));
-}
-
-/** The requested round of a kind, else the newest that has opened. */
-export function pickKindRound(rounds: Round[], kind: Round['kind'], requested?: string, now = new Date()): Round | undefined {
-  const own = rounds.filter((r) => r.kind === kind);
-  return own.find((r) => r.id === requested) ?? [...own].reverse().find((r) => r.opensAt <= now) ?? own[own.length - 1];
-}
-
-/** The same kind's round before this one (the default "compare with"). */
-export function previousRound(rounds: Round[], round: Round): Round | undefined {
-  return [...rounds].reverse().find((r) => r.kind === round.kind && r.opensAt < round.opensAt);
-}
-
-/**
- * A teacher round with its guardian rounds (picked, else paired by date) and the comparison:
- * `compare: 'none'` = no comparison; otherwise the picked earlier teacher round, else the previous
- * one. A comparison guardian round equal to the current one is dropped (no change to show).
- */
-export function resolveRounds(t1: Round, rounds: Round[], picked: { g1?: string; g2?: string; compare?: string }) {
-  const byId = (id: string | undefined, kind: Round['kind']) => rounds.find((r) => r.id === id && r.kind === kind);
-  const g1 = byId(picked.g1, 'G1') ?? pairedRound(t1, rounds, 'G1');
-  const g2 = byId(picked.g2, 'G2') ?? pairedRound(t1, rounds, 'G2');
-  const compareT1 = picked.compare === 'none' ? undefined : (rounds.find((r) => r.id === picked.compare && r.kind === 'T1' && r.opensAt < t1.opensAt) ?? previousRound(rounds, t1));
-  const other = (round: Round | undefined, current: Round | undefined) => (round && round.id !== current?.id ? round : undefined);
-  return {
-    g1,
-    g2,
-    compareT1,
-    cg1: other(compareT1 && pairedRound(compareT1, rounds, 'G1'), g1),
-    cg2: other(compareT1 && pairedRound(compareT1, rounds, 'G2'), g2),
-  };
 }
 
 export async function guardianItems(roundIds: (string | undefined)[], { verifiedOnly }: ReportOptions, where: Partial<Place> & { erpIds?: string[] } = {}): Promise<GuardianItem[]> {
@@ -206,7 +177,12 @@ export async function overviewReport(t1: Round, rounds: Round[], picked: { g1?: 
   // Needs attention (spec §7 flags): teacher flags, and guardian and teachers far apart.
   const lowest = Math.min(...t1.snapshot.template.scale);
   const teacherNow = perStudentMeans(of(teacher, t1.id));
-  const teacherBefore = perStudentMeans(of(teacher, compareT1?.id));
+  // As on the class and student pages: a drop is against the child's latest earlier round with marks.
+  const earlierMeans = history
+    .filter((r) => r.id !== t1.id)
+    .reverse()
+    .map((r) => perStudentMeans(of(teacher, r.id)));
+  const previousMean = (erpId: string) => earlierMeans.find((m) => m.has(erpId))?.get(erpId) ?? null;
   const guardianNow = perStudentMeans(of(guardian, g2?.id));
   const aggregates = studentAggregates(of(teacher, t1.id), lowest);
   const inRound = [...new Set([...teacherNow.keys(), ...guardianNow.keys()])].filter((erpId) => placeOf.get(erpId));
@@ -214,7 +190,7 @@ export async function overviewReport(t1: Round, rounds: Round[], picked: { g1?: 
     .map((erpId) => {
       const t = teacherNow.get(erpId) ?? null;
       const g = guardianNow.get(erpId) ?? null;
-      const reasons = studentFlags(aggregates.get(erpId), teacherBefore.get(erpId) ?? null, bn, lowest).map((f) => f.label);
+      const reasons = studentFlags(aggregates.get(erpId), previousMean(erpId), bn, lowest).map((f) => f.label);
       if (g !== null && t !== null && Math.abs(g - t) >= FLAGS.guardianTeacherGap) reasons.push(`অভিভাবক ও শিক্ষকের মতে ${bn(Math.abs(g - t).toFixed(1))} পার্থক্য`);
       const student = roster.find((s) => s.erpId === erpId)!;
       return reasons.length ? { erpId, name: titleCase(student.name), place: placeOf.get(erpId)!.label, reasons } : null;

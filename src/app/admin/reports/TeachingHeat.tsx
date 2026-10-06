@@ -40,7 +40,7 @@ export function TeachingHeat({
                 if (!cell)
                   return (
                     <td key={report.subjects[i].key}>
-                      <span className="sv-visually-hidden">বিষয়টি এই শ্রেণিতে নেই</span>
+                      <span className="sv-visually-hidden">নেই</span>
                     </td>
                   );
                 const hidden = !cell.reliable;

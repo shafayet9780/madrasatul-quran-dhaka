@@ -204,28 +204,27 @@ export default async function OverviewPage({ searchParams }: { searchParams: Pro
           </div>
           {report.attention.length === 0 && <p className="sv-muted" style={{ margin: 0 }}>কেউ নেই।</p>}
           <ul className="flex flex-col gap-2" style={{ margin: 0, padding: 0, listStyle: 'none' }}>
-          {report.attention.slice(0, 12).map((a) => (
-            <li key={a.erpId}>
-            <Link
-              key={a.erpId}
-              href={`/admin/reports/student/${encodeURIComponent(a.erpId)}?round=${t1.id}`}
-              className="flex flex-col gap-1"
-              style={{ padding: '10px 12px', borderRadius: 12, border: '1px solid var(--sv-hairline)', textDecoration: 'none', color: 'var(--sv-text)' }}
-            >
-              <span className="flex justify-between gap-2">
-                <span style={{ fontWeight: 600 }}>{a.name}</span>
-                <span style={{ fontSize: 13, color: 'var(--sv-text-muted)' }}>{a.place}</span>
-              </span>
-              <span className="flex flex-wrap gap-1.5">
-                {a.reasons.map((r) => (
-                  <span key={r} style={{ fontSize: 12.5, padding: '2px 8px', borderRadius: 8, background: 'var(--sv-warn-bg)', color: 'var(--sv-warn)' }}>
-                    {r}
+            {report.attention.slice(0, 12).map((a) => (
+              <li key={a.erpId}>
+                <Link
+                  href={`/admin/reports/student/${encodeURIComponent(a.erpId)}?round=${t1.id}`}
+                  className="flex flex-col gap-1"
+                  style={{ padding: '10px 12px', borderRadius: 12, border: '1px solid var(--sv-hairline)', textDecoration: 'none', color: 'var(--sv-text)' }}
+                >
+                  <span className="flex justify-between gap-2">
+                    <span style={{ fontWeight: 600 }}>{a.name}</span>
+                    <span style={{ fontSize: 13, color: 'var(--sv-text-muted)' }}>{a.place}</span>
                   </span>
-                ))}
-              </span>
-            </Link>
-            </li>
-          ))}
+                  <span className="flex flex-wrap gap-1.5">
+                    {a.reasons.map((r) => (
+                      <span key={r} style={{ fontSize: 12.5, padding: '2px 8px', borderRadius: 8, background: 'var(--sv-warn-bg)', color: 'var(--sv-warn)' }}>
+                        {r}
+                      </span>
+                    ))}
+                  </span>
+                </Link>
+              </li>
+            ))}
           </ul>
           {report.attention.length > 12 && (
             <span style={{ fontSize: 13, color: 'var(--sv-text-muted)' }}>আরও {bn(report.attention.length - 12)} জন: ক্লাস রিপোর্টে দেখুন।</span>

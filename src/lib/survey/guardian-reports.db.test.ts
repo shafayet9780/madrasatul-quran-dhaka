@@ -3,10 +3,9 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { and, eq, isNotNull, like } from 'drizzle-orm';
 import { getDb } from './db';
 import { submitGuardian } from './guardian';
-import { guardianComments, guardianItems, resolveRounds, teachingCell, teachingQuality } from './guardian-reports';
+import { guardianComments, guardianItems, teachingCell, teachingQuality } from './guardian-reports';
 import { students, submissions, surveyRounds } from './schema';
 import { g1FixtureSnapshot } from './testing/guardian-fixture';
-import { t1FixtureSnapshot } from './testing/t1-fixture';
 
 const run = `test-greports-${Date.now()}`;
 const hour = 60 * 60 * 1000;
@@ -78,27 +77,5 @@ describe('guardian report queries', () => {
     expect(all.map((c) => c.text)).toEqual(['ভালো', 'নতুন মন্তব্য']);
     const verified = await guardianComments(g1.id, { classKey: 'nursery', sectionKey: 'a' }, { verifiedOnly: true });
     expect(verified.map((c) => c.text)).toEqual(['ভালো']);
-  });
-});
-
-describe('resolveRounds', () => {
-  const at = (id: string, kind: Round['kind'], opens: number, closes: number) =>
-    ({ ...g1, id, kind, snapshot: t1FixtureSnapshot(), opensAt: new Date(Date.UTC(2026, 9, opens)), closesAt: new Date(Date.UTC(2026, 9, closes)) }) as Round;
-  const t1Old = at('t1-old', 'T1', 1, 10);
-  const t1 = at('t1', 'T1', 20, 30);
-  const g2 = at('g2', 'G2', 12, 18);
-
-  it('pairs by date and never compares a guardian round with itself', () => {
-    // One G2 round between two teacher rounds pairs with both: the comparison drops it.
-    const resolved = resolveRounds(t1, [t1Old, g2, t1], {});
-    expect(resolved.g2?.id).toBe('g2');
-    expect(resolved.compareT1?.id).toBe('t1-old');
-    expect(resolved.cg2).toBeUndefined();
-  });
-
-  it('honours "no comparison" and a picked guardian round', () => {
-    const resolved = resolveRounds(t1, [t1Old, g2, t1], { compare: 'none', g2: 'g2' });
-    expect(resolved.compareT1).toBeUndefined();
-    expect(resolved.g2?.id).toBe('g2');
   });
 });

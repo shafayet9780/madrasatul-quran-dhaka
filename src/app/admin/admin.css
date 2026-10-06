@@ -385,7 +385,8 @@
 }
 
 @media print {
-  .sv-admin .sv-heat-cell {
+  /* Heatmaps, bars and tags keep their colours on paper. */
+  .sv-admin * {
     print-color-adjust: exact;
     -webkit-print-color-adjust: exact;
   }

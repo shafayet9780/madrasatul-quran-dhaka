@@ -92,3 +92,34 @@ export function cohortDelta(now: Map<string, number>, before: Map<string, number
   const mean = (m: Map<string, number>) => shared.reduce((sum, erpId) => sum + m.get(erpId)!, 0) / shared.length;
   return { delta: delta(mean(now), mean(before)), cohort: shared.length };
 }
+
+/** The requested round of a kind, else the newest that has opened. */
+export function pickKindRound<R extends Window>(rounds: R[], kind: string, requested?: string, now = new Date()): R | undefined {
+  const own = rounds.filter((r) => r.kind === kind);
+  return own.find((r) => r.id === requested) ?? [...own].reverse().find((r) => r.opensAt <= now) ?? own[own.length - 1];
+}
+
+/** The same kind's round before this one (the default "compare with"). */
+export function previousRound<R extends Window>(rounds: R[], round: R): R | undefined {
+  return [...rounds].reverse().find((r) => r.kind === round.kind && r.opensAt < round.opensAt);
+}
+
+/**
+ * A teacher round with its guardian rounds (picked, else paired by date) and the comparison:
+ * `compare: 'none'` = no comparison; otherwise the picked earlier teacher round, else the previous
+ * one. A comparison guardian round equal to the current one is dropped (no change to show).
+ */
+export function resolveRounds<R extends Window>(t1: R, rounds: R[], picked: { g1?: string; g2?: string; compare?: string }) {
+  const byId = (id: string | undefined, kind: string) => rounds.find((r) => r.id === id && r.kind === kind);
+  const g1 = byId(picked.g1, 'G1') ?? pairedRound(t1, rounds, 'G1');
+  const g2 = byId(picked.g2, 'G2') ?? pairedRound(t1, rounds, 'G2');
+  const compareT1 = picked.compare === 'none' ? undefined : (rounds.find((r) => r.id === picked.compare && r.kind === 'T1' && r.opensAt < t1.opensAt) ?? previousRound(rounds, t1));
+  const other = (round: R | undefined, current: R | undefined) => (round && round.id !== current?.id ? round : undefined);
+  return {
+    g1,
+    g2,
+    compareT1,
+    cg1: other(compareT1 && pairedRound(compareT1, rounds, 'G1'), g1),
+    cg2: other(compareT1 && pairedRound(compareT1, rounds, 'G2'), g2),
+  };
+}

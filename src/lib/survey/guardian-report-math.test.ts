@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { cellStats, childWeightedMean, cohortDelta, delta, pairedRound, perStudentMeans, questionDistributions, type GuardianItem } from './guardian-report-math';
+import { cellStats, childWeightedMean, cohortDelta, delta, pairedRound, perStudentMeans, questionDistributions, resolveRounds, type GuardianItem } from './guardian-report-math';
 
 const day = (d: number) => new Date(Date.UTC(2026, 9, d));
 const round = (id: string, kind: string, opens: number, closes: number) => ({ id, kind, opensAt: day(opens), closesAt: day(closes) });
@@ -74,5 +74,26 @@ describe('cohort and child weighting', () => {
   });
   it('does not count a child whose answers are all N/A', () => {
     expect(cellStats([item('a', null), item('b', 8)]).respondents).toBe(1);
+  });
+});
+
+describe('resolveRounds', () => {
+  const at = (id: string, kind: string, opens: number, closes: number) => ({ id, kind, opensAt: new Date(Date.UTC(2026, 9, opens)), closesAt: new Date(Date.UTC(2026, 9, closes)) });
+  const t1Old = at('t1-old', 'T1', 1, 10);
+  const t1 = at('t1', 'T1', 20, 30);
+  const g2 = at('g2', 'G2', 12, 18);
+
+  it('pairs by date and never compares a guardian round with itself', () => {
+    // One G2 round between two teacher rounds pairs with both: the comparison drops it.
+    const resolved = resolveRounds(t1, [t1Old, g2, t1], {});
+    expect(resolved.g2?.id).toBe('g2');
+    expect(resolved.compareT1?.id).toBe('t1-old');
+    expect(resolved.cg2).toBeUndefined();
+  });
+
+  it('honours "no comparison" and a picked guardian round', () => {
+    const resolved = resolveRounds(t1, [t1Old, g2, t1], { compare: 'none', g2: 'g2' });
+    expect(resolved.compareT1).toBeUndefined();
+    expect(resolved.g2?.id).toBe('g2');
   });
 });
