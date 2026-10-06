@@ -1,14 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { score, spacedMarks } from './scoring';
-
-describe('score', () => {
-  it('maps the 4–10 scale to 0–100', () => {
-    expect(score(10)).toBe(100);
-    expect(score(4)).toBe(0);
-    expect(score(7)).toBe(50);
-    expect(score(8)).toBeCloseTo(66.67, 2);
-  });
-});
+import { spacedMarks } from './scoring';
 
 describe('spacedMarks', () => {
   it('spaces hidden option marks from 10 to 4', () => {

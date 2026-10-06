@@ -135,7 +135,7 @@ export function buildRound(
     if (q.type === 'options' && q.options?.some((o) => typeof o.mark !== 'number')) errors.push(`প্রশ্ন ${n(i + 1)}: প্রতিটি অপশনের মার্ক দিন।`);
     if (q.options?.some((o) => o.key === NA)) errors.push(`প্রশ্ন ${n(i + 1)}: অপশনের key "na" ব্যবহার করা যাবে না।`);
     if (q.allowNA && template?.kind !== 'G2') errors.push(`প্রশ্ন ${n(i + 1)}: "প্রযোজ্য নয়" শুধু শিক্ষার্থীর উপর অভিভাবক রিভিউতে (G2) রাখা যায়।`);
-    if (q.unscored && template?.kind !== 'G2') errors.push(`প্রশ্ন ${n(i + 1)}: "মার্ক গণনা হবে না" শুধু শিক্ষার্থীর উপর অভিভাবক রিভিউতে (G2) রাখা যায়।`);
+    if (q.unscored && (template?.kind !== 'G2' || q.type !== 'options')) errors.push(`প্রশ্ন ${n(i + 1)}: "মার্ক গণনা হবে না" শুধু শিক্ষার্থীর উপর অভিভাবক রিভিউর (G2) উত্তর-বাছাই প্রশ্নে রাখা যায়।`);
   });
   if (template && !questions.length) errors.push('টেমপ্লেটে কোনো প্রশ্ন নেই।');
 

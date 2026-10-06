@@ -4,6 +4,7 @@ import { formatSheetTime } from './dates';
 import { classReport, raterReport, studentReport } from './reports';
 import { optionCounts } from './guardian-report-math';
 import { allReportRounds, classGuardian, guardianItems, previousRound, questionResults, studentGuardian, teachingQuality, withGuardian } from './guardian-reports';
+import { GUARDIAN_AREAS } from './report-math';
 import { classSections } from './snapshot';
 import { displayMobile } from './labels';
 import { loadGuardianTracker, loadTracker } from './tracker';
@@ -70,7 +71,7 @@ export async function classWorkbook(round: Round, classKey: string, sectionKey: 
       rows: guardian.areas.map((g) => {
         const t = teacherAreas.get(g.areaKey);
         return {
-          name: g.name,
+          name: GUARDIAN_AREAS.has(g.areaKey) ? `${g.name} (অভিভাবক সম্পর্কে, শিক্ষার্থীর গড়ে ধরা হয়নি)` : g.name,
           mean: round1(t?.mean ?? null),
           students: t?.students ?? 0,
           guardian: round1(g.mean),
@@ -137,7 +138,7 @@ export async function studentWorkbook(round: Round, erpId: string): Promise<Book
         { header: 'মার্ক', key: 'mark', width: 10 },
       ],
       rows: [
-        ...guardian.answers,
+        ...guardian.answers.map((a) => ({ ...a, mark: a.unscored ? 'মার্ক নেই' : a.mark })),
         ...(guardian.form
           ? [{ label: 'জমা দিয়েছেন', answer: `${guardian.form.who}${guardian.form.relation ? ` (${guardian.form.relation})` : ''} · ${guardian.form.verified ? 'যাচাইকৃত' : 'অযাচাইকৃত'}`, mark: null }]
           : []),

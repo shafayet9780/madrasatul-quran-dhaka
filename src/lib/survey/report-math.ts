@@ -113,8 +113,10 @@ export function studentFlags(
   questionName: (questionKey: string) => string
 ): Flag[] {
   const flags: Flag[] = [];
-  if (drop !== null && Math.round(drop * 10) / 10 >= FLAGS.dropMarks) {
-    flags.push({ kind: 'drop', label: `আগের রাউন্ড থেকে ${bn(drop.toFixed(1))} কমেছে` });
+  // The rounded number both decides and is shown, so the label never reads under the threshold.
+  const shown = drop === null ? null : Math.round(drop * 10) / 10;
+  if (shown !== null && shown >= FLAGS.dropMarks) {
+    flags.push({ kind: 'drop', label: `আগের রাউন্ড থেকে ${bn(shown.toFixed(1))} কমেছে` });
   }
   if (current?.lowQuestion && current.lowQuestion.teachers >= FLAGS.lowMarkTeachers) {
     flags.push({ kind: 'low-teachers', label: `${bn(current.lowQuestion.teachers)} জন শিক্ষক “${questionName(current.lowQuestion.questionKey)}”-এ ${bn(lowestMark)} দিয়েছেন` });

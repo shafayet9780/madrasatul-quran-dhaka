@@ -9,6 +9,8 @@ describe('summarise', () => {
     expect(s.topShare).toBe(0.5);
     // ৭ or less is low: the ৬ here.
     expect(s.lowShare).toBe(0.25);
+    // ৭ itself is low (G2 options such as "সপ্তাহে ২/১ বার"); ৮.৫ is not.
+    expect(summarise([7, 8.5]).lowShare).toBe(0.5);
     expect([...s.distribution]).toEqual([[10, 2], [8, 1], [6, 1]]);
   });
   it('handles no answers', () => {

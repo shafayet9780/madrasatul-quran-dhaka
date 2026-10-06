@@ -18,7 +18,7 @@ export type Heading = { child: string; submitter: string; verified: boolean | nu
 
 function choicesFor(question: SnapshotQuestion): Choice[] {
   const choices: Choice[] = question.options.map((o) => ({ value: o.key, label: o.label }));
-  if (question.allowNA) choices.push({ value: NA, label: question.naLabel ?? 'প্রযোজ্য নয়', caption: 'স্কোরে গণনা হবে না', na: true });
+  if (question.allowNA) choices.push({ value: NA, label: question.naLabel ?? 'প্রযোজ্য নয়', caption: 'মার্কে গণনা হবে না', na: true });
   return choices;
 }
 

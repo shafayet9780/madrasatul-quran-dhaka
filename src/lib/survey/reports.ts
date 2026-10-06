@@ -1,5 +1,5 @@
 import 'server-only';
-import { and, asc, eq, inArray, isNull, lte, ne, or, sql } from 'drizzle-orm';
+import { and, asc, eq, inArray, isNull, lte, ne, notInArray, or, sql } from 'drizzle-orm';
 import { alias } from 'drizzle-orm/pg-core';
 import { getDb } from './db';
 import { questionLabel } from './labels';
@@ -8,6 +8,7 @@ import {
   areaMeans,
   childRows,
   dropSince,
+  GUARDIAN_AREAS,
   roundMeans,
   studentAggregates,
   studentAreaMeans,
@@ -84,7 +85,8 @@ export async function classOverview(round: Round) {
       mean: sql<number | null>`avg(${answerItems.mark})`.mapWith((v) => (v === null ? null : Number(v))),
     })
     .from(answerItems)
-    .where(and(eq(answerItems.roundId, round.id), eq(answerItems.kind, 'T1')))
+    // The class average is about the children: the teachers' guardian questions are left out.
+    .where(and(eq(answerItems.roundId, round.id), eq(answerItems.kind, 'T1'), notInArray(answerItems.areaKey, [...GUARDIAN_AREAS])))
     .groupBy(answerItems.classKey, answerItems.sectionKey);
   return round.snapshot.classes.flatMap((cls) =>
     (cls.sections.length ? cls.sections.map((s) => s.key) : ['']).map((sectionKey) => {
