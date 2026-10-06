@@ -50,6 +50,11 @@ describe('guardianAnswerItems (G2)', () => {
     ]);
   });
 
+  it('keeps the option of an unmarked question but no mark (study at home)', () => {
+    const { items } = guardianAnswerItems(snapshot, 'kg', { ...complete, 'study-at-home': '2h' });
+    expect(items.find((i) => i.questionKey === 'study-at-home')).toEqual({ questionKey: 'study-at-home', subjectKey: '', areaKey: 'focus-habits', optionKey: '2h', mark: null, isNa: false });
+  });
+
   it('lists unanswered or invalid questions and drops unknown keys', () => {
     const { missing, clean } = guardianAnswerItems(snapshot, 'kg', { attendance: 'na', devices: 'sometimes', extra: 'x', 'peer-complaints': 'often' });
     expect(missing).toEqual(['attendance', 'study-at-home', 'devices']);

@@ -100,7 +100,8 @@ describe('guardian report queries', () => {
 
 describe('guardian parts of the class and student reports', () => {
   // A teacher round running at the same time pairs with both guardian rounds by date.
-  const t1 = () => ({ ...g1, id: `${run}-t1`, kind: 'T1' as const, snapshot: t1FixtureSnapshot() });
+  const t1Id = randomUUID();
+  const t1 = () => ({ ...g1, id: t1Id, kind: 'T1' as const, snapshot: t1FixtureSnapshot() });
   const place = { classKey: 'nursery', sectionKey: 'a' };
 
   it('gives each child the current form\'s average and status', async () => {
@@ -108,7 +109,8 @@ describe('guardian parts of the class and student reports', () => {
     expect(report.g2.round?.id).toBe(g2.id);
     // Child 1's newer form: ১০ for attendance, devices and complaints; study at home is N/A.
     expect(report.means.get(`${run}-1`)).toBe(10);
-    expect(report.means.get(`${run}-2`)).toBe(8.5);
+    // Child 2: attendance ৪, devices ১০, complaints ১০; study at home is answered but never marked.
+    expect(report.means.get(`${run}-2`)).toBe(8);
     expect(Object.fromEntries(report.status)).toEqual({ [`${run}-1`]: 'verified', [`${run}-2`]: 'unverified' });
     const verified = await classGuardian(t1(), [g1, g2, t1()], place, { verifiedOnly: true });
     expect([...verified.means.keys()]).toEqual([`${run}-1`]);

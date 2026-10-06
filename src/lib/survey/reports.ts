@@ -6,6 +6,8 @@ import { questionLabel } from './labels';
 import { titleCase, toBengaliDigits as bn } from './normalise';
 import {
   areaMeans,
+  childRows,
+  dropSince,
   roundMeans,
   studentAggregates,
   studentAreaMeans,
@@ -56,12 +58,11 @@ export async function t1Marks(roundIds: string[], where: { classKey?: string; se
 }
 
 const lowest = (snapshot: RoundSnapshot) => Math.min(...snapshot.template.scale);
-
-/** The student's mean in their latest earlier round with marks (a skipped round is passed over). */
-function previousMean(trend: { roundId: string; mean: number | null }[], roundId: string) {
-  const earlier = trend.filter((p) => p.roundId !== roundId);
-  return earlier.length ? earlier[earlier.length - 1].mean : null;
-}
+/** A question's short name for flag labels. */
+const questionName = (snapshot: RoundSnapshot) => (key: string) => {
+  const question = snapshot.template.questions.find((q) => q.key === key);
+  return question ? questionLabel(question) : key;
+};
 const areaList = (snapshot: RoundSnapshot) => snapshot.areas.filter((a) => a.group === 'student');
 
 /** Rounds up to and including this one, oldest first (for trends and "previous round"). */
@@ -169,8 +170,9 @@ export async function classReport(round: Round, classKey: string, sectionKey: st
     : new Set<string>();
   const people = new Map([...roster.filter((s) => !ratedElsewhere.has(s.erpId)), ...snapshots].map((s) => [s.erpId, s]));
   const ids = [...people.keys()];
-  const past = await t1Marks(history.map((h) => h.id), { erpIds: ids });
-  const aggregates = studentAggregates(current, lowest(snapshot));
+  // The child's average, trend and flags leave out the teachers' guardian questions (GUARDIAN_AREAS).
+  const past = childRows(await t1Marks(history.map((h) => h.id), { erpIds: ids }));
+  const aggregates = studentAggregates(childRows(current), lowest(snapshot));
 
   const rows = [...people.values()]
     .map((s) => {
@@ -184,12 +186,12 @@ export async function classReport(round: Round, classKey: string, sectionKey: st
         n: agg?.n ?? 0,
         teachers: agg?.teachers ?? 0,
         trend: trend.map((p) => ({ label: p.label, mean: p.mean! })),
-        flags: studentFlags(agg, previousMean(trend, round.id), bn, lowest(snapshot)),
+        flags: studentFlags(agg, dropSince(past, history.map((h) => h.id), s.erpId), bn, lowest(snapshot), questionName(snapshot)),
       };
     })
     .sort(compareStudents);
 
-  const all = summarise(current.map((r) => r.mark));
+  const all = summarise(childRows(current).map((r) => r.mark));
   return {
     label: classLabelOf(snapshot, classKey, sectionKey),
     rows,
@@ -198,6 +200,7 @@ export async function classReport(round: Round, classKey: string, sectionKey: st
       mean: all.mean,
       n: all.n,
       topShare: all.topShare,
+      lowShare: all.lowShare,
       ratedStudents: aggregates.size,
       flagged: rows.filter((r) => r.flags.length).length,
       subjectsCovered: batches.length,
@@ -248,8 +251,8 @@ export async function studentReport(round: Round, erpId: string) {
       .orderBy(asc(submissions.submittedAt)),
   ]);
   const current = mine.filter((r) => r.roundId === round.id);
-  const agg = studentAggregates(current, lowest(snapshot)).get(erpId);
-  const trend = roundMeans(mine, history);
+  const agg = studentAggregates(childRows(current), lowest(snapshot)).get(erpId);
+  const trend = roundMeans(childRows(mine), history);
   const areas = areaList(snapshot).map((a) => a.key);
   const classMeans = areaMeans(classRows, areas);
 
@@ -287,8 +290,8 @@ export async function studentReport(round: Round, erpId: string) {
     },
     mean: agg?.mean ?? null,
     teachers: agg?.teachers ?? 0,
-    classMean: summarise(classRows.map((r) => r.mark)).mean,
-    flags: studentFlags(agg, previousMean(trend, round.id), bn, lowest(snapshot)),
+    classMean: summarise(childRows(classRows).map((r) => r.mark)).mean,
+    flags: studentFlags(agg, dropSince(childRows(mine), history.map((h) => h.id), erpId), bn, lowest(snapshot), questionName(snapshot)),
     areas: studentAreaMeans(current, erpId, areas).map((a, i) => ({
       ...a,
       name: snapshot.areas.find((x) => x.key === a.areaKey)!.name,

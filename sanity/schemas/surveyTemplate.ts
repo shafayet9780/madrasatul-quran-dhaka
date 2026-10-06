@@ -130,6 +130,17 @@ export const surveyTemplate = defineType({
               type: 'string',
               hidden: ({ parent }) => !parent?.allowNA,
             }),
+            defineField({
+              name: 'unscored',
+              title: 'Not marked (answer shown only)',
+              description: 'মার্ক গণনা হবে না — শুধু উত্তর দেখানো হবে। The answer is kept and shown in reports (e.g. how many study 2 hours) but left out of every average, gap and flag. Option marks are ignored.',
+              type: 'boolean',
+              initialValue: false,
+              validation: (Rule) =>
+                Rule.custom((value, context) =>
+                  value && (context.document as { kind?: string })?.kind !== 'G2' ? '"Not marked" is only for G2 (guardian rates own child).' : true
+                ),
+            }),
           ],
           preview: { select: { title: 'text', subtitle: 'key' } },
         }),

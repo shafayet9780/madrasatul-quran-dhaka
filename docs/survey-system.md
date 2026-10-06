@@ -198,11 +198,14 @@ Statistics rules:
 - Always show n. Grey out **aggregates** with n < 3 (never applies to a single student's own guardian response).
 - Show mean **and** % at the top mark (১০). G2 also shows raw option counts.
 - N/A answers are excluded from numerator and denominator; per-question n is shown so an area resting on fewer questions is visible.
-- **Guardian ↔ teacher area comparisons** use a normalised 0–100 score `(mark − 4) / 6 × 100` (G2 and T1 have different mark granularity), and gaps are shown in bands (e.g. ≥ 33 points = ≥ 2 marks).
+- **Guardian ↔ teacher comparisons** are in marks (both sides use the ৪–১০ scale; the earlier 0–100 score was dropped, owner 2026-10-06) and only on the areas both rated: guardian-only areas (home habits) and the teachers' guardian questions are left out.
+- **Low answers**: a mark of ৭ or less. Every average is shown with the share of low answers, which an average near the top hides; a heatmap cell is marked when ≥ 25% of its answers are low.
+- **Teachers' guardian questions** (T1 guardian coordination, contact outside hours; area `guardian-cooperation`) are about the parent: shown on their own, never in the child's average, flags or the gap.
+- **Unmarked questions** (template setting, G2): the answer is kept and shown as counts, never marked (e.g. study hours at home).
 - **Teacher leniency** = paired mean difference vs other teachers on the same students in the same round. **Straight-lining** = ≥ 90% identical marks across ≥ 10 students in one batch.
 - **Δ vs comparison round** is computed on the cohort of students present in both rounds.
 - **T1 coverage** (no fixed assignments) = class × subject pairs with at least one submitted batch; guardian response rate = students with a current G1/G2 submission ÷ active students.
-- Flags (thresholds in `FLAGS`, `report-math.ts`): the teachers' average dropped ≥ 1 mark vs the student's previous round, ≥ 2 teachers at ৪ on the same student, the student's guardian (G2) and teacher (T1) averages ≥ 33 points apart.
+- Flags (thresholds in `FLAGS`, `report-math.ts`): the teachers' average dropped ≥ 1 mark vs the student's latest earlier round with marks, on the subjects rated in both rounds; ≥ 2 teachers gave ৪ on the same question (the label names it); guardian and teachers ≥ 2 marks apart on the areas both rated.
 - Reports are for a teacher round; the G1 and G2 rounds are paired with it by date (most overlap, else the nearest opening within 30 days); the overview lets the admin pick others. Detailed report rules (units, print strengths) are in `docs/survey-phase2-plan.md` §1.
 
 Trends appear from the second round. Every table exports to Excel; every page prints to PDF.

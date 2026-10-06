@@ -32,6 +32,7 @@ export type RoundSource = {
             required?: boolean | null;
             allowNA?: boolean | null;
             naLabel?: string | null;
+            unscored?: boolean | null;
           }[]
         | null;
     } | null;
@@ -134,6 +135,7 @@ export function buildRound(
     if (q.type === 'options' && q.options?.some((o) => typeof o.mark !== 'number')) errors.push(`প্রশ্ন ${n(i + 1)}: প্রতিটি অপশনের মার্ক দিন।`);
     if (q.options?.some((o) => o.key === NA)) errors.push(`প্রশ্ন ${n(i + 1)}: অপশনের key "na" ব্যবহার করা যাবে না।`);
     if (q.allowNA && template?.kind !== 'G2') errors.push(`প্রশ্ন ${n(i + 1)}: "প্রযোজ্য নয়" শুধু শিক্ষার্থীর উপর অভিভাবক রিভিউতে (G2) রাখা যায়।`);
+    if (q.unscored && template?.kind !== 'G2') errors.push(`প্রশ্ন ${n(i + 1)}: "মার্ক গণনা হবে না" শুধু শিক্ষার্থীর উপর অভিভাবক রিভিউতে (G2) রাখা যায়।`);
   });
   if (template && !questions.length) errors.push('টেমপ্লেটে কোনো প্রশ্ন নেই।');
 
@@ -164,6 +166,7 @@ export function buildRound(
         required: opt(q.required),
         allowNA: opt(q.allowNA),
         naLabel: q.allowNA && q.naLabel ? q.naLabel : undefined,
+        unscored: opt(q.unscored),
       })),
     },
     areas: source.areas.filter((a) => usedAreas.has(a.key)).map((a) => ({ key: a.key, name: a.name, group: a.group })),

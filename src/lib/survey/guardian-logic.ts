@@ -69,7 +69,8 @@ export function guardianAnswerItems(
       subjectKey: '',
       areaKey: question.areaKey,
       optionKey: answer.kind === 'mark' && question.type === 'options' ? String(given) : null,
-      mark: answer.kind === 'mark' ? answer.mark : null,
+      // An unmarked question keeps the chosen option but no mark, so no average counts it.
+      mark: answer.kind === 'mark' && !question.unscored ? answer.mark : null,
       isNa: answer.kind === 'na',
     });
   }

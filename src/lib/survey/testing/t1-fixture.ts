@@ -42,6 +42,7 @@ export function t1FixtureSnapshot(takenAt = new Date()): RoundSnapshot {
         areaKey,
         required: true,
         allowNA: false,
+        unscored: false,
       })),
     },
     areas: [

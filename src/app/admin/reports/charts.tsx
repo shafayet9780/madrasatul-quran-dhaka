@@ -1,4 +1,3 @@
-import { score100 } from '@/lib/survey/guardian-report-math';
 import { toBengaliDigits as bn } from '@/lib/survey/normalise';
 
 // Hand-built charts for the T1 reports. Teacher marks are one series (#2F6FA3), so no legend box;
@@ -126,8 +125,8 @@ export function LeniencyDot({ delta, label }: { delta: number; label: string }) 
 
 export const GUARDIAN = '#B86A2E';
 export const TEACHING = '#3A6B5D';
-/** A teaching-quality (G1) mean below this is marked ▲ (R1/R2). */
-export const LOW_TEACHING = 6.5;
+/** A heatmap cell is marked ⚠ when at least this share of its answers are low (৭ or less). */
+export const MANY_LOW = 0.25;
 
 /** Sage sequential ramp for the teaching-quality heatmap (G1); greyed when hidden (n < 3). */
 export function teachingCell(mean: number | null, hidden = false): { bg: string; fg: string } {
@@ -208,10 +207,10 @@ export function PairTrendChart({ points, width = 620 }: { points: { label: strin
   );
 }
 
-// Guardian ↔ teacher comparisons use the 0–100 score (spec §7): (mark − ৪) ÷ ৬ × ১০০.
-const score = (mark: number) => Math.max(0, Math.min(100, score100(mark)));
-/** The R3 frame marks an area when guardian and teachers are this many points apart. */
-export const AREA_GAP_POINTS = 15;
+// Guardian ↔ teacher comparisons are drawn on the same ৪–১০ mark scale as everything else.
+const score = (mark: number) => pos(mark) * 100;
+/** The class page marks an area when guardian and teachers are at least this many marks apart. */
+export const AREA_GAP_MARKS = 1;
 
 /** One area: guardian dot, teacher dot, the span between them and an optional class-average tick. */
 export function PairBar({
@@ -246,17 +245,17 @@ export function PairBar({
   );
 }
 
-export function ScoreAxis() {
+export function MarkAxis() {
   return (
     <div className="flex justify-between" style={{ fontSize: 13, color: 'var(--sv-text-muted)' }} aria-hidden="true">
-      <span>০</span>
-      <span>৫০</span>
-      <span>১০০</span>
+      <span>৪</span>
+      <span>৭</span>
+      <span>১০</span>
     </div>
   );
 }
 
-/** R3 scatter: each child's guardian score (x) against the teachers' (y); lines at mark ৮. */
+/** R3 scatter: each child's guardian average (x) against the teachers' (y) on the areas both rated; lines at ৮. */
 export function GapScatter({ points }: { points: { erpId: string; name: string; guardian: number; teacher: number; flagged: boolean }[] }) {
   const left = 50;
   const right = 480;
@@ -264,7 +263,7 @@ export function GapScatter({ points }: { points: { erpId: string; name: string; 
   const bottom = 360;
   const x = (mark: number) => left + (score(mark) / 100) * (right - left);
   const y = (mark: number) => bottom - (score(mark) / 100) * (bottom - top);
-  const ticks = [0, 50, 100];
+  const ticks = [4, 7, 10];
   // Names of flagged children beside their dots, kept inside the plot: right-aligned near the right
   // edge; below the dot, else above, else further out, skipping places another name already took.
   const labels: { erpId: string; name: string; x: number; y: number; end: boolean; width: number }[] = [];
@@ -281,7 +280,7 @@ export function GapScatter({ points }: { points: { erpId: string; name: string; 
     labels.push({ erpId: p.erpId, name: p.name, x: lx, y: ly, end, width });
   }
   return (
-    <svg viewBox="0 0 500 410" width="100%" style={{ maxWidth: 560 }} role="img" aria-label={`${bn(points.length)} জন শিক্ষার্থীর অভিভাবক ও শিক্ষকের স্কোর; বিস্তারিত নিচের তালিকায়`}>
+    <svg viewBox="0 0 500 410" width="100%" style={{ maxWidth: 560 }} role="img" aria-label={`${bn(points.length)} জন শিক্ষার্থীর অভিভাবক ও শিক্ষকদের গড় মার্ক (একই ক্ষেত্রে); বিস্তারিত নিচের তালিকায়`}>
       <rect x={left} y={top} width={right - left} height={bottom - top} fill="#fff" />
       <g stroke="var(--sv-icon-muted)" strokeDasharray="4 4">
         <line x1={x(8)} y1={top} x2={x(8)} y2={bottom} />
@@ -291,34 +290,34 @@ export function GapScatter({ points }: { points: { erpId: string; name: string; 
       <line x1={left} y1={top} x2={left} y2={bottom} stroke="var(--sv-hairline)" />
       <g fill="var(--sv-text-muted)" fontSize="12">
         {ticks.map((t) => (
-          <text key={`x${t}`} x={left + (t / 100) * (right - left)} y={bottom + 18} textAnchor="middle">
+          <text key={`x${t}`} x={x(t)} y={bottom + 18} textAnchor="middle">
             {bn(t)}
           </text>
         ))}
         {ticks.map((t) => (
-          <text key={`y${t}`} x={left - 8} y={bottom - (t / 100) * (bottom - top) + 4} textAnchor="end">
+          <text key={`y${t}`} x={left - 8} y={y(t) + 4} textAnchor="end">
             {bn(t)}
           </text>
         ))}
       </g>
       <text x={(left + right) / 2} y={bottom + 40} textAnchor="middle" fontSize="13" fontWeight="600" fill="var(--sv-text-body)">
-        অভিভাবকের স্কোর (G2) →
+        অভিভাবকের গড় মার্ক →
       </text>
       <text x={14} y={(top + bottom) / 2} textAnchor="middle" fontSize="13" fontWeight="600" fill="var(--sv-text-body)" transform={`rotate(-90 14 ${(top + bottom) / 2})`}>
-        শিক্ষকের স্কোর (T1) →
+        শিক্ষকদের গড় মার্ক →
       </text>
       <g fontSize="12.5" fill="var(--sv-text-muted)" textAnchor="end">
         <text x={right - 8} y={top + 18}>দুই দিকেই ভালো</text>
-        <text x={right - 8} y={y(8) + 20}>অভিভাবক বেশি দেখছেন</text>
-        <text x={x(8) - 8} y={top + 18}>শিক্ষক বেশি দেখছেন</text>
-        <text x={x(8) - 8} y={y(8) + 20}>দুই দিকেই দুর্বল</text>
+        <text x={right - 8} y={y(8) + 20}>অভিভাবক বেশি দিয়েছেন</text>
+        <text x={x(8) - 8} y={top + 18}>শিক্ষক বেশি দিয়েছেন</text>
+        <text x={x(8) - 8} y={y(8) + 20}>দুই দিকেই কম</text>
       </g>
       <text x={x(8)} y={top - 7} textAnchor="middle" fontSize="12" fontWeight="600" fill="var(--sv-text-muted)">
         মার্ক ৮
       </text>
       {points.map((p) => (
         <circle key={p.erpId} cx={x(p.guardian)} cy={y(p.teacher)} r={p.flagged ? 7 : 5} fill={p.flagged ? '#8A4416' : TEACHER} stroke="#fff" strokeWidth="2">
-          <title>{`${p.name}: অভিভাবক ${bn(Math.round(score(p.guardian)))}, শিক্ষক ${bn(Math.round(score(p.teacher)))}`}</title>
+          <title>{`${p.name}: অভিভাবক ${bn(p.guardian.toFixed(1))}, শিক্ষক ${bn(p.teacher.toFixed(1))}`}</title>
         </circle>
       ))}
       {labels.map((l) => (

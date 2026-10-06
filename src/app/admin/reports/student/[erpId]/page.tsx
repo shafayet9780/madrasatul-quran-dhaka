@@ -1,13 +1,13 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { formatDateTime } from '@/lib/survey/dates';
-import { averageOf, gapFlag, score100 } from '@/lib/survey/guardian-report-math';
+import { gapFlag, sharedAreaGap } from '@/lib/survey/guardian-report-math';
 import { allReportRounds, studentGuardian } from '@/lib/survey/guardian-reports';
 import { toBengaliDigits as bn } from '@/lib/survey/normalise';
-import { formatMark } from '@/lib/survey/report-math';
+import { formatMark, GUARDIAN_AREAS } from '@/lib/survey/report-math';
 import { pickRound, studentReport } from '@/lib/survey/reports';
 import { RoundPicker } from '../../../RoundPicker';
-import { GUARDIAN, markCell, PairBar, PairTrendChart, ScoreAxis, TEACHER, TrendChart } from '../../charts';
+import { GUARDIAN, MarkAxis, markCell, PairBar, PairTrendChart, TEACHER, TrendChart } from '../../charts';
 import { NoRounds } from '../../NoRounds';
 import { ReportTools } from '../../ReportTools';
 
@@ -29,7 +29,6 @@ const STATUS = {
   'set-aside': { label: 'বাদ (অ্যাডমিন সিদ্ধান্ত)', bg: 'var(--sv-neutral-bg)', fg: 'var(--sv-text-body)' },
 } as const;
 
-const points = (mark: number | null) => (mark === null ? '—' : bn(Math.round(score100(mark))));
 
 
 export default async function StudentProfilePage({ params, searchParams }: { params: Promise<{ erpId: string }>; searchParams: Promise<{ round?: string }> }) {
@@ -49,18 +48,23 @@ export default async function StudentProfilePage({ params, searchParams }: { par
   }
   const { student } = report;
   const guardian = await studentGuardian(round, all, erpId, student, { verifiedOnly: false });
-  const flags = [...report.flags, gapFlag(guardian.mean, report.mean, bn)].filter((f) => f !== null);
+  const marked = (list: { areaKey: string; mean: number | null }[]) => new Map(list.filter((a) => a.mean !== null).map((a) => [a.areaKey, a.mean!]));
+  // Guardian against teachers on the areas both rated (the gap tile and flag).
+  const shared = sharedAreaGap(marked(guardian.areas), marked(report.areas));
+  const flags = [...report.flags, gapFlag(shared, bn)].filter((f) => f !== null);
   const guardianAreas = new Map(guardian.areas.map((a) => [a.areaKey, a]));
   const teacherAreas = new Map(report.areas.map((a) => [a.areaKey, a]));
   const areas = [...new Set([...report.areas.map((a) => a.areaKey), ...guardian.areas.map((a) => a.areaKey)])].map((key) => {
     const g = guardianAreas.get(key);
     const t = teacherAreas.get(key);
-    return { key, name: (t ?? g)!.name, guardian: g?.mean ?? null, teacher: t?.mean ?? null, classMean: averageOf([g?.classMean ?? null, t?.classMean ?? null]) };
+    // The class average beside the child is the teachers' (the same raters as the teacher mark).
+    return { key, name: (t ?? g)!.name, guardian: g?.mean ?? null, teacher: t?.mean ?? null, classMean: t?.classMean ?? null };
   });
   const widest = areas
     .filter((a) => a.guardian !== null && a.teacher !== null)
-    .map((a) => ({ name: a.name, points: Math.abs(score100(a.guardian!) - score100(a.teacher!)) }))
-    .sort((a, b) => b.points - a.points)[0];
+    .filter((a) => !GUARDIAN_AREAS.has(a.key))
+    .map((a) => ({ name: a.name, marks: Math.abs(a.guardian! - a.teacher!) }))
+    .sort((a, b) => b.marks - a.marks)[0];
   const teacherByRound = new Map(report.trend.map((p) => [p.roundId, p.mean]));
   const pairTrend = guardian.trend
     .map((p) => ({ label: p.label, guardian: p.mean, teacher: teacherByRound.get(p.roundId) ?? null }))
@@ -119,7 +123,7 @@ export default async function StudentProfilePage({ params, searchParams }: { par
 
       <div className="grid gap-3" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))' }}>
         <div className="sv-card sv-kpi">
-          <div style={{ fontSize: 13, color: 'var(--sv-text-muted)', fontWeight: 600 }}>অভিভাবকের চোখে · G2</div>
+          <div style={{ fontSize: 13, color: 'var(--sv-text-muted)', fontWeight: 600 }}>অভিভাবকের রিভিউ</div>
           <div className="flex items-baseline gap-1">
             <span className="sv-num" style={{ fontSize: 30 }}>
               {formatMark(guardian.mean, bn)}
@@ -127,11 +131,11 @@ export default async function StudentProfilePage({ params, searchParams }: { par
             <span style={{ fontSize: 14, color: 'var(--sv-text-muted)' }}>/ ১০</span>
           </div>
           <div style={{ fontSize: 13, color: 'var(--sv-text-muted)' }}>
-            {!guardian.g2 ? 'এই রাউন্ডের সাথে G2 নেই' : guardian.mean === null ? 'অভিভাবক এখনো জমা দেননি' : `ক্লাসের গড় ${formatMark(guardian.classMean, bn)} · স্কোর ${points(guardian.mean)}/১০০`}
+            {!guardian.g2 ? 'এই রাউন্ডের সাথে অভিভাবকের রিভিউ নেই' : guardian.mean === null ? 'অভিভাবক এখনো জমা দেননি' : `ক্লাসের অভিভাবকদের গড় ${formatMark(guardian.classMean, bn)}`}
           </div>
         </div>
         <div className="sv-card sv-kpi">
-          <div style={{ fontSize: 13, color: 'var(--sv-text-muted)', fontWeight: 600 }}>শিক্ষকের চোখে · T1</div>
+          <div style={{ fontSize: 13, color: 'var(--sv-text-muted)', fontWeight: 600 }}>শিক্ষকের রিভিউ</div>
           <div className="flex items-baseline gap-1">
             <span className="sv-num" style={{ fontSize: 30 }}>
               {formatMark(report.mean, bn)}
@@ -140,18 +144,21 @@ export default async function StudentProfilePage({ params, searchParams }: { par
           </div>
           <div style={{ fontSize: 13, color: 'var(--sv-text-muted)' }}>
             {bn(report.teachers)} জন শিক্ষক · ক্লাসের গড় {formatMark(report.classMean, bn)}
-            {report.mean !== null ? ` · স্কোর ${points(report.mean)}/১০০` : ''}
           </div>
         </div>
         <div className="sv-card sv-kpi">
           <div style={{ fontSize: 13, color: 'var(--sv-text-muted)', fontWeight: 600 }}>অভিভাবক–শিক্ষক পার্থক্য</div>
           <div className="flex items-baseline gap-1">
             <span className="sv-num" style={{ fontSize: 30 }}>
-              {guardian.mean !== null && report.mean !== null ? bn(Math.round(Math.abs(score100(guardian.mean) - score100(report.mean)))) : '—'}
+              {shared ? bn(Math.abs(shared.gap).toFixed(1)) : '—'}
             </span>
-            <span style={{ fontSize: 14, color: 'var(--sv-text-muted)' }}>/ ১০০ পয়েন্ট</span>
+            <span style={{ fontSize: 14, color: 'var(--sv-text-muted)' }}>মার্ক</span>
           </div>
-          <div style={{ fontSize: 13, color: 'var(--sv-text-muted)' }}>{widest ? `সবচেয়ে বেশি: ${widest.name} (${bn(Math.round(widest.points))})` : 'দুই দিকের মার্ক লাগবে'}</div>
+          <div style={{ fontSize: 13, color: 'var(--sv-text-muted)' }}>
+            {shared
+              ? `${shared.gap >= 0 ? 'অভিভাবক' : 'শিক্ষক'} বেশি দিয়েছেন · একই ${bn(shared.areas)}টি ক্ষেত্রে${widest ? ` · সবচেয়ে বেশি: ${widest.name} (${bn(widest.marks.toFixed(1))})` : ''}`
+              : 'দুই দিকের মার্ক লাগবে'}
+          </div>
         </div>
         <div className="sv-card sv-kpi">
           <div style={{ fontSize: 13, color: 'var(--sv-text-muted)', fontWeight: 600 }}>ফ্ল্যাগ</div>
@@ -183,15 +190,24 @@ export default async function StudentProfilePage({ params, searchParams }: { par
             </span>
             <span className="flex items-center gap-1.5">
               <span style={{ width: 3, height: 14, background: 'var(--sv-text-body)' }} />
-              ক্লাসের গড় (অভিভাবক ও শিক্ষক মিলিয়ে)
+              ক্লাসের গড় (শিক্ষকদের)
             </span>
           </div>
-          <div style={{ fontSize: 13, color: 'var(--sv-text-muted)' }}>স্কোর ০–১০০ = (মার্ক − ৪) ÷ ৬ × ১০০</div>
+          <div style={{ fontSize: 13, color: 'var(--sv-text-muted)' }}>গড় মার্ক, ১০-এর মধ্যে</div>
           {areas.map((area) => {
-            const text = [area.guardian !== null && `অভিভাবক ${points(area.guardian)}`, area.teacher !== null && `শিক্ষক ${points(area.teacher)}`, `ক্লাস ${points(area.classMean)}`].filter(Boolean).join(' · ');
+            const text = [
+              area.guardian !== null && `অভিভাবক ${formatMark(area.guardian, bn)}`,
+              area.teacher !== null && `শিক্ষক ${formatMark(area.teacher, bn)}`,
+              area.classMean !== null && `ক্লাস ${formatMark(area.classMean, bn)}`,
+            ]
+              .filter(Boolean)
+              .join(' · ');
             return (
               <div key={area.key} className="sv-pair-row" style={{ fontSize: 14, minHeight: 34 }}>
-                <div style={{ fontWeight: 600 }}>{area.name}</div>
+                <div style={{ fontWeight: 600 }}>
+                  {area.name}
+                  {GUARDIAN_AREAS.has(area.key) && <div style={{ fontWeight: 400, fontSize: 12.5, color: 'var(--sv-text-muted)' }}>অভিভাবক সম্পর্কে · শিক্ষার্থীর গড়ে ধরা হয়নি</div>}
+                </div>
                 <PairBar guardian={area.guardian} teacher={area.teacher} reference={area.classMean} label={`${area.name}: ${text}`} />
                 <div className="sv-pair-text" style={{ fontSize: 12.5, color: 'var(--sv-text-muted)' }}>
                   {text}
@@ -201,7 +217,7 @@ export default async function StudentProfilePage({ params, searchParams }: { par
           })}
           <div className="sv-pair-row" aria-hidden="true">
             <div />
-            <ScoreAxis />
+            <MarkAxis />
             <div />
           </div>
         </section>
@@ -312,11 +328,11 @@ export default async function StudentProfilePage({ params, searchParams }: { par
               </div>
               <dl style={{ margin: 0 }}>
                 {guardian.answers.map((a) => (
-                  <div key={a.label} className="grid items-baseline gap-3" style={{ gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 150px) 40px', padding: '8px 0', borderBottom: '1px solid var(--sv-hairline-soft)', fontSize: 14 }}>
+                  <div key={a.label} className="grid items-baseline gap-3" style={{ gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 150px) 56px', padding: '8px 0', borderBottom: '1px solid var(--sv-hairline-soft)', fontSize: 14 }}>
                     <dt>{a.label}</dt>
                     <dd style={{ margin: 0, fontWeight: 600 }}>{a.answer ?? '—'}</dd>
-                    <dd className="sv-num" style={{ margin: 0, textAlign: 'right' }}>
-                      {a.mark === null ? '' : bn(a.mark)}
+                    <dd className="sv-num" style={{ margin: 0, textAlign: 'right', color: 'var(--sv-text-muted)' }} title={a.unscored ? 'এই প্রশ্নে মার্ক গণনা হয় না' : undefined}>
+                      {a.unscored ? 'মার্ক নেই' : a.mark === null ? '' : bn(a.mark)}
                     </dd>
                   </div>
                 ))}

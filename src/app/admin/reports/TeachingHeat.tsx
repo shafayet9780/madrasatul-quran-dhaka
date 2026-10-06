@@ -2,7 +2,7 @@ import Link from 'next/link';
 import type { teachingQuality } from '@/lib/survey/guardian-reports';
 import { toBengaliDigits as bn } from '@/lib/survey/normalise';
 import { formatMark } from '@/lib/survey/report-math';
-import { LOW_TEACHING, teachingCell as cellColour } from './charts';
+import { MANY_LOW, teachingCell as cellColour } from './charts';
 
 type Report = Awaited<ReturnType<typeof teachingQuality>>;
 type Row = Report['rows'][number];
@@ -45,10 +45,11 @@ export function TeachingHeat({
                   );
                 const hidden = !cell.reliable;
                 const colour = cellColour(cell.mean, hidden);
-                const low = !hidden && cell.mean !== null && cell.mean < LOW_TEACHING;
+                const lowPercent = cell.lowShare === null ? null : Math.round(cell.lowShare * 100);
+                const low = !hidden && cell.lowShare !== null && cell.lowShare >= MANY_LOW;
                 const label = hidden
                   ? `${row.label} · ${subjectName(cell.subjectKey)}: ${bn(cell.respondents)} জন উত্তরদাতা, ফলাফল লুকানো`
-                  : `${row.label} · ${subjectName(cell.subjectKey)}: গড় ${formatMark(cell.mean, bn)}, ${bn(cell.respondents)} জন উত্তরদাতা${low ? ', ৬.৫-এর নিচে' : ''}`;
+                  : `${row.label} · ${subjectName(cell.subjectKey)}: গড় ${formatMark(cell.mean, bn)}, ${bn(cell.respondents)} জন উত্তরদাতা, ${bn(lowPercent ?? 0)}% উত্তর ৭ বা কম`;
                 const current = selected && selected.classKey === row.classKey && selected.sectionKey === row.sectionKey && selected.subjectKey === cell.subjectKey;
                 return (
                   <td key={cell.subjectKey}>
@@ -60,10 +61,12 @@ export function TeachingHeat({
                       style={{ background: colour.bg, color: colour.fg, outline: current ? '3px solid var(--sv-bronze)' : undefined }}
                     >
                       <span className="sv-num" style={{ fontSize: 15 }}>
-                        {low && '▲ '}
+                        {low && '⚠ '}
                         {hidden ? '—' : formatMark(cell.mean, bn)}
                       </span>
-                      <span style={{ fontSize: 11.5 }}>n={bn(cell.respondents)}</span>
+                      <span style={{ fontSize: 11.5 }}>
+                        {bn(cell.respondents)} জন{!hidden && lowPercent ? ` · ${bn(lowPercent)}% কম` : ''}
+                      </span>
                     </Link>
                   </td>
                 );

@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { formatDate } from '@/lib/survey/dates';
-import { averageOf, strengthsAndWork } from '@/lib/survey/guardian-report-math';
+import { strengthsAndWork } from '@/lib/survey/guardian-report-math';
 import { allReportRounds, studentGuardian } from '@/lib/survey/guardian-reports';
 import { toBengaliDigits as bn } from '@/lib/survey/normalise';
 import { formatMark } from '@/lib/survey/report-math';
@@ -113,7 +113,8 @@ export default async function GuardianPrintPage({ params, searchParams }: { para
   const areas = [...new Set([...report.areas.map((a) => a.areaKey), ...guardian.areas.map((a) => a.areaKey)])].map((key) => {
     const g = guardianAreas.get(key);
     const t = teacherAreas.get(key);
-    return { name: (t ?? g)!.name, guardian: g?.mean ?? null, teacher: t?.mean ?? null, classMean: averageOf([g?.classMean ?? null, t?.classMean ?? null]) };
+    // Class average = the teachers' (the same raters as the teacher column).
+    return { key, name: (t ?? g)!.name, guardian: g?.mean ?? null, teacher: t?.mean ?? null, classMean: t?.classMean ?? null };
   });
   const { strengths, work } = strengthsAndWork(areas);
   const teacherByRound = new Map(report.trend.map((p) => [p.roundId, p.mean]));
@@ -211,7 +212,7 @@ export default async function GuardianPrintPage({ params, searchParams }: { para
             </tbody>
           </table>
           <div style={{ fontSize: 12.5, color: 'var(--sv-text-muted)' }}>
-            শিক্ষকদের মূল্যায়ন {bn(subjects)}টি বিষয়ের শিক্ষকের গড়। ক্লাসের গড় = অভিভাবক ও শিক্ষকের মূল্যায়ন মিলিয়ে। — = এই ক্ষেত্রে মার্ক নেই।
+            শিক্ষকদের মূল্যায়ন {bn(subjects)}টি বিষয়ের শিক্ষকের গড়। ক্লাসের গড় = শিক্ষকদের মূল্যায়নে পুরো ক্লাসের গড়। — = এই ক্ষেত্রে মার্ক নেই।
           </div>
         </section>
 

@@ -1,4 +1,4 @@
-import { FLAGS, type Flag } from './report-math';
+import { FLAGS, GUARDIAN_AREAS, type Flag } from './report-math';
 import type { SnapshotQuestion } from './snapshot';
 import { MIN_N, summarise, type Summary } from './stats';
 
@@ -16,6 +16,8 @@ export type GuardianItem = {
   mark: number | null;
   /** G2 only: the chosen option (null for N/A). */
   optionKey?: string | null;
+  /** "Not applicable" (mark null). A mark can also be null for an unmarked question, which keeps its option. */
+  isNa?: boolean;
 };
 
 type Marked = { studentErpId: string; mark: number | null };
@@ -126,21 +128,36 @@ export function resolveRounds<R extends Window>(t1: R, rounds: R[], picked: { g1
   };
 }
 
-/** A mark (৪–১০) as the 0–100 score used only where guardian and teacher are compared (spec §7). */
-export function score100(mark: number): number {
-  return ((mark - 4) / 6) * 100;
+/** Each child's mean per area (each area from that child's own marks). */
+export function childAreaMeans(rows: Marked[] & { areaKey: string }[]): Map<string, Map<string, number>> {
+  const marks = new Map<string, Map<string, number[]>>();
+  for (const r of rows) {
+    if (r.mark === null) continue;
+    const areas = marks.get(r.studentErpId) ?? new Map<string, number[]>();
+    areas.set(r.areaKey, [...(areas.get(r.areaKey) ?? []), r.mark]);
+    marks.set(r.studentErpId, areas);
+  }
+  return new Map([...marks].map(([erpId, areas]) => [erpId, new Map([...areas].map(([area, list]) => [area, list.reduce((a, b) => a + b, 0) / list.length]))]));
 }
 
-/** Guardian minus teachers in score points (spec §7: comparisons use the 0–100 score); null without both. */
-export function gapPoints(guardian: number | null, teacher: number | null): number | null {
-  return guardian === null || teacher === null ? null : score100(guardian) - score100(teacher);
+/**
+ * Guardian against teachers for one child on the areas both rated (guardian-only areas, such as
+ * home habits, and the teachers' guardian questions are left out), each side the mean of its area
+ * means. `gap` = guardian − teachers in marks; null when they share no area.
+ */
+export function sharedAreaGap(guardian: Map<string, number> | undefined, teacher: Map<string, number> | undefined) {
+  if (!guardian || !teacher) return null;
+  const shared = [...guardian.keys()].filter((area) => teacher.has(area) && !GUARDIAN_AREAS.has(area));
+  if (!shared.length) return null;
+  const mean = (side: Map<string, number>) => shared.reduce((sum, area) => sum + side.get(area)!, 0) / shared.length;
+  return { guardian: mean(guardian), teacher: mean(teacher), gap: mean(guardian) - mean(teacher), areas: shared.length };
 }
 
-/** Spec §7 flag: the guardian's and the teachers' averages for a child at least FLAGS.guardianTeacherGapPoints apart. */
-export function gapFlag(guardian: number | null, teacher: number | null, bn: (n: number | string) => string): Flag | null {
-  const gap = gapPoints(guardian, teacher);
-  if (gap === null || Math.round(Math.abs(gap)) < FLAGS.guardianTeacherGapPoints) return null;
-  return { kind: 'gap', label: `অভিভাবক–শিক্ষক পার্থক্য ${bn(Math.round(Math.abs(gap)))} পয়েন্ট` };
+/** Spec §7 flag: guardian and teachers at least FLAGS.guardianTeacherGap marks apart on the areas both rated. */
+export function gapFlag(shared: { gap: number } | null, bn: (n: number | string) => string): Flag | null {
+  const gap = shared ? Math.round(Math.abs(shared.gap) * 10) / 10 : 0;
+  if (!shared || gap < FLAGS.guardianTeacherGap) return null;
+  return { kind: 'gap', label: `অভিভাবক ও শিক্ষকের মতে ${bn(gap.toFixed(1))} মার্ক পার্থক্য` };
 }
 
 /**
@@ -158,12 +175,6 @@ export function roundHistory<R extends Window>(t1: R, rounds: R[], current: { g1
     .reverse();
 }
 
-/** Mean of the marks that exist (a class average shown beside a child: guardian and teachers together). */
-export function averageOf(marks: (number | null)[]): number | null {
-  const shown = marks.filter((m): m is number => m !== null);
-  return shown.length ? shown.reduce((a, b) => a + b, 0) / shown.length : null;
-}
-
 /**
  * Guardian print: a strength is an area where every side that marked it gave ৮+; work is an area
  * where either side is below ৭ (so a wide guardian–teacher gap is discussed, never praised).
@@ -171,8 +182,10 @@ export function averageOf(marks: (number | null)[]): number | null {
 export const PRINT_STRENGTH = 8;
 export const PRINT_WORK = 7;
 
-export function strengthsAndWork(areas: { name: string; guardian: number | null; teacher: number | null }[]) {
+export function strengthsAndWork(areas: { key: string; name: string; guardian: number | null; teacher: number | null }[]) {
+  // The teachers' guardian questions are about the parent, not the child.
   const marked = areas
+    .filter((a) => !GUARDIAN_AREAS.has(a.key))
     .map((a) => {
       const sides = [a.guardian, a.teacher].filter((m): m is number => m !== null);
       return { name: a.name, low: Math.min(...sides), high: Math.max(...sides), sides: sides.length };
@@ -188,7 +201,7 @@ export function strengthsAndWork(areas: { name: string; guardian: number | null;
 export function optionCounts(items: GuardianItem[], questions: SnapshotQuestion[]) {
   return questions.flatMap((q) => {
     const here = items.filter((i) => i.questionKey === q.key);
-    const rows = q.options.map((o) => ({ question: q.text, answer: o.label, mark: o.mark as number | null, count: here.filter((i) => i.optionKey === o.key).length }));
-    return q.allowNA ? [...rows, { question: q.text, answer: q.naLabel ?? 'প্রযোজ্য নয়', mark: null, count: here.filter((i) => i.mark === null).length }] : rows;
+    const rows = q.options.map((o) => ({ question: q.text, answer: o.label, mark: q.unscored ? null : (o.mark as number | null), count: here.filter((i) => i.optionKey === o.key).length }));
+    return q.allowNA ? [...rows, { question: q.text, answer: q.naLabel ?? 'প্রযোজ্য নয়', mark: null, count: here.filter((i) => i.isNa).length }] : rows;
   });
 }

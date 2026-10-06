@@ -7,6 +7,8 @@ describe('summarise', () => {
     expect(s.n).toBe(4);
     expect(s.mean).toBe(8.5);
     expect(s.topShare).toBe(0.5);
+    // ৭ or less is low: the ৬ here.
+    expect(s.lowShare).toBe(0.25);
     expect([...s.distribution]).toEqual([[10, 2], [8, 1], [6, 1]]);
   });
   it('handles no answers', () => {

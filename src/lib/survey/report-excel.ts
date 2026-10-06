@@ -49,13 +49,13 @@ export async function classWorkbook(round: Round, classKey: string, sectionKey: 
         ...(guardian.g2.round
           ? [
               { header: 'অভিভাবক (G2, /১০)', key: 'guardian', width: 18 },
-              { header: 'পার্থক্য (অভিভাবক − শিক্ষক, পয়েন্ট ০–১০০)', key: 'gap', width: 26 },
+              { header: 'পার্থক্য (অভিভাবক − শিক্ষক, মার্ক, একই ক্ষেত্রে)', key: 'gap', width: 30 },
               { header: 'অভিভাবকের ফর্ম', key: 'form', width: 16 },
             ]
           : []),
         { header: 'ফ্ল্যাগ', key: 'flags', width: 40 },
       ],
-      rows: rows.map((r) => ({ ...r, mean: round1(r.mean), guardian: round1(r.guardian), gap: r.gap === null ? null : Math.round(r.gap), form: FORM_LABEL[r.form], flags: r.flags.map((f) => f.label).join('; ') })),
+      rows: rows.map((r) => ({ ...r, mean: round1(r.mean), guardian: round1(r.guardian), gap: round1(r.gap), form: FORM_LABEL[r.form], flags: r.flags.map((f) => f.label).join('; ') })),
     },
     {
       name: 'ক্ষেত্র',
@@ -268,6 +268,7 @@ export async function teachingWorkbook(roundId: string, compareId: string | null
         mean: cell.reliable ? round1(cell.mean) : null,
         respondents: cell.respondents,
         top: cell.reliable && cell.topShare !== null ? Math.round(cell.topShare * 100) : null,
+        low: cell.reliable && cell.lowShare !== null ? Math.round(cell.lowShare * 100) : null,
         delta: cell.reliable ? cell.delta : null,
       }))
   );
@@ -280,6 +281,7 @@ export async function teachingWorkbook(roundId: string, compareId: string | null
         { header: 'গড় মার্ক', key: 'mean', width: 10 },
         { header: 'উত্তরদাতা', key: 'respondents', width: 11 },
         { header: '১০ (%)', key: 'top', width: 9 },
+        { header: '৭ বা কম (%)', key: 'low', width: 12 },
         { header: compare ? `পরিবর্তন (${compare.label})` : 'পরিবর্তন', key: 'delta', width: 22 },
       ],
       rows,

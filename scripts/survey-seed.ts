@@ -70,10 +70,11 @@ const G1_QUESTIONS: [key: string, text: string, shortLabel: string, area: string
 ];
 
 // G2 (guardian rates own child): descriptive options with hidden marks (spec §2.4), shown in this order.
-type G2Question = { key: string; text: string; shortLabel: string; area: string; options: [key: string, label: string, mark: number][]; hint?: string; naLabel?: string };
+type G2Question = { key: string; text: string; shortLabel: string; area: string; options: [key: string, label: string, mark: number][]; hint?: string; naLabel?: string; unscored?: boolean };
 const G2_QUESTIONS: G2Question[] = [
   { key: 'attendance', text: 'নিয়মিত ক্লাস করে কি না?', shortLabel: 'উপস্থিতি', area: 'attendance', options: [['above-90', 'উপস্থিতি > ৯০%', 10], ['80-90', 'উপস্থিতি ৮০–৯০%', 8], ['70-80', 'উপস্থিতি ৭০–৮০%', 6], ['below-70', 'উপস্থিতি < ৭০%', 4]] },
-  { key: 'study-at-home', text: 'বাসায় নিয়মিত পড়া পড়ে কি না?', hint: 'নন ডে কেয়ার শিক্ষার্থীদের জন্য প্রযোজ্য', naLabel: 'প্রযোজ্য নয় (ডে কেয়ার)', shortLabel: 'বাসায় পড়া', area: 'focus-habits', options: [['4h', '৪ ঘন্টা +', 10], ['3h', '৩ ঘন্টা +', 8.5], ['2h', '২ ঘন্টা +', 7], ['1h', '১ ঘন্টা +', 5.5], ['under-1h', '১ ঘন্টার কম', 4]] },
+  // Study hours depend on age; shown as answers only, never marked (owner, 2026-10-06).
+  { key: 'study-at-home', unscored: true, text: 'বাসায় নিয়মিত পড়া পড়ে কি না?', hint: 'নন ডে কেয়ার শিক্ষার্থীদের জন্য প্রযোজ্য', naLabel: 'প্রযোজ্য নয় (ডে কেয়ার)', shortLabel: 'বাসায় পড়া', area: 'focus-habits', options: [['4h', '৪ ঘন্টা +', 10], ['3h', '৩ ঘন্টা +', 8.5], ['2h', '২ ঘন্টা +', 7], ['1h', '১ ঘন্টা +', 5.5], ['under-1h', '১ ঘন্টার কম', 4]] },
   { key: 'homework', text: 'হোমওয়ার্ক দেওয়া হলে নিয়মিত করে কি না?', shortLabel: 'হোমওয়ার্ক', area: 'focus-habits', options: [['regular', 'নিয়মিত করে', 10], ['sometimes-missed', 'মাঝে মাঝে বাদ যায়', 8], ['sometimes', 'মাঝে মাঝে করে', 6], ['never', 'করে না', 4]] },
   { key: 'devices', text: 'নিজে থেকে মোবাইল বা ডিভাইস দেখে কি না?', shortLabel: 'মোবাইল/ডিভাইস', area: 'interest-home', options: [['never', 'দেখে না', 10], ['1-2-weekly', 'সপ্তাহে ২/১ বার', 7], ['3-plus-weekly', 'সপ্তাহে ৩/৪ বার বা তার বেশি', 4]] },
   { key: 'likes-madrasa', text: 'বাচ্চা মাদ্রাসা পছন্দ করে কি না?', shortLabel: 'মাদ্রাসা পছন্দ', area: 'interest-home', options: [['very', 'অনেক পছন্দ করে', 10], ['fairly', 'মোটামুটি পছন্দ করে', 8], ['little', 'কম পছন্দ করে', 6], ['not', 'পছন্দ করে না', 4]] },
@@ -203,6 +204,7 @@ const documents: { _id: string; _type: string; [field: string]: unknown }[] = [
       required: true,
       allowNA: Boolean(q.naLabel),
       ...(q.naLabel ? { naLabel: q.naLabel } : {}),
+      ...(q.unscored ? { unscored: true } : {}),
     })),
   },
   ...CLASSES.map((c, i) => ({

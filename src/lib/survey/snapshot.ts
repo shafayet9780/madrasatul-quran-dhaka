@@ -18,6 +18,8 @@ const question = z.object({
   allowNA: z.boolean().default(false),
   // Label of the "not applicable" choice, e.g. প্রযোজ্য নয় (ডে কেয়ার); UI falls back to প্রযোজ্য নয়.
   naLabel: z.string().optional(),
+  // G2: the answer is kept and shown, but never marked (no average, gap or flag), e.g. study hours at home.
+  unscored: z.boolean().default(false),
 });
 
 const named = z.object({ key, name: z.string().min(1) });

@@ -52,15 +52,15 @@ test('class page sets guardians beside teachers', async ({ page }) => {
   await expect(zayan.getByText('১০.০')).toBeVisible();
   await expect(zayan.getByText('যাচাইকৃত')).toBeVisible();
   await expect(table.getByRole('row', { name: /Maryam Binte Rafiq/ }).getByText('সাড়া নেই')).toBeVisible();
-  await expect(page.getByRole('img', { name: /জন শিক্ষার্থীর অভিভাবক ও শিক্ষকের স্কোর/ })).toBeVisible();
+  await expect(page.getByRole('img', { name: /জন শিক্ষার্থীর অভিভাবক ও শিক্ষকদের গড় মার্ক/ })).toBeVisible();
   await expect(page.getByRole('img', { name: /^উপস্থিতি: অভিভাবক/ })).toBeVisible();
   await page.screenshot({ path: process.env.SHOT_DIR ? `${process.env.SHOT_DIR}/r3.png` : undefined, fullPage: true });
   await expectAccessible(page);
   // Verified only: Hamza's current form (his uncle, a number not on record) drops out; 4 guardians remain.
-  await expect(page.getByText(/স্কোর \S+ · ৫ জন/)).toBeVisible();
+  await expect(page.getByText(/৫\/২০ জনের অভিভাবক/)).toBeVisible();
   await page.getByRole('link', { name: 'শুধু যাচাইকৃত' }).click();
   await expect(page.getByText('· শুধু যাচাইকৃত অভিভাবক')).toBeVisible();
-  await expect(page.getByText(/স্কোর \S+ · ৪ জন/)).toBeVisible();
+  await expect(page.getByText(/৪\/২০ জনের অভিভাবক/)).toBeVisible();
 });
 
 test('student profile shows the guardian answers and prints a page for the guardian', async ({ page }) => {

@@ -82,8 +82,8 @@ export default async function TeachingPage({ searchParams }: { searchParams: Pro
             selected={detail && cellAt ? cellAt : null}
           />
           <div className="flex flex-wrap gap-4" style={{ fontSize: 13, color: 'var(--sv-text-muted)' }}>
-            <span>▲ = গড় ৬.৫-এর নিচে</span>
-            <span>n = উত্তরদাতা অভিভাবক · n&lt;৩ হলে ফলাফল লুকানো</span>
+            <span>⚠ = অন্তত ২৫% উত্তর ৭ বা কম</span>
+            <span>জন = উত্তর দেওয়া অভিভাবক · ৩ জনের কম হলে ফলাফল লুকানো</span>
           </div>
           <h3 style={{ margin: '6px 0 0', fontSize: 16, fontWeight: 600 }}>ক্ষেত্রভিত্তিক গড় · পুরো মাদরাসা</h3>
           <dl className="grid gap-2" style={{ margin: 0, gridTemplateColumns: 'minmax(160px, 220px) 1fr 64px', alignItems: 'center' }}>
@@ -124,7 +124,7 @@ export default async function TeachingPage({ searchParams }: { searchParams: Pro
                 {[
                   ['গড় মার্ক', detail.reliable ? formatMark(detail.mean, bn) : '—', detail.reliable && signed(detail.delta) ? `${signed(detail.delta)} (${compare?.label})` : ''],
                   ['উত্তরদাতা', bn(detail.respondents), `${bn(detail.classSize)} জনের মধ্যে`],
-                  ['১০ দিয়েছেন', detail.reliable && detail.topShare !== null ? `${bn(Math.round(detail.topShare * 100))}%` : '—', 'সব উত্তরের'],
+                  ['৭ বা কম দিয়েছেন', detail.reliable && detail.lowShare !== null ? `${bn(Math.round(detail.lowShare * 100))}%` : '—', 'সব উত্তরের'],
                 ].map(([label, value, note]) => (
                   <div key={label} className="flex flex-col gap-0.5" style={{ padding: '10px 12px', borderRadius: 12, background: 'var(--sv-stone-soft)' }}>
                     <dt style={{ fontSize: 13, color: 'var(--sv-text-muted)' }}>{label}</dt>

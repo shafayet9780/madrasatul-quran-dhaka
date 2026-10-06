@@ -14,8 +14,9 @@ const marks = (key: string, text: string, areaKey: string, hint?: string) => ({
   areaKey,
   required: true,
   allowNA: false,
+  unscored: false,
 });
-const options = (key: string, text: string, areaKey: string, list: [string, string, number][], extra: { hint?: string; naLabel?: string } = {}) => ({
+const options = (key: string, text: string, areaKey: string, list: [string, string, number][], extra: { hint?: string; naLabel?: string; unscored?: boolean } = {}) => ({
   key,
   text,
   ...(extra.hint ? { hint: extra.hint } : {}),
@@ -25,6 +26,7 @@ const options = (key: string, text: string, areaKey: string, list: [string, stri
   required: true,
   allowNA: Boolean(extra.naLabel),
   ...(extra.naLabel ? { naLabel: extra.naLabel } : {}),
+  unscored: Boolean(extra.unscored),
 });
 
 export function g1FixtureSnapshot(takenAt = new Date(), layout: 'by-subject' | 'by-question' = 'by-subject'): RoundSnapshot {
@@ -70,7 +72,7 @@ export function g2FixtureSnapshot(takenAt = new Date()): RoundSnapshot {
       scale: [10, 8, 6, 4],
       questions: [
         options('attendance', 'নিয়মিত ক্লাস করে কি না?', 'attendance', [['above-90', 'উপস্থিতি > ৯০%', 10], ['80-90', 'উপস্থিতি ৮০–৯০%', 8], ['70-80', 'উপস্থিতি ৭০–৮০%', 6], ['below-70', 'উপস্থিতি < ৭০%', 4]]),
-        options('study-at-home', 'বাসায় নিয়মিত পড়া পড়ে কি না?', 'focus-habits', [['4h', '৪ ঘন্টা +', 10], ['3h', '৩ ঘন্টা +', 8.5], ['2h', '২ ঘন্টা +', 7], ['1h', '১ ঘন্টা +', 5.5], ['under-1h', '১ ঘন্টার কম', 4]], { hint: 'নন ডে কেয়ার শিক্ষার্থীদের জন্য প্রযোজ্য', naLabel: 'প্রযোজ্য নয় (ডে কেয়ার)' }),
+        options('study-at-home', 'বাসায় নিয়মিত পড়া পড়ে কি না?', 'focus-habits', [['4h', '৪ ঘন্টা +', 10], ['3h', '৩ ঘন্টা +', 8.5], ['2h', '২ ঘন্টা +', 7], ['1h', '১ ঘন্টা +', 5.5], ['under-1h', '১ ঘন্টার কম', 4]], { hint: 'নন ডে কেয়ার শিক্ষার্থীদের জন্য প্রযোজ্য', naLabel: 'প্রযোজ্য নয় (ডে কেয়ার)', unscored: true }),
         options('devices', 'নিজে থেকে মোবাইল বা ডিভাইস দেখে কি না?', 'interest-home', [['never', 'দেখে না', 10], ['1-2-weekly', 'সপ্তাহে ২/১ বার', 7], ['3-plus-weekly', 'সপ্তাহে ৩/৪ বার বা তার বেশি', 4]]),
         options('peer-complaints', 'ক্লাসে অন্য বাচ্চাদের সাথে মারামারি বা বাজে কথা বলে এই অভিযোগ মাদ্রাসা থেকে আসে কি না?', 'peer-conduct', [['often', 'প্রায়ই আসে', 4], ['sometimes', 'মাঝে মাঝে আসে', 7], ['never', 'আসে না', 10]]),
       ],

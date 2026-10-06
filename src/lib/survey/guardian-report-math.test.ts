@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { cellStats, childWeightedMean, cohortDelta, delta, gapFlag, pairedRound, perStudentMeans, optionCounts, questionDistributions, resolveRounds, roundHistory, score100, strengthsAndWork, type GuardianItem } from './guardian-report-math';
+import { cellStats, childAreaMeans, childWeightedMean, cohortDelta, delta, gapFlag, pairedRound, perStudentMeans, optionCounts, questionDistributions, resolveRounds, roundHistory, sharedAreaGap, strengthsAndWork, type GuardianItem } from './guardian-report-math';
 
 const day = (d: number) => new Date(Date.UTC(2026, 9, d));
 const round = (id: string, kind: string, opens: number, closes: number) => ({ id, kind, opensAt: day(opens), closesAt: day(closes) });
@@ -100,23 +100,35 @@ describe('resolveRounds', () => {
 
 describe('guardian and teacher side by side', () => {
   const bn = (n: number | string) => String(n);
-  it('scores ৪ as 0 and ১০ as 100, and flags gaps of 2 marks', () => {
-    expect([score100(4), score100(7), score100(10)]).toEqual([0, 50, 100]);
-    expect(gapFlag(9, 6.8, bn)).toEqual({ kind: 'gap', label: 'অভিভাবক–শিক্ষক পার্থক্য 37 পয়েন্ট' });
-    // 1.98 marks shows as 33 points, so it is flagged like the number on screen says.
-    expect(gapFlag(8, 6.02, bn)?.label).toBe('অভিভাবক–শিক্ষক পার্থক্য 33 পয়েন্ট');
-    expect(gapFlag(8, 6.5, bn)).toBeNull();
-    expect(gapFlag(null, 4, bn)).toBeNull();
+  it('compares guardian and teachers only on the areas both rated, in marks', () => {
+    const guardian = new Map([['attendance', 10], ['interest-home', 4]]);
+    const teacher = new Map([['attendance', 7], ['guardian-cooperation', 4], ['results', 8]]);
+    // Home habits (guardian only), results (teachers only) and the guardian questions are left out.
+    expect(sharedAreaGap(guardian, teacher)).toEqual({ guardian: 10, teacher: 7, gap: 3, areas: 1 });
+    expect(sharedAreaGap(new Map([['interest-home', 4]]), teacher)).toBeNull();
+    expect(sharedAreaGap(undefined, teacher)).toBeNull();
+  });
+  it('flags a gap of 2 marks or more, as the rounded number on screen says', () => {
+    expect(gapFlag({ gap: -2.2 }, bn)).toEqual({ kind: 'gap', label: 'অভিভাবক ও শিক্ষকের মতে 2.2 মার্ক পার্থক্য' });
+    expect(gapFlag({ gap: 1.96 }, bn)?.label).toBe('অভিভাবক ও শিক্ষকের মতে 2.0 মার্ক পার্থক্য');
+    expect(gapFlag({ gap: 1.9 }, bn)).toBeNull();
+    expect(gapFlag(null, bn)).toBeNull();
+  });
+  it('gives each child their own area means', () => {
+    const items = [item('a', 10), item('a', 6), { ...item('a', 8), areaKey: 'x' }, item('b', null)];
+    expect(childAreaMeans(items)).toEqual(new Map([['a', new Map([['assessment', 8], ['x', 8]])]]));
   });
   it('praises an area only when every side gave ৮+, and lists any side below ৭ as work', () => {
     const result = strengthsAndWork([
-      { name: 'a', guardian: 10, teacher: 8 },
-      { name: 'b', guardian: null, teacher: 6 },
-      { name: 'c', guardian: 7, teacher: 7.5 },
-      { name: 'd', guardian: 4, teacher: 6 },
-      { name: 'e', guardian: null, teacher: null },
-      { name: 'gap', guardian: 10, teacher: 4.5 },
-      { name: 'one side', guardian: 9, teacher: null },
+      { key: 'a', name: 'a', guardian: 10, teacher: 8 },
+      { key: 'b', name: 'b', guardian: null, teacher: 6 },
+      { key: 'c', name: 'c', guardian: 7, teacher: 7.5 },
+      { key: 'd', name: 'd', guardian: 4, teacher: 6 },
+      { key: 'e', name: 'e', guardian: null, teacher: null },
+      { key: 'gap', name: 'gap', guardian: 10, teacher: 4.5 },
+      { key: 'one', name: 'one side', guardian: 9, teacher: null },
+      // About the parent, not the child: never a strength or work.
+      { key: 'guardian-cooperation', name: 'অভিভাবকের সহযোগিতা', guardian: null, teacher: 4 },
     ]);
     expect(result).toEqual({ strengths: ['one side', 'a'], work: ['d', 'gap', 'b'] });
   });
@@ -139,7 +151,13 @@ describe('roundHistory', () => {
 describe('optionCounts', () => {
   it('counts each option and N/A per question', () => {
     const question = { key: 'q', text: 'প্রশ্ন', type: 'options', areaKey: 'a', required: true, allowNA: true, naLabel: 'ডে কেয়ার', options: [{ key: 'yes', label: 'হ্যাঁ', mark: 10 }, { key: 'no', label: 'না', mark: 4 }] } as never;
-    const items = [{ ...item('a', 10), questionKey: 'q', optionKey: 'yes' }, { ...item('b', 10), questionKey: 'q', optionKey: 'yes' }, { ...item('c', null), questionKey: 'q', optionKey: null }];
+    const items = [{ ...item('a', 10), questionKey: 'q', optionKey: 'yes' }, { ...item('b', 10), questionKey: 'q', optionKey: 'yes' }, { ...item('c', null), questionKey: 'q', optionKey: null, isNa: true }];
     expect(optionCounts(items, [question]).map((r) => [r.answer, r.count])).toEqual([['হ্যাঁ', 2], ['না', 0], ['ডে কেয়ার', 1]]);
+  });
+  it('counts an unmarked question by option, without marks', () => {
+    const question = { key: 'q', text: 'পড়া', type: 'options', areaKey: 'a', required: true, allowNA: false, unscored: true, options: [{ key: '2h', label: '২ ঘন্টা', mark: 7 }] } as never;
+    // Stored without a mark, but with the option: not "not applicable".
+    const items = [{ ...item('a', null), questionKey: 'q', optionKey: '2h', isNa: false }];
+    expect(optionCounts(items, [question])).toEqual([{ question: 'পড়া', answer: '২ ঘন্টা', mark: null, count: 1 }]);
   });
 });

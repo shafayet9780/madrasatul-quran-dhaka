@@ -1,13 +1,12 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { score100 } from '@/lib/survey/guardian-report-math';
 import { allReportRounds, classGuardian, withGuardian } from '@/lib/survey/guardian-reports';
 import { toBengaliDigits as bn } from '@/lib/survey/normalise';
-import { formatMark } from '@/lib/survey/report-math';
+import { formatLow, formatMark, GUARDIAN_AREAS } from '@/lib/survey/report-math';
 import { classReport, pickRound } from '@/lib/survey/reports';
 import { MIN_N } from '@/lib/survey/stats';
 import { RoundPicker } from '../../RoundPicker';
-import { AREA_GAP_POINTS, GapScatter, GUARDIAN, PairBar, ScoreAxis, TEACHER } from '../charts';
+import { AREA_GAP_MARKS, GapScatter, GUARDIAN, MarkAxis, PairBar, TEACHER } from '../charts';
 import { NoRounds } from '../NoRounds';
 import { ReportTools } from '../ReportTools';
 import { ClassTable } from './ClassTable';
@@ -16,8 +15,6 @@ export const metadata: Metadata = { title: 'ক্লাস রিপোর্�
 export const dynamic = 'force-dynamic';
 
 type Search = { round?: string; class?: string; section?: string; verified?: string };
-
-const points = (mark: number | null) => (mark === null ? '—' : bn(Math.round(score100(mark))));
 
 function Kpi({ label, value, unit, sub, muted }: { label: string; value: string; unit?: string; sub: string; muted?: boolean }) {
   return (
@@ -56,7 +53,7 @@ export default async function ClassReportPage({ searchParams }: { searchParams: 
   const answered = rows.filter((r) => r.form !== 'none').length;
   const g2 = guardian.g2;
   const g1 = guardian.g1;
-  const both = rows.filter((r) => r.guardian !== null && r.mean !== null);
+  const both = rows.filter((r) => r.shared !== null);
   const teacherAreas = new Map(report.areas.map((a) => [a.areaKey, a]));
   const toggle = `/admin/reports/class?${new URLSearchParams({ round: round.id, ...params, ...(verifiedOnly ? {} : { verified: '1' }) })}`;
 
@@ -95,24 +92,36 @@ export default async function ClassReportPage({ searchParams }: { searchParams: 
 
       <div className="grid gap-3" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))' }}>
         <Kpi
-          label="অভিভাবকের চোখে · G2"
+          label="অভিভাবকের রিভিউ · শিক্ষার্থী"
           value={g2.round && g2.reliable ? formatMark(g2.mean, bn) : '—'}
           unit="/ ১০"
-          sub={!g2.round ? 'এই রাউন্ডের সাথে G2 নেই' : g2.reliable ? `স্কোর ${points(g2.mean)} · ${bn(g2.respondents)} জন` : `মাত্র ${bn(g2.respondents)} জন (n<৩)`}
+          sub={
+            !g2.round
+              ? 'এই রাউন্ডের সাথে অভিভাবকের রিভিউ নেই'
+              : g2.reliable
+                ? `${bn(g2.respondents)}/${bn(rows.length)} জনের অভিভাবক · ${formatLow(g2.lowShare, bn)}`
+                : `মাত্র ${bn(g2.respondents)} জনের অভিভাবক (৩ জনের কম)`
+          }
           muted={!g2.reliable}
         />
         <Kpi
-          label="শিক্ষকের চোখে · T1"
+          label="শিক্ষকের রিভিউ"
           value={reliable ? formatMark(kpis.mean, bn) : '—'}
           unit="/ ১০"
-          sub={reliable ? `স্কোর ${points(kpis.mean)} · রিভিউ ${bn(kpis.ratedStudents)}/${bn(rows.length)} জন` : `মাত্র ${bn(kpis.ratedStudents)} জনের রিভিউ (n<৩)`}
+          sub={reliable ? `${bn(kpis.ratedStudents)}/${bn(rows.length)} জনের রিভিউ · ${formatLow(kpis.lowShare, bn)}` : `মাত্র ${bn(kpis.ratedStudents)} জনের রিভিউ (৩ জনের কম)`}
           muted={!reliable}
         />
         <Kpi
-          label="শিক্ষার মান · G1"
+          label="অভিভাবকের রিভিউ · ক্লাস পরিচালনা"
           value={g1.round && g1.reliable ? formatMark(g1.mean, bn) : '—'}
           unit="/ ১০"
-          sub={!g1.round ? 'এই রাউন্ডের সাথে G1 নেই' : !g1.reliable ? `মাত্র ${bn(g1.respondents)} জন (n<৩)` : g1.lowest ? `সবচেয়ে কম: ${g1.lowest.name} ${formatMark(g1.lowest.mean, bn)}` : `${bn(g1.respondents)} জন অভিভাবক`}
+          sub={
+            !g1.round
+              ? 'এই রাউন্ডের সাথে ক্লাস পরিচালনার রিভিউ নেই'
+              : !g1.reliable
+                ? `মাত্র ${bn(g1.respondents)} জন অভিভাবক (৩ জনের কম)`
+                : `${bn(g1.respondents)} জন অভিভাবক · ${formatLow(g1.lowShare, bn)}${g1.lowest ? ` · সবচেয়ে কম: ${g1.lowest.name} ${formatMark(g1.lowest.mean, bn)}` : ''}`
+          }
           muted={!g1.reliable}
         />
         <Kpi label="মনোযোগ প্রয়োজন" value={bn(rows.filter((r) => r.flags.length).length)} unit="জন" sub="নিচের তালিকায় চিহ্নিত" />
@@ -123,10 +132,10 @@ export default async function ClassReportPage({ searchParams }: { searchParams: 
           <h2 id="scatter-title" className="sv-head sv-h2">
             অভিভাবক বনাম শিক্ষক · প্রত্যেক শিক্ষার্থী
           </h2>
-          <div style={{ fontSize: 13, color: 'var(--sv-text-muted)' }}>স্কোর ০–১০০ = (মার্ক − ৪) ÷ ৬ × ১০০ · রেখা = মার্ক ৮ সমান স্কোর ৬৭</div>
+          <div style={{ fontSize: 13, color: 'var(--sv-text-muted)' }}>যেসব ক্ষেত্রে অভিভাবক ও শিক্ষক দুজনেই মার্ক দিয়েছেন, সেগুলোর গড় মার্ক · রেখা = মার্ক ৮</div>
           {both.length ? (
             <>
-              <GapScatter points={both.map((r) => ({ erpId: r.erpId, name: r.name, guardian: r.guardian!, teacher: r.mean!, flagged: r.flags.length > 0 }))} />
+              <GapScatter points={both.map((r) => ({ erpId: r.erpId, name: r.name, guardian: r.shared!.guardian, teacher: r.shared!.teacher, flagged: r.flags.length > 0 }))} />
               <div className="flex flex-wrap gap-4" style={{ fontSize: 13, color: 'var(--sv-text-muted)' }} aria-hidden="true">
                 <span className="flex items-center gap-1.5">
                   <span style={{ width: 10, height: 10, borderRadius: '50%', background: TEACHER }} />
@@ -140,7 +149,7 @@ export default async function ClassReportPage({ searchParams }: { searchParams: 
             </>
           ) : (
             <p className="sv-muted" style={{ margin: 0 }}>
-              {g2.round ? 'এখনো কোনো শিক্ষার্থীর অভিভাবক ও শিক্ষক দুজনের রিভিউ নেই।' : 'এই রাউন্ডের সাথে অভিভাবকের রিভিউ (G2) নেই।'}
+              {g2.round ? 'এখনো কোনো শিক্ষার্থীর অভিভাবক ও শিক্ষক দুজনের রিভিউ নেই।' : 'এই রাউন্ডের সাথে অভিভাবকের রিভিউ নেই।'}
             </p>
           )}
         </section>
@@ -151,40 +160,43 @@ export default async function ClassReportPage({ searchParams }: { searchParams: 
           <div className="flex flex-wrap gap-4" style={{ fontSize: 13, color: 'var(--sv-text-muted)' }} aria-hidden="true">
             <span className="flex items-center gap-1.5">
               <span style={{ width: 12, height: 12, borderRadius: '50%', background: GUARDIAN }} />
-              অভিভাবক (G2)
+              অভিভাবক
             </span>
             <span className="flex items-center gap-1.5">
               <span style={{ width: 12, height: 12, borderRadius: '50%', background: TEACHER }} />
-              শিক্ষক (T1)
+              শিক্ষক
             </span>
           </div>
-          <div style={{ fontSize: 13, color: 'var(--sv-text-muted)' }}>স্কোর ০–১০০, প্রত্যেক শিক্ষার্থীর গড় থেকে · ৩ জনের কম হলে ধূসর</div>
+          <div style={{ fontSize: 13, color: 'var(--sv-text-muted)' }}>গড় মার্ক (১০-এর মধ্যে), প্রত্যেক শিক্ষার্থীর গড় থেকে · ৩ জনের কম হলে হালকা</div>
           {guardian.areas.map((area) => {
             const teacher = teacherAreas.get(area.areaKey);
             const g = area.mean;
             const t = teacher?.mean ?? null;
             const side = (name: string, mean: number | null, n: number, reliable: boolean) =>
-              mean === null ? `${name} —` : `${name} ${points(mean)} (${bn(n)} জন${reliable ? '' : ', n<৩'})`;
+              mean === null ? `${name} —` : `${name} ${formatMark(mean, bn)} (${bn(n)} জন${reliable ? '' : ', ৩ জনের কম'})`;
             const text = [side('অভিভাবক', g, area.students, area.reliable), side('শিক্ষক', t, teacher?.students ?? 0, teacher?.reliable ?? false)];
-            const gap = area.reliable && teacher?.reliable && g !== null && t !== null ? Math.round(Math.abs(score100(g) - score100(t))) : null;
+            const gap = area.reliable && teacher?.reliable && g !== null && t !== null ? Math.abs(g - t) : null;
             return (
               <div key={area.areaKey} className="flex flex-col gap-1.5" style={{ padding: '4px 0' }}>
                 <div className="flex flex-wrap justify-between gap-2" style={{ fontSize: 14 }}>
-                  <span style={{ fontWeight: 600 }}>{area.name}</span>
+                  <span style={{ fontWeight: 600 }}>
+                    {area.name}
+                    {GUARDIAN_AREAS.has(area.areaKey) && <span style={{ fontWeight: 400, color: 'var(--sv-text-muted)' }}> · অভিভাবক সম্পর্কে, শিক্ষার্থীর গড়ে ধরা হয়নি</span>}
+                  </span>
                   <span className="sv-num" style={{ color: 'var(--sv-text-muted)', fontWeight: 400 }}>
                     {text.join(' · ')}
                   </span>
                 </div>
                 <PairBar guardian={g} teacher={t} muted={{ guardian: !area.reliable, teacher: !teacher?.reliable }} label={`${area.name}: ${text.join(', ')}`} />
-                {gap !== null && gap >= AREA_GAP_POINTS && (
+                {gap !== null && Math.round(gap * 10) / 10 >= AREA_GAP_MARKS && (
                   <span className="sv-flag" style={{ alignSelf: 'flex-start' }}>
-                    ⚠ পার্থক্য {bn(gap)} পয়েন্ট
+                    ⚠ পার্থক্য {bn(gap.toFixed(1))} মার্ক
                   </span>
                 )}
               </div>
             );
           })}
-          <ScoreAxis />
+          <MarkAxis />
         </section>
       </div>
 

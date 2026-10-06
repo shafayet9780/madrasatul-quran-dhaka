@@ -3,7 +3,8 @@ import Link from 'next/link';
 import { allReportRounds, overviewReport, pickKindRound } from '@/lib/survey/guardian-reports';
 import { formatDateTime } from '@/lib/survey/dates';
 import { toBengaliDigits as bn } from '@/lib/survey/normalise';
-import { formatMark } from '@/lib/survey/report-math';
+import { formatLow, formatMark } from '@/lib/survey/report-math';
+import { MIN_N } from '@/lib/survey/stats';
 import { roundStatus } from '@/lib/survey/round-status';
 import { GUARDIAN, PairTrendChart, TEACHING } from '../charts';
 import { ReportFilters } from '../ReportFilters';
@@ -40,12 +41,31 @@ export default async function OverviewPage({ searchParams }: { searchParams: Pro
   const compareLabel = report.compareT1?.label;
   const status = roundStatus(t1, new Date());
   const { kpis } = report;
+  // Every average says how many children it rests on, the share of low answers and, for guardians,
+  // how many of all children that is; below 3 children the average is not shown.
+  const markTile = (label: string, k: (typeof kpis)['teacher'], who: string, round: string | undefined) => ({
+    label,
+    value: k.children >= MIN_N ? formatMark(k.mean, bn) : '—',
+    unit: '/১০',
+    sub: !round
+      ? 'এই রাউন্ডের সাথে নেই'
+      : k.children >= MIN_N
+        ? [`${bn(k.children)} জন শিক্ষার্থীর ${who}`, formatLow(k.lowShare, bn)].join(' · ')
+        : `মাত্র ${bn(k.children)} জন শিক্ষার্থীর ${who} (৩ জনের কম)`,
+    delta: k.children >= MIN_N && signed(k.delta) ? `${signed(k.delta)} আগের তুলনায় (দুই রাউন্ডেই আছে এমন ${bn(k.cohort)} জন)` : '',
+  });
   const tiles = [
-    { label: 'শিক্ষার মান (G1)', value: formatMark(kpis.teaching.mean, bn), unit: '/১০', sub: report.g1?.label ?? 'রাউন্ড নেই', delta: signed(kpis.teaching.delta) },
-    { label: 'অভিভাবকের চোখে শিক্ষার্থী (G2)', value: formatMark(kpis.guardian.mean, bn), unit: '/১০', sub: report.g2?.label ?? 'রাউন্ড নেই', delta: signed(kpis.guardian.delta) },
-    { label: 'শিক্ষকের চোখে শিক্ষার্থী (T1)', value: formatMark(kpis.teacher.mean, bn), unit: '/১০', sub: t1.label, delta: signed(kpis.teacher.delta) },
-    { label: 'অভিভাবকের সাড়া', value: percent(kpis.response.g2, kpis.response.total), unit: 'G2', sub: `G1 ${percent(kpis.response.g1, kpis.response.total)} · ${bn(kpis.response.total)} জন শিক্ষার্থী`, delta: '' },
-    { label: 'মনোযোগ প্রয়োজন', value: bn(report.attention.length), unit: 'জন', sub: `${bn(report.assessed)} জনের মধ্যে`, delta: '' },
+    markTile('অভিভাবকের রিভিউ · ক্লাস পরিচালনা', kpis.teaching, 'অভিভাবক', report.g1?.label),
+    markTile('অভিভাবকের রিভিউ · শিক্ষার্থী', kpis.guardian, 'অভিভাবক', report.g2?.label),
+    markTile('শিক্ষকের রিভিউ', kpis.teacher, 'রিভিউ', t1.label),
+    {
+      label: 'অভিভাবকের সাড়া',
+      value: percent(kpis.response.g2, kpis.response.total),
+      unit: 'শিক্ষার্থী রিভিউ',
+      sub: `ক্লাস পরিচালনা ${percent(kpis.response.g1, kpis.response.total)} · ${bn(kpis.response.total)} জন শিক্ষার্থীর মধ্যে। সাড়া কম হলে গড় পুরো ক্লাসের মত নয়।`,
+      delta: '',
+    },
+    { label: 'মনোযোগ প্রয়োজন', value: bn(report.attention.length), unit: 'জন', sub: `রিভিউ হওয়া ${bn(report.assessed)} জন শিক্ষার্থীর মধ্যে`, delta: '' },
   ];
   const kindOptions = (kind: 'G1' | 'G2', current: string | undefined) => [
     { value: '', label: `স্বয়ংক্রিয় (${current ?? 'নেই'})` },
@@ -92,7 +112,7 @@ export default async function OverviewPage({ searchParams }: { searchParams: Pro
             <span style={{ fontSize: 13, color: 'var(--sv-text-muted)' }}>{t.sub}</span>
             {t.delta && (
               <span style={{ fontSize: 13, fontWeight: 600 }}>
-                {t.delta} <span style={{ fontWeight: 400, color: 'var(--sv-text-muted)' }}>আগের তুলনায়</span>
+                {t.delta}
               </span>
             )}
           </div>
@@ -114,8 +134,8 @@ export default async function OverviewPage({ searchParams }: { searchParams: Pro
                 href={(row, subjectKey) => `/admin/reports/teaching?${new URLSearchParams({ round: report.g1!.id, cell: `${row.classKey}|${row.sectionKey}|${subjectKey}`, ...(verifiedOnly ? { verified: '1' } : {}) })}#detail`}
               />
               <div className="flex flex-wrap gap-4" style={{ fontSize: 13, color: 'var(--sv-text-muted)' }}>
-                <span>▲ = গড় ৬.৫-এর নিচে</span>
-                <span>n = উত্তরদাতা অভিভাবক · n&lt;৩ হলে ফলাফল লুকানো</span>
+                <span>⚠ = অন্তত ২৫% উত্তর ৭ বা কম</span>
+                <span>জন = উত্তর দেওয়া অভিভাবক · ৩ জনের কম হলে ফলাফল লুকানো</span>
                 <span>ফাঁকা = বিষয়টি ঐ শ্রেণিতে নেই</span>
               </div>
             </>
