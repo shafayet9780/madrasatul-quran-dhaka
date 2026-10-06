@@ -49,13 +49,14 @@ export function TeachingHeat({
                 const low = !hidden && cell.lowShare !== null && cell.lowShare >= MANY_LOW;
                 const label = hidden
                   ? `${row.label} · ${subjectName(cell.subjectKey)}: ${bn(cell.respondents)} জন উত্তরদাতা, ফলাফল লুকানো`
-                  : `${row.label} · ${subjectName(cell.subjectKey)}: গড় ${formatMark(cell.mean, bn)}, ${bn(cell.respondents)} জন উত্তরদাতা, ${bn(lowPercent ?? 0)}% উত্তর ৭ বা কম`;
+                  : `${row.label} · ${subjectName(cell.subjectKey)}: গড় ${formatMark(cell.mean, bn)}, ${bn(cell.respondents)} জন উত্তরদাতা, ${bn(lowPercent ?? 0)}% উত্তর ৭ বা কম${cell.teacher ? `, শিক্ষক ${cell.teacher}` : ''}`;
                 const current = selected && selected.classKey === row.classKey && selected.sectionKey === row.sectionKey && selected.subjectKey === cell.subjectKey;
                 return (
                   <td key={cell.subjectKey}>
                     <Link
                       href={href(row, cell.subjectKey)}
                       aria-label={label}
+                      title={cell.teacher ? `শিক্ষক: ${cell.teacher}` : undefined}
                       aria-current={current ? 'true' : undefined}
                       className="sv-heat-cell"
                       style={{ background: colour.bg, color: colour.fg, outline: current ? '3px solid var(--sv-bronze)' : undefined }}

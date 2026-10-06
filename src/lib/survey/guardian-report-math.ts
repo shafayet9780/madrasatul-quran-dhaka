@@ -35,7 +35,7 @@ function overlap(a: Window, b: Window): number {
  * whose open period overlaps it most (ties: the nearest opening); without any overlap, the one
  * opening nearest within 30 days; else none.
  */
-export function pairedRound<R extends Window>(t1: Window, rounds: R[], kind: 'G1' | 'G2'): R | undefined {
+export function pairedRound<R extends Window>(t1: Window, rounds: R[], kind: 'G1' | 'G2' | 'T1'): R | undefined {
   const candidates = rounds.filter((r) => r.kind === kind);
   const gap = (r: R) => Math.abs(r.opensAt.getTime() - t1.opensAt.getTime());
   const byFit = [...candidates].sort((a, b) => overlap(b, t1) - overlap(a, t1) || gap(a) - gap(b));

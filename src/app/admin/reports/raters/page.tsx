@@ -13,6 +13,22 @@ export const dynamic = 'force-dynamic';
 
 const signed = (delta: number) => `${delta > 0 ? '+' : delta < 0 ? '−' : ''}${bn(Math.abs(delta).toFixed(1))}`;
 
+/** How far from colleagues (marks) still reads as "like colleagues" in the summary sentence. */
+const LIKE_COLLEAGUES = 0.5;
+
+/** One plain sentence per teacher: generosity against colleagues on the same students, ৪s, same-mark batches. */
+function verdict(r: { leniency: { delta: number; pairedStudents: number } | null; distribution: { mark: number; count: number }[]; n: number; flatBatches: unknown[] }) {
+  const parts: string[] = [];
+  if (!r.leniency || r.leniency.pairedStudents < MIN_N) parts.push('তুলনার মতো যথেষ্ট সহকর্মী নেই');
+  else if (r.leniency.delta >= LIKE_COLLEAGUES) parts.push(`সহকর্মীদের চেয়ে গড়ে ${bn(r.leniency.delta.toFixed(1))} মার্ক বেশি দেন`);
+  else if (r.leniency.delta <= -LIKE_COLLEAGUES) parts.push(`সহকর্মীদের চেয়ে গড়ে ${bn(Math.abs(r.leniency.delta).toFixed(1))} মার্ক কম দেন`);
+  else parts.push('সহকর্মীদের মতোই মার্ক দেন');
+  const lowest = r.distribution.find((d) => d.mark === 4)?.count ?? 0;
+  if (r.n) parts.push(`${bn(Math.round((lowest / r.n) * 100))}% উত্তরে ৪ দিয়েছেন`);
+  if (r.flatBatches.length) parts.push('কোনো ক্লাসে প্রায় সবাইকে একই মার্ক — দেখে নিন');
+  return parts.join(' · ');
+}
+
 export default async function RatersPage({ searchParams }: { searchParams: Promise<{ round?: string }> }) {
   const [search, rounds] = await Promise.all([searchParams, t1Rounds()]);
   const round = pickRound(rounds, search.round);
@@ -26,7 +42,7 @@ export default async function RatersPage({ searchParams }: { searchParams: Promi
           <h1 className="sv-head" style={{ margin: 0, fontSize: 30 }}>
             শিক্ষকদের রেটিং প্যাটার্ন
           </h1>
-          <div style={{ fontSize: 14, color: 'var(--sv-text-muted)' }}>T1 · {round.label} · কে কেমন মার্ক দেন, যাতে তুলনা ন্যায্য হয়</div>
+          <div style={{ fontSize: 14, color: 'var(--sv-text-muted)' }}>শিক্ষকের রিভিউ · {round.label} · কে কেমন মার্ক দেন, যাতে তুলনা ন্যায্য হয়</div>
         </div>
         <div className="flex flex-wrap gap-2 items-center">
           <span className="sv-no-print">
@@ -50,7 +66,7 @@ export default async function RatersPage({ searchParams }: { searchParams: Promi
             ⚠
           </span>
           <div>
-            <b>একই মার্ক</b>: কোনো ব্যাচে ১০+ শিক্ষার্থীর ৯০% বা বেশি উত্তরে একই মার্ক হলে চিহ্নিত হয়।
+            <b>একই মার্ক</b>: কোনো ক্লাস-বিষয়ে ১০+ শিক্ষার্থীর ৯০% বা বেশি উত্তরে একই মার্ক হলে চিহ্নিত হয়। ভালো ক্লাসে এটা স্বাভাবিকও হতে পারে — অভিযোগ নয়, দেখে নেওয়ার বিষয়।
           </div>
         </div>
       </div>
@@ -73,11 +89,14 @@ export default async function RatersPage({ searchParams }: { searchParams: Promi
           <p style={{ margin: 0, color: 'var(--sv-text-muted)' }}>এই রাউন্ডে এখনো কোনো জমা নেই।</p>
         ) : (
           <div style={{ overflowX: 'auto' }}>
-            <table className="sv-table is-stackable" style={{ minWidth: 900 }}>
+            <table className="sv-table is-stackable" style={{ minWidth: 1100 }}>
               <thead>
                 <tr>
                   <th scope="col">শিক্ষক</th>
-                  <th scope="col">ব্যাচ</th>
+                  <th scope="col" style={{ width: 260 }}>
+                    সারকথা
+                  </th>
+                  <th scope="col">ক্লাস-বিষয়</th>
                   <th scope="col">শিক্ষার্থী</th>
                   <th scope="col">গড় মার্ক</th>
                   <th scope="col" style={{ width: 240 }}>
@@ -97,7 +116,10 @@ export default async function RatersPage({ searchParams }: { searchParams: Promi
                       <td data-label="শিক্ষক" style={{ fontWeight: 600 }}>
                         {r.name}
                       </td>
-                      <td data-label="ব্যাচ" className="sv-num">
+                      <td data-label="সারকথা" style={{ fontSize: 13.5, lineHeight: 1.5 }}>
+                        {verdict(r)}
+                      </td>
+                      <td data-label="ক্লাস-বিষয়" className="sv-num">
                         {bn(r.batches)}
                       </td>
                       <td data-label="শিক্ষার্থী" className="sv-num">

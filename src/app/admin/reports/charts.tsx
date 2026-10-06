@@ -148,8 +148,8 @@ export function PairTrendChart({ points, width = 620 }: { points: { label: strin
   const x = (i: number) => (points.length === 1 ? (left + right) / 2 : left + 26 + (i * (right - left - 52)) / (points.length - 1));
   const y = (mark: number) => bottom - pos(mark) * (bottom - top);
   const series = [
-    { key: 'guardian' as const, color: GUARDIAN, name: 'G2 অভিভাবকের চোখে' },
-    { key: 'teacher' as const, color: TEACHER, name: 'T1 শিক্ষকের চোখে' },
+    { key: 'guardian' as const, color: GUARDIAN, name: 'অভিভাবকের রিভিউ' },
+    { key: 'teacher' as const, color: TEACHER, name: 'শিক্ষকের রিভিউ' },
   ];
   const description = series
     .map((s) => `${s.name}: ${points.map((p) => `${p.label} ${p[s.key] === null ? '—' : bn(p[s.key]!.toFixed(1))}`).join(', ')}`)

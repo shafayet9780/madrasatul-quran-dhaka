@@ -128,10 +128,11 @@ export default async function ClassReportPage({ searchParams }: { searchParams: 
       </div>
 
       <div className="flex flex-wrap gap-4 items-stretch">
-        <section className="sv-card flex flex-col gap-2.5 min-w-0" style={{ flex: '1 1 460px' }} aria-labelledby="scatter-title">
-          <h2 id="scatter-title" className="sv-head sv-h2">
-            অভিভাবক বনাম শিক্ষক · প্রত্যেক শিক্ষার্থী
-          </h2>
+        <details className="sv-card flex flex-col gap-2.5 min-w-0 sv-no-print" style={{ flex: '1 1 460px', alignSelf: 'flex-start' }}>
+          <summary className="sv-head sv-h2" style={{ cursor: 'pointer' }}>
+            অভিভাবক বনাম শিক্ষক · প্রত্যেক শিক্ষার্থীর চিত্র
+            <span style={{ display: 'block', fontFamily: 'inherit', fontSize: 13, fontWeight: 400, color: 'var(--sv-text-muted)' }}>বিস্তারিত দেখতে চাপ দিন · একই তথ্য নিচের তালিকায়ও আছে</span>
+          </summary>
           <div style={{ fontSize: 13, color: 'var(--sv-text-muted)' }}>যেসব ক্ষেত্রে অভিভাবক ও শিক্ষক দুজনেই মার্ক দিয়েছেন, সেগুলোর গড় মার্ক · রেখা = মার্ক ৮</div>
           {both.length ? (
             <>
@@ -152,7 +153,7 @@ export default async function ClassReportPage({ searchParams }: { searchParams: 
               {g2.round ? 'এখনো কোনো শিক্ষার্থীর অভিভাবক ও শিক্ষক দুজনের রিভিউ নেই।' : 'এই রাউন্ডের সাথে অভিভাবকের রিভিউ নেই।'}
             </p>
           )}
-        </section>
+        </details>
         <section className="sv-card flex flex-col gap-3 min-w-0" style={{ flex: '1 1 380px' }} aria-labelledby="areas-title">
           <h2 id="areas-title" className="sv-head sv-h2">
             ক্ষেত্রভিত্তিক তুলনা · ক্লাসের গড়
@@ -175,7 +176,7 @@ export default async function ClassReportPage({ searchParams }: { searchParams: 
             const side = (name: string, mean: number | null, n: number, reliable: boolean) =>
               mean === null ? `${name} —` : `${name} ${formatMark(mean, bn)} (${bn(n)} জন${reliable ? '' : ', ৩ জনের কম'})`;
             const text = [side('অভিভাবক', g, area.students, area.reliable), side('শিক্ষক', t, teacher?.students ?? 0, teacher?.reliable ?? false)];
-            const gap = area.reliable && teacher?.reliable && g !== null && t !== null ? Math.abs(g - t) : null;
+            const gap = area.reliable && teacher?.reliable && g !== null && t !== null ? Math.round(Math.abs(g - t) * 10) / 10 : null;
             return (
               <div key={area.areaKey} className="flex flex-col gap-1.5" style={{ padding: '4px 0' }}>
                 <div className="flex flex-wrap justify-between gap-2" style={{ fontSize: 14 }}>
@@ -188,7 +189,7 @@ export default async function ClassReportPage({ searchParams }: { searchParams: 
                   </span>
                 </div>
                 <PairBar guardian={g} teacher={t} muted={{ guardian: !area.reliable, teacher: !teacher?.reliable }} label={`${area.name}: ${text.join(', ')}`} />
-                {gap !== null && Math.round(gap * 10) / 10 >= AREA_GAP_MARKS && (
+                {gap !== null && gap >= AREA_GAP_MARKS && (
                   <span className="sv-flag" style={{ alignSelf: 'flex-start' }}>
                     ⚠ পার্থক্য {bn(gap.toFixed(1))} মার্ক
                   </span>

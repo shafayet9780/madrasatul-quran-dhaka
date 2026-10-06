@@ -29,7 +29,7 @@ export default async function OverviewPage({ searchParams }: { searchParams: Pro
           ওভারভিউ
         </h1>
         <div className="sv-card" style={{ padding: 20 }}>
-          এখনো কোনো শিক্ষক রিভিউ (T1) রাউন্ড খোলা হয়নি। <Link href="/admin/rounds">রাউন্ড পাতা</Link>
+          এখনো কোনো শিক্ষক রিভিউ রাউন্ড খোলা হয়নি। <Link href="/admin/rounds">রাউন্ড পাতা</Link>
         </div>
       </>
     );
@@ -43,20 +43,20 @@ export default async function OverviewPage({ searchParams }: { searchParams: Pro
   const { kpis } = report;
   // Every average says how many children it rests on, the share of low answers and, for guardians,
   // how many of all children that is; below 3 children the average is not shown.
-  const markTile = (label: string, k: (typeof kpis)['teacher'], who: string, round: string | undefined) => ({
+  const markTile = (label: string, k: (typeof kpis)['teacher'], who: string, round: string | undefined, ofAll = false) => ({
     label,
     value: k.children >= MIN_N ? formatMark(k.mean, bn) : '—',
     unit: '/১০',
     sub: !round
       ? 'এই রাউন্ডের সাথে নেই'
       : k.children >= MIN_N
-        ? [`${bn(k.children)} জন শিক্ষার্থীর ${who}`, formatLow(k.lowShare, bn)].join(' · ')
+        ? [`${bn(k.children)}${ofAll ? `/${bn(kpis.response.total)}` : ''} জন শিক্ষার্থীর ${who}`, formatLow(k.lowShare, bn)].join(' · ')
         : `মাত্র ${bn(k.children)} জন শিক্ষার্থীর ${who} (৩ জনের কম)`,
     delta: k.children >= MIN_N && signed(k.delta) ? `${signed(k.delta)} আগের তুলনায় (দুই রাউন্ডেই আছে এমন ${bn(k.cohort)} জন)` : '',
   });
   const tiles = [
-    markTile('অভিভাবকের রিভিউ · ক্লাস পরিচালনা', kpis.teaching, 'অভিভাবক', report.g1?.label),
-    markTile('অভিভাবকের রিভিউ · শিক্ষার্থী', kpis.guardian, 'অভিভাবক', report.g2?.label),
+    markTile('অভিভাবকের রিভিউ · ক্লাস পরিচালনা', kpis.teaching, 'অভিভাবক', report.g1?.label, true),
+    markTile('অভিভাবকের রিভিউ · শিক্ষার্থী', kpis.guardian, 'অভিভাবক', report.g2?.label, true),
     markTile('শিক্ষকের রিভিউ', kpis.teacher, 'রিভিউ', t1.label),
     {
       label: 'অভিভাবকের সাড়া',
@@ -94,8 +94,8 @@ export default async function OverviewPage({ searchParams }: { searchParams: Pro
         selects={[
           { name: 'round', label: 'রাউন্ড', value: t1.id, options: [...rounds].reverse().filter((r) => r.kind === 'T1').map((r) => ({ value: r.id, label: r.label })) },
           { name: 'compare', label: 'তুলনা', value: compareId ?? 'none', options: [{ value: 'none', label: 'তুলনা নয়' }, ...[...earlier].reverse().map((r) => ({ value: r.id, label: r.label }))] },
-          { name: 'g1', label: 'শিক্ষার মান (G1)', value: search.g1 ?? '', options: kindOptions('G1', report.g1?.label) },
-          { name: 'g2', label: 'শিক্ষার্থী (G2)', value: search.g2 ?? '', options: kindOptions('G2', report.g2?.label) },
+          { name: 'g1', label: 'ক্লাস পরিচালনার রিভিউ', value: search.g1 ?? '', options: kindOptions('G1', report.g1?.label) },
+          { name: 'g2', label: 'শিক্ষার্থীর উপর অভিভাবক রিভিউ', value: search.g2 ?? '', options: kindOptions('G2', report.g2?.label) },
         ]}
       />
 
@@ -123,7 +123,7 @@ export default async function OverviewPage({ searchParams }: { searchParams: Pro
         <section className="sv-card flex flex-col gap-3" style={{ flex: '999 1 600px', minWidth: 0 }} aria-labelledby="ov-heat">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
             <h2 id="ov-heat" className="sv-head sv-h2">
-              শিক্ষার মান · শ্রেণি × বিষয় (G1 গড় মার্ক)
+              শিক্ষার মান · শ্রেণি × বিষয় (অভিভাবকদের গড় মার্ক)
             </h2>
             {report.g1 && <Link href={`/admin/reports/teaching?${new URLSearchParams({ round: report.g1.id, ...(verifiedOnly ? { verified: '1' } : {}) })}`}>বিস্তারিত →</Link>}
           </div>
@@ -141,7 +141,7 @@ export default async function OverviewPage({ searchParams }: { searchParams: Pro
             </>
           ) : (
             <p className="sv-muted" style={{ margin: 0 }}>
-              এই সময়ে কোনো “ক্লাস পরিচালনা” (G1) রাউন্ড নেই।
+              এই সময়ে কোনো “ক্লাস পরিচালনা” রাউন্ড নেই।
             </p>
           )}
         </section>
@@ -153,15 +153,15 @@ export default async function OverviewPage({ searchParams }: { searchParams: Pro
           <div className="flex gap-4" style={{ fontSize: 13, color: 'var(--sv-text-muted)' }} aria-hidden="true">
             <span className="flex items-center gap-1.5">
               <span style={{ width: 11, height: 11, borderRadius: 3, background: TEACHING }} />
-              G1 শিক্ষার মান
+              ক্লাস পরিচালনা
             </span>
             <span className="flex items-center gap-1.5">
               <span style={{ width: 11, height: 11, borderRadius: 3, background: GUARDIAN }} />
-              G2 শিক্ষার্থী
+              শিক্ষার্থী
             </span>
           </div>
           {report.progress.map((p) => (
-            <div key={`${p.classKey}|${p.sectionKey}`} className="grid items-center gap-2.5" style={{ gridTemplateColumns: '100px minmax(0, 1fr) 54px' }}>
+            <div key={`${p.classKey}|${p.sectionKey}`} className="grid items-center gap-2.5" style={{ gridTemplateColumns: '90px minmax(0, 1fr) 96px' }}>
               <span style={{ fontWeight: 600, fontSize: 14 }}>{p.label}</span>
               <span className="flex flex-col gap-1" aria-hidden="true">
                 {[
@@ -174,10 +174,10 @@ export default async function OverviewPage({ searchParams }: { searchParams: Pro
                 ))}
               </span>
               <span className="sv-num" style={{ fontSize: 12.5, textAlign: 'right', lineHeight: 1.3 }}>
-                <span className="sv-visually-hidden">G1 </span>
+                <span style={{ color: 'var(--sv-text-muted)', fontWeight: 400 }}>ক্লাস </span>
                 {bn(p.g1)}/{bn(p.total)}
                 <br />
-                <span className="sv-visually-hidden">G2 </span>
+                <span style={{ color: 'var(--sv-text-muted)', fontWeight: 400 }}>শিক্ষার্থী </span>
                 {bn(p.g2)}/{bn(p.total)}
               </span>
             </div>
@@ -200,7 +200,7 @@ export default async function OverviewPage({ searchParams }: { searchParams: Pro
           )}
           {report.trend.some((p) => p.teaching !== null) && (
             <div style={{ fontSize: 13.5, color: 'var(--sv-text-muted)' }}>
-              শিক্ষার মান (G1) একই সময়ে:{' '}
+              ক্লাস পরিচালনার রিভিউ একই সময়ে:{' '}
               {report.trend
                 .filter((p) => p.teaching !== null)
                 .map((p, i, list) => (

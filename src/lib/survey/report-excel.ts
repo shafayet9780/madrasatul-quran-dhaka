@@ -260,13 +260,14 @@ export async function teachingWorkbook(roundId: string, compareId: string | null
   const g1 = rounds.find((r) => r.id === roundId && r.kind === 'G1');
   if (!g1) return null;
   const compare = compareId === 'none' ? undefined : (rounds.find((r) => r.id === compareId && r.kind === 'G1' && r.opensAt < g1.opensAt) ?? previousRound(rounds, g1));
-  const report = await teachingQuality(g1, compare, { verifiedOnly, areaKey });
+  const report = await teachingQuality(g1, compare, { verifiedOnly, areaKey }, rounds);
   const rows = report.rows.flatMap((row) =>
     row.cells
       .filter((cell): cell is NonNullable<typeof cell> => cell !== null)
       .map((cell) => ({
         place: row.label,
         subject: report.subjects.find((s) => s.key === cell.subjectKey)?.name ?? cell.subjectKey,
+        teacher: cell.teacher ?? '',
         mean: cell.reliable ? round1(cell.mean) : null,
         respondents: cell.respondents,
         top: cell.reliable && cell.topShare !== null ? Math.round(cell.topShare * 100) : null,
@@ -280,6 +281,7 @@ export async function teachingWorkbook(roundId: string, compareId: string | null
       columns: [
         { header: 'শ্রেণি', key: 'place', width: 16 },
         { header: 'বিষয়', key: 'subject', width: 22 },
+        { header: 'শিক্ষক', key: 'teacher', width: 24 },
         { header: 'গড় মার্ক', key: 'mean', width: 10 },
         { header: 'উত্তরদাতা', key: 'respondents', width: 11 },
         { header: '১০ (%)', key: 'top', width: 9 },

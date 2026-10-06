@@ -26,7 +26,7 @@ export default async function TeachingPage({ searchParams }: { searchParams: Pro
           শিক্ষার মান
         </h1>
         <div className="sv-card" style={{ padding: 20 }}>
-          এখনো কোনো “ক্লাস পরিচালনা” (G1) অভিভাবক রাউন্ড খোলা হয়নি।
+          এখনো কোনো “ক্লাস পরিচালনা” অভিভাবক রাউন্ড খোলা হয়নি।
         </div>
       </>
     );
@@ -35,7 +35,7 @@ export default async function TeachingPage({ searchParams }: { searchParams: Pro
   const compare = search.compare === 'none' ? undefined : (earlier.find((r) => r.id === search.compare) ?? previousRound(rounds, g1));
   const verifiedOnly = search.verified === '1';
   const areaKey = g1.snapshot.areas.some((a) => a.key === search.area) ? search.area : undefined;
-  const report = await teachingQuality(g1, compare, { verifiedOnly, areaKey });
+  const report = await teachingQuality(g1, compare, { verifiedOnly, areaKey }, rounds);
   const [cClass, cSection, cSubject] = (search.cell ?? '').split('|');
   const cellAt = cClass && cSubject ? { classKey: cClass, sectionKey: cSection ?? '', subjectKey: cSubject } : null;
   const validCell = cellAt && report.rows.some((r) => r.classKey === cellAt.classKey && r.sectionKey === cellAt.sectionKey && r.cells.some((c) => c?.subjectKey === cellAt.subjectKey));
@@ -52,7 +52,7 @@ export default async function TeachingPage({ searchParams }: { searchParams: Pro
             শিক্ষার মান
           </h1>
           <div style={{ fontSize: 14, color: 'var(--sv-text-muted)' }}>
-            {g1.snapshot.template.title} (G1) · {g1.label} · {bn(report.respondents)} জন শিক্ষার্থীর অভিভাবক{verifiedOnly ? ' · শুধু যাচাইকৃত' : ''}
+            {g1.snapshot.template.title} · {g1.label} · {bn(report.respondents)} জন শিক্ষার্থীর অভিভাবক{verifiedOnly ? ' · শুধু যাচাইকৃত' : ''}
           </div>
         </div>
         <ReportTools exportHref={`/admin/reports/export?${new URLSearchParams({ kind: 'teaching', round: g1.id, compare: compare?.id ?? 'none', ...(areaKey ? { area: areaKey } : {}), ...(verifiedOnly ? { verified: '1' } : {}) })}`} />
@@ -119,6 +119,11 @@ export default async function TeachingPage({ searchParams }: { searchParams: Pro
                 <h2 id="detail-title" className="sv-head sv-h2">
                   {classLabel(g1.snapshot, cellAt.classKey, cellAt.sectionKey)} · {subjectName(cellAt.subjectKey)}
                 </h2>
+                <div style={{ fontSize: 13.5, color: 'var(--sv-text-muted)' }}>
+                  শিক্ষক:{' '}
+                  {report.rows.find((r) => r.classKey === cellAt.classKey && r.sectionKey === cellAt.sectionKey)?.cells.find((c) => c?.subjectKey === cellAt.subjectKey)?.teacher ??
+                    'এই সময়ের শিক্ষক রিভিউতে জমা নেই'}
+                </div>
               </div>
               <dl className="grid grid-cols-3 gap-2" style={{ margin: 0 }}>
                 {[

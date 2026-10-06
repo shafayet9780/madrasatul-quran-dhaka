@@ -149,6 +149,11 @@ export default async function TrackerPage({ searchParams }: { searchParams: Prom
                         <td key={cell.subjectKey} className={cell.state === 'na' ? undefined : `is-${cell.state}`} title={`${row.label} · ${subject}: ${text}`}>
                           <StateIcon state={cell.state} />
                           <span className="sv-visually-hidden">{text}</span>
+                          {cell.teachers.length > 0 && (
+                            <span aria-hidden="true" style={{ display: 'block', fontSize: 11, lineHeight: 1.3, marginTop: 2, fontWeight: 400 }}>
+                              {cell.teachers.join(', ')}
+                            </span>
+                          )}
                         </td>
                       );
                     })}

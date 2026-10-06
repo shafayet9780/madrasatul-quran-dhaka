@@ -20,7 +20,7 @@ export default async function ReportsIndex({ searchParams }: { searchParams: Pro
           <h1 className="sv-head" style={{ margin: 0, fontSize: 30 }}>
             ক্লাস ও শিক্ষার্থী
           </h1>
-          <div style={{ fontSize: 14, color: 'var(--sv-text-muted)' }}>শিক্ষকের রিভিউ (T1) · মার্ক ১০-এর মধ্যে</div>
+          <div style={{ fontSize: 14, color: 'var(--sv-text-muted)' }}>শিক্ষকের রিভিউ · মার্ক ১০-এর মধ্যে</div>
         </div>
         {round && <RoundPicker rounds={[...rounds].reverse().map((r) => ({ id: r.id, label: r.label }))} value={round.id} basePath="/admin/reports" />}
       </div>

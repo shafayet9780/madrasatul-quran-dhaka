@@ -1,7 +1,7 @@
 import 'server-only';
 import { and, asc, eq, inArray, isNotNull, isNull, ne } from 'drizzle-orm';
 import { getDb } from './db';
-import { cellStats, childAreaMeans, childWeightedMean, cohortDelta, gapFlag, optionCounts, perStudentMeans, questionDistributions, resolveRounds, roundHistory, sharedAreaGap, type GuardianItem } from './guardian-report-math';
+import { cellStats, childAreaMeans, childWeightedMean, cohortDelta, gapFlag, optionCounts, pairedRound, perStudentMeans, questionDistributions, resolveRounds, roundHistory, sharedAreaGap, type GuardianItem } from './guardian-report-math';
 
 export { pickKindRound, previousRound, resolveRounds } from './guardian-report-math';
 import { questionLabel } from './labels';
@@ -96,9 +96,27 @@ function subjectColumns(snapshot: RoundSnapshot) {
   return [...seen].map(([key, name]) => ({ key, name }));
 }
 
+/**
+ * Who teaches each class-section × subject, as the teachers' review of the same period shows it
+ * (there are no fixed assignments): the teachers with a counted batch there, joined.
+ */
+async function subjectTeachers(t1: Round | undefined) {
+  if (!t1) return new Map<string, string>();
+  const rows = await getDb()
+    .selectDistinct({ classKey: submissions.classKey, sectionKey: submissions.sectionKey, subjectKey: submissions.subjectKey, name: submissions.teacherName })
+    .from(submissions)
+    .where(and(eq(submissions.roundId, t1.id), eq(submissions.kind, 'T1'), eq(submissions.status, 'submitted'), isNull(submissions.supersededBy)));
+  const names = new Map<string, string[]>();
+  for (const r of rows) {
+    const key = `${r.classKey}|${r.sectionKey}|${r.subjectKey}`;
+    if (r.name) names.set(key, [...(names.get(key) ?? []), r.name]);
+  }
+  return new Map([...names].map(([key, list]) => [key, list.join(', ')]));
+}
+
 /** R2: class × subject means of a G1 round (optionally one area), change against another G1 round. */
-export async function teachingQuality(g1: Round, compare: Round | undefined, options: ReportOptions & { areaKey?: string }) {
-  const all = await guardianItems([g1.id, compare?.id], options);
+export async function teachingQuality(g1: Round, compare: Round | undefined, options: ReportOptions & { areaKey?: string }, rounds: Round[] = []) {
+  const [all, teacherOf] = await Promise.all([guardianItems([g1.id, compare?.id], options), subjectTeachers(pairedRound(g1, rounds, 'T1'))]);
   const items = all.filter((i) => !options.areaKey || i.areaKey === options.areaKey);
   const now = items.filter((i) => i.roundId === g1.id);
   const before = items.filter((i) => i.roundId === compare?.id);
@@ -110,7 +128,7 @@ export async function teachingQuality(g1: Round, compare: Round | undefined, opt
       cells: subjects.map((s) => {
         if (!cls.subjects.some((x) => x.key === s.key)) return null;
         const here = (list: GuardianItem[]) => list.filter((i) => same(i, p) && i.subjectKey === s.key);
-        return { subjectKey: s.key, ...cellStats(here(now)), delta: change(here(now), here(before)) };
+        return { subjectKey: s.key, ...cellStats(here(now)), delta: change(here(now), here(before)), teacher: teacherOf.get(`${p.classKey}|${p.sectionKey}|${s.key}`) ?? null };
       }),
     };
   });
@@ -154,7 +172,7 @@ export async function overviewReport(t1: Round, rounds: Round[], picked: { g1?: 
     // Teachers' marks about the child only (the guardian questions are left out, GUARDIAN_AREAS).
     t1Marks([...new Set([...history.map((r) => r.id), compareT1?.id].filter((id): id is string => Boolean(id)))]).then(childRows),
     guardianItems([g1?.id, g2?.id, cg1?.id, cg2?.id, ...pairs.flatMap((p) => [p.g1?.id, p.g2?.id])], options),
-    g1 ? teachingQuality(g1, cg1, options) : Promise.resolve(null),
+    g1 ? teachingQuality(g1, cg1, options, rounds) : Promise.resolve(null),
     getDb()
       .select({ erpId: students.erpId, name: students.name, classKey: students.classKey, sectionKey: students.sectionKey })
       .from(students)

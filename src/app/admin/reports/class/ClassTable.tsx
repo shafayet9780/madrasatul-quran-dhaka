@@ -34,7 +34,8 @@ const signed = (d: number) => {
 
 /** Student list (R3): teacher marks, and with a G2 round the guardian's average and the gap; sortable. */
 export function ClassTable({ rows, roundId, showTrend, showGuardian }: { rows: Row[]; roundId: string; showTrend: boolean; showGuardian: boolean }) {
-  const [sort, setSort] = useState<{ key: SortKey; dir: 1 | -1 }>({ key: 'roll', dir: 1 });
+  // Children with flags first (then by roll), so the ones needing attention are on top.
+  const [sort, setSort] = useState<{ key: SortKey; dir: 1 | -1 }>({ key: 'flags', dir: -1 });
   const value = (row: Row, key: SortKey): number | string => {
     if (key === 'roll') return row.roll ?? Number.MAX_SAFE_INTEGER;
     if (key === 'name') return row.name;
@@ -68,7 +69,7 @@ export function ClassTable({ rows, roundId, showTrend, showGuardian }: { rows: R
 
   return (
     <div style={{ overflowX: 'auto' }}>
-      <table className="sv-table is-stackable" style={{ minWidth: showGuardian ? 900 : 720 }}>
+      <table className="sv-table is-stackable is-compact" style={{ minWidth: showGuardian ? 900 : 720 }}>
         <thead>
           <tr>
             {header('roll', 'রোল')}
@@ -88,7 +89,7 @@ export function ClassTable({ rows, roundId, showTrend, showGuardian }: { rows: R
               <td data-label="রোল" className="sv-num" style={{ color: 'var(--sv-text-muted)' }}>
                 {row.roll !== null ? bn(row.roll) : '–'}
               </td>
-              <td data-label="নাম">
+              <td data-label="নাম" className="sv-span-2">
                 <Link href={`/admin/reports/student/${encodeURIComponent(row.erpId)}?round=${roundId}`} style={{ fontWeight: 600, color: 'var(--sv-text)' }}>
                   {row.name}
                 </Link>
@@ -99,7 +100,7 @@ export function ClassTable({ rows, roundId, showTrend, showGuardian }: { rows: R
                   {row.guardian === null ? <span style={{ color: 'var(--sv-text-muted)' }}>—</span> : bn(row.guardian.toFixed(1))}
                 </td>
               )}
-              <td data-label="গড়" className="sv-num">
+              <td data-label="শিক্ষকদের গড়" className="sv-num">
                 {row.mean === null ? <span style={{ color: 'var(--sv-text-muted)' }}>রিভিউ নেই</span> : bn(row.mean.toFixed(1))}
               </td>
               {showGuardian && (
@@ -107,15 +108,15 @@ export function ClassTable({ rows, roundId, showTrend, showGuardian }: { rows: R
                   {row.gap === null ? <span style={{ color: 'var(--sv-text-muted)' }}>—</span> : signed(row.gap)}
                 </td>
               )}
-              <td data-label="শিক্ষক" className="sv-num">
+              <td data-label="কতজন শিক্ষক" className="sv-num sv-phone-hide">
                 {bn(row.teachers)}
               </td>
               {showTrend && (
-                <td data-label="প্রবণতা">
+                <td data-label="প্রবণতা" className="sv-phone-hide">
                   <Sparkline points={row.trend} label={`${row.name}: ${row.trend.map((p) => `${p.label} ${bn(p.mean.toFixed(1))}`).join(', ')}`} />
                 </td>
               )}
-              <td data-label="ফ্ল্যাগ">
+              <td data-label="ফ্ল্যাগ" className="sv-span-2">
                 <div className="flex flex-wrap gap-1">
                   {row.flags.map((f) => (
                     <span key={f.kind} className="sv-flag">

@@ -22,7 +22,7 @@ test('finds a student and opens the profile', async ({ page }) => {
   await page.getByRole('link', { name: /Zayan Mahmud/ }).click();
   await expect(page.getByRole('heading', { name: 'Zayan Mahmud', level: 1 })).toBeVisible();
   // Two teacher rounds and an October G2 form → the guardian and teacher trend.
-  await expect(page.getByRole('img', { name: /T1 শিক্ষকের চোখে: সেপ্টেম্বর/ })).toBeVisible();
+  await expect(page.getByRole('img', { name: /শিক্ষকের রিভিউ: সেপ্টেম্বর/ })).toBeVisible();
   await expect(page.getByText('ক্লাসে মনোযোগ ভালো, তবে সহপাঠীদের সাথে মাঝে মাঝে ঝগড়া করে।')).toBeVisible();
   await expectAccessible(page);
 });
@@ -52,6 +52,7 @@ test('class page sets guardians beside teachers', async ({ page }) => {
   await expect(zayan.getByText('১০.০')).toBeVisible();
   await expect(zayan.getByText('যাচাইকৃত')).toBeVisible();
   await expect(table.getByRole('row', { name: /Maryam Binte Rafiq/ }).getByText('সাড়া নেই')).toBeVisible();
+  await page.getByText('অভিভাবক বনাম শিক্ষক · প্রত্যেক শিক্ষার্থীর চিত্র').click();
   await expect(page.getByRole('img', { name: /জন শিক্ষার্থীর অভিভাবক ও শিক্ষকদের গড় মার্ক/ })).toBeVisible();
   await expect(page.getByRole('img', { name: /^উপস্থিতি: অভিভাবক/ })).toBeVisible();
   await page.screenshot({ path: process.env.SHOT_DIR ? `${process.env.SHOT_DIR}/r3.png` : undefined, fullPage: true });
@@ -67,7 +68,7 @@ test('student profile shows the guardian answers and prints a page for the guard
   await page.goto('/admin/reports');
   await page.getByLabel('নাম, আইডি বা রোল').fill('zayan');
   await page.getByRole('link', { name: /Zayan Mahmud/ }).click();
-  await expect(page.getByRole('heading', { name: /অভিভাবকের উত্তর · G2/ })).toBeVisible();
+  await expect(page.getByRole('heading', { name: /অভিভাবকের উত্তর · অক্টোবর/ })).toBeVisible();
   await expect(page.getByText('উপস্থিতি > ৯০%')).toBeVisible();
   await expect(page.getByText('মন্তব্য: “বাসায় খুব শান্ত থাকে, মাদরাসা থেকে কোনো অভিযোগ আসেনি।”')).toBeVisible();
   await expect(page.getByText('মো. মাহমুদুল করিম (পিতা)').first()).toBeVisible();
@@ -140,8 +141,8 @@ test('the overview pairs guardian rounds with the teacher round and lists childr
   await page.goto('/admin/reports/overview');
   await expect(page.getByRole('heading', { name: 'ওভারভিউ', level: 1 })).toBeVisible();
   // The guardian rounds that ran with the October teacher round were picked by date.
-  await expect(page.getByLabel('শিক্ষার মান (G1)')).toContainText('স্বয়ংক্রিয় (অক্টোবর ২০২৬ · ক্লাস পরিচালনা (নমুনা))');
-  await expect(page.getByText('শিক্ষার মান · শ্রেণি × বিষয় (G1 গড় মার্ক)')).toBeVisible();
+  await expect(page.getByLabel('ক্লাস পরিচালনার রিভিউ')).toContainText('স্বয়ংক্রিয় (অক্টোবর ২০২৬ · ক্লাস পরিচালনা (নমুনা))');
+  await expect(page.getByText('শিক্ষার মান · শ্রেণি × বিষয় (অভিভাবকদের গড় মার্ক)')).toBeVisible();
   await expect(page.getByRole('link', { name: /নার্সারি A · কুরআন: গড়/ })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'মনোযোগ প্রয়োজন' })).toBeVisible();
   await expectAccessible(page);

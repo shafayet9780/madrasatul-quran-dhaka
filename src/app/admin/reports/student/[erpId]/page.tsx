@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { formatDateTime } from '@/lib/survey/dates';
+import { KIND_LABEL } from '@/lib/survey/labels';
 import { gapFlag, sharedAreaGap } from '@/lib/survey/guardian-report-math';
 import { allReportRounds, studentGuardian } from '@/lib/survey/guardian-reports';
 import { toBengaliDigits as bn } from '@/lib/survey/normalise';
@@ -156,7 +157,7 @@ export default async function StudentProfilePage({ params, searchParams }: { par
           </div>
           <div style={{ fontSize: 13, color: 'var(--sv-text-muted)' }}>
             {shared
-              ? `${shared.gap >= 0 ? 'অভিভাবক' : 'শিক্ষক'} বেশি দিয়েছেন · একই ${bn(shared.areas)}টি ক্ষেত্রে${widest ? ` · সবচেয়ে বেশি: ${widest.name} (${bn(widest.marks.toFixed(1))})` : ''}`
+              ? `${Math.round(shared.gap * 10) === 0 ? 'দুই দিকে সমান' : `${shared.gap > 0 ? 'অভিভাবক' : 'শিক্ষক'} বেশি দিয়েছেন`} · একই ${bn(shared.areas)}টি ক্ষেত্রে${widest ? ` · সবচেয়ে বেশি: ${widest.name} (${bn(widest.marks.toFixed(1))})` : ''}`
               : 'দুই দিকের মার্ক লাগবে'}
           </div>
         </div>
@@ -314,7 +315,7 @@ export default async function StudentProfilePage({ params, searchParams }: { par
       <div className="flex flex-wrap gap-4 items-start">
         <section className="sv-card flex flex-col gap-2 min-w-0" style={{ flex: '1 1 420px' }} aria-labelledby="answers-title">
           <h2 id="answers-title" className="sv-head sv-h2">
-            অভিভাবকের উত্তর{guardian.g2 ? ` · G2 ${guardian.g2.label}` : ''}
+            অভিভাবকের উত্তর{guardian.g2 ? ` · ${guardian.g2.label}` : ''}
           </h2>
           {!guardian.g2 && <p style={{ margin: 0, fontSize: 14, color: 'var(--sv-text-muted)' }}>এই রাউন্ডের সাথে অভিভাবকের রিভিউ (G2) নেই।</p>}
           {guardian.g2 && !guardian.form && <p style={{ margin: 0, fontSize: 14, color: 'var(--sv-text-muted)' }}>অভিভাবক এখনো জমা দেননি।</p>}
@@ -351,7 +352,7 @@ export default async function StudentProfilePage({ params, searchParams }: { par
             return (
               <div key={`g${i}`} className="flex gap-3 items-start" style={{ padding: '10px 12px', borderRadius: 12, border: '1px solid var(--sv-hairline)', opacity: entry.supersededBy ? 0.7 : 1 }}>
                 <span className="sv-tag" style={{ flex: 'none' }}>
-                  {entry.kind}
+                  {KIND_LABEL[entry.kind as keyof typeof KIND_LABEL]}
                 </span>
                 <div className="flex flex-col gap-0.5" style={{ flex: 1, fontSize: 14 }}>
                   <div style={{ fontWeight: 600 }}>
@@ -376,7 +377,7 @@ export default async function StudentProfilePage({ params, searchParams }: { par
                 style={{ padding: '10px 12px', borderRadius: 12, border: '1px solid var(--sv-hairline)', opacity: entry.status === 'superseded' || entry.status === 'set-aside' ? 0.7 : 1 }}
               >
                 <span className="sv-tag" style={{ flex: 'none' }}>
-                  T1
+                  {KIND_LABEL.T1}
                 </span>
                 <div className="flex flex-col gap-0.5" style={{ flex: 1, fontSize: 14 }}>
                   <div style={{ fontWeight: 600 }}>

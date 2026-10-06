@@ -13,7 +13,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   return (
     <div className={`sv-root sv-admin ${surveyFontVariables} flex flex-wrap items-start`}>
       <AdminNav />
-      <main className="min-w-0 flex flex-col gap-5" style={{ flex: '999 1 560px', padding: '22px 28px 48px' }}>
+      <main className="sv-admin-main min-w-0 flex flex-col gap-5" style={{ flex: '999 1 560px' }}>
         {children}
       </main>
     </div>
