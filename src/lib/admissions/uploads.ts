@@ -5,6 +5,7 @@ import type { FileAnswer } from './answers';
 import { saveDraft, type Application, type SaveResult } from './drafts';
 import { checkUpload, documentPath, type UploadCheck } from './files';
 import { allFields, type FormSnapshot } from './form-config';
+import { localOverrides } from './local';
 
 // Guardian documents in the private Blob store (ADMISSIONS_BLOB_READ_WRITE_TOKEN). Never public:
 // the admin reads them through an authenticated route; the PDF renderer embeds them server-side.
@@ -33,6 +34,11 @@ export const privateBlobStore: BlobStore = {
   },
 };
 
+/** The private store, or the in-memory one in the local preview. */
+export function blobStore(): BlobStore {
+  return localOverrides()?.store ?? privateBlobStore;
+}
+
 export type UploadResult = { ok: true; file: FileAnswer; save: SaveResult } | Extract<UploadCheck, { ok: false }> | { ok: false; error: 'locked' };
 
 /** Stores a document for one file field and links it to the draft; the replaced file is deleted. */
@@ -42,7 +48,7 @@ export async function uploadDocument(
   fieldKey: string,
   bytes: Uint8Array,
   originalName: string,
-  store: BlobStore = privateBlobStore,
+  store: BlobStore = blobStore(),
 ): Promise<UploadResult> {
   if (app.status !== 'draft' && app.status !== 'unpaid') return { ok: false, error: 'locked' };
   const field = allFields(snapshot).find((f) => f.key === fieldKey);

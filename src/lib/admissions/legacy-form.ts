@@ -118,6 +118,12 @@ function bi(value: Bi | undefined): Bi | undefined {
   return { ...(value.bengali && { bengali: value.bengali }), ...(value.english && { english: value.english }) };
 }
 
+/** Class labels carried "(বিশেষ বিবেচনায়)"; the `special` flag now shows that note. */
+function withoutSpecialNote(label: Bi | undefined): Bi {
+  const strip = (v?: string) => v?.replace(/\s*\([^)]*(বিশেষ|special)[^)]*\)\s*$/i, '');
+  return { bengali: strip(label?.bengali) ?? '', ...(label?.english && { english: strip(label.english) }) };
+}
+
 function fieldType(f: LegacyField): string {
   switch (f.fieldType) {
     case 'boolean':
@@ -170,7 +176,7 @@ export function convertLegacyForm(doc: LegacyFormDocument): { sections: Record<s
               _key: o.value ?? '',
               _type: 'admissionOption',
               value: o.value ?? '',
-              label: bi(o.label) ?? { bengali: o.value ?? '' },
+              label: role === 'classApplied' ? withoutSpecialNote(bi(o.label)) : (bi(o.label) ?? { bengali: o.value ?? '' }),
               ...(role === 'classApplied' && CLASS_CODES[o.value ?? '']),
             })),
           }),

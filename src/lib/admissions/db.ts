@@ -1,6 +1,7 @@
 import 'server-only';
 import { neon } from '@neondatabase/serverless';
 import { drizzle, type NeonHttpDatabase } from 'drizzle-orm/neon-http';
+import { localOverrides } from './local';
 import * as schema from './schema';
 
 export type AdmissionsDb = NeonHttpDatabase<typeof schema>;
@@ -14,6 +15,8 @@ let testDb: AdmissionsDb | undefined;
  */
 export function getAdmissionsDb(): AdmissionsDb {
   if (testDb) return testDb;
+  const local = localOverrides();
+  if (local) return local.db;
   if (!db) {
     const url = process.env.DATABASE_URL;
     if (!url) throw new Error('DATABASE_URL is not set');

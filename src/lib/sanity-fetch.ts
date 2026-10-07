@@ -1,5 +1,6 @@
 import { client, getClient } from './sanity';
 import type { QueryParams } from '@sanity/client';
+import { localOverrides } from './admissions/local';
 
 /**
  * Get revalidation time based on environment.
@@ -30,6 +31,8 @@ export async function sanityFetch<T>({
   revalidate?: number | false;
   tags?: string[];
 }): Promise<T> {
+  // Admissions local preview (ADMISSIONS_LOCAL=1, never on Vercel): the site renders without Sanity.
+  if (localOverrides()) return null as T;
   try {
     return await client.fetch<T>(query, params, {
       next: {

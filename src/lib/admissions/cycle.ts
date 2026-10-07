@@ -1,6 +1,7 @@
 import 'server-only';
 import { and, eq, sql } from 'drizzle-orm';
 import { getAdmissionsDb } from './db';
+import { localOverrides } from './local';
 import type { FormSnapshot } from './form-config';
 import { admissionCycles, admissionSnapshots } from './schema';
 import { FormConfigError, buildSnapshot, cycleWindow, type CycleWindow, type FormDocument } from './snapshot';
@@ -97,6 +98,8 @@ export async function loadSnapshot(cycleId: string, version: number): Promise<Fo
 
 /** Current cycle from the published form (Sanity, cached like the rest of the site). */
 export async function getCurrentCycle(): Promise<CycleState | null> {
+  const local = localOverrides();
+  if (local) return syncCycle(local.form);
   const { sanityFetch } = await import('@/lib/sanity-fetch');
   const doc = await sanityFetch<FormDocument | null>({ query: FORM_QUERY, tags: ['preAdmissionForm'] });
   return syncCycle(doc);

@@ -1,5 +1,6 @@
 'use client';
 
+import { usePathname } from 'next/navigation';
 import Header from './header';
 import Footer from './footer';
 import AdmissionBanner from './admission-banner';
@@ -7,6 +8,8 @@ import WhatsAppSupport from '@/components/ui/whatsapp-support';
 import { useScrollVisibility } from '@/hooks/use-scroll-visibility';
 import type { SiteSettings, FooterSettings } from '@/types/sanity';
 import type { PeopleNavData } from '@/lib/queries/site';
+
+const FOCUSED_FLOW = /^\/(bengali|english)\/pre-admission\/(start|form|review|status|find)(\/|$)/;
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -25,6 +28,10 @@ export default function MainLayout({
   peopleNav,
 }: MainLayoutProps) {
   const isScrollVisible = useScrollVisibility();
+  const pathname = usePathname();
+
+  // The application flow has its own focused header and no footer or chat button.
+  if (FOCUSED_FLOW.test(pathname)) return <>{children}</>;
 
   return (
     <div className="min-h-screen flex flex-col">

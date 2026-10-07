@@ -1,14 +1,14 @@
 import 'server-only';
 import { sql } from 'drizzle-orm';
-import { getDb } from './db';
+import { getDb, type SurveyDb } from './db';
 
 /**
  * Fixed-window counter in Postgres (spec §8): returns false once `limit` requests for `key`
  * happened inside the current window. One upsert per call; no extra service.
  */
-export async function allow(key: string, limit: number, windowMs: number, now = new Date()): Promise<boolean> {
+export async function allow(key: string, limit: number, windowMs: number, now = new Date(), db: Pick<SurveyDb, 'execute'> = getDb()): Promise<boolean> {
   const windowStart = new Date(now.getTime() - windowMs);
-  const result = await getDb().execute<{ count: number }>(sql`
+  const result = await db.execute<{ count: number }>(sql`
     INSERT INTO rate_limits (key, window_start, count) VALUES (${key}, ${now}, 1)
     ON CONFLICT (key) DO UPDATE SET
       count = CASE WHEN rate_limits.window_start < ${windowStart} THEN 1 ELSE rate_limits.count + 1 END,

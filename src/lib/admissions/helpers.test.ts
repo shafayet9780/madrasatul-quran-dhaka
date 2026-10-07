@@ -9,7 +9,9 @@ describe('mobile and email', () => {
   it('accepts Bengali digits, spaces and dashes', () => {
     expect(normaliseMobile('০১৭১২ ৩৪৫৬৭৮')).toBe('8801712345678');
     expect(normaliseMobile('+880 1712-345678')).toBe('8801712345678');
-    expect(normaliseMobile('1712345678')).toBeNull();
+    expect(normaliseMobile('১৭১২ ৩৪৫৬৭৮')).toBe('8801712345678');
+    expect(normaliseMobile('171234567')).toBeNull();
+    expect(normaliseMobile('1712345678')).toBe('8801712345678');
   });
 
   it('formats for display', () => {

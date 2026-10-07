@@ -220,3 +220,10 @@ export function allFields(snapshot: Pick<FormSnapshot, 'sections'>): FormField[]
 export function fieldWithRole(snapshot: Pick<FormSnapshot, 'sections'>, role: Role): FormField | undefined {
   return allFields(snapshot).find((f) => f.role === role);
 }
+
+/** The chapters the guardian fills in: start-page fields (mobile, email) left out, empty chapters dropped. */
+export function guardianSections(snapshot: Pick<FormSnapshot, 'sections'>): FormSection[] {
+  return snapshot.sections
+    .map((s) => ({ ...s, fields: s.fields.filter((f) => !f.role || !START_ROLES.includes(f.role)) }))
+    .filter((s) => s.fields.length > 0);
+}

@@ -1,6 +1,15 @@
-import { normaliseMobile, toAsciiDigits } from '@/lib/survey/normalise';
+import { normaliseMobile as normaliseAnyMobile, toAsciiDigits } from '@/lib/survey/normalise';
 
-export { normaliseMobile, toAsciiDigits };
+export { toAsciiDigits };
+
+/**
+ * Canonical `8801…` mobile. The form shows a fixed +880 prefix, so a Bangladeshi number typed
+ * without its leading 0 (`1712 345678`) is accepted too.
+ */
+export function normaliseMobile(input: string | null | undefined): string | null {
+  const compact = toAsciiDigits(input ?? '').replace(/[\s\-()]/g, '');
+  return normaliseAnyMobile(/^1[3-9]\d{8}$/.test(compact) ? `0${compact}` : input);
+}
 export { toBengaliDigits } from '@/lib/survey/normalise';
 
 /** `8801712345678` → `01712-345678`; foreign numbers as `+49…`. */
