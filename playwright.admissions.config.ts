@@ -1,4 +1,6 @@
-import { defineConfig, devices } from '@playwright/test';
+import { chromium, defineConfig, devices } from '@playwright/test';
+
+const chromiumPath = process.env.PLAYWRIGHT_CHROMIUM_PATH || chromium.executablePath();
 
 // The pre-admission flow against the local preview (ADMISSIONS_LOCAL=1): in-memory Postgres, the
 // converted live form, no Sanity, Neon or Blob. Separate from playwright.config.ts because the
@@ -16,7 +18,8 @@ export default defineConfig({
   webServer: {
     command: 'pnpm build && pnpm start',
     url: 'http://localhost:3300/bengali/pre-admission',
-    env: { PORT: '3300', ADMISSIONS_LOCAL: '1' },
+    // The server prints application PDFs with the same Chromium.
+    env: { PORT: '3300', ADMISSIONS_LOCAL: '1', CHROMIUM_EXECUTABLE_PATH: chromiumPath },
     reuseExistingServer: !process.env.CI,
     timeout: 300_000,
   },

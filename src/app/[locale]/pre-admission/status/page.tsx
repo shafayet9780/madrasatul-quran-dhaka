@@ -9,11 +9,11 @@ import { FlowShell } from '@/components/pre-admission/flow-shell';
 import { PayButton } from '@/components/pre-admission/pay-button';
 import { Button } from '@/components/shadcn/button';
 import { asLocale, dateTime, taka, txt, type Locale } from '@/lib/admissions/display';
-import { getByToken, type Application } from '@/lib/admissions/drafts';
+import { loadById, type Application } from '@/lib/admissions/drafts';
 import { fieldWithRole, type FormSnapshot } from '@/lib/admissions/form-config';
 import { flowPath } from '@/lib/admissions/pages';
 import { latestPayment, paymentGateway, reconcilePayment, type Payment } from '@/lib/admissions/payments';
-import { currentApplication, sessionToken } from '@/lib/admissions/session';
+import { currentApplication } from '@/lib/admissions/session';
 
 type Props = { params: Promise<{ locale: string }>; searchParams: Promise<{ payment?: string }> };
 
@@ -45,7 +45,7 @@ export default async function StatusPage({ params, searchParams }: Props) {
   let payment = await latestPayment(app.id);
   if (app.status === 'unpaid' && payment?.status === 'initiated') {
     await reconcilePayment(payment).catch((e) => console.error('Admissions: reconcile on status page failed', e));
-    app = (await getByToken((await sessionToken())!)) ?? app;
+    app = (await loadById(app.id))?.app ?? app;
     payment = await latestPayment(app.id);
   }
 
@@ -158,7 +158,7 @@ async function Confirmation({ app, snapshot, payment, locale, fee }: { app: Appl
         <CopyId value={app.publicRef ?? ''} label={t('copyId')} />
       </div>
 
-      <ConfirmationTasks locale={locale} publicRef={app.publicRef ?? ''} pdfUrl={null} whatsappUrl={whatsappUrl} qrSvg={qrSvg} />
+      <ConfirmationTasks locale={locale} publicRef={app.publicRef ?? ''} pdfUrl="/api/admissions/pdf" whatsappUrl={whatsappUrl} qrSvg={qrSvg} emailed={!!app.confirmationEmailAt} />
 
       <div className="grid gap-8 border-t pt-6 md:grid-cols-2 md:gap-10">
         <section className="flex flex-col gap-2.5">

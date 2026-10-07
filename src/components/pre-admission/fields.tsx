@@ -279,7 +279,7 @@ function EmailInput({ common, value, onChange, onBlur }: { common: Common; value
 }
 
 /** Day / month / year selects (no fiddly date picker on phones); the value is YYYY-MM-DD once complete. */
-function DateSelect({ id, value, locale, years, invalid, onChange, onBlur }: { id: string; value: string; locale: Locale; years?: number[]; invalid: boolean; onChange: (v: string) => void; onBlur: () => void }) {
+export function DateSelect({ id, value, locale, years, invalid, onChange, onBlur }: { id: string; value: string; locale: Locale; years?: number[]; invalid: boolean; onChange: (v: string) => void; onBlur: () => void }) {
   const t = useTranslations('preAdmission.chapter');
   const parsed = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
   const [parts, setParts] = useState({ d: parsed ? String(+parsed[3]) : '', m: parsed ? String(+parsed[2]) : '', y: parsed?.[1] ?? '' });

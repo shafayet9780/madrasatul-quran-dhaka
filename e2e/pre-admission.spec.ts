@@ -72,7 +72,7 @@ async function fillChapter(page: Page) {
   }
 }
 
-test('a guardian fills in every chapter, reviews, declares, pays after a failed attempt and gets an ID', async ({ page }) => {
+test('a guardian fills in every chapter, reviews, declares, pays after a failed attempt, gets an ID, the PDF and the emails', async ({ page, browser }) => {
   await page.goto(BASE);
   await dismissConsent(page);
   await expect(page.getByRole('heading', { level: 1 })).toContainText('প্রি-অ্যাডমিশন আবেদন');
@@ -132,9 +132,48 @@ test('a guardian fills in every chapter, reviews, declares, pays after a failed 
   await expect(page.getByText('পেমেন্টের রসিদ')).toBeVisible();
   await noSeriousA11yIssues(page);
 
+  const publicRef = (await page.getByText(/^[A-Z][A-Z0-9]{0,3}-\d{3}$/).textContent())!;
+
+  // The application PDF.
+  const [download] = await Promise.all([page.waitForEvent('download'), page.getByRole('link', { name: 'আবেদনপত্র ডাউনলোড' }).click()]);
+  expect(download.suggestedFilename()).toBe(`application-${publicRef}.pdf`);
+  const pdf = await (await download.createReadStream()).toArray();
+  expect(Buffer.concat(pdf).subarray(0, 5).toString()).toBe('%PDF-');
+  await expect(page.getByText('১ / ২ সম্পন্ন')).toBeVisible();
+
+  // Emails (collected by the local preview): the resume link and the confirmation with the PDF.
+  await expect
+    .poll(async () => (await (await page.request.get('/api/admissions/dev/outbox')).json()).map((m: { subject: string }) => m.subject).join('|'))
+    .toContain(`আবেদন সম্পন্ন: ${publicRef}`);
+  const outbox = await (await page.request.get('/api/admissions/dev/outbox')).json();
+  const confirmation = outbox.find((m: { subject: string }) => m.subject.includes(publicRef));
+  expect(confirmation.attachments).toEqual([{ filename: `application-${publicRef}.pdf`, bytes: expect.any(Number) }]);
+  expect(outbox.some((m: { subject: string; to: string }) => m.subject.includes('ফিরে আসার লিংক') && m.to === 'rafiq@gmail.com')).toBe(true);
+
   // Paid: the form is closed for editing.
   await page.goto(`${BASE}/form/student`);
   await expect(page).toHaveURL(/\/pre-admission\/status$/);
+
+  // Find my application on another device: the date of birth must match.
+  const other = await browser.newContext();
+  const phone = await other.newPage();
+  await phone.goto(`${BASE}/find`);
+  await dismissConsent(phone);
+  await phone.getByLabel(/আবেদন আইডি বা মোবাইল নম্বর/).fill(publicRef.toLowerCase().replace('-', ' '));
+  await phone.getByLabel('দিন').selectOption('12');
+  await phone.getByLabel('মাস').selectOption('4');
+  await phone.getByLabel('বছর').selectOption('2021');
+  await phone.getByRole('button', { name: 'খুঁজুন' }).click();
+  await expect(phone.getByText('এই তথ্যের সাথে মিলে এমন কোনো আবেদন পাওয়া যায়নি')).toBeVisible();
+  await phone.getByLabel('মাস').selectOption('3');
+  await phone.getByRole('button', { name: 'খুঁজুন' }).click();
+  await expect(phone.getByText('ফি পরিশোধিত')).toBeVisible();
+  await noSeriousA11yIssues(phone);
+  const [again] = await Promise.all([phone.waitForEvent('download'), phone.getByRole('button', { name: 'আবেদনপত্র ডাউনলোড' }).click()]);
+  expect(again.suggestedFilename()).toBe(`application-${publicRef}.pdf`);
+  await phone.goto(`${BASE}/status`);
+  await expect(phone.getByText(publicRef, { exact: true })).toBeVisible();
+  await other.close();
 });
 
 test('next shows what is missing; answers survive a reload and the resume link', async ({ page, browser }) => {

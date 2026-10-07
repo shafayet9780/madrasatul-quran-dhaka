@@ -2,7 +2,7 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { eq, sql } from 'drizzle-orm';
 import { syncCycle, type CycleState } from './cycle';
-import { createDraft, findDuplicates, getByToken, saveDraft, submitDraft, type Application } from './drafts';
+import { createDraft, findApplications, findDuplicates, getByToken, loadById, saveDraft, submitDraft, type Application } from './drafts';
 import { applicationEvents, applications } from './schema';
 import type { FormDocument } from './snapshot';
 import { sampleSnapshot } from './testing/fixtures';
@@ -194,5 +194,23 @@ describe('uploadDocument', () => {
 
     const doc = await uploadDocument(app, cycle.snapshot, 'birth_certificate', PDF, 'cert.pdf', store);
     expect(doc.ok && doc.file.type).toBe('application/pdf');
+  });
+});
+
+describe('findApplications', () => {
+  it('matches the ID or the guardian mobile, and always the date of birth', async () => {
+    const cycle = (await syncCycle(formDoc('r1')))!;
+    const started = await createDraft(cycle, { mobile: '01712345678', email: 'a@b.co', locale: 'bengali' });
+    if (!started.ok) throw new Error('start failed');
+    const app = (await getByToken(started.token))!;
+    await saveDraft(app, cycle.snapshot, { date_of_birth: '2021-03-12' });
+    await db.update(applications).set({ status: 'paid', publicRef: 'KG-007', classCode: 'KG' }).where(eq(applications.id, app.id));
+
+    expect((await findApplications(cycle.cycleId, { publicRef: 'KG-007' }, '2021-03-12')).map((a) => a.id)).toEqual([app.id]);
+    expect((await findApplications(cycle.cycleId, { mobile: '8801712345678' }, '2021-03-12')).map((a) => a.id)).toEqual([app.id]);
+    expect(await findApplications(cycle.cycleId, { mobile: '8801712345678' }, '2021-03-13')).toEqual([]);
+    expect(await findApplications(cycle.cycleId, { publicRef: 'KG-008' }, '2021-03-12')).toEqual([]);
+    expect((await loadById(app.id))!.app.publicRef).toBe('KG-007');
+    expect(await loadById('not-a-uuid')).toBeNull();
   });
 });

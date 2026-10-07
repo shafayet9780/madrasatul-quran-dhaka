@@ -9,7 +9,7 @@ import { chapterStatus } from '@/lib/admissions/answers';
 import { asLocale, num, txt } from '@/lib/admissions/display';
 import { fieldWithRole, guardianSections } from '@/lib/admissions/form-config';
 import { flowPath, requireDraft } from '@/lib/admissions/pages';
-import { resumeUrl, sessionToken } from '@/lib/admissions/session';
+import { currentAccess, resumeUrl } from '@/lib/admissions/session';
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -22,8 +22,8 @@ export default async function HubPage({ params }: Props) {
   const locale = asLocale((await params).locale);
   const t = await getTranslations({ locale, namespace: 'preAdmission' });
   const { app, snapshot } = await requireDraft(locale);
-  const token = (await sessionToken())!;
-  const link = await resumeUrl(locale, token);
+  const token = (await currentAccess())?.token;
+  const link = token ? await resumeUrl(locale, token) : null;
 
   const chapters = guardianSections(snapshot).map((section) => {
     const s = chapterStatus(section, app.answers);
@@ -129,10 +129,16 @@ export default async function HubPage({ params }: Props) {
           </ul>
         </nav>
 
-        <div className="flex items-center justify-between gap-3 md:gap-4">
-          <p className="text-[13.5px] leading-normal text-muted-foreground md:text-sm">{t('hub.resumeNote')}</p>
-          <CopyLink url={link} label={t('hub.copyLink')} done={t('hub.copied')} />
-        </div>
+        {link && (
+          <div className="flex items-center justify-between gap-3 md:gap-4">
+            <p className="text-[13.5px] leading-normal text-muted-foreground md:text-sm">
+              {app.resumeEmailAt
+                ? t.rich('hub.resumeSent', { email: app.email, addr: (c) => <span className="text-foreground [font-family:var(--font-english)]">{c}</span> })
+                : t('hub.resumeNote')}
+            </p>
+            <CopyLink url={link} label={t('hub.copyLink')} done={t('hub.copied')} />
+          </div>
+        )}
       </main>
 
       <div className="fixed inset-x-0 bottom-0 z-20 border-t bg-card px-4 pb-5 pt-3 md:hidden">

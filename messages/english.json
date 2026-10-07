@@ -938,6 +938,7 @@
       "startChapter": "Start: {chapter}",
       "goReview": "Go to review",
       "resumeNote": "Use this link to continue on another phone or computer. Do not share it.",
+      "resumeSent": "Your resume link was sent to <addr>{email}</addr>. You can stop any time and finish later.",
       "copyLink": "Copy link",
       "copied": "Copied",
       "submittedNote": "Submitted, the fee is still due. If you change anything, submit again."
@@ -1061,6 +1062,7 @@
       "pdfDownload": "Download application",
       "pdfOpenAgain": "Open again",
       "pdfPreparing": "The application PDF is being prepared. You will be able to download it here soon.",
+      "emailCopy": "A copy was also sent to your email.",
       "whatsappTitle": "Join the WhatsApp group",
       "whatsappLead": "The evaluation date and time are announced only in this group, by application ID.",
       "whatsappJoin": "Join the group",
@@ -1082,6 +1084,34 @@
     "resume": {
       "invalidTitle": "This link does not work",
       "invalidLead": "The link is old or incomplete. Find your application or start again."
+    },
+    "find": {
+      "title": "Find my application",
+      "lead": "Download the application again, continue an unfinished one, or pay a fee that is due.",
+      "queryLabel": "Application ID or mobile number",
+      "queryHelp": "An ID looks like <id>KG-017</id>. Before the fee is paid there is no ID yet; use the mobile number.",
+      "dobLabel": "Student's date of birth",
+      "dobHelp": "The date of birth is checked so nobody else can open your application.",
+      "submit": "Find",
+      "results": "Results",
+      "none": "No application matches these details. Check the ID or mobile number and the date of birth.",
+      "invalidQuery": "Enter an application ID (like KG-017) or a mobile number",
+      "invalidDob": "Choose the date of birth",
+      "linkInvalid": "That link is old or incomplete. Find your application below with the ID or mobile number and the date of birth.",
+      "notConfigured": "Applications cannot be opened right now. Please contact the office.",
+      "paid": "Fee paid",
+      "due": "Fee due",
+      "draft": "Unfinished",
+      "session": "Session {session}",
+      "download": "Download application",
+      "openConfirmation": "Open the application page",
+      "whatsapp": "Join the WhatsApp group",
+      "dueNote": "The form is complete; the application fee is due.",
+      "dueDeadline": "The form is complete; the application fee is due. Pay before {deadline}.",
+      "pay": "Pay {fee}",
+      "edit": "View or change details",
+      "continue": "Continue the application",
+      "draftNote": "The form is not finished yet."
     }
   }
 }

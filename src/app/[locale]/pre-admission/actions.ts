@@ -3,12 +3,17 @@
 import { redirect, unstable_rethrow } from 'next/navigation';
 import { after } from 'next/server';
 import { getCurrentCycle } from '@/lib/admissions/cycle';
-import { createDraft, getByToken, saveDraft, submitDraft } from '@/lib/admissions/drafts';
+import { createHash } from 'node:crypto';
+import { parseIsoDate } from '@/lib/admissions/age';
+import { createDraft, findApplications, getByToken, saveDraft, submitDraft } from '@/lib/admissions/drafts';
 import { sendResumeEmail } from '@/lib/admissions/mail';
-import { asLocale } from '@/lib/admissions/display';
+import { asLocale, txt } from '@/lib/admissions/display';
+import { fieldWithRole } from '@/lib/admissions/form-config';
+import { parseApplicationId } from '@/lib/admissions/ids';
+import { normaliseMobile } from '@/lib/admissions/normalise';
 import { flowPath } from '@/lib/admissions/pages';
 import { startPayment } from '@/lib/admissions/payments';
-import { currentApplication, setSessionToken, siteOrigin, withinLimit } from '@/lib/admissions/session';
+import { currentApplication, foundIds, grantApplication, rememberFound, setSessionToken, siteOrigin, withinLimit } from '@/lib/admissions/session';
 
 export type StartState = { errors?: { mobile?: 'invalid_mobile'; email?: 'invalid_email' }; message?: 'closed' | 'rateLimited' | 'failed' };
 
@@ -110,4 +115,79 @@ export async function payNow(localeParam: string): Promise<void> {
     next = flowPath(locale, '/status?payment=unavailable');
   }
   redirect(next);
+}
+
+export type FoundApplication = {
+  id: string;
+  publicRef: string | null;
+  studentName: string;
+  classLabel: string;
+  status: 'paid' | 'due' | 'draft';
+};
+export type FindState = {
+  errors?: { query?: 'invalidQuery'; dob?: 'invalidDob' };
+  message?: 'rateLimited' | 'failed' | 'notConfigured' | 'none';
+  results?: FoundApplication[];
+};
+
+/** Find my application: ID or guardian mobile, checked against the child's date of birth. */
+export async function findApplication(localeParam: string, _prev: FindState, form: FormData): Promise<FindState> {
+  const locale = asLocale(localeParam);
+  const query = String(form.get('query') ?? '').trim();
+  const dob = String(form.get('dob') ?? '');
+  try {
+    const cycle = await getCurrentCycle();
+    if (!cycle) return { message: 'notConfigured' };
+    const classField = fieldWithRole(cycle.snapshot, 'classApplied');
+    const codes = classField?.options.map((o) => o.code).filter((c): c is string => !!c) ?? [];
+    const ref = parseApplicationId(query, codes);
+    const mobile = ref ? null : normaliseMobile(query);
+    const errors: FindState['errors'] = {
+      ...(!ref && !mobile && { query: 'invalidQuery' as const }),
+      ...(!parseIsoDate(dob) && { dob: 'invalidDob' as const }),
+    };
+    if (errors.query || errors.dob) return { errors };
+    if (!(await withinLimit('find'))) return { message: 'rateLimited' };
+    const value = ref ?? mobile!;
+    if (!(await withinLimit('findValue', createHash('sha256').update(value).digest('hex').slice(0, 32)))) return { message: 'rateLimited' };
+
+    const found = await findApplications(cycle.cycleId, ref ? { publicRef: ref } : { mobile: mobile! }, dob);
+    if (!found.length) return { message: 'none' };
+    await rememberFound(found.map((a) => a.id));
+    return {
+      results: found.map((a) => {
+        const option = classField?.options.find((o) => o.value === a.classValue);
+        return {
+          id: a.id,
+          publicRef: a.publicRef,
+          studentName: a.studentNameBn ?? '',
+          classLabel: option ? txt(option.label, locale) : '',
+          status: a.publicRef ? 'paid' : a.status === 'unpaid' ? 'due' : 'draft',
+        };
+      }),
+    };
+  } catch (e) {
+    console.error('Admissions: find failed', e);
+    return { message: 'failed' };
+  }
+}
+
+/** Opens a found application on this device and goes where the guardian asked. */
+export async function openFound(localeParam: string, form: FormData): Promise<void> {
+  const locale = asLocale(localeParam);
+  const id = String(form.get('id') ?? '');
+  const to = String(form.get('to') ?? 'status');
+  if (!(await foundIds()).includes(id) || !(await grantApplication(id))) redirect(flowPath(locale, '/find'));
+  if (to === 'pdf') redirect('/api/admissions/pdf');
+  if (to === 'pay') {
+    let next: string;
+    try {
+      next = await checkoutUrl(locale);
+    } catch (e) {
+      console.error('Admissions: payment start failed', e);
+      next = flowPath(locale, '/status?payment=unavailable');
+    }
+    redirect(next);
+  }
+  redirect(flowPath(locale, to === 'form' ? '/form' : '/status'));
 }

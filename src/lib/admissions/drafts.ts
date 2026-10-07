@@ -67,6 +67,33 @@ export async function loadWithSnapshot(token: string): Promise<{ app: Applicatio
   return snapshot ? { app, snapshot } : null;
 }
 
+export async function loadById(id: string): Promise<{ app: Application; snapshot: FormSnapshot } | null> {
+  if (!/^[0-9a-f-]{36}$/i.test(id)) return null;
+  const [app] = await getAdmissionsDb().select().from(applications).where(eq(applications.id, id));
+  if (!app) return null;
+  const snapshot = await loadSnapshot(app.cycleId, app.snapshotVersion);
+  return snapshot ? { app, snapshot } : null;
+}
+
+/**
+ * Find my application: applications in the cycle with this ID or guardian mobile, and the child's
+ * date of birth (both must match, so a phone number alone reveals nothing).
+ */
+export async function findApplications(cycleId: string, by: { publicRef: string } | { mobile: string }, dateOfBirth: string): Promise<Application[]> {
+  return getAdmissionsDb()
+    .select()
+    .from(applications)
+    .where(
+      and(
+        eq(applications.cycleId, cycleId),
+        eq(applications.dateOfBirth, dateOfBirth),
+        'publicRef' in by ? eq(applications.publicRef, by.publicRef) : eq(applications.primaryMobile, by.mobile),
+      ),
+    )
+    .orderBy(applications.createdAt)
+    .limit(10);
+}
+
 export type SaveResult = { ok: true; answers: Answers; status: Application['status'] } | { ok: false; reason: 'locked' | 'not_found' };
 
 /**

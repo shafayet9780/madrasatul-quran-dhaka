@@ -1,6 +1,6 @@
 # Pre-admission 2027 — Implementation Plan
 
-Status: **M1, M2 and M3 done** (2026-10-07); M3 waits for the SSLCommerz sandbox credentials for a real sandbox run. Next M4. Database tests run against in-memory Postgres (PGlite, all migrations applied) in the normal `pnpm test`; `pnpm test:db` against the Neon dev branch is still available.
+Status: **M1 to M4 done** (2026-10-07); M3 waits for the SSLCommerz sandbox credentials for a real sandbox run, M4 for the private Blob store and Resend (both work in the local preview). Next M5 (admin). Database tests run against in-memory Postgres (PGlite, all migrations applied) in the normal `pnpm test`; `pnpm test:db` against the Neon dev branch is still available.
 Inputs: [`pre-admission-2027.md`](pre-admission-2027.md) (spec) · [`pre-admission-mockups/`](pre-admission-mockups/README.md) (prototype + design language, locked)
 
 ## 1. Decisions (planning interview, 2026-10-07)
@@ -88,6 +88,12 @@ SSLCommerz client (session, validation, transaction query), pay route, IPN and b
 
 ### M4 — PDF, email, find, confirmation
 Print page (3 pages A4, Bengali shaping checked), Chromium renderer + private storage, confirmation page with the two tasks, email with attachment and resume email, Find my application. → verify: PDF snapshot check, email sent in sandbox, lookup rate limits.
+   Built:
+   - **PDF** (`pdf-html.ts`, `pdf.ts`): one HTML document printed by headless Chromium (no print route or signed URL: the HTML is set directly, so Vercel deployment protection is no obstacle). Fonts (Noto Sans Bengali, Inter from `@fontsource`), photos (read from the private store) and QR codes (staff: `/admin/admissions/<id>`, WhatsApp group) are embedded. Always Bengali (the office's copy). Page 1: header, print banner, ID, photo, staff QR, student chapter (with age at session start), receipt, evaluation-day box; then the other chapters with a repeated header; the declaration and the office/evaluator section kept together; footer with ID, name and page N / M. The live form prints on exactly 3 pages (checked by `pdf.chromium.test.ts` with poppler; the shaped Bengali was checked visually).
+   - Chromium: local executable in development (auto-detected or `CHROMIUM_EXECUTABLE_PATH`), `@sparticuz/chromium-min` on Vercel (pack downloaded once per instance from the Sparticuz GitHub release, `CHROMIUM_PACK_URL` to override). Stored once per application (`admissions/<id>/application-<ID>.pdf`, `pdf_key`); `GET /api/admissions/pdf` for the guardian.
+   - **Email** (`mail.ts`, Resend): resume link when an application starts (after the response); confirmation with the ID, WhatsApp link and the PDF attached when payment is confirmed (after the response; retried by the daily job, 15 s budget). Sender `ADMISSIONS_EMAIL_FROM` (default `admissions@madrasatulquranbd.com`, must be on the domain verified in Resend). The hub says where the link was sent.
+   - **Find my application**: ID or guardian mobile + child's date of birth; rate-limited per IP (30 / 10 min) and per ID or number (8 / 10 min); results show paid (download PDF, open the confirmation, WhatsApp), fee due (pay, edit) or unfinished (continue). Opening a result gives this device a signed 7-day access cookie (key `ADMISSIONS_SECRET`, else derived from `CRON_SECRET`), so the guardian's resume token, emailed link and other devices keep working.
+   - Local preview: emails collected at `/api/admissions/dev/outbox`; the e2e flow downloads the PDF, checks both emails and finds the application from a second device.
 
 ### M5 — Admin
 Shared shadcn shell (survey nav moves under জরিপ), overview, list (paid / fee pending, filters, search, bulk status, bulk PDF), detail (answers from snapshot, documents, payment, status, evaluation-day switches, notes, activity log), delete unpaid (data + files), Excel export, QR check-in, Sheet copy to the ভর্তি ২০২৭ tab with retry. → verify: e2e for admin flows, `assertAdmin()` on every action.
@@ -96,7 +102,7 @@ Shared shadcn shell (survey nav moves under জরিপ), overview, list (paid 
 Remove the old form, `/api/submit-form` and `/api/upload`; security review; admin guide (`docs/pre-admission-admin-guide.md`); sandbox end-to-end; go-live checklist (Pro plan, live SSLCommerz store and IPN, Resend domain, deadline, enable form, test ৳500 payment and refund).
 
 ## 5. Needed from the owner
-- M0 items above (private Blob store, Resend + DNS, SSLCommerz sandbox).
+- M0 items above (private Blob store, Resend + DNS, SSLCommerz sandbox). `CRON_SECRET` is already set for the survey; Find uses it unless `ADMISSIONS_SECRET` is set.
 - Before go-live: live SSLCommerz credentials, class codes and age ranges, WhatsApp group link, deadline, logo file, PDF instructions and refund wording, ERP import template, decision on Vercel Pro.
 
 ## 6. Out of scope for this phase

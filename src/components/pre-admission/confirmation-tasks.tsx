@@ -6,7 +6,7 @@ import { useTranslations } from 'next-intl';
 import { Button } from '@/components/shadcn/button';
 import { num, type Locale } from '@/lib/admissions/display';
 
-type Props = { locale: Locale; publicRef: string; pdfUrl: string | null; whatsappUrl: string | null; qrSvg: string | null };
+type Props = { locale: Locale; publicRef: string; pdfUrl: string | null; whatsappUrl: string | null; qrSvg: string | null; emailed: boolean };
 
 const storageKey = (ref: string) => `mq-admission-tasks:${ref}`;
 
@@ -31,7 +31,7 @@ export function CopyId({ value, label }: { value: string; label: string }) {
 }
 
 /** The two required tasks after payment, each ticked when done (remembered on this device). */
-export function ConfirmationTasks({ locale, publicRef, pdfUrl, whatsappUrl, qrSvg }: Props) {
+export function ConfirmationTasks({ locale, publicRef, pdfUrl, whatsappUrl, qrSvg, emailed }: Props) {
   const t = useTranslations('preAdmission.status');
   const [done, setDone] = useState({ pdf: false, whatsapp: false });
 
@@ -91,6 +91,7 @@ export function ConfirmationTasks({ locale, publicRef, pdfUrl, whatsappUrl, qrSv
                   {done.pdf ? t('pdfOpenAgain') : t('pdfDownload')}
                 </a>
               </Button>
+              {emailed && <p className="text-[12.5px] text-muted-foreground">{t('emailCopy')}</p>}
             </>
           ) : (
             <p className="rounded-lg border px-3 py-2.5 text-[13.5px] leading-relaxed text-muted-foreground">{t('pdfPreparing')}</p>
