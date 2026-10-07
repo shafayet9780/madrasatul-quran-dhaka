@@ -67,6 +67,7 @@
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.13.0",
+    "@electric-sql/pglite": "^0.3.16",
     "@eslint/eslintrc": "^3",
     "@playwright/test": "^1.60.0",
     "@portabletext/types": "^2.0.15",
