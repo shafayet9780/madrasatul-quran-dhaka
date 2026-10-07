@@ -1,6 +1,6 @@
 # Pre-admission 2027 — Implementation Plan
 
-Status: **M1 done** (2026-10-07); next M2. Database tests run against in-memory Postgres (PGlite, all migrations applied) in the normal `pnpm test`; `pnpm test:db` against the Neon dev branch is still available.
+Status: **M1 and M2 done** (2026-10-07); next M3 (payments). Database tests run against in-memory Postgres (PGlite, all migrations applied) in the normal `pnpm test`; `pnpm test:db` against the Neon dev branch is still available.
 Inputs: [`pre-admission-2027.md`](pre-admission-2027.md) (spec) · [`pre-admission-mockups/`](pre-admission-mockups/README.md) (prototype + design language, locked)
 
 ## 1. Decisions (planning interview, 2026-10-07)
@@ -74,6 +74,7 @@ scripts/setup-admissions.ts                             # drafts-only Sanity set
 
 ### M2 — Guardian pages
 Intro, start, hub, chapter renderer (all Sanity field types, groups, show-when, uploads with compression and camera), review + declaration, light theme, Bengali/English. → verify: Playwright flow on phone and desktop viewports, axe checks, autosave/resume test.
+   Done. `pnpm test:e2e:admissions` runs the flow against the **local preview** (`ADMISSIONS_LOCAL=1`, never on Vercel: in-memory Postgres, the converted live form, in-memory file store; the rest of the site renders without Sanity). `ADMISSIONS_LOCAL=1 pnpm dev` gives the same preview for trying the form. Until M3 the review page submits the application (status `unpaid`) and the status page says online payment opens soon. Find my application (linked from the intro and start pages) arrives in M4.
 
 ### M3 — Payments
 SSLCommerz client (session, validation, transaction query), pay route, IPN and browser returns, idempotent confirmation with serial assignment, double-payment guard, reconciliation (cron + on lookup), payment-failed and pending states. → verify: db tests with recorded sandbox responses, a full sandbox run.

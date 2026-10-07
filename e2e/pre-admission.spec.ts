@@ -1,0 +1,153 @@
+import { test, expect, type Page } from '@playwright/test';
+import AxeBuilder from '@axe-core/playwright';
+
+// Runs against the local preview (pnpm test:e2e:admissions): the converted live form, open now.
+
+const BASE = '/bengali/pre-admission';
+const JPEG = Buffer.concat([Buffer.from([0xff, 0xd8, 0xff, 0xe0]), Buffer.alloc(64)]);
+const PDF = Buffer.from('%PDF-1.4\n%%EOF\n');
+
+async function noSeriousA11yIssues(page: Page) {
+  const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).analyze();
+  const serious = results.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical');
+  expect(serious.map((v) => `${v.id}: ${v.nodes.map((n) => n.target.join(' ')).join(', ')}`)).toEqual([]);
+}
+
+async function dismissConsent(page: Page) {
+  await page.getByRole('button', { name: 'সব গ্রহণ করুন' }).click({ timeout: 3000 }).catch(() => {});
+}
+
+async function start(page: Page, mobile = '০১৭১২-৩৪৫৬৭৮') {
+  await page.goto(`${BASE}/start`);
+  await dismissConsent(page);
+  await page.getByLabel(/অভিভাবকের মোবাইল নম্বর/).fill(mobile);
+  await page.getByLabel(/^ইমেইল/).fill('rafiq@gmail.com');
+  await page.getByRole('button', { name: 'শুরু করুন' }).click();
+  await expect(page).toHaveURL(/\/pre-admission\/form$/);
+}
+
+/** Answers every visible field of the current chapter (twice, so show-when fields get filled too). */
+async function fillChapter(page: Page) {
+  for (let pass = 0; pass < 2; pass++) {
+    const groups = page.locator('main [id^="f-"][id$="-group"]');
+    for (let i = 0; i < (await groups.count()); i++) {
+      const g = groups.nth(i);
+      if (!(await g.isVisible())) continue;
+      const radios = g.getByRole('radio');
+      if ((await radios.count()) > 0) {
+        if ((await g.locator('[role=radio][aria-checked=true]').count()) === 0) await radios.first().click();
+        continue;
+      }
+      const boxes = g.getByRole('checkbox');
+      if ((await boxes.count()) > 0) {
+        if ((await g.locator('[role=checkbox][aria-checked=true]').count()) === 0) await boxes.first().click();
+        continue;
+      }
+      const file = g.locator('input[type=file]').first();
+      if ((await file.count()) > 0) {
+        if ((await g.getByText('যুক্ত হয়েছে').count()) === 0) {
+          const photo = (await file.getAttribute('accept'))?.includes('pdf') === false;
+          await file.setInputFiles({ name: photo ? 'photo.jpg' : 'certificate.pdf', mimeType: photo ? 'image/jpeg' : 'application/pdf', buffer: photo ? JPEG : PDF });
+          await expect(g.getByText('যুক্ত হয়েছে')).toBeVisible();
+        }
+        continue;
+      }
+      const selects = g.locator('select');
+      if ((await selects.count()) === 3) {
+        await selects.nth(0).selectOption('12');
+        await selects.nth(1).selectOption('3');
+        await selects.nth(2).selectOption('2021');
+        continue;
+      }
+      if ((await selects.count()) === 1) {
+        if (!(await selects.first().inputValue())) await selects.first().selectOption({ index: 1 });
+        continue;
+      }
+      const input = g.locator('input:not([type=file]), textarea').first();
+      if ((await input.count()) === 0 || (await input.inputValue())) continue;
+      const mode = await input.getAttribute('inputmode');
+      await input.fill(mode === 'tel' ? '01812345678' : mode === 'email' ? 'family@gmail.com' : mode === 'numeric' ? '2' : 'পরীক্ষামূলক উত্তর');
+      await input.blur();
+    }
+  }
+}
+
+test('a guardian fills in every chapter, reviews, declares and submits', async ({ page }) => {
+  await page.goto(BASE);
+  await dismissConsent(page);
+  await expect(page.getByRole('heading', { level: 1 })).toContainText('প্রি-অ্যাডমিশন আবেদন');
+  await noSeriousA11yIssues(page);
+  await page.getByRole('link', { name: /আবেদন শুরু করুন/ }).click();
+
+  await expect(page.getByRole('heading', { name: 'আবেদন শুরু করুন' })).toBeVisible();
+  await noSeriousA11yIssues(page);
+  await page.getByLabel(/অভিভাবকের মোবাইল নম্বর/).fill('১৭১২ ৩৪৫৬৭৮');
+  await page.getByLabel(/^ইমেইল/).fill('rafiq@gmial.com');
+  await page.getByLabel(/^ইমেইল/).blur();
+  await page.getByRole('button', { name: 'ঠিক করুন' }).click();
+  await expect(page.getByLabel(/^ইমেইল/)).toHaveValue('rafiq@gmail.com');
+  await page.getByRole('button', { name: 'শুরু করুন' }).click();
+
+  await expect(page.getByRole('heading', { name: 'আপনার আবেদন' })).toBeVisible();
+  await expect(page.getByText('সব অধ্যায় শেষ হলে খুলবে')).toBeVisible();
+  await noSeriousA11yIssues(page);
+  await page.getByRole('link', { name: /দিয়ে শুরু করুন/ }).last().click();
+
+  let a11yChecked = false;
+  for (let chapter = 0; chapter < 10 && !page.url().endsWith('/review'); chapter++) {
+    await expect(page).toHaveURL(/\/form\/[a-z_]+$/);
+    await fillChapter(page);
+    if (!a11yChecked) {
+      await noSeriousA11yIssues(page);
+      a11yChecked = true;
+    }
+    const before = page.url();
+    await page.getByRole('button', { name: /^(পরবর্তী|পর্যালোচনা)/ }).filter({ visible: true }).click();
+    await page.waitForURL((url) => url.toString() !== before);
+  }
+
+  await expect(page.getByRole('heading', { name: 'জমা দেওয়ার আগে দেখে নিন' })).toBeVisible();
+  await expect(page.getByText('আব্দুল্লাহ আল-মাহমুদ').or(page.getByText('পরীক্ষামূলক উত্তর')).first()).toBeVisible();
+  await expect(page.getByText('০১৭১২-৩৪৫৬৭৮')).toBeVisible();
+  await noSeriousA11yIssues(page);
+  const pay = page.getByRole('button', { name: /৳৫০০ পরিশোধ করুন/ });
+  await expect(pay).toBeDisabled();
+  await page.getByRole('checkbox').check();
+  await pay.click();
+
+  await expect(page).toHaveURL(/\/pre-admission\/status$/);
+  await expect(page.getByRole('heading', { name: 'আবেদন জমা হয়েছে' })).toBeVisible();
+});
+
+test('next shows what is missing; answers survive a reload and the resume link', async ({ page, browser }) => {
+  await start(page);
+  await page.goto(`${BASE}/form/student`);
+  await page.getByRole('button', { name: /^পরবর্তী/ }).filter({ visible: true }).click();
+  const summary = page.getByRole('alert').filter({ hasText: 'ঠিক করা দরকার' });
+  await expect(summary).toBeVisible();
+  await expect(summary.getByRole('link')).not.toHaveCount(0);
+
+  await page.locator('#f-student_name_bengali').fill('আব্দুল্লাহ');
+  await page.locator('#f-student_name_bengali').blur();
+  await expect(page.getByRole('status').filter({ hasText: 'সংরক্ষিত' }).first()).toBeVisible();
+  await page.reload();
+  await expect(page.locator('#f-student_name_bengali')).toHaveValue('আব্দুল্লাহ');
+
+  // Another device: the resume link restores the application.
+  const token = (await page.context().cookies()).find((c) => c.name === 'mq_admission')!.value;
+  const other = await browser.newContext();
+  const phone = await other.newPage();
+  await phone.goto(`${BASE}/resume?t=${token}`);
+  await expect(phone).toHaveURL(/\/pre-admission\/form$/);
+  await expect(phone.getByText('আব্দুল্লাহ')).toBeVisible();
+  await phone.goto(`${BASE}/form/student`);
+  await expect(phone.locator('#f-student_name_bengali')).toHaveValue('আব্দুল্লাহ');
+  await other.close();
+});
+
+test('a broken resume link does not open anything', async ({ page }) => {
+  await page.goto(`${BASE}/resume?t=${'x'.repeat(43)}`);
+  await expect(page).toHaveURL(/\/pre-admission\/find\?link=invalid$/);
+  await page.goto(`${BASE}/form`);
+  await expect(page).toHaveURL(/\/pre-admission\/start$/);
+});

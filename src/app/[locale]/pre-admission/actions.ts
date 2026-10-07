@@ -1,8 +1,8 @@
 'use server';
 
-import { redirect } from 'next/navigation';
+import { redirect, unstable_rethrow } from 'next/navigation';
 import { getCurrentCycle } from '@/lib/admissions/cycle';
-import { createDraft, saveDraft } from '@/lib/admissions/drafts';
+import { createDraft, saveDraft, submitDraft } from '@/lib/admissions/drafts';
 import { asLocale } from '@/lib/admissions/display';
 import { flowPath } from '@/lib/admissions/pages';
 import { currentApplication, setSessionToken, withinLimit } from '@/lib/admissions/session';
@@ -53,4 +53,27 @@ export async function saveAnswers(patch: Record<string, unknown>): Promise<SaveR
     console.error('Admissions: save failed', e);
     return { ok: false, reason: 'failed' };
   }
+}
+
+export type SubmitState = { message?: 'declaration' | 'invalid' | 'rateLimited' | 'failed' };
+
+/** Review page: checks the whole form, records the declaration and marks the application unpaid. */
+export async function submitApplication(localeParam: string, _prev: SubmitState, form: FormData): Promise<SubmitState> {
+  const locale = asLocale(localeParam);
+  try {
+    if (!(await withinLimit('submit'))) return { message: 'rateLimited' };
+    const current = await currentApplication();
+    if (!current) redirect(flowPath(locale, '/start'));
+    const result = await submitDraft(current.app, current.snapshot, form.get('declared') === 'yes');
+    if (!result.ok) {
+      if (result.reason === 'locked') redirect(flowPath(locale, '/status'));
+      return { message: result.reason };
+    }
+  } catch (e) {
+    unstable_rethrow(e);
+    console.error('Admissions: submit failed', e);
+    return { message: 'failed' };
+  }
+  // Payment (SSLCommerz) starts here once it is connected; until then the status page explains.
+  redirect(flowPath(locale, '/status'));
 }

@@ -12,6 +12,7 @@
     "test:watch": "vitest",
     "test:db": "vitest run --config vitest.db.config.ts",
     "test:e2e": "playwright test",
+    "test:e2e:admissions": "playwright test --config playwright.admissions.config.ts",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "survey:fixtures": "tsx --conditions=react-server scripts/survey-dev-fixtures.ts",
