@@ -1,4 +1,5 @@
 import 'server-only';
+import { cache } from 'react';
 import { cookies, headers } from 'next/headers';
 import { getAdmissionsDb } from './db';
 import { loadWithSnapshot } from './drafts';
@@ -25,11 +26,11 @@ export async function sessionToken(): Promise<string | null> {
   return cleanToken((await cookies()).get(SESSION_COOKIE)?.value);
 }
 
-/** The application on this device with the form version it was answered against. */
-export async function currentApplication() {
+/** The application on this device with the form version it was answered against (once per request). */
+export const currentApplication = cache(async () => {
   const token = await sessionToken();
   return token ? loadWithSnapshot(token) : null;
-}
+});
 
 const MINUTE = 60 * 1000;
 

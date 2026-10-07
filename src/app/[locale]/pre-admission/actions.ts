@@ -2,10 +2,10 @@
 
 import { redirect } from 'next/navigation';
 import { getCurrentCycle } from '@/lib/admissions/cycle';
-import { createDraft } from '@/lib/admissions/drafts';
+import { createDraft, saveDraft } from '@/lib/admissions/drafts';
 import { asLocale } from '@/lib/admissions/display';
 import { flowPath } from '@/lib/admissions/pages';
-import { setSessionToken, withinLimit } from '@/lib/admissions/session';
+import { currentApplication, setSessionToken, withinLimit } from '@/lib/admissions/session';
 
 export type StartState = { errors?: { mobile?: 'invalid_mobile'; email?: 'invalid_email' }; message?: 'closed' | 'rateLimited' | 'failed' };
 
@@ -36,4 +36,21 @@ export async function startApplication(localeParam: string, _prev: StartState, f
     return { message: 'failed' };
   }
   redirect(flowPath(locale, '/form'));
+}
+
+export type SaveResponse = { ok: true } | { ok: false; reason: 'locked' | 'expired' | 'rateLimited' | 'failed' };
+
+/** Autosave from a chapter page: a partial patch, kept even when not yet valid. */
+export async function saveAnswers(patch: Record<string, unknown>): Promise<SaveResponse> {
+  if (!patch || typeof patch !== 'object' || Array.isArray(patch)) return { ok: false, reason: 'failed' };
+  try {
+    if (!(await withinLimit('save'))) return { ok: false, reason: 'rateLimited' };
+    const current = await currentApplication();
+    if (!current) return { ok: false, reason: 'expired' };
+    const result = await saveDraft(current.app, current.snapshot, patch);
+    return result.ok ? { ok: true } : { ok: false, reason: result.reason === 'locked' ? 'locked' : 'expired' };
+  } catch (e) {
+    console.error('Admissions: save failed', e);
+    return { ok: false, reason: 'failed' };
+  }
 }

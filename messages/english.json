@@ -958,7 +958,7 @@
       "month": "Month",
       "year": "Year",
       "months": "January|February|March|April|May|June|July|August|September|October|November|December",
-      "ageAt": "Age at the start of the session: {age}",
+      "ageAt": "Age at the start of the session: <b>{age}</b>",
       "age": "{years} years {months} months",
       "classFits": "Fits the age",
       "classSpecial": "Special consideration",
