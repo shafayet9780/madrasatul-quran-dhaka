@@ -26,6 +26,7 @@ Status: **DRAFT — decisions agreed with the owner 2026-10-07; mockups next.** 
 | Visual design | Public site brand (colours, header, footer) + the survey's proven interaction patterns (progress line, big targets, tinted selection). Mockups first. |
 | Google Sheet | Keep a best-effort copy of paid applications (and later status changes), reusing the survey mirror pattern with daily retry. |
 | Closing | Deadline date/time in Sanity closes the form automatically (countdown in the final days). The existing enable toggle stays. |
+| Form layout | A form, not a survey: start page (mobile + email), then one page per chapter (~7) with labelled field groups and compact controls, checklist hub, review. |
 | Unpaid applications | Kept; listed separately in admin with phone numbers for follow-up; **deleted manually** by staff (data + documents). |
 
 Defaults taken (change if needed): the application fee is non-refundable and says so before payment; a double charge is refunded manually via the SSLCommerz panel. Admin stays on the shared Studio Basic Auth, so the activity log records *what/when*, not *who*.
@@ -33,14 +34,19 @@ Defaults taken (change if needed): the application fee is non-refundable and say
 ## Guardian flow
 
 1. **Intro** (`/[locale]/pre-admission`) — session (2027), classes, what to have ready (photos, birth certificate), ~15 minutes, ৳500 application fee (non-refundable) + ৳500 evaluation fee (cash, evaluation day), timeline (apply → pay → slip → WhatsApp for slot → evaluation → result), deadline countdown, FAQ, "Continue my application".
-2. **Steps** — one Sanity section per step (Student → Father → Mother → Family → Contact → Documents, as configured), then **Review** with the declaration. Segmented progress line; Back never loses data.
-   - Server autosave (draft in Postgres) + local copy; a resume link (token) is shown and emailed once the email field is filled.
-   - Validation inline as you go; Bengali digits normalised (`০১৭…` → `017…`); Bangladeshi mobile check; date of birth → age shown against the chosen class's age range (warning, not a block, unless the office sets a hard range).
-   - Photos compressed/resized on the device before upload (phone photos are 3–5 MB; the limit stays small). Camera capture on phones. Birth certificate as image or PDF.
+2. **Start** — one short page asking the guardian's mobile and email (the fields with roles `primaryMobile` / `email`, wherever they sit in Sanity; not asked again later). Creates the draft, so autosave, the resume link and office follow-up work from the first minute.
+3. **Chapters** — a **form, not a survey**: one page per Sanity section (~7 pages: Student, Father, Mother, Family, Contact, Documents, as configured), then **Review** with the declaration.
+   - **Checklist hub** as home: each chapter shows Not started / In progress / Done; first time through it guides in order, afterwards any chapter can be reopened. Review unlocks when all required fields are done.
+   - Inside a page, fields sit in **labelled groups** (e.g. Father: Basic information · Occupation · Religious practice · Family and media). Choices use compact radio buttons, checkboxes and dropdowns, not large cards. Two columns on desktop where paired (Bengali/English name); one column on phones.
+   - Thin progress line + chapter title at the top; sticky bottom bar with "Saved ✓" and Next. Back never loses data.
+   - Conditional fields appear only when relevant (Sanity "show when").
+   - Server autosave (draft in Postgres) + local copy; the resume link (token) is shown and emailed from the start page.
+   - Validation when a field is left, not while typing; on Next, the page scrolls to the first problem with a short summary. Bengali digits normalised (`০১৭…` → `017…`); Bangladeshi mobile check (`+880` fixed, number keypad); email typo hint (`gmial.com`); date of birth asked before class, with classes that fit the child's age highlighted (warning, not a block, unless the office sets a hard range).
+   - Photos open the camera with a passport-style frame; compressed/resized on the device before upload (phone photos are 3–5 MB; the limit stays small). Birth certificate as image or PDF.
    - Duplicate guard: same child name + DOB + guardian mobile in this cycle → "you already applied (KG-017)" with a link to find it.
-3. **Pay** — summary (৳500, non-refundable; evaluation fee later in cash) → SSLCommerz hosted checkout (bKash, Nagad, cards, net banking).
-4. **Confirmation** — application ID large, "Download slip (PDF)", WhatsApp QR + "Join group" button, email notice, what happens next, evaluation-fee reminder.
-5. **Find my application** — application ID (or resume token) + guardian mobile → download the slip again, or finish an unpaid payment. Rate-limited (Postgres limiter from the survey).
+4. **Pay** — summary (৳500, non-refundable; evaluation fee later in cash) → SSLCommerz hosted checkout (bKash, Nagad, cards, net banking).
+5. **Confirmation** — application ID large, "Download slip (PDF)", WhatsApp QR + "Join group" button, email notice, what happens next, evaluation-fee reminder.
+6. **Find my application** — application ID (or resume token) + guardian mobile → download the slip again, or finish an unpaid payment. Rate-limited (Postgres limiter from the survey).
 
 Bilingual throughout (`bengali` / `english` locales); Bengali numerals in Bengali UI. Accessibility checked with axe in e2e.
 
@@ -49,6 +55,7 @@ Bilingual throughout (`bengali` / `english` locales); Bengali numerals in Bengal
 - **Field role** (optional, per field): `studentNameBn`, `studentNameEn`, `dateOfBirth`, `classApplied`, `studentPhoto`, `birthCertificate`, `fatherName`, `motherName`, `primaryMobile`, `secondaryMobile`, `email`, `address`. Validation blocks publishing unless each required role (student name, DOB, class, primary mobile, email, student photo) is assigned exactly once. Roles drive the PDF, admin list/search, ID, duplicate guard, SSLCommerz customer fields and the email. Everything else is stored as-is.
 - **Class options**: add short `code` (e.g. `KG`) and optional age range.
 - **Cycle settings**: session label (2027), application fee (৳500), evaluation fee text/amount, opens-at / closes-at (deadline), WhatsApp group link, slip instructions ("bring this slip, original birth certificate…"), fee/refund note, confirmation text.
+- **Field groups**: within a section, fields can be grouped under a heading (rendered as a labelled group on the page); optional "pair" hint puts two fields side by side on desktop.
 - **Conditional show/hide** (optional per field: "show when field X = value") — e.g. transport area only if transport matters.
 
 The fee amount is read on the server only; the browser never sends a price.
@@ -105,7 +112,7 @@ SSLCommerz sandbox + live credentials (set in Vercel env, not in chat) and IPN U
 
 ## Delivery plan
 
-1. **Mockups** (canvas, phone + desktop): intro, a form step, documents step, review, pay summary, confirmation, find-my-application, PDF slip, admin overview/list/detail → owner approval, then lock.
+1. **Mockups** (canvas, phone + desktop): intro, start page, checklist hub, a chapter page (Father, phone + desktop), documents page, review, pay summary, confirmation, find-my-application, PDF slip, admin overview/list/detail → owner approval, then lock.
 2. Sanity schema (roles, class codes, cycle settings, conditions) + Postgres migration + private uploads + draft autosave API → unit + db tests.
 3. Guardian step-by-step UI → e2e + axe.
 4. SSLCommerz integration (sandbox) + confirmation + reconciliation cron → db tests with simulated validation responses; full sandbox run.
