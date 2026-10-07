@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { checkFormConfig, fieldWithRole, type RawSection } from './form-config';
-import { DEFAULT_CYCLE, convertLegacyForm } from './legacy-form';
+import { DEFAULT_CYCLE, convertLegacyForm, englishPatches } from './legacy-form';
 import { buildSnapshot } from './snapshot';
 import { exportedForm, liveLegacyDocument } from './testing/live-form';
 
@@ -36,5 +36,25 @@ describe('convertLegacyForm', () => {
     expect(field('transport_location').showWhen).toEqual({ field: 'transport_requirement', values: ['yes'] });
     expect(field('mother_organization').showWhen).toEqual({ field: 'mother_occupation', values: ['business', 'service', 'teacher', 'doctor'] });
     expect(field('father_photo').group).toBe('basic');
+  });
+
+  it('gives every question, choice, placeholder and help text an English version', () => {
+    for (const f of raw.flatMap((s) => s.fields ?? []) as any[]) {
+      expect(f.label.english, f.key).toBeTruthy();
+      for (const o of f.options ?? []) expect(o.label.english, `${f.key}.${o.value}`).toBeTruthy();
+      if (f.placeholder) expect(f.placeholder.english, f.key).toBeTruthy();
+      if (f.help) expect(f.help.english, f.key).toBeTruthy();
+    }
+    expect(fieldWithRole(buildSnapshot({ _rev: 'r', declarationText: { bengali: 'ঘোষণা' }, cycle: DEFAULT_CYCLE, sections: raw }), 'classApplied')!.options[1].label.english).toBe('KG');
+  });
+
+  it('adds missing English to a form already in the Studio without touching what is there', () => {
+    const bengaliOnly = JSON.parse(JSON.stringify(sections, (k, v) => (k === 'english' ? undefined : v)));
+    bengaliOnly[0].fields[1].label.english = 'Edited by the office';
+    const patches = englishPatches(bengaliOnly, { bengali: 'ঘোষণা' });
+    expect(patches['sections[_key=="student"].fields[_key=="student_name_bengali"].label.english']).toBeUndefined();
+    expect(patches['sections[_key=="student"].fields[_key=="desired_class"].options[_key=="kg"].label.english']).toBe('KG');
+    expect(patches['declarationText.english']).toMatch(/^Madrasatul Quran/);
+    expect(englishPatches(sections as any, { bengali: 'ঘোষণা', english: 'x' })).toEqual({});
   });
 });

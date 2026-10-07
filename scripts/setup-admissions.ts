@@ -2,11 +2,12 @@ import { createClient } from '@sanity/client';
 import { config } from 'dotenv';
 import { resolve } from 'node:path';
 import { checkFormConfig, type RawSection } from '../src/lib/admissions/form-config';
-import { DEFAULT_CYCLE, convertLegacyForm } from '../src/lib/admissions/legacy-form';
+import { DECLARATION_ENGLISH } from '../src/lib/admissions/legacy-english';
+import { DEFAULT_CYCLE, convertLegacyForm, englishPatches } from '../src/lib/admissions/legacy-form';
 
 // Builds the 2027 form ("Form 2027" and "Cycle 2027" tabs) from the current form's questions and
 // saves it as a Studio DRAFT for review. Nothing is published. Dry run unless --write is passed.
-// Never overwrites a form that already has 2027 chapters.
+// A form that already has 2027 chapters is never rebuilt; only missing English text is added.
 config({ path: resolve(process.cwd(), '.env.local') });
 const {
   NEXT_PUBLIC_SANITY_PROJECT_ID: projectId,
@@ -37,9 +38,23 @@ async function main() {
     return;
   }
   if (base.sections?.length) {
+    const patches = englishPatches(base.sections, base.declarationText);
+    const count = Object.keys(patches).length;
     console.log(
-      `The ${draft ? 'draft' : 'published'} form already has 2027 chapters. Nothing was changed.`
+      `The ${draft ? 'draft' : 'published'} form already has 2027 chapters; they are kept. Missing English texts: ${count}.`
     );
+    if (!count) return;
+    if (!write) {
+      console.log('Dry run. Rerun with --write to add the English texts to the draft.');
+      return;
+    }
+    if (!draft) {
+      const { _rev, _createdAt, _updatedAt, ...rest } = published;
+      await client.createIfNotExists({ ...rest, _id: 'drafts.preAdmissionForm' });
+    }
+    const current = await client.getDocument('drafts.preAdmissionForm');
+    await client.patch('drafts.preAdmissionForm').ifRevisionId(current!._rev).setIfMissing(patches).commit();
+    console.log('Added the English texts to the draft. Review and publish in Studio.');
     return;
   }
 
@@ -69,6 +84,7 @@ async function main() {
       .patch(draft._id)
       .ifRevisionId(draft._rev)
       .setIfMissing({ sections, cycle: DEFAULT_CYCLE })
+      .setIfMissing(draft.declarationText?.bengali ? { 'declarationText.english': DECLARATION_ENGLISH } : {})
       .commit();
   } else {
     const { _rev, _createdAt, _updatedAt, ...rest } = published;
@@ -77,6 +93,10 @@ async function main() {
       _id: 'drafts.preAdmissionForm',
       sections,
       cycle: published.cycle ?? DEFAULT_CYCLE,
+      ...(published.declarationText?.bengali &&
+        !published.declarationText.english && {
+          declarationText: { ...published.declarationText, english: DECLARATION_ENGLISH },
+        }),
     });
   }
   console.log(

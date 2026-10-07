@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { DECLARATION_ENGLISH } from '../legacy-english';
 import { DEFAULT_CYCLE, convertLegacyForm, type LegacyFormDocument } from '../legacy-form';
 import type { FormDocument } from '../snapshot';
 
@@ -57,7 +58,7 @@ export function liveFormDocument(now = new Date()): FormDocument {
   return {
     _rev: 'local-1',
     formSettings: { isEnabled: true },
-    declarationText: { bengali: exportedForm().declarationText },
+    declarationText: { bengali: exportedForm().declarationText, english: DECLARATION_ENGLISH },
     cycle: {
       ...DEFAULT_CYCLE,
       opensAt: new Date(now.getTime() - day).toISOString(),

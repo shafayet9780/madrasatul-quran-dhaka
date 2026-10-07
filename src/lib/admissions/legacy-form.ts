@@ -1,4 +1,5 @@
 import type { Role } from './form-config';
+import { DECLARATION_ENGLISH, FIELD_ENGLISH } from './legacy-english';
 
 // One-time conversion of the old pre-admission form (six differently shaped arrays in the
 // `preAdmissionForm` document) into the 2027 `sections` structure. Used by
@@ -118,6 +119,12 @@ function bi(value: Bi | undefined): Bi | undefined {
   return { ...(value.bengali && { bengali: value.bengali }), ...(value.english && { english: value.english }) };
 }
 
+/** Adds the English text when the Studio has none (placeholders and help only when Bengali exists). */
+function withEnglish<T extends Bi | undefined>(value: T, english: string | undefined): T {
+  if (!value || !english || value.english) return value;
+  return { ...value, english };
+}
+
 /** Class labels carried "(বিশেষ বিবেচনায়)"; the `special` flag now shows that note. */
 function withoutSpecialNote(label: Bi | undefined): Bi {
   const strip = (v?: string) => v?.replace(/\s*\([^)]*(বিশেষ|special)[^)]*\)\s*$/i, '');
@@ -162,21 +169,27 @@ export function convertLegacyForm(doc: LegacyFormDocument): { sections: Record<s
         const group = groups.find((g) => g.fields.includes(key));
         const show = SHOW_WHEN[key];
         const showValues = show ? show[1].filter((v) => choiceValues(show[0]).includes(v)) : [];
+        const en = FIELD_ENGLISH[key];
+        const placeholder = withEnglish(bi(f.placeholder), en?.placeholder);
+        const help = withEnglish(bi(f.helpText), en?.help);
         return {
           _key: key,
           _type: 'admissionField',
           key,
-          label: bi(f.label ?? f.question) ?? { bengali: key },
+          label: withEnglish(bi(f.label ?? f.question) ?? { bengali: key }, en?.label),
           type,
           required: !!f.isRequired,
-          ...(bi(f.placeholder) && { placeholder: bi(f.placeholder) }),
-          ...(bi(f.helpText) && { help: bi(f.helpText) }),
+          ...(placeholder && { placeholder }),
+          ...(help && { help }),
           ...(['select', 'radio', 'checkbox'].includes(type) && {
             options: (f.options ?? []).map((o) => ({
               _key: o.value ?? '',
               _type: 'admissionOption',
               value: o.value ?? '',
-              label: role === 'classApplied' ? withoutSpecialNote(bi(o.label)) : (bi(o.label) ?? { bengali: o.value ?? '' }),
+              label: withEnglish(
+                role === 'classApplied' ? withoutSpecialNote(bi(o.label)) : (bi(o.label) ?? { bengali: o.value ?? '' }),
+                en?.options?.[o.value ?? ''],
+              ),
               ...(role === 'classApplied' && CLASS_CODES[o.value ?? '']),
             })),
           }),
@@ -232,3 +245,31 @@ export const DEFAULT_CYCLE = {
     english: 'The application fee is non-refundable.',
   },
 };
+
+type SanityField = { _key: string; label?: Bi; placeholder?: Bi; help?: Bi; options?: { _key: string; value?: string; label?: Bi }[] };
+type SanitySection = { _key: string; fields?: SanityField[] };
+
+/**
+ * Sanity patch paths that add the English text to a form already in the Studio, only where it is
+ * missing (`setIfMissing`), so nothing an editor wrote is replaced.
+ */
+export function englishPatches(sections: SanitySection[] | undefined, declaration?: Bi): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const s of sections ?? []) {
+    for (const f of s.fields ?? []) {
+      const key = f._key;
+      const en = FIELD_ENGLISH[(f as { key?: string }).key ?? key];
+      if (!en) continue;
+      const base = `sections[_key=="${s._key}"].fields[_key=="${key}"]`;
+      if (f.label && !f.label.english) out[`${base}.label.english`] = en.label;
+      if (en.placeholder && f.placeholder?.bengali && !f.placeholder.english) out[`${base}.placeholder.english`] = en.placeholder;
+      if (en.help && f.help?.bengali && !f.help.english) out[`${base}.help.english`] = en.help;
+      for (const o of f.options ?? []) {
+        const english = en.options?.[o.value ?? ''];
+        if (english && o.label && !o.label.english) out[`${base}.options[_key=="${o._key}"].label.english`] = english;
+      }
+    }
+  }
+  if (declaration?.bengali && !declaration.english) out['declarationText.english'] = DECLARATION_ENGLISH;
+  return out;
+}
