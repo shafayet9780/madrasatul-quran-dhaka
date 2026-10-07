@@ -5,7 +5,7 @@ Status: **DRAFT — decisions agreed with the owner 2026-10-07; mockups in revie
 ## Goals
 
 1. Rebuilt pre-admission form page — a calm, phone-first, bilingual step-by-step flow.
-2. After submission the guardian downloads a printable PDF slip to bring to the interview.
+2. After submission the guardian downloads the **complete application as a PDF**, prints it and brings it to the evaluation (evaluators work from it).
 3. Confirmation shows a WhatsApp group QR + link where later updates (interview slots, results) are posted.
 4. Application fee **৳500**, paid online through SSLCommerz (existing merchant).
 5. Evaluation fee **৳500** is announced (intro, review step, confirmation, PDF), paid **in cash on evaluation day**; staff mark it received in admin.
@@ -23,6 +23,10 @@ Status: **DRAFT — decisions agreed with the owner 2026-10-07; mockups in revie
 | WhatsApp | **One group** for everyone; link set in Sanity, QR generated from it. |
 | Evaluation fee | Cash on evaluation day; staff mark "received" in admin (scanning the PDF's QR opens the record). |
 | Confirmation message | **Email** (transactional provider, e.g. Resend) with ID, link and the PDF attached. No SMS. |
+| Application PDF | The **whole application** (every answer, photos, payment receipt, declaration) as a multi-page A4 PDF, plus an evaluator section. The guardian is told to print it and bring it. Admin downloads the same PDF. |
+| After payment | Two equally prominent, numbered tasks on the confirmation page: **download the application PDF** and **join the WhatsApp group**, each ticked when done. |
+| Admin navigation | Sidebar module switcher **ভর্তি \| জরিপ** (admissions / survey): each module has its own icon, header and nav; the survey round picker shows only under জরিপ. |
+| UI toolkit | **shadcn/ui** (Radix primitives: select, dialog, tabs, tooltip, sheet, toast) themed with the brand tokens, plus **lucide-react** (already installed). `src/components/ui` already exists, so shadcn components get their own folder. |
 | Visual design | Public site brand (colours, header, footer) + the survey's proven interaction patterns (progress line, big targets, tinted selection). Mockups first. |
 | Google Sheet | Keep a best-effort copy of paid applications (and later status changes), reusing the survey mirror pattern with daily retry. |
 | Closing | Deadline date/time in Sanity closes the form automatically (countdown in the final days). The existing enable toggle stays. |
@@ -33,7 +37,7 @@ Defaults taken (change if needed): the application fee is non-refundable and say
 
 ## Guardian flow
 
-1. **Intro** (`/[locale]/pre-admission`) — session (2027), classes, what to have ready (photos, birth certificate), ~15 minutes, ৳500 application fee (non-refundable) + ৳500 evaluation fee (cash, evaluation day), timeline (apply → pay → slip → WhatsApp for slot → evaluation → result), deadline countdown, FAQ, "Continue my application".
+1. **Intro** (`/[locale]/pre-admission`) — session (2027), classes, what to have ready (photos, birth certificate), ~15 minutes, ৳500 application fee (non-refundable) + ৳500 evaluation fee (cash, evaluation day), timeline (apply → pay → application PDF + WhatsApp group → slot announced → evaluation → result), deadline countdown, FAQ, "Continue my application".
 2. **Start** — one short page asking the guardian's mobile and email (the fields with roles `primaryMobile` / `email`, wherever they sit in Sanity; not asked again later). Creates the draft, so autosave, the resume link and office follow-up work from the first minute.
 3. **Chapters** — a **form, not a survey**: one page per Sanity section (~7 pages: Student, Father, Mother, Family, Contact, Documents, as configured), then **Review** with the declaration.
    - **Checklist hub** as home: each chapter shows Not started / In progress / Done; first time through it guides in order, afterwards any chapter can be reopened. Review unlocks when all required fields are done.
@@ -45,8 +49,8 @@ Defaults taken (change if needed): the application fee is non-refundable and say
    - Photos open the camera with a passport-style frame; compressed/resized on the device before upload (phone photos are 3–5 MB; the limit stays small). Birth certificate as image or PDF.
    - Duplicate guard: same child name + DOB + guardian mobile in this cycle → "you already applied (KG-017)" with a link to find it.
 4. **Pay** — summary (৳500, non-refundable; evaluation fee later in cash) → SSLCommerz hosted checkout (bKash, Nagad, cards, net banking).
-5. **Confirmation** — application ID large, "Download slip (PDF)", WhatsApp QR + "Join group" button, email notice, what happens next, evaluation-fee reminder.
-6. **Find my application** — application ID *or* guardian mobile (unpaid applications have no ID yet), verified with the child's date of birth → every matching application (one mobile may cover siblings): download the slip again, or continue / pay an unpaid one. Rate-limited (Postgres limiter from the survey).
+5. **Confirmation** — application ID with copy; then **“two last tasks, both required”**: ① download the application PDF (print and bring it) and ② join the WhatsApp group (button + QR for another phone), each a large numbered card that turns ✓ when done, with a `0 / 2` counter; then what to bring, payment receipt.
+6. **Find my application** — application ID *or* guardian mobile (unpaid applications have no ID yet), verified with the child's date of birth → the application(s) matching both: download the application PDF again, or continue / pay an unpaid one. Rate-limited (Postgres limiter from the survey).
 
 Bilingual throughout (`bengali` / `english` locales); Bengali numerals in Bengali UI. Accessibility checked with axe in e2e.
 
@@ -54,7 +58,7 @@ Bilingual throughout (`bengali` / `english` locales); Bengali numerals in Bengal
 
 - **Field role** (optional, per field): `studentNameBn`, `studentNameEn`, `dateOfBirth`, `classApplied`, `studentPhoto`, `birthCertificate`, `fatherName`, `motherName`, `primaryMobile`, `secondaryMobile`, `email`, `address`. Validation blocks publishing unless each required role (student name, DOB, class, primary mobile, email, student photo) is assigned exactly once. Roles drive the PDF, admin list/search, ID, duplicate guard, SSLCommerz customer fields and the email. Everything else is stored as-is.
 - **Class options**: add short `code` (e.g. `KG`) and optional age range.
-- **Cycle settings**: session label (2027), application fee (৳500), evaluation fee text/amount, opens-at / closes-at (deadline), WhatsApp group link, slip instructions ("bring this slip, original birth certificate…"), fee/refund note, confirmation text.
+- **Cycle settings**: session label (2027), application fee (৳500), evaluation fee text/amount, opens-at / closes-at (deadline), WhatsApp group link, PDF instructions ("print this application and bring it, original birth certificate…"), fee/refund note, confirmation text.
 - **Field groups**: within a section, fields can be grouped under a heading (rendered as a labelled group on the page); optional "pair" hint puts two fields side by side on desktop.
 - **Conditional show/hide** (optional per field: "show when field X = value") — e.g. transport area only if transport matters.
 
@@ -81,24 +85,31 @@ The fee amount is read on the server only; the browser never sends a price.
 
 ## Documents (privacy fix)
 
-Today `/api/upload` writes children's photos and birth certificates to **public** Blob URLs named after the child. New uploads go to private storage with random keys, tied to a draft application, size/type-checked on the server; admin views them only through an authenticated `/admin` route; the slip embeds the photo server-side. Manual deletion removes the files too.
+Today `/api/upload` writes children's photos and birth certificates to **public** Blob URLs named after the child. New uploads go to private storage with random keys, tied to a draft application, size/type-checked on the server; admin views them only through an authenticated `/admin` route; the application PDF embeds the photos server-side. Manual deletion removes the files too.
 
-## PDF slip
+## Application PDF
 
-- A4, one page: school header, session, **application ID** (large) + QR (opens the admin record for staff), student photo, student and guardian details, class, payment receipt (amount, transaction ID, method, date), evaluation-fee notice (৳500, cash on evaluation day), documents to bring, "slot will be announced in the WhatsApp group" + group QR.
+- The complete application, A4, about 3 pages, generated from the cycle's form snapshot so it always matches what the guardian answered:
+  1. School header; **"print this application and bring it on evaluation day"** banner; **application ID** (large) + student photo + staff QR (opens the admin record); student section; payment receipt; evaluation-day box (WhatsApp group QR, what to bring, ৳500 evaluation fee in cash).
+  2. Father (with photo) and mother sections — every question with its answer.
+  3. Contact and additional sections; declaration with the online consent time and a guardian signature line; **office/evaluator section**: attended, original birth certificate seen, evaluation fee received + receipt no., evaluator remarks, recommendation (admit / waitlist / not selected), evaluator name and signature.
+- Every page carries the ID, child's name and page number.
 - Rendered from an HTML print page with headless Chromium (`@sparticuz/chromium`) — common React PDF libraries break Bengali conjuncts, which is unacceptable for a child's name. Generated after payment, stored, and served from the confirmation page, Find-my-application, the email and admin. The HTML print page doubles as a fallback.
 
 ## Email
 
-Transactional provider (Resend or similar; needs a verified sending domain). One email after payment: ID, slip PDF attached, WhatsApp link, Find-my-application link. Resume-link email for drafts. Best-effort with retry from the daily cron; failure never blocks confirmation.
+Transactional provider (Resend or similar; needs a verified sending domain). One email after payment: ID, application PDF attached, WhatsApp link, Find-my-application link. Resume-link email for drafts. Best-effort with retry from the daily cron; failure never blocks confirmation.
 
-## Admin (`/admin/admissions`, new sidebar section)
+## Admin (`/admin/admissions`)
+
+- **Sidebar:** module switcher ভর্তি | জরিপ at the top; under ভর্তি: cycle card (প্রি-অ্যাডমিশন ২০২৭ · status), Overview, Applications, Fee pending, Evaluation day (QR), Setup → Form & fees (Studio). The existing survey nav moves under জরিপ unchanged. Phone: the same switch in the top bar.
 
 - **Overview** — paid per class, unpaid count, daily trend, "how did you hear", eval fees collected.
 - **Applications** — table (ID, child, class, guardian mobile, status, paid date, eval fee), filters (class, status, date), search (ID, name, mobile), bulk status change.
 - **Unpaid** — separate list with phone numbers for follow-up; manual delete (with confirmation; removes data and documents).
-- **Detail** — all answers rendered from the snapshot, photo + birth-certificate viewer, payment record, status control, eval-fee received, attended, internal notes, activity log, print slip.
-- **QR scan** on evaluation day — the slip QR opens the detail page to mark attendance and fee.
+- **Detail** — all answers rendered from the snapshot, photo + birth-certificate viewer, payment record, status control, eval-fee received, attended, internal notes, activity log, **download application PDF**.
+- **Bulk PDF** — download the application PDFs of selected rows (e.g. one class's evaluation batch).
+- **QR scan** on evaluation day — the PDF's QR opens the detail page to mark attendance and fee.
 - **Export** — Excel (exceljs) with one column per Sanity field (labels from the snapshot) + role columns + status/payment; ERP mapping is applied on import.
 - All mutations are server actions calling `assertAdmin()`.
 
@@ -108,14 +119,14 @@ Deadline countdown; resume links; duplicate guard; age-vs-class hint; on-device 
 
 ## Inputs needed before go-live
 
-SSLCommerz sandbox + live credentials (set in Vercel env, not in chat) and IPN URL whitelisting for the production domain; email sending domain; class codes + age ranges; WhatsApp group link; deadline; slip instructions and refund wording; ERP import template (for the export layout).
+SSLCommerz sandbox + live credentials (set in Vercel env, not in chat) and IPN URL whitelisting for the production domain; email sending domain; class codes + age ranges; WhatsApp group link; deadline; PDF instructions and refund wording; ERP import template (for the export layout); real logo file for the header and PDF.
 
 ## Delivery plan
 
-1. **Mockups** (canvas, phone + desktop): intro, start page, checklist hub, a chapter page (Father, phone + desktop), documents page, review, pay summary, confirmation, find-my-application, PDF slip, admin overview/list/detail → owner approval, then lock.
+1. **Mockups** (canvas, four pages): guardian flow on phone and on desktop (intro, start, checklist hub, student, father, review & fee, payment failed, confirmation, find), the 3-page application PDF, admin overview / list / detail + sidebar → owner approval, then lock.
 2. Sanity schema (roles, class codes, cycle settings, conditions) + Postgres migration + private uploads + draft autosave API → unit + db tests.
 3. Guardian step-by-step UI → e2e + axe.
 4. SSLCommerz integration (sandbox) + confirmation + reconciliation cron → db tests with simulated validation responses; full sandbox run.
-5. PDF slip + email + Find my application.
+5. Application PDF + email + Find my application.
 6. Admin section + Sheet mirror + export.
 7. Go-live checklist: live store, domain, IPN, test ৳500 payment and refund, deadline set, enable.
