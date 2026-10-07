@@ -1,6 +1,6 @@
 # Pre-admission 2027 — design spec
 
-Status: **DRAFT — decisions agreed with the owner 2026-10-07; mockups next.** Build starts only after the mockups are approved (same process as `docs/survey-mockups/`).
+Status: **DRAFT — decisions agreed with the owner 2026-10-07; mockups in review:** https://claude.ai/artifact/YNFRWPUJiTvhJRrTzW1Myb (private until shared). Build starts only after the mockups are approved (same process as `docs/survey-mockups/`).
 
 ## Goals
 
@@ -46,7 +46,7 @@ Defaults taken (change if needed): the application fee is non-refundable and say
    - Duplicate guard: same child name + DOB + guardian mobile in this cycle → "you already applied (KG-017)" with a link to find it.
 4. **Pay** — summary (৳500, non-refundable; evaluation fee later in cash) → SSLCommerz hosted checkout (bKash, Nagad, cards, net banking).
 5. **Confirmation** — application ID large, "Download slip (PDF)", WhatsApp QR + "Join group" button, email notice, what happens next, evaluation-fee reminder.
-6. **Find my application** — application ID (or resume token) + guardian mobile → download the slip again, or finish an unpaid payment. Rate-limited (Postgres limiter from the survey).
+6. **Find my application** — application ID *or* guardian mobile (unpaid applications have no ID yet), verified with the child's date of birth → every matching application (one mobile may cover siblings): download the slip again, or continue / pay an unpaid one. Rate-limited (Postgres limiter from the survey).
 
 Bilingual throughout (`bengali` / `english` locales); Bengali numerals in Bengali UI. Accessibility checked with axe in e2e.
 
