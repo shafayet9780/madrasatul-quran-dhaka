@@ -1,4 +1,5 @@
 // @vitest-environment node
+import { describe, expect, it } from 'vitest';
 import { createSchema, validateDocument, type SanityDocument, type Workspace } from 'sanity';
 import { createClient } from '@sanity/client';
 import { admissionFormTypes } from '../../../sanity/schemas/admissionForm';

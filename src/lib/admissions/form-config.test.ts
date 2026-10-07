@@ -1,3 +1,4 @@
+import { describe, expect, it } from 'vitest';
 import { checkFormConfig, fieldWithRole, formSnapshotSchema, type RawSection } from './form-config';
 import { sampleSnapshot } from './testing/fixtures';
 

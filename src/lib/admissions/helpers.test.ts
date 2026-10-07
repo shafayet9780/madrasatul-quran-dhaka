@@ -1,3 +1,4 @@
+import { describe, expect, it } from 'vitest';
 import { ageOn, classesForAge, parseIsoDate, sessionStart } from './age';
 import { formatApplicationId, parseApplicationId } from './ids';
 import { emailSuggestion, formatMobile, normaliseEmail, normaliseMobile } from './normalise';

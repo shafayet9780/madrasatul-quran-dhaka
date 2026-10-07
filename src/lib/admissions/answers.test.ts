@@ -1,3 +1,4 @@
+import { describe, expect, it } from 'vitest';
 import { chapterStatus, checkAll, checkField, checkSection, isVisible, sanitizeDraft, type Answers } from './answers';
 import { allFields } from './form-config';
 import { sampleSnapshot } from './testing/fixtures';

@@ -1,3 +1,4 @@
+import { describe, expect, it } from 'vitest';
 import { FormConfigError, buildSnapshot, cycleWindow, type FormDocument } from './snapshot';
 import { sampleSnapshot } from './testing/fixtures';
 
