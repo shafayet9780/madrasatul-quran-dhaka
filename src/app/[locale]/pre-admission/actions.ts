@@ -5,7 +5,8 @@ import { getCurrentCycle } from '@/lib/admissions/cycle';
 import { createDraft, saveDraft, submitDraft } from '@/lib/admissions/drafts';
 import { asLocale } from '@/lib/admissions/display';
 import { flowPath } from '@/lib/admissions/pages';
-import { currentApplication, setSessionToken, withinLimit } from '@/lib/admissions/session';
+import { startPayment } from '@/lib/admissions/payments';
+import { currentApplication, setSessionToken, siteOrigin, withinLimit } from '@/lib/admissions/session';
 
 export type StartState = { errors?: { mobile?: 'invalid_mobile'; email?: 'invalid_email' }; message?: 'closed' | 'rateLimited' | 'failed' };
 
@@ -57,9 +58,19 @@ export async function saveAnswers(patch: Record<string, unknown>): Promise<SaveR
 
 export type SubmitState = { message?: 'declaration' | 'invalid' | 'rateLimited' | 'failed' };
 
-/** Review page: checks the whole form, records the declaration and marks the application unpaid. */
+/** Opens SSLCommerz for the application on this device; a null URL means "show the status page". */
+async function checkoutUrl(locale: string): Promise<string> {
+  const current = await currentApplication();
+  if (!current) return flowPath(locale, '/start');
+  const started = await startPayment(current.app, current.snapshot, await siteOrigin());
+  if (started.ok) return started.gatewayUrl;
+  return flowPath(locale, started.reason === 'gateway' ? '/status?payment=unavailable' : '/status');
+}
+
+/** Review page: checks the whole form, records the declaration, then opens the payment page. */
 export async function submitApplication(localeParam: string, _prev: SubmitState, form: FormData): Promise<SubmitState> {
   const locale = asLocale(localeParam);
+  let next: string;
   try {
     if (!(await withinLimit('submit'))) return { message: 'rateLimited' };
     const current = await currentApplication();
@@ -69,11 +80,26 @@ export async function submitApplication(localeParam: string, _prev: SubmitState,
       if (result.reason === 'locked') redirect(flowPath(locale, '/status'));
       return { message: result.reason };
     }
+    next = await checkoutUrl(locale);
   } catch (e) {
     unstable_rethrow(e);
     console.error('Admissions: submit failed', e);
     return { message: 'failed' };
   }
-  // Payment (SSLCommerz) starts here once it is connected; until then the status page explains.
-  redirect(flowPath(locale, '/status'));
+  redirect(next);
+}
+
+/** Status page: pay (again) for a submitted application. */
+export async function payNow(localeParam: string): Promise<void> {
+  const locale = asLocale(localeParam);
+  let next: string;
+  try {
+    if (!(await withinLimit('submit'))) redirect(flowPath(locale, '/status?payment=busy'));
+    next = await checkoutUrl(locale);
+  } catch (e) {
+    unstable_rethrow(e);
+    console.error('Admissions: payment start failed', e);
+    next = flowPath(locale, '/status?payment=unavailable');
+  }
+  redirect(next);
 }

@@ -72,7 +72,7 @@ async function fillChapter(page: Page) {
   }
 }
 
-test('a guardian fills in every chapter, reviews, declares and submits', async ({ page }) => {
+test('a guardian fills in every chapter, reviews, declares, pays after a failed attempt and gets an ID', async ({ page }) => {
   await page.goto(BASE);
   await dismissConsent(page);
   await expect(page.getByRole('heading', { level: 1 })).toContainText('প্রি-অ্যাডমিশন আবেদন');
@@ -115,8 +115,26 @@ test('a guardian fills in every chapter, reviews, declares and submits', async (
   await page.getByRole('checkbox').check();
   await pay.click();
 
+  // The stand-in checkout page (local preview); first attempt fails.
+  await expect(page).toHaveURL(/\/api\/admissions\/sslcommerz\/mock\?tran_id=MQ27-/);
+  await page.getByRole('button', { name: 'Fail' }).click();
   await expect(page).toHaveURL(/\/pre-admission\/status$/);
-  await expect(page.getByRole('heading', { name: 'আবেদন জমা হয়েছে' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'পেমেন্ট সম্পন্ন হয়নি' })).toBeVisible();
+  await noSeriousA11yIssues(page);
+
+  await page.getByRole('button', { name: 'আবার চেষ্টা করুন' }).click();
+  await page.getByRole('button', { name: 'Pay', exact: true }).click();
+  await expect(page).toHaveURL(/\/pre-admission\/status$/);
+  await expect(page.getByRole('heading', { name: 'আলহামদুলিল্লাহ, আবেদন জমা হয়েছে' })).toBeVisible();
+  await expect(page.getByText(/^[A-Z][A-Z0-9]{0,3}-\d{3}$/)).toBeVisible();
+  await expect(page.getByRole('link', { name: 'গ্রুপে যোগ দিন' })).toHaveAttribute('href', 'https://chat.whatsapp.com/LocalPreviewGroup');
+  await expect(page.getByRole('img', { name: 'হোয়াটসঅ্যাপ গ্রুপের QR কোড' })).toBeVisible();
+  await expect(page.getByText('পেমেন্টের রসিদ')).toBeVisible();
+  await noSeriousA11yIssues(page);
+
+  // Paid: the form is closed for editing.
+  await page.goto(`${BASE}/form/student`);
+  await expect(page).toHaveURL(/\/pre-admission\/status$/);
 });
 
 test('next shows what is missing; answers survive a reload and the resume link', async ({ page, browser }) => {

@@ -215,8 +215,9 @@ export async function closePayment(tranId: string, hint: 'failed' | 'cancelled',
   return reconcilePayment(payment, gateway, hint);
 }
 
-/** Daily job (and the status page): attempts still open after `olderThanMinutes`. */
-export async function reconcilePending(olderThanMinutes = 30, limit = 50, gateway = paymentGateway()): Promise<Record<SettleOutcome, number>> {
+/** Daily job: attempts still open after `olderThanMinutes`, oldest first, within `budgetMs`. */
+export async function reconcilePending(olderThanMinutes = 30, limit = 50, gateway = paymentGateway(), budgetMs = 25_000): Promise<Record<SettleOutcome, number>> {
+  const stopAt = Date.now() + budgetMs;
   const counts = {} as Record<SettleOutcome, number>;
   if (!gateway) return counts;
   const open = await getAdmissionsDb()
@@ -226,6 +227,7 @@ export async function reconcilePending(olderThanMinutes = 30, limit = 50, gatewa
     .orderBy(payments.createdAt)
     .limit(limit);
   for (const p of open) {
+    if (Date.now() > stopAt) break;
     const { outcome } = await reconcilePayment(p, gateway);
     counts[outcome] = (counts[outcome] ?? 0) + 1;
   }

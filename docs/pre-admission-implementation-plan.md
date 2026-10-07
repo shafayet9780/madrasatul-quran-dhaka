@@ -1,6 +1,6 @@
 # Pre-admission 2027 — Implementation Plan
 
-Status: **M1 and M2 done** (2026-10-07); next M3 (payments). Database tests run against in-memory Postgres (PGlite, all migrations applied) in the normal `pnpm test`; `pnpm test:db` against the Neon dev branch is still available.
+Status: **M1, M2 and M3 done** (2026-10-07); M3 waits for the SSLCommerz sandbox credentials for a real sandbox run. Next M4. Database tests run against in-memory Postgres (PGlite, all migrations applied) in the normal `pnpm test`; `pnpm test:db` against the Neon dev branch is still available.
 Inputs: [`pre-admission-2027.md`](pre-admission-2027.md) (spec) · [`pre-admission-mockups/`](pre-admission-mockups/README.md) (prototype + design language, locked)
 
 ## 1. Decisions (planning interview, 2026-10-07)
@@ -78,6 +78,13 @@ Intro, start, hub, chapter renderer (all Sanity field types, groups, show-when, 
 
 ### M3 — Payments
 SSLCommerz client (session, validation, transaction query), pay route, IPN and browser returns, idempotent confirmation with serial assignment, double-payment guard, reconciliation (cron + on lookup), payment-failed and pending states. → verify: db tests with recorded sandbox responses, a full sandbox run.
+   Built (sandbox run pending credentials):
+   - `src/lib/admissions/sslcommerz.ts`: v4 hosted checkout (session `gwprocess/v4/api.php`, validation `validationserverAPI.php`, query `merchantTransIDvalidationAPI.php`, IPN signature), endpoints and fields taken from the official sslcommerz-lts and SSLCommerz-Laravel libraries (the developer site is not reachable from the build machine).
+   - `src/lib/admissions/payments.ts`: a payment counts only after the validation API confirms our tran_id, the exact amount and BDT; risk_level 1 or a mismatch is **held** for the office; the ID is assigned in one statement with a row lock (IPN and browser return can race); fail/cancel returns are re-checked with a transaction query; a second valid payment is logged as `double_payment` (refund from the SSLCommerz panel); attempts left open are settled or closed by the status page and the daily cron (`/api/cron/survey-daily`, 25 s budget).
+   - Routes: `POST /api/admissions/sslcommerz/{success,fail,cancel,ipn}`; `ipn_url` is sent with every session, so the merchant panel needs no IPN setting (setting the same URL there does no harm).
+   - Status page states: due (pay), failed (retry), pending (check again), held (office review), paid (ID, the two tasks with WhatsApp link and QR, what to bring, receipt). The PDF task shows "being prepared" until M4.
+   - Local preview without credentials uses a stand-in checkout page (`/api/admissions/sslcommerz/mock`); with `SSLCOMMERZ_*` set it uses the real sandbox.
+   - **Sandbox run checklist** (when credentials arrive): set `SSLCOMMERZ_STORE_ID`, `SSLCOMMERZ_STORE_PASSWORD`, `SSLCOMMERZ_SANDBOX=true` for Preview (and locally in `.env.local`); pay on a Preview deployment with the sandbox's test card and test mobile wallet; check each outcome: success (ID shown), fail and cancel (retry works), closing the tab mid-payment (status page and cron settle it), IPN received (Vercel logs `Admissions: IPN`), and the transaction in the sandbox panel.
 
 ### M4 — PDF, email, find, confirmation
 Print page (3 pages A4, Bengali shaping checked), Chromium renderer + private storage, confirmation page with the two tasks, email with attachment and resume email, Find my application. → verify: PDF snapshot check, email sent in sandbox, lookup rate limits.

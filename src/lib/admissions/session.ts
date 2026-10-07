@@ -52,10 +52,15 @@ export async function withinLimit(kind: keyof typeof ADMISSION_LIMITS): Promise<
   return allow(`admissions:${kind}:${await clientIp()}`, limit, windowMs, new Date(), getAdmissionsDb());
 }
 
-/** Absolute link that reopens this application on another device. */
-export async function resumeUrl(locale: string, token: string): Promise<string> {
+/** This site's origin as the guardian reached it (payment callbacks, resume links). */
+export async function siteOrigin(): Promise<string> {
   const h = await headers();
   const host = h.get('x-forwarded-host') ?? h.get('host') ?? 'localhost:3000';
   const proto = h.get('x-forwarded-proto') ?? (host.startsWith('localhost') ? 'http' : 'https');
-  return `${proto}://${host}/${locale}/pre-admission/resume?t=${token}`;
+  return `${proto}://${host}`;
+}
+
+/** Absolute link that reopens this application on another device. */
+export async function resumeUrl(locale: string, token: string): Promise<string> {
+  return `${await siteOrigin()}/${locale}/pre-admission/resume?t=${token}`;
 }

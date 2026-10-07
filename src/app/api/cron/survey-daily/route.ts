@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { isAuthorizedCleanupRequest } from '@/lib/downloads/cleanup';
+import { reconcilePending } from '@/lib/admissions/payments';
 import { backupSurveyTables } from '@/lib/survey/backup';
 import { pruneDryRuns } from '@/lib/survey/erp-import-server';
 import { pruneLookups } from '@/lib/survey/guardian';
@@ -11,7 +12,8 @@ export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
 
 // Daily (vercel.json): retry Sheet copies that failed, back up the survey tables to Blob,
-// and drop import dry runs and rate-limit windows older than a day.
+// settle admission fee payments whose browser never came back, and drop import dry runs and
+// rate-limit windows older than a day. (Hobby allows two cron jobs, so admissions share this one.)
 export async function GET(request: NextRequest) {
   const secret = process.env.CRON_SECRET;
   if (!secret) return NextResponse.json({ error: 'Scheduled jobs are not configured' }, { status: 503 });
@@ -38,6 +40,12 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     ok = false;
     result.sheet = { error: error instanceof Error ? error.message : 'failed' };
+  }
+  try {
+    result.admissionsPayments = await reconcilePending(30, 40);
+  } catch (error) {
+    ok = false;
+    result.admissionsPayments = { error: error instanceof Error ? error.message : 'failed' };
   }
   try {
     result.prunedDryRuns = await pruneDryRuns();
