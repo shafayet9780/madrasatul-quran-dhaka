@@ -1,12 +1,14 @@
 import type { AdmissionsDb } from './db';
 import type { FormDocument } from './snapshot';
+import type { Gateway } from './sslcommerz';
 import type { BlobStore } from './uploads';
 
 // Local preview (ADMISSIONS_LOCAL=1, never on Vercel): src/instrumentation.ts puts an in-memory
 // Postgres, the converted live form and an in-memory file store here before the server takes
 // requests, so the whole guardian flow runs without Neon, Sanity or Blob credentials (dev, e2e).
 
-export type LocalOverrides = { db: AdmissionsDb; form: FormDocument; store: BlobStore };
+/** `gateway` is the SSLCommerz stand-in, set only when no sandbox credentials are configured. */
+export type LocalOverrides = { db: AdmissionsDb; form: FormDocument; store: BlobStore; gateway?: Gateway };
 
 const holder = globalThis as { __admissionsLocal?: LocalOverrides };
 
