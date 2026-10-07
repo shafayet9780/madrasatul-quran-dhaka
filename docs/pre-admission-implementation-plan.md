@@ -1,6 +1,6 @@
 # Pre-admission 2027 — Implementation Plan
 
-Status: **M1 in progress** (2026-10-07).
+Status: **M1 done** (2026-10-07); next M2. Database tests run against in-memory Postgres (PGlite, all migrations applied) in the normal `pnpm test`; `pnpm test:db` against the Neon dev branch is still available.
 Inputs: [`pre-admission-2027.md`](pre-admission-2027.md) (spec) · [`pre-admission-mockups/`](pre-admission-mockups/README.md) (prototype + design language, locked)
 
 ## 1. Decisions (planning interview, 2026-10-07)
@@ -70,6 +70,7 @@ scripts/setup-admissions.ts                             # drafts-only Sanity set
 4. Postgres schema + migration: `admission_cycles`, `applications`, `application_serials`, `payments`, `application_events`. → verify: `pnpm db:generate`, migration applies on the Neon dev branch, `pnpm test:db`.
 5. Server modules: open/refresh cycle snapshot, create draft (+ resume token), autosave (validated against the snapshot, partial allowed), load by token, duplicate guard, private upload. → verify: db tests.
 6. `scripts/setup-admissions.ts` (drafts only) to assign roles, groups and class codes in the existing form document and fill 2027 settings placeholders. → verify: dry run prints the plan; runs only with an explicit flag.
+   Done as `pnpm setup:admissions` (dry run) / `pnpm setup:admissions --write`: converts the current questions into the five chapters (the "how did you hear" question opens অতিরিক্ত তথ্য), turns the old Yes/No questions that have options (e.g. ৫ ওয়াক্ত সালাত) into single-choice, and never overwrites existing 2027 chapters.
 
 ### M2 — Guardian pages
 Intro, start, hub, chapter renderer (all Sanity field types, groups, show-when, uploads with compression and camera), review + declaration, light theme, Bengali/English. → verify: Playwright flow on phone and desktop viewports, axe checks, autosave/resume test.
