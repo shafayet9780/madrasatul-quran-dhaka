@@ -1,8 +1,10 @@
 'use server';
 
 import { redirect, unstable_rethrow } from 'next/navigation';
+import { after } from 'next/server';
 import { getCurrentCycle } from '@/lib/admissions/cycle';
-import { createDraft, saveDraft, submitDraft } from '@/lib/admissions/drafts';
+import { createDraft, getByToken, saveDraft, submitDraft } from '@/lib/admissions/drafts';
+import { sendResumeEmail } from '@/lib/admissions/mail';
 import { asLocale } from '@/lib/admissions/display';
 import { flowPath } from '@/lib/admissions/pages';
 import { startPayment } from '@/lib/admissions/payments';
@@ -32,6 +34,12 @@ export async function startApplication(localeParam: string, _prev: StartState, f
     if (!result.ok) return result.reason === 'closed' ? { message: 'closed' } : { errors: result.errors };
     token = result.token;
     await setSessionToken(token);
+    const origin = await siteOrigin();
+    const startedToken = token;
+    after(async () => {
+      const app = await getByToken(startedToken);
+      if (app) await sendResumeEmail(app, startedToken, origin).catch((e) => console.error('Admissions: resume email failed', e));
+    });
   } catch (e) {
     console.error('Admissions: start failed', e);
     return { message: 'failed' };

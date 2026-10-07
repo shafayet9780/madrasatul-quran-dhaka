@@ -4,6 +4,15 @@ import createNextIntlPlugin from 'next-intl/plugin';
 const withNextIntl = createNextIntlPlugin('./src/lib/i18n.ts');
 
 const nextConfig: NextConfig = {
+  // Application PDFs (src/lib/admissions/pdf.ts): Chromium is loaded at runtime, not bundled, and
+  // the embedded fonts are read from node_modules.
+  serverExternalPackages: ['puppeteer-core', '@sparticuz/chromium-min'],
+  outputFileTracingIncludes: {
+    '/api/**/*': [
+      './node_modules/@fontsource/noto-sans-bengali/files/noto-sans-bengali-bengali-{400,600,700}-normal.woff2',
+      './node_modules/@fontsource/inter/files/inter-latin-{400,600,700}-normal.woff2',
+    ],
+  },
   images: {
     remotePatterns: [
       {

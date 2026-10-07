@@ -4,6 +4,7 @@ import { eq, sql } from 'drizzle-orm';
 import { syncCycle, type CycleState } from './cycle';
 import { createDraft, getByToken, saveDraft, submitDraft, type Application } from './drafts';
 import { closePayment, confirmPayment, latestPayment, reconcilePending, startPayment } from './payments';
+import { retryConfirmationEmails, sendConfirmationEmail, type MailMessage } from './mail';
 import { applicationEvents, applications, payments } from './schema';
 import type { FormDocument } from './snapshot';
 import { sampleSnapshot } from './testing/fixtures';
@@ -205,4 +206,35 @@ describe('recovery', () => {
     expect(await confirmPayment(p.tranId, val, 'ipn', gateway)).toMatchObject({ outcome: 'paid', publicRef: 'KG-001' });
     expect((await getByToken(token))!.status).toBe('paid');
   });
+});
+
+describe('confirmation email', () => {
+  it('is sent once after payment, retried by the daily job after a failure, even without a PDF', async () => {
+    process.env.CHROMIUM_EXECUTABLE_PATH = '/nonexistent/chromium';
+    process.env.VERCEL = '1'; // no local Chromium and no download in tests: the PDF fails, the email still goes
+    process.env.CHROMIUM_PACK_URL = 'http://127.0.0.1:9/none.tar';
+    try {
+      const { app } = await submitted();
+      const p = await pay(app);
+      await confirmPayment(p.tranId, gateway.complete(p.tranId, 'pay')!, 'return', gateway);
+      const sent: MailMessage[] = [];
+      let down = true;
+      const mailer = async (m: MailMessage) => (down ? { ok: false as const, reason: 'smtp down' } : (sent.push(m), { ok: true as const }));
+
+      expect(await sendConfirmationEmail(app.id, ORIGIN, mailer)).toEqual({ ok: false, reason: 'smtp down' });
+      expect(await events(app.id)).toContain('email_failed');
+      await db.update(applications).set({ paidAt: new Date(Date.now() - 60 * 60 * 1000) }).where(eq(applications.id, app.id));
+      down = false;
+      expect(await retryConfirmationEmails(ORIGIN, 20_000, mailer)).toEqual({ sent: 1, failed: 0 });
+      expect(await retryConfirmationEmails(ORIGIN, 20_000, mailer)).toEqual({ sent: 0, failed: 0 });
+      expect(await sendConfirmationEmail(app.id, ORIGIN, mailer)).toEqual({ ok: true });
+      expect(sent).toHaveLength(1);
+      expect(sent[0]).toMatchObject({ to: 'a@b.co', subject: 'আবেদন সম্পন্ন: KG-001, প্রি-অ্যাডমিশন ২০২৭' });
+      expect(sent[0].text).toContain(`${ORIGIN}/bengali/pre-admission/find`);
+    } finally {
+      delete process.env.VERCEL;
+      delete process.env.CHROMIUM_EXECUTABLE_PATH;
+      delete process.env.CHROMIUM_PACK_URL;
+    }
+  }, 60_000);
 });

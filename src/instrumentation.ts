@@ -14,6 +14,7 @@ export async function register() {
     form: liveFormDocument(),
     // With SSLCommerz sandbox credentials in the environment the real sandbox is used instead.
     gateway: sslConfigFromEnv() ? undefined : mockGateway(),
+    outbox: [],
     store: {
       put: async (path, body, contentType) => void files.set(path, { body, contentType }),
       del: async (path) => void files.delete(path),

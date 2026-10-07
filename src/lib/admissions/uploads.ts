@@ -11,7 +11,7 @@ import { localOverrides } from './local';
 // the admin reads them through an authenticated route; the PDF renderer embeds them server-side.
 
 export type BlobStore = {
-  put: (path: string, body: Uint8Array, contentType: string) => Promise<void>;
+  put: (path: string, body: Uint8Array, contentType: string, opts?: { overwrite?: boolean }) => Promise<void>;
   del: (path: string) => Promise<void>;
   get: (path: string) => Promise<{ stream: ReadableStream<Uint8Array>; contentType: string } | null>;
 };
@@ -23,8 +23,8 @@ function token(): string {
 }
 
 export const privateBlobStore: BlobStore = {
-  put: async (path, body, contentType) => {
-    await put(path, Buffer.from(body), { access: 'private', token: token(), contentType, addRandomSuffix: false, allowOverwrite: false });
+  put: async (path, body, contentType, opts) => {
+    await put(path, Buffer.from(body), { access: 'private', token: token(), contentType, addRandomSuffix: false, allowOverwrite: opts?.overwrite ?? false });
   },
   del: (path) => del(path, { token: token() }),
   get: async (path) => {

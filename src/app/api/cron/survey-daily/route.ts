@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { isAuthorizedCleanupRequest } from '@/lib/downloads/cleanup';
+import { retryConfirmationEmails } from '@/lib/admissions/mail';
 import { reconcilePending } from '@/lib/admissions/payments';
+import { getSiteUrl } from '@/lib/site-url';
 import { backupSurveyTables } from '@/lib/survey/backup';
 import { pruneDryRuns } from '@/lib/survey/erp-import-server';
 import { pruneLookups } from '@/lib/survey/guardian';
@@ -12,7 +14,7 @@ export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
 
 // Daily (vercel.json): retry Sheet copies that failed, back up the survey tables to Blob,
-// settle admission fee payments whose browser never came back, and drop import dry runs and
+// settle admission fee payments whose browser never came back, retry confirmation emails, and drop import dry runs and
 // rate-limit windows older than a day. (Hobby allows two cron jobs, so admissions share this one.)
 export async function GET(request: NextRequest) {
   const secret = process.env.CRON_SECRET;
@@ -43,6 +45,7 @@ export async function GET(request: NextRequest) {
   }
   try {
     result.admissionsPayments = await reconcilePending(30, 40);
+    result.admissionsEmails = await retryConfirmationEmails(getSiteUrl(), 15_000);
   } catch (error) {
     ok = false;
     result.admissionsPayments = { error: error instanceof Error ? error.message : 'failed' };
