@@ -20,6 +20,7 @@ import { surveyClass } from './surveyClass'
 import { surveyTeacher } from './surveyTeacher'
 import { surveyTemplate } from './surveyTemplate'
 import { surveyRound } from './surveyRound'
+import { admissionFormTypes } from './admissionForm'
 
 export const schemaTypes = [
   feeSettings,
@@ -44,4 +45,5 @@ export const schemaTypes = [
   surveyTeacher,
   surveyTemplate,
   surveyRound,
+  ...admissionFormTypes,
 ]
