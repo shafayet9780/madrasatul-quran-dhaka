@@ -1,6 +1,6 @@
 # Pre-admission 2027 — design spec
 
-Status: **DRAFT — decisions agreed with the owner 2026-10-07; mockups in review:** https://claude.ai/artifact/YNFRWPUJiTvhJRrTzW1Myb (private until shared). Build starts only after the mockups are approved (same process as `docs/survey-mockups/`).
+Status: **Decisions agreed with the owner 2026-10-07. Mockups LOCKED 2026-10-07:** [`pre-admission-mockups/`](pre-admission-mockups/README.md), live canvas https://claude.ai/artifact/YNFRWPUJiTvhJRrTzW1Myb (private until shared). Build starts only after the mockups are approved (same process as `docs/survey-mockups/`).
 
 ## Goals
 

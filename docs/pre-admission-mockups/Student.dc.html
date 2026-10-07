@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<title>প্রি-অ্যাডমিশন ২০২৭ · শিক্ষার্থীর তথ্য</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;500;600;700&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.ui{--bg:#fafafa;--surface:#fff;--fg:#171717;--mfg:#525252;--muted:#f5f5f5;--border:#e5e5e5;--input:#d4d4d4;--primary:#7a4d32;--primary-h:#663f28;--pfg:#fff;--ring:rgba(122,77,50,.3);--ok:#15803d;--warn:#b45309;--bad:#dc2626;font-family:'Noto Sans Bengali','Inter',sans-serif;color:var(--fg);background:var(--bg)}
+.ui.dark{--bg:#111;--surface:#171717;--fg:#f5f5f5;--mfg:#a3a3a3;--muted:#262626;--border:#2a2a2a;--input:#404040;--primary:#c8946b;--primary-h:#d6a682;--pfg:#1c130d;--ring:rgba(200,148,107,.35);--ok:#4ade80;--warn:#fbbf24;--bad:#f87171}
+.ui a{color:var(--fg);text-underline-offset:3px}
+.lat{font-family:Inter,sans-serif}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:44px;padding:0 16px;border-radius:8px;background:var(--primary);color:var(--pfg) !important;font:inherit;font-size:15px;font-weight:500;text-decoration:none;border:0;cursor:pointer;white-space:nowrap}
+.btn:hover{background:var(--primary-h)}
+.btn-o{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:36px;padding:0 12px;border-radius:8px;background:var(--surface);border:1px solid var(--border);font:inherit;font-size:14px;font-weight:500;cursor:pointer;color:var(--fg)}
+.btn-o:hover{background:var(--muted)}
+.ghost{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:8px;border:0;background:transparent;color:var(--fg);text-decoration:none;cursor:pointer}
+.label{display:block;font-size:14px;font-weight:500;line-height:1.45;margin:0 0 8px;padding:0}
+.req{color:var(--bad)}
+.desc{font-size:13px;color:var(--mfg);line-height:1.5;margin:6px 0 0}
+.input{box-sizing:border-box;width:100%;height:44px;border:1px solid var(--input);border-radius:8px;background:var(--surface);padding:0 12px;font:inherit;font-size:16px;color:var(--fg)}
+.input:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px var(--ring)}
+select.input{padding:0 8px 0 10px}
+.r{appearance:none;flex:none;width:18px;height:18px;margin:0;border:1px solid var(--input);border-radius:50%;background:var(--surface);display:grid;place-content:center;cursor:pointer}
+.r:checked{border-color:var(--primary)}
+.r:checked::before{content:"";width:9px;height:9px;border-radius:50%;background:var(--primary)}
+.r:focus-visible{outline:none;box-shadow:0 0 0 3px var(--ring)}
+.rc{display:flex;align-items:center;gap:12px;min-height:44px;padding:8px 14px;border:1px solid var(--border);border-radius:8px;background:var(--surface);cursor:pointer;font-size:15px}
+.rc:has(input:checked){border-color:var(--primary);box-shadow:0 0 0 1px var(--primary)}
+.sec{display:flex;flex-direction:column;gap:20px;padding:24px 0;border-top:1px solid var(--border)}
+.sec-h{margin:0;font-size:16px;font-weight:600}
+.alert{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--border);border-radius:8px;background:var(--surface);padding:10px 12px;font-size:13.5px;line-height:1.55}
+fieldset{border:0;margin:0;padding:0;min-width:0}
+</style>
+</helmet>
+<div class="ui {{theme}}" style="width: 390px; height: 1960px; box-sizing: border-box; display: flex; flex-direction: column; position: relative">
+  <header style="height: 56px; background: var(--surface); border-bottom: 1px solid var(--border); display: grid; grid-template-columns: 48px 1fr 48px; align-items: center; padding: 0 4px">
+    <a class="ghost" href="Hub.dc.html" aria-label="অধ্যায় তালিকায় ফিরুন"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></a>
+    <span style="text-align: center; font-size: 15px; font-weight: 600">শিক্ষার্থীর তথ্য</span>
+    <a class="ghost lat" href="#" style="font-size: 13px; font-weight: 600">EN</a>
+  </header>
+  <div style="background: var(--surface); padding: 10px 16px 12px; border-bottom: 1px solid var(--border); display: flex; flex-direction: column; gap: 6px">
+    <span style="font-size: 12.5px; color: var(--mfg)">অধ্যায় ১ / ৫</span>
+    <div style="height: 4px; border-radius: 999px; background: var(--muted)"><div style="width: 10%; height: 4px; background: var(--primary); border-radius: 999px"></div></div>
+  </div>
+
+  <main style="padding: 4px 16px 120px; display: flex; flex-direction: column">
+    <section class="sec" style="border-top: 0">
+      <h2 class="sec-h">ছবি ও নাম</h2>
+      <div>
+        <span class="label">শিক্ষার্থীর ছবি <span class="req">*</span></span>
+        <div style="display: flex; gap: 14px; align-items: center">
+          <div style="flex: none; width: 84px; height: 104px; border-radius: 8px; border: 1px solid var(--border); background: var(--muted); display: flex; align-items: center; justify-content: center; text-align: center; font-size: 11px; color: var(--mfg); padding: 6px; box-sizing: border-box">শিক্ষার্থীর ছবি (নমুনা)</div>
+          <div style="display: flex; flex-direction: column; gap: 8px; align-items: flex-start">
+            <span style="display: inline-flex; align-items: center; gap: 6px; font-size: 14px; color: var(--ok)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>যুক্ত হয়েছে</span>
+            <span style="font-size: 13px; color: var(--mfg)">৪.২ MB থেকে ছোট করে ১৮০ KB</span>
+            <button class="btn-o">ছবি বদলান</button>
+          </div>
+        </div>
+        <p class="desc">ক্যামেরা খুললে পাসপোর্ট সাইজের ফ্রেম দেখাবে।</p>
+      </div>
+      <div>
+        <label class="label" for="nbn">নাম (বাংলায়) <span class="req">*</span></label>
+        <input id="nbn" class="input" value="আব্দুল্লাহ আল-মাহমুদ">
+      </div>
+      <div>
+        <label class="label" for="nen">Name (in English) <span class="req">*</span></label>
+        <input id="nen" class="input lat" value="Abdullah Al-Mahmud">
+        <p class="desc">জন্ম নিবন্ধন সনদের বানান অনুযায়ী</p>
+      </div>
+    </section>
+
+    <section class="sec">
+      <h2 class="sec-h">জন্ম তারিখ ও শ্রেণী</h2>
+      <fieldset>
+        <legend class="label">জন্ম তারিখ <span class="req">*</span></legend>
+        <div style="display: grid; grid-template-columns: 0.8fr 1.3fr 1fr; gap: 8px">
+          <select class="input" aria-label="দিন" value="{{d}}" onChange="{{onD}}"><sc-for list="{{days}}" as="o" hint-placeholder-count="31"><option value="{{o.v}}">{{o.t}}</option></sc-for></select>
+          <select class="input" aria-label="মাস" value="{{m}}" onChange="{{onM}}"><sc-for list="{{months}}" as="o" hint-placeholder-count="12"><option value="{{o.v}}">{{o.t}}</option></sc-for></select>
+          <select class="input" aria-label="বছর" value="{{y}}" onChange="{{onY}}"><sc-for list="{{years}}" as="o" hint-placeholder-count="12"><option value="{{o.v}}">{{o.t}}</option></sc-for></select>
+        </div>
+        <p class="desc">শিক্ষাবর্ষের শুরুতে বয়স হবে <b style="color: var(--fg); font-weight: 600">{{ageText}}</b></p>
+      </fieldset>
+      <fieldset>
+        <legend class="label">যে শ্রেণীতে ভর্তি হতে চান <span class="req">*</span></legend>
+        <div style="display: flex; flex-direction: column; gap: 8px">
+          <sc-for list="{{classes}}" as="c" hint-placeholder-count="7">
+            <label class="rc">
+              <input class="r" type="radio" name="cls" checked="{{c.checked}}" onChange="{{c.pick}}">
+              <span style="flex: 1">{{c.t}}</span>
+              <sc-if value="{{c.fit}}" hint-placeholder-val="{{ false }}"><span style="font-size: 12.5px; color: var(--ok)">বয়সের সাথে মিলে</span></sc-if>
+              <sc-if value="{{c.special}}" hint-placeholder-val="{{ false }}"><span style="font-size: 12.5px; color: var(--mfg)">বিশেষ বিবেচনায়</span></sc-if>
+            </label>
+          </sc-for>
+        </div>
+        <sc-if value="{{mismatch}}" hint-placeholder-val="{{ false }}">
+          <div class="alert" style="margin-top: 10px">
+            <svg style="flex: none; margin-top: 2px; color: var(--warn)" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+            <span>এই শ্রেণীর সাধারণ বয়সের সাথে মিলছে না। আবেদন করা যাবে, মূল্যায়নে বিবেচনা করা হবে।</span>
+          </div>
+        </sc-if>
+      </fieldset>
+    </section>
+
+    <section class="sec">
+      <h2 class="sec-h">পূর্ববর্তী শিক্ষা <span style="font-weight: 400; font-size: 14px; color: var(--mfg)">(প্রযোজ্য হলে)</span></h2>
+      <div>
+        <label class="label" for="pc">সর্বশেষ যে শ্রেণীতে পড়েছে</label>
+        <input id="pc" class="input">
+      </div>
+      <div>
+        <label class="label" for="ps">পূর্ববর্তী শিক্ষা প্রতিষ্ঠানের নাম</label>
+        <input id="ps" class="input">
+      </div>
+    </section>
+
+    <section class="sec">
+      <h2 class="sec-h">কাগজপত্র</h2>
+      <div>
+        <span class="label">জন্ম নিবন্ধন সনদ <span class="req">*</span></span>
+        <div style="display: flex; align-items: center; gap: 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); padding: 10px 8px 10px 12px">
+          <svg style="flex: none; color: var(--mfg)" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg>
+          <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px">
+            <span style="display: flex; justify-content: space-between; font-size: 13.5px"><span class="lat">birth-certificate.jpg</span><span style="color: var(--mfg)">৬৪%</span></span>
+            <span style="height: 4px; border-radius: 999px; background: var(--muted)"><span style="display: block; width: 64%; height: 4px; background: var(--primary); border-radius: 999px"></span></span>
+          </div>
+          <button class="ghost" aria-label="আপলোড বাতিল" style="width: 36px; height: 36px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
+        </div>
+        <p class="desc">ছবি বা PDF। পুরো সনদ যেন ফ্রেমে থাকে।</p>
+      </div>
+    </section>
+  </main>
+
+  <div style="position: absolute; left: 0; right: 0; bottom: 0; background: var(--surface); border-top: 1px solid var(--border); padding: 12px 16px 20px; display: flex; align-items: center; justify-content: space-between; gap: 12px">
+    <span style="display: inline-flex; align-items: center; gap: 6px; font-size: 13.5px; color: var(--mfg)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>সংরক্ষিত</span>
+    <a class="btn" href="Father.dc.html">পরবর্তী <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></a>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"$preview":{"width":390,"height":1960}}'>
+class Component extends DCLogic {
+  constructor(p) { super(p); this.state = { d: 12, m: 3, y: 2021, cls: 'kg' }; }
+  renderVals() {
+    const bn = (n) => String(n).replace(/\d/g, (x) => '০১২৩৪৫৬৭৮৯'[x]);
+    const monthNames = ['জানুয়ারি','ফেব্রুয়ারি','মার্চ','এপ্রিল','মে','জুন','জুলাই','আগস্ট','সেপ্টেম্বর','অক্টোবর','নভেম্বর','ডিসেম্বর'];
+    const { d, m, y, cls } = this.state;
+    let months = (2027 - y) * 12 + (1 - m) - (d > 1 ? 1 : 0);
+    if (months < 0) months = 0;
+    const yrs = Math.floor(months / 12), mos = months % 12;
+    // Sample age bands for the mockup; the office sets real ranges per class in Sanity.
+    const defs = [
+      { k: 'nursery', t: 'নার্সারি', min: 4 }, { k: 'kg', t: 'কেজি', min: 5 }, { k: 'c1', t: '১ম শ্রেণী', min: 6 },
+      { k: 'c2', t: '২য় শ্রেণী', min: 7 }, { k: 'c3', t: '৩য় শ্রেণী', min: 8 },
+      { k: 'c4', t: '৪র্থ শ্রেণী', min: 9, special: true }, { k: 'c5', t: '৫ম শ্রেণী', min: 10, special: true },
+    ];
+    const fitKey = (defs.filter((c) => yrs >= c.min).pop() || defs[0]).k;
+    return {
+      theme: this.props.theme === 'dark' ? 'dark' : '',
+      d, m, y,
+      days: Array.from({ length: 31 }, (_, i) => ({ v: i + 1, t: bn(i + 1) })),
+      months: monthNames.map((t, i) => ({ v: i + 1, t })),
+      years: Array.from({ length: 12 }, (_, i) => ({ v: 2024 - i, t: bn(2024 - i) })),
+      onD: (e) => this.setState({ d: +e.target.value }),
+      onM: (e) => this.setState({ m: +e.target.value }),
+      onY: (e) => this.setState({ y: +e.target.value }),
+      ageText: `${bn(yrs)} বছর ${bn(mos)} মাস`,
+      classes: defs.map((c) => ({ ...c, special: !!c.special && c.k !== fitKey, fit: c.k === fitKey, checked: c.k === cls, pick: () => this.setState({ cls: c.k }) })),
+      mismatch: cls !== fitKey,
+    };
+  }
+}
+</script>
+</body>
+</html>

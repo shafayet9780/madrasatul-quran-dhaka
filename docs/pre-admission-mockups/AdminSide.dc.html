@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<title>অ্যাডমিন সাইডবার</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;500;600;700&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.sb{--fg:#171717;--mfg:#525252;--muted:#f0f0f0;--border:#e5e5e5;--primary:#7a4d32;--pfg:#fff;font-family:'Noto Sans Bengali','Inter',sans-serif;color:var(--fg)}
+.nl{display:flex;align-items:center;gap:10px;height:34px;padding:0 10px;border-radius:8px;text-decoration:none;color:var(--fg);font-size:14px}
+.nl:hover{background:var(--muted)}
+.nl svg{flex:none;color:var(--mfg)}
+.nl.on{background:var(--muted);font-weight:500}
+.nl.on svg{color:var(--fg)}
+.cnt{margin-left:auto;font-size:12px;color:var(--mfg);font-family:Inter,sans-serif}
+.gl{font-size:12px;color:var(--mfg);font-weight:500;padding:0 10px;height:28px;display:flex;align-items:center}
+.mi{display:flex;align-items:center;gap:10px;width:100%;height:40px;padding:0 8px;border:0;border-radius:6px;background:transparent;font:inherit;font-size:14px;color:var(--fg);cursor:pointer;text-align:left}
+.mi:hover{background:var(--muted)}
+.ico{flex:none;width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center}
+</style>
+</helmet>
+<nav class="sb" aria-label="অ্যাডমিন" style="box-sizing: border-box; width: 100%; min-height: 1240px; height: 100%; background: #fafafa; border-right: 1px solid var(--border); padding: 10px; display: flex; flex-direction: column; gap: 14px; position: relative">
+  <button onClick="{{toggle}}" aria-haspopup="menu" aria-expanded="{{openAttr}}" style="display: flex; align-items: center; gap: 10px; width: 100%; padding: 8px; border: 0; border-radius: 8px; background: transparent; font: inherit; color: var(--fg); cursor: pointer; text-align: left">
+    <span class="ico" style="width: 32px; height: 32px; border-radius: 8px; background: var(--primary); color: var(--pfg)">
+      <sc-if value="{{adm}}" hint-placeholder-val="{{ true }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z"/><path d="M22 10v6"/><path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5"/></svg></sc-if>
+      <sc-if value="{{sv}}" hint-placeholder-val="{{ false }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="4" x="8" y="2" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/></svg></sc-if>
+    </span>
+    <span style="flex: 1; display: flex; flex-direction: column; line-height: 1.3; min-width: 0">
+      <span style="font-size: 14px; font-weight: 600">{{modTitle}}</span>
+      <span style="font-size: 12px; color: var(--mfg)">{{modSub}}</span>
+    </span>
+    <svg style="color: var(--mfg)" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7 15 5 5 5-5"/><path d="m7 9 5-5 5 5"/></svg>
+  </button>
+
+  <sc-if value="{{open}}" hint-placeholder-val="{{ false }}">
+    <div role="menu" style="position: absolute; top: 62px; left: 10px; right: 10px; z-index: 2; background: #fff; border: 1px solid var(--border); border-radius: 10px; box-shadow: 0 8px 24px rgba(23,23,23,.08); padding: 4px">
+      <div class="gl">মডিউল</div>
+      <button role="menuitem" class="mi" onClick="{{toAdm}}">
+        <span class="ico" style="border: 1px solid var(--border)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z"/><path d="M22 10v6"/><path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5"/></svg></span>
+        <span style="flex: 1">ভর্তি</span>
+        <sc-if value="{{adm}}" hint-placeholder-val="{{ true }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></sc-if>
+      </button>
+      <button role="menuitem" class="mi" onClick="{{toSv}}">
+        <span class="ico" style="border: 1px solid var(--border)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="4" x="8" y="2" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/></svg></span>
+        <span style="flex: 1">শিক্ষক ও অভিভাবক জরিপ</span>
+        <sc-if value="{{sv}}" hint-placeholder-val="{{ false }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></sc-if>
+      </button>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{adm}}" hint-placeholder-val="{{ true }}">
+    <div style="display: flex; flex-direction: column; gap: 2px">
+      <div class="gl">প্রি-অ্যাডমিশন ২০২৭</div>
+      <a class="nl {{on.overview}}" href="AdminOverview.dc.html"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>ওভারভিউ</a>
+      <a class="nl {{on.list}}" href="AdminList.dc.html"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>আবেদন<span class="cnt">214</span></a>
+      <a class="nl {{on.unpaid}}" href="AdminList.dc.html"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>ফি বাকি<span class="cnt">37</span></a>
+      <a class="nl {{on.checkin}}" href="#"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M7 12h10"/></svg>মূল্যায়নের দিন</a>
+      <div class="gl" style="margin-top: 10px">সেটআপ</div>
+      <a class="nl" href="#"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 7h-9"/><path d="M14 17H5"/><circle cx="17" cy="17" r="3"/><circle cx="7" cy="7" r="3"/></svg>ফর্ম ও ফি (স্টুডিও)</a>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{sv}}" hint-placeholder-val="{{ false }}">
+    <div style="display: flex; flex-direction: column; gap: 2px">
+      <div class="gl">রাউন্ড</div>
+      <label style="display: block; padding: 0 2px 6px">
+        <select aria-label="রাউন্ড" style="width: 100%; height: 36px; border: 1px solid var(--border); border-radius: 8px; background: #fff; font: inherit; font-size: 13.5px; padding: 0 8px; color: var(--fg)"><option>শিক্ষক জরিপ, অক্টোবর ২০২৬</option></select>
+      </label>
+      <div class="gl">রিপোর্ট</div>
+      <a class="nl" href="#"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>ওভারভিউ</a>
+      <a class="nl" href="#"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>শিক্ষার মান</a>
+      <a class="nl" href="#"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>প্রশ্নভিত্তিক ফলাফল</a>
+      <a class="nl" href="#"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>ক্লাস ও শিক্ষার্থী</a>
+      <a class="nl" href="#"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/></svg>শিক্ষকদের রেটিং প্যাটার্ন</a>
+      <div class="gl" style="margin-top: 10px">সংগ্রহ</div>
+      <a class="nl" href="#"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 17 2 2 4-4"/><path d="m3 7 2 2 4-4"/><path d="M13 6h8"/><path d="M13 12h8"/><path d="M13 18h8"/></svg>রেসপন্স ট্র্যাকার</a>
+      <div class="gl" style="margin-top: 10px">সেটআপ</div>
+      <a class="nl" href="#"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg>রাউন্ড</a>
+      <a class="nl" href="#"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m17 8-5-5-5 5"/><path d="M12 3v12"/></svg>ERP ইমপোর্ট</a>
+    </div>
+  </sc-if>
+
+  <div style="margin-top: auto; display: flex; flex-direction: column; gap: 2px">
+    <a class="nl" href="#"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>অ্যাডমিন গাইড</a>
+    <a class="nl" href="#"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>স্টুডিও</a>
+  </div>
+</nav>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"active":{"editor":"enum","options":["overview","list","unpaid","checkin"],"default":"overview"},"$preview":{"width":264,"height":1240}}'>
+class Component extends DCLogic {
+  constructor(p) { super(p); this.state = { mod: 'adm', open: false }; }
+  renderVals() {
+    const adm = this.state.mod === 'adm';
+    const act = this.props.active ?? 'overview';
+    const on = {};
+    for (const k of ['overview', 'list', 'unpaid', 'checkin']) on[k] = k === act ? 'on' : '';
+    return {
+      adm, sv: !adm, on, open: this.state.open, openAttr: this.state.open ? 'true' : 'false',
+      modTitle: adm ? 'ভর্তি' : 'জরিপ',
+      modSub: adm ? 'প্রি-অ্যাডমিশন ২০২৭' : 'শিক্ষক ও অভিভাবক জরিপ',
+      toggle: () => this.setState({ open: !this.state.open }),
+      toAdm: () => this.setState({ mod: 'adm', open: false }),
+      toSv: () => this.setState({ mod: 'sv', open: false }),
+    };
+  }
+}
+</script>
+</body>
+</html>

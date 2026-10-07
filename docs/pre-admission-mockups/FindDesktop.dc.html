@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<title>প্রি-অ্যাডমিশন ২০২৭ · আবেদন খুঁজুন (ডেস্কটপ)</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;500;600;700&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.ui{--bg:#fafafa;--surface:#fff;--fg:#171717;--mfg:#525252;--muted:#f5f5f5;--border:#e5e5e5;--input:#d4d4d4;--primary:#7a4d32;--primary-h:#663f28;--pfg:#fff;--ring:rgba(122,77,50,.3);--ok:#15803d;--warn:#b45309;--bad:#dc2626;font-family:'Noto Sans Bengali','Inter',sans-serif;color:var(--fg);background:var(--bg)}
+.ui.dark{--bg:#111;--surface:#171717;--fg:#f5f5f5;--mfg:#a3a3a3;--muted:#262626;--border:#2a2a2a;--input:#404040;--primary:#c8946b;--primary-h:#d6a682;--pfg:#1c130d;--ring:rgba(200,148,107,.35);--ok:#4ade80;--warn:#fbbf24;--bad:#f87171}
+.ui a{color:var(--fg);text-underline-offset:3px}
+.lat{font-family:Inter,sans-serif}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:44px;padding:0 18px;border-radius:8px;background:var(--primary);color:var(--pfg) !important;font:inherit;font-size:15px;font-weight:500;text-decoration:none;border:0;cursor:pointer;white-space:nowrap}
+.btn:hover{background:var(--primary-h)}
+.btn-o{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:44px;padding:0 18px;border-radius:8px;background:var(--surface);border:1px solid var(--border);font:inherit;font-size:15px;font-weight:500;text-decoration:none;cursor:pointer;color:var(--fg)}
+.btn-o:hover{background:var(--muted)}
+.label{display:block;font-size:14px;font-weight:500;line-height:1.45;margin:0 0 8px;padding:0}
+.req{color:var(--bad)}
+.desc{font-size:13px;color:var(--mfg);line-height:1.5;margin:6px 0 0}
+.input{box-sizing:border-box;width:100%;height:44px;border:1px solid var(--input);border-radius:8px;background:var(--surface);padding:0 12px;font:inherit;font-size:16px;color:var(--fg)}
+.input:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px var(--ring)}
+select.input{padding:0 8px 0 10px}
+.badge{display:inline-flex;align-items:center;height:24px;padding:0 9px;border-radius:6px;border:1px solid var(--border);font-size:12.5px;font-weight:500;white-space:nowrap}
+</style>
+</helmet>
+<div class="ui {{theme}}" style="min-height: 100vh">
+  <header style="background: var(--surface); border-bottom: 1px solid var(--border)">
+    <div style="max-width: 1240px; margin: 0 auto; padding: 0 32px; height: 64px; display: flex; align-items: center; justify-content: space-between">
+      <a href="IntroDesktop.dc.html" style="display: flex; align-items: center; gap: 12px; text-decoration: none">
+        <span style="width: 36px; height: 36px; border-radius: 8px; border: 1px dashed var(--input); display: flex; align-items: center; justify-content: center; font-size: 9px; color: var(--mfg)">লোগো</span>
+        <span style="font-size: 15px; font-weight: 600">মাদরাসাতুল কুরআন <span style="font-weight: 400; color: var(--mfg)">/ প্রি-অ্যাডমিশন ২০২৭</span></span>
+      </a>
+      <a class="lat" href="#" style="font-size: 13.5px; font-weight: 600; text-decoration: none">English</a>
+    </div>
+  </header>
+
+  <div style="max-width: 1000px; margin: 0 auto; padding: 64px 32px; display: flex; flex-wrap: wrap; gap: 48px; align-items: flex-start">
+    <main style="flex: 1 1 380px; min-width: 0; display: flex; flex-direction: column; gap: 22px">
+      <div style="display: flex; flex-direction: column; gap: 8px">
+        <h1 style="margin: 0; font-size: 30px; line-height: 1.3; font-weight: 700; letter-spacing: -.015em">আবেদন খুঁজুন</h1>
+        <p style="margin: 0; font-size: 15.5px; line-height: 1.65; color: var(--mfg)">আবেদনপত্র আবার ডাউনলোড, অসম্পূর্ণ আবেদন চালিয়ে যাওয়া বা বাকি ফি পরিশোধের জন্য।</p>
+      </div>
+      <div>
+        <label class="label" for="q">আবেদন আইডি বা মোবাইল নম্বর <span class="req">*</span></label>
+        <input id="q" class="input lat" value="01712345678">
+        <p class="desc">আইডি দেখতে এমন: <span class="lat">KG-017</span>। ফি দেওয়ার আগে আইডি থাকে না, তখন মোবাইল নম্বর দিন।</p>
+      </div>
+      <fieldset style="border: 0; margin: 0; padding: 0; min-width: 0">
+        <legend class="label">শিক্ষার্থীর জন্ম তারিখ <span class="req">*</span></legend>
+        <div style="display: grid; grid-template-columns: 0.8fr 1.3fr 1fr; gap: 8px">
+          <select class="input" aria-label="দিন"><option>১২</option></select>
+          <select class="input" aria-label="মাস"><option>মার্চ</option></select>
+          <select class="input" aria-label="বছর"><option>২০২১</option></select>
+        </div>
+        <p class="desc">জন্ম তারিখ মিলিয়ে দেখা হয়, যাতে অন্য কেউ আপনার আবেদন দেখতে না পারে।</p>
+      </fieldset>
+      <button class="btn" style="align-self: flex-start">খুঁজুন</button>
+    </main>
+
+    <section aria-label="ফলাফল" style="flex: 1 1 380px; min-width: 0; padding-top: 8px">
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 22px; display: flex; flex-direction: column; gap: 16px">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px">
+          <div style="display: flex; flex-direction: column; gap: 2px">
+            <sc-if value="{{paid}}" hint-placeholder-val="{{ true }}"><span class="lat" style="font-size: 26px; font-weight: 700; letter-spacing: .02em">KG-017</span></sc-if>
+            <span style="font-size: 16px; font-weight: 500">আব্দুল্লাহ আল-মাহমুদ</span>
+            <span style="font-size: 13.5px; color: var(--mfg)">কেজি, শিক্ষাবর্ষ ২০২৭</span>
+          </div>
+          <span class="badge" style="color: {{badgeFg}}">{{badge}}</span>
+        </div>
+        <sc-if value="{{paid}}" hint-placeholder-val="{{ true }}">
+          <div style="display: flex; flex-wrap: wrap; gap: 8px">
+            <a class="btn" href="Pdf1.dc.html"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3"/><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/></svg>আবেদনপত্র ডাউনলোড</a>
+            <a class="btn-o" href="#">হোয়াটসঅ্যাপ গ্রুপ</a>
+          </div>
+        </sc-if>
+        <sc-if value="{{unpaid}}" hint-placeholder-val="{{ false }}">
+          <p style="margin: 0; font-size: 14px; line-height: 1.55; color: var(--mfg)">ফর্ম পূরণ হয়েছে, আবেদন ফি বাকি। [শেষ তারিখ]-এর আগে পরিশোধ করুন।</p>
+          <div style="display: flex; flex-wrap: wrap; gap: 8px">
+            <a class="btn" href="ReviewDesktop.dc.html">৳৫০০ পরিশোধ করুন</a>
+            <a class="btn-o" href="HubDesktop.dc.html">তথ্য দেখুন বা বদলান</a>
+          </div>
+        </sc-if>
+      </div>
+    </section>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"result":{"editor":"enum","options":["paid","unpaid"],"default":"paid"},"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const paid = (this.props.result ?? 'paid') === 'paid';
+    return {
+      theme: this.props.theme === 'dark' ? 'dark' : '',
+      paid, unpaid: !paid,
+      badge: paid ? 'ফি পরিশোধিত' : 'ফি বাকি',
+      badgeFg: paid ? 'var(--ok)' : 'var(--warn)',
+    };
+  }
+}
+</script>
+</body>
+</html>

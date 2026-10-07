@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<title>অ্যাডমিন · ভর্তি আবেদন</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;500;600;700&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.ad{--bg:#fff;--fg:#171717;--mfg:#525252;--muted:#f5f5f5;--border:#e5e5e5;--input:#d4d4d4;--primary:#7a4d32;--pfg:#fff;--ok:#15803d;--warn:#b45309;--bad:#dc2626;--info:#1d4ed8;font-family:'Noto Sans Bengali','Inter',sans-serif;color:var(--fg)}
+.ad a{color:var(--fg)}
+.lat{font-family:Inter,sans-serif;font-variant-numeric:tabular-nums}
+.btn{display:inline-flex;align-items:center;gap:8px;height:36px;padding:0 12px;border-radius:8px;background:var(--primary);color:var(--pfg);border:0;font:inherit;font-size:14px;font-weight:500;cursor:pointer}
+.btn-o{display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 12px;border-radius:8px;background:#fff;border:1px solid var(--border);font:inherit;font-size:14px;font-weight:500;text-decoration:none;cursor:pointer;color:var(--fg);white-space:nowrap}
+.btn-o:hover{background:var(--muted)}
+.btn-o.dash{border-style:dashed}
+.tabs{display:inline-flex;gap:2px;background:var(--muted);border-radius:8px;padding:3px}
+.tab{height:30px;padding:0 12px;border:0;border-radius:6px;background:transparent;font:inherit;font-size:14px;font-weight:500;color:var(--mfg);cursor:pointer}
+.c{appearance:none;flex:none;width:16px;height:16px;margin:0;border:1px solid var(--input);border-radius:4px;background:#fff;display:grid;place-content:center;cursor:pointer;vertical-align:middle}
+.c:checked{background:var(--primary);border-color:var(--primary)}
+.c:checked::before{content:"";width:4px;height:8px;border:solid #fff;border-width:0 2px 2px 0;transform:translateY(-1px) rotate(45deg)}
+table{width:100%;border-collapse:collapse;font-size:14px;min-width:880px}
+th{text-align:left;font-weight:500;font-size:13px;color:var(--mfg);height:40px;padding:0 12px;border-bottom:1px solid var(--border);white-space:nowrap}
+td{padding:10px 12px;border-bottom:1px solid var(--border);vertical-align:middle}
+tbody tr:hover{background:#fafafa}
+tbody tr.sel{background:var(--muted)}
+.badge{display:inline-flex;align-items:center;height:22px;padding:0 8px;border-radius:6px;border:1px solid var(--border);font-size:12px;font-weight:500;white-space:nowrap}
+</style>
+</helmet>
+<div class="ad" style="min-height: 100vh; background: var(--bg); display: flex; flex-wrap: wrap">
+  <div style="flex: 1 1 232px; max-width: 264px; display: flex; flex-direction: column"><dc-import name="AdminSide" active="list" hint-size="264px,1240px"></dc-import></div>
+
+  <div style="flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column">
+    <header style="height: 56px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 24px">
+      <nav aria-label="ব্রেডক্রাম্ব" style="display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--mfg)">
+        <span>ভর্তি</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg><span style="color: var(--fg)">আবেদন</span>
+      </nav>
+      <a class="btn-o" href="#"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3"/><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/></svg>Excel এক্সপোর্ট</a>
+    </header>
+
+    <main style="padding: 24px; display: flex; flex-direction: column; gap: 16px">
+      <h1 style="margin: 0; font-size: 24px; font-weight: 700; letter-spacing: -.01em">আবেদন</h1>
+
+      <div role="tablist" class="tabs" style="align-self: flex-start">
+        <button role="tab" class="tab" aria-selected="{{paidSel}}" onClick="{{showPaid}}" style="background: {{paidBg}}; color: {{paidFg}}; box-shadow: {{paidSh}}">পরিশোধিত <span class="lat">214</span></button>
+        <button role="tab" class="tab" aria-selected="{{unpaidSel}}" onClick="{{showUnpaid}}" style="background: {{unpaidBg}}; color: {{unpaidFg}}; box-shadow: {{unpaidSh}}">ফি বাকি <span class="lat">37</span></button>
+      </div>
+
+      <div style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center">
+        <div style="display: flex; align-items: center; gap: 8px; height: 36px; border: 1px solid var(--border); border-radius: 8px; padding: 0 10px; width: 280px; box-sizing: border-box; color: var(--mfg)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+          <input aria-label="খুঁজুন" placeholder="আইডি, নাম বা মোবাইল" style="flex: 1; min-width: 0; border: 0; outline: 0; font: inherit; font-size: 14px; color: var(--fg); background: transparent">
+        </div>
+        <button class="btn-o dash"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 12h8"/><path d="M12 8v8"/></svg>শ্রেণী</button>
+        <sc-if value="{{isPaid}}" hint-placeholder-val="{{ true }}">
+          <button class="btn-o dash"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 12h8"/><path d="M12 8v8"/></svg>অবস্থা</button>
+          <button class="btn-o dash"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 12h8"/><path d="M12 8v8"/></svg>মূল্যায়ন ফি</button>
+        </sc-if>
+      </div>
+
+      <sc-if value="{{isPaid}}" hint-placeholder-val="{{ true }}">
+        <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px; border: 1px solid var(--border); border-radius: 8px; padding: 8px 8px 8px 14px">
+          <span style="font-size: 14px; margin-right: auto">৩টি নির্বাচিত</span>
+          <select aria-label="নতুন অবস্থা" style="height: 36px; border: 1px solid var(--border); border-radius: 8px; background: #fff; font: inherit; font-size: 14px; padding: 0 8px"><option>অবস্থা বদলান</option><option>মূল্যায়ন নির্ধারিত</option><option>ভর্তি</option><option>অপেক্ষমাণ</option></select>
+          <button class="btn">প্রয়োগ করুন</button>
+          <button class="btn-o"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3"/><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/></svg>আবেদনপত্র PDF</button>
+        </div>
+        <div style="border: 1px solid var(--border); border-radius: 10px; overflow-x: auto">
+          <table>
+            <thead><tr><th style="width: 20px"><input class="c" type="checkbox" aria-label="সব নির্বাচন"></th><th>আইডি</th><th>শিক্ষার্থী</th><th>শ্রেণী</th><th>অভিভাবকের মোবাইল</th><th>অবস্থা</th><th>পরিশোধ</th><th>মূল্যায়ন ফি</th></tr></thead>
+            <tbody>
+              <sc-for list="{{rows}}" as="r" hint-placeholder-count="10">
+                <tr class="{{r.cls}}">
+                  <td><input class="c" type="checkbox" checked="{{r.sel}}" aria-label="নির্বাচন"></td>
+                  <td class="lat" style="font-weight: 500"><a href="AdminDetail.dc.html" style="text-decoration: none">{{r.id}}</a></td>
+                  <td><div style="display: flex; flex-direction: column"><span>{{r.name}}</span><span style="font-size: 12.5px; color: var(--mfg)">জন্ম {{r.dob}}</span></div></td>
+                  <td>{{r.cls2}}</td>
+                  <td class="lat" style="font-size: 13.5px">{{r.mob}}</td>
+                  <td><span class="badge" style="color: {{r.fg}}">{{r.status}}</span></td>
+                  <td style="color: var(--mfg); white-space: nowrap">{{r.paid}}</td>
+                  <td style="color: {{r.evFg}}">{{r.eval}}</td>
+                </tr>
+              </sc-for>
+            </tbody>
+          </table>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; font-size: 13.5px; color: var(--mfg)">
+          <span>২১৪টির মধ্যে ১ থেকে ১০</span>
+          <div style="display: flex; gap: 6px"><button class="btn-o">আগের</button><button class="btn-o">পরের</button></div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{isUnpaid}}" hint-placeholder-val="{{ false }}">
+        <p style="margin: 0; font-size: 14px; line-height: 1.6; color: var(--mfg); max-width: 75ch">এই আবেদনগুলোর ফর্ম শুরু বা পূরণ হয়েছে, ফি পরিশোধ হয়নি। ফোন করে মনে করিয়ে দিতে পারেন। দরকার না হলে মুছে দিন; তথ্য ও আপলোড করা কাগজ দুটোই মুছে যাবে।</p>
+        <div style="border: 1px solid var(--border); border-radius: 10px; overflow-x: auto">
+          <table>
+            <thead><tr><th>শিক্ষার্থী</th><th>শ্রেণী</th><th>অভিভাবকের মোবাইল</th><th>অগ্রগতি</th><th>শেষ সক্রিয়</th><th>পেমেন্ট চেষ্টা</th><th></th></tr></thead>
+            <tbody>
+              <sc-for list="{{unpaidRows}}" as="r" hint-placeholder-count="6">
+                <tr>
+                  <td><a href="AdminDetail.dc.html" style="text-decoration: none">{{r.name}}</a></td>
+                  <td>{{r.cls2}}</td>
+                  <td class="lat" style="font-size: 13.5px"><a href="#">{{r.mob}}</a></td>
+                  <td>{{r.progress}}</td>
+                  <td style="color: var(--mfg)">{{r.last}}</td>
+                  <td style="color: var(--mfg)">{{r.pay}}</td>
+                  <td style="text-align: right"><button class="btn-o" style="color: var(--bad)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>মুছুন</button></td>
+                </tr>
+              </sc-for>
+            </tbody>
+          </table>
+        </div>
+      </sc-if>
+    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1040}}'>
+class Component extends DCLogic {
+  constructor(p) { super(p); this.state = { tab: 'paid' }; }
+  renderVals() {
+    const paid = this.state.tab === 'paid';
+    const st = {
+      submitted: ['জমা হয়েছে', 'var(--fg)'],
+      interview: ['মূল্যায়ন নির্ধারিত', 'var(--info)'],
+      admitted: ['ভর্তি', 'var(--ok)'],
+      waitlisted: ['অপেক্ষমাণ', 'var(--warn)'],
+    };
+    const raw = [
+      ['KG-064', 'হামযা ইবনে কাসিম', '৪ ফেব্রু. ২০২১', 'কেজি', '01711-203040', 'submitted', '৭ অক্টো.', false, false],
+      ['N-052', 'মারইয়াম বিনতে হাসান', '১৯ জুন ২০২২', 'নার্সারি', '01819-552233', 'submitted', '৭ অক্টো.', false, true],
+      ['C1-038', 'উমর ফারুক', '২ জানু. ২০২০', '১ম শ্রেণী', '01912-778899', 'submitted', '৭ অক্টো.', false, true],
+      ['KG-063', 'আয়েশা সিদ্দিকা', '১১ নভে. ২০২০', 'কেজি', '01556-123987', 'interview', '৬ অক্টো.', false, true],
+      ['C2-027', 'ইউসুফ আহমাদ', '৩০ মে ২০১৯', '২য় শ্রেণী', '01611-445566', 'interview', '৬ অক্টো.', false, false],
+      ['KG-017', 'আব্দুল্লাহ আল-মাহমুদ', '১২ মার্চ ২০২১', 'কেজি', '01712-345678', 'admitted', '২৯ সেপ্টে.', true, false],
+      ['N-031', 'খাদিজা আক্তার', '৮ আগ. ২০২২', 'নার্সারি', '01733-909090', 'waitlisted', '২৮ সেপ্টে.', true, false],
+      ['C3-012', 'সাদ বিন মুয়ায', '১৫ এপ্রি. ২০১৮', '৩য় শ্রেণী', '01822-676767', 'admitted', '২৭ সেপ্টে.', true, false],
+      ['KG-009', 'নুসাইবা জান্নাত', '২১ সেপ্টে. ২০২০', 'কেজি', '01644-121212', 'interview', '২৬ সেপ্টে.', false, false],
+      ['C4-003', 'আনাস মালিক', '৯ ডিসে. ২০১৭', '৪র্থ শ্রেণী', '01577-343434', 'submitted', '২৫ সেপ্টে.', false, false],
+    ];
+    const un = [
+      ['রুমাইসা তাসনিম', 'নার্সারি', '01713-454545', 'ফর্ম সম্পূর্ণ', 'আজ, দুপুর ১:১০', 'ব্যর্থ, ১ বার'],
+      ['মুহাম্মাদ ইবরাহীম', 'কেজি', '01916-787878', 'ফর্ম সম্পূর্ণ', 'গতকাল', 'চেষ্টা হয়নি'],
+      ['আসমা বিনতে উমর', '১ম শ্রেণী', '01858-232323', '৫টির মধ্যে ৩টি অধ্যায়', '৩ অক্টো.', 'চেষ্টা হয়নি'],
+      ['তালহা যুবায়ের', 'কেজি', '01799-565656', 'শুধু শুরু', '২ অক্টো.', 'চেষ্টা হয়নি'],
+      ['হাফসা মাহমুদা', '২য় শ্রেণী', '01621-898989', '৫টির মধ্যে ৩টি অধ্যায়', '৩০ সেপ্টে.', 'চেষ্টা হয়নি'],
+      ['বিলাল হোসাইন', 'নার্সারি', '01534-010203', 'ফর্ম সম্পূর্ণ', '২৮ সেপ্টে.', 'বাতিল, ১ বার'],
+    ];
+    const tab = (on) => ({ bg: on ? '#fff' : 'transparent', fg: on ? 'var(--fg)' : 'var(--mfg)', sh: on ? '0 1px 2px rgba(23,23,23,.08)' : 'none' });
+    const a = tab(paid), b = tab(!paid);
+    return {
+      isPaid: paid, isUnpaid: !paid,
+      paidSel: paid ? 'true' : 'false', unpaidSel: paid ? 'false' : 'true',
+      paidBg: a.bg, paidFg: a.fg, paidSh: a.sh, unpaidBg: b.bg, unpaidFg: b.fg, unpaidSh: b.sh,
+      showPaid: () => this.setState({ tab: 'paid' }),
+      showUnpaid: () => this.setState({ tab: 'unpaid' }),
+      rows: raw.map(([id, name, dob, cls2, mob, s, pd, ev, sl]) => ({ id, name, dob, cls2, mob, status: st[s][0], fg: st[s][1], paid: pd, eval: ev ? 'গৃহীত' : 'বাকি', evFg: ev ? 'var(--ok)' : 'var(--mfg)', sel: sl, cls: sl ? 'sel' : '' })),
+      unpaidRows: un.map(([name, cls2, mob, progress, last, pay]) => ({ name, cls2, mob, progress, last, pay })),
+    };
+  }
+}
+</script>
+</body>
+</html>
