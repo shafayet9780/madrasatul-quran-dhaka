@@ -49,6 +49,27 @@ describe('buildCoverage', () => {
   });
 });
 
+describe('buildCoverage for a subject taught by level', () => {
+  const levelled = t1FixtureSnapshot();
+  levelled.classes = [{ key: 'two', name: 'দ্বিতীয়', sections: [], subjects: [{ key: 'arabic', name: 'আরবি', byLevel: true }] }];
+  const roster = ['s1', 's2', 's3'].map((erpId) => ({ erpId, classKey: 'two', sectionKey: '' }));
+  const cell = (batches: BatchSummary[], rated: string[]) =>
+    buildCoverage(levelled, batches, { roster, rated: new Map([['arabic', new Set(rated)]]) }).rows[0].cells[0];
+  const at = { classKey: 'two', sectionKey: '', subjectKey: 'arabic' };
+
+  it('is partial until every student has a counted rating, from any teacher', () => {
+    expect(cell([], [])).toMatchObject({ state: 'todo', progress: { done: 0, total: 3 } });
+    expect(cell([batch({ ...at })], ['s1', 's2'])).toMatchObject({ state: 'partial', progress: { done: 2, total: 3 } });
+    const both = cell([batch({ ...at }), batch({ ...at, teacherName: 'উস্তাদ হামযা' })], ['s1', 's2', 's3']);
+    expect(both).toMatchObject({ state: 'done', teachers: ['উস্তাদ আব্দুল্লাহ', 'উস্তাদ হামযা'] });
+  });
+
+  it('counts only finished cells as covered', () => {
+    const coverage = buildCoverage(levelled, [batch({ ...at })], { roster, rated: new Map([['arabic', new Set(['s1'])]]) });
+    expect([coverage.covered, coverage.total]).toEqual([0, 1]);
+  });
+});
+
 describe('duplicateGroups', () => {
   it('returns current batches that share a class and subject', () => {
     const groups = duplicateGroups([

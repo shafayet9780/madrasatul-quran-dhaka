@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { findMissing, resolveBatch, t1AnswerItems, validRowAnswers } from './t1-logic';
+import { findMissing, hasMarks, resolveBatch, t1AnswerItems, validRowAnswers } from './t1-logic';
 import { t1FixtureSnapshot } from './testing/t1-fixture';
 
 const snapshot = t1FixtureSnapshot(new Date('2026-10-04T00:00:00Z'));
@@ -48,6 +48,22 @@ describe('findMissing', () => {
   });
   it('is empty when every roster student is complete', () => {
     expect(findMissing(snapshot, roster, new Map([['s1', full], ['s2', full]]))).toEqual([]);
+  });
+  it('by level, counts only the students the teacher has started', () => {
+    expect(findMissing(snapshot, roster, new Map([['s1', full]]), true)).toEqual([]);
+    expect(findMissing(snapshot, roster, new Map([['s1', full]]))).toHaveLength(snapshot.template.questions.length);
+    const partial = findMissing(snapshot, roster, new Map<string, Record<string, unknown>>([['s1', full], ['s2', { attendance: 10 }]]), true);
+    expect(partial.every((m) => m.students.length === 1 && m.students[0].erpId === 's2')).toBe(true);
+    expect(partial).toHaveLength(snapshot.template.questions.length - 1);
+  });
+});
+
+describe('hasMarks', () => {
+  it('is true once any question has a mark on the scale', () => {
+    expect(hasMarks(snapshot, { attendance: 4 })).toBe(true);
+    expect(hasMarks(snapshot, { attendance: 7 })).toBe(false);
+    expect(hasMarks(snapshot, {})).toBe(false);
+    expect(hasMarks(snapshot, undefined)).toBe(false);
   });
 });
 

@@ -294,7 +294,7 @@ export function ClassScreen({
             <div style={{ fontSize: 13, color: 'var(--sv-bronze-text)', fontWeight: 600 }}>অসমাপ্ত রিভিউ</div>
             <div style={{ fontSize: 15, fontWeight: 600 }}>{batchLabel(snapshot, resume)}</div>
             <div style={{ fontSize: 13, color: 'var(--sv-text-muted)' }}>
-              {bn(resume.total)} জনের মধ্যে {bn(resume.done)} জন সম্পন্ন
+              {resume.total ? `${bn(resume.total)} জনের মধ্যে ${bn(resume.done)} জন সম্পন্ন` : 'এখনো কাউকে মার্ক দেননি'}
             </div>
           </div>
           <button
@@ -339,7 +339,7 @@ export function ClassScreen({
               return {
                 value: s.key,
                 label: s.name,
-                note: status?.status === 'submitted' ? '✓ জমা দিয়েছেন' : status ? `◐ খসড়া ${bn(status.done)}/${bn(status.total)}` : undefined,
+                note: status?.status === 'submitted' ? '✓ জমা দিয়েছেন' : status ? `◐ খসড়া${status.total ? ` ${bn(status.done)}/${bn(status.total)}` : ''}` : undefined,
               };
             })}
             onChange={setSubjectKey}
