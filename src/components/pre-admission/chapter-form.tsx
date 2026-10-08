@@ -34,14 +34,22 @@ type Props = {
 
 type Block = { group?: FormSection['groups'][number]; fields: FormField[] };
 
-/** Ungrouped fields first, then each group (in the order set in Sanity) with all of its fields. */
-function blocks(section: FormSection): Block[] {
+/**
+ * Each group (in the order set in Sanity) with its fields. A field without a group (e.g. a question
+ * added in the Studio later) joins the group of the field before it, so it shows next to the
+ * questions it was placed after, under a heading, aligned with the rest.
+ */
+export function blocks(section: FormSection): Block[] {
   const known = new Set(section.groups.map((g) => g.key));
-  const loose = section.fields.filter((f) => !f.group || !known.has(f.group));
-  return [
-    ...(loose.length ? [{ fields: loose }] : []),
-    ...section.groups.map((group) => ({ group, fields: section.fields.filter((f) => f.group === group.key) })).filter((b) => b.fields.length),
-  ];
+  if (!known.size) return [{ fields: section.fields }];
+  const inGroup = (f: FormField) => !!f.group && known.has(f.group);
+  let current = section.fields.find(inGroup)?.group ?? section.groups[0].key;
+  const groupOf = new Map<string, string>();
+  for (const f of section.fields) {
+    if (inGroup(f)) current = f.group!;
+    groupOf.set(f.key, current);
+  }
+  return section.groups.map((group) => ({ group, fields: section.fields.filter((f) => groupOf.get(f.key) === group.key) })).filter((b) => b.fields.length);
 }
 
 /** Runs of half-width fields sit side by side on wider screens. */
@@ -272,7 +280,7 @@ export function ChapterForm({ locale, applicationId, session, section, otherFiel
                     {txt(block.group.description, locale) && <p className="mt-1 text-[13px] leading-normal text-muted-foreground">{txt(block.group.description, locale)}</p>}
                   </div>
                 )}
-                <div className={cn('flex min-w-0 flex-col gap-5 md:flex-[999_1_420px]', !block.group && section.groups.length > 0 && 'md:ml-[300px]', !section.groups.length && 'md:max-w-[640px]')}>
+                <div className={cn('flex min-w-0 flex-col gap-5 md:flex-[999_1_420px]', !section.groups.length && 'md:max-w-[640px]')}>
                   {rows(visible).map((row) => (
                     <div key={row[0].key} className={cn(row.length > 1 && 'grid gap-5 sm:grid-cols-2')}>
                       {row.map((f) => {
