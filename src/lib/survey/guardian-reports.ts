@@ -307,13 +307,13 @@ export async function classGuardian(t1: Round, rounds: Round[], at: Place, optio
   };
 }
 
-/** R4 guardian part and the guardian print: one child's G2 answers, areas, trend and form history. */
+/** R4 guardian part and the guardian print: one child's G2 and G1 answers, areas, trend and form history. */
 export async function studentGuardian(t1: Round, rounds: Round[], erpId: string, place: Place, options: ReportOptions) {
   const { g1, g2 } = resolveRounds(t1, rounds, {});
   const pairs = roundHistory(t1, rounds, { g1, g2 });
   const guardianRounds = rounds.filter((r) => r.kind !== 'T1');
   const [mine, classItems, forms] = await Promise.all([
-    guardianItems(pairs.map((p) => p.g2?.id), options, { erpIds: [erpId] }),
+    guardianItems([...pairs.map((p) => p.g2?.id), g1?.id], options, { erpIds: [erpId] }),
     guardianItems([g2?.id], options, place),
     guardianForms(guardianRounds.map((r) => r.id), { erpId, currentOnly: false }),
   ]);
@@ -322,6 +322,8 @@ export async function studentGuardian(t1: Round, rounds: Round[], erpId: string,
   const keys = areas.map((a) => a.key);
   const classMeans = areaMeans(classItems, keys);
   const form = forms.find((f) => f.roundId === g2?.id && !f.supersededBy);
+  const g1Form = forms.find((f) => f.roundId === g1?.id && !f.supersededBy);
+  const g1Items = mine.filter((i) => i.roundId === g1?.id);
   const roundOf = new Map(guardianRounds.map((r) => [r.id, r]));
   return {
     g2,
@@ -334,6 +336,7 @@ export async function studentGuardian(t1: Round, rounds: Round[], erpId: string,
           const option = q.options.find((o) => o.key === item?.optionKey);
           return {
             label: questionLabel(q),
+            question: q.text,
             answer: !item ? null : (option?.label ?? (item.isNa ? (q.naLabel ?? 'প্রযোজ্য নয়') : item.mark === null ? null : bn(item.mark))),
             mark: item?.mark ?? null,
             unscored: q.unscored,
@@ -341,6 +344,17 @@ export async function studentGuardian(t1: Round, rounds: Round[], erpId: string,
         })
       : [],
     form: form ?? null,
+    /** The class-management review this child's guardian gave: questions × the class's subjects. */
+    g1,
+    g1Form: g1Form ?? null,
+    g1Subjects: g1?.snapshot.classes.find((c) => c.key === place.classKey)?.subjects.map((s) => ({ key: s.key, name: s.name })) ?? [],
+    g1Answers: g1Form
+      ? g1!.snapshot.template.questions.map((q) => ({
+          question: q.text,
+          hint: q.hint ?? null,
+          marks: new Map(g1Items.filter((i) => i.questionKey === q.key).map((i) => [i.subjectKey, i.isNa ? ('na' as const) : i.mark])),
+        }))
+      : [],
     trend: pairs.map((p) => ({ roundId: p.t1.id, label: p.t1.label, mean: childWeightedMean(mine.filter((i) => i.roundId === p.g2?.id)) })),
     log: forms.map((f) => ({ ...f, roundLabel: roundOf.get(f.roundId)?.label ?? '' })),
   };

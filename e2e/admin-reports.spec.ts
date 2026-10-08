@@ -21,8 +21,9 @@ test('finds a student and opens the profile', async ({ page }) => {
   await page.getByLabel('নাম, আইডি বা রোল').fill('zayan');
   await page.getByRole('link', { name: /Zayan Mahmud/ }).click();
   await expect(page.getByRole('heading', { name: 'Zayan Mahmud', level: 1 })).toBeVisible();
-  // Two teacher rounds and an October G2 form → the guardian and teacher trend.
-  await expect(page.getByRole('img', { name: /শিক্ষকের রিভিউ: সেপ্টেম্বর/ })).toBeVisible();
+  // An October G2 form beside the teachers → the comparison; the teacher tab is open first.
+  await expect(page.getByRole('heading', { name: 'তুলনা · শিক্ষক বনাম অভিভাবক' })).toBeVisible();
+  await expect(page.getByRole('row', { name: /^গড়/ }).first()).toBeVisible();
   await expect(page.getByText('ক্লাসে মনোযোগ ভালো, তবে সহপাঠীদের সাথে মাঝে মাঝে ঝগড়া করে।')).toBeVisible();
   await expectAccessible(page);
 });
@@ -64,14 +65,19 @@ test('class page sets guardians beside teachers', async ({ page }) => {
   await expect(page.getByText(/৪\/২০ জনের অভিভাবক/)).toBeVisible();
 });
 
-test('student profile shows the guardian answers and prints a page for the guardian', async ({ page }) => {
+test('student profile shows all three answer sets and prints a page for the guardian', async ({ page }) => {
   await page.goto('/admin/reports');
   await page.getByLabel('নাম, আইডি বা রোল').fill('zayan');
   await page.getByRole('link', { name: /Zayan Mahmud/ }).click();
-  await expect(page.getByRole('heading', { name: /অভিভাবকের উত্তর · অক্টোবর/ })).toBeVisible();
+  await page.getByRole('tab', { name: /অভিভাবক · শিক্ষার্থী/ }).click();
   await expect(page.getByText('উপস্থিতি > ৯০%')).toBeVisible();
-  await expect(page.getByText('মন্তব্য: “বাসায় খুব শান্ত থাকে, মাদরাসা থেকে কোনো অভিযোগ আসেনি।”')).toBeVisible();
-  await expect(page.getByText('মো. মাহমুদুল করিম (পিতা)').first()).toBeVisible();
+  await expect(page.getByText('বাসায় খুব শান্ত থাকে, মাদরাসা থেকে কোনো অভিযোগ আসেনি।')).toBeVisible();
+  await expect(page.getByText(/মো\. মাহমুদুল করিম \(পিতা\)/).first()).toBeVisible();
+  await expectAccessible(page);
+  // The class-management form: question × subject marks and the comment.
+  await page.getByRole('tab', { name: /অভিভাবক · ক্লাস পরিচালনা/ }).click();
+  await expect(page.getByRole('tabpanel').getByRole('columnheader', { name: 'বাংলা' })).toBeVisible();
+  await expect(page.getByText('আলহামদুলিল্লাহ, শিক্ষকরা খুব যত্নশীল।')).toBeVisible();
   await page.screenshot({ path: process.env.SHOT_DIR ? `${process.env.SHOT_DIR}/r4.png` : undefined, fullPage: true });
   await expectAccessible(page);
 
@@ -95,6 +101,7 @@ test('a "not applicable" answer shows its label', async ({ page }) => {
   await page.goto('/admin/reports');
   await page.getByLabel('নাম, আইডি বা রোল').fill('safiya');
   await page.getByRole('link', { name: /Safiya Rahman/ }).click();
+  await page.getByRole('tab', { name: /অভিভাবক · শিক্ষার্থী/ }).click();
   await expect(page.getByText('প্রযোজ্য নয় (ডে কেয়ার)')).toBeVisible();
 });
 
