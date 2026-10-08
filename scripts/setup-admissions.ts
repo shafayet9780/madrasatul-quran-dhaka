@@ -27,16 +27,21 @@ const client = createClient({
 const write = process.argv.includes('--write');
 
 async function main() {
-  const documents = await client.fetch(
-    '*[_id in ["preAdmissionForm", "drafts.preAdmissionForm"]]'
-  );
-  const draft = documents.find((d: any) => d._id === 'drafts.preAdmissionForm');
-  const published = documents.find((d: any) => d._id === 'preAdmissionForm');
+  // The Studio list creates the form with a random ID, so it is found by type. Its draft (if any)
+  // is drafts.<ID>; the live site reads the first published one, which is the one converted.
+  const documents: any[] = await client.fetch('*[_type == "preAdmissionForm"] | order(_updatedAt desc)');
+  const publishedDocs = documents.filter((d) => !d._id.startsWith('drafts.'));
+  if (publishedDocs.length > 1)
+    console.log(`Note: ${publishedDocs.length} published pre-admission forms exist (${publishedDocs.map((d) => d._id).join(', ')}); using ${publishedDocs[0]._id}.`);
+  const published = publishedDocs[0];
+  const draftId = published ? `drafts.${published._id}` : documents.find((d) => d._id.startsWith('drafts.'))?._id;
+  const draft = documents.find((d) => d._id === draftId);
   const base = draft ?? published;
-  if (!base) {
-    console.log('No pre-admission form document exists. Nothing to convert.');
+  if (!base || !draftId) {
+    console.log(`No pre-admission form document exists in ${projectId}/${dataset}. Nothing to convert.`);
     return;
   }
+  console.log(`Form document: ${published?._id ?? '(draft only)'}${draft ? ' (with an unpublished draft, which is used)' : ''}.`);
   if (base.sections?.length) {
     const patches = englishPatches(base.sections, base.declarationText);
     const count = Object.keys(patches).length;
@@ -50,10 +55,10 @@ async function main() {
     }
     if (!draft) {
       const { _rev, _createdAt, _updatedAt, ...rest } = published;
-      await client.createIfNotExists({ ...rest, _id: 'drafts.preAdmissionForm' });
+      await client.createIfNotExists({ ...rest, _id: draftId });
     }
-    const current = await client.getDocument('drafts.preAdmissionForm');
-    await client.patch('drafts.preAdmissionForm').ifRevisionId(current!._rev).setIfMissing(patches).commit();
+    const current = await client.getDocument(draftId);
+    await client.patch(draftId).ifRevisionId(current!._rev).setIfMissing(patches).commit();
     console.log('Added the English texts to the draft. Review and publish in Studio.');
     return;
   }
@@ -90,7 +95,7 @@ async function main() {
     const { _rev, _createdAt, _updatedAt, ...rest } = published;
     await client.create({
       ...rest,
-      _id: 'drafts.preAdmissionForm',
+      _id: draftId,
       sections,
       cycle: published.cycle ?? DEFAULT_CYCLE,
       ...(published.declarationText?.bengali &&

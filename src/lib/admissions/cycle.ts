@@ -96,10 +96,13 @@ export async function loadSnapshot(cycleId: string, version: number): Promise<Fo
   return row?.snapshot ?? null;
 }
 
-/** The Studio draft of the form when there is one, else the published form. */
-const DRAFT_FORM_QUERY = `*[_id in ["drafts.preAdmissionForm", "preAdmissionForm"]] | order(_id asc)[0]{
-  _rev, formSettings{ isEnabled }, declarationText, cycle, sections
-}`;
+/**
+ * The Studio draft of the form when there is one, else the published form. The Studio creates the
+ * document with a random ID, so the draft is found as drafts.<published ID>.
+ */
+const DRAFT_FORM_QUERY = `*[_type == "preAdmissionForm" && !(_id in path("drafts.**"))][0]{
+  "doc": coalesce(*[_id == "drafts." + ^._id][0], @){ _rev, formSettings{ isEnabled }, declarationText, cycle, sections }
+}.doc`;
 
 /**
  * Preview deployments only (ADMISSIONS_PREVIEW_DRAFT=1 on a Vercel preview): the form is read
