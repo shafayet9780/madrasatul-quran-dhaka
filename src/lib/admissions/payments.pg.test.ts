@@ -3,7 +3,7 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { eq, sql } from 'drizzle-orm';
 import { syncCycle, type CycleState } from './cycle';
 import { createDraft, getByToken, saveDraft, submitDraft, type Application } from './drafts';
-import { closePayment, confirmPayment, latestPayment, reconcilePending, startPayment } from './payments';
+import { closePayment, completeAfterResubmit, confirmPayment, latestPayment, reconcilePending, startPayment } from './payments';
 import { retryConfirmationEmails, sendConfirmationEmail, type MailMessage } from './mail';
 import { applicationEvents, applications, payments } from './schema';
 import type { FormDocument } from './snapshot';
@@ -195,6 +195,18 @@ describe('closing and reconciling attempts', () => {
     expect((await latestPayment(b.app.id))!.status).toBe('failed');
     expect((await latestPayment(c.app.id))!.status).toBe('failed');
   });
+
+  it('the daily job finds a slow payment that succeeded after the browser came back on the fail page', async () => {
+    const { app, token } = await submitted();
+    const p = await pay(app);
+    await closePayment(p.tranId, 'failed', gateway); // SSLCommerz has no record yet
+    expect((await latestPayment(app.id))!.status).toBe('failed');
+    gateway.complete(p.tranId, 'pay'); // the mobile payment goes through later; the IPN is lost
+    const paid: string[] = [];
+    expect(await reconcilePending(30, 50, gateway, 25_000, (id) => paid.push(id))).toEqual({ paid: 1 });
+    expect(paid).toEqual([app.id]);
+    expect((await getByToken(token))!.publicRef).toBe('KG-001');
+  });
 });
 
 describe('recovery', () => {
@@ -205,6 +217,26 @@ describe('recovery', () => {
     await db.update(payments).set({ status: 'valid' }).where(eq(payments.id, p.id));
     expect(await confirmPayment(p.tranId, val, 'ipn', gateway)).toMatchObject({ outcome: 'paid', publicRef: 'KG-001' });
     expect((await getByToken(token))!.status).toBe('paid');
+  });
+});
+
+describe('reopened during checkout', () => {
+  it('a payment completing while the form is back in draft gives the ID only after it is submitted again', async () => {
+    const { app, token } = await submitted();
+    const p = await pay(app);
+    // The guardian edits (back to draft) and leaves a required answer empty, then the payment lands.
+    await saveDraft(app, cycle.snapshot, { father_name: '' });
+    expect((await getByToken(token))!.status).toBe('draft');
+    expect((await confirmPayment(p.tranId, gateway.complete(p.tranId, 'pay')!, 'ipn', gateway)).outcome).toBe('needs_attention');
+    let row = (await getByToken(token))!;
+    expect(row).toMatchObject({ status: 'draft', publicRef: null });
+    expect(await completeAfterResubmit(app.id)).toMatchObject({ outcome: 'needs_attention' });
+
+    await saveDraft(row, cycle.snapshot, { father_name: 'রফিক' });
+    row = (await getByToken(token))!;
+    expect((await submitDraft(row, cycle.snapshot, true)).ok).toBe(true);
+    expect(await completeAfterResubmit(app.id)).toMatchObject({ outcome: 'paid', publicRef: 'KG-001' });
+    expect((await getByToken(token))!).toMatchObject({ status: 'paid', publicRef: 'KG-001' });
   });
 });
 

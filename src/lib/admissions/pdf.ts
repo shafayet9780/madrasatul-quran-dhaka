@@ -11,6 +11,7 @@ import { latestPayment } from './payments';
 import { applicationHtml, footerTemplate, type PdfData } from './pdf-html';
 import { applications } from './schema';
 import { blobStore, type BlobStore } from './uploads';
+import { isOwnKey } from './files';
 
 // The application PDF: HTML (pdf-html.ts) printed by headless Chromium, so Bengali conjuncts in
 // names are shaped correctly. Made once after payment, kept in the private store (pdf_key), and
@@ -77,7 +78,7 @@ export async function pdfData(app: Application, snapshot: FormSnapshot, origin: 
   const photos: Record<string, string> = {};
   for (const f of snapshot.sections.flatMap((s) => s.fields)) {
     const v = app.answers[f.key] as FileAnswer | undefined;
-    if (f.type === 'file' && f.fileKind === 'photo' && v?.key?.startsWith(`admissions/${app.id}/`)) {
+    if (f.type === 'file' && f.fileKind === 'photo' && v?.key && isOwnKey(app.id, v.key)) {
       const uri = await streamToDataUri(store, v.key);
       if (uri) photos[f.key] = uri;
     }
@@ -130,7 +131,8 @@ export const pdfFileName = (publicRef: string) => `application-${publicRef}.pdf`
  */
 export async function ensureApplicationPdf(app: Application, snapshot: FormSnapshot, origin: string, store = blobStore()): Promise<{ key: string; bytes?: Uint8Array }> {
   if (!app.publicRef) throw new Error('The application is not paid yet');
-  if (app.pdfKey && (await store.get(app.pdfKey).catch(() => null))) return { key: app.pdfKey };
+  const stored = app.pdfKey ? await readStoredPdf(app.pdfKey, store) : null;
+  if (app.pdfKey && stored) return { key: app.pdfKey, bytes: stored };
   const bytes = await renderPdf(await pdfData(app, snapshot, origin, store));
   const key = `admissions/${app.id}/${pdfFileName(app.publicRef)}`;
   await store.put(key, bytes, 'application/pdf', { overwrite: true });

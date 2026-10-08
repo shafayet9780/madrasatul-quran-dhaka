@@ -10,6 +10,7 @@ import { parseApplicationId } from './ids';
 import { normaliseMobile, toAsciiDigits } from './normalise';
 import { admissionCycles, applicationEvents, applications, payments } from './schema';
 import { blobStore, type BlobStore } from './uploads';
+import { isOwnKey } from './files';
 
 // Admin queries and changes for /admin/admissions. Every server action that calls a change here
 // first calls assertAdmin() (src/app/admin/admissions/actions.ts).
@@ -177,19 +178,37 @@ export async function addNote(id: string, text: string): Promise<boolean> {
 
 /**
  * Deletes an application that was never paid: its answers, uploaded documents and payment
- * attempts. The activity log keeps a "deleted" entry (application_id becomes null).
+ * attempts. The activity log keeps a "deleted" entry (application_id becomes null). Refused while
+ * a payment is settled, held, or still open on the SSLCommerz page (less than two hours old).
  */
-export async function deleteUnpaid(id: string, store: BlobStore = blobStore()): Promise<'deleted' | 'not_found' | 'paid'> {
+export async function deleteUnpaid(id: string, store: BlobStore = blobStore()): Promise<'deleted' | 'not_found' | 'paid' | 'paying'> {
   const db = getAdmissionsDb();
   const [app] = await db.select().from(applications).where(eq(applications.id, id));
   if (!app) return 'not_found';
-  const settled = await db.select({ id: payments.id }).from(payments).where(and(eq(payments.applicationId, id), inArray(payments.status, ['valid', 'held'])));
-  if (app.publicRef || settled.length) return 'paid';
+  if (app.publicRef) return 'paid';
+  const [open] = await db
+    .select({ id: payments.id })
+    .from(payments)
+    .where(and(eq(payments.applicationId, id), eq(payments.status, 'initiated'), sql`${payments.createdAt} > now() - interval '2 hours'`))
+    .limit(1);
+  if (open) return 'paying';
+  // One statement decides: no ID and no settled or held payment at the moment of deletion.
+  const [gone] = await db
+    .delete(applications)
+    .where(
+      and(
+        eq(applications.id, id),
+        isNull(applications.publicRef),
+        sql`NOT EXISTS (SELECT 1 FROM payments p WHERE p.application_id = ${id} AND p.status IN ('valid', 'held'))`,
+      ),
+    )
+    .returning({ id: applications.id });
+  if (!gone) return 'paid';
+  await logEvent(null, label(app), 'deleted', 'admin', { mobile: app.primaryMobile, student: app.studentNameBn });
+  // Files go after the row, so a payment that won the race keeps its documents.
   const files = Object.values(app.answers).filter((v): v is FileAnswer => !!v && typeof v === 'object' && !Array.isArray(v) && typeof (v as FileAnswer).key === 'string');
-  for (const f of files) if (f.key.startsWith(`admissions/${id}/`)) await store.del(f.key).catch(() => {});
+  for (const f of files) if (isOwnKey(id, f.key)) await store.del(f.key).catch(() => {});
   if (app.pdfKey) await store.del(app.pdfKey).catch(() => {});
-  await logEvent(id, label(app), 'deleted', 'admin', { mobile: app.primaryMobile, student: app.studentNameBn });
-  await db.delete(applications).where(and(eq(applications.id, id), isNull(applications.publicRef)));
   return 'deleted';
 }
 

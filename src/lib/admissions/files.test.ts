@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { MAX_BYTES, checkUpload, sniffFileType } from './files';
+import { MAX_BYTES, checkUpload, isOwnKey, sniffFileType } from './files';
 import { fieldWithRole } from './form-config';
 import { sampleSnapshot } from './testing/fixtures';
 
@@ -34,5 +34,19 @@ describe('checkUpload', () => {
     expect(checkUpload(photo, big)).toEqual({ ok: false, error: 'too_large' });
     expect(checkUpload(photo, bytes())).toEqual({ ok: false, error: 'empty' });
     expect(checkUpload(fieldWithRole(snap, 'fatherName'), bytes(0xff, 0xd8, 0xff))).toEqual({ ok: false, error: 'not_a_file_field' });
+  });
+});
+
+describe('isOwnKey', () => {
+  const id = '0b5e4a3c-1d2f-4e5a-9b8c-7d6e5f4a3b2c';
+  it('accepts one file name in the application folder', () => {
+    expect(isOwnKey(id, `admissions/${id}/student_photo-Ab_9-x.jpg`)).toBe(true);
+    expect(isOwnKey(id, `admissions/${id}/application-KG-001.pdf`)).toBe(true);
+  });
+  it('refuses other folders and path tricks', () => {
+    expect(isOwnKey(id, `admissions/other/student_photo-x.jpg`)).toBe(false);
+    expect(isOwnKey(id, `admissions/${id}/../other/student_photo-x.jpg`)).toBe(false);
+    expect(isOwnKey(id, `admissions/${id}/a/b.jpg`)).toBe(false);
+    expect(isOwnKey(id, `admissions/${id}/%2e%2e.jpg`)).toBe(false);
   });
 });

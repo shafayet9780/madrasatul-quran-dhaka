@@ -144,7 +144,9 @@ export function judgeTransaction(t: GatewayTransaction | null, expected: { tranI
   const status = String(t.status ?? '').toUpperCase();
   if (status !== 'VALID' && status !== 'VALIDATED') return 'not_valid';
   const currency = String(t.currency_type || t.currency || '').toUpperCase();
-  if (String(t.tran_id ?? '').trim() !== expected.tranId || Math.abs(Number(t.amount) - expected.amount) > 0.005 || currency !== 'BDT') return 'mismatch';
+  // Another transaction's val_id (e.g. a forged callback) says nothing about this payment.
+  if (String(t.tran_id ?? '').trim() !== expected.tranId) return 'not_valid';
+  if (Math.abs(Number(t.amount) - expected.amount) > 0.005 || currency !== 'BDT') return 'mismatch';
   return String(t.risk_level ?? '0') === '1' ? 'risky' : 'valid';
 }
 

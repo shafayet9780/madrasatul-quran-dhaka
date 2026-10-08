@@ -9,6 +9,7 @@ import { OFFICE_STATUSES } from '@/lib/admissions/admin-labels';
 import { parseApplicationId } from '@/lib/admissions/ids';
 import { toBengaliDigits } from '@/lib/admissions/normalise';
 import { sendConfirmationEmail } from '@/lib/admissions/mail';
+import { afterPaid } from '@/lib/admissions/after-paid';
 import { acceptHeldPayment } from '@/lib/admissions/payments';
 import { fieldWithRole } from '@/lib/admissions/form-config';
 import { copyPendingToSheet } from '@/lib/admissions/sheet-copy';
@@ -63,6 +64,7 @@ export async function deleteUnpaidAction(appId: string, back?: 'list'): Promise<
   if (!id.safeParse(appId).success) return BAD_REQUEST;
   const result = await deleteUnpaid(appId);
   if (result === 'paid') return { ok: false, error: 'পরিশোধিত (বা যাচাইয়ের অপেক্ষায় থাকা) আবেদন মুছে ফেলা যায় না।' };
+  if (result === 'paying') return { ok: false, error: 'অভিভাবক এখন পেমেন্ট পাতায় আছেন। দুই ঘণ্টা পরে আবার চেষ্টা করুন।' };
   revalidatePath('/admin/admissions', 'layout');
   if (back === 'list') return { ok: true, message: 'আবেদনটি মুছে ফেলা হয়েছে।' };
   redirect('/admin/admissions/unpaid?deleted=1');
@@ -71,10 +73,9 @@ export async function deleteUnpaidAction(appId: string, back?: 'list'): Promise<
 export async function acceptHeldAction(appId: string, paymentId: string): Promise<Result> {
   await assertAdmin();
   if (!id.safeParse(appId).success || !id.safeParse(paymentId).success) return BAD_REQUEST;
-  const result = await acceptHeldPayment(paymentId);
+  const result = await acceptHeldPayment(paymentId, appId);
   if (result.outcome !== 'paid') return { ok: false, error: 'পেমেন্টটি আর যাচাইয়ের অপেক্ষায় নেই, অথবা আইডি দেওয়া যায়নি। কার্যক্রম দেখুন।' };
-  const origin = await requestOrigin();
-  after(() => sendConfirmationEmail(appId, origin).catch((e) => console.error('Admissions: confirmation email failed', e)));
+  afterPaid(appId, await requestOrigin());
   refresh(appId);
   return { ok: true, message: `আইডি ${result.publicRef} দেওয়া হয়েছে।` };
 }

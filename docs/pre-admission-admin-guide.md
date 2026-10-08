@@ -24,7 +24,7 @@ Totals (paid, fee pending, new today, evaluation fees received), paid applicatio
 - **Search** by ID (typed any way: `kg 17`, `KG-017`), the child's name in Bengali or English, or any part of the guardian's mobile.
 - **Filters**: শ্রেণী, অবস্থা, মূল্যায়ন ফি (paid list); শ্রেণী and ধাপ (fee pending). Filters and search are in the address, so a filtered list can be bookmarked or shared with a colleague.
 - **Bulk change** (paid list): tick rows, choose the new status, **প্রয়োগ করুন**. **আবেদনপত্র PDF** downloads the ticked applications' PDFs as one file for printing (up to 25 at a time). If it says the PDFs are still being made, wait a minute and press it again.
-- **Fee pending**: shows how far each form got, when the guardian was last active, and the payment attempts (*ব্যর্থ, ১ বার* = one failed attempt). Tap the mobile number to call. **মুছুন** deletes an application that was never paid, with its uploaded documents; this cannot be undone, and the activity log keeps a record that it was deleted. A paid application, or one whose payment is waiting for review, can never be deleted.
+- **Fee pending**: shows how far each form got, when the guardian was last active, and the payment attempts (*ব্যর্থ, ১ বার* = one failed attempt). Tap the mobile number to call. **মুছুন** deletes an application that was never paid, with its uploaded documents; this cannot be undone, and the activity log keeps a record that it was deleted. A paid application, or one whose payment is waiting for review, can never be deleted; while the guardian is on the payment page (an attempt less than two hours old), deleting waits.
 
 ## One application
 

@@ -13,7 +13,8 @@ import { loadById, type Application } from '@/lib/admissions/drafts';
 import { fieldWithRole, type FormSnapshot } from '@/lib/admissions/form-config';
 import { flowPath } from '@/lib/admissions/pages';
 import { latestPayment, paymentGateway, reconcilePayment, type Payment } from '@/lib/admissions/payments';
-import { currentApplication } from '@/lib/admissions/session';
+import { currentApplication, siteOrigin } from '@/lib/admissions/session';
+import { afterPaid } from '@/lib/admissions/after-paid';
 
 type Props = { params: Promise<{ locale: string }>; searchParams: Promise<{ payment?: string }> };
 
@@ -44,7 +45,8 @@ export default async function StatusPage({ params, searchParams }: Props) {
   // A payment still open: ask SSLCommerz what happened before showing anything.
   let payment = await latestPayment(app.id);
   if (app.status === 'unpaid' && payment?.status === 'initiated') {
-    await reconcilePayment(payment).catch((e) => console.error('Admissions: reconcile on status page failed', e));
+    const settled = await reconcilePayment(payment).catch((e) => console.error('Admissions: reconcile on status page failed', e));
+    if (settled?.outcome === 'paid') afterPaid(app.id, await siteOrigin());
     app = (await loadById(app.id))?.app ?? app;
     payment = await latestPayment(app.id);
   }

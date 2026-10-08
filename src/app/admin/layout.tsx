@@ -12,9 +12,10 @@ export const metadata: Metadata = {
 };
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
+  const [data, admissions] = await Promise.all([shellData(), admissionsNav()]);
   return (
     <div className={`sv-root sv-admin ${surveyFontVariables}`}>
-      <AdminShell data={await shellData()} admissions={await admissionsNav()}>
+      <AdminShell data={data} admissions={admissions}>
         {children}
       </AdminShell>
     </div>

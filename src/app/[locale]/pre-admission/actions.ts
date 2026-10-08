@@ -5,14 +5,15 @@ import { after } from 'next/server';
 import { getCurrentCycle } from '@/lib/admissions/cycle';
 import { createHash } from 'node:crypto';
 import { parseIsoDate } from '@/lib/admissions/age';
-import { createDraft, findApplications, getByToken, saveDraft, submitDraft } from '@/lib/admissions/drafts';
+import { createDraft, findApplications, getByToken, loadById, saveDraft, submitDraft } from '@/lib/admissions/drafts';
 import { sendResumeEmail } from '@/lib/admissions/mail';
 import { asLocale, txt } from '@/lib/admissions/display';
 import { fieldWithRole } from '@/lib/admissions/form-config';
 import { parseApplicationId } from '@/lib/admissions/ids';
 import { normaliseMobile } from '@/lib/admissions/normalise';
 import { flowPath } from '@/lib/admissions/pages';
-import { startPayment } from '@/lib/admissions/payments';
+import { afterPaid } from '@/lib/admissions/after-paid';
+import { completeAfterResubmit, startPayment } from '@/lib/admissions/payments';
 import { currentApplication, foundIds, grantApplication, rememberFound, setSessionToken, siteOrigin, withinLimit } from '@/lib/admissions/session';
 
 export type StartState = { errors?: { mobile?: 'invalid_mobile'; email?: 'invalid_email' }; message?: 'closed' | 'rateLimited' | 'failed' };
@@ -69,11 +70,21 @@ export async function saveAnswers(patch: Record<string, unknown>): Promise<SaveR
   }
 }
 
-export type SubmitState = { message?: 'declaration' | 'invalid' | 'rateLimited' | 'failed' };
+export type SubmitState = { message?: 'declaration' | 'invalid' | 'closed' | 'rateLimited' | 'failed' };
+
+/**
+ * Submitting stops at the deadline or when the office turns the form off. An application submitted
+ * in time can still be paid for afterwards (e.g. a payment that failed at the last minute).
+ */
+async function formOpen(): Promise<boolean> {
+  const cycle = await getCurrentCycle();
+  return !!cycle && cycle.enabled && cycle.window === 'open';
+}
 
 /** Opens SSLCommerz for the application on this device; a null URL means "show the status page". */
-async function checkoutUrl(locale: string): Promise<string> {
-  const current = await currentApplication();
+async function checkoutUrl(locale: string, applicationId?: string): Promise<string> {
+  // openFound passes the found application: the grant cookie it just set is for the next request.
+  const current = applicationId ? await loadById(applicationId) : await currentApplication();
   if (!current) return flowPath(locale, '/start');
   const started = await startPayment(current.app, current.snapshot, await siteOrigin());
   if (started.ok) return started.gatewayUrl;
@@ -88,11 +99,15 @@ export async function submitApplication(localeParam: string, _prev: SubmitState,
     if (!(await withinLimit('submit'))) return { message: 'rateLimited' };
     const current = await currentApplication();
     if (!current) redirect(flowPath(locale, '/start'));
+    if (!(await formOpen())) return { message: 'closed' };
     const result = await submitDraft(current.app, current.snapshot, form.get('declared') === 'yes');
     if (!result.ok) {
       if (result.reason === 'locked') redirect(flowPath(locale, '/status'));
       return { message: result.reason };
     }
+    // Paid during checkout while reopened for editing: the ID is given now.
+    const completed = await completeAfterResubmit(current.app.id);
+    if (completed?.outcome === 'paid') afterPaid(current.app.id, await siteOrigin());
     next = await checkoutUrl(locale);
   } catch (e) {
     unstable_rethrow(e);
@@ -149,7 +164,8 @@ export async function findApplication(localeParam: string, _prev: FindState, for
     if (errors.query || errors.dob) return { errors };
     if (!(await withinLimit('find'))) return { message: 'rateLimited' };
     const value = ref ?? mobile!;
-    if (!(await withinLimit('findValue', createHash('sha256').update(value).digest('hex').slice(0, 32)))) return { message: 'rateLimited' };
+    const valueKey = createHash('sha256').update(value).digest('hex').slice(0, 32);
+    if (!(await withinLimit('findValue', valueKey)) || !(await withinLimit('findValueDay', valueKey))) return { message: 'rateLimited' };
 
     const found = await findApplications(cycle.cycleId, ref ? { publicRef: ref } : { mobile: mobile! }, dob);
     if (!found.length) return { message: 'none' };
@@ -182,7 +198,7 @@ export async function openFound(localeParam: string, form: FormData): Promise<vo
   if (to === 'pay') {
     let next: string;
     try {
-      next = await checkoutUrl(locale);
+      next = await checkoutUrl(locale, id);
     } catch (e) {
       console.error('Admissions: payment start failed', e);
       next = flowPath(locale, '/status?payment=unavailable');

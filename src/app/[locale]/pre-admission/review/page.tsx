@@ -7,7 +7,7 @@ import { ReviewSubmit } from '@/components/pre-admission/review-submit';
 import { answerText } from '@/lib/admissions/answer-text';
 import { chapterStatus, isVisible, type FileAnswer } from '@/lib/admissions/answers';
 import { asLocale, num, taka, txt } from '@/lib/admissions/display';
-import { findDuplicates } from '@/lib/admissions/drafts';
+import { countOtherApplications } from '@/lib/admissions/drafts';
 import { guardianSections, type FormField } from '@/lib/admissions/form-config';
 import { flowPath, requireDraft } from '@/lib/admissions/pages';
 
@@ -27,7 +27,7 @@ export default async function ReviewPage({ params }: Props) {
   const { settings } = snapshot;
   const chapters = guardianSections(snapshot);
   const incomplete = chapters.filter((s) => chapterStatus(s, app.answers).status !== 'done');
-  const duplicates = incomplete.length ? [] : await findDuplicates(app).catch(() => []);
+  const others = incomplete.length ? 0 : await countOtherApplications(app).catch(() => 0);
   const labels = {
     yes: t('chapter.yes'),
     no: t('chapter.no'),
@@ -121,9 +121,9 @@ export default async function ReviewPage({ params }: Props) {
 
         {incomplete.length === 0 && (
           <aside className="w-full lg:sticky lg:top-26 lg:max-w-[380px] lg:flex-[1_1_320px] lg:pt-20">
-            {duplicates.length > 0 && (
+            {others > 0 && (
               <p role="status" className="mb-3 rounded-lg border bg-card p-3 text-[13.5px] leading-relaxed">
-                {duplicates[0].publicRef ? t('review.duplicate', { ref: duplicates[0].publicRef }) : t('review.duplicateNoRef')}
+                {t('review.duplicate')}
               </p>
             )}
             <ReviewSubmit

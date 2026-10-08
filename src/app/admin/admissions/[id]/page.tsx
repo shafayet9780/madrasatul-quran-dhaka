@@ -15,6 +15,7 @@ import { PageTop } from '../../AdminShell';
 import { DeleteUnpaid } from '../ListControls';
 import { AcceptHeld, EvaluationSwitches, NoteForm, ResendEmail, StatusForm } from '../DetailControls';
 import { AdmBody, Card, LAT, StatusBadge } from '../ui';
+import { isOwnKey } from '@/lib/admissions/files';
 
 export const metadata: Metadata = { title: 'আবেদন' };
 export const dynamic = 'force-dynamic';
@@ -54,7 +55,7 @@ export default async function ApplicationPage({ params, searchParams }: Props) {
     .flatMap((s) => s.fields)
     .filter((f) => f.type === 'file' && app.answers[f.key])
     .map((f) => ({ label: txt(f.label, 'bengali'), file: app.answers[f.key] as FileAnswer }))
-    .filter((d) => d.file.key?.startsWith(`admissions/${app.id}/`));
+    .filter((d) => !!d.file.key && isOwnKey(app.id, d.file.key));
   const notes = events.filter((e) => e.kind === 'note');
   const log = events.filter((e) => e.kind !== 'note');
 

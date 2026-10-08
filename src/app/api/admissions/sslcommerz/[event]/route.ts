@@ -1,9 +1,8 @@
-import { NextResponse, after, type NextRequest } from 'next/server';
+import { NextResponse, type NextRequest } from 'next/server';
 import { eq } from 'drizzle-orm';
 import { getAdmissionsDb } from '@/lib/admissions/db';
-import { sendConfirmationEmail } from '@/lib/admissions/mail';
+import { afterPaid } from '@/lib/admissions/after-paid';
 import { closePayment, confirmPayment, type SettleResult } from '@/lib/admissions/payments';
-import { copyPendingToSheet } from '@/lib/admissions/sheet-copy';
 import { applications } from '@/lib/admissions/schema';
 import { sslConfigFromEnv, verifyIpnSignature } from '@/lib/admissions/sslcommerz';
 
@@ -13,12 +12,9 @@ import { sslConfigFromEnv, verifyIpnSignature } from '@/lib/admissions/sslcommer
 
 const EVENTS = new Set(['success', 'fail', 'cancel', 'ipn']);
 
-/** Once paid: make the PDF and email it, and copy to the Sheet, after the response (the guardian does not wait). */
-function afterPaid(result: SettleResult, origin: string) {
-  if (result.outcome !== 'paid' || !result.applicationId) return;
-  const id = result.applicationId;
-  after(() => sendConfirmationEmail(id, origin).then((r) => !r.ok && console.warn('Admissions: confirmation email not sent', r)).catch((e) => console.error('Admissions: confirmation email failed', e)));
-  after(() => copyPendingToSheet({ limit: 10, budgetMs: 15_000 }).catch(() => undefined));
+/** Once paid: the confirmation email and the Sheet row, after the response. */
+function onSettled(result: SettleResult, origin: string) {
+  if (result.outcome === 'paid' && result.applicationId) afterPaid(result.applicationId, origin);
 }
 
 async function formFields(request: NextRequest): Promise<Record<string, string>> {
@@ -59,14 +55,14 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
         ? await confirmPayment(tranId, post.val_id, 'ipn')
         : await closePayment(tranId, status === 'CANCELLED' ? 'cancelled' : 'failed');
     console.info('Admissions: IPN', { tranId, status, outcome: result.outcome });
-    afterPaid(result, request.nextUrl.origin);
+    onSettled(result, request.nextUrl.origin);
     return new NextResponse(result.outcome, { status: result.outcome === 'unreachable' ? 503 : 200 });
   }
 
   if (!tranId) return NextResponse.redirect(new URL('/bengali/pre-admission', request.url), 303);
   if (event === 'success') {
     const result = post.val_id ? await confirmPayment(tranId, post.val_id, 'return') : await closePayment(tranId, 'failed');
-    afterPaid(result, request.nextUrl.origin);
+    onSettled(result, request.nextUrl.origin);
     return backToStatus(request, result);
   }
   const result = await closePayment(tranId, event === 'cancel' ? 'cancelled' : 'failed');

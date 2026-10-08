@@ -846,6 +846,7 @@
     "notGiven": "Not given",
     "failed": "Something went wrong. Please try again.",
     "rateLimited": "Too many attempts. Please try again in a few minutes.",
+    "closed": "Applications have closed, so this form can no longer be submitted. Please contact the office if you need help.",
     "intro": {
       "metaTitle": "Pre-admission application {session}",
       "metaDescription": "Apply online for pre-admission to Madrasatul Quran for the {session} session.",
@@ -1024,8 +1025,7 @@
       "declarationNeeded": "Tick the declaration to pay",
       "pay": "Pay {fee}",
       "submitting": "Submitting",
-      "duplicate": "There is another application for the same student from this number ({ref}). Unless you need two, continue that one.",
-      "duplicateNoRef": "Another application for the same student was started from this number. Unless you need two, keep only one."
+      "duplicate": "This mobile number already has another application this session. If it is for the same student, open it from “Find my application” instead of applying twice. If it is for a brother or sister, carry on."
     },
     "status": {
       "submittedTitle": "Application submitted",

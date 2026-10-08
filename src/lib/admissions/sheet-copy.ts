@@ -25,14 +25,28 @@ const isPending = (now: Date) =>
     or(isNull(applications.mirrorClaimedAt), lt(applications.mirrorClaimedAt, new Date(now.getTime() - CLAIM_TTL_MS))),
   );
 
-/** Creates the tab when missing, writes the header (the form may have changed), returns ID → row. */
-async function prepareTab(spreadsheetId: string, title: string, header: string[]): Promise<Map<string, number>> {
+/**
+ * Creates the tab when missing and returns ID → row. When the form's columns changed, the header
+ * is rewritten and every application of the cycle is queued again, so no row sits under the
+ * wrong titles.
+ */
+async function prepareTab(spreadsheetId: string, cycleId: string, title: string, header: string[]): Promise<Map<string, number>> {
   const sheets = getSheetsClient();
   const meta = await sheets.spreadsheets.get({ spreadsheetId, fields: 'sheets.properties.title' });
   if (!meta.data.sheets?.some((s) => s.properties?.title === title)) {
     await sheets.spreadsheets.batchUpdate({ spreadsheetId, requestBody: { requests: [{ addSheet: { properties: { title, gridProperties: { frozenRowCount: 1 } } } }] } });
   }
-  await sheets.spreadsheets.values.update({ spreadsheetId, range: `'${title}'!A1`, valueInputOption: 'RAW', requestBody: { values: [header] } });
+  const current = await sheets.spreadsheets.values.get({ spreadsheetId, range: `'${title}'!1:1` });
+  const existing = (current.data.values?.[0] ?? []).map(String);
+  if (existing.join('\u0000') !== header.join('\u0000')) {
+    await sheets.spreadsheets.values.update({ spreadsheetId, range: `'${title}'!A1`, valueInputOption: 'RAW', requestBody: { values: [header] } });
+    if (existing.length) {
+      await getAdmissionsDb()
+        .update(applications)
+        .set({ mirroredAt: null })
+        .where(and(eq(applications.cycleId, cycleId), isNotNull(applications.publicRef)));
+    }
+  }
   const ids = await sheets.spreadsheets.values.get({ spreadsheetId, range: `'${title}'!A:A` });
   const rows = new Map<string, number>();
   (ids.data.values ?? []).forEach((r, i) => {
@@ -65,7 +79,7 @@ export async function copyPendingToSheet({ limit = 100, budgetMs = 20_000 }: { l
         if (!cycle || !snapshot) tabs.set(cycleId, null);
         else {
           const title = sheetTabName(cycle.session);
-          tabs.set(cycleId, { title, snapshot, rows: await prepareTab(spreadsheetId, title, exportHeader(snapshot)) });
+          tabs.set(cycleId, { title, snapshot, rows: await prepareTab(spreadsheetId, cycle.id, title, exportHeader(snapshot)) });
         }
       }
       const tab = tabs.get(cycleId);

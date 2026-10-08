@@ -42,6 +42,12 @@ export function checkUpload(field: FormField | undefined, bytes: Uint8Array): Up
 }
 
 /** Private store path: everything for an application sits under its own folder. */
+/** A document key inside this application's folder: one plain file name, so no `..` or sub-paths. */
+export function isOwnKey(applicationId: string, key: string): boolean {
+  const prefix = `admissions/${applicationId}/`;
+  return key.startsWith(prefix) && /^[A-Za-z0-9_-]+(\.[a-z]{3,4})?$/.test(key.slice(prefix.length));
+}
+
 export function documentPath(applicationId: string, fieldKey: string, type: SniffedType, random: string): string {
   return `admissions/${applicationId}/${fieldKey}-${random}.${EXTENSION[type]}`;
 }

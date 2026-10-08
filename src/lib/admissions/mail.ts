@@ -1,7 +1,7 @@
 import 'server-only';
-import { and, eq, isNull, lt, isNotNull } from 'drizzle-orm';
+import { and, desc, eq, inArray, isNotNull, isNull, lt, or } from 'drizzle-orm';
 import { getAdmissionsDb } from './db';
-import { dateTime, type Locale } from './display';
+import { asLocale, dateTime } from './display';
 import { label, logEvent, type Application } from './drafts';
 import { loadSnapshot } from './cycle';
 import { localOverrides } from './local';
@@ -49,8 +49,6 @@ export function mailer(): Mailer | null {
     }
   };
 }
-
-const asLocale = (value: string): Locale => (value === 'english' ? 'english' : 'bengali');
 
 /** Start page: the resume link (the token is known only now, so this is not retried). */
 export async function sendResumeEmail(app: Application, token: string, origin: string, send = mailer()): Promise<MailResult> {
@@ -108,14 +106,30 @@ export async function sendConfirmationEmail(applicationId: string, origin: strin
   return result;
 }
 
-/** Daily job: confirmations not sent yet (paid more than 10 minutes ago), within `budgetMs`. */
-export async function retryConfirmationEmails(origin: string, budgetMs = 20_000, send = mailer()): Promise<{ sent: number; failed: number } | { skipped: string }> {
+/**
+ * Daily job: confirmations not sent yet, within `budgetMs`. `include` are applications the same run
+ * just settled; others must have been paid more than 10 minutes ago (their after-payment email may
+ * still be on its way). Newest first, so a few addresses that always fail cannot hold the rest back.
+ */
+export async function retryConfirmationEmails(
+  origin: string,
+  budgetMs = 20_000,
+  send = mailer(),
+  include: string[] = [],
+): Promise<{ sent: number; failed: number } | { skipped: string }> {
   if (!send) return { skipped: 'email is not configured' };
   const stopAt = Date.now() + budgetMs;
   const due = await getAdmissionsDb()
     .select({ id: applications.id })
     .from(applications)
-    .where(and(isNotNull(applications.publicRef), isNull(applications.confirmationEmailAt), lt(applications.paidAt, new Date(Date.now() - 10 * 60 * 1000))))
+    .where(
+      and(
+        isNotNull(applications.publicRef),
+        isNull(applications.confirmationEmailAt),
+        or(lt(applications.paidAt, new Date(Date.now() - 10 * 60 * 1000)), include.length ? inArray(applications.id, include) : undefined),
+      ),
+    )
+    .orderBy(desc(applications.paidAt))
     .limit(30);
   let sent = 0;
   let failed = 0;

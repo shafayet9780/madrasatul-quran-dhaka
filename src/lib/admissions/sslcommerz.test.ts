@@ -84,7 +84,7 @@ describe('judgeTransaction', () => {
     expect(judgeTransaction(ok, { tranId: 'T1', amount: 500 })).toBe('valid');
     expect(judgeTransaction({ ...ok, status: 'VALIDATED' }, { tranId: 'T1', amount: 500 })).toBe('valid');
     expect(judgeTransaction({ ...ok, amount: '5.00' }, { tranId: 'T1', amount: 500 })).toBe('mismatch');
-    expect(judgeTransaction({ ...ok, tran_id: 'T2' }, { tranId: 'T1', amount: 500 })).toBe('mismatch');
+    expect(judgeTransaction({ ...ok, tran_id: 'T2' }, { tranId: 'T1', amount: 500 })).toBe('not_valid');
     expect(judgeTransaction({ ...ok, currency: 'USD' }, { tranId: 'T1', amount: 500 })).toBe('mismatch');
     expect(judgeTransaction({ ...ok, status: 'INVALID_TRANSACTION' }, { tranId: 'T1', amount: 500 })).toBe('not_valid');
     expect(judgeTransaction({ ...ok, risk_level: '1' }, { tranId: 'T1', amount: 500 })).toBe('risky');

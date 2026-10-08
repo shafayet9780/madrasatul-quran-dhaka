@@ -206,7 +206,7 @@ function checkClassOptions(where: string, f: RawField): string[] {
     if (!o.code || !CLASS_CODE.test(o.code)) problems.push(`${where} → ${name}: add a class code of 1–4 capital letters or digits, starting with a letter (e.g. KG, N, C1).`);
     else if (codes.has(o.code)) problems.push(`${where} → ${name}: class code “${o.code}” is used twice.`);
     else codes.add(o.code);
-    if (o.ageMin != null && o.ageMax != null && o.ageMin > o.ageMax) problems.push(`${where} → ${name}: minimum age is above maximum age.`);
+    if (o.ageMin != null && o.ageMax != null && o.ageMin >= o.ageMax) problems.push(`${where} → ${name}: “up to age” must be above “from age” (Nursery for 4-year-olds: from 4, up to 5).`);
   }
   return problems;
 }

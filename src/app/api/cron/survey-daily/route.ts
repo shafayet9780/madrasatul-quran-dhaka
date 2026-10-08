@@ -38,19 +38,32 @@ export async function GET(request: NextRequest) {
     result.backup = { error: error instanceof Error ? error.message : 'failed' };
   }
   try {
-    result.sheet = await mirrorPending({ budgetMs: 20_000 });
+    result.sheet = await mirrorPending({ budgetMs: 15_000 });
     if (production && 'skipped' in (result.sheet as object)) ok = false;
   } catch (error) {
     ok = false;
     result.sheet = { error: error instanceof Error ? error.message : 'failed' };
   }
+  // Admissions: each step has its own budget and its own error, so one slow or failing step does
+  // not hide the others or push the run past the time limit.
+  const paidNow: string[] = [];
   try {
-    result.admissionsPayments = await reconcilePending(30, 40);
-    result.admissionsEmails = await retryConfirmationEmails(getSiteUrl(), 15_000);
-    result.admissionsSheet = await copyPendingToSheet({ budgetMs: 10_000 });
+    result.admissionsPayments = await reconcilePending(30, 40, undefined, 10_000, (id) => paidNow.push(id));
   } catch (error) {
     ok = false;
     result.admissionsPayments = { error: error instanceof Error ? error.message : 'failed' };
+  }
+  try {
+    result.admissionsEmails = await retryConfirmationEmails(getSiteUrl(), 10_000, undefined, paidNow);
+  } catch (error) {
+    ok = false;
+    result.admissionsEmails = { error: error instanceof Error ? error.message : 'failed' };
+  }
+  try {
+    result.admissionsSheet = await copyPendingToSheet({ budgetMs: 6_000 });
+  } catch (error) {
+    ok = false;
+    result.admissionsSheet = { error: error instanceof Error ? error.message : 'failed' };
   }
   try {
     result.prunedDryRuns = await pruneDryRuns();

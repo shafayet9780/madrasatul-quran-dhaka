@@ -2,7 +2,7 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { eq, sql } from 'drizzle-orm';
 import { syncCycle, type CycleState } from './cycle';
-import { createDraft, findApplications, findDuplicates, getByToken, loadById, saveDraft, submitDraft, type Application } from './drafts';
+import { countOtherApplications, createDraft, findApplications, getByToken, loadById, saveDraft, submitDraft, type Application } from './drafts';
 import { applicationEvents, applications } from './schema';
 import type { FormDocument } from './snapshot';
 import { sampleSnapshot } from './testing/fixtures';
@@ -149,12 +149,12 @@ describe('drafts', () => {
     expect(await submitDraft(paid, cycle.snapshot, true)).toEqual({ ok: false, reason: 'locked' });
   });
 
-  it('finds other applications for the same child', async () => {
+  it('counts other applications from the same mobile, whatever the date of birth', async () => {
     const a = await start();
-    const b = await start('01712345678');
-    for (const { app } of [a, b]) await saveDraft(app, cycle.snapshot, { date_of_birth: '2021-03-12', student_name_bn: 'আব্দুল্লাহ' });
+    await start('01712345678');
+    await start('01812345678');
     const first = (await getByToken(a.token))!;
-    expect(await findDuplicates(first)).toEqual([{ publicRef: null, studentNameBn: 'আব্দুল্লাহ', status: 'draft' }]);
+    expect(await countOtherApplications(first)).toBe(1);
   });
 });
 

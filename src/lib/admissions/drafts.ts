@@ -9,13 +9,14 @@ import { normaliseEmail, normaliseMobile } from './normalise';
 import { classCodeFor, roleColumns } from './roles';
 import { applicationEvents, applications } from './schema';
 import { hashToken, newResumeToken } from './tokens';
+import { isOwnKey } from './files';
 
 export type Application = typeof applications.$inferSelect;
 
 /** Statuses in which the guardian may still change answers. */
 const EDITABLE = ['draft', 'unpaid'] as const;
 
-export const ownsFile = (applicationId: string) => (f: FileAnswer) => f.key.startsWith(`admissions/${applicationId}/`);
+export const ownsFile = (applicationId: string) => (f: FileAnswer) => isOwnKey(applicationId, f.key);
 
 export type StartResult =
   | { ok: true; id: string; token: string }
@@ -118,10 +119,12 @@ export async function saveDraft(app: Application, snapshot: FormSnapshot, patch:
     RETURNING answers, status`);
   const row = rows.rows[0];
   if (!row) return { ok: false, reason: 'locked' };
+  // Only while the answers are still the ones this save produced: with overlapping saves, the last
+  // one to write the answers also writes the columns.
   await db
     .update(applications)
     .set(roleColumns(snapshot, row.answers))
-    .where(and(eq(applications.id, app.id), inArray(applications.status, [...EDITABLE])));
+    .where(and(eq(applications.id, app.id), inArray(applications.status, [...EDITABLE]), sql`${applications.answers} = ${JSON.stringify(row.answers)}::jsonb`));
   if (app.status === 'unpaid') await logEvent(app.id, label(app), 'reopened', 'guardian');
   return { ok: true, answers: row.answers, status: row.status };
 }
@@ -160,28 +163,24 @@ export async function submitDraft(app: Application, snapshot: FormSnapshot, decl
 }
 
 /**
- * Other applications in the cycle for the same child (same guardian mobile and date of birth).
- * Shown as a warning with a link to Find my application; never blocks (twins exist).
+ * How many other applications in the cycle use this guardian mobile (shown on the review page as a
+ * gentle "did you already apply?" note). Deliberately not by date of birth and without IDs: the
+ * mobile is typed freely, so matching on the child's date of birth would let anyone test dates
+ * against someone else's number, and date of birth is what guards Find my application.
  */
-export async function findDuplicates(app: Application): Promise<{ publicRef: string | null; studentNameBn: string | null; status: Application['status'] }[]> {
-  if (!app.dateOfBirth || !app.primaryMobile) return [];
-  return getAdmissionsDb()
-    .select({ publicRef: applications.publicRef, studentNameBn: applications.studentNameBn, status: applications.status })
+export async function countOtherApplications(app: Application): Promise<number> {
+  if (!app.primaryMobile) return 0;
+  const [row] = await getAdmissionsDb()
+    .select({ n: sql<number>`count(*)::int` })
     .from(applications)
-    .where(
-      and(
-        eq(applications.cycleId, app.cycleId),
-        eq(applications.primaryMobile, app.primaryMobile),
-        eq(applications.dateOfBirth, app.dateOfBirth),
-        ne(applications.id, app.id),
-      ),
-    );
+    .where(and(eq(applications.cycleId, app.cycleId), eq(applications.primaryMobile, app.primaryMobile), ne(applications.id, app.id)));
+  return row?.n ?? 0;
 }
 
 export function label(app: Pick<Application, 'publicRef' | 'studentNameBn' | 'primaryMobile'>): string {
   return app.publicRef ?? app.studentNameBn ?? app.primaryMobile;
 }
 
-export async function logEvent(applicationId: string, eventLabel: string, kind: string, actor: 'guardian' | 'system' | 'admin', detail?: Record<string, unknown>) {
+export async function logEvent(applicationId: string | null, eventLabel: string, kind: string, actor: 'guardian' | 'system' | 'admin', detail?: Record<string, unknown>) {
   await getAdmissionsDb().insert(applicationEvents).values({ applicationId, label: eventLabel, kind, actor, detail });
 }

@@ -14,8 +14,11 @@ import { allow } from '@/lib/survey/rate-limit';
 export const SESSION_COOKIE = 'mq_admission';
 const SIXTY_DAYS = 60 * 24 * 60 * 60;
 
+/** This device now works on the application of this token (a Find grant for another one ends). */
 export async function setSessionToken(token: string) {
-  (await cookies()).set(SESSION_COOKIE, token, {
+  const jar = await cookies();
+  jar.delete(GRANT_COOKIE);
+  jar.set(SESSION_COOKIE, token, {
     httpOnly: true,
     sameSite: 'lax',
     secure: process.env.NODE_ENV === 'production',
@@ -87,6 +90,7 @@ export const ADMISSION_LIMITS = {
   find: { limit: 30, windowMs: 10 * MINUTE },
   /** Per looked-up ID or mobile number, whatever the IP: stops guessing dates of birth. */
   findValue: { limit: 8, windowMs: 10 * MINUTE },
+  findValueDay: { limit: 15, windowMs: 24 * 60 * MINUTE },
 } as const;
 
 export async function clientIp(): Promise<string> {
@@ -103,7 +107,7 @@ export async function withinLimit(kind: keyof typeof ADMISSION_LIMITS, value?: s
 export async function siteOrigin(): Promise<string> {
   const h = await headers();
   const host = h.get('x-forwarded-host') ?? h.get('host') ?? 'localhost:3000';
-  const proto = h.get('x-forwarded-proto') ?? (host.startsWith('localhost') ? 'http' : 'https');
+  const proto = h.get('x-forwarded-proto')?.split(',')[0].trim() || (host.startsWith('localhost') ? 'http' : 'https');
   return `${proto}://${host}`;
 }
 

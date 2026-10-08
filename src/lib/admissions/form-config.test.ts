@@ -59,7 +59,7 @@ describe('checkFormConfig', () => {
     const problems = checkFormConfig(s);
     expect(problems.some((p) => p.includes('class code “N” is used twice'))).toBe(true);
     expect(problems.some((p) => p.includes('১ম শ্রেণী: add a class code'))).toBe(true);
-    expect(problems.some((p) => p.includes('minimum age is above maximum age'))).toBe(true);
+    expect(problems.some((p) => p.includes('“up to age” must be above “from age”'))).toBe(true);
   });
 
   it('checks groups and show-when references', () => {

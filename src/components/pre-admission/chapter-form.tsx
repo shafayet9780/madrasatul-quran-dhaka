@@ -173,6 +173,8 @@ export function ChapterForm({ locale, applicationId, session, section, otherFiel
     }
     setLeaving(true);
     await flush();
+    // A save that failed stays here (shown as not saved, retried) rather than moving on without it.
+    if (Object.keys(pending.current).length) return setLeaving(false);
     router.push(nextHref);
   }
 

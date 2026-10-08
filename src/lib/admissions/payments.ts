@@ -1,11 +1,12 @@
 import 'server-only';
 import { randomBytes } from 'node:crypto';
-import { and, desc, eq, inArray, lt, ne, sql } from 'drizzle-orm';
+import { and, desc, eq, gt, inArray, isNull, lt, ne, sql } from 'drizzle-orm';
 import { getAdmissionsDb } from './db';
 import { label, logEvent, type Application } from './drafts';
 import { formatMobile } from './normalise';
 import type { FormSnapshot } from './form-config';
 import { localOverrides } from './local';
+import { roleAnswer } from './roles';
 import { applications, payments } from './schema';
 import { judgeTransaction, sslCommerzGateway, sslConfigFromEnv, type Gateway, type GatewayTransaction } from './sslcommerz';
 
@@ -60,7 +61,7 @@ export async function startPayment(app: Application, snapshot: FormSnapshot, ori
       name: app.fatherName || app.motherName || app.studentNameEn || app.studentNameBn || 'Guardian',
       email: app.email,
       phone: formatMobile(app.primaryMobile).replace('-', ''),
-      address: typeof app.answers.present_address === 'string' ? app.answers.present_address : 'Dhaka',
+      address: String(roleAnswer(snapshot, app.answers, 'address') ?? '').trim().slice(0, 200) || 'Dhaka',
     },
     reference: app.id,
   });
@@ -80,12 +81,14 @@ export type SettleResult = { outcome: SettleOutcome; applicationId?: string; pub
 /**
  * Marks the application paid and hands out the next serial for its class, in one statement: the
  * row lock and `public_ref IS NULL` make a second confirmation (IPN and browser at once) a no-op.
+ * Only a submitted application (unpaid) qualifies: one reopened for editing during checkout keeps
+ * its valid payment and gets the ID when it is submitted again (completeAfterResubmit).
  */
 async function assignApplicationId(applicationId: string): Promise<string | null> {
   const result = await getAdmissionsDb().execute<{ public_ref: string }>(sql`
     WITH target AS (
       SELECT id, cycle_id, class_code FROM applications
-      WHERE id = ${applicationId} AND public_ref IS NULL AND status IN ('unpaid', 'draft') AND class_code IS NOT NULL
+      WHERE id = ${applicationId} AND public_ref IS NULL AND status = 'unpaid' AND class_code IS NOT NULL
       FOR UPDATE
     ), bump AS (
       INSERT INTO application_serials (cycle_id, class_code, last_serial)
@@ -215,21 +218,41 @@ export async function closePayment(tranId: string, hint: 'failed' | 'cancelled',
   return reconcilePayment(payment, gateway, hint);
 }
 
-/** Daily job: attempts still open after `olderThanMinutes`, oldest first, within `budgetMs`. */
-export async function reconcilePending(olderThanMinutes = 30, limit = 50, gateway = paymentGateway(), budgetMs = 25_000): Promise<Record<SettleOutcome, number>> {
+/**
+ * Daily job: attempts still open after `olderThanMinutes`, oldest first, then attempts closed as
+ * failed or cancelled in the last two days whose application is still unpaid (a slow mobile
+ * payment can succeed after the browser came back on the fail page). Within `budgetMs`.
+ * `onPaid` gets each application that got its ID here (for the email and the Sheet).
+ */
+export async function reconcilePending(
+  olderThanMinutes = 30,
+  limit = 50,
+  gateway = paymentGateway(),
+  budgetMs = 25_000,
+  onPaid?: (applicationId: string) => void,
+): Promise<Record<SettleOutcome, number>> {
   const stopAt = Date.now() + budgetMs;
   const counts = {} as Record<SettleOutcome, number>;
   if (!gateway) return counts;
-  const open = await getAdmissionsDb()
+  const db = getAdmissionsDb();
+  const open = await db
     .select()
     .from(payments)
     .where(and(eq(payments.status, 'initiated'), lt(payments.createdAt, new Date(Date.now() - olderThanMinutes * 60 * 1000))))
     .orderBy(payments.createdAt)
     .limit(limit);
-  for (const p of open) {
+  const closed = await db
+    .select({ payment: payments })
+    .from(payments)
+    .innerJoin(applications, eq(applications.id, payments.applicationId))
+    .where(and(inArray(payments.status, ['failed', 'cancelled']), gt(payments.updatedAt, new Date(Date.now() - 2 * 24 * 60 * 60 * 1000)), isNull(applications.publicRef)))
+    .orderBy(payments.updatedAt)
+    .limit(limit);
+  for (const p of [...open, ...closed.map((c) => c.payment)]) {
     if (Date.now() > stopAt) break;
-    const { outcome } = await reconcilePayment(p, gateway);
+    const { outcome, applicationId } = await reconcilePayment(p, gateway);
     counts[outcome] = (counts[outcome] ?? 0) + 1;
+    if (outcome === 'paid' && applicationId) onPaid?.(applicationId);
   }
   return counts;
 }
@@ -238,14 +261,28 @@ export async function reconcilePending(olderThanMinutes = 30, limit = 50, gatewa
  * Admin: accept a payment held for review (risky, or an amount that did not match) after checking
  * it in the SSLCommerz panel. The application then gets its ID like any confirmed payment.
  */
-export async function acceptHeldPayment(paymentId: string): Promise<SettleResult> {
+export async function acceptHeldPayment(paymentId: string, applicationId: string): Promise<SettleResult> {
   const db = getAdmissionsDb();
   const [updated] = await db
     .update(payments)
     .set({ status: 'valid', completedAt: new Date(), updatedAt: new Date() })
-    .where(and(eq(payments.id, paymentId), eq(payments.status, 'held')))
+    .where(and(eq(payments.id, paymentId), eq(payments.applicationId, applicationId), eq(payments.status, 'held')))
     .returning();
   if (!updated) return { outcome: 'not_valid' };
   await logEvent(updated.applicationId, updated.tranId, 'payment_released', 'admin', { tranId: updated.tranId });
   return giveId(updated, 'admin');
+}
+
+/**
+ * Submit after a reopen: a payment that completed while the application was back in draft is
+ * valid but gave no ID. Once the guardian submits again, the application gets its ID.
+ */
+export async function completeAfterResubmit(applicationId: string): Promise<SettleResult | null> {
+  const [paid] = await getAdmissionsDb()
+    .select()
+    .from(payments)
+    .where(and(eq(payments.applicationId, applicationId), eq(payments.status, 'valid')))
+    .orderBy(payments.completedAt)
+    .limit(1);
+  return paid ? giveId(paid, 'resubmit') : null;
 }

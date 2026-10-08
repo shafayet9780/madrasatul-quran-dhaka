@@ -17,7 +17,7 @@ vi.mock('@/lib/google-sheets-server', () => ({
           const row = Number(/!A(\d+)$/.exec(range)![1]);
           sheet.rows[row - 1] = requestBody.values[0];
         },
-        get: async () => ({ data: { values: sheet.rows.map((r) => [r[0]]) } }),
+        get: async ({ range }: { range: string }) => ({ data: { values: range.endsWith('!1:1') ? sheet.rows.slice(0, 1) : sheet.rows.map((r) => [r[0]]) } }),
         append: async ({ requestBody, range }: { requestBody: { values: string[][] }; range: string }) => {
           if (sheet.fail) throw new Error('quota');
           sheet.rows.push(requestBody.values[0]);
@@ -110,6 +110,18 @@ describe('sheet copy', () => {
     expect(await copyPendingToSheet()).toEqual({ copied: 1, failed: 0 });
     expect(sheet.rows).toHaveLength(3);
     expect(sheet.rows[1].slice(0, 2)).toEqual(['KG-001', 'ভর্তি']);
+  });
+
+  it('a changed header queues every row again', async () => {
+    await paidApplication('আব্দুল্লাহ', '01712345678');
+    expect(await copyPendingToSheet()).toEqual({ copied: 1, failed: 0 });
+    // The form changed: the next copy rewrites the header and queues the older row again.
+    sheet.rows[0] = ['old header'];
+    await paidApplication('উমর', '01912345678');
+    expect(await copyPendingToSheet()).toEqual({ copied: 1, failed: 0 });
+    expect(sheet.rows[0][0]).toBe('আবেদন আইডি');
+    expect(await copyPendingToSheet()).toEqual({ copied: 1, failed: 0 });
+    expect(sheet.rows.map((r) => r[0])).toEqual(['আবেদন আইডি', 'KG-001', 'KG-002']);
   });
 
   it('a failed write is retried on the next run', async () => {

@@ -115,6 +115,10 @@ describe('admin queries', () => {
     const paid = await application({ name: 'আব্দুল্লাহ', mobile: '01712345678', pay: 'pay' });
     const unpaid = await application({ name: 'উমর', mobile: '01912345678' });
     expect(await deleteUnpaid(paid.id, store)).toBe('paid');
+    // Not while the guardian is on the payment page.
+    const paying = await application({ name: 'আয়েশা', mobile: '01812345678' });
+    await startPayment(paying, cycle.snapshot, 'https://x.org', gateway);
+    expect(await deleteUnpaid(paying.id, store)).toBe('paying');
     expect(await deleteUnpaid(unpaid.id, store)).toBe('deleted');
     expect(deleted.sort()).toEqual([`admissions/${unpaid.id}/birth_certificate-x`, `admissions/${unpaid.id}/student_photo-x`]);
     expect(await db.select().from(applications).where(eq(applications.id, unpaid.id))).toEqual([]);
@@ -130,8 +134,9 @@ describe('admin queries', () => {
     const p = (await latestPayment(risky.id))!;
     expect(p.status).toBe('held');
     expect(await deleteUnpaid(risky.id)).toBe('paid');
-    expect(await acceptHeldPayment(p.id)).toMatchObject({ outcome: 'paid', publicRef: 'KG-001' });
-    expect(await acceptHeldPayment(p.id)).toEqual({ outcome: 'not_valid' });
+    expect(await acceptHeldPayment(p.id, crypto.randomUUID())).toEqual({ outcome: 'not_valid' });
+    expect(await acceptHeldPayment(p.id, risky.id)).toMatchObject({ outcome: 'paid', publicRef: 'KG-001' });
+    expect(await acceptHeldPayment(p.id, risky.id)).toEqual({ outcome: 'not_valid' });
   });
 
   it('summarises the cycle for the overview', async () => {
