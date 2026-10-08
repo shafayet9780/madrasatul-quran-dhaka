@@ -90,7 +90,7 @@ export function ClassTable({ rows, roundId, showTrend, showGuardian }: { rows: R
                 {row.roll !== null ? bn(row.roll) : '–'}
               </td>
               <td data-label="নাম" className="sv-span-2">
-                <Link href={`/admin/reports/student/${encodeURIComponent(row.erpId)}?round=${roundId}`} style={{ fontWeight: 600, color: 'var(--sv-text)' }}>
+                <Link href={`/admin/reports/student/${encodeURIComponent(row.erpId)}?round=${roundId}`} style={{ fontWeight: 600 }}>
                   {row.name}
                 </Link>
                 {row.roll === null && <div style={{ fontSize: 12.5, color: 'var(--sv-text-muted)' }}>আইডি {bn(row.erpId)}</div>}

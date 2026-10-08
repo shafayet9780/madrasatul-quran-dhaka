@@ -164,7 +164,9 @@ export default async function OverviewPage({ searchParams }: { searchParams: Pro
           </div>
           {report.progress.map((p) => (
             <div key={`${p.classKey}|${p.sectionKey}`} className="grid items-center gap-2.5" style={{ gridTemplateColumns: '90px minmax(0, 1fr) 96px' }}>
-              <span style={{ fontWeight: 600, fontSize: 14 }}>{p.label}</span>
+              <Link href={`/admin/reports/class?${new URLSearchParams({ round: t1.id, class: p.classKey, section: p.sectionKey })}`} style={{ fontWeight: 600, fontSize: 14 }}>
+                {p.label}
+              </Link>
               <span className="flex flex-col gap-1" aria-hidden="true">
                 {[
                   [p.g1, TEACHING],

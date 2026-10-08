@@ -148,6 +148,102 @@
 }
 
 /* Inline confirmation / editor panel under the table. */
+/* Student page: one mark per chip (colours from markTone), the three answer tabs. */
+.sv-admin .sv-mark {
+  display: inline-block;
+  min-width: 36px;
+  padding: 2px 8px;
+  border-radius: 8px;
+  text-align: center;
+  font-weight: 600;
+  font-size: 14px;
+}
+.sv-admin .sv-mark.is-avg {
+  min-width: 42px;
+  padding: 3px 8px;
+  font-size: 15.5px;
+}
+.sv-admin .sv-rtabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 4px;
+  border-radius: 14px;
+  background: var(--sv-stone);
+  align-self: flex-start;
+  max-width: 100%;
+}
+.sv-admin .sv-rtab {
+  border: 0;
+  cursor: pointer;
+  min-height: 44px;
+  padding: 6px 14px;
+  border-radius: 10px;
+  font: inherit;
+  font-size: 14.5px;
+  font-weight: 600;
+  line-height: 1.35;
+  text-align: left;
+  background: transparent;
+  color: var(--sv-text);
+}
+.sv-admin .sv-rtab[data-state='active'] {
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(31, 42, 46, 0.12);
+}
+.sv-admin .sv-rtab:focus-visible {
+  outline: 2px solid var(--sv-focus);
+  outline-offset: 1px;
+}
+.sv-admin .sv-rtab small {
+  display: block;
+  font-size: 12.5px;
+  font-weight: 400;
+  color: var(--sv-text-muted);
+}
+.sv-admin .sv-answers th[scope='row'] {
+  white-space: normal;
+  font-weight: 400;
+  color: var(--sv-text);
+  font-size: 14px;
+  line-height: 1.45;
+  /* Marks scroll sideways beside the question on a phone. */
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  background: #fff;
+}
+@media (max-width: 640px) {
+  .sv-admin .sv-answers th[scope='row'] {
+    min-width: 150px;
+    max-width: 170px;
+    font-size: 13px;
+  }
+  .sv-admin .sv-answers td,
+  .sv-admin .sv-answers th,
+  .sv-admin .sv-compare td,
+  .sv-admin .sv-compare th {
+    padding-left: 6px;
+    padding-right: 6px;
+  }
+}
+.sv-admin .sv-print-only,
+.sv-admin [role='tabpanel'][data-state='inactive'] {
+  display: none;
+}
+@media print {
+  .sv-admin .sv-rtabs {
+    display: none;
+  }
+  /* The internal print carries all three answer sets. */
+  .sv-admin [role='tabpanel'][data-state='inactive'] {
+    display: flex !important;
+  }
+  .sv-admin .sv-print-only {
+    display: block;
+  }
+}
+
 .sv-admin .sv-confirm {
   display: flex;
   flex-wrap: wrap;

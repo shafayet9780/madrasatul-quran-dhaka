@@ -5,13 +5,14 @@ import { KIND_LABEL } from '@/lib/survey/labels';
 import { gapFlag, sharedAreaGap } from '@/lib/survey/guardian-report-math';
 import { allReportRounds, studentGuardian } from '@/lib/survey/guardian-reports';
 import { toBengaliDigits as bn } from '@/lib/survey/normalise';
-import { formatMark, GUARDIAN_AREAS } from '@/lib/survey/report-math';
+import { FLAGS, formatMark, GUARDIAN_AREAS } from '@/lib/survey/report-math';
 import { chosenRoundId } from '@/lib/survey/admin-shell';
 import { pickRound, studentReport } from '@/lib/survey/reports';
-import { GUARDIAN, MarkAxis, markCell, PairBar, PairTrendChart, TEACHER, TrendChart } from '../../charts';
+import { MarkChip, markTone } from '../../charts';
 import { NoRounds } from '../../NoRounds';
 import { ReportTools } from '../../ReportTools';
 import { PageTop } from '../../../AdminShell';
+import { ResponseTabs } from './ResponseTabs';
 
 export const metadata: Metadata = { title: 'শিক্ষার্থী প্রোফাইল' };
 export const dynamic = 'force-dynamic';
@@ -30,8 +31,6 @@ const STATUS = {
   superseded: { label: 'পুরনো', bg: 'var(--sv-neutral-bg)', fg: 'var(--sv-text-body)' },
   'set-aside': { label: 'বাদ (অ্যাডমিন সিদ্ধান্ত)', bg: 'var(--sv-neutral-bg)', fg: 'var(--sv-text-body)' },
 } as const;
-
-
 
 export default async function StudentProfilePage({ params, searchParams }: { params: Promise<{ erpId: string }>; searchParams: Promise<{ round?: string }> }) {
   const [{ erpId: rawId }, search, all] = await Promise.all([params, searchParams, allReportRounds()]);
@@ -54,27 +53,39 @@ export default async function StudentProfilePage({ params, searchParams }: { par
   const { student } = report;
   const guardian = await studentGuardian(round, all, erpId, student, { verifiedOnly: false });
   const marked = (list: { areaKey: string; mean: number | null }[]) => new Map(list.filter((a) => a.mean !== null).map((a) => [a.areaKey, a.mean!]));
-  // Guardian against teachers on the areas both rated (the gap tile and flag).
+  // Guardian against teachers on the areas both rated (the গড় row and the flag).
   const shared = sharedAreaGap(marked(guardian.areas), marked(report.areas));
-  const flags = [...report.flags, gapFlag(shared, bn)].filter((f) => f !== null);
   const guardianAreas = new Map(guardian.areas.map((a) => [a.areaKey, a]));
   const teacherAreas = new Map(report.areas.map((a) => [a.areaKey, a]));
   const areas = [...new Set([...report.areas.map((a) => a.areaKey), ...guardian.areas.map((a) => a.areaKey)])].map((key) => {
     const g = guardianAreas.get(key);
     const t = teacherAreas.get(key);
-    // The class average beside the child is the teachers' (the same raters as the teacher mark).
-    return { key, name: (t ?? g)!.name, guardian: g?.mean ?? null, teacher: t?.mean ?? null, classMean: t?.classMean ?? null };
+    return { key, name: (t ?? g)!.name, guardian: g?.mean ?? null, teacher: t?.mean ?? null };
   });
-  const widest = areas
-    .filter((a) => a.guardian !== null && a.teacher !== null)
-    .filter((a) => !GUARDIAN_AREAS.has(a.key))
-    .map((a) => ({ name: a.name, marks: Math.abs(a.guardian! - a.teacher!) }))
-    .sort((a, b) => b.marks - a.marks)[0];
-  const teacherByRound = new Map(report.trend.map((p) => [p.roundId, p.mean]));
-  const pairTrend = guardian.trend
-    .map((p) => ({ label: p.label, guardian: p.mean, teacher: teacherByRound.get(p.roundId) ?? null }))
-    .filter((p) => p.guardian !== null || p.teacher !== null);
-  const showPairTrend = guardian.g2 !== undefined && pairTrend.length >= 2;
+  // The comparison: areas both surveys ask about (the teacher questions about the guardian stay out).
+  const t1Questions = round.snapshot.template.questions;
+  const t1AreaKeys = new Set(t1Questions.map((q) => q.areaKey));
+  const g2AreaKeys = new Set(guardian.g2?.snapshot.template.questions.filter((q) => !q.unscored).map((q) => q.areaKey) ?? []);
+  const compared = areas.filter((a) => t1AreaKeys.has(a.key) && g2AreaKeys.has(a.key) && !GUARDIAN_AREAS.has(a.key));
+  const guardianOnly = areas.filter((a) => !compared.includes(a) && a.guardian !== null && a.teacher === null);
+  const teacherOnly = areas.filter((a) => !compared.includes(a) && a.teacher !== null && a.guardian === null);
+  const teacherTotal = shared?.teacher ?? average(compared.map((a) => a.teacher));
+
+  // Attention: the flags, then whatever has not come in yet.
+  const flags = [...report.flags, gapFlag(shared, bn)].filter((f) => f !== null);
+  const teacherMissing = report.grid.filter((row) => !row.marks).map((row) => row.subject);
+  const missing = [
+    teacherMissing.length ? `শিক্ষক (${teacherMissing.join(', ')})` : null,
+    guardian.g2 && !guardian.form ? 'অভিভাবক · শিক্ষার্থী' : null,
+    guardian.g1 && !guardian.g1Form ? 'অভিভাবক · ক্লাস পরিচালনা' : null,
+  ].filter((m) => m !== null);
+
+  const submittedBy = (form: { who: string | null; relation: string | null }) => `${form.who ?? ''}${form.relation ? ` (${form.relation})` : ''}`;
+  // A kept duplicate gives a subject two columns; count subjects, not columns.
+  const rated = new Set(report.grid.filter((row) => row.marks).map((row) => row.subject)).size;
+  const subjectCount = new Set(report.grid.map((row) => row.subject)).size;
+  // A teacher's average for the child leaves out the questions about the guardian (as everywhere else).
+  const childQuestion = t1Questions.map((q) => !GUARDIAN_AREAS.has(q.areaKey));
   const father = localMobile(student.fatherMobile);
   const mother = localMobile(student.motherMobile);
   const classHref = `/admin/reports/class?${new URLSearchParams({ round: round.id, class: student.classKey, section: student.sectionKey })}`;
@@ -119,278 +130,392 @@ export default async function StudentProfilePage({ params, searchParams }: { par
         </div>
       </section>
 
-      <div className="grid gap-3" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))' }}>
-        <div className="sv-card sv-kpi">
-          <div style={{ fontSize: 13, color: 'var(--sv-text-muted)', fontWeight: 600 }}>অভিভাবকের রিভিউ</div>
-          <div className="flex items-baseline gap-1">
-            <span className="sv-num" style={{ fontSize: 30 }}>
-              {formatMark(guardian.mean, bn)}
-            </span>
-            <span style={{ fontSize: 14, color: 'var(--sv-text-muted)' }}>/ ১০</span>
-          </div>
-          <div style={{ fontSize: 13, color: 'var(--sv-text-muted)' }}>
-            {!guardian.g2 ? 'এই রাউন্ডের সাথে অভিভাবকের রিভিউ নেই' : guardian.mean === null ? 'অভিভাবক এখনো জমা দেননি' : `ক্লাসের অভিভাবকদের গড় ${formatMark(guardian.classMean, bn)}`}
-          </div>
-        </div>
-        <div className="sv-card sv-kpi">
-          <div style={{ fontSize: 13, color: 'var(--sv-text-muted)', fontWeight: 600 }}>শিক্ষকের রিভিউ</div>
-          <div className="flex items-baseline gap-1">
-            <span className="sv-num" style={{ fontSize: 30 }}>
-              {formatMark(report.mean, bn)}
-            </span>
-            <span style={{ fontSize: 14, color: 'var(--sv-text-muted)' }}>/ ১০</span>
-          </div>
-          <div style={{ fontSize: 13, color: 'var(--sv-text-muted)' }}>
-            {bn(report.teachers)} জন শিক্ষক · ক্লাসের গড় {formatMark(report.classMean, bn)}
-          </div>
-        </div>
-        <div className="sv-card sv-kpi">
-          <div style={{ fontSize: 13, color: 'var(--sv-text-muted)', fontWeight: 600 }}>অভিভাবক–শিক্ষক পার্থক্য</div>
-          <div className="flex items-baseline gap-1">
-            <span className="sv-num" style={{ fontSize: 30 }}>
-              {shared ? bn(Math.abs(shared.gap).toFixed(1)) : '—'}
-            </span>
-            <span style={{ fontSize: 14, color: 'var(--sv-text-muted)' }}>মার্ক</span>
-          </div>
-          <div style={{ fontSize: 13, color: 'var(--sv-text-muted)' }}>
-            {shared
-              ? `${Math.round(shared.gap * 10) === 0 ? 'দুই দিকে সমান' : `${shared.gap > 0 ? 'অভিভাবক' : 'শিক্ষক'} বেশি দিয়েছেন`} · একই ${bn(shared.areas)}টি ক্ষেত্রে${widest ? ` · সবচেয়ে বেশি: ${widest.name} (${bn(widest.marks.toFixed(1))})` : ''}`
-              : 'দুই দিকের মার্ক লাগবে'}
-          </div>
-        </div>
-        <div className="sv-card sv-kpi">
-          <div style={{ fontSize: 13, color: 'var(--sv-text-muted)', fontWeight: 600 }}>ফ্ল্যাগ</div>
-          {flags.length ? (
-            flags.map((f) => (
-              <span key={f.kind} className="sv-flag" style={{ alignSelf: 'flex-start' }}>
-                ⚠ {f.label}
-              </span>
-            ))
-          ) : (
-            <span style={{ color: 'var(--sv-text-muted)' }}>কোনো ফ্ল্যাগ নেই</span>
-          )}
-        </div>
-      </div>
+      <section className="sv-card flex flex-col gap-2.5" aria-labelledby="attention-title">
+        <h2 id="attention-title" className="sv-head sv-h2">
+          মনোযোগ প্রয়োজন
+        </h2>
+        {flags.length === 0 && missing.length === 0 && <p style={{ margin: 0, fontSize: 14.5, color: 'var(--sv-text-muted)' }}>কিছু নেই।</p>}
+        {(flags.length > 0 || missing.length > 0) && (
+          <ul className="flex flex-col gap-2" style={{ margin: 0, padding: 0, listStyle: 'none' }}>
+            {flags.map((f) => (
+              <li key={f.kind} className="flex gap-2.5 items-start" style={{ fontSize: 15 }}>
+                <span aria-hidden="true" className="flex items-center justify-center" style={{ flex: 'none', marginTop: 2, width: 22, height: 22, borderRadius: '50%', background: 'var(--sv-warn-bg)', color: 'var(--sv-warn)', fontWeight: 600, fontSize: 13 }}>
+                  !
+                </span>
+                <span style={{ fontWeight: 600 }}>{f.label}</span>
+              </li>
+            ))}
+            {missing.length > 0 && (
+              <li className="flex gap-2.5 items-start" style={{ fontSize: 15 }}>
+                <span aria-hidden="true" className="flex items-center justify-center" style={{ flex: 'none', marginTop: 2, width: 22, height: 22, borderRadius: '50%', background: 'var(--sv-info-bg)', color: 'var(--sv-info)', fontWeight: 600, fontSize: 13 }}>
+                  i
+                </span>
+                <span>
+                  <b style={{ fontWeight: 600 }}>এখনো জমা হয়নি:</b> <span style={{ color: 'var(--sv-text-muted)' }}>{missing.join(' · ')}</span>
+                </span>
+              </li>
+            )}
+          </ul>
+        )}
+      </section>
 
-      <div className="sv-split">
-        <section className="sv-card flex flex-col gap-3 min-w-0" aria-labelledby="areas-title">
-          <h2 id="areas-title" className="sv-head sv-h2">
-            ক্ষেত্রভিত্তিক তুলনা
+      <section className="sv-card flex flex-col gap-2.5" aria-labelledby="compare-title">
+        <div className="flex flex-col gap-0.5">
+          <h2 id="compare-title" className="sv-head sv-h2">
+            তুলনা · শিক্ষক বনাম অভিভাবক
           </h2>
-          <div className="flex flex-wrap gap-4" style={{ fontSize: 13, color: 'var(--sv-text-muted)' }} aria-hidden="true">
-            <span className="flex items-center gap-1.5">
-              <span style={{ width: 12, height: 12, borderRadius: '50%', background: GUARDIAN }} />
-              অভিভাবক
-            </span>
-            <span className="flex items-center gap-1.5">
-              <span style={{ width: 12, height: 12, borderRadius: '50%', background: TEACHER }} />
-              শিক্ষকদের গড়
-            </span>
-            <span className="flex items-center gap-1.5">
-              <span style={{ width: 3, height: 14, background: 'var(--sv-text-body)' }} />
-              ক্লাসের গড় (শিক্ষকদের)
-            </span>
-          </div>
-          <div style={{ fontSize: 13, color: 'var(--sv-text-muted)' }}>গড় মার্ক, ১০-এর মধ্যে</div>
-          {areas.map((area) => {
-            const text = [
-              area.guardian !== null && `অভিভাবক ${formatMark(area.guardian, bn)}`,
-              area.teacher !== null && `শিক্ষক ${formatMark(area.teacher, bn)}`,
-              area.classMean !== null && `ক্লাস ${formatMark(area.classMean, bn)}`,
-            ]
-              .filter(Boolean)
-              .join(' · ');
-            return (
-              <div key={area.key} className="sv-pair-row" style={{ fontSize: 14, minHeight: 34 }}>
-                <div style={{ fontWeight: 600 }}>
-                  {area.name}
-                  {GUARDIAN_AREAS.has(area.key) && <div style={{ fontWeight: 400, fontSize: 12.5, color: 'var(--sv-text-muted)' }}>অভিভাবক সম্পর্কে · শিক্ষার্থীর গড়ে ধরা হয়নি</div>}
-                </div>
-                <PairBar guardian={area.guardian} teacher={area.teacher} reference={area.classMean} label={`${area.name}: ${text}`} />
-                <div className="sv-pair-text" style={{ fontSize: 12.5, color: 'var(--sv-text-muted)' }}>
-                  {text}
-                </div>
-              </div>
-            );
-          })}
-          <div className="sv-pair-row" aria-hidden="true">
-            <div />
-            <MarkAxis />
-            <div />
-          </div>
-        </section>
-        <section className="sv-card flex flex-col gap-2.5 min-w-0" style={{ flex: '1 1 340px' }} aria-labelledby="trend-title">
-          <h2 id="trend-title" className="sv-head sv-h2">
-            রাউন্ডভিত্তিক গড়
-          </h2>
-          {showPairTrend ? (
-            <PairTrendChart points={pairTrend} width={380} />
-          ) : report.trend.length >= 2 ? (
-            <TrendChart points={report.trend} />
-          ) : (
-            <div
-              className="flex flex-col items-center justify-center gap-2 text-center"
-              style={{ minHeight: 180, borderRadius: 12, border: '1.5px dashed var(--sv-dashed)', padding: 16 }}
-            >
-              <div style={{ fontWeight: 600 }}>দ্বিতীয় রাউন্ড থেকে প্রবণতা দেখা যাবে</div>
-              <div style={{ fontSize: 14, color: 'var(--sv-text-muted)' }}>এখন শুধু এই রাউন্ডের ফলাফল দেখানো হচ্ছে।</div>
-            </div>
-          )}
-        </section>
-      </div>
-
-      <section className="sv-card flex flex-col gap-3" aria-labelledby="grid-title">
-        <div className="flex flex-wrap justify-between gap-2 items-baseline">
-          <h2 id="grid-title" className="sv-head sv-h2">
-            শিক্ষকদের মার্ক · বিষয় × প্রশ্ন
-          </h2>
-          <div style={{ fontSize: 13, color: 'var(--sv-text-muted)' }}>{report.questions.map((q) => `${bn(q.n)} ${q.label}`).join(' · ')}</div>
+          <div style={{ fontSize: 13.5, color: 'var(--sv-text-muted)' }}>একই বিষয়ে দুই দিকের মার্ক, ১০-এর মধ্যে · শিক্ষক = সব বিষয়ের শিক্ষকের গড়</div>
         </div>
-        <div style={{ overflowX: 'auto' }}>
-          <table className="sv-cover" style={{ minWidth: 760, tableLayout: 'fixed' }}>
-            <caption className="sv-visually-hidden">প্রতিটি বিষয়ের শিক্ষকের দেওয়া মার্ক, প্রশ্ন অনুযায়ী</caption>
-            <colgroup>
-              <col style={{ width: 110 }} />
-              <col style={{ width: 200 }} />
-            </colgroup>
-            <thead>
-              <tr>
-                <th scope="col" style={{ textAlign: 'left' }}>
-                  বিষয়
-                </th>
-                <th scope="col" style={{ textAlign: 'left' }}>
-                  শিক্ষক
-                </th>
-                {report.questions.map((q) => (
-                  <th key={q.n} scope="col" title={q.label}>
-                    {bn(q.n)}
+        {compared.length === 0 ? (
+          <p style={{ margin: 0, fontSize: 14, color: 'var(--sv-text-muted)' }}>এই রাউন্ডের সাথে অভিভাবকের রিভিউ নেই।</p>
+        ) : (
+          <div style={{ overflowX: 'auto' }}>
+            <table className="sv-table sv-compare" style={{ minWidth: 280 }}>
+              <thead>
+                <tr>
+                  <th scope="col">ক্ষেত্র</th>
+                  <th scope="col" style={{ textAlign: 'right', width: 64 }}>
+                    শিক্ষক
                   </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {report.grid.map((row, i) => (
-                <tr key={`${row.subject}-${i}`}>
-                  <th scope="row">{row.subject}</th>
-                  <td style={{ textAlign: 'left', color: 'var(--sv-text-muted)', paddingRight: 8, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                    {row.teacher || 'এখনো জমা হয়নি'}
-                  </td>
-                  {report.questions.map((q, qi) => {
-                    const mark = row.marks ? row.marks[qi] : null;
-                    const colours = markCell(mark);
-                    return (
-                      <td
-                        key={q.n}
-                        className="sv-num"
-                        style={{ background: colours.bg, color: colours.fg, fontSize: 14 }}
-                        title={`${row.subject} · প্রশ্ন ${bn(q.n)}: ${mark === null ? 'নেই' : bn(mark)}`}
-                      >
-                        {mark === null ? '·' : bn(mark)}
-                      </td>
-                    );
-                  })}
+                  <th scope="col" style={{ textAlign: 'right', width: 72 }}>
+                    অভিভাবক
+                  </th>
+                  <th scope="col" style={{ textAlign: 'right', width: 72 }}>
+                    পার্থক্য
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-        <div className="flex flex-col gap-2" style={{ borderTop: '1px solid var(--sv-hairline)', paddingTop: 12 }}>
-          <h3 style={{ margin: 0, fontSize: 16, fontWeight: 600 }}>শিক্ষকদের নোট</h3>
-          {report.notes.length === 0 && <p style={{ margin: 0, fontSize: 14, color: 'var(--sv-text-muted)' }}>কোনো নোট নেই।</p>}
-          {report.notes.map((note, i) => (
-            <div key={i} style={{ border: '1px solid var(--sv-hairline)', borderRadius: 12, padding: '12px 14px', fontSize: 14.5, lineHeight: 1.55 }}>
-              <div style={{ fontSize: 13, color: 'var(--sv-text-muted)', marginBottom: 4 }}>
-                <b style={{ color: 'var(--sv-text)' }}>{note.teacherName}</b> · {note.subjectName}
-                {note.submittedAt ? ` · ${formatDateTime(note.submittedAt)}` : ''}
-              </div>
-              {note.note}
-            </div>
-          ))}
+              </thead>
+              <tbody>
+                {compared.map((a) => {
+                  const gap = a.guardian !== null && a.teacher !== null ? Math.abs(a.guardian - a.teacher) : null;
+                  return <CompareRow key={a.key} name={a.name} teacher={a.teacher} guardian={a.guardian} gap={gap} />;
+                })}
+              </tbody>
+              <tfoot>
+                <CompareRow name="গড়" teacher={teacherTotal} guardian={shared?.guardian ?? null} gap={shared ? Math.abs(shared.gap) : null} total />
+              </tfoot>
+            </table>
+          </div>
+        )}
+        <div style={{ fontSize: 13.5, color: 'var(--sv-text-muted)' }}>
+          ⚠ = {bn(FLAGS.guardianTeacherGap)} মার্ক বা বেশি পার্থক্য
+          {guardianOnly.length > 0 && ` · শুধু অভিভাবক: ${guardianOnly.map((a) => `${a.name} ${formatMark(a.guardian, bn)}`).join(', ')}`}
+          {teacherOnly.length > 0 && ` · শুধু শিক্ষক: ${teacherOnly.map((a) => `${a.name} ${formatMark(a.teacher, bn)}${GUARDIAN_AREAS.has(a.key) ? ' (শিক্ষার্থীর গড়ে ধরা হয়নি)' : ''}`).join(', ')}`}
         </div>
       </section>
 
-      <div className="sv-split is-even">
-        <section className="sv-card flex flex-col gap-2 min-w-0" aria-labelledby="answers-title">
-          <h2 id="answers-title" className="sv-head sv-h2">
-            অভিভাবকের উত্তর{guardian.g2 ? ` · ${guardian.g2.label}` : ''}
-          </h2>
-          {!guardian.g2 && <p style={{ margin: 0, fontSize: 14, color: 'var(--sv-text-muted)' }}>এই রাউন্ডের সাথে অভিভাবকের রিভিউ নেই।</p>}
-          {guardian.g2 && !guardian.form && <p style={{ margin: 0, fontSize: 14, color: 'var(--sv-text-muted)' }}>অভিভাবক এখনো জমা দেননি।</p>}
-          {guardian.form && (
-            <>
-              <div style={{ fontSize: 13, color: 'var(--sv-text-muted)' }}>
-                {guardian.form.who}
-                {guardian.form.relation ? ` (${guardian.form.relation})` : ''}
-                {guardian.form.submittedAt ? ` · ${formatDateTime(guardian.form.submittedAt)}` : ''} ·{' '}
-                <span style={{ color: guardian.form.verified ? 'var(--sv-ok)' : 'var(--sv-warn)', fontWeight: 600 }}>{guardian.form.verified ? 'যাচাইকৃত' : 'অযাচাইকৃত'}</span>
-              </div>
-              <dl style={{ margin: 0 }}>
-                {guardian.answers.map((a) => (
-                  <div key={a.label} className="grid items-baseline gap-3" style={{ gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 150px) 56px', padding: '8px 0', borderBottom: '1px solid var(--sv-hairline-soft)', fontSize: 14 }}>
-                    <dt>{a.label}</dt>
-                    <dd style={{ margin: 0, fontWeight: 600 }}>{a.answer ?? '—'}</dd>
-                    <dd className="sv-num" style={{ margin: 0, textAlign: 'right', color: 'var(--sv-text-muted)' }} title={a.unscored ? 'এই প্রশ্নে মার্ক গণনা হয় না' : undefined}>
-                      {a.unscored ? 'মার্ক নেই' : a.mark === null ? '' : bn(a.mark)}
-                    </dd>
+      <section className="sv-card flex flex-col gap-3" aria-labelledby="answers-title">
+        <h2 id="answers-title" className="sv-head sv-h2">
+          উত্তর · যেভাবে জমা দেওয়া হয়েছে
+        </h2>
+        <ResponseTabs
+          tabs={[
+            {
+              key: 't1',
+              label: 'শিক্ষক',
+              sub: `${bn(rated)}/${bn(subjectCount)} বিষয় জমা`,
+              content: (
+                <>
+                  <h3 className="sv-print-only" style={{ margin: 0, fontSize: 16 }}>
+                    শিক্ষকদের উত্তর
+                  </h3>
+                  <MarkLegend />
+                  <div style={{ fontSize: 13.5, color: 'var(--sv-text-muted)' }}>প্রতিটি বিষয়ের শিক্ষক এই শিক্ষার্থীকে যে মার্ক দিয়েছেন</div>
+                  <div style={{ overflowX: 'auto' }}>
+                    <table className="sv-table sv-answers" style={{ minWidth: 160 + report.grid.length * 76 }}>
+                      <thead>
+                        <tr>
+                          <th scope="col">প্রশ্ন</th>
+                          {report.grid.map((row, i) => (
+                            <th key={i} scope="col" style={{ textAlign: 'center', width: 76, whiteSpace: 'normal', lineHeight: 1.35, color: 'var(--sv-text)' }}>
+                              {row.subject}
+                              <span style={{ display: 'block', fontSize: 12, fontWeight: 400, color: 'var(--sv-text-muted)' }}>{row.teacher || 'জমা হয়নি'}</span>
+                            </th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {t1Questions.map((q, qi) => (
+                          <tr key={q.key}>
+                            <th scope="row">
+                              {q.text}
+                              <QuestionHint text={childQuestion[qi] ? q.hint : [q.hint, 'অভিভাবক সম্পর্কে · শিক্ষার্থীর গড়ে ধরা হয় না'].filter(Boolean).join(' · ')} />
+                            </th>
+                            {report.grid.map((row, i) => (
+                              <td key={i} style={{ textAlign: 'center' }}>
+                                <MarkChip mark={row.marks ? row.marks[qi] : null} />
+                              </td>
+                            ))}
+                          </tr>
+                        ))}
+                      </tbody>
+                      <tfoot>
+                        <tr>
+                          <th scope="row" style={{ fontWeight: 600 }}>
+                            গড়
+                            <QuestionHint text="অভিভাবক সম্পর্কে প্রশ্নগুলো বাদে" />
+                          </th>
+                          {report.grid.map((row, i) => (
+                            <td key={i} style={{ textAlign: 'center' }}>
+                              <MarkChip mark={row.marks ? average(row.marks.filter((_, qi) => childQuestion[qi])) : null} average />
+                            </td>
+                          ))}
+                        </tr>
+                      </tfoot>
+                    </table>
                   </div>
-                ))}
-              </dl>
-              {guardian.form.comment && <div style={{ fontSize: 14, lineHeight: 1.6 }}>মন্তব্য: “{guardian.form.comment}”</div>}
-            </>
-          )}
-        </section>
-        <section className="sv-card flex flex-col gap-2 min-w-0" style={{ flex: '1 1 420px' }} aria-labelledby="log-title">
-          <h2 id="log-title" className="sv-head sv-h2" style={{ marginBottom: 4 }}>
-            সব জমা · ইতিহাসসহ
-          </h2>
+                  <h3 style={{ margin: 0, fontSize: 15, fontWeight: 600 }}>শিক্ষকদের নোট</h3>
+                  {report.notes.length === 0 && <p style={{ margin: 0, fontSize: 14, color: 'var(--sv-text-muted)' }}>কোনো নোট নেই।</p>}
+                  {report.notes.map((note, i) => (
+                    <div key={i} style={{ borderRadius: 12, background: 'var(--sv-report)', padding: '10px 14px', fontSize: 14.5, lineHeight: 1.55 }}>
+                      <div style={{ fontSize: 13, color: 'var(--sv-text-muted)' }}>
+                        {note.teacherName} · {note.subjectName}
+                        {note.submittedAt ? ` · ${formatDateTime(note.submittedAt)}` : ''}
+                      </div>
+                      {note.note}
+                    </div>
+                  ))}
+                </>
+              ),
+            },
+            {
+              key: 'g2',
+              label: 'অভিভাবক · শিক্ষার্থী',
+              sub: !guardian.g2 ? 'রাউন্ড নেই' : guardian.form ? `জমা · ${submittedBy(guardian.form)}` : 'জমা হয়নি',
+              content: (
+                <>
+                  <h3 className="sv-print-only" style={{ margin: 0, fontSize: 16 }}>
+                    অভিভাবকের উত্তর · শিক্ষার্থী সম্পর্কে
+                  </h3>
+                  {!guardian.g2 && <p style={{ margin: 0, fontSize: 14.5, color: 'var(--sv-text-muted)' }}>এই রাউন্ডের সাথে অভিভাবকের রিভিউ নেই।</p>}
+                  {guardian.g2 && !guardian.form && <p style={{ margin: 0, fontSize: 14.5, color: 'var(--sv-text-muted)' }}>অভিভাবক এখনো জমা দেননি।</p>}
+                  {guardian.g2 && guardian.form && (
+                    <>
+                      <FormLine form={guardian.form} label={guardian.g2.label} />
+                      <MarkLegend />
+                      <div style={{ overflowX: 'auto' }}>
+                        <table className="sv-table sv-answers" style={{ minWidth: 320 }}>
+                          <thead>
+                            <tr>
+                              <th scope="col">প্রশ্ন</th>
+                              <th scope="col">উত্তর</th>
+                              <th scope="col" style={{ textAlign: 'right', width: 90 }}>
+                                মার্ক
+                              </th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {guardian.answers.map((a) => (
+                              <tr key={a.label}>
+                                <th scope="row">{a.question}</th>
+                                <td style={{ fontWeight: 600 }}>{a.answer ?? '—'}</td>
+                                <td style={{ textAlign: 'right' }}>
+                                  {a.unscored ? <span style={{ fontSize: 13, color: 'var(--sv-text-muted)' }}>মার্ক নেই</span> : <MarkChip mark={a.mark} />}
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                          <tfoot>
+                            <tr>
+                              <th scope="row" colSpan={2} style={{ fontWeight: 600 }}>
+                                গড়
+                                <QuestionHint text="মার্কহীন উত্তর বাদে" />
+                              </th>
+                              <td style={{ textAlign: 'right' }}>
+                                <MarkChip mark={guardian.mean} average />
+                              </td>
+                            </tr>
+                          </tfoot>
+                        </table>
+                      </div>
+                      <Comment text={guardian.form.comment} />
+                    </>
+                  )}
+                </>
+              ),
+            },
+            {
+              key: 'g1',
+              label: 'অভিভাবক · ক্লাস পরিচালনা',
+              sub: !guardian.g1 ? 'রাউন্ড নেই' : guardian.g1Form ? `জমা · ${submittedBy(guardian.g1Form)}` : 'জমা হয়নি',
+              content: (
+                <>
+                  <h3 className="sv-print-only" style={{ margin: 0, fontSize: 16 }}>
+                    অভিভাবকের উত্তর · ক্লাস পরিচালনা
+                  </h3>
+                  {!guardian.g1 && <p style={{ margin: 0, fontSize: 14.5, color: 'var(--sv-text-muted)' }}>এই রাউন্ডের সাথে ক্লাস পরিচালনার রিভিউ নেই।</p>}
+                  {guardian.g1 && !guardian.g1Form && <p style={{ margin: 0, fontSize: 14.5, color: 'var(--sv-text-muted)' }}>অভিভাবক এখনো জমা দেননি।</p>}
+                  {guardian.g1 && guardian.g1Form && (
+                    <>
+                      <FormLine form={guardian.g1Form} label={guardian.g1.label} />
+                      <MarkLegend />
+                      <div style={{ fontSize: 13.5, color: 'var(--sv-text-muted)' }}>প্রতিটি বিষয়ের ক্লাস নিয়ে অভিভাবকের মার্ক</div>
+                      <div style={{ overflowX: 'auto' }}>
+                        <table className="sv-table sv-answers" style={{ minWidth: 160 + guardian.g1Subjects.length * 76 }}>
+                          <thead>
+                            <tr>
+                              <th scope="col">প্রশ্ন</th>
+                              {guardian.g1Subjects.map((s) => (
+                                <th key={s.key} scope="col" style={{ textAlign: 'center', width: 76, whiteSpace: 'normal', color: 'var(--sv-text)' }}>
+                                  {s.name}
+                                </th>
+                              ))}
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {guardian.g1Answers.map((q, qi) => (
+                              <tr key={qi}>
+                                <th scope="row">
+                                  {q.question}
+                                  <QuestionHint text={q.hint} />
+                                </th>
+                                {guardian.g1Subjects.map((s) => {
+                                  const mark = q.marks.get(s.key);
+                                  return (
+                                    <td key={s.key} style={{ textAlign: 'center' }}>
+                                      {mark === 'na' ? <span style={{ fontSize: 13, color: 'var(--sv-text-muted)' }}>প্রযোজ্য নয়</span> : <MarkChip mark={mark ?? null} />}
+                                    </td>
+                                  );
+                                })}
+                              </tr>
+                            ))}
+                          </tbody>
+                          <tfoot>
+                            <tr>
+                              <th scope="row" style={{ fontWeight: 600 }}>
+                                গড়
+                              </th>
+                              {guardian.g1Subjects.map((s) => (
+                                <td key={s.key} style={{ textAlign: 'center' }}>
+                                  <MarkChip mark={average(guardian.g1Answers.map((q) => q.marks.get(s.key)).map((m) => (m === 'na' || m === undefined ? null : m)))} average />
+                                </td>
+                              ))}
+                            </tr>
+                          </tfoot>
+                        </table>
+                      </div>
+                      <Comment text={guardian.g1Form.comment} />
+                    </>
+                  )}
+                </>
+              ),
+            },
+          ]}
+        />
+      </section>
+
+      <details className="sv-card" style={{ paddingTop: 6, paddingBottom: 6 }}>
+        <summary className="sv-head" style={{ cursor: 'pointer', minHeight: 44, display: 'flex', alignItems: 'center', fontSize: 18 }}>
+          সব জমা · ইতিহাস
+          <span style={{ fontFamily: 'var(--sv-font-body)', fontWeight: 400, fontSize: 14, color: 'var(--sv-text-muted)', marginLeft: 8 }}>{bn(guardian.log.length + report.log.length)}টি</span>
+        </summary>
+        <div className="flex flex-col gap-2" style={{ padding: '8px 0 10px' }}>
           {report.log.length === 0 && guardian.log.length === 0 && <p style={{ margin: 0, fontSize: 14, color: 'var(--sv-text-muted)' }}>এখনো কোনো জমা নেই।</p>}
-          {guardian.log.map((entry, i) => {
-            const status = STATUS[entry.supersededBy ? 'superseded' : 'current'];
-            return (
-              <div key={`g${i}`} className="flex gap-3 items-start" style={{ padding: '10px 12px', borderRadius: 12, border: '1px solid var(--sv-hairline)', opacity: entry.supersededBy ? 0.7 : 1 }}>
-                <span className="sv-tag" style={{ flex: 'none' }}>
-                  {KIND_LABEL[entry.kind as keyof typeof KIND_LABEL]}
-                </span>
-                <div className="flex flex-col gap-0.5" style={{ flex: 1, fontSize: 14 }}>
-                  <div style={{ fontWeight: 600 }}>
-                    {entry.who}
-                    {entry.relation ? ` (${entry.relation})` : ''}
-                  </div>
-                  <div style={{ fontSize: 13, color: 'var(--sv-text-muted)' }}>
-                    {entry.roundLabel}
-                    {entry.submittedAt ? ` · ${formatDateTime(entry.submittedAt)}` : ''} · {entry.verified ? 'যাচাইকৃত' : 'অযাচাইকৃত'}
-                  </div>
-                </div>
-                <span style={{ flex: 'none', background: status.bg, color: status.fg, borderRadius: 6, padding: '2px 8px', fontSize: 13, fontWeight: 600 }}>{status.label}</span>
-              </div>
-            );
-          })}
-          {report.log.map((entry, i) => {
-            const status = STATUS[entry.status];
-            return (
-              <div
-                key={i}
-                className="flex gap-3 items-start"
-                style={{ padding: '10px 12px', borderRadius: 12, border: '1px solid var(--sv-hairline)', opacity: entry.status === 'superseded' || entry.status === 'set-aside' ? 0.7 : 1 }}
-              >
-                <span className="sv-tag" style={{ flex: 'none' }}>
-                  {KIND_LABEL.T1}
-                </span>
-                <div className="flex flex-col gap-0.5" style={{ flex: 1, fontSize: 14 }}>
-                  <div style={{ fontWeight: 600 }}>
-                    {entry.teacherName} · {entry.subjectName}
-                  </div>
-                  <div style={{ fontSize: 13, color: 'var(--sv-text-muted)' }}>
-                    {entry.roundLabel}
-                    {entry.submittedAt ? ` · ${formatDateTime(entry.submittedAt)}` : ''}
-                  </div>
-                </div>
-                <span style={{ flex: 'none', background: status.bg, color: status.fg, borderRadius: 6, padding: '2px 8px', fontSize: 13, fontWeight: 600 }}>{status.label}</span>
-              </div>
-            );
-          })}
-        </section>
-      </div>
+          {guardian.log.map((entry, i) => (
+            <LogEntry
+              key={`g${i}`}
+              kind={KIND_LABEL[entry.kind as keyof typeof KIND_LABEL]}
+              who={submittedBy(entry)}
+              when={`${entry.roundLabel}${entry.submittedAt ? ` · ${formatDateTime(entry.submittedAt)}` : ''} · ${entry.verified ? 'যাচাইকৃত' : 'অযাচাইকৃত'}`}
+              status={entry.supersededBy ? 'superseded' : 'current'}
+            />
+          ))}
+          {report.log.map((entry, i) => (
+            <LogEntry
+              key={i}
+              kind={KIND_LABEL.T1}
+              who={`${entry.teacherName} · ${entry.subjectName}`}
+              when={`${entry.roundLabel}${entry.submittedAt ? ` · ${formatDateTime(entry.submittedAt)}` : ''}`}
+              status={entry.status}
+            />
+          ))}
+        </div>
+      </details>
     </>
+  );
+}
+
+function average(marks: (number | null)[]): number | null {
+  const counted = marks.filter((m) => m !== null);
+  return counted.length ? counted.reduce((sum, m) => sum + m, 0) / counted.length : null;
+}
+
+function CompareRow({ name, teacher, guardian, gap, total = false }: { name: string; teacher: number | null; guardian: number | null; gap: number | null; total?: boolean }) {
+  const wide = gap !== null && Math.round(gap * 10) / 10 >= FLAGS.guardianTeacherGap;
+  const num = { textAlign: 'right' as const, fontWeight: 600, fontSize: total ? 16 : 15, whiteSpace: 'nowrap' as const };
+  return (
+    <tr style={{ background: wide ? 'var(--sv-warn-bg)' : undefined }}>
+      <th scope="row" style={{ fontWeight: total ? 600 : 500, fontSize: 15, color: 'var(--sv-text)', borderBottom: total ? 0 : undefined }}>
+        {name}
+      </th>
+      <td className="sv-num" style={{ ...num, borderBottom: total ? 0 : undefined }}>
+        {formatMark(teacher, bn)}
+      </td>
+      <td className="sv-num" style={{ ...num, borderBottom: total ? 0 : undefined }}>
+        {formatMark(guardian, bn)}
+      </td>
+      <td className="sv-num" style={{ ...num, color: wide ? 'var(--sv-warn)' : undefined, borderBottom: total ? 0 : undefined }}>
+        {gap === null ? '—' : `${wide ? '⚠ ' : ''}${bn(gap.toFixed(1))}`}
+      </td>
+    </tr>
+  );
+}
+
+function MarkLegend() {
+  return (
+    <div className="flex flex-wrap items-center gap-2" style={{ fontSize: 13, color: 'var(--sv-text-muted)' }}>
+      মার্ক:
+      {([10, 8, 6, 4] as const).map((m) => {
+        const tone = markTone(m);
+        return (
+          <span key={m} className="sv-mark" style={{ background: tone.bg, color: tone.fg }}>
+            {{ 10: '১০', 8: '৮', 6: '৬–৭', 4: '৪–৫' }[m]}
+          </span>
+        );
+      })}
+      <span>· ৭ বা কম = কম মার্ক</span>
+    </div>
+  );
+}
+
+function QuestionHint({ text }: { text: string | null | undefined }) {
+  if (!text) return null;
+  return <span style={{ display: 'block', fontSize: 12.5, color: 'var(--sv-text-muted)' }}>{text}</span>;
+}
+
+function FormLine({ form, label }: { form: { who: string | null; relation: string | null; submittedAt: Date | null; verified: boolean | null }; label: string }) {
+  return (
+    <div style={{ fontSize: 13.5, color: 'var(--sv-text-muted)' }}>
+      {label} · {form.who}
+      {form.relation ? ` (${form.relation})` : ''}
+      {form.submittedAt ? ` · ${formatDateTime(form.submittedAt)}` : ''} · <b style={{ color: form.verified ? 'var(--sv-ok)' : 'var(--sv-warn)', fontWeight: 600 }}>{form.verified ? 'যাচাইকৃত' : 'অযাচাইকৃত'}</b>
+    </div>
+  );
+}
+
+function Comment({ text }: { text: string | null }) {
+  if (!text) return null;
+  return (
+    <div style={{ borderRadius: 12, background: 'var(--sv-report)', padding: '10px 14px', fontSize: 14.5, lineHeight: 1.6 }}>
+      <div style={{ fontSize: 13, color: 'var(--sv-text-muted)' }}>মন্তব্য</div>
+      {text}
+    </div>
+  );
+}
+
+function LogEntry({ kind, who, when, status }: { kind: string; who: string; when: string; status: keyof typeof STATUS }) {
+  const s = STATUS[status];
+  const faded = status === 'superseded' || status === 'set-aside';
+  return (
+    <div className="flex gap-3 items-start" style={{ padding: '10px 12px', borderRadius: 12, border: '1px solid var(--sv-hairline)', opacity: faded ? 0.7 : 1 }}>
+      <span className="sv-tag" style={{ flex: 'none' }}>
+        {kind}
+      </span>
+      <div className="flex flex-col gap-0.5" style={{ flex: 1, fontSize: 14 }}>
+        <div style={{ fontWeight: 600 }}>{who}</div>
+        <div style={{ fontSize: 13, color: 'var(--sv-text-muted)' }}>{when}</div>
+      </div>
+      <span style={{ flex: 'none', background: s.bg, color: s.fg, borderRadius: 6, padding: '2px 8px', fontSize: 13, fontWeight: 600 }}>{s.label}</span>
+    </div>
   );
 }
