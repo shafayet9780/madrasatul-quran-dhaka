@@ -3,6 +3,7 @@
 import { useRef } from 'react';
 import { Icon, MarkTrack, Progress, SaveChip, useIsDesktop, type SaveState } from '@/components/survey/ui';
 import { batchLabel, bn } from '@/lib/survey/labels';
+import { hasMarks } from '@/lib/survey/t1-logic';
 import type { BatchKeyInput, RosterStudent } from '@/lib/survey/t1-types';
 import { DeskHeader, StatusBanners } from './Chrome';
 import type { T1Config } from './types';
@@ -16,6 +17,8 @@ export function RateScreen({
   saveState,
   closed,
   stale,
+  byLevel,
+  taken,
   q,
   onQuestion,
   onBackToClass,
@@ -30,6 +33,10 @@ export function RateScreen({
   saveState: SaveState;
   closed: boolean;
   stale?: boolean;
+  /** Subject taught by level: the teacher marks only their own students. */
+  byLevel: boolean;
+  /** By level: students another teacher has already rated, with that teacher's name. */
+  taken: Record<string, string>;
   q: number;
   onQuestion: (q: number) => void;
   onBackToClass: () => void;
@@ -40,8 +47,10 @@ export function RateScreen({
   const question = questions[q];
   const listRef = useRef<HTMLDivElement>(null);
   const desktop = useIsDesktop();
-  const isDone = (i: number) => students.every((s) => scale.includes(answers[s.erpId]?.[questions[i].key]));
-  const remaining = students.filter((s) => !scale.includes(answers[s.erpId]?.[question.key]));
+  // By level only the students the teacher has started count; the rest belong to other teachers.
+  const counted = byLevel ? students.filter((s) => hasMarks(config.snapshot, answers[s.erpId])) : students;
+  const isDone = (i: number) => (!byLevel || counted.length > 0) && counted.every((s) => scale.includes(answers[s.erpId]?.[questions[i].key]));
+  const remaining = counted.filter((s) => !scale.includes(answers[s.erpId]?.[question.key]));
   const last = q === questions.length - 1;
   const shortLabel = batchLabel(config.snapshot, batchKey, 'short');
 
@@ -112,14 +121,22 @@ export function RateScreen({
           )}
 
           <StatusBanners saveState={saveState} closed={closed} stale={stale} />
+          {byLevel && (
+            <div className="sv-banner is-info" style={{ margin: '14px 16px 0' }}>
+              {Icon.note({ size: 20 })}
+              <span>এই বিষয় লেভেল অনুযায়ী পড়ানো হয়: শুধু যাদের আপনি পড়ান তাদের মার্ক দিন, বাকিদের ফাঁকা রাখুন।</span>
+            </div>
+          )}
 
           <div className="flex items-center justify-between gap-3" style={{ padding: '14px 24px 6px' }}>
-            <span style={{ fontSize: 14, color: 'var(--sv-text-muted)' }}>{bn(students.length)} জন · রোল অনুযায়ী</span>
+            <span style={{ fontSize: 14, color: 'var(--sv-text-muted)' }}>
+              {bn(students.length)} জন · রোল অনুযায়ী{byLevel ? ` · আপনার ${bn(counted.length)} জন` : ''}
+            </span>
             {remaining.length > 0 ? (
               <button type="button" className="sv-pill" aria-label={`${bn(remaining.length)} জন বাকি, প্রথম বাকি শিক্ষার্থীর কাছে যান`} onClick={jumpToRemaining}>
                 {bn(remaining.length)} জন বাকি {Icon.down()}
               </button>
-            ) : (
+            ) : byLevel ? null : (
               <span className="sv-chip is-ok">{Icon.check()} সবাই পূর্ণ</span>
             )}
           </div>
@@ -138,6 +155,7 @@ export function RateScreen({
                       {student.name}
                     </span>
                     {student.roll === null && <span className="sv-student-id">আইডি {bn(student.erpId)}</span>}
+                    {taken[student.erpId] && <span className="sv-student-id">রেট করেছেন: {taken[student.erpId]}</span>}
                   </div>
                   <MarkTrack marks={scale} value={value} labelledBy={`${nameId} question-text`} onChange={(mark) => onMark(student.erpId, question.key, mark)} />
                 </div>

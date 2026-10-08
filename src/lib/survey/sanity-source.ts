@@ -8,7 +8,7 @@ const fresh = { cache: 'no-store' } as const;
 
 const LISTS = `
   "areas": *[_type == "surveyArea"] | order(order asc) { key, name, group },
-  "classes": *[_type == "surveyClass"] | order(order asc) { key, name, sections[] { key, name }, subjects[] { key, name } },
+  "classes": *[_type == "surveyClass"] | order(order asc) { key, name, sections[] { key, name }, subjects[] { key, name, byLevel } },
   "teachers": *[_type == "surveyTeacher" && active != false] | order(name asc) { key, name }
 `;
 

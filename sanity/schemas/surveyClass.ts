@@ -54,6 +54,14 @@ export const surveyClass = defineType({
           fields: [
             keyField(),
             defineField({ name: 'name', title: 'Name (Bengali)', type: 'string', validation: (Rule) => Rule.required() }),
+            defineField({
+              name: 'byLevel',
+              title: 'Taught by level',
+              description:
+                'Tick when several teachers share this class for this subject (e.g. Arabic by level): each teacher rates only their own students. Press "তালিকা হালনাগাদ" on an open round to apply.',
+              type: 'boolean',
+              initialValue: false,
+            }),
           ],
           preview: { select: { title: 'name', subtitle: 'key' } },
         }),

@@ -7,8 +7,8 @@ import { getDb } from './db';
 import { titleCase } from './normalise';
 import { surveyAccess } from './round-status';
 import { answerItems, REQUEUE_MIRROR, responses, students, submissions, surveyRounds } from './schema';
-import { compareStudents } from './snapshot';
-import { findMissing, resolveBatch, t1AnswerItems, validRowAnswers } from './t1-logic';
+import { compareStudents, isByLevel } from './snapshot';
+import { findMissing, hasMarks, resolveBatch, t1AnswerItems, validRowAnswers } from './t1-logic';
 import type { BatchKeyInput, BatchState, DraftRow, DuplicateBatch, OverviewItem, RosterStudent, SubmitResult } from './t1-types';
 
 type Round = typeof surveyRounds.$inferSelect;
@@ -87,6 +87,26 @@ async function describeDuplicates(key: BatchKey): Promise<(DuplicateBatch & { re
   }));
 }
 
+/** By-level subject: which of these students another teacher has already rated (current marks), by name. */
+async function takenBy(key: BatchKey, erpIds: string[]): Promise<Map<string, string>> {
+  if (!erpIds.length) return new Map();
+  const rows = await getDb()
+    .select({ erpId: responses.studentErpId, teacherName: submissions.teacherName })
+    .from(responses)
+    .innerJoin(submissions, eq(submissions.id, responses.submissionId))
+    .where(
+      and(
+        eq(responses.roundId, key.roundId),
+        eq(responses.kind, 'T1'),
+        eq(responses.subjectKey, key.subjectKey),
+        eq(responses.isCurrent, true),
+        ne(responses.teacherKey, key.teacherKey),
+        inArray(responses.studentErpId, erpIds)
+      )
+    );
+  return new Map(rows.map((r) => [r.erpId, r.teacherName ?? '']));
+}
+
 /** What the client may see of another teacher's batch (the admin's decision stays server-side). */
 function publicDuplicate(d: DuplicateBatch & { resolved: boolean }): DuplicateBatch {
   return { submissionId: d.submissionId, teacherName: d.teacherName, submittedAt: d.submittedAt, students: d.students };
@@ -97,13 +117,15 @@ export async function loadBatch(round: Round, input: BatchKeyInput): Promise<Bat
   if (!resolveBatch(round.snapshot, input)) return null;
   const key = { ...input, roundId: round.id };
   const db = getDb();
-  const [roster, own, duplicates] = await Promise.all([
-    loadRoster(key.classKey, key.sectionKey),
+  // By level, several teachers share the class: no class-wide duplicate warning, only per student.
+  const byLevel = isByLevel(round.snapshot, key.classKey, key.subjectKey);
+  const [[roster, taken], own, duplicates] = await Promise.all([
+    loadRoster(key.classKey, key.sectionKey).then(async (roster) => [roster, byLevel ? await takenBy(key, roster.map((s) => s.erpId)) : new Map<string, string>()] as const),
     db
       .select()
       .from(submissions)
       .where(and(ownBatch(key), or(eq(submissions.status, 'draft'), isCurrent))),
-    describeDuplicates(key),
+    byLevel ? Promise.resolve([]) : describeDuplicates(key),
   ]);
   const draft = own.find((s) => s.status === 'draft');
   const current = own.find((s) => s.status === 'submitted');
@@ -122,6 +144,7 @@ export async function loadBatch(round: Round, input: BatchKeyInput): Promise<Bat
     status: draft ? 'draft' : current ? 'submitted' : 'new',
     submitted: current ? { at: current.submittedAt!.toISOString(), receiptToken: current.receiptToken! } : null,
     duplicates: duplicates.map(publicDuplicate),
+    taken: Object.fromEntries(taken),
   };
 }
 
@@ -190,7 +213,10 @@ export async function saveDraft(round: Round, input: BatchKeyInput, rows: DraftR
   const [draft] = await db.select({ id: submissions.id }).from(submissions).where(and(ownBatch(key), eq(submissions.status, 'draft')));
   if (!draft) return { ok: false, reason: 'invalid' };
 
-  const upserts = valid.map(({ row, answers, student }) =>
+  // A cleared student ("not my student") loses marks and note; anything sent with the clear is kept.
+  const cleared = valid.filter((v) => v.row.clear).map((v) => v.student!.erpId);
+  const kept = valid.filter((v) => !v.row.clear || Object.keys(v.answers!).length || v.row.note?.trim());
+  const upserts = kept.map(({ row, answers, student }) =>
     db
       .insert(responses)
       .values({
@@ -217,6 +243,7 @@ export async function saveDraft(round: Round, input: BatchKeyInput, rows: DraftR
       })
   );
   const statements: BatchItem<'pg'>[] = [
+    ...(cleared.length ? [db.delete(responses).where(and(eq(responses.submissionId, draft.id), inArray(responses.studentErpId, cleared)))] : []),
     ...upserts,
     db.update(submissions).set({ updatedAt: now, clientIp: meta.ip, userAgent: meta.userAgent }).where(eq(submissions.id, draft.id)),
   ];
@@ -248,23 +275,35 @@ export async function submitBatch(
   const current = own.find((s) => s.status === 'submitted');
   if (!draft) return current ? { ok: true, receiptToken: current.receiptToken! } : { ok: false, reason: 'empty' };
 
+  const byLevel = isByLevel(round.snapshot, key.classKey, key.subjectKey);
   const [roster, drafted, duplicates] = await Promise.all([
     loadRoster(key.classKey, key.sectionKey),
     db
       .select({ id: responses.id, studentErpId: responses.studentErpId, answers: responses.answers })
       .from(responses)
       .where(eq(responses.submissionId, draft.id)),
-    describeDuplicates(key),
+    byLevel ? Promise.resolve([]) : describeDuplicates(key),
   ]);
   if (!roster.length) return { ok: false, reason: 'empty' };
-  const missing = findMissing(round.snapshot, roster, new Map(drafted.map((r) => [r.studentErpId, r.answers])));
+  const draftedAnswers = new Map(drafted.map((r) => [r.studentErpId, r.answers]));
+  const missing = findMissing(round.snapshot, roster, draftedAnswers, byLevel);
   if (missing.length) return { ok: false, reason: 'incomplete', missing };
+  // By level the batch is the students this teacher rated, and each student keeps one teacher per subject.
+  const mine = byLevel ? roster.filter((s) => hasMarks(round.snapshot, draftedAnswers.get(s.erpId))) : roster;
+  // By level, submitting nobody over a submitted batch withdraws it (ratings given by mistake).
+  if (!mine.length && !(byLevel && current)) return { ok: false, reason: 'empty' };
+  if (byLevel) {
+    const taken = await takenBy(key, mine.map((s) => s.erpId));
+    if (taken.size) {
+      return { ok: false, reason: 'taken', students: mine.filter((s) => taken.has(s.erpId)).map((s) => ({ erpId: s.erpId, name: s.name, teacherName: taken.get(s.erpId)! })) };
+    }
+  }
   // A pair the admin already resolved (kept both) stays resolved when either teacher edits later.
   const resolvedPair = Boolean(current?.duplicateResolvedAt) && duplicates.every((d) => d.resolved);
   const open = resolvedPair ? [] : duplicates.map(publicDuplicate);
   if (open.some((d) => !acknowledged.includes(d.submissionId))) return { ok: false, reason: 'duplicate', duplicates: open };
 
-  const rosterIds = roster.map((s) => s.erpId);
+  const rosterIds = mine.map((s) => s.erpId);
   const kept = drafted.filter((r) => rosterIds.includes(r.studentErpId));
   const earlierForStudents = and(
     ne(responses.submissionId, draft.id),
@@ -376,16 +415,21 @@ export async function teacherOverview(round: Round, teacherKey: string): Promise
     if (!byBatch.has(id) || s.status === 'draft') byBatch.set(id, s);
   }
   return [...byBatch.values()]
-    .map((s) => ({
-      classKey: s.classKey,
-      sectionKey: s.sectionKey,
-      subjectKey: s.subjectKey,
-      status: s.status,
-      // Progress counts only students currently in the class-section.
-      done: saved.filter((r) => r.submissionId === s.id && placeOf.get(r.studentErpId) === `${s.classKey}|${s.sectionKey}` && complete(r.answers)).length,
-      total: roster.filter((r) => r.classKey === s.classKey && r.sectionKey === s.sectionKey).length,
-      updatedAt: s.updatedAt.toISOString(),
-    }))
+    .map((s) => {
+      // Progress counts only students currently in the class-section; by level, only the teacher's own.
+      const here = saved.filter((r) => r.submissionId === s.id && placeOf.get(r.studentErpId) === `${s.classKey}|${s.sectionKey}`);
+      return {
+        classKey: s.classKey,
+        sectionKey: s.sectionKey,
+        subjectKey: s.subjectKey,
+        status: s.status,
+        done: here.filter((r) => complete(r.answers)).length,
+        total: isByLevel(round.snapshot, s.classKey, s.subjectKey)
+          ? here.filter((r) => hasMarks(round.snapshot, r.answers)).length
+          : roster.filter((r) => r.classKey === s.classKey && r.sectionKey === s.sectionKey).length,
+        updatedAt: s.updatedAt.toISOString(),
+      };
+    })
     .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
 }
 

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { buildRound } from './build-round';
+import { buildLists, buildRound } from './build-round';
 import { roundSource as source } from './testing/fixtures';
 import { roundStatus, surveyAccess } from './round-status';
 
@@ -19,6 +19,15 @@ describe('buildRound', () => {
     expect(round.snapshot.classes[2]).toEqual({ key: 'six', name: 'ষষ্ঠ', sections: [], subjects: [] });
     // play 1×1 + nursery 2×2 + six 1×0
     expect(round.summary).toEqual({ questions: 2, classSections: 4, t1Pairs: 5, areas: 2, teachers: 1 });
+  });
+
+  it('copies the by-level flag only onto subjects that have it', () => {
+    const lists = buildLists({
+      areas: [],
+      teachers: [],
+      classes: [{ key: 'two', name: 'দ্বিতীয়', subjects: [{ key: 'arabic', name: 'আরবি', byLevel: true }, { key: 'math', name: 'গণিত', byLevel: null }] }],
+    });
+    expect(lists.classes[0].subjects).toEqual([{ key: 'arabic', name: 'আরবি', byLevel: true }, { key: 'math', name: 'গণিত' }]);
   });
 
   it('lets the admin override the planned dates', () => {

@@ -22,7 +22,9 @@ const keyA = { teacherKey: '90001', classKey: CLASS, sectionKey: 'a', subjectKey
 function testSnapshot() {
   const snapshot = t1FixtureSnapshot();
   const nursery = snapshot.classes.find((c) => c.key === 'nursery')!;
-  snapshot.classes.push({ ...nursery, key: CLASS, name: 'পরীক্ষা শ্রেণি' });
+  // English is taught by level here: each teacher rates only their own students.
+  const subjects = nursery.subjects.map((sub) => (sub.key === 'english' ? { ...sub, byLevel: true } : sub));
+  snapshot.classes.push({ ...nursery, key: CLASS, name: 'পরীক্ষা শ্রেণি', subjects });
   return snapshot;
 }
 const keyB = { ...keyA, teacherKey: '90002' };
@@ -207,5 +209,84 @@ describe('T1 draft and submit', () => {
     expect(overview.find((o) => o.subjectKey === 'arabic')).toMatchObject({ status: 'draft', done: 1, total: 2 });
     // The student who moved to section B no longer counts towards section A.
     expect(overview.find((o) => o.subjectKey === 'quran' && o.sectionKey === 'a')).toMatchObject({ status: 'submitted', done: 2, total: 2 });
+  });
+});
+
+describe('T1 subject taught by level', () => {
+  // By now section A holds s1 and s2 (s3 moved to B above).
+  const keyL = { ...keyA, subjectKey: 'english' };
+  const keyLB = { ...keyL, teacherKey: '90002' };
+  const englishSubmissions = () =>
+    getDb()
+      .select({ teacherKey: submissions.teacherKey, duplicateFlag: submissions.duplicateFlag })
+      .from(submissions)
+      .where(and(eq(submissions.roundId, round.id), eq(submissions.subjectKey, 'english'), eq(submissions.status, 'submitted')));
+
+  it('submits only the students the teacher marked, complete', async () => {
+    await saveDraft(round, keyL, [{ studentErpId: ids.s1, answers: { attendance: 10 } }], meta);
+    expect(await submitBatch(round, keyL, [], meta)).toMatchObject({ ok: false, reason: 'incomplete' });
+    await saveDraft(round, keyL, [{ studentErpId: ids.s1, answers: full(10) }], meta);
+    const result = await submitBatch(round, keyL, [], meta);
+    if (!result.ok) throw new Error(JSON.stringify(result));
+    expect((await loadReceipt(result.receiptToken))?.rows.map((r) => r.erpId)).toEqual([ids.s1]);
+    expect(await currentItems((await loadReceipt(result.receiptToken))!.submission.id)).toHaveLength(QUESTIONS.length);
+  });
+
+  it('lets a second teacher rate the rest without a duplicate warning', async () => {
+    const batch = await loadBatch(round, keyLB);
+    expect(batch?.duplicates).toEqual([]);
+    expect(batch?.taken).toEqual({ [ids.s1]: 'উস্তাদ আব্দুল্লাহ' });
+    await saveDraft(round, keyLB, [{ studentErpId: ids.s2, answers: full(6) }], meta);
+    const result = await submitBatch(round, keyLB, [], meta);
+    if (!result.ok) throw new Error(JSON.stringify(result));
+    expect((await englishSubmissions()).map((s) => [s.teacherKey, s.duplicateFlag]).sort()).toEqual([
+      ['90001', false],
+      ['90002', false],
+    ]);
+  });
+
+  it('refuses a student another teacher already rated until the marks are cleared', async () => {
+    await saveDraft(round, keyLB, [{ studentErpId: ids.s1, answers: full(4), note: 'ভুল' }], meta);
+    expect(await submitBatch(round, keyLB, [], meta)).toMatchObject({
+      ok: false,
+      reason: 'taken',
+      students: [{ erpId: ids.s1, teacherName: 'উস্তাদ আব্দুল্লাহ' }],
+    });
+    await saveDraft(round, keyLB, [{ studentErpId: ids.s1, clear: true }], meta);
+    const batch = await loadBatch(round, keyLB);
+    expect(batch?.answers).toEqual({ [ids.s2]: full(6) });
+    expect(batch?.notes).toEqual({});
+    const result = await submitBatch(round, keyLB, [], meta);
+    if (!result.ok) throw new Error(JSON.stringify(result));
+    expect(await teacherOverview(round, '90002')).toContainEqual(expect.objectContaining({ subjectKey: 'english', done: 1, total: 1 }));
+  });
+
+  it('a cleared student stops counting once the teacher resubmits', async () => {
+    await saveDraft(round, keyL, [{ studentErpId: ids.s2, answers: full(8) }], meta);
+    await saveDraft(round, keyL, [{ studentErpId: ids.s2, clear: true }, { studentErpId: ids.s1, answers: { attendance: 4 } }], meta);
+    const result = await submitBatch(round, keyL, [], meta);
+    if (!result.ok) throw new Error(JSON.stringify(result));
+    const current = await getDb()
+      .select({ teacherKey: responses.teacherKey, erpId: responses.studentErpId })
+      .from(responses)
+      .where(and(eq(responses.roundId, round.id), eq(responses.subjectKey, 'english'), eq(responses.isCurrent, true)));
+    expect(current.map((r) => `${r.teacherKey}:${r.erpId}`).sort()).toEqual([`90001:${ids.s1}`, `90002:${ids.s2}`]);
+  });
+
+  it('withdraws a submitted batch when the teacher clears everyone, but refuses an empty first submit', async () => {
+    const keyNew = { ...keyL, teacherKey: '90003' };
+    await saveDraft(round, keyNew, [{ studentErpId: ids.s2, clear: true }], meta);
+    expect(await submitBatch(round, keyNew, [], meta)).toMatchObject({ ok: false, reason: 'empty' });
+
+    await saveDraft(round, keyLB, [{ studentErpId: ids.s2, clear: true }], meta);
+    const result = await submitBatch(round, keyLB, [], meta);
+    if (!result.ok) throw new Error(JSON.stringify(result));
+    expect((await loadReceipt(result.receiptToken))?.rows).toEqual([]);
+    const current = await getDb()
+      .select({ teacherKey: responses.teacherKey, erpId: responses.studentErpId })
+      .from(responses)
+      .where(and(eq(responses.roundId, round.id), eq(responses.subjectKey, 'english'), eq(responses.isCurrent, true)));
+    expect(current.map((r) => `${r.teacherKey}:${r.erpId}`)).toEqual([`90001:${ids.s1}`]);
+    expect((await loadBatch(round, keyL))?.taken).toEqual({});
   });
 });

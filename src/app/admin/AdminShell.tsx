@@ -26,9 +26,9 @@ const SURVEY_SECTIONS: { heading: string; links: NavLink[] }[] = [
     heading: 'রিপোর্ট',
     links: [
       { label: 'ওভারভিউ', href: '/admin/reports/overview', icon: 'overview' },
+      { label: 'ক্লাস ও শিক্ষার্থী', href: '/admin/reports', icon: 'classes' },
       { label: 'শিক্ষার মান', href: '/admin/reports/teaching', icon: 'teaching' },
       { label: 'প্রশ্নভিত্তিক ফলাফল', href: '/admin/reports/questions', icon: 'questions' },
-      { label: 'ক্লাস ও শিক্ষার্থী', href: '/admin/reports', icon: 'classes' },
       { label: 'শিক্ষকদের রেটিং প্যাটার্ন', href: '/admin/reports/raters', icon: 'raters' },
     ],
   },

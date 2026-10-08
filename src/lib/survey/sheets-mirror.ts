@@ -71,13 +71,16 @@ async function mirrorOne(spreadsheetId: string, submissionId: string, knownTabs:
       await ensureTab(spreadsheetId, title, guardianSheetHeader(round.snapshot), knownTabs);
       values = rows.flatMap((row) => guardianSheetRows(round.snapshot, { ...claimed, submittedAt: claimed.submittedAt! }, row));
     }
-    await getSheetsClient().spreadsheets.values.append({
-      spreadsheetId,
-      range: `'${title}'!A1`,
-      valueInputOption: 'RAW',
-      insertDataOption: 'INSERT_ROWS',
-      requestBody: { values },
-    });
+    // A withdrawn by-level batch has no students: nothing to append (the earlier batch is re-copied as replaced).
+    if (values.length) {
+      await getSheetsClient().spreadsheets.values.append({
+        spreadsheetId,
+        range: `'${title}'!A1`,
+        valueInputOption: 'RAW',
+        insertDataOption: 'INSERT_ROWS',
+        requestBody: { values },
+      });
+    }
     await db.update(submissions).set({ mirroredAt: new Date(), mirrorClaimedAt: null }).where(ours);
     return true;
   } catch (error) {

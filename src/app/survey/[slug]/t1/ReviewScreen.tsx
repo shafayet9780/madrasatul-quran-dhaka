@@ -4,6 +4,7 @@ import { useEffect, useId, useState } from 'react';
 import { Icon, MarkTrack, Sheet, Topbar, useIsDesktop, type SaveState } from '@/components/survey/ui';
 import { formatDateTime } from '@/lib/survey/dates';
 import { batchLabel, bn, questionLabel } from '@/lib/survey/labels';
+import { hasMarks } from '@/lib/survey/t1-logic';
 import { NOTE_MAX, type BatchKeyInput, type DuplicateBatch, type RosterStudent, type SubmitResult } from '@/lib/survey/t1-types';
 import { DeskHeader, StatusBanners } from './Chrome';
 import type { T1Config } from './types';
@@ -39,10 +40,14 @@ export function ReviewScreen({
   saveState,
   closed,
   stale,
+  byLevel,
+  taken,
+  wasSubmitted,
   onBack,
   onGoTo,
   onMark,
   onNote,
+  onClear,
   onSubmit,
 }: {
   config: T1Config;
@@ -54,10 +59,17 @@ export function ReviewScreen({
   saveState: SaveState;
   closed: boolean;
   stale?: boolean;
+  /** Subject taught by level: the batch is only the students this teacher has marked. */
+  byLevel: boolean;
+  /** By level: students another teacher has already rated, with that teacher's name. */
+  taken: Record<string, string>;
+  /** A submitted batch exists: by level, submitting nobody withdraws it. */
+  wasSubmitted: boolean;
   onBack: () => void;
   onGoTo: (q: number) => void;
   onMark: (erpId: string, questionKey: string, mark: number) => void;
   onNote: (erpId: string, note: string) => void;
+  onClear: (erpId: string) => void;
   onSubmit: (acknowledged: string[]) => Promise<SubmitOutcome>;
 }) {
   const { questions, scale } = config.snapshot.template;
@@ -69,11 +81,13 @@ export function ReviewScreen({
   const graceMinutes = useGraceMinutes(config.closesAt, config.graceMs);
   const desktop = useIsDesktop();
 
+  const rated = byLevel ? students.filter((s) => hasMarks(config.snapshot, answers[s.erpId])) : students;
   const missing = questions
-    .map((question, q) => ({ q, question, students: students.filter((s) => !scale.includes(answers[s.erpId]?.[question.key])) }))
+    .map((question, q) => ({ q, question, students: rated.filter((s) => !scale.includes(answers[s.erpId]?.[question.key])) }))
     .filter((m) => m.students.length);
   const missingCount = missing.reduce((sum, m) => sum + m.students.length, 0);
-  const noteCount = students.filter((s) => notes[s.erpId]).length;
+  const noteCount = rated.filter((s) => notes[s.erpId]).length;
+  const conflicts = rated.filter((s) => taken[s.erpId]);
   const longLabel = batchLabel(config.snapshot, batchKey);
   const editUntil = dayMonth.format(new Date(config.closesAt));
 
@@ -93,7 +107,7 @@ export function ReviewScreen({
     <button
       type="button"
       className="sv-cta"
-      disabled={submitting || closed || failure === 'closed'}
+      disabled={submitting || closed || failure === 'closed' || conflicts.length > 0}
       aria-busy={submitting || undefined}
       onClick={() => void submit()}
     >
@@ -111,6 +125,15 @@ export function ReviewScreen({
 
   const notices = (
     <>
+      {conflicts.length > 0 && (
+        <div role="alert" className="sv-card is-attention">
+          <div style={{ fontSize: 16, fontWeight: 600 }}>এই শিক্ষার্থীদের অন্য শিক্ষক আগেই রেট করেছেন</div>
+          <div style={{ fontSize: 14.5, color: 'var(--sv-text-muted)', lineHeight: 1.55 }}>
+            আপনার শিক্ষার্থী না হলে মার্ক মুছে দিন। আপনার হলে ঐ শিক্ষককে তাঁর মার্ক মুছতে বলুন।
+          </div>
+          <ClearList items={conflicts.map((s) => ({ student: s, detail: taken[s.erpId] }))} onClear={onClear} />
+        </div>
+      )}
       {graceMinutes !== null && !closed && failure !== 'closed' && (
         <div className="sv-banner is-info" role="status">
           {Icon.clock({ size: 20 })}
@@ -139,7 +162,7 @@ export function ReviewScreen({
       {editing && (
         <EditMarkSheet
           config={config}
-          students={students}
+          students={rated}
           answers={answers}
           editing={editing}
           onMove={setEditing}
@@ -157,6 +180,14 @@ export function ReviewScreen({
             onNote(noting, text);
             setNoting(null);
           }}
+          onClear={
+            byLevel
+              ? () => {
+                  onClear(noting);
+                  setNoting(null);
+                }
+              : undefined
+          }
           onClose={() => setNoting(null)}
         />
       )}
@@ -175,7 +206,38 @@ export function ReviewScreen({
     </>
   );
 
+  if (byLevel && !rated.length) {
+    return (
+      <div className="sv-frame">
+        {desktop && <DeskHeader config={config} teacherName={teacherName} batchKey={batchKey} saveState={saveState} />}
+        <main className="sv-screen" style={{ minHeight: 0, flex: 1, width: '100%' }}>
+          <Topbar label="শেষ ধাপ · দেখে নিয়ে জমা" onBack={onBack} backLabel="প্রশ্নে ফিরুন" />
+          <div className="flex flex-col gap-2" style={{ padding: '6px 20px 0' }}>
+            <h1 className="sv-head sv-h1" style={{ lineHeight: 1.4 }}>
+              {wasSubmitted ? 'সব শিক্ষার্থী বাদ দিয়েছেন' : 'এখনো কাউকে মার্ক দেননি'}
+            </h1>
+            <div style={{ fontSize: 15, fontWeight: 600 }}>{longLabel}</div>
+            <p style={{ margin: 0, fontSize: 15, lineHeight: 1.6, color: 'var(--sv-text-muted)' }}>
+              {wasSubmitted
+                ? 'জমা দিলে এই ক্লাসে আপনার আগের সব মার্ক বাদ যাবে, অন্য শিক্ষক তখন এই শিক্ষার্থীদের মার্ক দিতে পারবেন।'
+                : 'এই বিষয় লেভেল অনুযায়ী পড়ানো হয়: শুধু যাদের আপনি পড়ান তাদের মার্ক দিন।'}
+            </p>
+          </div>
+          <StatusBanners saveState={saveState} closed={closed} stale={stale} />
+          <div className="sv-footer is-white">
+            {wasSubmitted && notices}
+            {wasSubmitted && submitButton}
+            <button type="button" className={wasSubmitted ? 'sv-secondary' : 'sv-cta'} onClick={() => onGoTo(0)}>
+              মার্ক দিন
+            </button>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
   if (missing.length) {
+    const partial = rated.filter((s) => missing.some((m) => m.students.includes(s)));
     return (
       <div className="sv-frame">
         {desktop && <DeskHeader config={config} teacherName={teacherName} batchKey={batchKey} saveState={saveState} />}
@@ -191,7 +253,8 @@ export function ReviewScreen({
           <div role="alert" className="sv-banner is-warn" style={{ margin: '14px 16px 0' }}>
             {Icon.warn()}
             <span>
-              {bn(missing.length)}টি প্রশ্নে মোট <b>{bn(missingCount)}টি মার্ক</b> বাকি। সব মার্ক দিলে জমা দেওয়া যাবে। আপনার কাজ সংরক্ষিত আছে।
+              {bn(missing.length)}টি প্রশ্নে মোট <b>{bn(missingCount)}টি মার্ক</b> বাকি।{' '}
+              {byLevel ? 'যাদের মার্ক দিয়েছেন তাদের সব প্রশ্নের মার্ক দিলে' : 'সব মার্ক দিলে'} জমা দেওয়া যাবে। আপনার কাজ সংরক্ষিত আছে।
             </span>
           </div>
           <div className="flex flex-col gap-2" style={{ padding: '14px 16px 16px' }}>
@@ -213,6 +276,15 @@ export function ReviewScreen({
               </button>
             ))}
           </div>
+          {byLevel && (
+            <div className="flex flex-col gap-2" style={{ padding: '0 16px 16px' }}>
+              <div style={{ fontSize: 14.5, color: 'var(--sv-text-muted)', lineHeight: 1.55 }}>কেউ আপনার শিক্ষার্থী না হলে তার মার্ক মুছে দিন:</div>
+              <ClearList
+                items={partial.map((s) => ({ student: s, detail: `${bn(missing.filter((m) => m.students.includes(s)).length)}টি প্রশ্ন বাকি` }))}
+                onClear={onClear}
+              />
+            </div>
+          )}
           <div className="sv-footer is-white">
             <button type="button" className="sv-cta" onClick={() => onGoTo(missing[0].q)}>
               প্রথম বাকি মার্কে যান
@@ -229,9 +301,14 @@ export function ReviewScreen({
   const summaryChips = (
     <div className="flex flex-wrap gap-1.5">
       <span className="sv-chip is-ok">
-        {bn(students.length)} জন · {bn(questions.length)}টি প্রশ্ন · সব পূর্ণ
+        {bn(rated.length)} জন · {bn(questions.length)}টি প্রশ্ন · সব পূর্ণ
       </span>
       {noteCount > 0 && <span className="sv-chip is-info">{bn(noteCount)}টি নোট</span>}
+      {byLevel && students.length > rated.length && (
+        <span style={{ flexBasis: '100%', fontSize: 13.5, color: 'var(--sv-text-muted)', lineHeight: 1.5 }}>
+          বাকি {bn(students.length - rated.length)} জনকে মার্ক দেননি: তারা অন্য শিক্ষকের হিসেবে থাকবে।
+        </span>
+      )}
     </div>
   );
 
@@ -260,7 +337,7 @@ export function ReviewScreen({
             ))}
             <div className="flex justify-center">{Icon.note({ stroke: 'var(--sv-text-muted)' })}</div>
           </div>
-          {students.map((student) => (
+          {rated.map((student) => (
             <div key={student.erpId} className="sv-grid-row">
               <div className="flex gap-1.5 items-baseline" style={{ minWidth: 0 }}>
                 <span style={{ flex: 'none', fontSize: 13, color: 'var(--sv-text-muted)', width: 16 }}>{student.roll !== null ? bn(student.roll) : '–'}</span>
@@ -335,7 +412,7 @@ export function ReviewScreen({
                 </tr>
               </thead>
               <tbody>
-                {students.map((student) => (
+                {rated.map((student) => (
                   <tr key={student.erpId}>
                     <td className="sv-num" style={{ color: 'var(--sv-text-muted)', paddingLeft: 8 }}>
                       {student.roll !== null ? bn(student.roll) : '–'}
@@ -489,6 +566,7 @@ function NoteSheet({
   answers,
   note,
   onSave,
+  onClear,
   onClose,
 }: {
   config: T1Config;
@@ -496,6 +574,8 @@ function NoteSheet({
   answers: Record<string, number>;
   note: string;
   onSave: (text: string) => void;
+  /** By-level subject: remove this student's marks ("not my student"). */
+  onClear?: () => void;
   onClose: () => void;
 }) {
   const titleId = useId();
@@ -559,7 +639,34 @@ function NoteSheet({
           সংরক্ষণ
         </button>
       </div>
+      {onClear && (
+        <button type="button" className="sv-tertiary" onClick={onClear}>
+          আমার শিক্ষার্থী নয় · মার্ক মুছুন
+        </button>
+      )}
     </Sheet>
+  );
+}
+
+/** By-level subject: students with a "not my student" button that removes their marks. */
+function ClearList({ items, onClear }: { items: { student: RosterStudent; detail: string }[]; onClear: (erpId: string) => void }) {
+  return (
+    <div className="flex flex-col gap-1.5">
+      {items.map(({ student, detail }) => (
+        <div key={student.erpId} className="flex items-center justify-between gap-3" style={{ padding: '8px 12px', borderRadius: 12, border: '1px solid var(--sv-hairline)' }}>
+          <span className="flex flex-col" style={{ minWidth: 0 }}>
+            <b style={{ fontSize: 15 }}>
+              {student.roll !== null ? `${bn(student.roll)}. ` : ''}
+              {student.name}
+            </b>
+            <span style={{ fontSize: 13, color: 'var(--sv-text-muted)' }}>{detail}</span>
+          </span>
+          <button type="button" className="sv-secondary" style={{ width: 'auto', minHeight: 40, padding: '0 14px' }} aria-label={`${student.name}: মার্ক মুছুন`} onClick={() => onClear(student.erpId)}>
+            মুছুন
+          </button>
+        </div>
+      ))}
+    </div>
   );
 }
 
