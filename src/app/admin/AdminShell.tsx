@@ -3,17 +3,25 @@
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/shadcn/dropdown-menu';
+import type { AdmissionsNav } from '@/lib/admissions/admin';
 import type { ShellData } from '@/lib/survey/admin-shell';
 import { toBengaliDigits as bn } from '@/lib/survey/normalise';
 import { Icon, type IconName } from './icons';
 
 // The admin app frame (dashboard frames D1–D4): sidebar on desktop, top bar + bottom tabs + menu
-// sheet on phones. The teacher round chosen here applies to every report page (cookie sv-round).
+// sheet on phones. Two modules share it, chosen with the switcher at the top: ভর্তি (admissions,
+// /admin/admissions) and জরিপ (the teacher and guardian survey, everything else). The teacher round
+// chosen here applies to every survey report page (cookie sv-round).
 
-const GUIDE = 'https://github.com/shafayet9780/madrasatul-quran-dhaka/blob/main/docs/survey-admin-guide.md';
+const GUIDE: Record<Module, string> = {
+  survey: 'https://github.com/shafayet9780/madrasatul-quran-dhaka/blob/main/docs/survey-admin-guide.md',
+  admissions: 'https://github.com/shafayet9780/madrasatul-quran-dhaka/blob/main/docs/pre-admission-admin-guide.md',
+};
 
-type NavLink = { label: string; href: string; icon: IconName; badge?: boolean };
-const SECTIONS: { heading: string; links: NavLink[] }[] = [
+type NavLink = { label: string; href: string; icon: IconName; badge?: boolean; count?: number; external?: boolean };
+type Module = 'admissions' | 'survey';
+const SURVEY_SECTIONS: { heading: string; links: NavLink[] }[] = [
   {
     heading: 'রিপোর্ট',
     links: [
@@ -33,15 +41,44 @@ const SECTIONS: { heading: string; links: NavLink[] }[] = [
     ],
   },
 ];
-const ALL_HREFS = SECTIONS.flatMap((s) => s.links.map((l) => l.href));
+
+function admissionsSections(nav: AdmissionsNav): { heading: string; links: NavLink[] }[] {
+  return [
+    {
+      heading: `প্রি-অ্যাডমিশন ${bn(nav?.session ?? '২০২৭')}`,
+      links: [
+        { label: 'ওভারভিউ', href: '/admin/admissions', icon: 'overview' },
+        { label: 'আবেদন', href: '/admin/admissions/applications', icon: 'people', count: nav?.paid },
+        { label: 'ফি বাকি', href: '/admin/admissions/unpaid', icon: 'clock', count: nav?.unpaid },
+        { label: 'মূল্যায়নের দিন', href: '/admin/admissions/evaluation-day', icon: 'scan' },
+      ],
+    },
+    { heading: 'সেটআপ', links: [{ label: 'ফর্ম ও ফি (স্টুডিও)', href: '/studio/structure/preAdmissionForm', icon: 'sliders', external: true }] },
+  ];
+}
+
+type Tab = readonly [label: string, href: string, icon: IconName];
+const ADMISSIONS_TABS: Tab[] = [
+  ['ওভারভিউ', '/admin/admissions', 'overview'],
+  ['আবেদন', '/admin/admissions/applications', 'people'],
+  ['মূল্যায়ন', '/admin/admissions/evaluation-day', 'scan'],
+];
+const SURVEY_TABS: Tab[] = [
+  ['ওভারভিউ', '/admin/reports/overview', 'overview'],
+  ['ক্লাস', '/admin/reports', 'classes'],
+  ['ট্র্যাকার', '/admin/tracker', 'tracker'],
+];
+
+const moduleOf = (pathname: string): Module => (pathname === '/admin/admissions' || pathname.startsWith('/admin/admissions/') ? 'admissions' : 'survey');
 
 /** The longest nav link that the path is under (so /admin/reports/raters is not also "reports"). */
-function isCurrent(pathname: string, href: string) {
-  const matches = ALL_HREFS.filter((h) => pathname === h || pathname.startsWith(`${h}/`));
+function isCurrent(pathname: string, href: string, hrefs: string[]) {
+  // The admissions overview is the module's root, so only its own page lights it.
+  const matches = hrefs.filter((h) => pathname === h || (h !== '/admin/admissions' && pathname.startsWith(`${h}/`)));
   return matches.sort((a, b) => b.length - a.length)[0] === href;
 }
 
-type Shell = { data: ShellData; roundId: string | null; chooseRound: (id: string) => void; openMenu: () => void };
+type Shell = { data: ShellData; roundId: string | null; chooseRound: (id: string) => void; openMenu: () => void; mod: Module };
 const ShellContext = createContext<Shell | null>(null);
 
 export function useShell(): Shell {
@@ -77,29 +114,79 @@ export function RoundSelect({ compact = false }: { compact?: boolean }) {
   );
 }
 
-function NavLinks({ pathname, pending, compact }: { pathname: string; pending: number | null; compact: boolean }) {
+function NavLinks({ pathname, pending, compact, sections }: { pathname: string; pending: number | null; compact: boolean; sections: { heading: string; links: NavLink[] }[] }) {
+  const hrefs = sections.flatMap((s) => s.links.map((l) => l.href));
   return (
     <>
-      {SECTIONS.map((section) => (
+      {sections.map((section) => (
         <div key={section.heading} className="flex flex-col" style={{ gap: 2 }}>
           <div className="sv-side-group">{section.heading}</div>
-          {section.links.map((link) => (
-            <Link key={link.href} href={link.href} className="sv-side-link" aria-current={isCurrent(pathname, link.href) ? 'page' : undefined} title={compact ? link.label : undefined}>
-              <Icon name={link.icon} />
-              <span className="sv-side-text">{link.label}</span>
-              {link.badge && pending ? <span className="sv-side-badge">{bn(pending)} বাকি</span> : null}
-            </Link>
-          ))}
+          {section.links.map((link) =>
+            link.external ? (
+              <a key={link.href} href={link.href} target="_blank" rel="noreferrer" className="sv-side-link" title={compact ? link.label : undefined}>
+                <Icon name={link.icon} />
+                <span className="sv-side-text">{link.label}</span>
+              </a>
+            ) : (
+              <Link key={link.href} href={link.href} className="sv-side-link" aria-current={isCurrent(pathname, link.href, hrefs) ? 'page' : undefined} title={compact ? link.label : undefined}>
+                <Icon name={link.icon} />
+                <span className="sv-side-text">{link.label}</span>
+                {link.badge && pending ? <span className="sv-side-badge">{bn(pending)} বাকি</span> : null}
+                {link.count != null ? <span className="sv-side-count">{link.count}</span> : null}
+              </Link>
+            ),
+          )}
         </div>
       ))}
     </>
   );
 }
 
-function FooterLinks({ compact }: { compact: boolean }) {
+const MODULES: Record<Module, { title: string; menu: string; href: string; icon: IconName }> = {
+  admissions: { title: 'ভর্তি', menu: 'ভর্তি', href: '/admin/admissions', icon: 'admissions' },
+  survey: { title: 'জরিপ', menu: 'শিক্ষক ও অভিভাবক জরিপ', href: '/admin/reports/overview', icon: 'survey' },
+};
+
+/** The module switcher (ভর্তি | জরিপ) at the top of the sidebar and the phone menu. */
+function ModuleSwitch({ mod, session, compact }: { mod: Module; session: string; compact?: boolean }) {
+  const current = MODULES[mod];
+  const sub = mod === 'admissions' ? `প্রি-অ্যাডমিশন ${bn(session)}` : 'শিক্ষক ও অভিভাবক জরিপ';
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger className="sv-module" aria-label={`মডিউল: ${current.title} (বদলান)`} title={compact ? current.title : undefined}>
+        <span aria-hidden="true" className="sv-side-logo">
+          <Icon name={current.icon} size={18} />
+        </span>
+        <span className="sv-side-text flex flex-col" style={{ minWidth: 0, flex: 1, textAlign: 'left' }}>
+          <span style={{ fontWeight: 600, fontSize: 14.5, lineHeight: 1.3 }}>{current.title}</span>
+          <span style={{ fontSize: 12.5, color: 'var(--sv-text-muted)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{sub}</span>
+        </span>
+        <span className="sv-side-text" style={{ color: 'var(--sv-text-muted)' }}>
+          <Icon name="updown" size={16} />
+        </span>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="start" className="sv-module-menu adm w-64">
+        <DropdownMenuLabel className="text-xs font-normal text-muted-foreground">মডিউল</DropdownMenuLabel>
+        {(Object.keys(MODULES) as Module[]).map((key) => (
+          <DropdownMenuItem key={key} asChild>
+            <Link href={MODULES[key].href} className="flex items-center gap-2.5">
+              <span className="flex size-7 items-center justify-center rounded-md border">
+                <Icon name={MODULES[key].icon} size={16} />
+              </span>
+              <span className="flex-1">{MODULES[key].menu}</span>
+              {key === mod && <Icon name="check" size={16} />}
+            </Link>
+          </DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
+function FooterLinks({ compact, mod }: { compact: boolean; mod: Module }) {
   return (
     <div className="sv-side-footer">
-      <a className="sv-side-link" href={GUIDE} target="_blank" rel="noreferrer" title={compact ? 'অ্যাডমিন গাইড' : undefined}>
+      <a className="sv-side-link" href={GUIDE[mod]} target="_blank" rel="noreferrer" title={compact ? 'অ্যাডমিন গাইড' : undefined}>
         <Icon name="help" />
         <span className="sv-side-text">অ্যাডমিন গাইড</span>
       </a>
@@ -111,23 +198,19 @@ function FooterLinks({ compact }: { compact: boolean }) {
   );
 }
 
-function Brand({ children }: { children?: ReactNode }) {
+function Brand({ mod, session, children }: { mod: Module; session: string; children?: ReactNode }) {
   return (
     <div className="sv-side-brand">
-      <div aria-hidden="true" className="sv-side-logo sv-head">
-        ম
-      </div>
-      <div className="sv-side-text flex flex-col" style={{ minWidth: 0, flex: 1 }}>
-        <span style={{ fontWeight: 600, fontSize: 14.5, lineHeight: 1.3 }}>মাদরাসাতুল কুরআন</span>
-        <span style={{ fontSize: 12.5, color: 'var(--sv-text-muted)' }}>রিভিউ ড্যাশবোর্ড</span>
-      </div>
+      <ModuleSwitch mod={mod} session={session} />
       {children}
     </div>
   );
 }
 
-export function AdminShell({ data, children }: { data: ShellData; children: ReactNode }) {
+export function AdminShell({ data, admissions, children }: { data: ShellData; admissions: AdmissionsNav; children: ReactNode }) {
   const pathname = usePathname();
+  const mod = moduleOf(pathname);
+  const sections = mod === 'admissions' ? admissionsSections(admissions) : SURVEY_SECTIONS;
   const router = useRouter();
   const params = useSearchParams();
   // A page opened with ?round= of a teacher round shows that one; otherwise the chosen one.
@@ -214,15 +297,15 @@ export function AdminShell({ data, children }: { data: ShellData; children: Reac
   };
 
   return (
-    <ShellContext.Provider value={{ data, roundId, chooseRound, openMenu }}>
-      <div className="sv-shell" data-collapsed={collapsed}>
+    <ShellContext.Provider value={{ data, roundId, chooseRound, openMenu, mod }}>
+      <div className="sv-shell" data-collapsed={collapsed} data-module={mod}>
         <aside className="sv-side sv-no-print" aria-label="অ্যাপ মেনু">
-          <Brand>
+          <Brand mod={mod} session={admissions?.session ?? '2027'}>
             <button type="button" className="sv-icon-btn" aria-label={collapsed ? 'সাইডবার বড় করুন' : 'সাইডবার ছোট করুন'} onClick={() => setFolded(!collapsed)}>
               <Icon name="panel" />
             </button>
           </Brand>
-          {collapsed ? (
+          {mod === 'admissions' ? null : collapsed ? (
             <div className="flex flex-col items-center" style={{ gap: 4 }}>
               <button
                 type="button"
@@ -251,23 +334,17 @@ export function AdminShell({ data, children }: { data: ShellData; children: Reac
               </Link>
             </div>
           )}
-          <nav aria-label="রিপোর্ট মেনু" className="flex flex-col" style={{ gap: 4 }}>
-            <NavLinks pathname={pathname} pending={data.pending} compact={collapsed} />
+          <nav aria-label={mod === 'admissions' ? 'ভর্তি মেনু' : 'রিপোর্ট মেনু'} className="flex flex-col" style={{ gap: 4 }}>
+            <NavLinks pathname={pathname} pending={data.pending} compact={collapsed} sections={sections} />
           </nav>
-          <FooterLinks compact={collapsed} />
+          <FooterLinks compact={collapsed} mod={mod} />
         </aside>
 
         <main className="sv-shell-main">{children}</main>
 
         <nav className="sv-tabs sv-no-print" aria-label="প্রধান মেনু">
-          {(
-            [
-              ['ওভারভিউ', '/admin/reports/overview', 'overview'],
-              ['ক্লাস', '/admin/reports', 'classes'],
-              ['ট্র্যাকার', '/admin/tracker', 'tracker'],
-            ] as const
-          ).map(([label, href, icon]) => (
-            <Link key={href} href={href} className="sv-tab" aria-current={isCurrent(pathname, href) ? 'page' : undefined}>
+          {(mod === 'admissions' ? ADMISSIONS_TABS : SURVEY_TABS).map(([label, href, icon]) => (
+            <Link key={href} href={href} className="sv-tab" aria-current={isCurrent(pathname, href, sections.flatMap((x) => x.links.map((l) => l.href))) ? 'page' : undefined}>
               <Icon name={icon} size={22} />
               {label}
             </Link>
@@ -282,16 +359,16 @@ export function AdminShell({ data, children }: { data: ShellData; children: Reac
           <div className="sv-sheet-wrap sv-no-print">
             <div className="sv-sheet-scrim" aria-hidden="true" onClick={closeMenu} />
             <div ref={sheet} className="sv-sheet" role="dialog" aria-modal="true" aria-label="মেনু" onKeyDown={trapTab}>
-              <Brand>
+              <Brand mod={mod} session={admissions?.session ?? '2027'}>
                 <button ref={closeButton} type="button" className="sv-icon-btn" aria-label="মেনু বন্ধ করুন" onClick={closeMenu}>
                   <Icon name="close" size={20} />
                 </button>
               </Brand>
-              <RoundSelect />
-              <nav aria-label="রিপোর্ট মেনু (ফোন)" className="flex flex-col" style={{ gap: 4, overflowY: 'auto' }}>
-                <NavLinks pathname={pathname} pending={data.pending} compact={false} />
+              {mod === 'survey' && <RoundSelect />}
+              <nav aria-label={mod === 'admissions' ? 'ভর্তি মেনু (ফোন)' : 'রিপোর্ট মেনু (ফোন)'} className="flex flex-col" style={{ gap: 4, overflowY: 'auto' }}>
+                <NavLinks pathname={pathname} pending={data.pending} compact={false} sections={sections} />
               </nav>
-              <FooterLinks compact={false} />
+              <FooterLinks compact={false} mod={mod} />
             </div>
           </div>
         )}
@@ -302,7 +379,8 @@ export function AdminShell({ data, children }: { data: ShellData; children: Reac
 
 /** Each page's sticky top bar: menu button (phone), breadcrumbs, page actions; the round on phones. */
 export function PageTop({ crumbs, actions, round = true }: { crumbs: { label: string; href?: string }[]; actions?: ReactNode; round?: boolean }) {
-  const { openMenu } = useShell();
+  const { openMenu, mod } = useShell();
+  const survey = mod === 'survey';
   return (
     <header className="sv-pagetop sv-no-print">
       <div className="sv-pagetop-bar">
@@ -326,12 +404,14 @@ export function PageTop({ crumbs, actions, round = true }: { crumbs: { label: st
             );
           })}
         </nav>
-        <Link href="/admin/reports?find=1" className="sv-icon-btn sv-phone-only" aria-label="শিক্ষার্থী খুঁজুন">
-          <Icon name="search" size={20} />
-        </Link>
+        {survey && (
+          <Link href="/admin/reports?find=1" className="sv-icon-btn sv-phone-only" aria-label="শিক্ষার্থী খুঁজুন">
+            <Icon name="search" size={20} />
+          </Link>
+        )}
         {actions && <div className="sv-pagetop-actions">{actions}</div>}
       </div>
-      {round && (
+      {round && survey && (
         <div className="sv-phone-only sv-pagetop-round">
           <RoundSelect compact />
         </div>

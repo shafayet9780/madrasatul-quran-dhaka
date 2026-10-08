@@ -233,3 +233,19 @@ export async function reconcilePending(olderThanMinutes = 30, limit = 50, gatewa
   }
   return counts;
 }
+
+/**
+ * Admin: accept a payment held for review (risky, or an amount that did not match) after checking
+ * it in the SSLCommerz panel. The application then gets its ID like any confirmed payment.
+ */
+export async function acceptHeldPayment(paymentId: string): Promise<SettleResult> {
+  const db = getAdmissionsDb();
+  const [updated] = await db
+    .update(payments)
+    .set({ status: 'valid', completedAt: new Date(), updatedAt: new Date() })
+    .where(and(eq(payments.id, paymentId), eq(payments.status, 'held')))
+    .returning();
+  if (!updated) return { outcome: 'not_valid' };
+  await logEvent(updated.applicationId, updated.tranId, 'payment_released', 'admin', { tranId: updated.tranId });
+  return giveId(updated, 'admin');
+}

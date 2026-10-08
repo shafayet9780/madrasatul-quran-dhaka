@@ -70,13 +70,13 @@ export async function sendResumeEmail(app: Application, token: string, origin: s
   return result;
 }
 
-/** After payment: ID, WhatsApp link and the application PDF attached. Sent once. */
-export async function sendConfirmationEmail(applicationId: string, origin: string, send = mailer()): Promise<MailResult> {
+/** After payment: ID, WhatsApp link and the application PDF attached. Sent once, or `again` from the admin. */
+export async function sendConfirmationEmail(applicationId: string, origin: string, send = mailer(), again = false): Promise<MailResult> {
   if (!send) return { ok: false, reason: 'not_configured' };
   const db = getAdmissionsDb();
   const [app] = await db.select().from(applications).where(eq(applications.id, applicationId));
   if (!app?.publicRef) return { ok: false, reason: 'not_paid' };
-  if (app.confirmationEmailAt) return { ok: true };
+  if (app.confirmationEmailAt && !again) return { ok: true };
   const snapshot = await loadSnapshot(app.cycleId, app.snapshotVersion);
   if (!snapshot) return { ok: false, reason: 'no_form' };
   const locale = asLocale(app.locale);
@@ -101,7 +101,7 @@ export async function sendConfirmationEmail(applicationId: string, origin: strin
   const result = await send({ to: app.email, ...email, attachments: attachment ? [{ filename: pdfFileName(app.publicRef), content: attachment }] : undefined });
   if (result.ok) {
     await db.update(applications).set({ confirmationEmailAt: new Date() }).where(and(eq(applications.id, app.id), isNull(applications.confirmationEmailAt)));
-    await logEvent(app.id, app.publicRef, 'email_confirmation', 'system', { to: app.email, pdf: !!attachment });
+    await logEvent(app.id, app.publicRef, 'email_confirmation', again ? 'admin' : 'system', { to: app.email, pdf: !!attachment });
   } else {
     await logEvent(app.id, app.publicRef, 'email_failed', 'system', { email: 'confirmation', reason: result.reason });
   }

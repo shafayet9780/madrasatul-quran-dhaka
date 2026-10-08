@@ -3,6 +3,7 @@ import { eq } from 'drizzle-orm';
 import { getAdmissionsDb } from '@/lib/admissions/db';
 import { sendConfirmationEmail } from '@/lib/admissions/mail';
 import { closePayment, confirmPayment, type SettleResult } from '@/lib/admissions/payments';
+import { copyPendingToSheet } from '@/lib/admissions/sheet-copy';
 import { applications } from '@/lib/admissions/schema';
 import { sslConfigFromEnv, verifyIpnSignature } from '@/lib/admissions/sslcommerz';
 
@@ -12,11 +13,12 @@ import { sslConfigFromEnv, verifyIpnSignature } from '@/lib/admissions/sslcommer
 
 const EVENTS = new Set(['success', 'fail', 'cancel', 'ipn']);
 
-/** Once paid: make the PDF and email it, after the response (the guardian does not wait). */
+/** Once paid: make the PDF and email it, and copy to the Sheet, after the response (the guardian does not wait). */
 function afterPaid(result: SettleResult, origin: string) {
   if (result.outcome !== 'paid' || !result.applicationId) return;
   const id = result.applicationId;
   after(() => sendConfirmationEmail(id, origin).then((r) => !r.ok && console.warn('Admissions: confirmation email not sent', r)).catch((e) => console.error('Admissions: confirmation email failed', e)));
+  after(() => copyPendingToSheet({ limit: 10, budgetMs: 15_000 }).catch(() => undefined));
 }
 
 async function formFields(request: NextRequest): Promise<Record<string, string>> {

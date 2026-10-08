@@ -1,6 +1,6 @@
 # Pre-admission 2027 — Implementation Plan
 
-Status: **M1 to M4 done** (2026-10-07); M3 waits for the SSLCommerz sandbox credentials for a real sandbox run, M4 for the private Blob store and Resend (both work in the local preview). Next M5 (admin). Database tests run against in-memory Postgres (PGlite, all migrations applied) in the normal `pnpm test`; `pnpm test:db` against the Neon dev branch is still available.
+Status: **M1 to M5 done** (2026-10-08); M3 waits for the SSLCommerz sandbox credentials for a real sandbox run, M4 for the private Blob store and Resend, M5's Sheet copy for `FORM_GOOGLE_SHEETS_ID` and the Google service account in the Vercel env (all work in the local preview). Next M6 (hardening and go-live). Database tests run against in-memory Postgres (PGlite, all migrations applied) in the normal `pnpm test`; `pnpm test:db` against the Neon dev branch is still available. Admin guide: [`pre-admission-admin-guide.md`](pre-admission-admin-guide.md).
 Inputs: [`pre-admission-2027.md`](pre-admission-2027.md) (spec) · [`pre-admission-mockups/`](pre-admission-mockups/README.md) (prototype + design language, locked)
 
 ## 1. Decisions (planning interview, 2026-10-07)
@@ -98,8 +98,10 @@ Print page (3 pages A4, Bengali shaping checked), Chromium renderer + private st
 ### M5 — Admin
 Shared shadcn shell (survey nav moves under জরিপ), overview, list (paid / fee pending, filters, search, bulk status, bulk PDF), detail (answers from snapshot, documents, payment, status, evaluation-day switches, notes, activity log), delete unpaid (data + files), Excel export, QR check-in, Sheet copy to the ভর্তি ২০২৭ tab with retry. → verify: e2e for admin flows, `assertAdmin()` on every action.
 
+Done: the admin shell keeps the survey's frame and adds the ভর্তি / জরিপ switcher; the admissions module uses the neutral palette. Pages under `src/app/admin/admissions/` (overview, `applications`, `unpaid`, `[id]`, `evaluation-day`); downloads under the same path so the Studio login covers them (`file`, `[id]/pdf`, `pdfs` merged with `pdf-lib`, `export`), each also calling `assertAdmin()`. Server actions in `actions.ts`. Queries in `src/lib/admissions/admin.ts`, ERP-ready rows in `export-rows.ts` (shared by Excel and the Sheet), the Sheet copy in `sheet-copy.ts` (upsert by ID, claim pattern, after payment and office changes, retried by the daily cron). Tests: `admin.pg.test.ts`, `export-rows.test.ts`, `sheet-copy.pg.test.ts`, `e2e/pre-admission-admin.spec.ts` (sample data from the local-only `POST /api/admissions/dev/seed`).
+
 ### M6 — Hardening and go-live
-Remove the old form, `/api/submit-form` and `/api/upload`; security review; admin guide (`docs/pre-admission-admin-guide.md`); sandbox end-to-end; go-live checklist (Pro plan, live SSLCommerz store and IPN, Resend domain, deadline, enable form, test ৳500 payment and refund).
+Remove the old form, `/api/submit-form` and `/api/upload`; security review; sandbox end-to-end; go-live checklist (Pro plan, live SSLCommerz store and IPN, Resend domain, deadline, enable form, test ৳500 payment and refund).
 
 ## 5. Needed from the owner
 - M0 items above (private Blob store, Resend + DNS, SSLCommerz sandbox). `CRON_SECRET` is already set for the survey; Find uses it unless `ADMISSIONS_SECRET` is set.

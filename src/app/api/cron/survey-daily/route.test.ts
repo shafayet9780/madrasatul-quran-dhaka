@@ -9,6 +9,7 @@ vi.mock('@/lib/survey/rate-limit', () => ({ pruneRateLimits: async () => 0 }));
 vi.mock('@/lib/survey/guardian', () => ({ pruneLookups: async () => 0 }));
 vi.mock('@/lib/admissions/payments', () => ({ reconcilePending: async () => ({ paid: 1 }) }));
 vi.mock('@/lib/admissions/mail', () => ({ retryConfirmationEmails: async () => ({ sent: 1, failed: 0 }) }));
+vi.mock('@/lib/admissions/sheet-copy', () => ({ copyPendingToSheet: async () => ({ copied: 1, failed: 0 }) }));
 
 import { GET } from './route';
 
@@ -42,6 +43,7 @@ describe('survey daily cron', () => {
       backup: { pathname: 'survey-backups/2026-10-04.json', bytes: 10, removed: 0 },
       admissionsPayments: { paid: 1 },
       admissionsEmails: { sent: 1, failed: 0 },
+      admissionsSheet: { copied: 1, failed: 0 },
       prunedDryRuns: 3,
       prunedRateLimits: 0,
       prunedLookups: 0,

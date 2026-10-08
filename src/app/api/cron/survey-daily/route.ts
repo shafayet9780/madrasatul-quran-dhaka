@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { isAuthorizedCleanupRequest } from '@/lib/downloads/cleanup';
 import { retryConfirmationEmails } from '@/lib/admissions/mail';
 import { reconcilePending } from '@/lib/admissions/payments';
+import { copyPendingToSheet } from '@/lib/admissions/sheet-copy';
 import { getSiteUrl } from '@/lib/site-url';
 import { backupSurveyTables } from '@/lib/survey/backup';
 import { pruneDryRuns } from '@/lib/survey/erp-import-server';
@@ -46,6 +47,7 @@ export async function GET(request: NextRequest) {
   try {
     result.admissionsPayments = await reconcilePending(30, 40);
     result.admissionsEmails = await retryConfirmationEmails(getSiteUrl(), 15_000);
+    result.admissionsSheet = await copyPendingToSheet({ budgetMs: 10_000 });
   } catch (error) {
     ok = false;
     result.admissionsPayments = { error: error instanceof Error ? error.message : 'failed' };

@@ -12,6 +12,8 @@ export default defineConfig({
   use: {
     baseURL: 'http://localhost:3300',
     trace: 'on-first-retry',
+    // The admin pages sit behind the Studio login (production server, so the proxy asks for it).
+    httpCredentials: { username: 'office', password: 'local-pass' },
     // Optional: a preinstalled Chromium when the pinned browser build is not downloaded.
     launchOptions: { executablePath: process.env.PLAYWRIGHT_CHROMIUM_PATH || undefined },
   },
@@ -19,7 +21,14 @@ export default defineConfig({
     command: 'pnpm build && pnpm start',
     url: 'http://localhost:3300/bengali/pre-admission',
     // The server prints application PDFs with the same Chromium.
-    env: { PORT: '3300', ADMISSIONS_LOCAL: '1', CHROMIUM_EXECUTABLE_PATH: chromiumPath },
+    env: {
+      PORT: '3300',
+      ADMISSIONS_LOCAL: '1',
+      CHROMIUM_EXECUTABLE_PATH: chromiumPath,
+      STUDIO_AUTH_ENABLED: 'true',
+      STUDIO_USERNAME: 'office',
+      STUDIO_PASSWORD: 'local-pass',
+    },
     reuseExistingServer: !process.env.CI,
     timeout: 300_000,
   },
