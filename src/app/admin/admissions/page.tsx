@@ -39,20 +39,32 @@ function dailySeries(byDay: { day: string; count: number }[], now: Date) {
   return days;
 }
 
-function HBars({ rows, total }: { rows: { label: string; count: number }[]; total?: number }) {
+function HBars({ rows, total }: { rows: { label: string; count: number; href?: string }[]; total?: number }) {
   const max = Math.max(1, ...rows.map((r) => r.count));
   return (
-    <div className="mt-4 flex flex-col gap-2.5">
-      {rows.map((r) => (
-        <div key={r.label} className="grid grid-cols-[minmax(90px,120px)_1fr_auto] items-center gap-2.5 text-[13.5px]">
-          <span className="truncate">{r.label}</span>
-          <span className="block h-3 rounded-r-[4px] bg-primary" style={{ width: `${(r.count / max) * 100}%`, minWidth: r.count ? 2 : 0 }} aria-hidden />
-          <span className={cn(LAT, 'min-w-9 text-right font-medium')}>
-            {r.count}
-            {total ? <span className="font-normal text-muted-foreground"> ({Math.round((r.count / total) * 100)}%)</span> : null}
-          </span>
-        </div>
-      ))}
+    <div className="mt-4 flex flex-col gap-1">
+      {rows.map((r) => {
+        const cells = (
+          <>
+            <span className={cn('truncate', r.href && 'underline decoration-muted-foreground/50 underline-offset-4 group-hover:decoration-foreground')}>{r.label}</span>
+            <span className="block h-3 rounded-r-[4px] bg-primary" style={{ width: `${(r.count / max) * 100}%`, minWidth: r.count ? 2 : 0 }} aria-hidden />
+            <span className={cn(LAT, 'min-w-9 text-right font-medium')}>
+              {r.count}
+              {total ? <span className="font-normal text-muted-foreground"> ({Math.round((r.count / total) * 100)}%)</span> : null}
+            </span>
+          </>
+        );
+        const row = 'grid grid-cols-[minmax(90px,120px)_1fr_auto] items-center gap-2.5 rounded-md px-1.5 py-1 text-[13.5px]';
+        return r.href ? (
+          <Link key={r.label} href={r.href} className={cn(row, 'group -mx-1.5 text-foreground no-underline hover:bg-muted')}>
+            {cells}
+          </Link>
+        ) : (
+          <div key={r.label} className={cn(row, '-mx-1.5')}>
+            {cells}
+          </div>
+        );
+      })}
     </div>
   );
 }
@@ -69,7 +81,8 @@ export default async function AdmissionsOverview() {
   const yesterday = days.at(-2)?.count ?? 0;
   const maxDay = Math.max(1, ...days.map((d) => d.count));
   const classes = classOptions(snapshot);
-  const byClass = classes.map((c) => ({ label: c.label, count: o.byClass.find((b) => b.classCode === c.value)?.count ?? 0 }));
+  // Each class opens the paid list filtered to it.
+  const byClass = classes.map((c) => ({ label: c.label, count: o.byClass.find((b) => b.classCode === c.value)?.count ?? 0, href: `/admin/admissions/applications?class=${c.value}` }));
   const heardRows = heard
     ? o.heardFrom.map((h) => ({ label: h.value ? txt(heard.options.find((x) => x.value === h.value)?.label, 'bengali') || h.value : 'উত্তর নেই', count: h.count }))
     : [];
@@ -151,7 +164,7 @@ export default async function AdmissionsOverview() {
 
           <Card>
             <h2 className="m-0 text-[15px] font-semibold">শ্রেণীভিত্তিক আবেদন</h2>
-            <p className="m-0 mt-0.5 text-[13px] text-muted-foreground">পরিশোধিত, মোট {bn(o.paid)}</p>
+            <p className="m-0 mt-0.5 text-[13px] text-muted-foreground">পরিশোধিত, মোট {bn(o.paid)} · শ্রেণীতে চাপ দিলে তালিকা খুলবে</p>
             <HBars rows={byClass} />
           </Card>
 

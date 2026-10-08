@@ -36,6 +36,12 @@ test('overview, module switcher and the paid list with search and filters', asyn
   await expect(page.getByRole('link', { name: /^পরিশোধিত আবেদন/ })).toBeVisible();
   await noSeriousA11yIssues(page);
 
+  // A class on the overview opens the paid list filtered to it.
+  await page.getByRole('link', { name: /^কেজি/ }).click();
+  await expect(page).toHaveURL(/\/admin\/admissions\/applications\?class=KG$/);
+  for (const id of await idCells(page).allTextContents()) expect(id).toMatch(/^KG-/);
+  await page.goto('/admin/admissions');
+
   // The switcher leads to the survey module and back.
   await page.getByRole('button', { name: /মডিউল: ভর্তি/ }).click();
   await expect(page.getByRole('menuitem', { name: 'শিক্ষক ও অভিভাবক জরিপ' })).toBeVisible();
