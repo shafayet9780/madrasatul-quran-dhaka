@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { chosenRoundId } from '@/lib/survey/admin-shell';
 import { pairedRound } from '@/lib/survey/guardian-report-math';
 import { allReportRounds, pickKindRound, previousRound, teachingCell, teachingQuality } from '@/lib/survey/guardian-reports';
@@ -48,6 +49,8 @@ export default async function TeachingPage({ searchParams }: { searchParams: Pro
   const validCell = cellAt && report.rows.some((r) => r.classKey === cellAt.classKey && r.sectionKey === cellAt.sectionKey && r.cells.some((c) => c?.subjectKey === cellAt.subjectKey));
   const detail = cellAt && validCell ? await teachingCell(g1, compare, cellAt, { verifiedOnly }) : null;
   const subjectName = (key: string) => report.subjects.find((s) => s.key === key)?.name ?? key;
+  // The class list opens on the teacher round of this period, so it shows the same guardian round.
+  const classRound = pairedRound(g1, rounds, 'T1');
   const query = (extra: Record<string, string>) =>
     `/admin/reports/teaching?${new URLSearchParams({ round: g1.id, compare: compare?.id ?? 'none', ...(areaKey ? { area: areaKey } : {}), ...(verifiedOnly ? { verified: '1' } : {}), ...extra })}`;
 
@@ -149,7 +152,8 @@ export default async function TeachingPage({ searchParams }: { searchParams: Pro
               </dl>
               {!detail.reliable ? (
                 <p className="sv-muted" style={{ margin: 0 }}>
-                  ৩ জনের কম অভিভাবক উত্তর দিয়েছেন, তাই বিস্তারিত লুকানো।
+                  ৩ জনের কম অভিভাবক উত্তর দিয়েছেন, তাই বিস্তারিত লুকানো। একজন অভিভাবকের উত্তর দেখতে{' '}
+                  <Link href={`/admin/reports/class?${new URLSearchParams({ ...(classRound ? { round: classRound.id } : {}), class: cellAt.classKey, section: cellAt.sectionKey })}`}>ক্লাসের তালিকা</Link> থেকে শিক্ষার্থীর নামে চাপ দিন।
                 </p>
               ) : (
                 <>

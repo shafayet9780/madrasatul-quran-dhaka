@@ -22,59 +22,23 @@ export function Sparkline({ points, label }: { points: { label: string; mean: nu
   );
 }
 
-/** Round-by-round teacher average for one student (R4 "রাউন্ডভিত্তিক স্কোর", marks instead of score). */
-export function TrendChart({ points }: { points: { label: string; mean: number }[] }) {
-  const w = 400;
-  const h = 240;
-  const left = 36;
-  const right = 360;
-  const top = 20;
-  const bottom = 200;
-  const x = (i: number) => (points.length === 1 ? (left + right) / 2 : left + 20 + (i * (right - left - 40)) / (points.length - 1));
-  const y = (mark: number) => bottom - pos(mark) * (bottom - top);
-  const last = points[points.length - 1];
-  const description = points.map((p) => `${p.label} ${bn(p.mean.toFixed(1))}`).join(', ');
-  return (
-    <svg viewBox={`0 0 ${w} ${h}`} width="100%" role="img" aria-label={`শিক্ষকদের গড় মার্ক: ${description}`}>
-      <g stroke="var(--sv-hairline)">
-        {[10, 7, 4].map((m) => (
-          <line key={m} x1={left} x2={right} y1={y(m)} y2={y(m)} stroke={m === 4 ? 'var(--sv-dashed)' : undefined} />
-        ))}
-      </g>
-      <g fill="var(--sv-text-muted)" fontSize="12" textAnchor="end">
-        {[10, 7, 4].map((m) => (
-          <text key={m} x={left - 8} y={y(m) + 4}>
-            {bn(m)}
-          </text>
-        ))}
-      </g>
-      <g fill="var(--sv-text-muted)" fontSize="12" textAnchor="middle">
-        {points.map((p, i) => (
-          <text key={p.label} x={x(i)} y={h - 16}>
-            {p.label}
-          </text>
-        ))}
-      </g>
-      <polyline fill="none" stroke={TEACHER} strokeWidth="2" points={points.map((p, i) => `${x(i)},${y(p.mean)}`).join(' ')} />
-      {points.map((p, i) => (
-        <circle key={p.label} cx={x(i)} cy={y(p.mean)} r={i === points.length - 1 ? 5 : 3.5} fill={TEACHER} stroke="#fff" strokeWidth="2">
-          <title>{`${p.label}: ${bn(p.mean.toFixed(1))}`}</title>
-        </circle>
-      ))}
-      <text x={x(points.length - 1) + 10} y={y(last.mean) + 4} fontSize="13" fontWeight="600" fill="var(--sv-text)">
-        {bn(last.mean.toFixed(1))}
-      </text>
-    </svg>
-  );
+/** Mark chips for the student page's answers: ১০ sage, ৮ grey, ৬–৭ light amber, ৪–৫ strong amber (between steps goes down). */
+export function markTone(mark: number | null): { bg: string; fg: string } {
+  if (mark === null) return { bg: 'transparent', fg: 'var(--sv-icon-muted)' };
+  if (mark >= 10) return { bg: '#E4F0E8', fg: '#24503F' };
+  if (mark >= 8) return { bg: '#EFECE6', fg: '#1F2A2E' };
+  if (mark >= 6) return { bg: '#FBF1E6', fg: '#8A4416' };
+  return { bg: '#F0C9A4', fg: '#6B3410' };
 }
 
-/** Mark-cell colours for the subject × question grid (R4 ramp, teacher blue). */
-export function markCell(mark: number | null): { bg: string; fg: string } {
-  if (mark === null) return { bg: 'var(--sv-stone-soft)', fg: '#A8A096' };
-  if (mark >= 10) return { bg: '#2A5F91', fg: '#FFFFFF' };
-  if (mark >= 8) return { bg: '#6E9FCB', fg: '#1F2A2E' };
-  if (mark >= 6) return { bg: '#C9DCEE', fg: '#1F2A2E' };
-  return { bg: '#EAF1F8', fg: '#1F2A2E' };
+/** One mark (or an average, one decimal) as a chip; null shows a dot. */
+export function MarkChip({ mark, average = false }: { mark: number | null; average?: boolean }) {
+  const tone = markTone(mark);
+  return (
+    <span className={`sv-mark${average ? ' is-avg' : ''}`} style={{ background: tone.bg, color: tone.fg }}>
+      {mark === null ? (average ? '—' : '·') : bn(average ? mark.toFixed(1) : String(mark))}
+    </span>
+  );
 }
 
 /** Distribution colours (R5): ৪ rust → ১০ teacher blue; text stays in ink, the legend names them. */
