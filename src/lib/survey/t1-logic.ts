@@ -24,18 +24,29 @@ export function validRowAnswers(snapshot: RoundSnapshot, row: DraftRow): Record<
   return answers;
 }
 
-/** Students without a valid mark, per required question, in roster order. */
+/** Whether the teacher has given this student any mark (a by-level subject counts only these). */
+export function hasMarks(snapshot: Pick<RoundSnapshot, 'template'>, answers: Record<string, unknown> | undefined): boolean {
+  const { questions, scale } = snapshot.template;
+  return questions.some((q) => scale.includes(answers?.[q.key] as number));
+}
+
+/**
+ * Students without a valid mark, per required question, in roster order. For a subject taught by
+ * level only the students the teacher has started count; the others belong to another teacher.
+ */
 export function findMissing(
   snapshot: RoundSnapshot,
   roster: RosterStudent[],
-  answers: Map<string, Record<string, unknown>>
+  answers: Map<string, Record<string, unknown>>,
+  byLevel = false
 ): MissingMarks[] {
   const { questions, scale } = snapshot.template;
+  const counted = byLevel ? roster.filter((s) => hasMarks(snapshot, answers.get(s.erpId))) : roster;
   return questions
     .filter((q) => q.required)
     .map((q) => ({
       questionKey: q.key,
-      students: roster
+      students: counted
         .filter((s) => !scale.includes(answers.get(s.erpId)?.[q.key] as number))
         .map((s) => ({ erpId: s.erpId, name: s.name })),
     }))

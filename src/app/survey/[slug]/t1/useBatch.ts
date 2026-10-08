@@ -5,7 +5,8 @@ import type { SaveState } from '@/components/survey/ui';
 import type { BatchKeyInput, BatchState, DraftRow } from '@/lib/survey/t1-types';
 import type { SurveyApi } from './api';
 
-type Pending = Record<string, { answers: Record<string, number>; note?: string }>;
+/** clear: the student's saved marks and note go first ("not my student"); later taps are kept. */
+type Pending = Record<string, { answers: Record<string, number>; note?: string; clear?: true }>;
 
 export const batchId = (key: BatchKeyInput) => `${key.teacherKey}|${key.classKey}|${key.sectionKey}|${key.subjectKey}`;
 const storageKey = (roundId: string, key: BatchKeyInput) => `sv-t1-pending:${roundId}:${batchId(key)}`;
@@ -30,9 +31,11 @@ function writeStored(roundId: string, key: BatchKeyInput, pending: Pending) {
 function merge(base: Pending, extra: Pending): Pending {
   const out: Pending = { ...base };
   for (const [id, row] of Object.entries(extra)) {
+    const prev = row.clear ? undefined : out[id];
     out[id] = {
-      answers: { ...(out[id]?.answers ?? {}), ...row.answers },
-      ...(row.note !== undefined ? { note: row.note } : out[id]?.note !== undefined ? { note: out[id].note } : {}),
+      answers: { ...(prev?.answers ?? {}), ...row.answers },
+      ...(row.note !== undefined ? { note: row.note } : prev?.note !== undefined ? { note: prev.note } : {}),
+      ...(row.clear || prev?.clear ? { clear: true as const } : {}),
     };
   }
   return out;
@@ -163,8 +166,9 @@ export function useBatch(api: SurveyApi, roundId: string, key: BatchKeyInput | n
       const mergedAnswers = { ...saved.answers };
       const mergedNotes = { ...saved.notes };
       for (const [erpId, row] of Object.entries(pending.current)) {
-        mergedAnswers[erpId] = { ...(mergedAnswers[erpId] ?? {}), ...row.answers };
+        mergedAnswers[erpId] = { ...(row.clear ? {} : (mergedAnswers[erpId] ?? {})), ...row.answers };
         if (row.note !== undefined) mergedNotes[erpId] = row.note;
+        else if (row.clear) delete mergedNotes[erpId];
       }
       setBatch(saved);
       setAnswers(mergedAnswers);
@@ -206,10 +210,12 @@ export function useBatch(api: SurveyApi, roundId: string, key: BatchKeyInput | n
   }, [flush]);
 
   const queue = useCallback(
-    (erpId: string, change: { answers?: Record<string, number>; note?: string }) => {
+    (erpId: string, change: { answers?: Record<string, number>; note?: string; clear?: true }) => {
       const current = keyRef.current;
       if (!current) return;
-      pending.current = merge(pending.current, { [erpId]: { answers: change.answers ?? {}, ...(change.note !== undefined ? { note: change.note } : {}) } });
+      pending.current = merge(pending.current, {
+        [erpId]: { answers: change.answers ?? {}, ...(change.note !== undefined ? { note: change.note } : {}), ...(change.clear ? { clear: true as const } : {}) },
+      });
       writeStored(roundId, current, pending.current);
       setSaveState('saving');
       schedule();
@@ -238,6 +244,21 @@ export function useBatch(api: SurveyApi, roundId: string, key: BatchKeyInput | n
     [queue]
   );
 
+  /** By-level subject, "not my student": removes the student's marks and note from the draft. */
+  const clearStudent = useCallback(
+    (erpId: string) => {
+      const drop = <T,>(prev: Record<string, T>) => {
+        const next = { ...prev };
+        delete next[erpId];
+        return next;
+      };
+      setAnswers(drop);
+      setNotes(drop);
+      queue(erpId, { clear: true });
+    },
+    [queue]
+  );
+
   /** Saves everything now; true when nothing is left unsent. */
   const saveNow = useCallback(async () => {
     if (timer.current) {
@@ -248,5 +269,5 @@ export function useBatch(api: SurveyApi, roundId: string, key: BatchKeyInput | n
     return !Object.keys(pending.current).length;
   }, [flush]);
 
-  return { batch, loadError, answers, notes, saveState, closed, stale, setMark, setNote, saveNow, reload: load };
+  return { batch, loadError, answers, notes, saveState, closed, stale, setMark, setNote, clearStudent, saveNow, reload: load };
 }

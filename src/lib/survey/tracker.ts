@@ -6,7 +6,8 @@ import { buildCoverage, deviceLabel, duplicateGroups, type BatchSummary } from '
 import { getDb } from './db';
 import { batchLabel } from './labels';
 import { titleCase } from './normalise';
-import { classSections, compareStudents } from './snapshot';
+import { classLabel, classSections, compareStudents, isByLevel } from './snapshot';
+import { hasMarks } from './t1-logic';
 import { answerItems, REQUEUE_MIRROR, responses, students, submissions, surveyRounds } from './schema';
 
 /** Every opened round, newest first: the tracker shows teacher and guardian rounds alike. */
@@ -39,11 +40,11 @@ export async function loadTracker(roundId: string) {
     .from(submissions)
     .where(and(eq(submissions.roundId, roundId), eq(submissions.kind, 'T1')));
   const batches: BatchSummary[] = rows;
-  const coverage = buildCoverage(round.snapshot, batches);
+  const levelSubjects = [...new Set(round.snapshot.classes.flatMap((c) => c.subjects.filter((s) => s.byLevel).map((s) => s.key)))];
 
   // Draft progress: students in the class-section now with every required question answered.
   const draftRows = rows.filter((r) => r.status === 'draft');
-  const [saved, roster] = await Promise.all([
+  const [saved, roster, ratedRows] = await Promise.all([
     draftRows.length
       ? db
           .select({ submissionId: responses.submissionId, studentErpId: responses.studentErpId, answers: responses.answers })
@@ -51,22 +52,49 @@ export async function loadTracker(roundId: string) {
           .where(inArray(responses.submissionId, draftRows.map((d) => d.id)))
       : Promise.resolve([]),
     db
-      .select({ erpId: students.erpId, classKey: students.classKey, sectionKey: students.sectionKey })
+      .select({ erpId: students.erpId, name: students.name, roll: students.roll, classKey: students.classKey, sectionKey: students.sectionKey })
       .from(students)
       .where(eq(students.active, true)),
+    // By-level subjects: which students have a counted rating, whoever gave it.
+    levelSubjects.length
+      ? db
+          .selectDistinct({ subjectKey: responses.subjectKey, erpId: responses.studentErpId })
+          .from(responses)
+          .where(and(eq(responses.roundId, roundId), eq(responses.kind, 'T1'), eq(responses.isCurrent, true), inArray(responses.subjectKey, levelSubjects)))
+      : Promise.resolve([]),
   ]);
+  const rated = new Map<string, Set<string>>();
+  for (const r of ratedRows) rated.set(r.subjectKey, (rated.get(r.subjectKey) ?? new Set()).add(r.erpId));
+  const coverage = buildCoverage(round.snapshot, batches, { roster, rated });
+
+  // By-level class-sections partly rated: the students still without a rating (untouched ones read as বাকি).
+  const levelGaps = coverage.rows.flatMap((row) =>
+    row.cells
+      .filter((cell) => cell.state === 'partial')
+      .map((cell) => ({
+        title: `${classLabel(round.snapshot, row.classKey, row.sectionKey)} · ${coverage.subjects.find((s) => s.key === cell.subjectKey)!.name}`,
+        students: roster
+          .filter((s) => s.classKey === row.classKey && s.sectionKey === row.sectionKey && !rated.get(cell.subjectKey)?.has(s.erpId))
+          .map((s) => ({ ...s, name: titleCase(s.name) }))
+          .sort(compareStudents),
+      }))
+  );
   const { questions, scale } = round.snapshot.template;
   const complete = (answers: Record<string, unknown>) => questions.every((q) => !q.required || scale.includes(answers[q.key] as number));
   const placeOf = new Map(roster.map((s) => [s.erpId, `${s.classKey}|${s.sectionKey}`]));
   const drafts = draftRows
     .map((d) => {
       const place = `${d.classKey}|${d.sectionKey}`;
+      const here = saved.filter((r) => r.submissionId === d.id && placeOf.get(r.studentErpId) === place);
       return {
         id: d.id,
         title: batchLabel(round.snapshot, d, 'short'),
         teacherName: d.teacherName ?? '',
-        done: saved.filter((r) => r.submissionId === d.id && placeOf.get(r.studentErpId) === place && complete(r.answers)).length,
-        total: roster.filter((s) => `${s.classKey}|${s.sectionKey}` === place).length,
+        done: here.filter((r) => complete(r.answers)).length,
+        // By level the teacher's own students only.
+        total: isByLevel(round.snapshot, d.classKey, d.subjectKey)
+          ? here.filter((r) => hasMarks(round.snapshot, r.answers)).length
+          : roster.filter((s) => `${s.classKey}|${s.sectionKey}` === place).length,
         updatedAt: d.updatedAt,
         device: deviceLabel(d.userAgent),
       };
@@ -78,7 +106,7 @@ export async function loadTracker(roundId: string) {
     batches: group.map((b) => ({ id: b.id, teacherName: b.teacherName ?? '', submittedAt: b.submittedAt! })),
   }));
 
-  return { round, coverage, drafts, duplicates };
+  return { round, coverage, levelGaps, drafts, duplicates };
 }
 
 /**

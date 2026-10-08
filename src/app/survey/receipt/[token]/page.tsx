@@ -98,6 +98,13 @@ export default async function ReceiptPage({ params }: { params: Promise<{ token:
             </tr>
           </thead>
           <tbody>
+            {rows.length === 0 && (
+              <tr>
+                <td colSpan={questions.length + 1} className="sv-muted" style={{ textAlign: 'left' }}>
+                  কোনো শিক্ষার্থী নেই: এই ক্লাসে আপনার আগের সব মার্ক বাদ দেওয়া হয়েছে।
+                </td>
+              </tr>
+            )}
             {rows.map((row) => (
               <tr key={row.erpId}>
                 <th scope="row" style={{ fontWeight: 400 }}>

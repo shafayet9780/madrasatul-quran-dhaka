@@ -182,14 +182,14 @@ export async function ratersWorkbook(round: Round): Promise<Book> {
 export async function trackerWorkbook(roundId: string): Promise<Book | null> {
   const data = await loadTracker(roundId);
   if (!data) return null;
-  const LABEL = { done: 'জমা', draft: 'খসড়া', dup: 'ডুপ্লিকেট', todo: 'বাকি', na: '' } as const;
+  const LABEL = { done: 'জমা', partial: 'আংশিক জমা', draft: 'খসড়া', dup: 'ডুপ্লিকেট', todo: 'বাকি', na: '' } as const;
   return book(`রেসপন্স ট্র্যাকার - ${data.round.label}.xlsx`, [
     {
       name: 'কভারেজ',
       columns: [{ header: 'শ্রেণি', key: 'label', width: 16 }, ...data.coverage.subjects.map((s) => ({ header: s.name, key: s.key, width: 22 }))],
       rows: data.coverage.rows.map((r) => ({
         label: r.label,
-        ...Object.fromEntries(r.cells.map((c) => [c.subjectKey, c.state === 'na' ? '' : `${LABEL[c.state]}${c.teachers.length ? ` · ${c.teachers.join(', ')}` : ''}`])),
+        ...Object.fromEntries(r.cells.map((c) => [c.subjectKey, c.state === 'na' ? '' : `${LABEL[c.state]}${c.progress && c.state === 'partial' ? ` ${c.progress.done}/${c.progress.total}` : ''}${c.teachers.length ? ` · ${c.teachers.join(', ')}` : ''}`])),
       })),
     },
     {

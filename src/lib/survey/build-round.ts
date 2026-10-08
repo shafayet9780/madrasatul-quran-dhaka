@@ -41,7 +41,7 @@ export type RoundSource = {
 
 export type ListsSource = {
   areas: (Named & { group?: string | null })[];
-  classes: (Named & { sections?: Named[] | null; subjects?: Named[] | null })[];
+  classes: (Named & { sections?: Named[] | null; subjects?: (Named & { byLevel?: boolean | null })[] | null })[];
   teachers: Named[];
 };
 
@@ -86,7 +86,7 @@ export function buildLists(source: ListsSource): Pick<RoundSnapshot, 'classes' |
       key: c.key ?? '',
       name: c.name ?? '',
       sections: (c.sections ?? []).map((s) => ({ key: s.key ?? '', name: s.name ?? '' })),
-      subjects: (c.subjects ?? []).map((s) => ({ key: s.key ?? '', name: s.name ?? '' })),
+      subjects: (c.subjects ?? []).map((s) => ({ key: s.key ?? '', name: s.name ?? '', ...(s.byLevel ? { byLevel: true } : {}) })),
     })),
     teachers: source.teachers.map((t) => ({ key: t.key ?? '', name: t.name ?? '' })),
   };

@@ -42,7 +42,8 @@ export const roundSnapshotSchema = z.object({
   classes: z.array(
     named.extend({
       sections: z.array(named),
-      subjects: z.array(named),
+      // byLevel: several teachers share the class for this subject; each rates only their own students.
+      subjects: z.array(named.extend({ byLevel: z.boolean().optional() })),
     })
   ),
   teachers: z.array(named),
@@ -54,6 +55,11 @@ export type SnapshotClass = RoundSnapshot['classes'][number];
 
 export function findClass(snapshot: Pick<RoundSnapshot, 'classes'>, classKey: string): SnapshotClass | undefined {
   return snapshot.classes.find((c) => c.key === classKey);
+}
+
+/** A subject taught by level: teachers rate only the students they teach, not the whole class. */
+export function isByLevel(snapshot: Pick<RoundSnapshot, 'classes'>, classKey: string, subjectKey: string): boolean {
+  return Boolean(findClass(snapshot, classKey)?.subjects.find((s) => s.key === subjectKey)?.byLevel);
 }
 
 /** "নার্সারি A" for a sectioned class, "প্লে" otherwise. sectionKey '' = no section. */
