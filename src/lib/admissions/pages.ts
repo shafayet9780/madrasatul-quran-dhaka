@@ -21,6 +21,8 @@ export const flowPath = (locale: string, path = '') => `/${locale}/pre-admission
 
 /** The application on this device, or back to the start page. Paid applications go to their status page. */
 export async function requireDraft(locale: string, opts: { allowPaid?: boolean } = {}): Promise<{ app: Application; snapshot: FormSnapshot }> {
+  // Picks up form changes from the Studio first, so a draft opens on the current version.
+  await safeCurrentCycle();
   const current = await currentApplication().catch(() => null);
   if (!current) redirect(flowPath(locale, '/start'));
   if (!opts.allowPaid && current.app.status !== 'draft' && current.app.status !== 'unpaid') redirect(flowPath(locale, '/status'));

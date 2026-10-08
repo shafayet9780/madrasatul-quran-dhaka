@@ -2,7 +2,7 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { eq, sql } from 'drizzle-orm';
 import { syncCycle, type CycleState } from './cycle';
-import { countOtherApplications, createDraft, findApplications, getByToken, loadById, saveDraft, submitDraft, type Application } from './drafts';
+import { countOtherApplications, createDraft, findApplications, loadWithSnapshot, getByToken, loadById, saveDraft, submitDraft, type Application } from './drafts';
 import { applicationEvents, applications } from './schema';
 import type { FormDocument } from './snapshot';
 import { sampleSnapshot } from './testing/fixtures';
@@ -147,6 +147,39 @@ describe('drafts', () => {
     const paid = (await getByToken(token))!;
     expect(await saveDraft(paid, cycle.snapshot, { address: 'x' })).toEqual({ ok: false, reason: 'locked' });
     expect(await submitDraft(paid, cycle.snapshot, true)).toEqual({ ok: false, reason: 'locked' });
+  });
+
+  it('a draft follows form changes when opened; a submitted application keeps its version', async () => {
+    const draft = await start();
+    const submitted = await start('01812345678');
+    const file = (id: string, k: string) => ({ key: `admissions/${id}/${k}-x`, name: k, size: 1, type: 'image/jpeg' });
+    await saveDraft(submitted.app, cycle.snapshot, {
+      student_photo: file(submitted.app.id, 'p'),
+      student_name_bn: 'উমর',
+      student_name_en: 'Umar',
+      date_of_birth: '2021-03-12',
+      class_applied: 'kg',
+      birth_certificate: file(submitted.app.id, 'b'),
+      father_name: 'রফিক',
+      father_occupation: 'other',
+      father_prayer_location: ['mosque'],
+      father_smoking: 'no',
+      father_facebook: 'নেই',
+      address: 'মিরপুর',
+    });
+    expect((await submitDraft((await getByToken(submitted.token))!, cycle.snapshot, true)).ok).toBe(true);
+    await saveDraft(draft.app, cycle.snapshot, { student_name_bn: 'আব্দুল্লাহ' });
+
+    const changed = formDoc('r2');
+    changed.sections![0].groups = [{ key: 'names', title: { bengali: 'পরিচয়', english: 'Identity' } }] as never;
+    expect((await syncCycle(changed))!.version).toBe(2);
+
+    const opened = (await loadWithSnapshot(draft.token))!;
+    expect(opened.app.snapshotVersion).toBe(2);
+    expect(opened.snapshot.sections[0].groups[0].title.bengali).toBe('পরিচয়');
+    expect(opened.app.answers.student_name_bn).toBe('আব্দুল্লাহ');
+    expect(opened.app.studentNameBn).toBe('আব্দুল্লাহ');
+    expect((await loadWithSnapshot(submitted.token))!.app.snapshotVersion).toBe(1);
   });
 
   it('counts other applications from the same mobile, whatever the date of birth', async () => {

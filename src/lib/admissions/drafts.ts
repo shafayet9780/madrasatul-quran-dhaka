@@ -7,7 +7,7 @@ import { getAdmissionsDb } from './db';
 import { fieldWithRole, type FormSnapshot } from './form-config';
 import { normaliseEmail, normaliseMobile } from './normalise';
 import { classCodeFor, roleColumns } from './roles';
-import { applicationEvents, applications } from './schema';
+import { admissionCycles, applicationEvents, applications } from './schema';
 import { hashToken, newResumeToken } from './tokens';
 import { isOwnKey } from './files';
 
@@ -60,20 +60,38 @@ export async function getByToken(token: string): Promise<Application | null> {
   return app ?? null;
 }
 
-/** The application and the form version it was answered against. */
-export async function loadWithSnapshot(token: string): Promise<{ app: Application; snapshot: FormSnapshot } | null> {
-  const app = await getByToken(token);
-  if (!app) return null;
+/**
+ * The application with its form version. A draft (not yet submitted) follows the form as the
+ * office changes it: it moves to the cycle's current version when opened, keeping its answers by
+ * question key. A submitted or paid application keeps the version it was submitted with.
+ */
+async function withSnapshot(app: Application): Promise<{ app: Application; snapshot: FormSnapshot } | null> {
+  if (app.status === 'draft') {
+    const db = getAdmissionsDb();
+    const [cycle] = await db.select({ currentVersion: admissionCycles.currentVersion }).from(admissionCycles).where(eq(admissionCycles.id, app.cycleId));
+    const latest = cycle && cycle.currentVersion > app.snapshotVersion ? await loadSnapshot(app.cycleId, cycle.currentVersion) : null;
+    if (cycle && latest) {
+      const [moved] = await db
+        .update(applications)
+        .set({ snapshotVersion: cycle.currentVersion, ...roleColumns(latest, app.answers), updatedAt: new Date() })
+        .where(and(eq(applications.id, app.id), eq(applications.status, 'draft'), eq(applications.snapshotVersion, app.snapshotVersion)))
+        .returning();
+      if (moved) return { app: moved, snapshot: latest };
+    }
+  }
   const snapshot = await loadSnapshot(app.cycleId, app.snapshotVersion);
   return snapshot ? { app, snapshot } : null;
+}
+
+export async function loadWithSnapshot(token: string): Promise<{ app: Application; snapshot: FormSnapshot } | null> {
+  const app = await getByToken(token);
+  return app ? withSnapshot(app) : null;
 }
 
 export async function loadById(id: string): Promise<{ app: Application; snapshot: FormSnapshot } | null> {
   if (!/^[0-9a-f-]{36}$/i.test(id)) return null;
   const [app] = await getAdmissionsDb().select().from(applications).where(eq(applications.id, id));
-  if (!app) return null;
-  const snapshot = await loadSnapshot(app.cycleId, app.snapshotVersion);
-  return snapshot ? { app, snapshot } : null;
+  return app ? withSnapshot(app) : null;
 }
 
 /**
