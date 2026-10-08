@@ -16,7 +16,7 @@ export const metadata: Metadata = { title: 'রেসপন্স ট্র্�
 export const dynamic = 'force-dynamic';
 
 const DAY = 24 * 60 * 60 * 1000;
-const STATE_LABEL: Record<Exclude<CellState, 'na'>, string> = { done: 'জমা', draft: 'খসড়া', dup: 'ডুপ্লিকেট', todo: 'বাকি' };
+const STATE_LABEL: Record<Exclude<CellState, 'na'>, string> = { done: 'জমা', partial: 'আংশিক জমা', draft: 'খসড়া', dup: 'ডুপ্লিকেট', todo: 'বাকি' };
 
 function StateIcon({ state }: { state: CellState }) {
   if (state === 'done')
@@ -25,13 +25,15 @@ function StateIcon({ state }: { state: CellState }) {
         <path d="m5 12 5 5 9-10" />
       </svg>
     );
-  if (state === 'draft')
+  if (state === 'draft' || state === 'partial') {
+    const color = state === 'draft' ? 'var(--sv-info)' : 'var(--sv-ok)';
     return (
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--sv-info)" strokeWidth="2.2" aria-hidden="true">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.2" aria-hidden="true">
         <circle cx="12" cy="12" r="8" />
-        <path d="M12 4a8 8 0 0 1 0 16z" fill="var(--sv-info)" />
+        <path d="M12 4a8 8 0 0 1 0 16z" fill={color} />
       </svg>
     );
+  }
   if (state === 'dup')
     return (
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--sv-warn)" strokeWidth="2.4" strokeLinejoin="round" aria-hidden="true">
@@ -68,7 +70,7 @@ export default async function TrackerPage({ searchParams }: { searchParams: Prom
   if (chosen.kind !== 'T1') return <GuardianTracker roundId={chosen.id} rounds={picker} place={place} now={now} />;
   const data = await loadTracker(chosen.id);
   if (!data) return null;
-  const { round, coverage, drafts, duplicates } = data;
+  const { round, coverage, levelGaps, drafts, duplicates } = data;
   const status = roundStatus(round, now);
   const daysLeft = Math.ceil((round.closesAt.getTime() - now.getTime()) / DAY);
   const when =
@@ -114,7 +116,7 @@ export default async function TrackerPage({ searchParams }: { searchParams: Prom
             শ্রেণি × বিষয় · কভার {bn(coverage.covered)}/{bn(coverage.total)}
           </h3>
           <div className="flex flex-wrap gap-3" style={{ fontSize: 13, color: 'var(--sv-text-muted)' }} aria-hidden="true">
-            {(['done', 'draft', 'dup', 'todo'] as const).map((state) => (
+            {(['done', ...(coverage.rows.some((r) => r.cells.some((c) => c.progress)) ? (['partial'] as const) : []), 'draft', 'dup', 'todo'] as const).map((state) => (
               <span key={state} className="flex items-center gap-1">
                 <StateIcon state={state} />
                 {STATE_LABEL[state]}
@@ -149,10 +151,15 @@ export default async function TrackerPage({ searchParams }: { searchParams: Prom
                       const text =
                         cell.state === 'na'
                           ? 'প্রযোজ্য নয়'
-                          : `${STATE_LABEL[cell.state]}${cell.teachers.length ? ` · ${cell.teachers.join(', ')}` : ''}`;
+                          : `${STATE_LABEL[cell.state]}${cell.progress ? ` ${bn(cell.progress.done)}/${bn(cell.progress.total)} জন` : ''}${cell.teachers.length ? ` · ${cell.teachers.join(', ')}` : ''}`;
                       return (
                         <td key={cell.subjectKey} className={cell.state === 'na' ? undefined : `is-${cell.state}`} title={`${row.label} · ${subject}: ${text}`}>
                           <StateIcon state={cell.state} />
+                          {cell.progress && cell.state === 'partial' && (
+                            <span aria-hidden="true" className="sv-num" style={{ fontSize: 12, marginLeft: 4 }}>
+                              {bn(cell.progress.done)}/{bn(cell.progress.total)}
+                            </span>
+                          )}
                           <span className="sv-visually-hidden">{text}</span>
                           {cell.teachers.length > 0 && (
                             <span aria-hidden="true" style={{ display: 'block', fontSize: 11, lineHeight: 1.3, marginTop: 2, fontWeight: 400 }}>
@@ -166,6 +173,19 @@ export default async function TrackerPage({ searchParams }: { searchParams: Prom
                 ))}
               </tbody>
             </table>
+          </div>
+        )}
+        {levelGaps.length > 0 && (
+          <div className="flex flex-col gap-2" style={{ paddingTop: 6 }}>
+            <h3 style={{ margin: 0, fontSize: 15, fontWeight: 600 }}>লেভেলভিত্তিক বিষয়: যাদের এখনো রেটিং হয়নি</h3>
+            {levelGaps.map((gap) => (
+              <div key={gap.title} style={{ fontSize: 13.5, lineHeight: 1.6 }}>
+                <b>{gap.title}</b> ({bn(gap.students.length)} জন):{' '}
+                <span style={{ color: 'var(--sv-text-muted)' }}>
+                  {gap.students.map((s) => `${s.roll !== null ? `${bn(s.roll)}. ` : ''}${s.name}`).join(', ')}
+                </span>
+              </div>
+            ))}
           </div>
         )}
       </section>
@@ -188,9 +208,12 @@ export default async function TrackerPage({ searchParams }: { searchParams: Prom
             <div key={d.id} className="flex flex-col gap-0.5" style={{ padding: '10px 12px', borderRadius: 12, border: '1px solid var(--sv-hairline)' }}>
               <div className="flex justify-between gap-2">
                 <span style={{ fontWeight: 600 }}>{d.title}</span>
-                <span className="sv-num" style={{ fontSize: 13.5 }}>
-                  {bn(d.done)}/{bn(d.total)}
-                </span>
+                {/* A by-level draft with nobody marked yet has no count to show. */}
+                {d.total > 0 && (
+                  <span className="sv-num" style={{ fontSize: 13.5 }}>
+                    {bn(d.done)}/{bn(d.total)}
+                  </span>
+                )}
               </div>
               <span style={{ fontSize: 13, color: 'var(--sv-text-muted)' }}>
                 {[d.teacherName, `শেষ সম্পাদনা ${formatDateTime(d.updatedAt)}`, d.device].filter(Boolean).join(' · ')}

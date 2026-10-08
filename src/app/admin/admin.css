@@ -263,6 +263,9 @@
 .sv-admin .sv-cover td.is-draft {
   background: var(--sv-info-bg);
 }
+.sv-admin .sv-cover td.is-partial {
+  background: var(--sv-ok-bg);
+}
 .sv-admin .sv-cover td.is-dup {
   background: var(--sv-warn-bg);
 }

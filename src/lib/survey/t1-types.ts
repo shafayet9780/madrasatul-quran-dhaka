@@ -22,6 +22,8 @@ export const draftRowSchema = z.object({
   answers: z.record(z.string().max(64), z.number()).optional(),
   /** A string sets the note ('' clears it); omitted keeps the saved note. */
   note: z.string().max(NOTE_MAX).optional(),
+  /** Removes the student's marks and note first (by-level subject: "not my student"). */
+  clear: z.literal(true).optional(),
 });
 export type DraftRow = z.infer<typeof draftRowSchema>;
 
@@ -46,6 +48,8 @@ export type BatchState = {
   status: 'new' | 'draft' | 'submitted';
   submitted: { at: string; receiptToken: string } | null;
   duplicates: DuplicateBatch[];
+  /** By-level subject: students another teacher has already rated, with that teacher's name. */
+  taken: Record<string, string>;
 };
 
 export type OverviewItem = {
@@ -60,8 +64,11 @@ export type OverviewItem = {
 
 export type MissingMarks = { questionKey: string; students: { erpId: string; name: string }[] };
 
+export type TakenStudent = { erpId: string; name: string; teacherName: string };
+
 export type SubmitResult =
   | { ok: true; receiptToken: string }
   | { ok: false; reason: 'incomplete'; missing: MissingMarks[] }
+  | { ok: false; reason: 'taken'; students: TakenStudent[] }
   | { ok: false; reason: 'duplicate'; duplicates: DuplicateBatch[] }
   | { ok: false; reason: 'closed' | 'empty' | 'conflict' };

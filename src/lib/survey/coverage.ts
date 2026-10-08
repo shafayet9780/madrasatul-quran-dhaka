@@ -15,9 +15,17 @@ export type BatchSummary = {
   submittedAt: Date | null;
 };
 
-export type CellState = 'done' | 'draft' | 'dup' | 'todo' | 'na';
+/** 'partial': a by-level subject with some, not all, of the class rated in submitted batches. */
+export type CellState = 'done' | 'partial' | 'draft' | 'dup' | 'todo' | 'na';
 
-export type CoverageCell = { subjectKey: string; state: CellState; teachers: string[] };
+/** progress: by-level subjects only, students of the class-section with a counted rating. */
+export type CoverageCell = { subjectKey: string; state: CellState; teachers: string[]; progress?: { done: number; total: number } };
+
+/** By-level subjects: who is in each class-section now, and who has a counted rating per subject. */
+export type LevelProgress = {
+  roster: { erpId: string; classKey: string; sectionKey: string }[];
+  rated: Map<string, Set<string>>;
+};
 export type CoverageRow = { classKey: string; sectionKey: string; label: string; cells: CoverageCell[] };
 
 /** Every subject of the round, in first-seen class order (columns). */
@@ -27,7 +35,7 @@ export function coverageSubjects(snapshot: RoundSnapshot) {
   return [...seen].map(([key, name]) => ({ key, name }));
 }
 
-export function buildCoverage(snapshot: RoundSnapshot, batches: BatchSummary[]) {
+export function buildCoverage(snapshot: RoundSnapshot, batches: BatchSummary[], levels?: LevelProgress) {
   const subjects = coverageSubjects(snapshot);
   const current = batches.filter((b) => b.status === 'submitted' && !b.supersededBy);
   const drafts = batches.filter((b) => b.status === 'draft');
@@ -39,12 +47,22 @@ export function buildCoverage(snapshot: RoundSnapshot, batches: BatchSummary[]) 
     return {
       ...place,
       cells: subjects.map(({ key }) => {
-        if (!cls.subjects.some((s) => s.key === key)) return { subjectKey: key, state: 'na' as const, teachers: [] };
+        const subject = cls.subjects.find((s) => s.key === key);
+        if (!subject) return { subjectKey: key, state: 'na' as const, teachers: [] };
         const done = at(current, place.classKey, place.sectionKey, key);
         const pending = at(drafts, place.classKey, place.sectionKey, key);
+        const teachers = [...new Set([...done, ...pending].map((b) => b.teacherName ?? ''))].filter(Boolean).sort((x, y) => x.localeCompare(y, 'bn'));
+        if (subject.byLevel) {
+          // Several teachers share the class: done only once every student has a counted rating.
+          const here = (levels?.roster ?? []).filter((s) => s.classKey === place.classKey && s.sectionKey === place.sectionKey);
+          const rated = levels?.rated.get(key);
+          const progress = { done: here.filter((s) => rated?.has(s.erpId)).length, total: here.length };
+          const state: CellState =
+            done.some((b) => b.duplicateFlag) ? 'dup' : done.length && progress.done >= progress.total ? 'done' : done.length ? 'partial' : pending.length ? 'draft' : 'todo';
+          return { subjectKey: key, state, teachers, progress };
+        }
         // The duplicate flag is the source of truth: "keep all" clears it while both batches stay current.
         const state: CellState = done.some((b) => b.duplicateFlag) ? 'dup' : done.length ? 'done' : pending.length ? 'draft' : 'todo';
-        const teachers = [...new Set([...done, ...pending].map((b) => b.teacherName ?? ''))].filter(Boolean).sort((x, y) => x.localeCompare(y, 'bn'));
         return { subjectKey: key, state, teachers };
       }),
     };

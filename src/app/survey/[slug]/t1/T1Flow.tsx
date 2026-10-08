@@ -3,6 +3,8 @@
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { batchLabel } from '@/lib/survey/labels';
+import { isByLevel } from '@/lib/survey/snapshot';
+import { hasMarks } from '@/lib/survey/t1-logic';
 import type { BatchKeyInput, BatchState, DuplicateBatch, OverviewItem, SubmitResult } from '@/lib/survey/t1-types';
 import { createApi } from './api';
 import { RateScreen } from './RateScreen';
@@ -146,7 +148,9 @@ export function T1Flow({ config, initial }: { config: T1Config; initial: FlowSta
         return;
       }
       const { questions, scale } = snapshot.template;
-      const firstGap = questions.findIndex((q) => batch.students.some((s) => !scale.includes(batch.answers[s.erpId]?.[q.key])));
+      // By level only the students the teacher has marked count; with none yet, start rating.
+      const counted = isByLevel(snapshot, key.classKey, key.subjectKey) ? batch.students.filter((s) => hasMarks(snapshot, batch.answers[s.erpId])) : batch.students;
+      const firstGap = counted.length ? questions.findIndex((q) => counted.some((s) => !scale.includes(batch.answers[s.erpId]?.[q.key]))) : 0;
       const base = { ...state, classKey: key.classKey, sectionKey: key.sectionKey, subjectKey: key.subjectKey };
       if (batch.status === 'submitted' || (batch.status === 'draft' && firstGap === -1)) go({ ...base, step: 'review', q: 0 });
       else go({ ...base, step: 'rate', q: Math.max(0, firstGap) });
@@ -182,7 +186,8 @@ export function T1Flow({ config, initial }: { config: T1Config; initial: FlowSta
         router.push(`/survey/receipt/${result.receiptToken}`);
         return result;
       }
-      if (result.reason === 'incomplete') await session.reload();
+      // Fresh marks, and fresh "rated by another teacher" names for a by-level subject.
+      if (result.reason === 'incomplete' || result.reason === 'taken') await session.reload();
       if (result.reason === 'conflict') return { ok: false, reason: 'conflict' };
       return result;
     } catch {
@@ -286,6 +291,7 @@ export function T1Flow({ config, initial }: { config: T1Config; initial: FlowSta
   }
 
   const students = session.batch.students;
+  const byLevel = isByLevel(snapshot, batchKey.classKey, batchKey.subjectKey);
   if (state.step === 'rate') {
     return (
       <RateScreen
@@ -297,6 +303,8 @@ export function T1Flow({ config, initial }: { config: T1Config; initial: FlowSta
         saveState={session.saveState}
         closed={session.closed}
         stale={session.stale}
+        byLevel={byLevel}
+        taken={session.batch.taken}
         q={state.q}
         onQuestion={(q) => go({ ...state, step: 'rate', q })}
         onBackToClass={toClass}
@@ -316,10 +324,14 @@ export function T1Flow({ config, initial }: { config: T1Config; initial: FlowSta
       saveState={session.saveState}
       closed={session.closed}
       stale={session.stale}
+      byLevel={byLevel}
+      taken={session.batch.taken}
+      wasSubmitted={Boolean(session.batch.submitted)}
       onBack={() => go({ ...state, step: 'rate', q: snapshot.template.questions.length - 1 })}
       onGoTo={(q) => go({ ...state, step: 'rate', q })}
       onMark={session.setMark}
       onNote={session.setNote}
+      onClear={session.clearStudent}
       onSubmit={submit}
     />
   );

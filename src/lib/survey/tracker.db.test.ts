@@ -28,11 +28,18 @@ async function submitAs(teacherKey: string, subjectKey = 'quran') {
 beforeAll(async () => {
   const snapshot = t1FixtureSnapshot();
   snapshot.classes.push({ key: 'tracker-class', name: 'পরীক্ষা', sections: [], subjects: [{ key: 'quran', name: 'কুরআন' }, { key: 'arabic', name: 'আরবি' }, { key: 'math', name: 'গণিত' }] });
+  snapshot.classes.push({ key: 'level-class', name: 'লেভেল', sections: [], subjects: [{ key: 'english', name: 'ইংরেজি', byLevel: true }] });
   [round] = await getDb()
     .insert(surveyRounds)
     .values({ sanityRoundId: run, kind: 'T1', slug: run, label: 'পরীক্ষা', snapshot, opensAt: new Date(Date.now() - hour), closesAt: new Date(Date.now() + hour), linkKey: 'k' })
     .returning();
-  await getDb().insert(students).values([{ erpId: `${run}-1`, name: 'Zainab', classKey: 'tracker-class', sectionKey: '', roll: 1 }]);
+  await getDb()
+    .insert(students)
+    .values([
+      { erpId: `${run}-1`, name: 'Zainab', classKey: 'tracker-class', sectionKey: '', roll: 1 },
+      { erpId: `${run}-L1`, name: 'Ahmad', classKey: 'level-class', sectionKey: '', roll: 1 },
+      { erpId: `${run}-L2`, name: 'MARYAM', classKey: 'level-class', sectionKey: '', roll: 2 },
+    ]);
   await submitAs('90001');
   await submitAs('90002');
   await submitAs('90001', 'arabic');
@@ -105,5 +112,19 @@ describe('tracker', () => {
     const dropped = await loadReceipt(tokens['90002:quran']);
     expect(dropped).toMatchObject({ setAside: true, replacedBy: null });
     expect(await loadReceipt(tokens['90001:quran'])).toMatchObject({ setAside: false });
+  });
+});
+
+describe('tracker for a subject taught by level', () => {
+  it('shows per-student progress and who is still unrated', async () => {
+    const key = { teacherKey: '90001', classKey: 'level-class', sectionKey: '', subjectKey: 'english' };
+    const answers = Object.fromEntries(round.snapshot.template.questions.map((q) => [q.key, 8]));
+    await saveDraft(round, key, [{ studentErpId: `${run}-L1`, answers }], meta);
+    const result = await submitBatch(round, key, [], meta);
+    if (!result.ok) throw new Error(JSON.stringify(result));
+    const data = await loadTracker(round.id);
+    const row = data!.coverage.rows.find((r) => r.classKey === 'level-class')!;
+    expect(row.cells.find((c) => c.subjectKey === 'english')).toMatchObject({ state: 'partial', progress: { done: 1, total: 2 } });
+    expect(data!.levelGaps).toEqual([{ title: 'লেভেল · ইংরেজি', students: [expect.objectContaining({ erpId: `${run}-L2`, name: 'Maryam' })] }]);
   });
 });
