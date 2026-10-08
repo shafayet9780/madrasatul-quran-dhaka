@@ -96,10 +96,31 @@ export async function loadSnapshot(cycleId: string, version: number): Promise<Fo
   return row?.snapshot ?? null;
 }
 
+/** The Studio draft of the form when there is one, else the published form. */
+const DRAFT_FORM_QUERY = `*[_id in ["drafts.preAdmissionForm", "preAdmissionForm"]] | order(_id asc)[0]{
+  _rev, formSettings{ isEnabled }, declarationText, cycle, sections
+}`;
+
+/**
+ * Preview deployments only (ADMISSIONS_PREVIEW_DRAFT=1 on a Vercel preview): the form is read
+ * from the Studio draft and is always open, so the 2027 flow can be tested without publishing the
+ * form or switching it on. Production and previews share the Sanity dataset, so publishing or the
+ * Enable switch would change the live site. Never applies in production.
+ */
+export function previewDraftMode(env: Record<string, string | undefined> = process.env): boolean {
+  return env.ADMISSIONS_PREVIEW_DRAFT === '1' && env.VERCEL_ENV === 'preview';
+}
+
 /** Current cycle from the published form (Sanity, cached like the rest of the site). */
 export async function getCurrentCycle(): Promise<CycleState | null> {
   const local = localOverrides();
   if (local) return syncCycle(local.form);
+  if (previewDraftMode()) {
+    const { previewClient } = await import('@/lib/sanity');
+    const doc = await previewClient.withConfig({ perspective: 'raw' }).fetch<FormDocument | null>(DRAFT_FORM_QUERY, {}, { cache: 'no-store' });
+    const state = await syncCycle(doc);
+    return state && { ...state, enabled: true, window: 'open' };
+  }
   const { sanityFetch } = await import('@/lib/sanity-fetch');
   const doc = await sanityFetch<FormDocument | null>({ query: FORM_QUERY, tags: ['preAdmissionForm'] });
   return syncCycle(doc);
