@@ -11,7 +11,8 @@ export async function register() {
   const { db } = await createPgliteDb();
   setLocalOverrides({
     db,
-    form: liveFormDocument(),
+    // ADMISSIONS_LOCAL_FORM: a form exported from the Studio (Inspect → Raw JSON) instead of the built-in one.
+    form: process.env.ADMISSIONS_LOCAL_FORM ? JSON.parse((await import('node:fs')).readFileSync(process.env.ADMISSIONS_LOCAL_FORM, 'utf8')) : liveFormDocument(),
     // With SSLCommerz sandbox credentials in the environment the real sandbox is used instead.
     gateway: sslConfigFromEnv() ? undefined : mockGateway(),
     outbox: [],

@@ -18,6 +18,7 @@
     "survey:fixtures": "tsx --conditions=react-server scripts/survey-dev-fixtures.ts",
     "setup:fees": "tsx scripts/setup-fees.ts",
     "setup:admissions": "tsx scripts/setup-admissions.ts",
+    "arrange:admissions": "tsx scripts/arrange-admissions-form.ts",
     "setup:faculty": "node scripts/populate-faculty-data.js",
     "setup:form": "node scripts/populate-pre-admission-form.js",
     "setup:headers": "node scripts/setup-google-sheets-headers.js",
