@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useId, useRef, useSyncExternalStore, type KeyboardEvent, type ReactNode } from 'react';
+import { useEffect, useId, useRef, useSyncExternalStore, type KeyboardEvent, type MouseEvent, type ReactNode } from 'react';
 import { toBengaliDigits as bn } from '@/lib/survey/normalise';
 
 type IconProps = { size?: number; stroke?: string; width?: number };
@@ -93,6 +93,18 @@ export function MarkTrack({
 }) {
   const refs = useRef<(HTMLButtonElement | null)[]>([]);
   const selected = marks.indexOf(value as number);
+  /** When the last mark was tapped: a quick second tap (double tap) must not withdraw it. */
+  const tappedAt = useRef(-Infinity);
+
+  function onClick(event: MouseEvent<HTMLButtonElement>, mark: number) {
+    // Space/Enter on the selected radio confirms it, as in any radio group; only a tap withdraws.
+    if (onClear && value === mark && event.detail > 0) {
+      if (event.timeStamp - tappedAt.current > 600) onClear();
+      return;
+    }
+    tappedAt.current = event.timeStamp;
+    onChange(mark);
+  }
 
   function onKeyDown(event: KeyboardEvent<HTMLButtonElement>, index: number) {
     if (onClear && selected !== -1 && (event.key === 'Delete' || event.key === 'Backspace')) {
@@ -130,7 +142,7 @@ export function MarkTrack({
           aria-label={onClear && value === mark ? `${bn(mark)} মার্ক (আবার চাপলে মুছে যাবে)` : `${bn(mark)} মার্ক`}
           tabIndex={selected === -1 ? (i === 0 ? 0 : -1) : i === selected ? 0 : -1}
           data-autofocus={autoFocusSelected && (selected === -1 ? i === 0 : i === selected) ? true : undefined}
-          onClick={() => (onClear && value === mark ? onClear() : onChange(mark))}
+          onClick={(e) => onClick(e, mark)}
           onKeyDown={(e) => onKeyDown(e, i)}
         >
           {bn(mark)}

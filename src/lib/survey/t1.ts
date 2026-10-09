@@ -216,13 +216,13 @@ export async function saveDraft(round: Round, input: BatchKeyInput, rows: DraftR
   // A cleared student ("not my student") loses marks and note; anything sent with the clear is kept.
   const cleared = valid.filter((v) => v.row.clear).map((v) => v.student!.erpId);
   // A null mark is withdrawn: left out of a new row, removed from a saved one.
-  const split = (answers: Record<string, number | null>) => ({
-    marks: Object.fromEntries(Object.entries(answers).filter(([, mark]) => mark !== null)) as Record<string, number>,
-    withdrawn: Object.keys(answers).filter((questionKey) => answers[questionKey] === null),
-  });
-  const kept = valid.filter((v) => !v.row.clear || Object.keys(split(v.answers!).marks).length || v.row.note?.trim());
-  const upserts = kept.map(({ row, answers, student }) => {
-    const { marks, withdrawn } = split(answers!);
+  const split = valid.map((v) => ({
+    ...v,
+    marks: Object.fromEntries(Object.entries(v.answers!).filter(([, mark]) => mark !== null)) as Record<string, number>,
+    withdrawn: Object.keys(v.answers!).filter((questionKey) => v.answers![questionKey] === null),
+  }));
+  const kept = split.filter((v) => !v.row.clear || Object.keys(v.marks).length || v.row.note?.trim());
+  const upserts = kept.map(({ row, student, marks, withdrawn }) => {
     const merged = sql`${responses.answers} || excluded.answers`;
     return db
       .insert(responses)
