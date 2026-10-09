@@ -136,7 +136,7 @@ test('a guardian fills in every chapter, reviews, declares, pays after a failed 
 
   const publicRef = (await page.getByText(/^[A-Z][A-Z0-9]{0,3}-\d{3}$/).textContent())!;
   // mqd_pre_admission_application_KG-001_2026-10-09_12-54.pdf
-  const pdfName = new RegExp(`^mqd_pre_admission_application_${publicRef}_\d{4}-\d{2}-\d{2}_\d{2}-\d{2}\.pdf$`);
+  const pdfName = new RegExp(`^mqd_pre_admission_application_${publicRef}_\\d{4}-\\d{2}-\\d{2}_\\d{2}-\\d{2}\\.pdf$`);
 
   // The application PDF.
   const [download] = await Promise.all([page.waitForEvent('download'), page.getByRole('link', { name: 'আবেদনপত্র ডাউনলোড' }).click()]);
