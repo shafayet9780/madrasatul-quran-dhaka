@@ -30,7 +30,7 @@ the survey pages are restyled and simplified, and both survey prints work on A4.
 
 1. With `ADMISSIONS_LOCAL=1` the survey reads the same in-memory Postgres as admissions
    (`getDb()` honours the local override, as `getAdmissionsDb()` does).
-2. Load the existing sample survey data (`scripts/survey-dev-fixtures.ts`: two teacher rounds, a
+2. Load the existing sample survey data (now `src/lib/survey/testing/dev-fixtures.ts`: two teacher rounds, a
    guardian class-management and a guardian-about-the-child round, students, batches, a draft) into it at
    start-up, without Sanity or Neon. The fixture loader takes a database instead of using
    `.env.local`.
@@ -38,6 +38,9 @@ the survey pages are restyled and simplified, and both survey prints work on A4.
 
 Check: every survey admin page renders with the sample data; `pnpm survey:fixtures` against
 Neon still works.
+
+Done: `pnpm test:e2e:admissions` also runs the survey specs that need only the database (reports,
+tracker, teacher and guardian forms) against the sample data; `pnpm admin:screenshots`.
 
 ## Phase C: one shell, one theme
 

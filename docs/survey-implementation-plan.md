@@ -66,7 +66,7 @@ drizzle/                                  # migrations
 
 Admin mutations are server actions on the `/admin` pages. A server action can be invoked through any route the proxy passes, so **every action must start with `assertAdmin()`** (Basic Auth in production, fails closed when unconfigured); Next's Origin check covers CSRF. Endpoints the Studio calls live under `/studio/api/…` for the same reason, following the existing downloads share-link route. No `/api/admin` routes. Analytics (GTM) never load on `/survey` or `/admin`.
 
-Testing: `pnpm test` (unit, offline) · `pnpm test:db` (`*.db.test.ts` against the Neon dev branch, self-cleaning) · `pnpm test:e2e`. `scripts/survey-dev-fixtures.ts` loads sample rounds (marked `fixture-`) into the dev database; `--remove` deletes them.
+Testing: `pnpm test` (unit, offline) · `pnpm test:db` (`*.db.test.ts` against the Neon dev branch, self-cleaning) · `pnpm test:e2e`. `pnpm survey:fixtures` (`src/lib/survey/testing/dev-fixtures.ts`) loads sample rounds (marked `fixture-`) into the dev database; `--remove` deletes them.
 
 ## 4. Milestones
 

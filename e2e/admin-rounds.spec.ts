@@ -1,12 +1,11 @@
-import { execFileSync } from 'node:child_process';
 import { expect, test } from '@playwright/test';
+import { loadFixtures } from './survey-fixtures';
 
 // Uses the Neon dev database from .env.local; the fixture rounds are reloaded before and after.
-const loadFixtures = () => execFileSync('pnpm', ['survey:fixtures'], { stdio: 'ignore' });
 
 test.describe.configure({ mode: 'serial' });
-test.beforeAll(loadFixtures);
-test.afterAll(loadFixtures);
+test.beforeAll(() => loadFixtures());
+test.afterAll(() => loadFixtures());
 
 const login = { httpCredentials: { username: 'playwright-editor', password: 'playwright-test-password' } };
 

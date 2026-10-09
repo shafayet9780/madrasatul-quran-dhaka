@@ -50,3 +50,5 @@ next-env.d.ts
 .sanity/*
 
 docs/*design/
+# pnpm admin:screenshots output
+/admin-screenshots/

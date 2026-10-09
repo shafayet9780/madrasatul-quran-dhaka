@@ -1,3 +1,4 @@
+import type { SurveyDb } from '../survey/db';
 import type { AdmissionsDb } from './db';
 import type { FormDocument } from './snapshot';
 import type { Gateway } from './sslcommerz';
@@ -10,9 +11,10 @@ import type { BlobStore } from './uploads';
 
 /**
  * `gateway` is the SSLCommerz stand-in, set only when no sandbox credentials are configured;
- * `outbox` collects emails instead of sending them (GET /api/admissions/dev/outbox).
+ * `outbox` collects emails instead of sending them (GET /api/admissions/dev/outbox). `surveyDb` is
+ * the survey's view of the same in-memory database, loaded with the sample survey data.
  */
-export type LocalOverrides = { db: AdmissionsDb; form: FormDocument; store: BlobStore; gateway?: Gateway; outbox?: MailMessage[] };
+export type LocalOverrides = { db: AdmissionsDb; surveyDb?: SurveyDb; form: FormDocument; store: BlobStore; gateway?: Gateway; outbox?: MailMessage[] };
 
 const holder = globalThis as { __admissionsLocal?: LocalOverrides };
 

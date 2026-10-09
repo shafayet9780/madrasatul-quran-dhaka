@@ -1,12 +1,11 @@
-import { execFileSync } from 'node:child_process';
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
+import { loadFixtures } from './survey-fixtures';
 
 // T1 reports against the Neon dev database fixtures (October round open, September closed).
-const loadFixtures = () => execFileSync('pnpm', ['survey:fixtures'], { stdio: 'ignore' });
 
 test.describe.configure({ mode: 'serial' });
-test.beforeAll(loadFixtures);
+test.beforeAll(() => loadFixtures());
 test.use({ httpCredentials: { username: 'playwright-editor', password: 'playwright-test-password' } });
 
 async function expectAccessible(page: Page) {

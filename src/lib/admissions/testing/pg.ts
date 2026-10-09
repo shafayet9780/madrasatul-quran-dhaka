@@ -20,7 +20,12 @@ export async function createPgliteDb(): Promise<{ db: AdmissionsDb; client: PGli
       if (stmt.trim()) await client.exec(stmt);
     }
   }
-  const pg = drizzle(client, { schema });
+  return { db: pgliteDrizzle(client, schema) as unknown as AdmissionsDb, client };
+}
+
+/** Drizzle over a PGlite client with Neon's `batch`; also gives the survey its view of the same database. */
+export function pgliteDrizzle<S extends Record<string, unknown>>(client: PGlite, tables: S) {
+  const pg = drizzle(client, { schema: tables });
   const batch = async (queries: readonly PromiseLike<unknown>[]) => {
     await pg.execute(sql`BEGIN`);
     try {
@@ -33,7 +38,7 @@ export async function createPgliteDb(): Promise<{ db: AdmissionsDb; client: PGli
       throw e;
     }
   };
-  return { db: Object.assign(pg, { batch }) as unknown as AdmissionsDb, client };
+  return Object.assign(pg, { batch });
 }
 
 export async function startTestDb(): Promise<{ db: AdmissionsDb; client: PGlite; stop: () => Promise<void> }> {
