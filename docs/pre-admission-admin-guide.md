@@ -19,6 +19,10 @@ Only a fee confirmed by SSLCommerz's validation service gives an ID. IDs count u
 
 Totals (paid, fee pending, new today, evaluation fees received), paid applications per day, per class, how guardians heard about the school, and the latest applications. Tiles open the matching list. **Excel এক্সপোর্ট** downloads every paid application (see below).
 
+### Testing the form before launch (ফর্ম পরীক্ষা, শুধু এই ডিভাইসে)
+
+At the bottom of the overview. **এই ডিভাইসে ফর্ম খুলুন** opens the *published* form in this browser for 12 hours, even while it is switched off or outside its dates; everyone else still sees it closed. Publish the form in the Studio first with **Enable Form** off. Applications started with the pass are tests: the fee is ৳10 (SSLCommerz's minimum), the ID is `TEST-001`, `TEST-002`…, the real numbering is untouched, and nothing is copied to the Google Sheet. The emails and the PDF are sent as usual. Tests show in the lists and counts until deleted: open each one and press **মুছুন** (allowed even when paid), then **পরীক্ষা শেষ করুন**. Refund the ৳10 from the SSLCommerz panel if you want it back.
+
 ## আবেদন (paid) and ফি বাকি (fee pending)
 
 - **Search** by ID (typed any way: `kg 17`, `KG-017`), the child's name in Bengali or English, or any part of the guardian's mobile.

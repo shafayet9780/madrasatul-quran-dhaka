@@ -128,6 +128,18 @@ describe('admin queries', () => {
     expect(await deleteUnpaid(unpaid.id, store)).toBe('not_found');
   });
 
+  it('deletes a test application even when paid', async () => {
+    const store: BlobStore = { put: async () => {}, get: async () => null, del: async () => {} };
+    cycle = { ...cycle, testPass: true };
+    const test = await application({ name: 'পরীক্ষা', mobile: '01712345678', pay: 'pay' });
+    expect(test.publicRef).toBe('TEST-001');
+    const paying = await application({ name: 'পরীক্ষা ২', mobile: '01812345678' });
+    await startPayment(paying, cycle.snapshot, 'https://x.org', gateway);
+    expect(await deleteUnpaid(test.id, store)).toBe('deleted');
+    expect(await deleteUnpaid(paying.id, store)).toBe('deleted');
+    expect(await db.select().from(applications)).toEqual([]);
+  });
+
   it('a held payment accepted by the office gets the next ID', async () => {
     const risky = await application({ name: 'আয়েশা', mobile: '01812345678', pay: 'risky' });
     expect(risky.publicRef).toBeNull();

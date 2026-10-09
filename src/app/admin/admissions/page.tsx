@@ -5,9 +5,12 @@ import { shortDate } from '@/lib/admissions/admin-labels';
 import { dateTime, taka, txt } from '@/lib/admissions/display';
 import { fieldWithRole } from '@/lib/admissions/form-config';
 import { toBengaliDigits as bn } from '@/lib/admissions/normalise';
+import { TEST_FEE } from '@/lib/admissions/payments';
+import { hasTestPass } from '@/lib/admissions/test-pass';
 import { cn } from '@/lib/utils';
 import { PageTop } from '../AdminShell';
 import { ExportButton, NoCycle, classOptions } from './ListPage';
+import { TestPass } from './DetailControls';
 import { Card, LAT, PageBody, PageTitle, StatTile, StatTiles } from '../ui';
 
 export const metadata: Metadata = { title: 'ভর্তি ওভারভিউ' };
@@ -69,9 +72,42 @@ function HBars({ rows, total }: { rows: { label: string; count: number; href?: s
   );
 }
 
+/** The office's test pass: the form opens on this device only, before launch or while closed. */
+async function TestPassCard() {
+  const active = await hasTestPass();
+  return (
+    <Card title="ফর্ম পরীক্ষা, শুধু এই ডিভাইসে">
+      <p className="m-0 text-sm text-muted-foreground">
+        {active ? (
+          <>
+            এই ব্রাউজারে পাস চালু আছে (১২ ঘণ্টা)।{' '}
+            <Link href="/bengali/pre-admission" className="font-medium text-foreground">
+              ফর্মটি খুলুন
+            </Link>
+            , আবেদন করে পেমেন্ট দিন। পরীক্ষা শেষে আবেদনগুলো মুছে ফেলুন।
+          </>
+        ) : (
+          <>
+            প্রকাশিত ফর্মটি এই ব্রাউজারে ১২ ঘণ্টার জন্য খুলবে, ফর্ম বন্ধ থাকলেও; অন্য কেউ দেখবেন না। পরীক্ষার আবেদনের ফি {taka(TEST_FEE, 'bengali')}, আইডি{' '}
+            <span className={LAT}>TEST-001</span> ধরনের, গুগল শিটে যায় না, আর পরিশোধের পরেও মুছে ফেলা যায়।
+          </>
+        )}
+      </p>
+      <div className="mt-3">
+        <TestPass active={active} />
+      </div>
+    </Card>
+  );
+}
+
 export default async function AdmissionsOverview() {
   const cycle = await adminCycle();
-  if (!cycle) return <NoCycle />;
+  if (!cycle)
+    return (
+      <NoCycle>
+        <TestPassCard />
+      </NoCycle>
+    );
   const { snapshot } = cycle;
   const heard = fieldWithRole(snapshot, 'heardFrom');
   const o = await overview(cycle.cycleId, heard?.key ?? null);
@@ -188,6 +224,8 @@ export default async function AdmissionsOverview() {
             )}
           </Card>
         </div>
+
+        <TestPassCard />
       </PageBody>
     </>
   );

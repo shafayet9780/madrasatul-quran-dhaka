@@ -3,7 +3,7 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vites
 import { eq, sql } from 'drizzle-orm';
 import { syncCycle, type CycleState } from './cycle';
 import { createDraft, getByToken, saveDraft, submitDraft, type Application } from './drafts';
-import { closePayment, completeAfterResubmit, confirmPayment, latestPayment, reconcilePending, startPayment } from './payments';
+import { TEST_FEE, closePayment, completeAfterResubmit, confirmPayment, latestPayment, reconcilePending, startPayment } from './payments';
 import { retryConfirmationEmails, sendConfirmationEmail, type MailMessage } from './mail';
 import { applicationEvents, applications, payments } from './schema';
 import type { FormDocument } from './snapshot';
@@ -108,6 +108,22 @@ describe('startPayment', () => {
 });
 
 describe('confirmPayment', () => {
+  it('a test application (the office test pass) pays the test fee and is numbered on its own', async () => {
+    const real = await submitted('kg');
+    cycle = { ...cycle, testPass: true };
+    const test = await submitted('kg', '01812345678');
+    expect(test.app.isTest).toBe(true);
+    expect(real.app.isTest).toBe(false);
+
+    const p = await pay(test.app);
+    expect(p.amount).toBe(TEST_FEE);
+    expect(gateway.attempts.get(p.tranId)!.request.amount).toBe(TEST_FEE);
+    expect((await confirmPayment(p.tranId, gateway.complete(p.tranId, 'pay')!, 'return', gateway)).publicRef).toBe('TEST-001');
+    const p2 = await pay(real.app);
+    expect(p2.amount).toBe(500);
+    expect((await confirmPayment(p2.tranId, gateway.complete(p2.tranId, 'pay')!, 'return', gateway)).publicRef).toBe('KG-001');
+  });
+
   it('marks the application paid with the next serial for its class, once', async () => {
     const first = await submitted('kg');
     const second = await submitted('kg', '01812345678');

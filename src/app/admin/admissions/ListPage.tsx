@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import Link from 'next/link';
 import { Download } from 'lucide-react';
 import { Button } from '@/components/shadcn/button';
@@ -21,13 +22,14 @@ const PAGE_SIZE = 25;
 export const classOptions = (snapshot: FormSnapshot) =>
   (fieldWithRole(snapshot, 'classApplied')?.options ?? []).filter((o) => o.code).map((o) => ({ value: o.code!, label: txt(o.label, 'bengali'), optionValue: o.value }));
 
-export function NoCycle() {
+export function NoCycle({ children }: { children?: ReactNode }) {
   return (
     <>
       <PageTop crumbs={[{ label: 'ভর্তি' }]} round={false} />
       <PageBody>
         <PageTitle>ভর্তি</PageTitle>
         <EmptyState>এখনো কোনো ভর্তি সেশন খোলা হয়নি। স্টুডিওতে প্রি-অ্যাডমিশন ফর্মটি প্রকাশ করলে এখানে আবেদন দেখা যাবে।</EmptyState>
+        {children}
       </PageBody>
     </>
   );

@@ -10,6 +10,7 @@ import { asLocale, num, taka, txt } from '@/lib/admissions/display';
 import { countOtherApplications } from '@/lib/admissions/drafts';
 import { guardianSections, type FormField } from '@/lib/admissions/form-config';
 import { flowPath, requireDraft } from '@/lib/admissions/pages';
+import { applicationFee } from '@/lib/admissions/payments';
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -34,7 +35,7 @@ export default async function ReviewPage({ params }: Props) {
     notGiven: t('notGiven'),
     fileAttached: (type: string) => t('review.fileAttached', { type }),
   };
-  const fee = taka(settings.applicationFee, locale);
+  const fee = taka(applicationFee(app, snapshot), locale);
 
   // Every chapter as configured, including the start-page answers (mobile, email) in theirs.
   const sections = snapshot.sections.map((section) => {

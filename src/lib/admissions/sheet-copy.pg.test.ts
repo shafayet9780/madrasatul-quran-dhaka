@@ -100,6 +100,8 @@ describe('sheet copy', () => {
   it('adds each paid application once, then rewrites its row after an office change', async () => {
     const a = await paidApplication('আব্দুল্লাহ', '01712345678');
     await paidApplication('উমর', '01912345678');
+    cycle = { ...cycle, testPass: true };
+    await paidApplication('পরীক্ষা', '01812345678');
     expect(await copyPendingToSheet()).toEqual({ copied: 2, failed: 0 });
     expect([...sheet.tabs]).toEqual([sheetTabName('2027')]);
     expect(sheetTabName('2027')).toBe('ভর্তি ২০২৭');

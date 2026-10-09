@@ -114,6 +114,7 @@ export default async function ApplicationPage({ params, searchParams }: Props) {
                   </a>
                 </Button>
                 <ResendEmail id={app.id} />
+                {app.isTest && <DeleteUnpaid id={app.id} name={name} from="detail" />}
               </>
             ) : (
               <DeleteUnpaid id={app.id} name={name} from="detail" />

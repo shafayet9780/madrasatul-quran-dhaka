@@ -13,6 +13,7 @@ import { afterPaid } from '@/lib/admissions/after-paid';
 import { acceptHeldPayment } from '@/lib/admissions/payments';
 import { fieldWithRole } from '@/lib/admissions/form-config';
 import { copyPendingToSheet } from '@/lib/admissions/sheet-copy';
+import { endTestPass, giveTestPass } from '@/lib/admissions/test-pass';
 import { assertAdmin, requestOrigin } from '@/lib/survey/admin-auth';
 
 // Admissions admin changes. Every action checks the admin login first (the proxy also gates /admin).
@@ -68,6 +69,18 @@ export async function deleteUnpaidAction(appId: string, back?: 'list'): Promise<
   revalidatePath('/admin/admissions', 'layout');
   if (back === 'list') return { ok: true, message: 'আবেদনটি মুছে ফেলা হয়েছে।' };
   redirect('/admin/admissions/unpaid?deleted=1');
+}
+
+/** The office's test pass: the form opens on this device only, for 12 hours. */
+export async function testPassAction(on: boolean): Promise<Result> {
+  await assertAdmin();
+  if (!on) {
+    await endTestPass();
+  } else if (!(await giveTestPass())) {
+    return { ok: false, error: 'ADMISSIONS_SECRET বা CRON_SECRET সেট করা নেই, তাই পাস দেওয়া যাচ্ছে না।' };
+  }
+  revalidatePath('/admin/admissions');
+  return { ok: true };
 }
 
 export async function acceptHeldAction(appId: string, paymentId: string): Promise<Result> {

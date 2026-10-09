@@ -7,7 +7,7 @@ import { Switch } from '@/components/shadcn/switch';
 import { Textarea } from '@/components/shadcn/textarea';
 import { OFFICE_STATUSES, STATUS_LABEL, type ApplicationStatus } from '@/lib/admissions/admin-labels';
 import { cn } from '@/lib/utils';
-import { acceptHeldAction, addNoteAction, changeStatusAction, evaluationDayAction, resendEmailAction } from './actions';
+import { acceptHeldAction, addNoteAction, changeStatusAction, evaluationDayAction, resendEmailAction, testPassAction } from './actions';
 
 type Result = { ok: true; message?: string } | { ok: false; error: string };
 
@@ -159,6 +159,19 @@ export function AcceptHeld({ id, paymentId }: { id: string; paymentId: string })
       </label>
       <Button className="h-9 self-start" disabled={!sure || pending} onClick={() => run(() => acceptHeldAction(id, paymentId))}>
         পেমেন্ট গ্রহণ করে আইডি দিন
+      </Button>
+      {line}
+    </div>
+  );
+}
+
+/** Overview: gives or ends the test pass for this device. */
+export function TestPass({ active }: { active: boolean }) {
+  const { pending, run, line } = useAction();
+  return (
+    <div className="flex flex-col items-start">
+      <Button variant={active ? 'outline' : 'default'} className={cn('h-9', active && 'bg-white shadow-none')} disabled={pending} onClick={() => run(() => testPassAction(!active))}>
+        {active ? 'পরীক্ষা শেষ করুন' : 'এই ডিভাইসে ফর্ম খুলুন'}
       </Button>
       {line}
     </div>

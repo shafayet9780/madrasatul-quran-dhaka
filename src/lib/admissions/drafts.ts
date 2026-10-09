@@ -49,6 +49,7 @@ export async function createDraft(
       answers,
       ...roleColumns(cycle.snapshot, answers),
       attribution: input.attribution,
+      isTest: !!cycle.testPass,
     })
     .returning({ id: applications.id });
   await logEvent(app.id, mobile, 'created', 'guardian');

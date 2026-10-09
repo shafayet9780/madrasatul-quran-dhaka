@@ -43,6 +43,13 @@
       "when": 1791384877164,
       "tag": "0005_admissions_init",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1791534878418,
+      "tag": "0006_test_applications",
+      "breakpoints": true
     }
   ]
 }

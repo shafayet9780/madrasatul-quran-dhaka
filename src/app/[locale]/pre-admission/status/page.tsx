@@ -12,7 +12,7 @@ import { asLocale, dateTime, taka, txt, type Locale } from '@/lib/admissions/dis
 import { loadById, type Application } from '@/lib/admissions/drafts';
 import { fieldWithRole, type FormSnapshot } from '@/lib/admissions/form-config';
 import { flowPath } from '@/lib/admissions/pages';
-import { latestPayment, paymentGateway, reconcilePayment, type Payment } from '@/lib/admissions/payments';
+import { applicationFee, latestPayment, paymentGateway, reconcilePayment, type Payment } from '@/lib/admissions/payments';
 import { currentApplication, siteOrigin } from '@/lib/admissions/session';
 import { afterPaid } from '@/lib/admissions/after-paid';
 
@@ -51,7 +51,7 @@ export default async function StatusPage({ params, searchParams }: Props) {
     payment = await latestPayment(app.id);
   }
 
-  const fee = taka(snapshot.settings.applicationFee, locale);
+  const fee = taka(applicationFee(app, snapshot), locale);
   const shell = (children: React.ReactNode) => (
     <FlowShell locale={locale} session={snapshot.settings.session} back={{ href: flowPath(locale), label: t('back') }}>
       {children}

@@ -1,5 +1,5 @@
 import { sql } from 'drizzle-orm';
-import { bigserial, check, index, integer, jsonb, pgEnum, pgTable, primaryKey, text, timestamp, uniqueIndex, uuid } from 'drizzle-orm/pg-core';
+import { bigserial, boolean, check, index, integer, jsonb, pgEnum, pgTable, primaryKey, text, timestamp, uniqueIndex, uuid } from 'drizzle-orm/pg-core';
 import type { Answers } from './answers';
 import type { FormSnapshot } from './form-config';
 
@@ -76,6 +76,8 @@ export const applications = pgTable(
 
     answers: jsonb('answers').$type<Answers>().notNull().default({}),
     attribution: jsonb('attribution').$type<Record<string, unknown>>(),
+    /** Started with the office's test pass: a 10 taka fee, an ID like TEST-001, no Sheet row, deletable when paid. */
+    isTest: boolean('is_test').notNull().default(false),
 
     /** Application ID, e.g. KG-017: assigned when payment is confirmed. */
     publicRef: text('public_ref'),
