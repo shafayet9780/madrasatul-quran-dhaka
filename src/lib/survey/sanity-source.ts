@@ -1,4 +1,5 @@
 import 'server-only';
+import { localOverrides } from '@/lib/admissions/local';
 import { previewClient } from '@/lib/sanity';
 import type { ListsSource, RoundSource } from './build-round';
 
@@ -43,7 +44,9 @@ export type UnopenedRound = {
 };
 
 /** Published rounds that have not been opened yet. */
-export function fetchUnopenedRounds(openedIds: string[]): Promise<UnopenedRound[]> {
+export async function fetchUnopenedRounds(openedIds: string[]): Promise<UnopenedRound[]> {
+  // The local preview has no Studio: only the sample rounds, all opened.
+  if (localOverrides()?.surveyDb) return [];
   return sanity.fetch(
     `*[_type == "surveyRound" && !(_id in $opened)] | order(plannedOpensAt desc) {
       _id, label, "slug": slug.current, "kind": template->kind, plannedOpensAt, plannedClosesAt

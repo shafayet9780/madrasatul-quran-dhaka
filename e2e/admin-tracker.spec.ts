@@ -1,13 +1,12 @@
-import { execFileSync } from 'node:child_process';
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
+import { loadFixtures } from './survey-fixtures';
 
 // Response tracker against the Neon dev database; fixtures are reloaded before and after.
-const loadFixtures = () => execFileSync('pnpm', ['survey:fixtures'], { stdio: 'ignore' });
 
 test.describe.configure({ mode: 'serial' });
-test.beforeAll(loadFixtures);
-test.afterAll(loadFixtures);
+test.beforeAll(() => loadFixtures());
+test.afterAll(() => loadFixtures());
 test.use({ httpCredentials: { username: 'playwright-editor', password: 'playwright-test-password' } });
 
 test('shows coverage and drafts, and resolves a duplicate', async ({ page }) => {
@@ -29,14 +28,17 @@ test('shows coverage and drafts, and resolves a duplicate', async ({ page }) => 
   const dups = page.getByRole('region', { name: /^ডুপ্লিকেট/ });
   await dups.getByRole('radio', { name: /উস্তাযা সুমাইয়া-এরটি রাখুন/ }).check();
   await dups.getByRole('button', { name: 'সিদ্ধান্ত সংরক্ষণ করুন' }).click();
-  await expect(dups.getByText('কোনো ডুপ্লিকেট নেই।')).toBeVisible();
+  // Decided: the box at the top goes away.
+  await expect(page.getByRole('region', { name: /^ডুপ্লিকেট/ })).toHaveCount(0);
+  await expect(page.getByRole('status').filter({ hasText: 'কোনো ডুপ্লিকেট নেই।' })).toBeAttached();
   await expect(page.getByRole('row', { name: /নার্সারি B/ }).getByText(/^জমা · উস্তাযা সুমাইয়া$/)).toBeAttached();
 });
 
 test('a guardian round shows response by class, reminders, unverified and repeated forms', async ({ page, context }) => {
   await context.grantPermissions(['clipboard-read', 'clipboard-write']);
   await page.goto('/admin/tracker');
-  await page.getByLabel('জরিপ ও রাউন্ড').selectOption({ label: 'শিক্ষার্থী · অক্টোবর ২০২৬ · শিক্ষার্থী (নমুনা)' });
+  await page.getByRole('button', { name: /জরিপ ও রাউন্ড/ }).click();
+  await page.getByRole('menuitemradio', { name: 'শিক্ষার্থী · অক্টোবর ২০২৬ · শিক্ষার্থী (নমুনা)' }).click();
   await expect(page.getByText('শিক্ষার্থীর উপর অভিভাবক রিভিউ · অক্টোবর ২০২৬ · শিক্ষার্থী (নমুনা)', { exact: false })).toBeVisible();
   // Yahya, Hamza, Zayan, Abdullah and Safiya (Nursery A) have a current form: 5 of 35 children.
   await expect(page.getByText('৫/৩৫')).toBeVisible();

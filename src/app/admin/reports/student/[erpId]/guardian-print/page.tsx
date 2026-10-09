@@ -8,90 +8,18 @@ import { formatMark } from '@/lib/survey/report-math';
 import { chosenRoundId } from '@/lib/survey/admin-shell';
 import { pickRound, studentReport } from '@/lib/survey/reports';
 import { NoRounds } from '../../../NoRounds';
+import { classManagementAverages } from '../data';
 import { ReportTools } from '../../../ReportTools';
 import { PageTop } from '../../../../AdminShell';
+import { EmptyState, LINK, PageBody } from '../../../../ui';
 
 export const metadata: Metadata = { title: 'অভিভাবকের জন্য প্রতিবেদন' };
 export const dynamic = 'force-dynamic';
 
 // R4-Print-Guardian: one A4 page for the guardian meeting. Marks only; no teacher names or notes.
+// The class-management review shows as the guardian's own average per subject (2026-10-09).
 
 const ink = '#1F2A2E';
-
-/** Last rounds in black and white: guardian solid, teachers dashed; axis from the scale floor. */
-function PrintTrend({ points }: { points: { label: string; guardian: number | null; teacher: number | null }[] }) {
-  const left = 40;
-  const right = 580;
-  const top = 14;
-  const bottom = 134;
-  const x = (i: number) => (points.length === 1 ? (left + right) / 2 : left + 40 + (i * (right - left - 80)) / (points.length - 1));
-  const y = (mark: number) => bottom - ((mark - 4) / 6) * (bottom - top);
-  const line = (key: 'guardian' | 'teacher') =>
-    points
-      .map((p, i) => (p[key] === null ? null : `${x(i)},${y(p[key]!)}`))
-      .filter(Boolean)
-      .join(' ');
-  const last = (key: 'guardian' | 'teacher') => [...points].reverse().find((p) => p[key] !== null)?.[key] ?? null;
-  // End labels at least 16px apart: the higher series' label goes up, the other down.
-  const gl = last('guardian');
-  const tl = last('teacher');
-  const mid = gl !== null && tl !== null ? (y(gl) + y(tl)) / 2 : 0;
-  const apart = gl !== null && tl !== null && Math.abs(y(gl) - y(tl)) < 24;
-  const labelY = (key: 'guardian' | 'teacher', mark: number) => {
-    if (!apart) return y(mark) + 4;
-    const guardianHigher = y(gl!) <= y(tl!);
-    return mid + ((key === 'guardian') === guardianHigher ? -6 : 12);
-  };
-  const describe = (key: 'guardian' | 'teacher', name: string) =>
-    `${name}: ${points
-      .filter((p) => p[key] !== null)
-      .map((p) => `${p.label} ${bn(p[key]!.toFixed(1))}`)
-      .join(', ')}`;
-  return (
-    <svg viewBox="0 0 680 170" width="100%" role="img" aria-label={`${describe('guardian', 'অভিভাবক')}। ${describe('teacher', 'শিক্ষক')}`}>
-      <g stroke="#D8D2C9">
-        {[10, 8, 6, 4].map((m) => (
-          <line key={m} x1={left} x2={right} y1={y(m)} y2={y(m)} />
-        ))}
-      </g>
-      <g fontSize="12" fill="#3D4A53" textAnchor="end">
-        {[10, 8, 6, 4].map((m) => (
-          <text key={m} x={left - 8} y={y(m) + 4}>
-            {bn(m)}
-          </text>
-        ))}
-      </g>
-      <g fontSize="12" fill="#3D4A53" textAnchor="middle">
-        {points.map((p, i) => (
-          <text key={p.label + i} x={x(i)} y={bottom + 24}>
-            {p.label}
-          </text>
-        ))}
-      </g>
-      <polyline fill="none" stroke={ink} strokeWidth="2.5" points={line('guardian')} />
-      <polyline fill="none" stroke={ink} strokeWidth="2.5" strokeDasharray="6 5" points={line('teacher')} />
-      {/* Markers keep a single round visible: guardian filled, teachers open. */}
-      {points.map((p, i) => (
-        <g key={i}>
-          {p.guardian !== null && <circle cx={x(i)} cy={y(p.guardian)} r="4.5" fill={ink} />}
-          {p.teacher !== null && <circle cx={x(i)} cy={y(p.teacher)} r="4.5" fill="#fff" stroke={ink} strokeWidth="2" />}
-        </g>
-      ))}
-      <g fontSize="13" fontWeight="600" fill={ink}>
-        {last('guardian') !== null && (
-          <text x={right + 8} y={labelY('guardian', last('guardian')!)}>
-            অভিভাবক {bn(last('guardian')!.toFixed(1))}
-          </text>
-        )}
-        {last('teacher') !== null && (
-          <text x={right + 8} y={labelY('teacher', last('teacher')!)}>
-            শিক্ষক {bn(last('teacher')!.toFixed(1))}
-          </text>
-        )}
-      </g>
-    </svg>
-  );
-}
 
 export default async function GuardianPrintPage({ params, searchParams }: { params: Promise<{ erpId: string }>; searchParams: Promise<{ round?: string }> }) {
   const [{ erpId }, search, all] = await Promise.all([params, searchParams, allReportRounds()]);
@@ -105,9 +33,14 @@ export default async function GuardianPrintPage({ params, searchParams }: { para
     return (
       <>
         <PageTop crumbs={[{ label: 'ক্লাস ও শিক্ষার্থী', href: '/admin/reports' }, { label: 'পাওয়া যায়নি' }]} />
-        <div className="sv-card" style={{ padding: 20 }}>
-          শিক্ষার্থী পাওয়া যায়নি। <Link href={`/admin/reports?round=${round.id}`}>খুঁজুন</Link>
-        </div>
+        <PageBody>
+          <EmptyState>
+            শিক্ষার্থী পাওয়া যায়নি।{' '}
+            <Link href={`/admin/reports?round=${round.id}`} className={LINK}>
+              খুঁজুন
+            </Link>
+          </EmptyState>
+        </PageBody>
       </>
     );
   }
@@ -122,11 +55,7 @@ export default async function GuardianPrintPage({ params, searchParams }: { para
     return { key, name: (t ?? g)!.name, guardian: g?.mean ?? null, teacher: t?.mean ?? null, classMean: t?.classMean ?? null };
   });
   const { strengths, work } = strengthsAndWork(areas);
-  const teacherByRound = new Map(report.trend.map((p) => [p.roundId, p.mean]));
-  const trend = guardian.trend
-    .map((p) => ({ label: p.label, guardian: p.mean, teacher: teacherByRound.get(p.roundId) ?? null }))
-    .filter((p) => p.guardian !== null || p.teacher !== null)
-    .slice(-4);
+  const classManagement = guardian.g1Form ? classManagementAverages(guardian) : [];
   const subjects = new Set(report.grid.filter((g) => g.marks).map((g) => g.subject)).size;
   const cell = { padding: '8px 10px', borderBottom: '1px solid #E7E3DC', fontSize: 14.5 } as const;
   const h2 = { margin: 0, fontSize: 18 } as const;
@@ -228,11 +157,32 @@ export default async function GuardianPrintPage({ params, searchParams }: { para
           ))}
         </div>
 
-        {trend.length >= 2 && (
-          <section className="flex flex-col gap-1.5">
-            <h2 className="sv-head" style={h2}>গত {bn(trend.length)} রাউন্ড (মার্ক)</h2>
-            <PrintTrend points={trend} />
-            <div style={{ fontSize: 12.5, color: 'var(--sv-text-muted)' }}>অক্ষ ৪ থেকে ১০; সাদা-কালো প্রিন্টে পড়ার জন্য অভিভাবক = টানা রেখা ও ভরা বিন্দু, শিক্ষক = ভাঙা রেখা ও ফাঁকা বিন্দু।</div>
+        {classManagement.length > 0 && (
+          <section className="flex flex-col gap-2">
+            <h2 className="sv-head" style={h2}>
+              ক্লাস পরিচালনা · আপনার মূল্যায়ন
+            </h2>
+            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <thead>
+                <tr>
+                  {classManagement.map((s) => (
+                    <th key={s.key} scope="col" style={{ ...cell, textAlign: 'center', fontSize: 13, color: 'var(--sv-text-muted)', borderBottom: '1.5px solid #A8A096' }}>
+                      {s.name}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  {classManagement.map((s) => (
+                    <td key={s.key} className="sv-num" style={{ ...cell, textAlign: 'center' }}>
+                      {formatMark(s.mean, bn)}
+                    </td>
+                  ))}
+                </tr>
+              </tbody>
+            </table>
+            <div style={{ fontSize: 12.5, color: 'var(--sv-text-muted)' }}>প্রতিটি বিষয়ের ক্লাস নিয়ে আপনার দেওয়া মার্কের গড়, ১০-এর মধ্যে।</div>
           </section>
         )}
 

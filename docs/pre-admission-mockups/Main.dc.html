@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<title>প্রি-অ্যাডমিশন ২০২৭ · ইন্ট্রো</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;500;600;700&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.ui{--bg:#fafafa;--surface:#fff;--fg:#171717;--mfg:#525252;--muted:#f5f5f5;--border:#e5e5e5;--input:#d4d4d4;--primary:#7a4d32;--primary-h:#663f28;--pfg:#fff;--ring:rgba(122,77,50,.3);--ok:#15803d;--warn:#b45309;--bad:#dc2626;font-family:'Noto Sans Bengali','Inter',sans-serif;color:var(--fg);background:var(--bg)}
+.ui.dark{--bg:#111;--surface:#171717;--fg:#f5f5f5;--mfg:#a3a3a3;--muted:#262626;--border:#2a2a2a;--input:#404040;--primary:#c8946b;--primary-h:#d6a682;--pfg:#1c130d;--ring:rgba(200,148,107,.35);--ok:#4ade80;--warn:#fbbf24;--bad:#f87171}
+.ui a{color:var(--fg);text-underline-offset:3px}
+.lat{font-family:Inter,sans-serif}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:44px;padding:0 16px;border-radius:8px;background:var(--primary);color:var(--pfg) !important;font:inherit;font-size:15px;font-weight:500;text-decoration:none;border:0;cursor:pointer;white-space:nowrap}
+.btn:hover{background:var(--primary-h)}
+.btn:active,.btn-o:active{transform:scale(.98)}
+.btn-o{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:44px;padding:0 16px;border-radius:8px;background:var(--surface);border:1px solid var(--border);font:inherit;font-size:15px;font-weight:500;text-decoration:none;cursor:pointer;color:var(--fg)}
+.btn-o:hover{background:var(--muted)}
+.ghost{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:8px;border:0;background:transparent;color:var(--fg);text-decoration:none;cursor:pointer}
+.ghost:hover{background:var(--muted)}
+.badge{display:inline-flex;align-items:center;gap:6px;height:26px;padding:0 10px;border-radius:8px;border:1px solid var(--border);font-size:13px;font-weight:500;white-space:nowrap;background:var(--surface)}
+.h2{margin:0 0 6px;font-size:18px;font-weight:600;letter-spacing:-.01em}
+.sub{margin:0;font-size:14px;color:var(--mfg);line-height:1.6}
+.acc{border-bottom:1px solid var(--border)}
+.acc summary{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 0;font-size:15px;font-weight:500;cursor:pointer;list-style:none}
+.acc summary::-webkit-details-marker{display:none}
+.acc[open] summary svg{transform:rotate(180deg)}
+.acc p{margin:0 0 14px;font-size:14px;line-height:1.65;color:var(--mfg)}
+</style>
+</helmet>
+<div class="ui {{theme}}" style="width: 390px; height: 2300px; box-sizing: border-box; display: flex; flex-direction: column">
+  <header style="height: 56px; background: var(--surface); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 8px 0 16px">
+    <a href="#" style="display: flex; align-items: center; gap: 10px; text-decoration: none">
+      <span style="width: 32px; height: 32px; border-radius: 8px; border: 1px dashed var(--input); display: flex; align-items: center; justify-content: center; font-size: 9px; color: var(--mfg)">লোগো</span>
+      <span style="font-size: 15px; font-weight: 600">মাদরাসাতুল কুরআন</span>
+    </a>
+    <div style="display: flex; align-items: center">
+      <a class="ghost lat" href="#" style="width: auto; padding: 0 10px; font-size: 13px; font-weight: 600">EN</a>
+      <button class="ghost" aria-label="মেনু"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="M4 6h16"/><path d="M4 18h16"/></svg></button>
+    </div>
+  </header>
+
+  <section style="background: var(--surface); border-bottom: 1px solid var(--border); padding: 28px 16px 28px; display: flex; flex-direction: column; gap: 16px">
+    <span class="badge" style="align-self: flex-start">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--ok)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+      আবেদন চলছে, শেষ সময় [শেষ তারিখ]
+    </span>
+    <h1 style="margin: 0; font-size: 30px; line-height: 1.3; font-weight: 700; letter-spacing: -.015em">প্রি-অ্যাডমিশন আবেদন ২০২৭</h1>
+    <p class="sub" style="font-size: 16px; max-width: 34ch">অনলাইনে ফর্ম পূরণ ও ফি পরিশোধ করুন। মূল্যায়নের দিন আবেদনপত্রের প্রিন্ট সঙ্গে আনবেন।</p>
+    <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 4px">
+      <a class="btn" href="Start.dc.html">আবেদন শুরু করুন <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
+      <a class="btn-o" href="Find.dc.html">আবেদন খুঁজুন</a>
+    </div>
+  </section>
+
+  <section style="padding: 28px 16px 8px">
+    <h2 class="h2">ফি</h2>
+    <dl style="margin: 12px 0 0; display: grid; grid-template-columns: 1fr auto; gap: 14px 16px">
+      <dt style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 15px; font-weight: 500">আবেদন ফি</span><span style="font-size: 13px; color: var(--mfg)">এখন অনলাইনে (বিকাশ, নগদ, কার্ড), ফেরতযোগ্য নয়</span></dt>
+      <dd style="margin: 0; font-size: 16px; font-weight: 600">৳৫০০</dd>
+      <dt style="display: flex; flex-direction: column; gap: 2px; border-top: 1px solid var(--border); padding-top: 14px"><span style="font-size: 15px; font-weight: 500">মূল্যায়ন ফি</span><span style="font-size: 13px; color: var(--mfg)">মূল্যায়নের দিন নগদে</span></dt>
+      <dd style="margin: 0; font-size: 16px; font-weight: 600; border-top: 1px solid var(--border); padding-top: 14px">৳৫০০</dd>
+    </dl>
+  </section>
+
+  <section style="padding: 28px 16px 8px">
+    <h2 class="h2">যা হাতের কাছে রাখবেন</h2>
+    <p class="sub">পুরো ফর্মে প্রায় ১৫ মিনিট লাগে, আর লেখা নিজে থেকেই সংরক্ষিত হয়।</p>
+    <ul style="margin: 16px 0 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 14px">
+      <li style="display: flex; gap: 12px"><svg style="flex: none; margin-top: 3px; color: var(--mfg)" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg><span style="display: flex; flex-direction: column"><span style="font-size: 15px">শিক্ষার্থী ও পিতার সদ্য তোলা ছবি</span><span style="font-size: 13px; color: var(--mfg)">ফোনের ক্যামেরায় তুললেই হবে</span></span></li>
+      <li style="display: flex; gap: 12px"><svg style="flex: none; margin-top: 3px; color: var(--mfg)" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M16 13H8"/><path d="M16 17H8"/></svg><span style="display: flex; flex-direction: column"><span style="font-size: 15px">শিক্ষার্থীর জন্ম নিবন্ধন সনদ</span><span style="font-size: 13px; color: var(--mfg)">ছবি বা PDF</span></span></li>
+      <li style="display: flex; gap: 12px"><svg style="flex: none; margin-top: 3px; color: var(--mfg)" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="20" x="5" y="2" rx="2"/><path d="M12 18h.01"/></svg><span style="display: flex; flex-direction: column"><span style="font-size: 15px">অভিভাবকের মোবাইল নম্বর ও ইমেইল</span><span style="font-size: 13px; color: var(--mfg)">আবেদনপত্র ও পরবর্তী তথ্য এখানে আসবে</span></span></li>
+    </ul>
+  </section>
+
+  <section style="padding: 28px 16px 8px">
+    <h2 class="h2" style="margin-bottom: 16px">ভর্তি প্রক্রিয়া</h2>
+    <ol style="margin: 0; padding: 0; list-style: none">
+      <sc-for list="{{steps}}" as="s" hint-placeholder-count="6">
+        <li style="display: grid; grid-template-columns: 28px 1fr; gap: 0 12px">
+          <div style="display: flex; flex-direction: column; align-items: center">
+            <span style="width: 24px; height: 24px; border-radius: 50%; border: 1px solid var(--input); background: var(--surface); font-size: 12.5px; font-weight: 600; display: flex; align-items: center; justify-content: center">{{s.n}}</span>
+            <sc-if value="{{s.line}}" hint-placeholder-val="{{ true }}"><span style="flex: 1; width: 1px; background: var(--border)"></span></sc-if>
+          </div>
+          <div style="padding: 1px 0 18px; display: flex; flex-direction: column; gap: 2px">
+            <span style="font-size: 15px; font-weight: 500">{{s.t}}</span>
+            <span style="font-size: 13.5px; color: var(--mfg); line-height: 1.55">{{s.s}}</span>
+          </div>
+        </li>
+      </sc-for>
+    </ol>
+  </section>
+
+  <section style="padding: 20px 16px 8px">
+    <h2 class="h2" style="margin-bottom: 12px">যে শ্রেণীতে ভর্তি নেওয়া হচ্ছে</h2>
+    <p style="margin: 0; font-size: 15px; line-height: 1.8">নার্সারি, কেজি, ১ম, ২য় ও ৩য় শ্রেণী। ৪র্থ ও ৫ম শ্রেণীতে বিশেষ বিবেচনায়।</p>
+  </section>
+
+  <section style="padding: 28px 16px 32px">
+    <h2 class="h2">সাধারণ জিজ্ঞাসা</h2>
+    <details class="acc"><summary>আবেদন ফি কি ফেরত দেওয়া হয়?<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></summary><p>না, আবেদন ফি ফেরতযোগ্য নয়। ভুলবশত দুবার টাকা কেটে গেলে অফিসে যোগাযোগ করুন, অতিরিক্ত টাকা ফেরত দেওয়া হবে।</p></details>
+    <details class="acc"><summary>মাঝপথে বন্ধ হয়ে গেলে কী হবে?<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></summary><p>আপনার তথ্য সংরক্ষিত থাকে। ইমেইলে পাঠানো লিংক বা “আবেদন খুঁজুন” থেকে আবার শুরু করুন।</p></details>
+    <details class="acc"><summary>মূল্যায়নের তারিখ কবে জানব?<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></summary><p>ফি পরিশোধের পর হোয়াটসঅ্যাপ গ্রুপের লিংক পাবেন। সেখানে আবেদন আইডি অনুযায়ী সময়সূচি জানানো হবে।</p></details>
+    <details class="acc"><summary>পেমেন্ট কি নিরাপদ?<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></summary><p>পেমেন্ট হয় SSLCommerz-এর মাধ্যমে। আপনার কার্ড বা বিকাশের তথ্য আমাদের কাছে আসে না।</p></details>
+    <p style="margin: 16px 0 0; font-size: 14px; color: var(--mfg)">আরও প্রশ্ন থাকলে <a href="#" style="font-weight: 500">হোয়াটসঅ্যাপে লিখুন</a></p>
+  </section>
+
+  <footer style="margin-top: auto; border-top: 1px solid var(--border); padding: 20px 16px; font-size: 13px; color: var(--mfg); display: flex; justify-content: space-between">
+    <span>মাদরাসাতুল কুরআন</span><span>© ২০২৬</span>
+  </footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"$preview":{"width":390,"height":2300}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const steps = [
+      { t: 'ফর্ম পূরণ', s: 'শিক্ষার্থী, পিতা-মাতা ও যোগাযোগের তথ্য' },
+      { t: 'আবেদন ফি পরিশোধ', s: '৳৫০০, বিকাশ, নগদ বা কার্ডে' },
+      { t: 'আবেদনপত্র ডাউনলোড ও গ্রুপে যোগ', s: 'আবেদনপত্র (PDF) প্রিন্ট করুন, হোয়াটসঅ্যাপ গ্রুপে যোগ দিন' },
+      { t: 'সময়সূচি ঘোষণা', s: 'গ্রুপে আবেদন আইডি অনুযায়ী মূল্যায়নের সময়' },
+      { t: 'মূল্যায়ন', s: 'আবেদনপত্রের প্রিন্ট, জন্ম নিবন্ধনের মূল কপি ও ৳৫০০ মূল্যায়ন ফি আনুন' },
+      { t: 'ফলাফল', s: 'গ্রুপে ও অফিস থেকে জানানো হবে' },
+    ];
+    const bn = ['১','২','৩','৪','৫','৬'];
+    return {
+      theme: this.props.theme === 'dark' ? 'dark' : '',
+      steps: steps.map((s, i) => ({ ...s, n: bn[i], line: i < steps.length - 1 })),
+    };
+  }
+}
+</script>
+</body>
+</html>

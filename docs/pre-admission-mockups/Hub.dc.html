@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<title>প্রি-অ্যাডমিশন ২০২৭ · অধ্যায় তালিকা</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;500;600;700&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.ui{--bg:#fafafa;--surface:#fff;--fg:#171717;--mfg:#525252;--muted:#f5f5f5;--border:#e5e5e5;--input:#d4d4d4;--primary:#7a4d32;--primary-h:#663f28;--pfg:#fff;--ring:rgba(122,77,50,.3);--ok:#15803d;--warn:#b45309;--bad:#dc2626;font-family:'Noto Sans Bengali','Inter',sans-serif;color:var(--fg);background:var(--bg)}
+.ui.dark{--bg:#111;--surface:#171717;--fg:#f5f5f5;--mfg:#a3a3a3;--muted:#262626;--border:#2a2a2a;--input:#404040;--primary:#c8946b;--primary-h:#d6a682;--pfg:#1c130d;--ring:rgba(200,148,107,.35);--ok:#4ade80;--warn:#fbbf24;--bad:#f87171}
+.ui a{color:var(--fg);text-underline-offset:3px}
+.lat{font-family:Inter,sans-serif}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:44px;padding:0 16px;border-radius:8px;background:var(--primary);color:var(--pfg) !important;font:inherit;font-size:15px;font-weight:500;text-decoration:none;border:0;cursor:pointer;white-space:nowrap}
+.btn:hover{background:var(--primary-h)}
+.btn-o{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:36px;padding:0 12px;border-radius:8px;background:var(--surface);border:1px solid var(--border);font:inherit;font-size:14px;font-weight:500;cursor:pointer;color:var(--fg)}
+.btn-o:hover{background:var(--muted)}
+.ghost{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:8px;border:0;background:transparent;color:var(--fg);text-decoration:none;cursor:pointer}
+.badge{display:inline-flex;align-items:center;height:22px;padding:0 8px;border-radius:6px;border:1px solid var(--border);font-size:12px;font-weight:500;white-space:nowrap}
+.item{display:flex;align-items:center;gap:12px;padding:14px 16px;text-decoration:none;min-height:44px}
+a.item:hover{background:var(--muted)}
+.item + .item{border-top:1px solid var(--border)}
+</style>
+</helmet>
+<div class="ui {{theme}}" style="width: 390px; height: 960px; box-sizing: border-box; display: flex; flex-direction: column; position: relative">
+  <header style="height: 56px; background: var(--surface); border-bottom: 1px solid var(--border); display: grid; grid-template-columns: 48px 1fr 48px; align-items: center; padding: 0 4px">
+    <a class="ghost" href="Start.dc.html" aria-label="ফিরে যান"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></a>
+    <span style="text-align: center; font-size: 15px; font-weight: 600">প্রি-অ্যাডমিশন ২০২৭</span>
+    <a class="ghost lat" href="#" style="font-size: 13px; font-weight: 600">EN</a>
+  </header>
+
+  <main style="padding: 24px 16px 0; display: flex; flex-direction: column; gap: 20px">
+    <div style="display: flex; flex-direction: column; gap: 4px">
+      <h1 style="margin: 0; font-size: 24px; line-height: 1.35; font-weight: 700; letter-spacing: -.01em">আপনার আবেদন</h1>
+      <p style="margin: 0; font-size: 15px; color: var(--mfg)">আব্দুল্লাহ আল-মাহমুদ, কেজি</p>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 8px">
+      <div style="display: flex; justify-content: space-between; font-size: 13.5px">
+        <span>৫টির মধ্যে ১টি অধ্যায় সম্পূর্ণ</span>
+        <span style="display: inline-flex; align-items: center; gap: 4px; color: var(--mfg)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>সংরক্ষিত</span>
+      </div>
+      <div style="height: 6px; border-radius: 999px; background: var(--muted); overflow: hidden"><div style="width: 30%; height: 6px; background: var(--primary); border-radius: 999px"></div></div>
+    </div>
+
+    <nav aria-label="অধ্যায়সমূহ" style="background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden">
+      <sc-for list="{{chapters}}" as="c" hint-placeholder-count="5">
+        <a class="item" href="{{c.href}}">
+          <sc-if value="{{c.done}}" hint-placeholder-val="{{ false }}"><svg style="flex: none; color: var(--ok)" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg></sc-if>
+          <sc-if value="{{c.current}}" hint-placeholder-val="{{ false }}"><svg style="flex: none; color: var(--primary)" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 1 0 20" fill="currentColor"/></svg></sc-if>
+          <sc-if value="{{c.todo}}" hint-placeholder-val="{{ true }}"><svg style="flex: none; color: var(--input)" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/></svg></sc-if>
+          <span style="flex: 1; display: flex; flex-direction: column; gap: 1px">
+            <span style="font-size: 15px; font-weight: 500">{{c.t}}</span>
+            <span style="font-size: 13px; color: var(--mfg)">{{c.status}}</span>
+          </span>
+          <svg style="color: var(--mfg)" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+        </a>
+      </sc-for>
+      <div class="item" style="color: var(--mfg); background: var(--muted)">
+        <svg style="flex: none" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        <span style="flex: 1; display: flex; flex-direction: column; gap: 1px"><span style="font-size: 15px; font-weight: 500">পর্যালোচনা ও ফি</span><span style="font-size: 13px">সব অধ্যায় শেষ হলে খুলবে</span></span>
+      </div>
+    </nav>
+
+    <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px">
+      <p style="margin: 0; font-size: 13.5px; line-height: 1.55; color: var(--mfg)">ফিরে আসার লিংক <span class="lat" style="color: var(--fg)">rafiq.islam@gmail.com</span>-এ পাঠানো হয়েছে।</p>
+      <button class="btn-o" style="flex: none">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+        লিংক কপি
+      </button>
+    </div>
+  </main>
+
+  <div style="position: absolute; left: 0; right: 0; bottom: 0; background: var(--surface); border-top: 1px solid var(--border); padding: 12px 16px 20px">
+    <a class="btn" href="Father.dc.html" style="width: 100%; box-sizing: border-box">পিতার তথ্য চালিয়ে যান</a>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"$preview":{"width":390,"height":960}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const list = [
+      { t: 'শিক্ষার্থীর তথ্য', status: 'সম্পূর্ণ', s: 'done', href: 'Student.dc.html' },
+      { t: 'পিতার তথ্য', status: '১৭টির মধ্যে ১১টি পূরণ হয়েছে', s: 'current', href: 'Father.dc.html' },
+      { t: 'মাতার তথ্য', status: 'প্রায় ৩ মিনিট', s: 'todo', href: '#' },
+      { t: 'যোগাযোগের তথ্য', status: 'প্রায় ১ মিনিট', s: 'todo', href: '#' },
+      { t: 'অতিরিক্ত তথ্য', status: 'প্রায় ২ মিনিট', s: 'todo', href: '#' },
+    ];
+    return {
+      theme: this.props.theme === 'dark' ? 'dark' : '',
+      chapters: list.map((c) => ({ ...c, done: c.s === 'done', current: c.s === 'current', todo: c.s === 'todo' })),
+    };
+  }
+}
+</script>
+</body>
+</html>

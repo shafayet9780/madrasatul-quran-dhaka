@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<title>আবেদনপত্র KG-017 · পৃষ্ঠা ২</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;500;600;700&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#fff}
+.sec{margin:0 0 8px;font-size:15px;font-weight:700;color:#171717;display:flex;align-items:center;gap:8px}
+.sec span{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:#7A4D32;color:#fff;font-size:12px}
+.qa{display:grid;grid-template-columns:58% 1fr;margin:0;border-top:1px solid #d4d4d4}
+.qa dt,.qa dd{margin:0;padding:6px 10px;border-bottom:1px solid #d4d4d4;font-size:13px;line-height:1.45}
+.qa dt{color:#525252;background:#f5f5f5}
+.qa dd{font-weight:600;color:#171717}
+</style>
+</helmet>
+<div style="width: 794px; height: 1123px; box-sizing: border-box; padding: 36px 48px; background: #fff; font-family: 'Noto Sans Bengali', 'Inter', sans-serif; color: #171717; display: flex; flex-direction: column; gap: 16px">
+  <header style="display: flex; justify-content: space-between; align-items: baseline; padding-bottom: 8px; border-bottom: 2px solid #7A4D32">
+    <span style="font-size: 15px; font-weight: 700">মাদরাসাতুল কুরআন · প্রি-অ্যাডমিশন আবেদনপত্র ২০২৭</span>
+    <span style="font-family: Inter, sans-serif; font-size: 18px; font-weight: 700; letter-spacing: .03em">KG-017</span>
+  </header>
+
+  <section>
+    <div style="display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; margin-bottom: 8px">
+      <div style="display: flex; flex-direction: column; gap: 4px">
+        <h2 class="sec" style="margin: 0"><span>২</span>পিতার তথ্য</h2>
+        <span style="font-size: 16px; font-weight: 600">মোহাম্মদ রফিকুল ইসলাম <span style="font-family: Inter, sans-serif; font-weight: 500; font-size: 14px; color: #525252">· Mohammad Rafiqul Islam</span></span>
+      </div>
+      <div style="flex: none; width: 76px; height: 96px; border: 1.5px solid #d4d4d4; border-radius: 6px; background: #f5f5f5; display: flex; align-items: flex-end; justify-content: center; overflow: hidden" aria-label="পিতার ছবি (নমুনা)">
+        <span style="font-size: 11px; color: #525252; text-align: center; align-self: center; padding: 6px">ছবি</span>
+      </div>
+    </div>
+    <dl class="qa">
+      <sc-for list="{{father}}" as="r" hint-placeholder-count="14"><dt>{{r.q}}</dt><dd>{{r.a}}</dd></sc-for>
+    </dl>
+  </section>
+
+  <section>
+    <div style="display: flex; flex-direction: column; gap: 4px; margin-bottom: 8px">
+      <h2 class="sec" style="margin: 0"><span>৩</span>মাতার তথ্য</h2>
+      <span style="font-size: 16px; font-weight: 600">সাবিনা ইয়াসমিন <span style="font-family: Inter, sans-serif; font-weight: 500; font-size: 14px; color: #525252">· Sabina Yasmin</span></span>
+    </div>
+    <dl class="qa">
+      <sc-for list="{{mother}}" as="r" hint-placeholder-count="10"><dt>{{r.q}}</dt><dd>{{r.a}}</dd></sc-for>
+    </dl>
+  </section>
+
+  <footer style="margin-top: auto; display: flex; justify-content: space-between; font-size: 12px; color: #525252; border-top: 1px solid #d4d4d4; padding-top: 8px">
+    <span>KG-017 · আব্দুল্লাহ আল-মাহমুদ</span>
+    <span>পৃষ্ঠা ২ / ৩</span>
+  </footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":794,"height":1123}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const r = (q, a) => ({ q, a });
+    return {
+      father: [
+        r('পেশা', 'চাকরিজীবী'), r('প্রতিষ্ঠান / ব্যবসার ধরণ', 'ঢাকা ব্যাংক লিমিটেড'), r('পদবী', 'সিনিয়র অফিসার'),
+        r('আপনি কি ৫ ওয়াক্ত সালাত সময়মতো আদায় করেন?', '৫ ওয়াক্ত'), r('সালাত কোথায় আদায় করেন?', 'মসজিদে'),
+        r('আপনি কি নিয়মিত আল-কুরআনুল কারীম তেলাওয়াত করেন?', 'প্রতিদিন'), r('ইসলামী পোশাক (লিবাস) মেনে চলা', 'ঢিলেঢালা পোশাক, দাড়ি'),
+        r('আপনি কি মাহরাম / নন-মাহরাম মেনে চলেন?', 'হ্যাঁ'), r('আপনার কি ধূমপানের অভ্যাস আছে?', 'না'),
+        r('আপনার বাসায় কি টিভি আছে (ডিশ লাইনসহ)?', 'না'), r('টিভি / ইন্টারনেট / মোবাইলে প্রতিদিন কত সময় ব্যয় করেন?', '২ ঘণ্টা'),
+        r('প্রতিদিন গড়ে সন্তানদের সাথে কত সময় কাটান?', '১ ঘণ্টা+'), r('প্রিয় আলেম / স্কলারের নাম', 'দেওয়া হয়নি'), r('ফেসবুক আইডি', 'নেই'),
+      ],
+      mother: [
+        r('পেশা', 'গৃহিণী'), r('প্রতিষ্ঠান / ব্যবসার ধরণ', 'দেওয়া হয়নি'), r('পদবী', 'দেওয়া হয়নি'),
+        r('আপনি কি ৫ ওয়াক্ত সালাত সময়মতো আদায় করেন?', '৫ ওয়াক্ত'), r('আপনি কি নিয়মিত আল-কুরআনুল কারীম তেলাওয়াত করেন?', 'প্রতিদিন'),
+        r('আপনি কি পর্দা করেন?', 'বোরকা + নিকাব'), r('টিভি / ইন্টারনেট / মোবাইলে প্রতিদিন কত সময় ব্যয় করেন?', '১ ঘণ্টা'),
+        r('আপনি কি মাহরাম / নন-মাহরাম মেনে চলেন?', 'হ্যাঁ'), r('প্রিয় আলেম / স্কলারের নাম', 'দেওয়া হয়নি'), r('ফেসবুক আইডি', 'নেই'),
+      ],
+    };
+  }
+}
+</script>
+</body>
+</html>

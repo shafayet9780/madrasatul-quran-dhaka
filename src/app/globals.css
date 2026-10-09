@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+@import './shadcn.css';
 
 /* Tailwind CSS v4 @theme directive */
 /* eslint-disable-next-line */

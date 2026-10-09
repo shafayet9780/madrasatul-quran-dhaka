@@ -1,12 +1,20 @@
 import { defineField, defineType } from 'sanity';
+import { admissionFormFields } from './admissionForm';
 
 export const preAdmissionForm = defineType({
   name: 'preAdmissionForm',
   title: 'Pre-Admission Form Configuration',
   type: 'document',
+  groups: [
+    { name: 'form', title: 'Form 2027', default: true },
+    { name: 'cycle', title: 'Cycle 2027' },
+    { name: 'legacy', title: 'Legacy form (until go-live)' },
+  ],
   fields: [
+    ...admissionFormFields,
     defineField({
       name: 'formSettings',
+      group: ['form', 'cycle', 'legacy'],
       title: 'Form Settings',
       type: 'object',
       fields: [
@@ -73,6 +81,7 @@ export const preAdmissionForm = defineType({
     }),
     defineField({
       name: 'generalQuestions',
+      group: 'legacy',
       title: 'General Questions',
       type: 'array',
       of: [
@@ -207,6 +216,7 @@ export const preAdmissionForm = defineType({
     }),
     defineField({
       name: 'studentInfoFields',
+      group: 'legacy',
       title: 'Student Information Fields',
       type: 'array',
       of: [
@@ -358,6 +368,7 @@ export const preAdmissionForm = defineType({
     }),
     defineField({
       name: 'studentAssessmentFields',
+      group: 'legacy',
       title: 'Student Assessment Fields',
       type: 'array',
       of: [
@@ -514,6 +525,7 @@ export const preAdmissionForm = defineType({
     }),
     defineField({
       name: 'parentInfoFields',
+      group: 'legacy',
       title: 'Parent Information Fields',
       type: 'object',
       fields: [
@@ -813,6 +825,7 @@ export const preAdmissionForm = defineType({
     }),
     defineField({
       name: 'additionalQuestions',
+      group: 'legacy',
       title: 'Additional Information',
       type: 'array',
       of: [
@@ -971,6 +984,7 @@ export const preAdmissionForm = defineType({
     }),
     defineField({
       name: 'contactInfoFields',
+      group: 'legacy',
       title: 'Contact Information Fields',
       type: 'array',
       of: [
@@ -1068,6 +1082,7 @@ export const preAdmissionForm = defineType({
     }),
     defineField({
       name: 'declarationText',
+      group: ['form', 'legacy'],
       title: 'Final Declaration Text',
       type: 'object',
       fields: [
@@ -1089,6 +1104,7 @@ export const preAdmissionForm = defineType({
     }),
     defineField({
       name: 'successMessage',
+      group: 'legacy',
       title: 'Success Message',
       type: 'object',
       fields: [

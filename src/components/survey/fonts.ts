@@ -6,3 +6,5 @@ const anek = Anek_Bangla({ subsets: ['bengali', 'latin'], weight: ['600'], varia
 const hind = Hind_Siliguri({ subsets: ['bengali', 'latin'], weight: ['400', '600'], variable: '--sv-font-body', display: 'swap' });
 
 export const surveyFontVariables = `${anek.variable} ${hind.variable}`;
+/** The admin: Anek Bangla headings; text in the site's Inter + Noto Sans Bengali (root layout). */
+export const adminFontVariables = anek.variable;

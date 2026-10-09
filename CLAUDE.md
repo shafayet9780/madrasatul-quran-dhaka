@@ -128,11 +128,12 @@ Many `scripts/*.js` / `.ts` are one-shot Sanity data seeders (e.g. `populate-san
 - Next images: only `cdn.sanity.io` is whitelisted; WebP/AVIF, 1-year cache TTL (`next.config.ts`).
 
 ## Surveys (teacher/guardian reviews)
-Spec `docs/survey-system.md`, plan `docs/survey-implementation-plan.md`, admin guide `docs/survey-admin-guide.md`, locked design `docs/survey-mockups/`.
+Spec `docs/survey-system.md`, plan `docs/survey-implementation-plan.md`, admin guide `docs/survey-admin-guide.md`, design `docs/survey-mockups/` (the public survey forms; for the admin pages they describe the content only: the admin follows the shared shadcn design, `docs/admin-redesign-plan.md`, pieces in `src/app/admin/ui.tsx`).
 - `/survey/{slug}?k=…` (public, Bengali, outside `[locale]`) and `/admin/…` (Studio Basic Auth) are branched in `src/proxy.ts`; analytics never load there.
 - Data: Neon Postgres via Drizzle (`src/lib/survey/schema.ts`, migrations `drizzle/`); Sanity holds templates/rounds/classes/teachers; opening a round snapshots them into `survey_rounds` (Postgres is then the source of truth).
 - `src/lib/survey/` holds the logic (pure modules are unit-tested; `server-only` modules touch the DB/Sheets). Admin mutations are server actions that must call `assertAdmin()`.
 - Commands: `pnpm db:generate`, `pnpm db:migrate`, `pnpm test:db` (`*.db.test.ts` against the Neon dev branch), `pnpm survey:fixtures [--remove]` (sample data in the dev branch). e2e specs that touch the DB run one at a time (`survey-db` Playwright project) with `SURVEY_SHEET_ID` empty.
+- Local preview (`ADMISSIONS_LOCAL=1`, see `src/instrumentation.ts`): the survey shares the in-memory Postgres and starts with the same sample data (`src/lib/survey/testing/dev-fixtures.ts`; reload with `POST /api/admissions/dev/survey-fixtures`). `pnpm test:e2e:admissions` runs the survey DB specs there too, except import (it needs the Studio). `pnpm admin:screenshots [dir]` captures every admin page (desktop, phone, A4 prints) from a running preview.
 
 ## Env
 Required vars live in `.env.local` (see `.env.local.example`): `NEXT_PUBLIC_SANITY_PROJECT_ID`, `NEXT_PUBLIC_SANITY_DATASET`, `SANITY_API_TOKEN` (preview/writes), Google service-account keys, analytics IDs, optional studio auth vars. Surveys add `DATABASE_URL` (pooled) / `DATABASE_URL_UNPOOLED` (migrations), `SURVEY_SHEET_ID`, `PG_BACKUP_BLOB_READ_WRITE_TOKEN`, `CRON_SECRET`.

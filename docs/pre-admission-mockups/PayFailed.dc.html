@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<title>প্রি-অ্যাডমিশন ২০২৭ · পেমেন্ট হয়নি</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;500;600;700&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.ui{--bg:#fafafa;--surface:#fff;--fg:#171717;--mfg:#525252;--muted:#f5f5f5;--border:#e5e5e5;--input:#d4d4d4;--primary:#7a4d32;--primary-h:#663f28;--pfg:#fff;--ring:rgba(122,77,50,.3);--ok:#15803d;--warn:#b45309;--bad:#dc2626;font-family:'Noto Sans Bengali','Inter',sans-serif;color:var(--fg);background:var(--bg)}
+.ui.dark{--bg:#111;--surface:#171717;--fg:#f5f5f5;--mfg:#a3a3a3;--muted:#262626;--border:#2a2a2a;--input:#404040;--primary:#c8946b;--primary-h:#d6a682;--pfg:#1c130d;--ring:rgba(200,148,107,.35);--ok:#4ade80;--warn:#fbbf24;--bad:#f87171}
+.ui a{color:var(--fg);text-underline-offset:3px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:44px;padding:0 16px;border-radius:8px;background:var(--primary);color:var(--pfg) !important;font:inherit;font-size:15px;font-weight:500;text-decoration:none;border:0;cursor:pointer;white-space:nowrap}
+.btn:hover{background:var(--primary-h)}
+.btn-o{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:44px;padding:0 16px;border-radius:8px;background:var(--surface);border:1px solid var(--border);font:inherit;font-size:15px;font-weight:500;text-decoration:none;cursor:pointer;color:var(--fg)}
+.btn-o:hover{background:var(--muted)}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:8px 16px;margin:0;font-size:14px}
+.kv dt{color:var(--mfg)}.kv dd{margin:0;text-align:right}
+</style>
+</helmet>
+<div class="ui {{theme}}" style="width: 390px; height: 844px; box-sizing: border-box; display: flex; flex-direction: column">
+  <header style="height: 56px; background: var(--surface); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: center">
+    <span style="font-size: 15px; font-weight: 600">প্রি-অ্যাডমিশন ২০২৭</span>
+  </header>
+
+  <main style="flex: 1; padding: 32px 16px 24px; display: flex; flex-direction: column; gap: 20px">
+    <div style="display: flex; flex-direction: column; gap: 10px">
+      <svg style="color: var(--warn)" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
+      <h1 style="margin: 0; font-size: 24px; line-height: 1.35; font-weight: 700; letter-spacing: -.01em">পেমেন্ট সম্পন্ন হয়নি</h1>
+      <p style="margin: 0; font-size: 15px; line-height: 1.65; color: var(--mfg)">আপনার আবেদন সংরক্ষিত আছে, কোনো তথ্য হারায়নি। আবার চেষ্টা করুন, অথবা পরে “আবেদন খুঁজুন” থেকে পরিশোধ করুন।</p>
+    </div>
+
+    <dl class="kv" style="background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px">
+      <dt>শিক্ষার্থী</dt><dd>আব্দুল্লাহ আল-মাহমুদ, কেজি</dd>
+      <dt>অবস্থা</dt><dd style="color: var(--warn); font-weight: 500">ফি বাকি</dd>
+      <dt>শেষ সময়</dt><dd>[শেষ তারিখ], রাত ১১:৫৯</dd>
+    </dl>
+
+    <p style="margin: 0; font-size: 13.5px; line-height: 1.6; color: var(--mfg)">টাকা কেটে গিয়ে থাকলে আবার পরিশোধ করবেন না। আমরা নিজে থেকে যাচাই করি; নিশ্চিত হলে ইমেইলে আবেদনপত্র পাঠানো হবে।</p>
+
+    <div style="margin-top: auto; display: flex; flex-direction: column; gap: 8px">
+      <a class="btn" href="Confirmation.dc.html">আবার চেষ্টা করুন</a>
+      <a class="btn-o" href="Find.dc.html">পরে পরিশোধ করব</a>
+      <a href="#" style="text-align: center; font-size: 14px; padding: 8px 0">সাহায্য দরকার? হোয়াটসঅ্যাপে লিখুন</a>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return { theme: this.props.theme === 'dark' ? 'dark' : '' }; }
+}
+</script>
+</body>
+</html>

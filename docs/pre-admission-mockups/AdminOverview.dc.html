@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<title>অ্যাডমিন · ভর্তি ওভারভিউ</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;500;600;700&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.ad{--bg:#fff;--fg:#171717;--mfg:#525252;--muted:#f5f5f5;--border:#e5e5e5;--input:#d4d4d4;--primary:#7a4d32;--pfg:#fff;--ok:#15803d;--warn:#b45309;font-family:'Noto Sans Bengali','Inter',sans-serif;color:var(--fg)}
+.ad a{color:var(--fg)}
+.lat{font-family:Inter,sans-serif;font-variant-numeric:tabular-nums}
+.btn-o{display:inline-flex;align-items:center;gap:8px;height:36px;padding:0 12px;border-radius:8px;background:#fff;border:1px solid var(--border);font:inherit;font-size:14px;font-weight:500;text-decoration:none;cursor:pointer;color:var(--fg)}
+.btn-o:hover{background:var(--muted)}
+.card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:20px}
+.ct{margin:0;font-size:15px;font-weight:600}
+.cd{margin:2px 0 0;font-size:13px;color:var(--mfg)}
+.col{position:relative;flex:1;display:flex;align-items:flex-end;height:100%;cursor:default}
+.col .tip{display:none;position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:#fff;border:1px solid var(--border);box-shadow:0 4px 12px rgba(23,23,23,.08);color:var(--fg);font-size:12px;padding:6px 8px;border-radius:6px;white-space:nowrap;z-index:2}
+.col:hover .tip,.col:focus .tip{display:block}
+.col:hover .bar{opacity:.8}
+table{width:100%;border-collapse:collapse;font-size:14px}
+td{padding:10px 0;border-top:1px solid var(--border)}
+</style>
+</helmet>
+<div class="ad" style="min-height: 100vh; background: var(--bg); display: flex; flex-wrap: wrap">
+  <div style="flex: 1 1 232px; max-width: 264px; display: flex; flex-direction: column"><dc-import name="AdminSide" active="overview" hint-size="264px,1240px"></dc-import></div>
+
+  <div style="flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column">
+    <header style="height: 56px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 0 24px">
+      <nav aria-label="ব্রেডক্রাম্ব" style="display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--mfg)">
+        <span>ভর্তি</span>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+        <span style="color: var(--fg)">ওভারভিউ</span>
+      </nav>
+      <div style="display: flex; gap: 8px">
+        <a class="btn-o" href="#"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3"/><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/></svg>Excel এক্সপোর্ট</a>
+      </div>
+    </header>
+
+    <main style="padding: 24px; display: flex; flex-direction: column; gap: 20px">
+      <div style="display: flex; flex-direction: column; gap: 4px">
+        <h1 style="margin: 0; font-size: 24px; font-weight: 700; letter-spacing: -.01em">প্রি-অ্যাডমিশন ২০২৭</h1>
+        <p style="margin: 0; font-size: 14px; color: var(--mfg)">আবেদন চলছে। শেষ সময় [শেষ তারিখ], আর ১২ দিন।</p>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px">
+        <sc-for list="{{tiles}}" as="t" hint-placeholder-count="4">
+          <div class="card" style="display: flex; flex-direction: column; gap: 6px">
+            <span style="font-size: 13.5px; color: var(--mfg)">{{t.label}}</span>
+            <span class="lat" style="font-size: 28px; font-weight: 600; line-height: 1.2">{{t.value}}</span>
+            <span style="font-size: 12.5px; color: var(--mfg)">{{t.sub}}</span>
+          </div>
+        </sc-for>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 16px">
+        <section class="card" style="grid-column: 1 / -1">
+          <h2 class="ct">প্রতিদিনের পরিশোধিত আবেদন</h2>
+          <p class="cd">২৪ সেপ্টেম্বর থেকে আজ পর্যন্ত, বারে রাখলে সংখ্যা দেখাবে</p>
+          <div style="height: 180px; display: flex; gap: 6px; align-items: flex-end; border-bottom: 1px solid var(--border); padding-top: 28px; margin-top: 12px">
+            <sc-for list="{{days}}" as="d" hint-placeholder-count="14">
+              <div class="col" tabindex="0" aria-label="{{d.tip}}">
+                <span class="tip">{{d.tip}}</span>
+                <span class="bar" style="display: block; width: 100%; height: {{d.h}}; background: var(--primary); border-radius: 4px 4px 0 0"></span>
+              </div>
+            </sc-for>
+          </div>
+          <div style="display: flex; justify-content: space-between; font-size: 12px; color: var(--mfg); padding-top: 6px"><span>২৪ সেপ্টে.</span><span>৭ অক্টো.</span></div>
+        </section>
+
+        <section class="card">
+          <h2 class="ct">শ্রেণীভিত্তিক আবেদন</h2>
+          <p class="cd">পরিশোধিত, মোট ২১৪</p>
+          <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 16px">
+            <sc-for list="{{byClass}}" as="r" hint-placeholder-count="7">
+              <div style="display: grid; grid-template-columns: 90px 1fr 36px; align-items: center; gap: 10px; font-size: 13.5px" title="{{r.tip}}">
+                <span>{{r.t}}</span>
+                <span style="display: block; height: 12px; width: {{r.w}}; background: var(--primary); border-radius: 0 4px 4px 0"></span>
+                <span class="lat" style="text-align: right; font-weight: 500">{{r.v}}</span>
+              </div>
+            </sc-for>
+          </div>
+        </section>
+
+        <section class="card">
+          <h2 class="ct">কিভাবে জেনেছেন</h2>
+          <p class="cd">পরিশোধিত আবেদন</p>
+          <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 16px">
+            <sc-for list="{{source}}" as="r" hint-placeholder-count="4">
+              <div style="display: grid; grid-template-columns: 110px 1fr 64px; align-items: center; gap: 10px; font-size: 13.5px">
+                <span>{{r.t}}</span>
+                <span style="display: block; height: 12px; width: {{r.w}}; background: var(--primary); border-radius: 0 4px 4px 0"></span>
+                <span class="lat" style="text-align: right; font-weight: 500">{{r.v}}</span>
+              </div>
+            </sc-for>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: baseline; margin-top: 24px">
+            <h2 class="ct">সাম্প্রতিক আবেদন</h2>
+            <a href="AdminList.dc.html" style="font-size: 13.5px; font-weight: 500">সব দেখুন</a>
+          </div>
+          <table style="margin-top: 8px">
+            <tbody>
+              <sc-for list="{{recent}}" as="r" hint-placeholder-count="4">
+                <tr><td class="lat" style="width: 70px; font-weight: 500"><a href="AdminDetail.dc.html" style="text-decoration: none">{{r.id}}</a></td><td>{{r.name}}</td><td style="text-align: right; color: var(--mfg); font-size: 13px">{{r.when}}</td></tr>
+              </sc-for>
+            </tbody>
+          </table>
+        </section>
+      </div>
+    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1160}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const bn = (n) => String(n).replace(/\d/g, (x) => '০১২৩৪৫৬৭৮৯'[x]);
+    const cls = [['নার্সারি', 52], ['কেজি', 64], ['১ম শ্রেণী', 38], ['২য় শ্রেণী', 27], ['৩য় শ্রেণী', 19], ['৪র্থ শ্রেণী', 9], ['৫ম শ্রেণী', 5]];
+    const src = [['বন্ধু বা পরিবার', 96], ['ইন্টারনেট', 71], ['বিজ্ঞাপন', 28], ['অন্যান্য', 19]];
+    const daily = [6, 9, 12, 8, 14, 22, 18, 11, 15, 19, 24, 17, 27, 12];
+    const dates = ['২৪ সেপ্টে.','২৫ সেপ্টে.','২৬ সেপ্টে.','২৭ সেপ্টে.','২৮ সেপ্টে.','২৯ সেপ্টে.','৩০ সেপ্টে.','১ অক্টো.','২ অক্টো.','৩ অক্টো.','৪ অক্টো.','৫ অক্টো.','৬ অক্টো.','৭ অক্টো.'];
+    return {
+      tiles: [
+        { label: 'পরিশোধিত আবেদন', value: '214', sub: 'আবেদন ফি ৳১,০৭,০০০' },
+        { label: 'ফি বাকি', value: '37', sub: 'ফর্ম আছে, পরিশোধ হয়নি' },
+        { label: 'আজ নতুন', value: '12', sub: 'গতকাল ২৭টি' },
+        { label: 'মূল্যায়ন ফি গৃহীত', value: '0', sub: 'মূল্যায়ন এখনো শুরু হয়নি' },
+      ],
+      byClass: cls.map(([t, v]) => ({ t, v, w: (v / 64 * 100) + '%', tip: `${t}: ${bn(v)}টি আবেদন` })),
+      source: src.map(([t, v]) => ({ t, v: `${v} (${Math.round(v / 214 * 100)}%)`, w: (v / 96 * 100) + '%' })),
+      days: daily.map((v, i) => ({ h: (v / 27 * 100) + '%', tip: `${dates[i]}: ${bn(v)}টি` })),
+      recent: [
+        { id: 'KG-064', name: 'হামযা ইবনে কাসিম', when: '১০ মিনিট আগে' },
+        { id: 'N-052', name: 'মারইয়াম বিনতে হাসান', when: '৩২ মিনিট আগে' },
+        { id: 'C1-038', name: 'উমর ফারুক', when: '১ ঘণ্টা আগে' },
+        { id: 'KG-063', name: 'আয়েশা সিদ্দিকা', when: '২ ঘণ্টা আগে' },
+      ],
+    };
+  }
+}
+</script>
+</body>
+</html>

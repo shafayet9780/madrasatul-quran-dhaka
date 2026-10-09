@@ -1,0 +1,345 @@
+{
+ "v": 3,
+ "createdOnFiles": {
+  "v": 1,
+  "at": "2026-10-07T12:00:00Z"
+ },
+ "title": "Pre-admission 2027 mockups",
+ "launch": {
+  "view": "canvas",
+  "page": "phone"
+ },
+ "pages": [
+  {
+   "id": "phone",
+   "name": "অভিভাবক · ফোন"
+  },
+  {
+   "id": "desktop",
+   "name": "অভিভাবক · ডেস্কটপ"
+  },
+  {
+   "id": "pdf",
+   "name": "আবেদনপত্র PDF"
+  },
+  {
+   "id": "admin",
+   "name": "অ্যাডমিন"
+  }
+ ],
+ "boards": {
+  "Main.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 390,
+   "h": 2300,
+   "title": "১ · ইন্ট্রো",
+   "is_interactive": true,
+   "page": "phone"
+  },
+  "Start.dc.html": {
+   "x": 470,
+   "y": 0,
+   "w": 390,
+   "h": 844,
+   "title": "২ · শুরু (মোবাইল + ইমেইল)",
+   "is_interactive": true,
+   "page": "phone"
+  },
+  "Hub.dc.html": {
+   "x": 940,
+   "y": 0,
+   "w": 390,
+   "h": 960,
+   "title": "৩ · অধ্যায় তালিকা",
+   "is_interactive": true,
+   "page": "phone"
+  },
+  "Student.dc.html": {
+   "x": 1410,
+   "y": 0,
+   "w": 390,
+   "h": 1960,
+   "title": "৪ · শিক্ষার্থীর তথ্য",
+   "is_interactive": true,
+   "page": "phone"
+  },
+  "Father.dc.html": {
+   "x": 1880,
+   "y": 0,
+   "w": 390,
+   "h": 2560,
+   "title": "৫ · পিতার তথ্য",
+   "is_interactive": true,
+   "page": "phone"
+  },
+  "Review.dc.html": {
+   "x": 2350,
+   "y": 0,
+   "w": 390,
+   "h": 1980,
+   "title": "৬ · পর্যালোচনা ও ফি",
+   "is_interactive": true,
+   "page": "phone"
+  },
+  "PayFailed.dc.html": {
+   "x": 2820,
+   "y": 0,
+   "w": 390,
+   "h": 844,
+   "title": "৬ক · পেমেন্ট হয়নি",
+   "is_interactive": true,
+   "page": "phone"
+  },
+  "Confirmation.dc.html": {
+   "x": 3290,
+   "y": 0,
+   "w": 390,
+   "h": 1720,
+   "title": "৭ · নিশ্চিতকরণ",
+   "is_interactive": true,
+   "page": "phone"
+  },
+  "Find.dc.html": {
+   "x": 3760,
+   "y": 0,
+   "w": 390,
+   "h": 1000,
+   "title": "৮ · আবেদন খুঁজুন",
+   "is_interactive": true,
+   "page": "phone"
+  },
+  "QR.dc.html": {
+   "x": 4230,
+   "y": 0,
+   "w": 168,
+   "h": 168,
+   "title": "QR (কম্পোনেন্ট)",
+   "page": "phone"
+  },
+  "IntroDesktop.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 1440,
+   "h": 2000,
+   "title": "১ · ইন্ট্রো",
+   "expand": "fill",
+   "is_interactive": true,
+   "page": "desktop"
+  },
+  "StartDesktop.dc.html": {
+   "x": 1520,
+   "y": 0,
+   "w": 1440,
+   "h": 900,
+   "title": "২ · শুরু",
+   "expand": "fill",
+   "is_interactive": true,
+   "page": "desktop"
+  },
+  "HubDesktop.dc.html": {
+   "x": 3040,
+   "y": 0,
+   "w": 1440,
+   "h": 900,
+   "title": "৩ · অধ্যায় তালিকা",
+   "expand": "fill",
+   "is_interactive": true,
+   "page": "desktop"
+  },
+  "StudentDesktop.dc.html": {
+   "x": 0,
+   "y": 2120,
+   "w": 1440,
+   "h": 1500,
+   "title": "৪ · শিক্ষার্থীর তথ্য",
+   "expand": "fill",
+   "is_interactive": true,
+   "page": "desktop"
+  },
+  "FatherDesktop.dc.html": {
+   "x": 1520,
+   "y": 2120,
+   "w": 1440,
+   "h": 1900,
+   "title": "৫ · পিতার তথ্য",
+   "expand": "fill",
+   "is_interactive": true,
+   "page": "desktop"
+  },
+  "ReviewDesktop.dc.html": {
+   "x": 3040,
+   "y": 2120,
+   "w": 1440,
+   "h": 1500,
+   "title": "৬ · পর্যালোচনা ও ফি",
+   "expand": "fill",
+   "is_interactive": true,
+   "page": "desktop"
+  },
+  "PayFailedDesktop.dc.html": {
+   "x": 0,
+   "y": 4380,
+   "w": 1440,
+   "h": 900,
+   "title": "৬ক · পেমেন্ট হয়নি",
+   "expand": "fill",
+   "is_interactive": true,
+   "page": "desktop"
+  },
+  "ConfirmationDesktop.dc.html": {
+   "x": 1520,
+   "y": 4380,
+   "w": 1440,
+   "h": 1260,
+   "title": "৭ · নিশ্চিতকরণ",
+   "expand": "fill",
+   "is_interactive": true,
+   "page": "desktop"
+  },
+  "FindDesktop.dc.html": {
+   "x": 3040,
+   "y": 4380,
+   "w": 1440,
+   "h": 900,
+   "title": "৮ · আবেদন খুঁজুন",
+   "expand": "fill",
+   "is_interactive": true,
+   "page": "desktop"
+  },
+  "Pdf1.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 794,
+   "h": 1123,
+   "title": "আবেদনপত্র · পৃষ্ঠা ১",
+   "paper": "a4",
+   "page": "pdf"
+  },
+  "Pdf2.dc.html": {
+   "x": 874,
+   "y": 0,
+   "w": 794,
+   "h": 1123,
+   "title": "আবেদনপত্র · পৃষ্ঠা ২",
+   "paper": "a4",
+   "page": "pdf"
+  },
+  "Pdf3.dc.html": {
+   "x": 1748,
+   "y": 0,
+   "w": 794,
+   "h": 1123,
+   "title": "আবেদনপত্র · পৃষ্ঠা ৩",
+   "paper": "a4",
+   "page": "pdf"
+  },
+  "AdminOverview.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 1440,
+   "h": 1160,
+   "title": "ভর্তি · ওভারভিউ",
+   "expand": "fill",
+   "is_interactive": true,
+   "page": "admin"
+  },
+  "AdminList.dc.html": {
+   "x": 1520,
+   "y": 0,
+   "w": 1440,
+   "h": 1040,
+   "title": "ভর্তি · আবেদন তালিকা",
+   "expand": "fill",
+   "is_interactive": true,
+   "page": "admin"
+  },
+  "AdminDetail.dc.html": {
+   "x": 3040,
+   "y": 0,
+   "w": 1440,
+   "h": 2000,
+   "title": "ভর্তি · আবেদনের বিস্তারিত",
+   "expand": "fill",
+   "is_interactive": true,
+   "page": "admin"
+  },
+  "AdminSide.dc.html": {
+   "x": 4560,
+   "y": 0,
+   "w": 264,
+   "h": 1240,
+   "title": "সাইডবার (কম্পোনেন্ট)",
+   "is_interactive": true,
+   "page": "admin"
+  }
+ },
+ "order": [
+  "Main.dc.html",
+  "Start.dc.html",
+  "Hub.dc.html",
+  "Student.dc.html",
+  "Father.dc.html",
+  "Review.dc.html",
+  "PayFailed.dc.html",
+  "Confirmation.dc.html",
+  "Find.dc.html",
+  "QR.dc.html",
+  "IntroDesktop.dc.html",
+  "StartDesktop.dc.html",
+  "HubDesktop.dc.html",
+  "StudentDesktop.dc.html",
+  "FatherDesktop.dc.html",
+  "ReviewDesktop.dc.html",
+  "PayFailedDesktop.dc.html",
+  "ConfirmationDesktop.dc.html",
+  "FindDesktop.dc.html",
+  "Pdf1.dc.html",
+  "Pdf2.dc.html",
+  "Pdf3.dc.html",
+  "AdminOverview.dc.html",
+  "AdminList.dc.html",
+  "AdminDetail.dc.html",
+  "AdminSide.dc.html"
+ ],
+ "notes": {
+  "rowGuardian": {
+   "x": 0,
+   "y": -300,
+   "text": "অভিভাবকের ফ্লো · ফোন",
+   "kind": "title1",
+   "maxW": 4398,
+   "page": "phone",
+   "w": 240
+  },
+  "rowDesktop": {
+   "x": 0,
+   "y": -300,
+   "text": "অভিভাবকের ফ্লো · ডেস্কটপ",
+   "kind": "title1",
+   "maxW": 4480,
+   "page": "desktop",
+   "w": 240
+  },
+  "rowPdf": {
+   "x": 0,
+   "y": -300,
+   "text": "আবেদনপত্র PDF · A4, ৩ পৃষ্ঠা",
+   "kind": "title1",
+   "maxW": 2542,
+   "page": "pdf",
+   "w": 240
+  },
+  "rowAdmin": {
+   "x": 0,
+   "y": -300,
+   "text": "অ্যাডমিন · /admin/admissions",
+   "kind": "title1",
+   "maxW": 4824,
+   "page": "admin",
+   "w": 240
+  }
+ },
+ "designSystems": [],
+ "attachments": {}
+}

@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<title>অ্যাডমিন · আবেদন KG-017</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;500;600;700&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.ad{--bg:#fff;--fg:#171717;--mfg:#525252;--muted:#f5f5f5;--border:#e5e5e5;--input:#d4d4d4;--primary:#7a4d32;--pfg:#fff;--ok:#15803d;--warn:#b45309;--bad:#dc2626;font-family:'Noto Sans Bengali','Inter',sans-serif;color:var(--fg)}
+.ad a{color:var(--fg)}
+.lat{font-family:Inter,sans-serif;font-variant-numeric:tabular-nums}
+.btn{display:inline-flex;align-items:center;gap:8px;height:36px;padding:0 12px;border-radius:8px;background:var(--primary);color:var(--pfg) !important;border:0;font:inherit;font-size:14px;font-weight:500;cursor:pointer;text-decoration:none;white-space:nowrap}
+.btn-o{display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 12px;border-radius:8px;background:#fff;border:1px solid var(--border);font:inherit;font-size:14px;font-weight:500;text-decoration:none;cursor:pointer;color:var(--fg);white-space:nowrap}
+.btn-o:hover{background:var(--muted)}
+.card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:18px 20px}
+.ct{margin:0 0 12px;font-size:15px;font-weight:600}
+.kv{display:grid;grid-template-columns:minmax(150px,40%) 1fr;margin:0;font-size:14px}
+.kv dt,.kv dd{margin:0;padding:8px 0;border-top:1px solid var(--border);line-height:1.5}
+.kv dt{color:var(--mfg);padding-right:12px}
+.row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 0}
+.row + .row{border-top:1px solid var(--border)}
+.sw{appearance:none;flex:none;width:36px;height:20px;margin:0;border-radius:999px;background:var(--input);position:relative;cursor:pointer;transition:background .15s}
+.sw::before{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.2);transition:transform .15s}
+.sw:checked{background:var(--primary)}
+.sw:checked::before{transform:translateX(16px)}
+.sw:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(122,77,50,.3)}
+@media (prefers-reduced-motion: reduce){.sw,.sw::before{transition:none}}
+</style>
+</helmet>
+<div class="ad" style="min-height: 100vh; background: var(--bg); display: flex; flex-wrap: wrap">
+  <div style="flex: 1 1 232px; max-width: 264px; display: flex; flex-direction: column"><dc-import name="AdminSide" active="list" hint-size="264px,1240px"></dc-import></div>
+
+  <div style="flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column">
+    <header style="height: 56px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 24px">
+      <nav aria-label="ব্রেডক্রাম্ব" style="display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--mfg)">
+        <span>ভর্তি</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+        <a href="AdminList.dc.html" style="color: var(--mfg); text-decoration: none">আবেদন</a><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+        <span class="lat" style="color: var(--fg)">KG-017</span>
+      </nav>
+    </header>
+
+    <main style="padding: 24px; display: flex; flex-direction: column; gap: 20px">
+      <div style="display: flex; flex-wrap: wrap; gap: 20px; align-items: center">
+        <div style="flex: none; width: 64px; height: 80px; border-radius: 8px; border: 1px solid var(--border); background: var(--muted); display: flex; align-items: center; justify-content: center; font-size: 10px; color: var(--mfg)">ছবি</div>
+        <div style="flex: 1 1 300px; display: flex; flex-direction: column; gap: 2px">
+          <div style="display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap">
+            <h1 style="margin: 0; font-size: 24px; font-weight: 700; letter-spacing: -.01em">আব্দুল্লাহ আল-মাহমুদ</h1>
+            <span class="lat" style="font-size: 16px; font-weight: 600; color: var(--mfg)">KG-017</span>
+          </div>
+          <span style="font-size: 14px; color: var(--mfg)">কেজি, জন্ম ১২ মার্চ ২০২১। পিতা মোহাম্মদ রফিকুল ইসলাম, <span class="lat">01712-345678</span></span>
+          <span style="font-size: 13px; color: var(--mfg)">আবেদন ২৯ সেপ্টেম্বর ২০২৬, বাংলায় পূরণ করা</span>
+        </div>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap">
+          <a class="btn" href="Pdf1.dc.html"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3"/><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/></svg>আবেদনপত্র PDF</a>
+          <button class="btn-o"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>ইমেইল আবার পাঠান</button>
+        </div>
+      </div>
+
+      <div style="display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start">
+        <div style="flex: 999 1 480px; min-width: 0; display: flex; flex-direction: column; gap: 16px">
+          <sc-for list="{{sections}}" as="s" hint-placeholder-count="5">
+            <section class="card">
+              <h2 class="ct">{{s.t}}</h2>
+              <dl class="kv"><sc-for list="{{s.rows}}" as="r" hint-placeholder-count="6"><dt>{{r.k}}</dt><dd>{{r.v}}</dd></sc-for></dl>
+            </section>
+          </sc-for>
+        </div>
+
+        <div style="flex: 1 1 320px; min-width: 0; display: flex; flex-direction: column; gap: 16px">
+          <section class="card">
+            <h2 class="ct">অবস্থা</h2>
+            <div style="display: flex; gap: 8px">
+              <select aria-label="অবস্থা" value="{{status}}" onChange="{{onStatus}}" style="flex: 1; height: 36px; border: 1px solid var(--border); border-radius: 8px; background: #fff; font: inherit; font-size: 14px; padding: 0 8px; color: var(--fg)">
+                <sc-for list="{{statuses}}" as="o" hint-placeholder-count="7"><option value="{{o}}">{{o}}</option></sc-for>
+              </select>
+              <button class="btn">সংরক্ষণ</button>
+            </div>
+            <p style="margin: 10px 0 0; font-size: 13px; color: var(--mfg)">ধাপ: জমা, মূল্যায়ন নির্ধারিত, মূল্যায়িত, সিদ্ধান্ত, ERP-তে পাঠানো</p>
+          </section>
+
+          <section class="card">
+            <h2 class="ct" style="margin-bottom: 4px">মূল্যায়নের দিন</h2>
+            <label class="row"><span style="display: flex; flex-direction: column"><span style="font-size: 14px; font-weight: 500">উপস্থিত</span><span style="font-size: 12.5px; color: var(--mfg)">{{attNote}}</span></span><input class="sw" type="checkbox" role="switch" checked="{{att}}" onChange="{{toggleAtt}}"></label>
+            <label class="row"><span style="display: flex; flex-direction: column"><span style="font-size: 14px; font-weight: 500">মূল্যায়ন ফি ৳৫০০ গৃহীত</span><span style="font-size: 12.5px; color: var(--mfg)">{{feeNote}}</span></span><input class="sw" type="checkbox" role="switch" checked="{{fee}}" onChange="{{toggleFee}}"></label>
+          </section>
+
+          <section class="card">
+            <h2 class="ct">কাগজপত্র</h2>
+            <div style="display: flex; flex-direction: column">
+              <sc-for list="{{docs}}" as="d" hint-placeholder-count="3">
+                <a class="row" href="#" style="text-decoration: none">
+                  <span style="display: flex; align-items: center; gap: 10px; font-size: 14px"><svg style="color: var(--mfg)" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>{{d.t}}</span>
+                  <span class="lat" style="font-size: 12.5px; color: var(--mfg)">{{d.s}}</span>
+                </a>
+              </sc-for>
+            </div>
+            <p style="margin: 8px 0 0; font-size: 12.5px; color: var(--mfg)">ফাইলগুলো গোপন, শুধু অ্যাডমিন থেকে খোলা যায়।</p>
+          </section>
+
+          <section class="card">
+            <h2 class="ct">পেমেন্ট</h2>
+            <dl class="kv" style="grid-template-columns: 110px 1fr">
+              <dt>আবেদন ফি</dt><dd>৳৫০০ <span style="font-size: 12.5px; color: var(--ok); margin-left: 6px">SSLCommerz যাচাইকৃত</span></dd>
+              <dt>মাধ্যম</dt><dd>বিকাশ</dd>
+              <dt>Tran ID</dt><dd class="lat" style="font-size: 13px">MQ27-8F3K2D9Q</dd>
+              <dt>Bank Tran</dt><dd class="lat" style="font-size: 13px">BKX7Q2M4N9</dd>
+              <dt>সময়</dt><dd>২৯ সেপ্টে. ২০২৬, রাত ৮:৪২</dd>
+            </dl>
+          </section>
+
+          <section class="card">
+            <h2 class="ct">নোট</h2>
+            <textarea aria-label="নতুন নোট" placeholder="অফিসের জন্য নোট লিখুন" style="box-sizing: border-box; width: 100%; min-height: 72px; border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; font: inherit; font-size: 14px; resize: vertical; color: var(--fg)"></textarea>
+            <div style="display: flex; justify-content: flex-end; margin-top: 8px"><button class="btn-o">নোট যোগ করুন</button></div>
+            <div style="margin-top: 12px; border-top: 1px solid var(--border); padding-top: 12px; font-size: 14px; line-height: 1.55">
+              পরিবহন দরকার, মিরপুর ১০ রুট। বড় ভাই ৩য় শ্রেণীতে পড়ে।
+              <div style="font-size: 12px; color: var(--mfg); margin-top: 4px">৩০ সেপ্টে., সকাল ১১:০৫</div>
+            </div>
+          </section>
+
+          <section class="card">
+            <h2 class="ct">কার্যক্রম</h2>
+            <ol style="margin: 0; padding: 0; list-style: none">
+              <sc-for list="{{log}}" as="l" hint-placeholder-count="6">
+                <li style="display: grid; grid-template-columns: 112px 1fr; gap: 12px; padding: 8px 0; border-top: 1px solid var(--border); font-size: 13.5px">
+                  <span style="color: var(--mfg)">{{l.w}}</span><span>{{l.t}}</span>
+                </li>
+              </sc-for>
+            </ol>
+          </section>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":2000}}'>
+class Component extends DCLogic {
+  constructor(p) { super(p); this.state = { status: 'মূল্যায়ন নির্ধারিত', att: false, fee: false }; }
+  renderVals() {
+    const no = 'দেওয়া হয়নি';
+    return {
+      status: this.state.status,
+      statuses: ['জমা হয়েছে', 'মূল্যায়ন নির্ধারিত', 'মূল্যায়িত', 'ভর্তি', 'অপেক্ষমাণ', 'নির্বাচিত হয়নি', 'ERP-তে পাঠানো'],
+      onStatus: (e) => this.setState({ status: e.target.value }),
+      att: this.state.att, fee: this.state.fee,
+      toggleAtt: () => this.setState({ att: !this.state.att }),
+      toggleFee: () => this.setState({ fee: !this.state.fee }),
+      attNote: this.state.att ? 'চিহ্নিত, এইমাত্র' : 'আবেদনপত্রের QR স্ক্যান করলে এই পাতা খোলে',
+      feeNote: this.state.fee ? 'চিহ্নিত, এইমাত্র' : 'এখনো গৃহীত হয়নি',
+      docs: [{ t: 'শিক্ষার্থীর ছবি', s: 'JPG, 180 KB' }, { t: 'পিতার ছবি', s: 'JPG, 164 KB' }, { t: 'জন্ম নিবন্ধন সনদ', s: 'JPG, 412 KB' }],
+      sections: [
+        { t: 'শিক্ষার্থীর তথ্য', rows: [
+          { k: 'নাম (বাংলায়)', v: 'আব্দুল্লাহ আল-মাহমুদ' }, { k: 'Name (in English)', v: 'Abdullah Al-Mahmud' },
+          { k: 'জন্ম তারিখ', v: '১২ মার্চ ২০২১' }, { k: 'যে শ্রেণীতে ভর্তি হতে চান', v: 'কেজি' },
+          { k: 'সর্বশেষ শ্রেণী', v: 'নার্সারি' }, { k: 'পূর্ববর্তী প্রতিষ্ঠান', v: 'আল-আমিন কিন্ডারগার্টেন' } ] },
+        { t: 'পিতার তথ্য', rows: [
+          { k: 'পিতার নাম', v: 'মোহাম্মদ রফিকুল ইসলাম' }, { k: 'Father’s Name', v: 'Mohammad Rafiqul Islam' },
+          { k: 'পেশা', v: 'চাকরিজীবী' }, { k: 'প্রতিষ্ঠান ও পদবী', v: 'ঢাকা ব্যাংক লিমিটেড, সিনিয়র অফিসার' },
+          { k: '৫ ওয়াক্ত সালাত', v: '৫ ওয়াক্ত' }, { k: 'সালাত কোথায়', v: 'মসজিদে' }, { k: 'কুরআন তেলাওয়াত', v: 'প্রতিদিন' },
+          { k: 'ইসলামী পোশাক', v: 'ঢিলেঢালা পোশাক, দাড়ি' }, { k: 'মাহরাম মেনে চলেন', v: 'হ্যাঁ' }, { k: 'ধূমপান', v: 'না' },
+          { k: 'বাসায় টিভি', v: 'না' }, { k: 'স্ক্রিন টাইম', v: '২ ঘণ্টা' }, { k: 'সন্তানদের সাথে সময়', v: '১ ঘণ্টার বেশি' }, { k: 'ফেসবুক আইডি', v: 'নেই' } ] },
+        { t: 'মাতার তথ্য', rows: [
+          { k: 'মাতার নাম', v: 'সাবিনা ইয়াসমিন' }, { k: 'Mother’s Name', v: 'Sabina Yasmin' }, { k: 'পেশা', v: 'গৃহিণী' },
+          { k: '৫ ওয়াক্ত সালাত', v: '৫ ওয়াক্ত' }, { k: 'কুরআন তেলাওয়াত', v: 'প্রতিদিন' }, { k: 'পর্দা', v: 'বোরকা ও নিকাব' },
+          { k: 'স্ক্রিন টাইম', v: '১ ঘণ্টা' }, { k: 'মাহরাম মেনে চলেন', v: 'হ্যাঁ' }, { k: 'ফেসবুক আইডি', v: 'নেই' } ] },
+        { t: 'যোগাযোগের তথ্য', rows: [
+          { k: 'বর্তমান ঠিকানা', v: 'বাসা ১২, রোড ৫, মিরপুর ১০, ঢাকা' }, { k: 'মোবাইল (পিতা)', v: '01712-345678' },
+          { k: 'মোবাইল (মাতা)', v: '01819-876543' }, { k: 'ইমেইল', v: 'rafiq.islam@gmail.com' } ] },
+        { t: 'অতিরিক্ত তথ্য', rows: [
+          { k: 'কিভাবে জেনেছেন', v: 'বন্ধু বা পরিবার' }, { k: 'পরিবহন জরুরি', v: 'হ্যাঁ' }, { k: 'পরিবহন এলাকা', v: 'মিরপুর' },
+          { k: 'অন্য সন্তানের ভর্তি', v: no }, { k: 'মন্তব্য', v: no } ] },
+      ],
+      log: [
+        { w: '১ অক্টো., ১০:২০', t: 'অবস্থা বদলেছে: জমা হয়েছে থেকে মূল্যায়ন নির্ধারিত' },
+        { w: '২৯ সেপ্টে., ৮:৪৩', t: 'Google Sheet-এ কপি হয়েছে' },
+        { w: '২৯ সেপ্টে., ৮:৪৩', t: 'নিশ্চিতকরণ ইমেইল পাঠানো হয়েছে, আবেদনপত্র সংযুক্ত' },
+        { w: '২৯ সেপ্টে., ৮:৪২', t: 'পেমেন্ট যাচাই হয়েছে, আইডি KG-017 দেওয়া হয়েছে' },
+        { w: '২৯ সেপ্টে., ৮:৩৮', t: 'ফর্ম জমা, পেমেন্ট শুরু' },
+        { w: '২৯ সেপ্টে., ৮:০৫', t: 'আবেদন শুরু (মোবাইল)' },
+      ],
+    };
+  }
+}
+</script>
+</body>
+</html>

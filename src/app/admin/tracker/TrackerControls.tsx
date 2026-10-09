@@ -1,16 +1,9 @@
 'use client';
 
 import { useEffect, useState, useTransition } from 'react';
+import { Button } from '@/components/shadcn/button';
 import { formatDateTime } from '@/lib/survey/dates';
 import { resolveDuplicateAction } from './actions';
-
-export function PrintButton() {
-  return (
-    <button type="button" className="sv-sbtn" onClick={() => window.print()}>
-      প্রিন্ট / PDF
-    </button>
-  );
-}
 
 /** Keep one batch of a duplicate class + subject, or keep all (R6 "কোনটি রাখবেন ঠিক করুন"). */
 export function DuplicateResolver({
@@ -36,37 +29,34 @@ export function DuplicateResolver({
   }
 
   return (
-    <fieldset className="flex flex-col gap-2" style={{ padding: '10px 12px', borderRadius: 12, border: '1px solid var(--sv-tint-border)', background: 'var(--sv-tint)', margin: 0 }}>
+    <fieldset className="m-0 flex flex-col gap-2 rounded-lg border bg-card p-3.5">
       <legend className="sv-visually-hidden">{title}</legend>
-      <div className="flex justify-between gap-2" style={{ fontWeight: 600 }}>
-        <span>ডুপ্লিকেট · {title}</span>
-        <span className="sv-num" style={{ fontSize: 13.5 }}>
-          {batches.length.toLocaleString('bn-BD')}টি জমা
-        </span>
+      <div className="flex justify-between gap-2 font-semibold">
+        <span>{title}</span>
+        <span className="text-[13.5px] tabular-nums">{batches.length.toLocaleString('bn-BD')}টি জমা</span>
       </div>
       {batches.map((b) => (
-        <label key={b.id} className="flex items-center gap-2" style={{ fontSize: 14 }}>
-          <input type="radio" name={`dup-${ids[0]}`} checked={choice === b.id} onChange={() => setChoice(b.id)} />
+        <label key={b.id} className="flex cursor-pointer items-center gap-2 text-sm">
+          <input type="radio" className="size-4 accent-[var(--primary)]" name={`dup-${ids[0]}`} checked={choice === b.id} onChange={() => setChoice(b.id)} />
           <span>
-            <b>{b.teacherName}</b>-এরটি রাখুন <span className="sv-muted">· {formatDateTime(new Date(b.submittedAt))}</span>
+            <b className="font-semibold">{b.teacherName}</b>-এরটি রাখুন <span className="text-muted-foreground">· {formatDateTime(new Date(b.submittedAt))}</span>
           </span>
         </label>
       ))}
-      <label className="flex items-center gap-2" style={{ fontSize: 14 }}>
-        <input type="radio" name={`dup-${ids[0]}`} checked={choice === 'all'} onChange={() => setChoice('all')} />
+      <label className="flex cursor-pointer items-center gap-2 text-sm">
+        <input type="radio" className="size-4 accent-[var(--primary)]" name={`dup-${ids[0]}`} checked={choice === 'all'} onChange={() => setChoice('all')} />
         <span>সবগুলো রাখুন (দুজনই পড়ান)</span>
       </label>
       {error && (
-        <div role="alert" style={{ fontSize: 13.5, color: 'var(--sv-error)' }}>
+        <div role="alert" className="text-[13.5px] text-destructive">
           {error}
         </div>
       )}
       <div>
-        <button type="button" className="sv-sbtn" disabled={!choice || pending} onClick={apply}>
+        <Button type="button" className="h-9" disabled={!choice || pending} onClick={apply}>
           {pending ? 'অপেক্ষা করুন…' : 'সিদ্ধান্ত সংরক্ষণ করুন'}
-        </button>
+        </Button>
       </div>
-      <div style={{ fontSize: 12.5, color: 'var(--sv-text-muted)' }}>যেটি রাখবেন না সেটি রিপোর্টে গণ্য হবে না, তবে মুছে যাবে না।</div>
     </fieldset>
   );
 }
@@ -88,8 +78,8 @@ export function CopyReminder({ text, child }: { text: string; child: string }) {
     }
   }
   return (
-    <button type="button" className="sv-sbtn" aria-label={`${child}: বার্তা কপি`} onClick={() => void copy()}>
+    <Button type="button" variant="outline" className="h-8 bg-white shadow-none" aria-label={`${child}: বার্তা কপি`} onClick={() => void copy()}>
       <span aria-live="polite">{copied ? 'কপি হয়েছে' : 'বার্তা কপি'}</span>
-    </button>
+    </Button>
   );
 }

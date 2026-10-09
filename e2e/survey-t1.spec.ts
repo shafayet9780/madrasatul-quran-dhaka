@@ -1,14 +1,13 @@
-import { execFileSync } from 'node:child_process';
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
+import { loadFixtures } from './survey-fixtures';
 
 // Teacher survey (T1) against the Neon dev database; fixtures are reloaded before and after.
-const loadFixtures = () => execFileSync('pnpm', ['survey:fixtures'], { stdio: 'ignore' });
 const LINK = '/survey/fixture-t1?k=fixture-open-link-key-000';
 
 test.describe.configure({ mode: 'serial' });
-test.beforeAll(loadFixtures);
-test.afterAll(loadFixtures);
+test.beforeAll(() => loadFixtures());
+test.afterAll(() => loadFixtures());
 
 async function expectAccessible(page: Page) {
   const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).analyze();
