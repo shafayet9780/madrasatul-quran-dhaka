@@ -89,6 +89,10 @@ export default async function TrackerPage({ searchParams }: { searchParams: Prom
         <PageTitle sub={`${round.label} · ${when}`}>রেসপন্স ট্র্যাকার</PageTitle>
         <ReportFilters action="/admin/tracker" selects={[{ name: 'round', label: 'জরিপ ও রাউন্ড', value: round.id, options: picker }]} />
 
+        {/* Announced when the last duplicate is decided and its box goes away. */}
+        <p role="status" className="sv-visually-hidden">
+          {duplicates.length ? '' : 'কোনো ডুপ্লিকেট নেই।'}
+        </p>
         {/* A duplicate waits for a decision, so it comes first. */}
         {duplicates.length > 0 && (
           <section className="flex flex-col gap-3 rounded-xl border border-[var(--sv-tint-border)] bg-[var(--sv-warn-bg)] p-5" aria-labelledby="dups-title">

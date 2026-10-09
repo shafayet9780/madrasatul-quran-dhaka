@@ -30,6 +30,7 @@ test('shows coverage and drafts, and resolves a duplicate', async ({ page }) => 
   await dups.getByRole('button', { name: 'সিদ্ধান্ত সংরক্ষণ করুন' }).click();
   // Decided: the box at the top goes away.
   await expect(page.getByRole('region', { name: /^ডুপ্লিকেট/ })).toHaveCount(0);
+  await expect(page.getByRole('status').filter({ hasText: 'কোনো ডুপ্লিকেট নেই।' })).toBeAttached();
   await expect(page.getByRole('row', { name: /নার্সারি B/ }).getByText(/^জমা · উস্তাযা সুমাইয়া$/)).toBeAttached();
 });
 

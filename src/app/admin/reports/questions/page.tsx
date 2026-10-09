@@ -144,6 +144,7 @@ export default async function QuestionsPage({ searchParams }: { searchParams: Pr
 
         <ReportFilters
           action="/admin/reports/questions"
+          keep={{ round: t1.id }}
           verifiedOnly={verifiedOnly}
           selects={[
             { name: 'place', label: 'শ্রেণি', value: at ? `${at.classKey}|${at.sectionKey}` : '', options: [{ value: '', label: 'পুরো মাদরাসা' }, ...places.map((p) => ({ value: `${p.classKey}|${p.sectionKey}`, label: p.label }))] },

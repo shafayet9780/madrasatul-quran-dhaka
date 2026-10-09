@@ -8,6 +8,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Input } from '@/components/shadcn/input';
 import { toBengaliDigits as bn } from '@/lib/survey/normalise';
 import { cn } from '@/lib/utils';
+import { LINK } from '../ui';
 import { closeRoundAction, extendRoundAction, openRoundAction, refreshListsAction } from './actions';
 import type { ActionResult, BoardRow, OpenedRow, RowStatus, UnopenedRow } from './types';
 
@@ -69,13 +70,14 @@ function RowActions({ row, selected, onSelect, onPanel }: { row: BoardRow; selec
   return (
     <div className="flex items-center gap-1.5">
       <CopyLinkButton row={row} />
-      <DropdownMenu>
+      {/* Not modal: its focus trap would pull focus back from the panel an item opens. */}
+      <DropdownMenu modal={false}>
         <DropdownMenuTrigger asChild>
           <Button type="button" variant="outline" size="icon" className="adm size-8 bg-white shadow-none" aria-label={`${rowName(row)}: আরও কাজ`}>
             <MoreHorizontal aria-hidden />
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="adm min-w-44">
+        <DropdownMenuContent align="end" className="adm min-w-44" onCloseAutoFocus={(e) => e.preventDefault()}>
           <DropdownMenuItem onSelect={() => onPanel('extend', row)}>মেয়াদ বাড়ান</DropdownMenuItem>
           <DropdownMenuItem onSelect={() => onPanel('refresh', row)}>তালিকা হালনাগাদ</DropdownMenuItem>
           <DropdownMenuItem onSelect={() => onPanel('close', row)} className="text-destructive focus:text-destructive">
@@ -336,7 +338,7 @@ export function RoundsBoard({ rows }: { rows: BoardRow[] }) {
           <div className="flex min-h-44 flex-col items-center justify-center gap-2 rounded-xl border border-dashed p-4 text-center">
             <span className="font-semibold">এখনো কোনো রাউন্ড নেই</span>
             <span className="text-sm text-muted-foreground">Studio → Surveys → Rounds-এ একটি রাউন্ড তৈরি করে প্রকাশ (Publish) করুন; তারপর এখান থেকে খুলুন।</span>
-            <Link href="/studio/structure/surveys;surveyRound" className="text-sm font-semibold">
+            <Link href="/studio/structure/surveys;surveyRound" className={cn(LINK, 'text-sm font-semibold')}>
               Studio খুলুন
             </Link>
           </div>

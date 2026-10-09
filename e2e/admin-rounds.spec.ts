@@ -36,6 +36,8 @@ test.describe('with login', () => {
     await page.goto('/admin/rounds');
     await page.getByRole('button', { name: 'অক্টোবর ২০২৬ (নমুনা): আরও কাজ' }).click();
     await page.getByRole('menuitem', { name: 'এখনই বন্ধ' }).click();
+    // Keyboard focus moves into the confirmation, not back to the ⋯ button.
+    await expect(page.getByRole('button', { name: 'না, খোলা রাখুন' })).toBeFocused();
     await expect(page.getByText('২/৬৫ ক্লাস-বিষয় জমা হয়েছে; ১টি খসড়া রয়ে যাবে।', { exact: false })).toBeVisible();
     await page.getByRole('button', { name: 'হ্যাঁ, বন্ধ করুন' }).click();
     await expect(page.getByRole('status')).toContainText('রাউন্ড বন্ধ হয়েছে');

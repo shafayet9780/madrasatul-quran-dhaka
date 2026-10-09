@@ -168,6 +168,8 @@ export default async function RatersPage({ searchParams }: { searchParams: Promi
                   </li>
                 ))}
               </ul>
+              {/* Outside the folded explanations, so it prints. */}
+              <p className="m-0 mt-3 text-right text-[13px] text-muted-foreground">সহকর্মীদের তুলনায়: কঠোর ← ০ → উদার (মার্ক, −২ থেকে +২)</p>
             </>
           )}
         </Card>
