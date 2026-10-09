@@ -116,7 +116,8 @@ html,body{margin:0;background:#fff;color:#171717;font-family:'Inter','Noto Sans 
 .who{flex:1;display:flex;flex-direction:column;gap:2px;min-width:0}
 .bigid{font-family:'Inter',sans-serif;font-size:48px;font-weight:700;letter-spacing:.03em;line-height:1.1}
 .qr{flex:none;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;color:#525252}.qr svg{display:block;width:96px;height:96px;border:1px solid #d4d4d4;border-radius:6px;padding:4px;background:#fff}
-.block{margin-top:14px}
+/* A chapter starts on the next page rather than leaving its title and a row or two behind (every chapter fits on a page). */
+.block{margin-top:14px;break-inside:avoid}
 .sec{margin:0 0 6px;font-size:14px;font-weight:700;display:flex;align-items:center;gap:8px;break-after:avoid}
 .sec span{flex:none;display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;background:#7a4d32;color:#fff;font-size:11px;line-height:1}
 .qa{width:100%;border-collapse:collapse;table-layout:fixed;border-top:1px solid #d4d4d4}
