@@ -215,9 +215,16 @@ export async function saveDraft(round: Round, input: BatchKeyInput, rows: DraftR
 
   // A cleared student ("not my student") loses marks and note; anything sent with the clear is kept.
   const cleared = valid.filter((v) => v.row.clear).map((v) => v.student!.erpId);
-  const kept = valid.filter((v) => !v.row.clear || Object.keys(v.answers!).length || v.row.note?.trim());
-  const upserts = kept.map(({ row, answers, student }) =>
-    db
+  // A null mark is withdrawn: left out of a new row, removed from a saved one.
+  const split = valid.map((v) => ({
+    ...v,
+    marks: Object.fromEntries(Object.entries(v.answers!).filter(([, mark]) => mark !== null)) as Record<string, number>,
+    withdrawn: Object.keys(v.answers!).filter((questionKey) => v.answers![questionKey] === null),
+  }));
+  const kept = split.filter((v) => !v.row.clear || Object.keys(v.marks).length || v.row.note?.trim());
+  const upserts = kept.map(({ row, student, marks, withdrawn }) => {
+    const merged = sql`${responses.answers} || excluded.answers`;
+    return db
       .insert(responses)
       .values({
         submissionId: draft.id,
@@ -230,18 +237,18 @@ export async function saveDraft(round: Round, input: BatchKeyInput, rows: DraftR
         classKey: key.classKey,
         sectionKey: key.sectionKey,
         roll: student!.roll,
-        answers: answers!,
+        answers: marks,
         note: row.note?.trim() || null,
       })
       .onConflictDoUpdate({
         target: [responses.submissionId, responses.studentErpId],
         set: {
-          answers: sql`${responses.answers} || excluded.answers`,
+          answers: withdrawn.length ? sql`(${merged}) - ${sql.join(withdrawn.map((k) => sql`${k}::text`), sql` - `)}` : merged,
           note: row.note === undefined ? sql`${responses.note}` : sql`excluded.note`,
           updatedAt: now,
         },
-      })
-  );
+      });
+  });
   const statements: BatchItem<'pg'>[] = [
     ...(cleared.length ? [db.delete(responses).where(and(eq(responses.submissionId, draft.id), inArray(responses.studentErpId, cleared)))] : []),
     ...upserts,

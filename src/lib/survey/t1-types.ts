@@ -19,7 +19,8 @@ export const NOTE_MAX = 500;
 
 export const draftRowSchema = z.object({
   studentErpId: z.string().min(1).max(64),
-  answers: z.record(z.string().max(64), z.number()).optional(),
+  /** null withdraws that question's mark (given by mistake). */
+  answers: z.record(z.string().max(64), z.number().nullable()).optional(),
   /** A string sets the note ('' clears it); omitted keeps the saved note. */
   note: z.string().max(NOTE_MAX).optional(),
   /** Removes the student's marks and note first (by-level subject: "not my student"). */

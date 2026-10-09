@@ -41,7 +41,8 @@ export function RateScreen({
   onQuestion: (q: number) => void;
   onBackToClass: () => void;
   onReview: () => void;
-  onMark: (erpId: string, questionKey: string, mark: number) => void;
+  /** null withdraws a mark given by mistake. */
+  onMark: (erpId: string, questionKey: string, mark: number | null) => void;
 }) {
   const { questions, scale } = config.snapshot.template;
   const question = questions[q];
@@ -106,6 +107,7 @@ export function RateScreen({
           <div className="sv-panel flex flex-col gap-2" style={{ padding: '14px 16px' }}>
             <div style={{ fontSize: 13, color: 'var(--sv-text-muted)', fontWeight: 600 }}>মার্কিং</div>
             <div style={{ fontSize: 14 }}>১০ = সবচেয়ে ভালো · ৪ = সন্তোষজনক নয়</div>
+            <div style={{ fontSize: 14, color: 'var(--sv-text-muted)' }}>{CLEAR_TIP}</div>
           </div>
         </aside>
         )}
@@ -140,6 +142,7 @@ export function RateScreen({
               <span className="sv-chip is-ok">{Icon.check()} সবাই পূর্ণ</span>
             )}
           </div>
+          {!desktop && <div style={{ padding: '0 24px 6px', fontSize: 13.5, color: 'var(--sv-text-muted)' }}>{CLEAR_TIP}</div>}
 
           <div ref={listRef} className="sv-student-list" style={{ padding: '0 12px', ['--sv-rows' as string]: Math.ceil(students.length / 2) }}>
             {students.map((student) => {
@@ -157,7 +160,13 @@ export function RateScreen({
                     {student.roll === null && <span className="sv-student-id">আইডি {bn(student.erpId)}</span>}
                     {taken[student.erpId] && <span className="sv-student-id">রেট করেছেন: {taken[student.erpId]}</span>}
                   </div>
-                  <MarkTrack marks={scale} value={value} labelledBy={`${nameId} question-text`} onChange={(mark) => onMark(student.erpId, question.key, mark)} />
+                  <MarkTrack
+                    marks={scale}
+                    value={value}
+                    labelledBy={`${nameId} question-text`}
+                    onChange={(mark) => onMark(student.erpId, question.key, mark)}
+                    onClear={() => onMark(student.erpId, question.key, null)}
+                  />
                 </div>
               );
             })}
@@ -193,6 +202,8 @@ export function RateScreen({
     </div>
   );
 }
+
+const CLEAR_TIP = 'ভুল করে মার্ক দিলে একই মার্কে আবার চাপুন, মার্ক মুছে যাবে।';
 
 function QuestionBlock({ config, q, desktop }: { config: T1Config; q: number; desktop?: boolean }) {
   const { questions } = config.snapshot.template;
