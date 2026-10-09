@@ -12,6 +12,7 @@ import { applicationHtml, footerTemplate, type PdfData } from './pdf-html';
 import { applications } from './schema';
 import { blobStore, type BlobStore } from './uploads';
 import { isOwnKey } from './files';
+import { activePhones } from '@/lib/contact';
 
 // The application PDF: HTML (pdf-html.ts) printed by headless Chromium, so Bengali conjuncts in
 // names are shaped correctly. Made once after payment, kept in the private store (pdf_key), and
@@ -62,9 +63,12 @@ async function schoolInfo() {
       const res = await fetch(urlFor(site.logo).width(160).height(160).url(), { signal: AbortSignal.timeout(8000) }).catch(() => null);
       if (res?.ok) logo = `data:${res.headers.get('content-type') ?? 'image/png'};base64,${Buffer.from(await res.arrayBuffer()).toString('base64')}`;
     }
-    const contact = (site as { contactInfo?: { address?: { bengali?: string } | string; admissionsPhone?: string; phone?: string } } | null)?.contactInfo;
+    const contact = site?.contactInfo;
     const address = typeof contact?.address === 'string' ? contact.address : contact?.address?.bengali;
-    return { name: 'মাদরাসাতুল কুরআন', line: [address, contact?.admissionsPhone ?? contact?.phone].filter(Boolean).join(' · '), logo };
+    // The admissions number, else an active admission line, else the primary number.
+    const phones = activePhones(contact);
+    const phone = contact?.admissionsPhone || (phones.find((p) => p.type === 'admission') ?? phones[0])?.number;
+    return { name: 'মাদরাসাতুল কুরআন', line: [address, phone].filter(Boolean).join(' · '), logo };
   } catch {
     return { name: 'মাদরাসাতুল কুরআন', line: '', logo: null };
   }
@@ -116,27 +120,33 @@ export async function renderPdf(data: PdfData): Promise<Uint8Array> {
       preferCSSPageSize: true,
       displayHeaderFooter: true,
       headerTemplate: '<span></span>',
-      footerTemplate: footerTemplate(data.publicRef, data.studentNameBn, data.fontCss),
+      footerTemplate: footerTemplate(data.publicRef, data.studentNameBn, data.fontCss, data.snapshot.settings.session),
     });
   } finally {
     await browser.close();
   }
 }
 
-export const pdfFileName = (publicRef: string) => `application-${publicRef}.pdf`;
+/** mqd_pre_admission_application_KG-017_2026-10-09_12-54.pdf: the ID and when it was paid (Dhaka time). */
+export function pdfFileName(app: Pick<Application, 'publicRef' | 'paidAt'>): string {
+  const paid = new Date((app.paidAt ?? new Date()).getTime() + 6 * 60 * 60 * 1000).toISOString();
+  return `mqd_pre_admission_application_${app.publicRef}_${paid.slice(0, 10)}_${paid.slice(11, 13)}-${paid.slice(14, 16)}.pdf`;
+}
 
 /**
  * The stored PDF of a paid application, made on first use. Two simultaneous first requests may
- * both render; the second write replaces the first with an identical file.
+ * both render; the second write replaces the first with an identical file. A PDF stored under an
+ * older file name (an earlier layout) is made again.
  */
 export async function ensureApplicationPdf(app: Application, snapshot: FormSnapshot, origin: string, store = blobStore()): Promise<{ key: string; bytes?: Uint8Array }> {
   if (!app.publicRef) throw new Error('The application is not paid yet');
-  const stored = app.pdfKey ? await readStoredPdf(app.pdfKey, store) : null;
-  if (app.pdfKey && stored) return { key: app.pdfKey, bytes: stored };
+  const key = `admissions/${app.id}/${pdfFileName(app)}`;
+  const stored = app.pdfKey === key ? await readStoredPdf(key, store) : null;
+  if (stored) return { key, bytes: stored };
   const bytes = await renderPdf(await pdfData(app, snapshot, origin, store));
-  const key = `admissions/${app.id}/${pdfFileName(app.publicRef)}`;
   await store.put(key, bytes, 'application/pdf', { overwrite: true });
   await getAdmissionsDb().update(applications).set({ pdfKey: key, updatedAt: new Date() }).where(eq(applications.id, app.id));
+  if (app.pdfKey && app.pdfKey !== key) await store.del(app.pdfKey).catch(() => {});
   return { key, bytes };
 }
 

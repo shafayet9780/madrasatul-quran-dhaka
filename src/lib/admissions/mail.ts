@@ -96,7 +96,7 @@ export async function sendConfirmationEmail(applicationId: string, origin: strin
     statusUrl: `${origin}/${locale}/pre-admission/find`,
     evaluationFee: snapshot.settings.evaluationFee,
   });
-  const result = await send({ to: app.email, ...email, attachments: attachment ? [{ filename: pdfFileName(app.publicRef), content: attachment }] : undefined });
+  const result = await send({ to: app.email, ...email, attachments: attachment ? [{ filename: pdfFileName(app), content: attachment }] : undefined });
   if (result.ok) {
     await db.update(applications).set({ confirmationEmailAt: new Date() }).where(and(eq(applications.id, app.id), isNull(applications.confirmationEmailAt)));
     await logEvent(app.id, app.publicRef, 'email_confirmation', again ? 'admin' : 'system', { to: app.email, pdf: !!attachment });
