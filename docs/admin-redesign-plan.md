@@ -63,6 +63,12 @@ For each batch: screenshots of today's page → short list of proposed simplific
 build → screenshots → push.
 
 1. Overview, classes and student search, class page.
+   Done (agreed 2026-10-09): filters apply on change (rarely changed guardian-round choices under
+   "আরও বিকল্প"); four tiles that open their pages; response by class and needs-attention as compact
+   tables (all classes stay in the teaching table); classes page = full-width search + a classes
+   table with guardian answers; class page without the per-student scatter, the area comparison as
+   the student page's table (⚠ at 1 mark), the student table with the difference once (⚠ at 2) and
+   short rows on phones.
 2. Student page and both prints (below).
 3. Teaching quality, question results, rater patterns (charts keep their data colours).
 4. Response tracker (teacher and guardian), rounds, ERP import, error and not-found pages.

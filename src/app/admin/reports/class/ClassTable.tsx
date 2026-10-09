@@ -2,8 +2,12 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
+import { ChevronRight } from 'lucide-react';
 import { toBengaliDigits as bn } from '@/lib/survey/normalise';
+import { FLAGS } from '@/lib/survey/report-math';
+import { cn } from '@/lib/utils';
 import { Sparkline } from '../charts';
+import { LINK, TONE_TEXT } from '../../ui';
 
 type Row = {
   erpId: string;
@@ -18,12 +22,12 @@ type Row = {
   form: 'verified' | 'unverified' | 'none';
 };
 
-type SortKey = 'roll' | 'name' | 'mean' | 'teachers' | 'flags' | 'guardian' | 'gap';
+type SortKey = 'roll' | 'name' | 'mean' | 'flags' | 'guardian' | 'gap';
 
 const FORM = {
-  verified: { label: 'যাচাইকৃত', bg: 'var(--sv-ok-bg)', fg: 'var(--sv-ok)' },
-  unverified: { label: 'অযাচাইকৃত', bg: 'var(--sv-warn-bg)', fg: 'var(--sv-warn)' },
-  none: { label: 'সাড়া নেই', bg: 'var(--sv-neutral-bg)', fg: 'var(--sv-text-body)' },
+  verified: { label: 'যাচাইকৃত', tone: 'ok' },
+  unverified: { label: 'অযাচাইকৃত', tone: 'warn' },
+  none: { label: 'সাড়া নেই', tone: 'muted' },
 } as const;
 
 /** Guardian − teachers in marks: "+১.৩" = the guardian gave more. */
@@ -31,8 +35,13 @@ const signed = (d: number) => {
   const r = Math.round(d * 10) / 10;
   return `${r > 0 ? '+' : r < 0 ? '−' : ''}${bn(Math.abs(r).toFixed(1))}`;
 };
+const wide = (gap: number | null) => gap !== null && Math.round(Math.abs(gap) * 10) / 10 >= FLAGS.guardianTeacherGap;
 
-/** Student list (R3): teacher marks, and with a G2 round the guardian's average and the gap; sortable. */
+/**
+ * Student list: teacher marks, and with a G2 round the guardian's average and the difference
+ * (⚠ from FLAGS.guardianTeacherGap marks, so the gap flag is not repeated among the others);
+ * sortable. Phones get one short row per student instead of the table.
+ */
 export function ClassTable({ rows, roundId, showTrend, showGuardian }: { rows: Row[]; roundId: string; showTrend: boolean; showGuardian: boolean }) {
   // Children with flags first (then by roll), so the ones needing attention are on top.
   const [sort, setSort] = useState<{ key: SortKey; dir: 1 | -1 }>({ key: 'flags', dir: -1 });
@@ -40,7 +49,6 @@ export function ClassTable({ rows, roundId, showTrend, showGuardian }: { rows: R
     if (key === 'roll') return row.roll ?? Number.MAX_SAFE_INTEGER;
     if (key === 'name') return row.name;
     if (key === 'mean') return row.mean ?? -1;
-    if (key === 'teachers') return row.teachers;
     if (key === 'guardian') return row.guardian ?? -1;
     if (key === 'gap') return row.gap === null ? -1 : Math.abs(row.gap);
     return row.flags.length;
@@ -53,13 +61,15 @@ export function ClassTable({ rows, roundId, showTrend, showGuardian }: { rows: R
     const y = value(b, sort.key);
     return (typeof x === 'string' ? x.localeCompare(y as string) : x - (y as number)) * sort.dir;
   });
+  const shownFlags = (row: Row) => (showGuardian ? row.flags.filter((f) => f.kind !== 'gap') : row.flags);
+  const href = (row: Row) => `/admin/reports/student/${encodeURIComponent(row.erpId)}?round=${roundId}`;
 
-  const header = (key: SortKey, label: string) => (
-    <th scope="col" aria-sort={sort.key === key ? (sort.dir === 1 ? 'ascending' : 'descending') : 'none'}>
+  const header = (key: SortKey, label: string, right = false) => (
+    <th scope="col" aria-sort={sort.key === key ? (sort.dir === 1 ? 'ascending' : 'descending') : 'none'} className={right ? 'text-right' : 'text-left'}>
       <button
         type="button"
         onClick={() => setSort((s) => ({ key, dir: s.key === key ? (s.dir === 1 ? -1 : 1) : key === 'roll' || key === 'name' ? 1 : -1 }))}
-        style={{ border: 0, background: 'transparent', font: 'inherit', color: 'inherit', padding: 0, cursor: 'pointer' }}
+        className="cursor-pointer whitespace-nowrap border-0 bg-transparent p-0 font-medium text-inherit hover:text-foreground"
       >
         {label}
         {sort.key === key ? (sort.dir === 1 ? ' ↑' : ' ↓') : ''}
@@ -68,75 +78,106 @@ export function ClassTable({ rows, roundId, showTrend, showGuardian }: { rows: R
   );
 
   return (
-    <div style={{ overflowX: 'auto' }}>
-      <table className="sv-table is-stackable is-compact" style={{ minWidth: showGuardian ? 900 : 720 }}>
-        <thead>
-          <tr>
-            {header('roll', 'রোল')}
-            {header('name', 'নাম')}
-            {showGuardian && header('guardian', 'অভিভাবক (/১০)')}
-            {header('mean', 'শিক্ষকদের গড় (/১০)')}
-            {showGuardian && header('gap', 'অভিভাবক − শিক্ষক')}
-            {header('teachers', 'কতজন শিক্ষক')}
-            {showTrend && <th scope="col">প্রবণতা</th>}
-            {header('flags', 'ফ্ল্যাগ')}
-            {showGuardian && <th scope="col">অভিভাবকের ফর্ম</th>}
-          </tr>
-        </thead>
-        <tbody>
-          {sorted.map((row) => (
-            <tr key={row.erpId}>
-              <td data-label="রোল" className="sv-num" style={{ color: 'var(--sv-text-muted)' }}>
-                {row.roll !== null ? bn(row.roll) : '–'}
-              </td>
-              <td data-label="নাম" className="sv-span-2">
-                <Link href={`/admin/reports/student/${encodeURIComponent(row.erpId)}?round=${roundId}`} style={{ fontWeight: 600 }}>
-                  {row.name}
-                </Link>
-                {row.roll === null && <div style={{ fontSize: 12.5, color: 'var(--sv-text-muted)' }}>আইডি {bn(row.erpId)}</div>}
-              </td>
-              {showGuardian && (
-                <td data-label="অভিভাবক" className="sv-num">
-                  {row.guardian === null ? <span style={{ color: 'var(--sv-text-muted)' }}>—</span> : bn(row.guardian.toFixed(1))}
-                </td>
-              )}
-              <td data-label="শিক্ষকদের গড়" className="sv-num">
-                {row.mean === null ? <span style={{ color: 'var(--sv-text-muted)' }}>রিভিউ নেই</span> : bn(row.mean.toFixed(1))}
-              </td>
-              {showGuardian && (
-                <td data-label="পার্থক্য" className="sv-num">
-                  {row.gap === null ? <span style={{ color: 'var(--sv-text-muted)' }}>—</span> : signed(row.gap)}
-                </td>
-              )}
-              <td data-label="কতজন শিক্ষক" className="sv-num sv-phone-hide">
-                {bn(row.teachers)}
-              </td>
+    <>
+      <div className="hidden overflow-x-auto md:block">
+        <table className="w-full border-collapse text-sm" aria-label="শিক্ষার্থী তালিকা">
+          <thead>
+            <tr className="text-[13px] text-muted-foreground [&>th]:border-b [&>th]:px-2.5 [&>th]:py-2">
+              {header('roll', 'রোল')}
+              {header('name', 'নাম')}
+              {header('mean', 'শিক্ষকদের গড় (/১০)', true)}
+              {showGuardian && header('guardian', 'অভিভাবক (/১০)', true)}
+              {showGuardian && header('gap', 'পার্থক্য', true)}
               {showTrend && (
-                <td data-label="প্রবণতা" className="sv-phone-hide">
-                  <Sparkline points={row.trend} label={`${row.name}: ${row.trend.map((p) => `${p.label} ${bn(p.mean.toFixed(1))}`).join(', ')}`} />
-                </td>
+                <th scope="col" className="text-left font-medium">
+                  প্রবণতা
+                </th>
               )}
-              <td data-label="ফ্ল্যাগ" className="sv-span-2">
-                <div className="flex flex-wrap gap-1">
-                  {row.flags.map((f) => (
-                    <span key={f.kind} className="sv-flag">
+              {header('flags', 'মনোযোগ')}
+              {showGuardian && (
+                <th scope="col" className="text-left font-medium">
+                  অভিভাবকের ফর্ম
+                </th>
+              )}
+            </tr>
+          </thead>
+          <tbody>
+            {sorted.map((row) => (
+              <tr key={row.erpId} className="[&>td]:border-b [&>td]:px-2.5 [&>td]:py-2.5 [&>td]:align-top last:[&>td]:border-b-0">
+                <td className="tabular-nums text-muted-foreground">{row.roll !== null ? bn(row.roll) : '–'}</td>
+                <td>
+                  <Link href={href(row)} className={cn(LINK, 'whitespace-nowrap font-medium')}>
+                    {row.name}
+                  </Link>
+                  {row.roll === null && <span className="block text-[12.5px] text-muted-foreground">আইডি {bn(row.erpId)}</span>}
+                </td>
+                <td className="text-right">
+                  {row.mean === null ? (
+                    <span className="text-muted-foreground">রিভিউ নেই</span>
+                  ) : (
+                    <>
+                      <span className="font-semibold tabular-nums">{bn(row.mean.toFixed(1))}</span>
+                      <span className="block whitespace-nowrap text-[12px] text-muted-foreground">{bn(row.teachers)} জন শিক্ষক</span>
+                    </>
+                  )}
+                </td>
+                {showGuardian && <td className="text-right font-semibold tabular-nums">{row.guardian === null ? <span className="font-normal text-muted-foreground">—</span> : bn(row.guardian.toFixed(1))}</td>}
+                {showGuardian && (
+                  <td className={cn('whitespace-nowrap text-right tabular-nums', wide(row.gap) && 'font-semibold text-warning')}>
+                    {row.gap === null ? <span className="text-muted-foreground">—</span> : `${wide(row.gap) ? '⚠ ' : ''}${signed(row.gap)}`}
+                  </td>
+                )}
+                {showTrend && (
+                  <td>
+                    <Sparkline points={row.trend} label={`${row.name}: ${row.trend.map((p) => `${p.label} ${bn(p.mean.toFixed(1))}`).join(', ')}`} />
+                  </td>
+                )}
+                <td className="text-[13px] leading-snug text-warning">
+                  {shownFlags(row).map((f) => (
+                    <span key={f.kind} className="block">
                       ⚠ {f.label}
                     </span>
                   ))}
-                  {!row.flags.length && <span style={{ color: 'var(--sv-text-muted)' }}>—</span>}
-                </div>
-              </td>
-              {showGuardian && (
-                <td data-label="অভিভাবকের ফর্ম">
-                  <span style={{ background: FORM[row.form].bg, color: FORM[row.form].fg, borderRadius: 6, padding: '2px 8px', fontSize: 13, fontWeight: 600, whiteSpace: 'nowrap' }}>
-                    {FORM[row.form].label}
-                  </span>
+                  {!shownFlags(row).length && <span className="text-muted-foreground">—</span>}
                 </td>
-              )}
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+                {showGuardian && (
+                  <td>
+                    <span className={cn('inline-flex h-[22px] items-center whitespace-nowrap rounded-md border px-2 text-xs font-medium', TONE_TEXT[FORM[row.form].tone])}>{FORM[row.form].label}</span>
+                  </td>
+                )}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Phones: one short row per student, in the same order; the profile has the rest. */}
+      <ul className="m-0 flex list-none flex-col p-0 md:hidden" aria-label="শিক্ষার্থী তালিকা">
+        {sorted.map((row) => {
+          const attention = row.flags.length > 0;
+          return (
+            <li key={row.erpId} className="border-b last:border-b-0">
+              <Link href={href(row)} className="flex items-center gap-3 py-2.5 text-foreground no-underline">
+                <span className="w-6 shrink-0 text-[13px] tabular-nums text-muted-foreground">{row.roll !== null ? bn(row.roll) : '–'}</span>
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate font-medium">{row.name}</span>
+                  <span className="block text-[12.5px] text-muted-foreground">
+                    শিক্ষক {row.mean === null ? '—' : bn(row.mean.toFixed(1))}
+                    {showGuardian && ` · অভিভাবক ${row.guardian === null ? '—' : bn(row.guardian.toFixed(1))}`}
+                  </span>
+                </span>
+                {attention && (
+                  <span className="shrink-0 text-[13px] font-medium text-warning">
+                    ⚠ {bn(row.flags.length)}
+                    <span className="sv-visually-hidden">: {row.flags.map((f) => f.label).join(', ')}</span>
+                  </span>
+                )}
+                <ChevronRight className="size-4 shrink-0 text-muted-foreground" aria-hidden />
+              </Link>
+            </li>
+          );
+        })}
+      </ul>
+    </>
   );
 }

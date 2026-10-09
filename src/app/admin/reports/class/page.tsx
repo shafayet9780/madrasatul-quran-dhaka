@@ -6,29 +6,30 @@ import { formatLow, formatMark, GUARDIAN_AREAS } from '@/lib/survey/report-math'
 import { chosenRoundId } from '@/lib/survey/admin-shell';
 import { classReport, pickRound } from '@/lib/survey/reports';
 import { MIN_N } from '@/lib/survey/stats';
-import { AREA_GAP_MARKS, GapScatter, GUARDIAN, MarkAxis, PairBar, TEACHER } from '../charts';
+import { cn } from '@/lib/utils';
+import { AREA_GAP_MARKS } from '../charts';
 import { NoRounds } from '../NoRounds';
+import { ReportFilters } from '../ReportFilters';
 import { ReportTools } from '../ReportTools';
 import { ClassTable } from './ClassTable';
 import { PageTop } from '../../AdminShell';
+import { Card, EmptyState, LINK, PageBody, PageTitle, StatTile, StatTiles } from '../../ui';
 
 export const metadata: Metadata = { title: 'ক্লাস রিপোর্ট' };
 export const dynamic = 'force-dynamic';
 
 type Search = { round?: string; class?: string; section?: string; verified?: string };
 
-function Kpi({ label, value, unit, sub, muted }: { label: string; value: string; unit?: string; sub: string; muted?: boolean }) {
+const average = (list: number[]) => (list.length ? list.reduce((a, b) => a + b, 0) / list.length : null);
+
+/** One side of the comparison: the mark, and how many children it rests on (light below 3). */
+function Side({ mean, n, reliable }: { mean: number | null; n: number; reliable: boolean }) {
+  if (mean === null) return <span className="text-muted-foreground">—</span>;
   return (
-    <div className={`sv-card sv-kpi${muted ? ' is-muted' : ''}`}>
-      <div style={{ fontSize: 13, color: 'var(--sv-text-muted)', fontWeight: 600 }}>{label}</div>
-      <div className="flex items-baseline gap-1.5">
-        <span className="sv-num" style={{ fontSize: 30, lineHeight: 1.2 }}>
-          {value}
-        </span>
-        {unit && <span style={{ fontSize: 14, color: 'var(--sv-text-muted)' }}>{unit}</span>}
-      </div>
-      <div style={{ fontSize: 13, color: 'var(--sv-text-muted)' }}>{sub}</div>
-    </div>
+    <span className={cn('flex flex-col items-end', !reliable && 'text-muted-foreground')}>
+      <span className="text-[15px] font-semibold tabular-nums">{formatMark(mean, bn)}</span>
+      <span className="text-[12px] font-normal text-muted-foreground">{bn(n)} জন</span>
+    </span>
   );
 }
 
@@ -44,9 +45,14 @@ export default async function ClassReportPage({ searchParams }: { searchParams: 
     return (
       <>
         <PageTop crumbs={[{ label: 'ক্লাস ও শিক্ষার্থী', href: '/admin/reports' }, { label: 'পাওয়া যায়নি' }]} />
-        <div className="sv-card" style={{ padding: 20 }}>
-          শ্রেণিটি এই রাউন্ডে নেই। <Link href={`/admin/reports?round=${round.id}`}>ক্লাস বাছাই করুন</Link>
-        </div>
+        <PageBody>
+          <EmptyState>
+            শ্রেণিটি এই রাউন্ডে নেই।{' '}
+            <Link href={`/admin/reports?round=${round.id}`} className={LINK}>
+              ক্লাস বাছাই করুন
+            </Link>
+          </EmptyState>
+        </PageBody>
       </>
     );
   }
@@ -57,157 +63,137 @@ export default async function ClassReportPage({ searchParams }: { searchParams: 
   const answered = rows.filter((r) => r.form !== 'none').length;
   const g2 = guardian.g2;
   const g1 = guardian.g1;
-  const both = rows.filter((r) => r.shared !== null);
   const teacherAreas = new Map(report.areas.map((a) => [a.areaKey, a]));
-  const toggle = `/admin/reports/class?${new URLSearchParams({ round: round.id, ...params, ...(verifiedOnly ? {} : { verified: '1' }) })}`;
+  // The comparison: every area, both sides; the average and the ⚠ only where both rest on 3+ children.
+  const compared = guardian.areas.map((area) => {
+    const teacher = teacherAreas.get(area.areaKey);
+    const both = area.reliable && Boolean(teacher?.reliable) && area.mean !== null && teacher?.mean != null;
+    return { area, teacher, gap: both ? Math.round(Math.abs(area.mean! - teacher!.mean!) * 10) / 10 : null, counted: both && !GUARDIAN_AREAS.has(area.areaKey) };
+  });
+  const counted = compared.filter((c) => c.counted);
+  const teacherAverage = average(counted.map((c) => c.teacher!.mean!));
+  const guardianAverage = average(counted.map((c) => c.area.mean!));
 
   return (
     <>
       <PageTop crumbs={[{ label: 'ক্লাস ও শিক্ষার্থী', href: '/admin/reports' }, { label: report.label }]} actions={<ReportTools exportHref={`/admin/reports/export?${new URLSearchParams({ kind: 'class', round: round.id, ...params, ...(verifiedOnly ? { verified: '1' } : {}) })}`} />} />
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div className="flex flex-col gap-1">
-          <h1 className="sv-head" style={{ margin: 0, fontSize: 30 }}>
-            {report.label}
-          </h1>
-          <div style={{ fontSize: 14, color: 'var(--sv-text-muted)' }}>
-            {bn(rows.length)} জন শিক্ষার্থী{g2.round ? ` · অভিভাবকের সাড়া ${bn(answered)}/${bn(rows.length)}` : ''} · শিক্ষকের রিভিউ {bn(kpis.subjectsCovered)}/{bn(kpis.subjectsTotal)} বিষয় · {round.label}
-            {verifiedOnly ? ' · শুধু যাচাইকৃত অভিভাবক' : ''}
-          </div>
-        </div>
-        <div className="flex flex-wrap gap-2 items-center">
-          <span className="sv-no-print flex flex-wrap gap-2 items-center">
-            {g2.round && (
-              <Link href={toggle} className="sv-sbtn" style={{ height: 38, display: 'inline-flex', alignItems: 'center' }}>
-                {verifiedOnly ? 'সব অভিভাবক দেখান' : 'শুধু যাচাইকৃত'}
-              </Link>
-            )}
-          </span>
-        </div>
-      </div>
-
-      <div className="grid gap-3" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))' }}>
-        <Kpi
-          label="অভিভাবকের রিভিউ · শিক্ষার্থী"
-          value={g2.round && g2.reliable ? formatMark(g2.mean, bn) : '—'}
-          unit="/ ১০"
+      <PageBody>
+        <PageTitle
           sub={
-            !g2.round
-              ? 'এই রাউন্ডের সাথে অভিভাবকের রিভিউ নেই'
-              : g2.reliable
-                ? `${bn(g2.respondents)}/${bn(rows.length)} জনের অভিভাবক · ${formatLow(g2.lowShare, bn)}`
-                : `মাত্র ${bn(g2.respondents)} জনের অভিভাবক (৩ জনের কম)`
-          }
-          muted={!g2.reliable}
-        />
-        <Kpi
-          label="শিক্ষকের রিভিউ"
-          value={reliable ? formatMark(kpis.mean, bn) : '—'}
-          unit="/ ১০"
-          sub={reliable ? `${bn(kpis.ratedStudents)}/${bn(rows.length)} জনের রিভিউ · ${formatLow(kpis.lowShare, bn)}` : `মাত্র ${bn(kpis.ratedStudents)} জনের রিভিউ (৩ জনের কম)`}
-          muted={!reliable}
-        />
-        <Kpi
-          label="অভিভাবকের রিভিউ · ক্লাস পরিচালনা"
-          value={g1.round && g1.reliable ? formatMark(g1.mean, bn) : '—'}
-          unit="/ ১০"
-          sub={
-            !g1.round
-              ? 'এই রাউন্ডের সাথে ক্লাস পরিচালনার রিভিউ নেই'
-              : !g1.reliable
-                ? `মাত্র ${bn(g1.respondents)} জন অভিভাবক (৩ জনের কম)`
-                : `${bn(g1.respondents)} জন অভিভাবক · ${formatLow(g1.lowShare, bn)}${g1.lowest ? ` · সবচেয়ে কম: ${g1.lowest.name} ${formatMark(g1.lowest.mean, bn)}` : ''}`
-          }
-          muted={!g1.reliable}
-        />
-        <Kpi label="মনোযোগ প্রয়োজন" value={bn(rows.filter((r) => r.flags.length).length)} unit="জন" sub="নিচের তালিকায় চিহ্নিত" />
-      </div>
-
-      <div className="sv-split is-even">
-        <details className="sv-card flex flex-col gap-2.5 min-w-0 sv-no-print" style={{ flex: '1 1 460px', alignSelf: 'flex-start' }}>
-          <summary style={{ cursor: 'pointer' }}>
-            <h2 className="sv-head sv-h2" style={{ display: 'inline' }}>
-              অভিভাবক বনাম শিক্ষক · প্রত্যেক শিক্ষার্থীর চিত্র
-            </h2>
-            <span style={{ display: 'block', fontSize: 13, fontWeight: 400, color: 'var(--sv-text-muted)' }}>বিস্তারিত দেখতে চাপ দিন · একই তথ্য নিচের তালিকায়ও আছে (শুধু পর্দায়, প্রিন্টে আসে না)</span>
-          </summary>
-          <div style={{ fontSize: 13, color: 'var(--sv-text-muted)' }}>যেসব ক্ষেত্রে অভিভাবক ও শিক্ষক দুজনেই মার্ক দিয়েছেন, সেগুলোর গড় মার্ক · রেখা = মার্ক ৮</div>
-          {both.length ? (
             <>
-              <GapScatter points={both.map((r) => ({ erpId: r.erpId, name: r.name, guardian: r.shared!.guardian, teacher: r.shared!.teacher, flagged: r.flags.length > 0 }))} />
-              <div className="flex flex-wrap gap-4" style={{ fontSize: 13, color: 'var(--sv-text-muted)' }} aria-hidden="true">
-                <span className="flex items-center gap-1.5">
-                  <span style={{ width: 10, height: 10, borderRadius: '50%', background: TEACHER }} />
-                  শিক্ষার্থী
-                </span>
-                <span className="flex items-center gap-1.5">
-                  <span style={{ width: 12, height: 12, borderRadius: '50%', background: '#8A4416' }} />
-                  মনোযোগ প্রয়োজন (নামসহ)
-                </span>
-              </div>
+              {bn(rows.length)} জন শিক্ষার্থী{g2.round ? ` · অভিভাবকের সাড়া ${bn(answered)}/${bn(rows.length)}` : ''} · শিক্ষকের রিভিউ {bn(kpis.subjectsCovered)}/{bn(kpis.subjectsTotal)} বিষয় · {round.label}
+              {verifiedOnly ? ' · শুধু যাচাইকৃত অভিভাবক' : ''}
             </>
-          ) : (
-            <p className="sv-muted" style={{ margin: 0 }}>
-              {g2.round ? 'এখনো কোনো শিক্ষার্থীর অভিভাবক ও শিক্ষক দুজনের রিভিউ নেই।' : 'এই রাউন্ডের সাথে অভিভাবকের রিভিউ নেই।'}
-            </p>
-          )}
-        </details>
-        <section className="sv-card flex flex-col gap-3 min-w-0" style={{ flex: '1 1 380px' }} aria-labelledby="areas-title">
-          <h2 id="areas-title" className="sv-head sv-h2">
-            ক্ষেত্রভিত্তিক তুলনা · ক্লাসের গড়
-          </h2>
-          <div className="flex flex-wrap gap-4" style={{ fontSize: 13, color: 'var(--sv-text-muted)' }} aria-hidden="true">
-            <span className="flex items-center gap-1.5">
-              <span style={{ width: 12, height: 12, borderRadius: '50%', background: GUARDIAN }} />
-              অভিভাবক
-            </span>
-            <span className="flex items-center gap-1.5">
-              <span style={{ width: 12, height: 12, borderRadius: '50%', background: TEACHER }} />
-              শিক্ষক
-            </span>
-          </div>
-          <div style={{ fontSize: 13, color: 'var(--sv-text-muted)' }}>গড় মার্ক (১০-এর মধ্যে), প্রত্যেক শিক্ষার্থীর গড় থেকে · ৩ জনের কম হলে হালকা</div>
-          {guardian.areas.map((area) => {
-            const teacher = teacherAreas.get(area.areaKey);
-            const g = area.mean;
-            const t = teacher?.mean ?? null;
-            const side = (name: string, mean: number | null, n: number, reliable: boolean) =>
-              mean === null ? `${name} —` : `${name} ${formatMark(mean, bn)} (${bn(n)} জন${reliable ? '' : ', ৩ জনের কম'})`;
-            const text = [side('অভিভাবক', g, area.students, area.reliable), side('শিক্ষক', t, teacher?.students ?? 0, teacher?.reliable ?? false)];
-            const gap = area.reliable && teacher?.reliable && g !== null && t !== null ? Math.round(Math.abs(g - t) * 10) / 10 : null;
-            return (
-              <div key={area.areaKey} className="flex flex-col gap-1.5" style={{ padding: '4px 0' }}>
-                <div className="flex flex-wrap justify-between gap-2" style={{ fontSize: 14 }}>
-                  <span style={{ fontWeight: 600 }}>
-                    {area.name}
-                    {GUARDIAN_AREAS.has(area.areaKey) && <span style={{ fontWeight: 400, color: 'var(--sv-text-muted)' }}> · অভিভাবক সম্পর্কে, শিক্ষার্থীর গড়ে ধরা হয়নি</span>}
-                  </span>
-                  <span className="sv-num" style={{ color: 'var(--sv-text-muted)', fontWeight: 400 }}>
-                    {text.join(' · ')}
-                  </span>
-                </div>
-                <PairBar guardian={g} teacher={t} muted={{ guardian: !area.reliable, teacher: !teacher?.reliable }} label={`${area.name}: ${text.join(', ')}`} />
-                {gap !== null && gap >= AREA_GAP_MARKS && (
-                  <span className="sv-flag" style={{ alignSelf: 'flex-start' }}>
-                    ⚠ পার্থক্য {bn(gap.toFixed(1))} মার্ক
-                  </span>
-                )}
-              </div>
-            );
-          })}
-          <MarkAxis />
-        </section>
-      </div>
+          }
+        >
+          {report.label}
+        </PageTitle>
+        {g2.round && <ReportFilters action="/admin/reports/class" keep={{ round: round.id, ...params }} verifiedOnly={verifiedOnly} />}
 
-      <section className="sv-card flex flex-col gap-3" aria-labelledby="students-title">
-        <div className="flex flex-wrap justify-between items-baseline gap-2">
-          <h2 id="students-title" className="sv-head sv-h2">
-            শিক্ষার্থী তালিকা
-          </h2>
-          <div style={{ fontSize: 13, color: 'var(--sv-text-muted)' }}>কলাম শিরোনামে চাপ দিয়ে সাজান · নামে চাপ দিলে প্রোফাইল</div>
-        </div>
-        {report.rounds < 2 && <div style={{ fontSize: 13, color: 'var(--sv-text-muted)' }}>দ্বিতীয় রাউন্ড থেকে প্রবণতা দেখা যাবে।</div>}
-        <ClassTable rows={rows} roundId={round.id} showTrend={report.rounds >= 2} showGuardian={Boolean(g2.round)} />
-      </section>
+        <StatTiles>
+          <StatTile
+            label="শিক্ষকের রিভিউ"
+            value={reliable ? formatMark(kpis.mean, bn) : '—'}
+            unit="/১০"
+            sub={reliable ? `${bn(kpis.ratedStudents)}/${bn(rows.length)} জনের রিভিউ · ${formatLow(kpis.lowShare, bn)}` : `মাত্র ${bn(kpis.ratedStudents)} জনের রিভিউ (৩ জনের কম)`}
+            muted={!reliable}
+          />
+          <StatTile
+            label="অভিভাবক · শিক্ষার্থী"
+            value={g2.round && g2.reliable ? formatMark(g2.mean, bn) : '—'}
+            unit="/১০"
+            sub={
+              !g2.round
+                ? 'এই রাউন্ডের সাথে অভিভাবকের রিভিউ নেই'
+                : g2.reliable
+                  ? `${bn(g2.respondents)}/${bn(rows.length)} জনের অভিভাবক · ${formatLow(g2.lowShare, bn)}`
+                  : `মাত্র ${bn(g2.respondents)} জনের অভিভাবক (৩ জনের কম)`
+            }
+            muted={!g2.reliable}
+          />
+          <StatTile
+            label="অভিভাবক · ক্লাস পরিচালনা"
+            value={g1.round && g1.reliable ? formatMark(g1.mean, bn) : '—'}
+            unit="/১০"
+            sub={
+              !g1.round
+                ? 'এই রাউন্ডের সাথে ক্লাস পরিচালনার রিভিউ নেই'
+                : !g1.reliable
+                  ? `মাত্র ${bn(g1.respondents)} জন অভিভাবক (৩ জনের কম)`
+                  : `${bn(g1.respondents)} জন অভিভাবক · ${formatLow(g1.lowShare, bn)}${g1.lowest ? ` · সবচেয়ে কম: ${g1.lowest.name} ${formatMark(g1.lowest.mean, bn)}` : ''}`
+            }
+            muted={!g1.reliable}
+          />
+          <StatTile label="মনোযোগ প্রয়োজন" value={bn(rows.filter((r) => r.flags.length).length)} unit="জন" sub="নিচের তালিকায় চিহ্নিত" href="#students" />
+        </StatTiles>
+
+        <Card title="ক্ষেত্রভিত্তিক তুলনা · শিক্ষক বনাম অভিভাবক">
+          <p className="m-0 -mt-1 mb-3 text-[13px] text-muted-foreground">ক্লাসের গড় মার্ক, ১০-এর মধ্যে, প্রত্যেক শিক্ষার্থীর গড় থেকে · জন = যত শিক্ষার্থীর মার্ক আছে</p>
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse text-sm" aria-label="ক্ষেত্রভিত্তিক তুলনা">
+              <thead>
+                <tr className="text-[13px] text-muted-foreground [&>th]:border-b [&>th]:px-2 [&>th]:py-2 [&>th]:font-medium sm:[&>th]:px-3">
+                  <th scope="col" className="text-left">
+                    ক্ষেত্র
+                  </th>
+                  <th scope="col" className="w-16 text-right sm:w-28">
+                    শিক্ষক
+                  </th>
+                  <th scope="col" className="w-16 text-right sm:w-28">
+                    অভিভাবক
+                  </th>
+                  <th scope="col" className="w-16 text-right sm:w-28">
+                    পার্থক্য
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {compared.map(({ area, teacher, gap }) => {
+                  const wide = gap !== null && gap >= AREA_GAP_MARKS;
+                  return (
+                    <tr key={area.areaKey} className={cn('[&>td]:border-b [&>td]:px-2 [&>td]:py-2 [&>th]:border-b [&>th]:px-2 [&>th]:py-2 sm:[&>td]:px-3 sm:[&>th]:px-3', wide && 'bg-[var(--sv-warn-bg)]')}>
+                      <th scope="row" className="text-left font-medium">
+                        {area.name}
+                        {GUARDIAN_AREAS.has(area.areaKey) && <span className="block text-[12.5px] font-normal text-muted-foreground">অভিভাবক সম্পর্কে · গড়ে ধরা হয়নি</span>}
+                      </th>
+                      <td className="text-right">
+                        <Side mean={teacher?.mean ?? null} n={teacher?.students ?? 0} reliable={teacher?.reliable ?? false} />
+                      </td>
+                      <td className="text-right">
+                        <Side mean={area.mean} n={area.students} reliable={area.reliable} />
+                      </td>
+                      <td className={cn('text-right text-[15px] font-semibold tabular-nums', wide && 'text-warning')}>{gap === null ? <span className="font-normal text-muted-foreground">—</span> : `${wide ? '⚠ ' : ''}${bn(gap.toFixed(1))}`}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+              <tfoot>
+                <tr className="[&>td]:px-2 [&>td]:pt-2.5 [&>th]:px-2 [&>th]:pt-2.5 sm:[&>td]:px-3 sm:[&>th]:px-3">
+                  <th scope="row" className="text-left font-semibold">
+                    গড়
+                    <span className="block text-[12.5px] font-normal text-muted-foreground">দুই দিকেরই মার্ক আছে এমন ক্ষেত্র</span>
+                  </th>
+                  <td className="text-right text-base font-semibold tabular-nums">{formatMark(teacherAverage, bn)}</td>
+                  <td className="text-right text-base font-semibold tabular-nums">{formatMark(guardianAverage, bn)}</td>
+                  <td className="text-right text-base font-semibold tabular-nums">{teacherAverage !== null && guardianAverage !== null ? bn(Math.abs(teacherAverage - guardianAverage).toFixed(1)) : '—'}</td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+          <p className="m-0 mt-3 text-[13px] text-muted-foreground">⚠ = {bn(AREA_GAP_MARKS)} মার্ক বা বেশি পার্থক্য · হালকা = ৩ জনের কম, তাই তুলনা ও গড়ে ধরা হয়নি</p>
+        </Card>
+
+        <section id="students" className="scroll-mt-20 rounded-xl border bg-card p-5" aria-labelledby="students-title">
+          <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
+            <h2 id="students-title" className="m-0 text-[15px] font-semibold">
+              শিক্ষার্থী তালিকা
+            </h2>
+            <span className="hidden text-[13px] text-muted-foreground md:inline">কলাম শিরোনামে চাপ দিয়ে সাজান · নামে চাপ দিলে প্রোফাইল</span>
+          </div>
+          {report.rounds < 2 && <p className="m-0 mb-2 text-[13px] text-muted-foreground">দ্বিতীয় রাউন্ড থেকে প্রবণতা দেখা যাবে।</p>}
+          <ClassTable rows={rows} roundId={round.id} showTrend={report.rounds >= 2} showGuardian={Boolean(g2.round)} />
+        </section>
+      </PageBody>
     </>
   );
 }

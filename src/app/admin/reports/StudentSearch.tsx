@@ -2,11 +2,12 @@
 
 import Link from 'next/link';
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { Search } from 'lucide-react';
 import { normaliseStudentId, toBengaliDigits as bn } from '@/lib/survey/normalise';
 
 type Student = { erpId: string; name: string; roll: number | null; label: string };
 
-/** Find a student by name, ID or roll (R-States "শিক্ষার্থী প্রোফাইল · খুঁজুন"). */
+/** Find a student by name, ID or roll; the matches open the profile. */
 export function StudentSearch({ students, roundId, focus = false }: { students: Student[]; roundId: string; focus?: boolean }) {
   const [query, setQuery] = useState('');
   // Opened from the sidebar's "শিক্ষার্থী খুঁজুন" (or ⌘K): ready to type.
@@ -24,41 +25,38 @@ export function StudentSearch({ students, roundId, focus = false }: { students: 
   }, [query, students]);
 
   return (
-    <section className="sv-card flex flex-col gap-3" aria-labelledby="student-search-title">
-      <h2 id="student-search-title" className="sv-head sv-h2">
-        শিক্ষার্থী প্রোফাইল · খুঁজুন
-      </h2>
-      <label htmlFor="student-search" className="sv-visually-hidden">
-        নাম, আইডি বা রোল
+    <div className="flex flex-col gap-2" role="search">
+      <label className="flex h-11 items-center gap-2.5 rounded-lg border bg-white px-3 text-muted-foreground focus-within:ring-[3px] focus-within:ring-ring">
+        <Search className="size-4" aria-hidden />
+        <input
+          ref={input}
+          type="search"
+          aria-label="নাম, আইডি বা রোল"
+          placeholder="শিক্ষার্থী খুঁজুন: নাম, আইডি বা রোল"
+          className="min-w-0 flex-1 border-0 bg-transparent text-[15px] text-foreground outline-none"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          autoComplete="off"
+        />
       </label>
-      <input
-        ref={input}
-        id="student-search"
-        className="sv-input"
-        style={{ height: 50, fontSize: 16, borderColor: 'var(--sv-bronze)' }}
-        placeholder="নাম, আইডি বা রোল"
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        autoComplete="off"
-      />
-      <ul className="flex flex-col" style={{ listStyle: 'none', margin: 0, padding: 0 }} aria-live="polite">
-        {matches.map((s) => (
-          <li key={s.erpId}>
-            <Link
-              href={`/admin/reports/student/${encodeURIComponent(s.erpId)}?round=${roundId}`}
-              className="flex flex-col"
-              style={{ padding: '8px 12px', borderRadius: 10, textDecoration: 'none', color: 'var(--sv-text)' }}
-            >
-              <b>{s.name}</b>
-              <span style={{ fontSize: 13, color: 'var(--sv-text-muted)' }}>
-                {s.label}
-                {s.roll !== null ? ` · রোল ${bn(s.roll)}` : ''} · আইডি {bn(s.erpId)}
-              </span>
-            </Link>
-          </li>
-        ))}
-        {query.trim() && !matches.length && <li style={{ padding: '8px 12px', fontSize: 14, color: 'var(--sv-text-muted)' }}>কাউকে পাওয়া যায়নি।</li>}
-      </ul>
-    </section>
+      <div aria-live="polite">
+        {query.trim() && (
+          <ul className="m-0 list-none overflow-hidden rounded-xl border bg-card p-0">
+            {matches.map((s) => (
+              <li key={s.erpId} className="border-b last:border-b-0">
+                <Link href={`/admin/reports/student/${encodeURIComponent(s.erpId)}?round=${roundId}`} className="flex flex-col px-4 py-2.5 text-foreground no-underline hover:bg-muted">
+                  <span className="font-medium">{s.name}</span>
+                  <span className="text-[13px] text-muted-foreground">
+                    {s.label}
+                    {s.roll !== null ? ` · রোল ${bn(s.roll)}` : ''} · আইডি {bn(s.erpId)}
+                  </span>
+                </Link>
+              </li>
+            ))}
+            {!matches.length && <li className="px-4 py-2.5 text-sm text-muted-foreground">কাউকে পাওয়া যায়নি।</li>}
+          </ul>
+        )}
+      </div>
+    </div>
   );
 }

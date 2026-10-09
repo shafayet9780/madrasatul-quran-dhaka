@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import type { ReactNode } from 'react';
 import type { Tone } from '@/lib/admissions/admin-labels';
 import { cn } from '@/lib/utils';
@@ -22,6 +23,9 @@ export function PageTitle({ children, sub }: { children: ReactNode; sub?: ReactN
 /** Latin digits and IDs, tabular. */
 export const LAT = '[font-family:var(--font-english)] tabular-nums';
 
+/** A name or ID that opens its page: underlined so it reads as a link, in text colour. */
+export const LINK = 'text-foreground underline decoration-muted-foreground/40 underline-offset-4 hover:decoration-foreground';
+
 export const TONE_TEXT: Record<Tone, string> = {
   ok: 'text-success',
   warn: 'text-warning',
@@ -43,6 +47,34 @@ export function Card({ title, children, className, action }: { title?: ReactNode
       {children}
     </section>
   );
+}
+
+/** A headline number: label, value (with a unit), one short line, an optional extra line; a link when it has a page. */
+export function StatTile({ label, value, unit, sub, note, href, muted }: { label: string; value: ReactNode; unit?: string; sub?: ReactNode; note?: ReactNode; href?: string | null; muted?: boolean }) {
+  const body = (
+    <>
+      <span className="text-[13.5px] text-muted-foreground">{label}</span>
+      <span className="flex items-baseline gap-1">
+        <span className={cn('text-[24px] font-semibold leading-tight tabular-nums md:text-[28px]', muted && 'text-muted-foreground')}>{value}</span>
+        {unit && <span className="text-[13px] text-muted-foreground">{unit}</span>}
+      </span>
+      {sub && <span className="text-[12.5px] text-muted-foreground">{sub}</span>}
+      {note && <span className="text-[12.5px] font-medium">{note}</span>}
+    </>
+  );
+  const box = 'flex min-w-0 flex-col gap-1.5 rounded-xl border bg-card p-4 md:p-5';
+  return href ? (
+    <Link href={href} className={cn(box, 'text-foreground no-underline hover:border-input hover:bg-muted/40')}>
+      {body}
+    </Link>
+  ) : (
+    <div className={box}>{body}</div>
+  );
+}
+
+/** Tiles in one row on wide screens, two columns on phones. */
+export function StatTiles({ children }: { children: ReactNode }) {
+  return <div className="grid grid-cols-2 gap-3 md:grid-cols-[repeat(auto-fit,minmax(200px,1fr))] md:gap-4">{children}</div>;
 }
 
 export function EmptyState({ children }: { children: ReactNode }) {

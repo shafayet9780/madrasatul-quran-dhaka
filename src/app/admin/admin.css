@@ -4,11 +4,11 @@
   background: var(--sv-report);
 }
 
-/* Admissions page bodies (.adm) style their own links with Tailwind. */
-.sv-admin a:not(.adm a) {
+/* Page bodies and buttons built with shadcn (.adm) style their own links with Tailwind. */
+.sv-admin a:not(.adm, .adm a) {
   color: var(--sv-link);
 }
-.sv-admin a:not(.adm a):hover {
+.sv-admin a:not(.adm, .adm a):hover {
   color: var(--sv-link-hover);
 }
 

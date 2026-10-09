@@ -8,7 +8,7 @@ import { toBengaliDigits as bn } from '@/lib/admissions/normalise';
 import { cn } from '@/lib/utils';
 import { PageTop } from '../AdminShell';
 import { ExportButton, NoCycle, classOptions } from './ListPage';
-import { Card, LAT, PageBody, PageTitle } from '../ui';
+import { Card, LAT, PageBody, PageTitle, StatTile, StatTiles } from '../ui';
 
 export const metadata: Metadata = { title: 'ভর্তি ওভারভিউ' };
 export const dynamic = 'force-dynamic';
@@ -113,26 +113,11 @@ export default async function AdmissionsOverview() {
       <PageBody className="gap-5">
         <PageTitle sub={sub}>প্রি-অ্যাডমিশন {bn(cycle.session)}</PageTitle>
 
-        <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-4">
-          {tiles.map((t) => {
-            const body = (
-              <>
-                <span className="text-[13.5px] text-muted-foreground">{t.label}</span>
-                <span className={cn(LAT, 'text-[28px] font-semibold leading-tight')}>{t.value}</span>
-                <span className="text-[12.5px] text-muted-foreground">{t.sub}</span>
-              </>
-            );
-            return t.href ? (
-              <Link key={t.label} href={t.href} className="flex flex-col gap-1.5 rounded-xl border bg-card p-5 text-foreground no-underline hover:border-input">
-                {body}
-              </Link>
-            ) : (
-              <div key={t.label} className="flex flex-col gap-1.5 rounded-xl border bg-card p-5">
-                {body}
-              </div>
-            );
-          })}
-        </div>
+        <StatTiles>
+          {tiles.map((t) => (
+            <StatTile key={t.label} label={t.label} value={t.value} sub={t.sub} href={t.href} />
+          ))}
+        </StatTiles>
 
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
           <Card className="lg:col-span-2">

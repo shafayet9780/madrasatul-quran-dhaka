@@ -32,7 +32,7 @@ test('class page lists every student, sorts and exports', async ({ page }) => {
   await page.getByRole('link', { name: /নার্সারি A/ }).click();
   await expect(page.getByRole('heading', { name: 'নার্সারি A', level: 1 })).toBeVisible();
   await expect(page.getByText('২০/২০')).toBeVisible();
-  const table = page.getByRole('table');
+  const table = page.getByRole('table', { name: 'শিক্ষার্থী তালিকা' });
   await expect(table.getByRole('row')).toHaveCount(21);
   await table.getByRole('button', { name: /শিক্ষকদের গড়/ }).click();
   await expect(table.getByRole('columnheader', { name: /শিক্ষকদের গড়/ })).toHaveAttribute('aria-sort', 'descending');
@@ -46,20 +46,21 @@ test('class page sets guardians beside teachers', async ({ page }) => {
   await page.goto('/admin/reports');
   await page.getByRole('link', { name: /নার্সারি A/ }).click();
   await expect(page.getByText(/অভিভাবকের সাড়া ৫\/২০/)).toBeVisible();
-  const table = page.getByRole('table');
+  const table = page.getByRole('table', { name: 'শিক্ষার্থী তালিকা' });
   await expect(table.getByRole('columnheader', { name: /অভিভাবক \(\/১০\)/ })).toBeVisible();
   const zayan = table.getByRole('row', { name: /Zayan Mahmud/ });
   await expect(zayan.getByText('১০.০')).toBeVisible();
   await expect(zayan.getByText('যাচাইকৃত')).toBeVisible();
   await expect(table.getByRole('row', { name: /Maryam Binte Rafiq/ }).getByText('সাড়া নেই')).toBeVisible();
-  await page.getByText('অভিভাবক বনাম শিক্ষক · প্রত্যেক শিক্ষার্থীর চিত্র').click();
-  await expect(page.getByRole('img', { name: /জন শিক্ষার্থীর অভিভাবক ও শিক্ষকদের গড় মার্ক/ })).toBeVisible();
-  await expect(page.getByRole('img', { name: /^উপস্থিতি: অভিভাবক/ })).toBeVisible();
+  // Attendance: guardians 10.0, teachers 8.3, at least 1 mark apart.
+  const areas = page.getByRole('table', { name: 'ক্ষেত্রভিত্তিক তুলনা' });
+  await expect(areas.getByRole('row', { name: /^উপস্থিতি/ })).toContainText('⚠');
+  await expect(areas.getByRole('row', { name: /^গড়/ })).toBeVisible();
   await page.screenshot({ path: process.env.SHOT_DIR ? `${process.env.SHOT_DIR}/r3.png` : undefined, fullPage: true });
   await expectAccessible(page);
   // Verified only: Hamza's current form (his uncle, a number not on record) drops out; 4 guardians remain.
   await expect(page.getByText(/৫\/২০ জনের অভিভাবক/)).toBeVisible();
-  await page.getByRole('link', { name: 'শুধু যাচাইকৃত' }).click();
+  await page.getByLabel('শুধু যাচাইকৃত').check();
   await expect(page.getByText('· শুধু যাচাইকৃত অভিভাবক')).toBeVisible();
   await expect(page.getByText(/৪\/২০ জনের অভিভাবক/)).toBeVisible();
 });
@@ -147,7 +148,9 @@ test('the overview pairs guardian rounds with the teacher round and lists childr
   await page.goto('/admin/reports/overview');
   await expect(page.getByRole('heading', { name: 'ওভারভিউ', level: 1 })).toBeVisible();
   // The guardian rounds that ran with the October teacher round were picked by date.
-  await expect(page.getByLabel('ক্লাস পরিচালনার রিভিউ')).toContainText('স্বয়ংক্রিয় (অক্টোবর ২০২৬ · ক্লাস পরিচালনা (নমুনা))');
+  await page.getByRole('button', { name: /আরও বিকল্প/ }).click();
+  await expect(page.getByRole('menuitemradio', { name: 'স্বয়ংক্রিয় (অক্টোবর ২০২৬ · ক্লাস পরিচালনা (নমুনা))' })).toHaveAttribute('aria-checked', 'true');
+  await page.keyboard.press('Escape');
   await expect(page.getByText('শিক্ষার মান · শ্রেণি × বিষয় (অভিভাবকদের গড় মার্ক)')).toBeVisible();
   await expect(page.getByRole('link', { name: /নার্সারি A · কুরআন: গড়/ })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'মনোযোগ প্রয়োজন' })).toBeVisible();
@@ -172,7 +175,6 @@ test('teaching quality shows the class × subject heatmap with details, verified
 
   // Only one Nursery A form is verified: with "শুধু যাচাইকৃত" the cell is hidden.
   await page.getByLabel('শুধু যাচাইকৃত').check();
-  await page.getByRole('button', { name: 'দেখান' }).click();
   await expect(page.getByRole('link', { name: /নার্সারি A · কুরআন: ১ জন উত্তরদাতা, ফলাফল লুকানো/ })).toBeVisible();
 
   const download = page.waitForEvent('download');
