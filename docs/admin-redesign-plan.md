@@ -80,6 +80,10 @@ build → screenshots → push.
    colour key and four tabs (print shows all); rater patterns with the explanations folded and
    short rows on phones.
 4. Response tracker (teacher and guardian), rounds, ERP import, error and not-found pages.
+   Done (agreed 2026-10-09): tracker round picker as a filter menu with Excel/print in the top bar,
+   no "এই পাতায়" links, duplicates waiting for a decision first, one note for children without a
+   number; rounds with one button and a ⋯ menu, closed rounds folded, short rows on phones; import,
+   error and not-found restyled only. The rounds e2e now also runs on the local preview.
 
 ### Prints (batch 2)
 

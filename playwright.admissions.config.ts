@@ -5,12 +5,12 @@ const chromiumPath = process.env.PLAYWRIGHT_CHROMIUM_PATH || chromium.executable
 // The pre-admission flow against the local preview (ADMISSIONS_LOCAL=1): in-memory Postgres, the
 // converted live form, no Sanity, Neon or Blob. Separate from playwright.config.ts because the
 // preview renders the rest of the site without Sanity content. The survey specs that need only the
-// database run here too, on the preview's sample survey data (the rounds and import specs need the
-// Studio, so they stay with playwright.config.ts).
+// database run here too, on the preview's sample survey data (the import spec needs the Studio, so
+// it stays with playwright.config.ts).
 process.env.SURVEY_E2E_LOCAL ??= 'http://localhost:3300';
 // Chromium names downloads "download" when the locale cannot spell their Bengali file names.
 process.env.LANG ||= 'C.UTF-8';
-const SURVEY_SPECS = /(admin-reports|admin-tracker|survey-t1|survey-guardian)\.spec\.ts/;
+const SURVEY_SPECS = /(admin-reports|admin-tracker|admin-rounds|survey-t1|survey-guardian)\.spec\.ts/;
 
 export default defineConfig({
   testDir: 'e2e',

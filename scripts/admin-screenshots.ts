@@ -37,7 +37,9 @@ const SHOTS: Shot[] = [
     name: 'survey-tracker-guardian',
     path: '/admin/tracker',
     prepare: async (page) => {
-      await page.getByLabel('জরিপ ও রাউন্ড').selectOption({ label: 'শিক্ষার্থী · অক্টোবর ২০২৬ · শিক্ষার্থী (নমুনা)' });
+      await page.getByRole('button', { name: /জরিপ ও রাউন্ড/ }).click();
+      await page.getByRole('menuitemradio', { name: 'শিক্ষার্থী · অক্টোবর ২০২৬ · শিক্ষার্থী (নমুনা)' }).click();
+      await page.waitForURL(/round=/);
       await page.waitForLoadState('networkidle');
     },
   },

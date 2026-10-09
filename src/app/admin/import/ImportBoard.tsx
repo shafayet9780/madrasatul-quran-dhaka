@@ -1,7 +1,10 @@
 'use client';
 
 import { useRef, useState, useTransition } from 'react';
+import { Button } from '@/components/shadcn/button';
 import { toBengaliDigits as bn } from '@/lib/survey/normalise';
+import { cn } from '@/lib/utils';
+import { StatTile, StatTiles } from '../ui';
 import { applyImportAction, previewImportAction } from './actions';
 import type { ImportPreview } from './types';
 
@@ -16,7 +19,7 @@ const STEPS: [Stage, string][] = [
 function Steps({ stage }: { stage: Stage }) {
   const current = STEPS.findIndex(([s]) => s === stage);
   return (
-    <ol className="flex flex-wrap gap-2" style={{ listStyle: 'none', margin: 0, padding: 0, fontSize: 14 }}>
+    <ol className="m-0 flex list-none flex-wrap gap-2 p-0 text-sm">
       {STEPS.map(([key, label], i) => {
         const done = i < current || stage === 'done';
         const active = i === current && stage !== 'done';
@@ -24,14 +27,10 @@ function Steps({ stage }: { stage: Stage }) {
           <li
             key={key}
             aria-current={active ? 'step' : undefined}
-            className="flex items-center gap-2"
-            style={{
-              padding: '8px 14px',
-              borderRadius: 999,
-              fontWeight: 600,
-              background: done ? 'var(--sv-ok-bg)' : active ? 'var(--sv-bronze)' : 'var(--sv-hairline)',
-              color: done ? 'var(--sv-ok)' : active ? '#fff' : 'var(--sv-text-body)',
-            }}
+            className={cn(
+              'flex h-8 items-center gap-1.5 rounded-md border px-3 font-medium',
+              done ? 'border-transparent bg-[var(--sv-ok-bg)] text-success' : active ? 'border-primary bg-primary text-primary-foreground' : 'bg-card text-muted-foreground'
+            )}
           >
             {done && '✓ '}
             {bn(i + 1)} {label}
@@ -43,7 +42,7 @@ function Steps({ stage }: { stage: Stage }) {
 }
 
 function List({ names, limit = 12 }: { names: string[]; limit?: number }) {
-  if (!names.length) return <span className="sv-muted">—</span>;
+  if (!names.length) return <span className="text-muted-foreground">—</span>;
   const shown = names.slice(0, limit).join(' · ');
   return (
     <>
@@ -133,16 +132,16 @@ export function ImportBoard() {
 
       <div ref={resultRef} tabIndex={-1} role="status" aria-live="polite" style={{ outline: 'none' }}>
         {error && (
-          <div className="sv-note is-error" role="alert">
+          <div className="rounded-lg bg-[var(--sv-error-bg)] px-3.5 py-2.5 text-sm text-[var(--sv-error)]" role="alert">
             {error}
           </div>
         )}
-        {done && <div className="sv-note is-ok">{done}</div>}
+        {done && <div className="rounded-lg bg-[var(--sv-ok-bg)] px-3.5 py-2.5 text-sm text-success">{done}</div>}
       </div>
 
       {stage === 'upload' && (
-        <section className="sv-card flex flex-col gap-3.5" aria-labelledby="upload-title">
-          <h2 id="upload-title" className="sv-head sv-h2">
+        <section className="rounded-xl border bg-card p-5 flex flex-col gap-3.5" aria-labelledby="upload-title">
+          <h2 id="upload-title" className="m-0 text-[15px] font-semibold">
             ERP-র শিক্ষার্থী তালিকা দিন
           </h2>
           <p style={{ margin: 0, fontSize: 14, color: 'var(--sv-text-body)', lineHeight: 1.6 }}>
@@ -153,24 +152,23 @@ export function ImportBoard() {
             ফাইল
             <input
               ref={inputRef}
-              className="sv-input"
-              style={{ paddingTop: 9 }}
+              className="h-11 rounded-lg border bg-white px-3 py-2 text-sm font-normal file:mr-3 file:rounded-md file:border-0 file:bg-muted file:px-3 file:py-1 file:text-sm file:font-medium"
               type="file"
               accept=".csv,.xlsx,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
               onChange={(e) => setFile(e.target.files?.[0] ?? null)}
             />
           </label>
           <div>
-            <button type="button" className="sv-pbtn" disabled={!file || pending} onClick={check}>
+            <Button type="button" className="h-10 px-5" disabled={!file || pending} onClick={check}>
               {pending ? 'যাচাই হচ্ছে…' : 'যাচাই করুন'}
-            </button>
+            </Button>
           </div>
         </section>
       )}
 
       {preview && stage !== 'upload' && (
         <>
-          <section className="sv-card flex flex-wrap gap-4 items-center">
+          <section className="rounded-xl border bg-card p-5 flex flex-wrap gap-4 items-center">
             <div
               aria-hidden="true"
               className="flex items-center justify-center"
@@ -187,29 +185,20 @@ export function ImportBoard() {
               </div>
             </div>
             {stage === 'preview' && (
-              <button type="button" className="sv-sbtn" onClick={reset}>
+              <Button type="button" variant="outline" className="adm h-9 bg-white shadow-none" onClick={reset}>
                 অন্য ফাইল
-              </button>
+              </Button>
             )}
           </section>
 
-          <div className="grid gap-3" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))' }}>
+          <StatTiles>
             {tiles.map(([label, value]) => (
-              <div
-                key={label}
-                className="sv-card flex flex-col gap-1"
-                style={{ padding: '14px 16px', borderColor: label === 'সমস্যা' && value ? 'var(--sv-tint-border)' : undefined }}
-              >
-                <div style={{ fontSize: 13, color: 'var(--sv-text-muted)', fontWeight: 600 }}>{label}</div>
-                <div className="sv-num" style={{ fontSize: 28 }}>
-                  {bn(value as number)}
-                </div>
-              </div>
+              <StatTile key={label as string} label={label as string} value={bn(value as number)} />
             ))}
-          </div>
+          </StatTiles>
 
           {preview.largeDeactivation && (
-            <div className="sv-note is-error flex flex-col gap-2" role="alert">
+            <div className="flex flex-col gap-2 rounded-lg bg-[var(--sv-error-bg)] px-3.5 py-2.5 text-sm text-[var(--sv-error)]" role="alert">
               <span>{bn(preview.counts.deactivations)} জন শিক্ষার্থী নিষ্ক্রিয় হবে। ফাইলটি কি পুরো স্কুলের তালিকা? না হলে ইমপোর্ট করবেন না।</span>
               {stage === 'preview' && (
                 <label className="flex items-center gap-2" style={{ fontWeight: 600 }}>
@@ -221,8 +210,8 @@ export function ImportBoard() {
           )}
 
           {preview.problems.length > 0 && (
-            <section className="sv-card flex flex-col gap-3" aria-labelledby="problems-title">
-              <h2 id="problems-title" className="sv-head sv-h2" style={{ color: 'var(--sv-warn)' }}>
+            <section className="rounded-xl border bg-card p-5 flex flex-col gap-3" aria-labelledby="problems-title">
+              <h2 id="problems-title" className="m-0 text-[15px] font-semibold text-warning">
                 ⚠ {bn(preview.problems.length)}টি সারিতে সমস্যা · {bn(preview.counts.skipped)}টি বাদ যাবে,{' '}
                 {bn(preview.problems.length - preview.counts.skipped)}টি নম্বর/রোল ছাড়া ইমপোর্ট হবে
               </h2>
@@ -260,8 +249,8 @@ export function ImportBoard() {
           )}
 
           <div className="flex flex-wrap gap-4 items-start">
-            <section className="sv-card flex flex-col gap-2.5 min-w-0" style={{ flex: '1 1 420px' }} aria-labelledby="mapping-title">
-              <h2 id="mapping-title" className="sv-head sv-h2">
+            <section className="rounded-xl border bg-card p-5 flex flex-col gap-2.5 min-w-0" style={{ flex: '1 1 420px' }} aria-labelledby="mapping-title">
+              <h2 id="mapping-title" className="m-0 text-[15px] font-semibold">
                 শ্রেণি ম্যাপিং
               </h2>
               <div style={{ fontSize: 13, color: 'var(--sv-text-muted)' }}>ERP-এর Class + Section → সিস্টেমের শ্রেণি (Studio-তে সেট করা)</div>
@@ -284,8 +273,8 @@ export function ImportBoard() {
                 ))}
               </ul>
             </section>
-            <section className="sv-card flex flex-col gap-2.5 min-w-0" style={{ flex: '1 1 420px' }} aria-labelledby="changes-title">
-              <h2 id="changes-title" className="sv-head sv-h2">
+            <section className="rounded-xl border bg-card p-5 flex flex-col gap-2.5 min-w-0" style={{ flex: '1 1 420px' }} aria-labelledby="changes-title">
+              <h2 id="changes-title" className="m-0 text-[15px] font-semibold">
                 পরিবর্তনের প্রিভিউ
               </h2>
               <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--sv-ok)' }}>নতুন ({bn(preview.counts.adds)})</div>
@@ -309,24 +298,24 @@ export function ImportBoard() {
 
           <div className="flex flex-wrap gap-2.5 justify-end">
             {preview.problems.length > 0 && (
-              <a className="sv-sbtn is-stone is-tall" style={{ marginRight: 'auto', height: 48, padding: '0 18px', fontSize: 15 }} href={`/admin/import/problems/${preview.runId}`}>
-                সমস্যার তালিকা ডাউনলোড (Excel)
-              </a>
+              <Button asChild variant="outline" className="adm mr-auto h-10 bg-white shadow-none">
+                <a href={`/admin/import/problems/${preview.runId}`}>সমস্যার তালিকা ডাউনলোড (Excel)</a>
+              </Button>
             )}
             {stage === 'preview' && (
               <>
-                <button type="button" className="sv-sbtn is-stone" style={{ height: 48, padding: '0 18px', fontSize: 15 }} onClick={reset}>
+                <Button type="button" variant="outline" className="adm h-10 bg-white shadow-none" onClick={reset}>
                   বাতিল
-                </button>
-                <button type="button" className="sv-pbtn" disabled={pending || (preview.largeDeactivation && !confirmDeactivations)} onClick={apply}>
+                </Button>
+                <Button type="button" className="h-10 px-5" disabled={pending || (preview.largeDeactivation && !confirmDeactivations)} onClick={apply}>
                   {pending ? 'ইমপোর্ট হচ্ছে…' : `ইমপোর্ট করুন${preview.counts.skipped ? ` (${bn(preview.counts.skipped)}টি সারি বাদ)` : ''}`}
-                </button>
+                </Button>
               </>
             )}
             {stage === 'done' && (
-              <button type="button" className="sv-sbtn is-stone" style={{ height: 48, padding: '0 18px', fontSize: 15 }} onClick={reset}>
+              <Button type="button" variant="outline" className="adm h-10 bg-white shadow-none" onClick={reset}>
                 আরেকটি ফাইল ইমপোর্ট করুন
-              </button>
+              </Button>
             )}
           </div>
         </>
