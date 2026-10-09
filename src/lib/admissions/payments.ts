@@ -48,7 +48,11 @@ export async function startPayment(app: Application, snapshot: FormSnapshot, ori
   const amount = snapshot.settings.applicationFee;
   const tranId = `MQ${snapshot.settings.session.slice(-2)}-${randomBytes(8).toString('hex')}`;
   const [payment] = await db.insert(payments).values({ applicationId: app.id, tranId, amount }).returning();
-  const callback = (path: string) => `${origin}/api/admissions/sslcommerz/${path}`;
+  // Vercel's deployment protection would turn SSLCommerz's posts on a preview into a login redirect
+  // (a GET without the form): the automation bypass secret lets them through. Never on production.
+  const bypass = process.env.VERCEL_ENV === 'preview' ? process.env.VERCEL_AUTOMATION_BYPASS_SECRET : undefined;
+  const query = bypass ? `?x-vercel-protection-bypass=${encodeURIComponent(bypass)}` : '';
+  const callback = (path: string) => `${origin}/api/admissions/sslcommerz/${path}${query}`;
   const result = await gateway.createSession({
     tranId,
     amount,

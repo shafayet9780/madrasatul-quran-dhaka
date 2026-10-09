@@ -1,5 +1,5 @@
 // @vitest-environment node
-import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { eq, sql } from 'drizzle-orm';
 import { syncCycle, type CycleState } from './cycle';
 import { createDraft, getByToken, saveDraft, submitDraft, type Application } from './drafts';
@@ -83,6 +83,20 @@ describe('startPayment', () => {
 
     await saveDraft(app, cycle.snapshot, { address: 'উত্তরা' });
     expect(await startPayment((await getByToken(token))!, cycle.snapshot, ORIGIN, gateway)).toEqual({ ok: false, reason: 'not_payable' });
+  });
+
+  it('adds the Vercel bypass secret to the callbacks on a preview deployment only', async () => {
+    const { app } = await submitted();
+    vi.stubEnv('VERCEL_AUTOMATION_BYPASS_SECRET', 's3cret');
+    vi.stubEnv('VERCEL_ENV', 'production');
+    await pay(app);
+    expect(gateway.attempts.get((await latestPayment(app.id))!.tranId)!.request.successUrl).toBe(`${ORIGIN}/api/admissions/sslcommerz/success`);
+    vi.stubEnv('VERCEL_ENV', 'preview');
+    await pay(app);
+    const session = gateway.attempts.get((await latestPayment(app.id))!.tranId)!.request;
+    expect(session.successUrl).toBe(`${ORIGIN}/api/admissions/sslcommerz/success?x-vercel-protection-bypass=s3cret`);
+    expect(session.ipnUrl).toBe(`${ORIGIN}/api/admissions/sslcommerz/ipn?x-vercel-protection-bypass=s3cret`);
+    vi.unstubAllEnvs();
   });
 
   it('closes the attempt when SSLCommerz refuses the session', async () => {
