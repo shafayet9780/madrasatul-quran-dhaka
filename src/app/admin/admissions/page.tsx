@@ -8,7 +8,7 @@ import { toBengaliDigits as bn } from '@/lib/admissions/normalise';
 import { cn } from '@/lib/utils';
 import { PageTop } from '../AdminShell';
 import { ExportButton, NoCycle, classOptions } from './ListPage';
-import { AdmBody, Card, LAT, PageTitle } from './ui';
+import { Card, LAT, PageBody, PageTitle } from '../ui';
 
 export const metadata: Metadata = { title: 'ভর্তি ওভারভিউ' };
 export const dynamic = 'force-dynamic';
@@ -110,7 +110,7 @@ export default async function AdmissionsOverview() {
   return (
     <>
       <PageTop crumbs={[{ label: 'ভর্তি', href: '/admin/admissions' }, { label: 'ওভারভিউ' }]} round={false} actions={<ExportButton />} />
-      <AdmBody className="gap-5">
+      <PageBody className="gap-5">
         <PageTitle sub={sub}>প্রি-অ্যাডমিশন {bn(cycle.session)}</PageTitle>
 
         <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-4">
@@ -203,7 +203,7 @@ export default async function AdmissionsOverview() {
             )}
           </Card>
         </div>
-      </AdmBody>
+      </PageBody>
     </>
   );
 }

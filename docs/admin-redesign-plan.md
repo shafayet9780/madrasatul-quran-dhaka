@@ -52,6 +52,11 @@ tracker, teacher and guardian forms) against the sample data; `pnpm admin:screen
 
 Check: screenshots of both modules; e2e for both.
 
+Done: one palette (`.sv-root.sv-admin` in admin.css) and font set for both modules; the app frame
+never prints; shared pieces in `src/app/admin/ui.tsx` (`PageBody`, `PageTitle`, `Card`,
+`EmptyState`, `LAT`, `TONE_TEXT`). The round picker stays a native select (styled), which suits phones
+and screen readers better than a custom one.
+
 ## Phase D: survey pages, in batches
 
 For each batch: screenshots of today's page → short list of proposed simplifications → your OK →

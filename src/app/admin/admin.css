@@ -619,6 +619,10 @@
 .sv-admin .sv-icon-btn:hover {
   background: var(--sv-stone);
 }
+/* An icon link (phone search) stays in text colour, like the icon buttons beside it. */
+.sv-admin a.sv-icon-btn {
+  color: var(--sv-text);
+}
 .sv-admin .sv-round-select {
   position: relative;
   display: flex;
@@ -1033,33 +1037,56 @@ html:has(.sv-admin) body {
   overflow-x: clip;
 }
 
-/* The admissions module uses the neutral admissions palette (shadcn.css), not the survey's warm stone. */
-.sv-admin:has(.sv-shell[data-module='admissions']) {
-  background: #fff;
-}
-.sv-admin .sv-shell[data-module='admissions'] {
+/* One look for the whole admin (docs/admin-redesign-plan.md): the neutral shadcn palette of
+   shadcn.css instead of the survey's warm stone, Anek Bangla headings, and text in the site's Inter +
+   Noto Sans Bengali. Status colours (ok, warn, error, info) keep the survey's values. */
+.sv-root.sv-admin {
   --sv-bronze: #7a4d32;
   --sv-bronze-pressed: #643e28;
+  --sv-bronze-text: #7a4d32;
   --sv-link: #7a4d32;
   --sv-link-hover: #5c3a25;
+  --sv-paper: #fff;
   --sv-report: #fff;
   --sv-stone: #f5f5f5;
   --sv-stone-soft: #fafafa;
+  --sv-track: #f0f0f0;
   --sv-hairline: #e5e5e5;
   --sv-hairline-soft: #f0f0f0;
+  --sv-input-border: #d4d4d4;
+  --sv-dashed: #d4d4d4;
   --sv-tint: #f0f0f0;
+  --sv-tint-border: #e5e5e5;
   --sv-bronze-ink: #171717;
   --sv-button-border: #d4d4d4;
   --sv-text: #171717;
   --sv-text-body: #404040;
   --sv-text-muted: #525252;
   --sv-icon-muted: #737373;
+  --sv-neutral-bg: #f5f5f5;
+  --sv-focus: #7a4d32;
+  --sv-font-body: var(--font-english), var(--font-bengali);
   background: #fff;
-  font-family: var(--font-english), var(--font-bengali), system-ui, sans-serif;
+  font-family: var(--sv-font-body), system-ui, sans-serif;
 }
-.sv-admin .sv-shell[data-module='admissions'] .sv-side {
+.sv-admin :is(h1, h2, h3) {
+  font-family: var(--sv-font-head), 'Anek Bangla', sans-serif;
+}
+.sv-admin .sv-side {
   background: #fafafa;
 }
-.sv-admin .sv-shell[data-module='admissions'] .sv-pagetop {
+.sv-admin .sv-pagetop {
   background: rgb(255 255 255 / 0.94);
+}
+/* The app frame never prints: only the page does (the phone tab bar used to print on every page). */
+@media print {
+  .sv-admin .sv-side,
+  .sv-admin .sv-tabs,
+  .sv-admin .sv-pagetop,
+  .sv-admin .sv-sheet-wrap {
+    display: none !important;
+  }
+  .sv-admin .sv-shell-main {
+    padding: 0 !important;
+  }
 }

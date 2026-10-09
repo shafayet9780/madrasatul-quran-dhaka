@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { surveyFontVariables } from '@/components/survey/fonts';
+import { adminFontVariables } from '@/components/survey/fonts';
 import { admissionsNav } from '@/lib/admissions/admin';
 import { shellData } from '@/lib/survey/admin-shell';
 import { AdminShell } from './AdminShell';
@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const [data, admissions] = await Promise.all([shellData(), admissionsNav()]);
   return (
-    <div className={`sv-root sv-admin ${surveyFontVariables}`}>
+    <div className={`sv-root sv-admin ${adminFontVariables}`}>
       <AdminShell data={data} admissions={admissions}>
         {children}
       </AdminShell>
