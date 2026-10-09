@@ -5,8 +5,11 @@ import type { SaveState } from '@/components/survey/ui';
 import type { BatchKeyInput, BatchState, DraftRow } from '@/lib/survey/t1-types';
 import type { SurveyApi } from './api';
 
-/** clear: the student's saved marks and note go first ("not my student"); later taps are kept. */
-type Pending = Record<string, { answers: Record<string, number>; note?: string; clear?: true }>;
+/**
+ * clear: the student's saved marks and note go first ("not my student"); later taps are kept.
+ * A null answer withdraws that mark.
+ */
+type Pending = Record<string, { answers: Record<string, number | null>; note?: string; clear?: true }>;
 
 export const batchId = (key: BatchKeyInput) => `${key.teacherKey}|${key.classKey}|${key.sectionKey}|${key.subjectKey}`;
 const storageKey = (roundId: string, key: BatchKeyInput) => `sv-t1-pending:${roundId}:${batchId(key)}`;
@@ -26,6 +29,16 @@ function writeStored(roundId: string, key: BatchKeyInput, pending: Pending) {
   } catch {
     // Private mode or full storage: autosave still works while online.
   }
+}
+
+/** Applies marks over saved ones; a null mark removes the answer. */
+function withMarks(saved: Record<string, number>, marks: Record<string, number | null>): Record<string, number> {
+  const out = { ...saved };
+  for (const [questionKey, mark] of Object.entries(marks)) {
+    if (mark === null) delete out[questionKey];
+    else out[questionKey] = mark;
+  }
+  return out;
 }
 
 function merge(base: Pending, extra: Pending): Pending {
@@ -166,7 +179,7 @@ export function useBatch(api: SurveyApi, roundId: string, key: BatchKeyInput | n
       const mergedAnswers = { ...saved.answers };
       const mergedNotes = { ...saved.notes };
       for (const [erpId, row] of Object.entries(pending.current)) {
-        mergedAnswers[erpId] = { ...(row.clear ? {} : (mergedAnswers[erpId] ?? {})), ...row.answers };
+        mergedAnswers[erpId] = withMarks(row.clear ? {} : (mergedAnswers[erpId] ?? {}), row.answers);
         if (row.note !== undefined) mergedNotes[erpId] = row.note;
         else if (row.clear) delete mergedNotes[erpId];
       }
@@ -210,7 +223,7 @@ export function useBatch(api: SurveyApi, roundId: string, key: BatchKeyInput | n
   }, [flush]);
 
   const queue = useCallback(
-    (erpId: string, change: { answers?: Record<string, number>; note?: string; clear?: true }) => {
+    (erpId: string, change: { answers?: Record<string, number | null>; note?: string; clear?: true }) => {
       const current = keyRef.current;
       if (!current) return;
       pending.current = merge(pending.current, {
@@ -223,9 +236,10 @@ export function useBatch(api: SurveyApi, roundId: string, key: BatchKeyInput | n
     [roundId, schedule]
   );
 
+  /** null withdraws the mark (given by mistake). */
   const setMark = useCallback(
-    (erpId: string, questionKey: string, mark: number) => {
-      setAnswers((prev) => ({ ...prev, [erpId]: { ...(prev[erpId] ?? {}), [questionKey]: mark } }));
+    (erpId: string, questionKey: string, mark: number | null) => {
+      setAnswers((prev) => ({ ...prev, [erpId]: withMarks(prev[erpId] ?? {}, { [questionKey]: mark }) }));
       queue(erpId, { answers: { [questionKey]: mark } });
     },
     [queue]

@@ -101,6 +101,13 @@ describe('T1 draft and submit', () => {
     expect((await loadBatch(round, keyA))?.notes[ids.s1]).toBeUndefined();
   });
 
+  it('withdraws a mark sent as null and keeps the others', async () => {
+    expect(await saveDraft(round, keyA, [{ studentErpId: ids.s1, answers: { attention: null } }], meta)).toMatchObject({ ok: true });
+    expect((await loadBatch(round, keyA))?.answers[ids.s1]).toEqual({ attendance: 10 });
+    await saveDraft(round, keyA, [{ studentErpId: ids.s1, answers: { attention: 6 } }], meta);
+    expect((await loadBatch(round, keyA))?.answers[ids.s1]).toEqual({ attendance: 10, attention: 6 });
+  });
+
   it('rejects off-scale marks, unknown students and closed rounds', async () => {
     expect(await saveDraft(round, keyA, [{ studentErpId: ids.s1, answers: { attendance: 7 } }], meta)).toEqual({ ok: false, reason: 'invalid' });
     expect(await saveDraft(round, keyA, [{ studentErpId: 'someone-else', answers: { attendance: 8 } }], meta)).toMatchObject({ ok: true, rejected: ['someone-else'] });
