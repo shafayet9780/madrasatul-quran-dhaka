@@ -106,6 +106,10 @@ Remove the survey CSS no longer used; update `docs/survey-admin-guide.md` and th
 that `docs/survey-mockups/` is the locked design (now: content only; the admin follows the
 admissions design). Full tests and e2e; push.
 
+Done (2026-10-09): 19 unused class families removed from admin.css (cards, buttons, inputs, notes,
+KPI tiles, splits, tags, chips, the compact stackable table and the old phone h1 rule); the admin
+guide describes the new layouts; CLAUDE.md says the mockups now describe the admin's content only.
+
 ## While this runs
 
 A survey fix on `main` before this branch ships: merge it in and carry it over to the new design.

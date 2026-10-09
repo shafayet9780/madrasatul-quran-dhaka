@@ -128,7 +128,7 @@ Many `scripts/*.js` / `.ts` are one-shot Sanity data seeders (e.g. `populate-san
 - Next images: only `cdn.sanity.io` is whitelisted; WebP/AVIF, 1-year cache TTL (`next.config.ts`).
 
 ## Surveys (teacher/guardian reviews)
-Spec `docs/survey-system.md`, plan `docs/survey-implementation-plan.md`, admin guide `docs/survey-admin-guide.md`, locked design `docs/survey-mockups/`.
+Spec `docs/survey-system.md`, plan `docs/survey-implementation-plan.md`, admin guide `docs/survey-admin-guide.md`, design `docs/survey-mockups/` (the public survey forms; for the admin pages they describe the content only: the admin follows the shared shadcn design, `docs/admin-redesign-plan.md`, pieces in `src/app/admin/ui.tsx`).
 - `/survey/{slug}?k=…` (public, Bengali, outside `[locale]`) and `/admin/…` (Studio Basic Auth) are branched in `src/proxy.ts`; analytics never load there.
 - Data: Neon Postgres via Drizzle (`src/lib/survey/schema.ts`, migrations `drizzle/`); Sanity holds templates/rounds/classes/teachers; opening a round snapshots them into `survey_rounds` (Postgres is then the source of truth).
 - `src/lib/survey/` holds the logic (pure modules are unit-tested; `server-only` modules touch the DB/Sheets). Admin mutations are server actions that must call `assertAdmin()`.

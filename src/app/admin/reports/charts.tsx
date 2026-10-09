@@ -3,7 +3,7 @@ import { toBengaliDigits as bn } from '@/lib/survey/normalise';
 // Hand-built charts for the T1 reports. Teacher marks are one series (#2F6FA3), so no legend box;
 // axes start at the scale floor (৪) and the unit is the mark out of ১০.
 
-export const TEACHER = '#2F6FA3';
+const TEACHER = '#2F6FA3';
 const FLOOR = 4;
 const TOP = 10;
 const pos = (mark: number) => Math.max(0, Math.min(1, (mark - FLOOR) / (TOP - FLOOR)));
