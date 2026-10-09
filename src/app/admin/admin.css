@@ -524,6 +524,27 @@
   }
 }
 
+/* The internal print (.is-long) runs over several pages: sections may break, rows and headings do
+   not, and the sticky question column of the screen tables is plain on paper. */
+@media print {
+  .sv-admin .sv-print-sheet.is-long {
+    gap: 20px !important;
+  }
+  .sv-admin .sv-print-sheet.is-long section {
+    break-inside: auto;
+  }
+  .sv-admin .sv-print-sheet.is-long tr,
+  .sv-admin .sv-print-sheet.is-long li {
+    break-inside: avoid;
+  }
+  .sv-admin .sv-print-sheet.is-long :is(h2, h3) {
+    break-after: avoid;
+  }
+}
+.sv-admin .sv-print-sheet.is-long .sv-answers th[scope='row'] {
+  position: static;
+}
+
 /* Student area rows: name · bar · values; on phones the values wrap under the bar. */
 .sv-admin .sv-pair-row {
   display: grid;

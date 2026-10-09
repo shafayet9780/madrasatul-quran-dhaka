@@ -70,6 +70,10 @@ build → screenshots → push.
    the student page's table (⚠ at 1 mark), the student table with the difference once (⚠ at 2) and
    short rows on phones.
 2. Student page and both prints (below).
+   Done (agreed 2026-10-09): one mark legend (the four marks; an average takes the colour of the
+   step below); on phones the teacher and class-management answers are one block per subject; the
+   header card and every subject column stay on screen. Guardian copy: class management as the
+   guardian's average per subject, trend chart dropped. Internal print as planned below.
 3. Teaching quality, question results, rater patterns (charts keep their data colours).
 4. Response tracker (teacher and guardian), rounds, ERP import, error and not-found pages.
 

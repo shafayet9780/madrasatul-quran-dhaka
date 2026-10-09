@@ -86,15 +86,41 @@ test('student profile shows all three answer sets and prints a page for the guar
   await expect(sheet.getByRole('heading', { name: 'Zayan Mahmud', level: 1 })).toBeVisible();
   await expect(sheet.getByRole('row', { name: /উপস্থিতি/ })).toBeVisible();
   await expect(sheet.getByRole('heading', { name: 'শক্তির দিক' })).toBeVisible();
+  // The class-management review as the guardian's own average per subject.
+  await expect(sheet.getByRole('heading', { name: 'ক্লাস পরিচালনা · আপনার মূল্যায়ন' })).toBeVisible();
+  await expect(sheet.getByRole('columnheader', { name: 'বাংলা' })).toBeVisible();
   // No teacher names or notes on the guardian's copy (every fixture teacher and the fixture note).
   for (const text of ['উস্তাদ আব্দুল্লাহ', 'উস্তাদ হামযা', 'উস্তাযা মারইয়াম', 'উস্তাযা সুমাইয়া', 'উস্তাদ ইউসুফ', 'ক্লাসে মনোযোগ ভালো']) {
     await expect(sheet.getByText(text, { exact: false })).toHaveCount(0);
   }
   await page.screenshot({ path: process.env.SHOT_DIR ? `${process.env.SHOT_DIR}/r4-print.png` : undefined, fullPage: true });
-  // All 7 student areas and the trend fit on one A4 page.
+  // All 7 student areas and the class-management marks fit on one A4 page.
   const pdf = (await page.pdf({ preferCSSPageSize: true, printBackground: true, path: process.env.SHOT_DIR ? `${process.env.SHOT_DIR}/print.pdf` : undefined })).toString('latin1');
   expect(pdf.match(/\/Type\s*\/Page[^s]/g)).toHaveLength(1);
   await expectAccessible(page);
+});
+
+test('the internal print has all three reviews, the notes and the history, within the page width', async ({ page }) => {
+  await page.goto('/admin/reports');
+  await page.getByLabel('নাম, আইডি বা রোল').fill('zayan');
+  await page.getByRole('link', { name: /Zayan Mahmud/ }).click();
+  await page.getByRole('link', { name: 'অভ্যন্তরীণ প্রিন্ট' }).click();
+  const sheet = page.getByRole('article', { name: 'অভ্যন্তরীণ প্রতিবেদন' });
+  for (const name of ['শিক্ষকদের উত্তর', 'অভিভাবকের উত্তর · শিক্ষার্থী সম্পর্কে', 'অভিভাবকের উত্তর · ক্লাস পরিচালনা', 'সব জমা · ইতিহাস']) {
+    await expect(sheet.getByRole('heading', { name, exact: true })).toBeVisible();
+  }
+  await expect(sheet.getByText('ক্লাসে মনোযোগ ভালো, তবে সহপাঠীদের সাথে মাঝে মাঝে ঝগড়া করে।')).toBeVisible();
+  await expect(sheet.getByText('আলহামদুলিল্লাহ, শিক্ষকরা খুব যত্নশীল।')).toBeVisible();
+  await expect(sheet.getByText('বর্তমান').first()).toBeVisible();
+  await expectAccessible(page);
+  // On paper (A4 less the margins, about 690px) nothing runs past the sheet.
+  await page.setViewportSize({ width: 690, height: 1000 });
+  await page.emulateMedia({ media: 'print' });
+  const outside = await sheet.evaluate((el) => {
+    const right = el.getBoundingClientRect().right;
+    return [...el.querySelectorAll('*')].filter((n) => n.getBoundingClientRect().right > right + 1).length;
+  });
+  expect(outside).toBe(0);
 });
 
 test('a "not applicable" answer shows its label', async ({ page }) => {
