@@ -801,6 +801,15 @@ html:has(.sv-admin),
 html:has(.sv-admin) body {
   overflow-x: clip;
 }
+/* An open menu or dialog locks scrolling with body{overflow:hidden}. With html clipped, that would
+   make body the scroll box: the sticky sidebar and top bar would jump to the top of the page and the
+   menu open off screen. Lock the page at html instead and keep body unscrollable. */
+html:has(.sv-admin):has(body[data-scroll-locked]) {
+  overflow: hidden;
+}
+html:has(.sv-admin) body[data-scroll-locked] {
+  overflow: clip !important;
+}
 
 /* One look for the whole admin (docs/admin-redesign-plan.md): the neutral shadcn palette of
    shadcn.css instead of the survey's warm stone, Anek Bangla headings, and text in the site's Inter +
