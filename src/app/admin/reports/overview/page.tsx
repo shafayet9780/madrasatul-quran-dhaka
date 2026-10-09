@@ -64,7 +64,7 @@ export default async function OverviewPage({ searchParams }: { searchParams: Pro
   });
   const tiles = [
     { ...markTile('শিক্ষকের রিভিউ', kpis.teacher, 'রিভিউ', t1.label), href: `/admin/reports?round=${t1.id}` },
-    { ...markTile('অভিভাবক · শিক্ষার্থী', kpis.guardian, 'অভিভাবক', report.g2?.label, true), href: '/admin/reports/questions' },
+    { ...markTile('অভিভাবক · শিক্ষার্থী', kpis.guardian, 'অভিভাবক', report.g2?.label, true), href: `/admin/reports/questions?${new URLSearchParams({ round: t1.id, ...(search.g2 ? { g2: search.g2 } : {}), ...(verifiedOnly ? { verified: '1' } : {}) })}` },
     {
       ...markTile('অভিভাবক · ক্লাস পরিচালনা', kpis.teaching, 'অভিভাবক', report.g1?.label, true),
       href: report.g1 ? `/admin/reports/teaching?${new URLSearchParams({ round: report.g1.id, ...(verifiedOnly ? { verified: '1' } : {}) })}` : null,

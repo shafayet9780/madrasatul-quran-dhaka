@@ -75,6 +75,10 @@ build → screenshots → push.
    header card and every subject column stay on screen. Guardian copy: class management as the
    guardian's average per subject, trend chart dropped. Internal print as planned below.
 3. Teaching quality, question results, rater patterns (charts keep their data colours).
+   Done (agreed 2026-10-09): teaching quality with the area averages as tiles and the cell details
+   under a full-width table; question results with the guardian rounds under "আরও বিকল্প", one
+   colour key and four tabs (print shows all); rater patterns with the explanations folded and
+   short rows on phones.
 4. Response tracker (teacher and guardian), rounds, ERP import, error and not-found pages.
 
 ### Prints (batch 2)

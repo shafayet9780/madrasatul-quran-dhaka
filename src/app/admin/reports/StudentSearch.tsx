@@ -30,6 +30,7 @@ export function StudentSearch({ students, roundId, focus = false }: { students: 
         <Search className="size-4" aria-hidden />
         <input
           ref={input}
+          id="student-search"
           type="search"
           aria-label="নাম, আইডি বা রোল"
           placeholder="শিক্ষার্থী খুঁজুন: নাম, আইডি বা রোল"

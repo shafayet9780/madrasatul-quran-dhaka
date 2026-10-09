@@ -44,6 +44,20 @@ export function MarkChip({ mark, average = false }: { mark: number | null; avera
 /** Distribution colours (R5): ৪ rust → ১০ teacher blue; text stays in ink, the legend names them. */
 export const DIST_COLORS: Record<number, string> = { 4: '#B0521A', 6: '#E59A5B', 8: '#8DB4DB', 10: '#2F6FA3' };
 
+/** The key for Distribution bars: one swatch per mark. */
+export function DistLegend() {
+  return (
+    <div className="flex gap-3 text-[12.5px] text-muted-foreground" aria-hidden="true">
+      {[4, 6, 8, 10].map((m) => (
+        <span key={m} className="flex items-center gap-1">
+          <span className="size-2.5 rounded-[2px]" style={{ background: DIST_COLORS[m] }} />
+          {bn(m)}
+        </span>
+      ))}
+    </div>
+  );
+}
+
 export function Distribution({ items, label }: { items: { mark: number; count: number }[]; label: string }) {
   const total = items.reduce((s, i) => s + i.count, 0) || 1;
   const shown = [...items].sort((a, b) => a.mark - b.mark);

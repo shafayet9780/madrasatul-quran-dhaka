@@ -393,7 +393,8 @@
     break-inside: avoid;
   }
   /* Let wide tables use the page instead of a scroll box. */
-  .sv-admin [style*='overflow-x'] {
+  .sv-admin [style*='overflow-x'],
+  .sv-admin .overflow-x-auto {
     overflow: visible !important;
   }
   .sv-admin .sv-cover {

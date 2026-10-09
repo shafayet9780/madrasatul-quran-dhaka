@@ -79,7 +79,7 @@ export function ClassTable({ rows, roundId, showTrend, showGuardian }: { rows: R
 
   return (
     <>
-      <div className="hidden overflow-x-auto md:block">
+      <div className="hidden overflow-x-auto md:block print:block">
         <table className="w-full border-collapse text-sm" aria-label="শিক্ষার্থী তালিকা">
           <thead>
             <tr className="text-[13px] text-muted-foreground [&>th]:border-b [&>th]:px-2.5 [&>th]:py-2">
@@ -152,7 +152,7 @@ export function ClassTable({ rows, roundId, showTrend, showGuardian }: { rows: R
       </div>
 
       {/* Phones: one short row per student, in the same order; the profile has the rest. */}
-      <ul className="m-0 flex list-none flex-col p-0 md:hidden" aria-label="শিক্ষার্থী তালিকা">
+      <ul className="m-0 flex list-none flex-col p-0 md:hidden print:hidden" aria-label="শিক্ষার্থী তালিকা">
         {sorted.map((row) => {
           const attention = row.flags.length > 0;
           return (

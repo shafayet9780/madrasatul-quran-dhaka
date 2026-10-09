@@ -40,6 +40,11 @@ test('class page lists every student, sorts and exports', async ({ page }) => {
   const download = page.waitForEvent('download');
   await page.getByRole('link', { name: 'Excel' }).click();
   expect((await download).suggestedFilename()).toMatch(/^নার্সারি A - অক্টোবর ২০২৬ \(নমুনা\)\.xlsx$/);
+  // On paper (narrower than a laptop) the whole table prints, not the short phone rows.
+  await page.setViewportSize({ width: 690, height: 1000 });
+  await page.emulateMedia({ media: 'print' });
+  await expect(table).toBeVisible();
+  await expect(page.getByRole('list', { name: 'শিক্ষার্থী তালিকা' })).toBeHidden();
 });
 
 test('class page sets guardians beside teachers', async ({ page }) => {
@@ -140,7 +145,8 @@ test('report pages handle unknown students, classes and bad parameters', async (
   await expect(page.getByText('শ্রেণিটি এই রাউন্ডে নেই।')).toBeVisible();
   // Unknown ids fall back to the defaults instead of failing.
   await page.goto('/admin/reports/teaching?round=bad&compare=bad&area=bad&cell=x|y|z');
-  await expect(page.getByRole('heading', { name: 'নির্বাচিত ঘর' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'শিক্ষার মান', level: 1 })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'শ্রেণি × বিষয় · গড় মার্ক' })).toBeVisible();
   await page.goto('/admin/reports/overview?round=bad&g1=bad&g2=bad&compare=bad');
   await expect(page.getByRole('heading', { name: 'মনোযোগ প্রয়োজন' })).toBeVisible();
   await page.goto('/admin/reports/class?class=nursery&section=a&round=bad&verified=1');
@@ -153,9 +159,13 @@ test('question results show every question, answer counts and comments', async (
   await page.goto('/admin/reports');
   await page.getByRole('link', { name: 'প্রশ্নভিত্তিক ফলাফল' }).click();
   await expect(page.getByRole('heading', { name: 'প্রশ্নভিত্তিক ফলাফল', level: 1 })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'ক্লাস পরিচালনা · অভিভাবকদের মত' })).toBeVisible();
+  await page.getByRole('tab', { name: /শিক্ষার্থী · শিক্ষক/ }).click();
   await expect(page.getByRole('heading', { name: 'শিক্ষার্থী · শিক্ষকদের মার্ক' })).toBeVisible();
+  await page.getByRole('tab', { name: /শিক্ষার্থী · অভিভাবক/ }).click();
+  await expect(page.getByRole('tabpanel').getByText('মার্ক নেই').first()).toBeVisible();
+  await page.getByRole('tab', { name: /মন্তব্য/ }).click();
   await expect(page.getByText('গণিতের হোমওয়ার্ক একটু কমালে ভালো হয়।')).toBeVisible();
-  await expect(page.getByText('মার্ক নেই').first()).toBeVisible();
   await expectAccessible(page);
   const download = page.waitForEvent('download');
   await page.getByRole('link', { name: 'Excel' }).click();

@@ -8,7 +8,7 @@ import { formatMark } from '@/lib/survey/report-math';
 import { chosenRoundId } from '@/lib/survey/admin-shell';
 import { pickRound, studentReport } from '@/lib/survey/reports';
 import { NoRounds } from '../../../NoRounds';
-import { average } from '../data';
+import { classManagementAverages } from '../data';
 import { ReportTools } from '../../../ReportTools';
 import { PageTop } from '../../../../AdminShell';
 import { EmptyState, LINK, PageBody } from '../../../../ui';
@@ -55,9 +55,7 @@ export default async function GuardianPrintPage({ params, searchParams }: { para
     return { key, name: (t ?? g)!.name, guardian: g?.mean ?? null, teacher: t?.mean ?? null, classMean: t?.classMean ?? null };
   });
   const { strengths, work } = strengthsAndWork(areas);
-  const classManagement = guardian.g1Form
-    ? guardian.g1Subjects.map((s) => ({ ...s, mean: average(guardian.g1Answers.map((q) => q.marks.get(s.key)).map((m) => (m === 'na' || m === undefined ? null : m))) }))
-    : [];
+  const classManagement = guardian.g1Form ? classManagementAverages(guardian) : [];
   const subjects = new Set(report.grid.filter((g) => g.marks).map((g) => g.subject)).size;
   const cell = { padding: '8px 10px', borderBottom: '1px solid #E7E3DC', fontSize: 14.5 } as const;
   const h2 = { margin: 0, fontSize: 18 } as const;

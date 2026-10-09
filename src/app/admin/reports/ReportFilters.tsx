@@ -32,7 +32,8 @@ export function ReportFilters({ action, selects = [], verifiedOnly, keep = {} }:
   // The new choice shows at once; the page follows when the server has rendered it.
   const [shown, show] = useOptimistic(current);
   const go = (changes: Record<string, string>) => {
-    const next = { ...current, ...changes };
+    // From what is shown, so a second change before the page re-renders keeps the first.
+    const next = { ...shown, ...changes };
     const query = new URLSearchParams(Object.entries({ ...keep, ...next }).filter(([, v]) => v)).toString();
     start(() => {
       show(next);

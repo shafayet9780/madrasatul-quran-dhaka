@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { ChevronRight } from 'lucide-react';
 import { Button } from '@/components/shadcn/button';
 import { formatDateTime } from '@/lib/survey/dates';
 import { toBengaliDigits as bn } from '@/lib/survey/normalise';
@@ -103,10 +104,10 @@ export default async function StudentProfilePage({ params, searchParams }: { par
                     <>
                       <h3 className="sv-print-only m-0 text-base">শিক্ষকদের উত্তর</h3>
                       <p className={MUTED}>প্রতিটি বিষয়ের শিক্ষক এই শিক্ষার্থীকে যে মার্ক দিয়েছেন</p>
-                      <div className="hidden overflow-x-auto md:block">
+                      <div className="hidden overflow-x-auto md:block print:block">
                         <TeacherTable data={data} columns={report.grid} label="শিক্ষকদের উত্তর" />
                       </div>
-                      <div className="md:hidden">
+                      <div className="md:hidden print:hidden">
                         <TeacherBlocks data={data} />
                       </div>
                       <h4 className="m-0 mt-2 text-[15px] font-semibold">শিক্ষকদের নোট</h4>
@@ -151,10 +152,10 @@ export default async function StudentProfilePage({ params, searchParams }: { par
                         <>
                           <FormLine form={guardian.g1Form} label={guardian.g1.label} />
                           <p className={MUTED}>প্রতিটি বিষয়ের ক্লাস নিয়ে অভিভাবকের মার্ক</p>
-                          <div className="hidden overflow-x-auto md:block">
+                          <div className="hidden overflow-x-auto md:block print:block">
                             <ClassManagementTable data={data} subjects={guardian.g1Subjects} label="অভিভাবকের উত্তর · ক্লাস পরিচালনা" />
                           </div>
-                          <div className="md:hidden">
+                          <div className="md:hidden print:hidden">
                             <ClassManagementBlocks data={data} />
                           </div>
                           <Quote label="মন্তব্য" text={guardian.g1Form.comment} />
@@ -168,8 +169,9 @@ export default async function StudentProfilePage({ params, searchParams }: { par
           </div>
         </Card>
 
-        <details className="rounded-xl border bg-card px-5 py-1.5">
-          <summary className="flex min-h-11 cursor-pointer items-center gap-2 text-[15px] font-semibold">
+        <details className="group rounded-xl border bg-card px-5 py-1.5">
+          <summary className="flex min-h-11 cursor-pointer list-none items-center gap-2 text-[15px] font-semibold [&::-webkit-details-marker]:hidden">
+            <ChevronRight aria-hidden className="size-4 text-muted-foreground transition-transform group-open:rotate-90" />
             সব জমা · ইতিহাস
             <span className="text-sm font-normal text-muted-foreground">{bn(historyCount(data))}টি</span>
           </summary>

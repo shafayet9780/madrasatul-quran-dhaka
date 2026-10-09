@@ -21,6 +21,11 @@ export function average(marks: (number | null)[]): number | null {
   return counted.length ? counted.reduce((sum, m) => sum + m, 0) / counted.length : null;
 }
 
+/** The class-management review: the guardian's average per subject (the page, the print and the guardian's copy). */
+export function classManagementAverages(guardian: { g1Subjects: { key: string; name: string }[]; g1Answers: { marks: Map<string, number | null | 'na'> }[] }) {
+  return guardian.g1Subjects.map((s) => ({ ...s, mean: average(guardian.g1Answers.map((q) => q.marks.get(s.key)).map((m) => (m === 'na' || m === undefined ? null : m))) }));
+}
+
 export const submittedBy = (form: { who: string | null; relation: string | null }) => `${form.who ?? ''}${form.relation ? ` (${form.relation})` : ''}`;
 
 export async function studentPageData(erpId: string, requestedRound: string | undefined) {
@@ -67,11 +72,7 @@ export async function studentPageData(erpId: string, requestedRound: string | un
   const subjectCount = new Set(report.grid.map((row) => row.subject)).size;
   // A teacher's average for the child leaves out the questions about the guardian (as everywhere else).
   const childQuestion = t1Questions.map((q) => !GUARDIAN_AREAS.has(q.areaKey));
-  // The class-management review: the guardian's average per subject (the guardian's copy shows these).
-  const g1Averages = guardian.g1Subjects.map((s) => ({
-    ...s,
-    mean: average(guardian.g1Answers.map((q) => q.marks.get(s.key)).map((m) => (m === 'na' || m === undefined ? null : m))),
-  }));
+  const g1Averages = classManagementAverages(guardian);
 
   return {
     round,
