@@ -10,6 +10,7 @@ import ProspectusDownload from '@/components/ui/prospectus-download';
 import type { SiteSettings, NewsEvent } from '@/types/sanity';
 import { getLocalizedText } from '@/lib/multilingual-content';
 import { useLocale } from 'next-intl';
+import { trackAdmissionCta, useAdmissionCta } from '@/components/layout/admission-cta-context';
 
 interface HeroSectionProps {
   className?: string;
@@ -25,6 +26,8 @@ export default function HeroSection({
   const t = useTranslations('homepage');
   const tNav = useTranslations('navigation');
   const locale = useLocale() as 'bengali' | 'english';
+  const tCta = useTranslations('admissionCta');
+  const admissionCta = useAdmissionCta();
   const [isVisible, setIsVisible] = useState(false);
 
   // Animation on mount for better UX
@@ -149,7 +152,17 @@ export default function HeroSection({
         </h2>
 
         {/* CTA Buttons — glassmorphism, always side by side */}
-        <div className="mt-6 sm:mt-8 flex flex-row gap-3 items-center">
+        <div className="mt-6 sm:mt-8 flex flex-row flex-wrap justify-center gap-3 items-center">
+          {admissionCta && (
+            <Link
+              href={`/${locale}/pre-admission`}
+              onClick={() => trackAdmissionCta('home_hero', locale)}
+              className="basis-full sm:basis-auto bg-white text-primary-800 hover:bg-secondary-50 font-semibold px-5 py-3 sm:px-6 rounded-xl transition-colors duration-300 text-sm sm:text-base shadow-lg text-center"
+            >
+              {tCta('title', { session: admissionCta.session })}
+              <span className="font-normal"> · {admissionCta.state === 'open' ? tCta('apply') : tCta('details')}</span>
+            </Link>
+          )}
           <Link
             href="/contact"
             className="group bg-white/20 hover:bg-white/30 backdrop-blur-sm border border-white/40 text-white font-semibold px-4 py-2 sm:px-6 sm:py-3 rounded-xl transition-all duration-300 flex items-center gap-2 text-sm sm:text-base shadow-lg hover:scale-105"

@@ -824,6 +824,16 @@
   "emptyPeriod": "কোনো বিষয় নির্ধারিত নেই",
   "illustrativeImages": "শিক্ষার বিষয়ভিত্তিক প্রতীকী ছবি।"
 },
+  "admissionCta": {
+    "title": "প্রি-অ্যাডমিশন {session}",
+    "notOpenShort": "শীঘ্রই শুরু",
+    "apply": "আবেদন করুন",
+    "details": "বিস্তারিত দেখুন",
+    "dismiss": "ব্যানার বন্ধ করুন",
+    "fallbackTitle": "ভর্তি তথ্য",
+    "fallbackLead": "ভর্তির সময়সূচি, ফি বা আপনার সন্তানের বিষয়ে জানতে অফিসে যোগাযোগ করুন।",
+    "fallbackButton": "ভর্তি তথ্য দেখুন"
+  },
   "preAdmission": {
     "brand": "মাদরাসাতুল কুরআন",
     "title": "প্রি-অ্যাডমিশন {session}",

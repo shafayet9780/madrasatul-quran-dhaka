@@ -1,9 +1,14 @@
 import 'server-only';
 import { redirect } from 'next/navigation';
-import { getCurrentCycle, type CycleState } from './cycle';
+import { getTranslations } from 'next-intl/server';
+import { FORM_QUERY, getCurrentCycle, type CycleState } from './cycle';
+import { num, type Locale } from './display';
 import type { Application } from './drafts';
 import type { FormSnapshot } from './form-config';
+import { intakeFrom, intakeStatus, type AdmissionCta, type Intake } from './intake';
+import { localOverrides } from './local';
 import { currentApplication } from './session';
+import type { FormDocument } from './snapshot';
 
 // Shared loading for the guardian pages.
 
@@ -15,6 +20,30 @@ export async function safeCurrentCycle(): Promise<CycleState | null> {
     console.error('Admissions: could not load the current cycle', e);
     return null;
   }
+}
+
+/**
+ * The intake for the banner and the calls to action across the site. Reads only the published form
+ * (no database, no test-pass cookie), so the pages that show it stay cacheable.
+ */
+export async function getIntake(): Promise<Intake> {
+  try {
+    const local = localOverrides();
+    if (local) return intakeFrom(local.form);
+    const { sanityFetch } = await import('@/lib/sanity-fetch');
+    return intakeFrom(await sanityFetch<FormDocument | null>({ query: FORM_QUERY, tags: ['preAdmissionForm'] }));
+  } catch (e) {
+    console.error('Admissions: could not load the intake', e);
+    return { state: 'off' };
+  }
+}
+
+/** Null unless the form is open or announced with an opening date. */
+export async function getAdmissionCta(locale: Locale): Promise<AdmissionCta | null> {
+  const intake = await getIntake();
+  if (intake.state !== 'open' && intake.state !== 'not_open') return null;
+  const t = await getTranslations({ locale, namespace: 'preAdmission.intro' });
+  return { state: intake.state, session: num(intake.session ?? '', locale), status: intakeStatus(intake, locale, t) };
 }
 
 export const flowPath = (locale: string, path = '') => `/${locale}/pre-admission${path}`;
