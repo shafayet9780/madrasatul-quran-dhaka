@@ -185,6 +185,7 @@ function FeaturedNewsCard({
 import type { NewsEvent, Facility } from '@/types/sanity';
 import { getLocalizedText } from '@/lib/multilingual-content';
 import { useLocale } from 'next-intl';
+import { trackAdmissionCta, useAdmissionCta } from '@/components/layout/admission-cta-context';
 
 interface FeaturedContentSectionProps {
   className?: string;
@@ -198,6 +199,8 @@ export default function FeaturedContentSection({
   featuredFacilities = [],
 }: FeaturedContentSectionProps) {
   const tNav = useTranslations('navigation');
+  const tCta = useTranslations('admissionCta');
+  const admissionCta = useAdmissionCta();
   const locale = useLocale() as 'bengali' | 'english';
   const sectionRef = useRef<HTMLDivElement>(null);
   const quickAccessRef = useRef<HTMLDivElement>(null);
@@ -444,23 +447,24 @@ export default function FeaturedContentSection({
           <div className="text-center">
             <div className="bg-white rounded-3xl p-8 md:p-12 border border-primary-200">
               <h3 className="text-3xl md:text-4xl font-bold mb-4 text-primary-400">
-                {locale === 'bengali' 
-                  ? `ভর্তি ${new Date().getFullYear()}–${new Date().getFullYear() + 1}`
-                  : `Admission ${new Date().getFullYear()}–${new Date().getFullYear() + 1}`
-                }
+                {admissionCta
+                  ? tCta('title', { session: admissionCta.session })
+                  : tCta('fallbackTitle')}
               </h3>
               <p className="text-xl text-primary-300 mb-8 max-w-2xl mx-auto">
-                {locale === 'bengali'
-                  ? 'আমাদের অনন্য কারিকুলামে ভর্তি হতে আজই আবেদন করুন'
-                  : 'Apply today to join our unique curriculum'
-                }
+                {admissionCta ? admissionCta.status : tCta('fallbackLead')}
               </p>
-              <Link 
-                href="/admissions" 
+              <Link
+                href={admissionCta ? `/${locale}/pre-admission` : `/${locale}/admissions`}
+                onClick={() => admissionCta && trackAdmissionCta('home_band', locale)}
                 className="inline-flex items-center gap-3 bg-primary-600 text-white hover:bg-primary-700 font-semibold px-8 py-4 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
               >
                 <span className="text-lg">
-                  {locale === 'bengali' ? 'ভর্তি আবেদন করুন' : 'Apply for Admission'}
+                  {!admissionCta
+                    ? tCta('fallbackButton')
+                    : admissionCta.state === 'open'
+                      ? tCta('apply')
+                      : tCta('details')}
                 </span>
                 <ArrowRight className="w-5 h-5" />
               </Link>

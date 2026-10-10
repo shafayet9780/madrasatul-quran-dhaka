@@ -6,7 +6,8 @@ import { Button } from '@/components/shadcn/button';
 import { getContentService } from '@/lib/content-service';
 import { urlFor } from '@/lib/sanity';
 import { fieldWithRole } from '@/lib/admissions/form-config';
-import { asLocale, dateTime, daysLeft, num, taka, txt, type Locale } from '@/lib/admissions/display';
+import { asLocale, num, taka, txt, type Locale } from '@/lib/admissions/display';
+import { intakeStatus } from '@/lib/admissions/intake';
 import { flowPath, safeCurrentCycle } from '@/lib/admissions/pages';
 import { currentApplication } from '@/lib/admissions/session';
 import type { CycleState } from '@/lib/admissions/cycle';
@@ -22,16 +23,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 function statusLine(cycle: CycleState | null, locale: Locale, t: Awaited<ReturnType<typeof getTranslations>>): { text: string; open: boolean } {
-  if (!cycle || !cycle.enabled) return { text: t('statusUnavailable'), open: false };
-  const { opensAt, closesAt } = cycle.snapshot.settings;
-  if (cycle.window === 'not_open' && opensAt) return { text: t('statusNotOpen', { opens: dateTime(opensAt, locale) }), open: false };
-  if (cycle.window === 'closed') return { text: t('statusClosed'), open: false };
-  if (!closesAt) return { text: t('statusOpenNoDeadline'), open: true };
-  const deadline = dateTime(closesAt, locale);
-  const days = daysLeft(closesAt);
-  if (days === 0) return { text: t('statusLastDay', { deadline }), open: true };
-  if (days !== null) return { text: t('statusClosingSoon', { days: num(days, locale), deadline }), open: true };
-  return { text: t('statusOpen', { deadline }), open: true };
+  const settings = cycle?.snapshot.settings;
+  const state = !cycle || !cycle.enabled ? 'off' : cycle.window;
+  return { text: intakeStatus({ state, opensAt: settings?.opensAt, closesAt: settings?.closesAt }, locale, t), open: state === 'open' };
 }
 
 export default async function PreAdmissionIntro({ params }: Props) {

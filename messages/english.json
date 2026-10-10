@@ -832,6 +832,16 @@
   "emptyPeriod": "No subject assigned",
   "illustrativeImages": "Illustrative images of learning themes."
 },
+  "admissionCta": {
+    "title": "Pre-admission {session}",
+    "notOpenShort": "Opening soon",
+    "apply": "Apply now",
+    "details": "See details",
+    "dismiss": "Dismiss banner",
+    "fallbackTitle": "Admissions",
+    "fallbackLead": "Contact the office about admission dates, fees, or your child’s next steps.",
+    "fallbackButton": "See admissions"
+  },
   "preAdmission": {
     "brand": "Madrasatul Quran",
     "title": "Pre-admission {session}",
