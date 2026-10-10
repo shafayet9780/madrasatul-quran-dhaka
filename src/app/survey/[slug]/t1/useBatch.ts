@@ -2,32 +2,21 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { SaveState } from '@/components/survey/ui';
-import type {
-  BatchKeyInput,
-  BatchState,
-  DraftRow,
-} from '@/lib/survey/t1-types';
+import type { BatchKeyInput, BatchState, DraftRow } from '@/lib/survey/t1-types';
 import type { SurveyApi } from './api';
 
 /**
  * clear: the student's saved marks and note go first ("not my student"); later taps are kept.
  * A null answer withdraws that mark.
  */
-type Pending = Record<
-  string,
-  { answers: Record<string, number | null>; note?: string; clear?: true }
->;
+type Pending = Record<string, { answers: Record<string, number | null>; note?: string; clear?: true }>;
 
-export const batchId = (key: BatchKeyInput) =>
-  `${key.teacherKey}|${key.classKey}|${key.sectionKey}|${key.subjectKey}`;
-const storageKey = (roundId: string, key: BatchKeyInput) =>
-  `sv-t1-pending:${roundId}:${batchId(key)}`;
+export const batchId = (key: BatchKeyInput) => `${key.teacherKey}|${key.classKey}|${key.sectionKey}|${key.subjectKey}`;
+const storageKey = (roundId: string, key: BatchKeyInput) => `sv-t1-pending:${roundId}:${batchId(key)}`;
 
 function readStored(roundId: string, key: BatchKeyInput): Pending {
   try {
-    return JSON.parse(
-      localStorage.getItem(storageKey(roundId, key)) ?? '{}'
-    ) as Pending;
+    return JSON.parse(localStorage.getItem(storageKey(roundId, key)) ?? '{}') as Pending;
   } catch {
     return {};
   }
@@ -35,8 +24,7 @@ function readStored(roundId: string, key: BatchKeyInput): Pending {
 
 function writeStored(roundId: string, key: BatchKeyInput, pending: Pending) {
   try {
-    if (Object.keys(pending).length)
-      localStorage.setItem(storageKey(roundId, key), JSON.stringify(pending));
+    if (Object.keys(pending).length) localStorage.setItem(storageKey(roundId, key), JSON.stringify(pending));
     else localStorage.removeItem(storageKey(roundId, key));
   } catch {
     // Private mode or full storage: autosave still works while online.
@@ -44,10 +32,7 @@ function writeStored(roundId: string, key: BatchKeyInput, pending: Pending) {
 }
 
 /** Applies marks over saved ones; a null mark removes the answer. */
-function withMarks(
-  saved: Record<string, number>,
-  marks: Record<string, number | null>
-): Record<string, number> {
+function withMarks(saved: Record<string, number>, marks: Record<string, number | null>): Record<string, number> {
   const out = { ...saved };
   for (const [questionKey, mark] of Object.entries(marks)) {
     if (mark === null) delete out[questionKey];
@@ -62,11 +47,7 @@ function merge(base: Pending, extra: Pending): Pending {
     const prev = row.clear ? undefined : out[id];
     out[id] = {
       answers: { ...(prev?.answers ?? {}), ...row.answers },
-      ...(row.note !== undefined
-        ? { note: row.note }
-        : prev?.note !== undefined
-          ? { note: prev.note }
-          : {}),
+      ...(row.note !== undefined ? { note: row.note } : prev?.note !== undefined ? { note: prev.note } : {}),
       ...(row.clear || prev?.clear ? { clear: true as const } : {}),
     };
   }
@@ -77,15 +58,9 @@ function merge(base: Pending, extra: Pending): Pending {
  * One teacher batch: loads saved marks, applies taps immediately, and autosaves changed rows
  * (debounced). Unsent changes are kept on the device, so they survive going offline or a reload.
  */
-export function useBatch(
-  api: SurveyApi,
-  roundId: string,
-  key: BatchKeyInput | null
-) {
+export function useBatch(api: SurveyApi, roundId: string, key: BatchKeyInput | null) {
   const [batch, setBatch] = useState<BatchState | null>(null);
-  const [loadError, setLoadError] = useState<
-    'network' | 'closed' | 'invalid' | null
-  >(null);
+  const [loadError, setLoadError] = useState<'network' | 'closed' | 'invalid' | null>(null);
   const [answers, setAnswers] = useState<BatchState['answers']>({});
   const [notes, setNotes] = useState<BatchState['notes']>({});
   const [saveState, setSaveState] = useState<SaveState>('idle');
@@ -113,9 +88,7 @@ export function useBatch(
     setSaveState('saving');
 
     const run = (async () => {
-      const rows: DraftRow[] = Object.entries(sending).map(
-        ([studentErpId, row]) => ({ studentErpId, ...row })
-      );
+      const rows: DraftRow[] = Object.entries(sending).map(([studentErpId, row]) => ({ studentErpId, ...row }));
       // Unsent rows go back to the queue, unless the teacher has moved to another class
       // (they stay on the device under that class and are sent when it is opened again).
       const restore = () => {
@@ -123,19 +96,11 @@ export function useBatch(
           pending.current = merge(sending, pending.current);
           writeStored(roundId, current, pending.current);
         } else {
-          writeStored(
-            roundId,
-            current,
-            merge(sending, readStored(roundId, current))
-          );
+          writeStored(roundId, current, merge(sending, readStored(roundId, current)));
         }
       };
       try {
-        const response = await api.post<{
-          ok: boolean;
-          reason?: string;
-          rejected?: string[];
-        }>('draft', { ...current, rows });
+        const response = await api.post<{ ok: boolean; reason?: string; rejected?: string[] }>('draft', { ...current, rows });
         if (response.status === 200) {
           writeStored(roundId, current, pending.current);
           const rejected = response.data.rejected ?? [];
@@ -145,9 +110,7 @@ export function useBatch(
             void loadRef.current?.();
             return true;
           }
-          setSaveState(
-            Object.keys(pending.current).length ? 'saving' : 'saved'
-          );
+          setSaveState(Object.keys(pending.current).length ? 'saving' : 'saved');
           return true;
         }
         if (response.status === 403) {
@@ -178,12 +141,7 @@ export function useBatch(
     const ok = await run;
     inflight.current = null;
     // No timed retry once the round is closed: 'online' or a reload after the admin extends it will send.
-    if (
-      !ok &&
-      !closedRef.current &&
-      Object.keys(pending.current).length &&
-      !timer.current
-    ) {
+    if (!ok && !closedRef.current && Object.keys(pending.current).length && !timer.current) {
       timer.current = setTimeout(() => {
         timer.current = null;
         void flush();
@@ -207,10 +165,7 @@ export function useBatch(
     if (!current) return;
     setLoadError(null);
     try {
-      const response = await api.post<BatchState & { reason?: string }>(
-        'batch',
-        current
-      );
+      const response = await api.post<BatchState & { reason?: string }>('batch', current);
       if (response.status !== 200) {
         setLoadError(response.status === 403 ? 'closed' : 'invalid');
         return;
@@ -218,20 +173,13 @@ export function useBatch(
       const stored = readStored(roundId, current);
       const saved = response.data;
       // Queued marks for students who have left the class can never be saved; drop them.
-      const roster = new Set(saved.students.map(s => s.erpId));
-      pending.current = Object.fromEntries(
-        Object.entries(merge(stored, pending.current)).filter(([erpId]) =>
-          roster.has(erpId)
-        )
-      );
+      const roster = new Set(saved.students.map((s) => s.erpId));
+      pending.current = Object.fromEntries(Object.entries(merge(stored, pending.current)).filter(([erpId]) => roster.has(erpId)));
       writeStored(roundId, current, pending.current);
       const mergedAnswers = { ...saved.answers };
       const mergedNotes = { ...saved.notes };
       for (const [erpId, row] of Object.entries(pending.current)) {
-        mergedAnswers[erpId] = withMarks(
-          row.clear ? {} : (mergedAnswers[erpId] ?? {}),
-          row.answers
-        );
+        mergedAnswers[erpId] = withMarks(row.clear ? {} : (mergedAnswers[erpId] ?? {}), row.answers);
         if (row.note !== undefined) mergedNotes[erpId] = row.note;
         else if (row.clear) delete mergedNotes[erpId];
       }
@@ -260,16 +208,11 @@ export function useBatch(
 
   useEffect(() => {
     const online = () => void flush();
-    const offline = () =>
-      Object.keys(pending.current).length && setSaveState('offline');
+    const offline = () => Object.keys(pending.current).length && setSaveState('offline');
     window.addEventListener('online', online);
     window.addEventListener('offline', offline);
     const beforeUnload = (event: BeforeUnloadEvent) => {
-      if (
-        !closedRef.current &&
-        (Object.keys(pending.current).length || inflight.current)
-      )
-        event.preventDefault();
+      if (!closedRef.current && (Object.keys(pending.current).length || inflight.current)) event.preventDefault();
     };
     window.addEventListener('beforeunload', beforeUnload);
     return () => {
@@ -280,22 +223,11 @@ export function useBatch(
   }, [flush]);
 
   const queue = useCallback(
-    (
-      erpId: string,
-      change: {
-        answers?: Record<string, number | null>;
-        note?: string;
-        clear?: true;
-      }
-    ) => {
+    (erpId: string, change: { answers?: Record<string, number | null>; note?: string; clear?: true }) => {
       const current = keyRef.current;
       if (!current) return;
       pending.current = merge(pending.current, {
-        [erpId]: {
-          answers: change.answers ?? {},
-          ...(change.note !== undefined ? { note: change.note } : {}),
-          ...(change.clear ? { clear: true as const } : {}),
-        },
+        [erpId]: { answers: change.answers ?? {}, ...(change.note !== undefined ? { note: change.note } : {}), ...(change.clear ? { clear: true as const } : {}) },
       });
       writeStored(roundId, current, pending.current);
       setSaveState('saving');
@@ -307,10 +239,7 @@ export function useBatch(
   /** null withdraws the mark (given by mistake). */
   const setMark = useCallback(
     (erpId: string, questionKey: string, mark: number | null) => {
-      setAnswers(prev => ({
-        ...prev,
-        [erpId]: withMarks(prev[erpId] ?? {}, { [questionKey]: mark }),
-      }));
+      setAnswers((prev) => ({ ...prev, [erpId]: withMarks(prev[erpId] ?? {}, { [questionKey]: mark }) }));
       queue(erpId, { answers: { [questionKey]: mark } });
     },
     [queue]
@@ -318,7 +247,7 @@ export function useBatch(
 
   const setNote = useCallback(
     (erpId: string, note: string) => {
-      setNotes(prev => {
+      setNotes((prev) => {
         const next = { ...prev };
         if (note.trim()) next[erpId] = note.trim();
         else delete next[erpId];
@@ -332,7 +261,7 @@ export function useBatch(
   /** By-level subject, "not my student": removes the student's marks and note from the draft. */
   const clearStudent = useCallback(
     (erpId: string) => {
-      const drop = <T>(prev: Record<string, T>) => {
+      const drop = <T,>(prev: Record<string, T>) => {
         const next = { ...prev };
         delete next[erpId];
         return next;
@@ -354,18 +283,5 @@ export function useBatch(
     return !Object.keys(pending.current).length;
   }, [flush]);
 
-  return {
-    batch,
-    loadError,
-    answers,
-    notes,
-    saveState,
-    closed,
-    stale,
-    setMark,
-    setNote,
-    clearStudent,
-    saveNow,
-    reload: load,
-  };
+  return { batch, loadError, answers, notes, saveState, closed, stale, setMark, setNote, clearStudent, saveNow, reload: load };
 }
