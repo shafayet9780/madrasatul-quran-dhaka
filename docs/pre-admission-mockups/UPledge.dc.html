@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<title>প্রি-অ্যাডমিশন ২০২৭ · অঙ্গীকার</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;500;600;700&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.ui{--bg:#fafafa;--surface:#fff;--fg:#171717;--mfg:#525252;--muted:#f5f5f5;--border:#e5e5e5;--input:#d4d4d4;--primary:#7a4d32;--primary-h:#663f28;--pfg:#fff;--ring:rgba(122,77,50,.3);--ok:#15803d;--warn:#b45309;--bad:#dc2626;font-family:'Noto Sans Bengali','Inter',sans-serif;color:var(--fg);background:var(--bg)}
+.ui.dark{--bg:#111;--surface:#171717;--fg:#f5f5f5;--mfg:#a3a3a3;--muted:#262626;--border:#2a2a2a;--input:#404040;--primary:#c8946b;--primary-h:#d6a682;--pfg:#1c130d;--ring:rgba(200,148,107,.35);--ok:#4ade80;--warn:#fbbf24;--bad:#f87171}
+.ui a{color:var(--fg);text-underline-offset:3px}
+.lat{font-family:Inter,sans-serif}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:44px;padding:0 16px;border-radius:8px;background:var(--primary);color:var(--pfg) !important;font:inherit;font-size:15px;font-weight:500;text-decoration:none;border:0;cursor:pointer;white-space:nowrap}
+.btn:hover{background:var(--primary-h)}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+.ghost{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:8px;border:0;background:transparent;color:var(--fg);text-decoration:none;cursor:pointer}
+.c{appearance:none;flex:none;width:20px;height:20px;margin:2px 0 0;border:1px solid var(--input);border-radius:5px;background:var(--surface);display:grid;place-content:center;cursor:pointer}
+.c:checked{background:var(--primary);border-color:var(--primary)}
+.c:checked::before{content:"";width:6px;height:10px;border:solid var(--pfg);border-width:0 2px 2px 0;transform:translateY(-1px) rotate(45deg)}
+.c:focus-visible{outline:none;box-shadow:0 0 0 3px var(--ring)}
+.grp{display:flex;flex-direction:column;gap:10px;padding:20px 0;border-top:1px solid var(--border)}
+.grp-h{margin:0;font-size:15px;font-weight:600}
+.rules{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:12px}
+.rule{display:grid;grid-template-columns:24px 1fr;gap:4px;font-size:14.5px;line-height:1.7}
+.rule b{font-weight:600;color:var(--mfg)}
+.agree{display:flex;gap:12px;align-items:flex-start;padding:14px;border:1px solid var(--border);border-radius:12px;background:var(--surface);font-size:14.5px;line-height:1.7;cursor:pointer}
+.agree.strong{border:2px solid var(--fg)}
+</style>
+</helmet>
+<div class="ui {{theme}}" style="width: 390px; height: 2300px; box-sizing: border-box; display: flex; flex-direction: column; position: relative">
+  <header style="height: 56px; background: var(--surface); border-bottom: 1px solid var(--border); display: grid; grid-template-columns: 48px 1fr 48px; align-items: center; padding: 0 4px">
+    <a class="ghost" href="UTransport.dc.html" aria-label="আগের ধাপে ফিরুন"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></a>
+    <span style="text-align: center; font-size: 15px; font-weight: 600">অঙ্গীকার</span>
+    <a class="ghost lat" href="#" style="font-size: 13px; font-weight: 600">EN</a>
+  </header>
+  <div style="background: var(--surface); padding: 10px 16px 12px; border-bottom: 1px solid var(--border); display: flex; flex-direction: column; gap: 6px">
+    <span style="font-size: 12.5px; color: var(--mfg)">ধাপ ৬ / ৬</span>
+    <div style="height: 4px; border-radius: 999px; background: var(--muted)"><div style="width: 94%; height: 4px; background: var(--primary); border-radius: 999px"></div></div>
+  </div>
+
+  <main style="padding: 24px 16px 120px; display: flex; flex-direction: column">
+    <div style="display: flex; flex-direction: column; gap: 6px; padding-bottom: 16px">
+      <h1 style="margin: 0; font-size: 22px; line-height: 1.4; font-weight: 700; letter-spacing: -.01em">অভিভাবকদের আচরণবিধি</h1>
+      <p style="margin: 0; font-size: 14.5px; line-height: 1.65; color: var(--mfg)">মাদরাসা ও পরিবার একসাথে কাজ করলেই সন্তানের সঠিক গঠন সম্ভব। মনোযোগ দিয়ে পড়ুন, তারপর নিচের দুটি অঙ্গীকারে সম্মতি দিন।</p>
+    </div>
+
+    <sc-for list="{{groups}}" as="g" hint-placeholder-count="3">
+      <section class="grp">
+        <h2 class="grp-h">{{g.t}}</h2>
+        <ol class="rules">
+          <sc-for list="{{g.rules}}" as="r" hint-placeholder-count="3">
+            <li class="rule"><b aria-hidden="true">{{r.n}}</b><span>{{r.t}}</span></li>
+          </sc-for>
+        </ol>
+      </section>
+    </sc-for>
+
+    <section style="display: flex; flex-direction: column; gap: 12px; padding-top: 20px; border-top: 1px solid var(--border)">
+      <h2 class="grp-h">অঙ্গীকার</h2>
+      <label class="agree"><input class="c" type="checkbox" checked="{{a1}}" onChange="{{t1}}"><span>আমি অভিভাবকদের আচরণবিধি পড়েছি এবং তা মেনে চলতে বাধ্য থাকব।</span></label>
+      <label class="agree strong"><input class="c" type="checkbox" checked="{{a2}}" onChange="{{t2}}"><span>আমি ঘোষণা করছি যে, শিক্ষার্থীর পিতা বা মাতা কেউই কোনো রাষ্ট্রবিরোধী বা সন্ত্রাসী কার্যক্রমের সাথে জড়িত নন। কখনো এমন সম্পৃক্ততা পাওয়া গেলে মাদরাসা কর্তৃপক্ষ শিক্ষার্থীর ভর্তি তাৎক্ষণিকভাবে বাতিল করবে।</span></label>
+      <p style="margin: 0; font-size: 13px; line-height: 1.6; color: var(--mfg)">আবেদনপত্রের প্রিন্টে এই পৃষ্ঠাটি থাকবে। অ্যাসেসমেন্টের দিন পিতা ও মাতা দুজনেই সেখানে স্বাক্ষর করবেন।</p>
+    </section>
+  </main>
+
+  <div style="position: absolute; left: 0; right: 0; bottom: 0; background: var(--surface); border-top: 1px solid var(--border); padding: 12px 16px 20px; display: flex; align-items: center; justify-content: space-between; gap: 12px">
+    <span aria-live="polite" style="font-size: 13.5px; color: var(--mfg)">{{hint}}</span>
+    <sc-if value="{{ok}}" hint-placeholder-val="{{ false }}">
+      <a class="btn" href="Review.dc.html">পর্যালোচনা <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></a>
+    </sc-if>
+    <sc-if value="{{notOk}}" hint-placeholder-val="{{ true }}">
+      <button class="btn" disabled="disabled">পর্যালোচনা <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button>
+    </sc-if>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"$preview":{"width":390,"height":2300}}'>
+class Component extends DCLogic {
+  constructor(p) { super(p); this.state = { a1: false, a2: false }; }
+  renderVals() {
+    const N = ['১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
+    const G = [
+      ['মাদরাসায়', [
+        'মাদ্রাসা প্রাঙ্গণে অবশ্যই শরীয়ত সম্মত পোশাক ও পর্দার বিধিমালা অনুসরণ করতে হবে।',
+        'মাদ্রাসার কোন স্টাফের সাথে রূঢ় আচরণ করা যাবে না। কোন অভিযোগ থাকলে যথাযথ কর্তৃপক্ষকে অবহিত করবেন।',
+        'নিয়মিত বেতনাদি ও অন্যান্য ফি পরিশোধ করতে হবে।',
+      ]],
+      ['বাড়িতে', [
+        'বাড়ীর পরিবেশ ও প্রতিবেশ বিশুদ্ধ ও সুন্দর না হলে, তাদের চারিত্রিক গঠন নিয়ন্ত্রণ করা সম্ভব নয়। সুতরাং বাড়িতে দ্বীনি পরিবেশ নিশ্চিত করতে হবে।',
+        'আপনার ছেলেমেয়েদেরকে স্মার্টফোন, ইন্টারনেট, টেলিভিশন থেকে দূরে রাখুন।',
+        'সাধারণ ভাবে আপনার সকল সন্তানকেই রাতে তাড়াতাড়ি ঘুমাতে যাবার অভ্যাস গড়ে তুলতে তাগিদ দেবেন। সেই সাথে, সকালে তারা যেন নাস্তার অন্তত এক ঘন্টা আগে ঘুম থেকে ওঠে এবং বিছানা ছাড়ে সে দিকে খেয়াল করবেন ইনশা\'আল্লাহ! ক্লাসে অমনোযোগী হবার দু\'টো প্রধান কারণ হচ্ছে: রাতে দেরী করে ঘুমানো এবং সকালে "পরিপূর্ণ" নাস্তা না করে আসা।',
+      ]],
+      ['সন্তানের সাথে', [
+        'বাচ্চাদের সামনে তাদের শিক্ষক-শিক্ষিকাদের গীবত, সমালোচনা অথবা তাদের নিয়ে কোন বিরূপ মন্তব্য করবেন না।',
+        'ছেলেমেয়েকে যত বেশী সম্ভব সময় দেবেন, তাদের বন্ধু হবার চেষ্টা করবেন। পৃথিবীর প্রতিকূল পরিবেশে কোন অসুন্দর বা অকল্যাণকর ইঙ্গিতের সম্মুখীন হলে, তারা যেন প্রাণ খুলে সবার আগে আপনাকেই সে কথা জানাতে পারে।',
+        'অন্যদের সাথে যেকোন মূল্যে প্রতিযোগিতায় জিততেই হবে এমন ধারণা দিয়ে তাদেরকে, মুসলিম "ভাই-বন্ধুর" বিরুদ্ধে হিংসা-ঘৃণা-বিদ্বেষ পোষণ করে জীবনের সিঁড়ি বেয়ে ওপরে উঠতে প্ররোচিত করবেন না।',
+      ]],
+    ];
+    let i = 0;
+    const { a1, a2 } = this.state;
+    const left = (a1 ? 0 : 1) + (a2 ? 0 : 1);
+    return {
+      theme: this.props.theme === 'dark' ? 'dark' : '',
+      groups: G.map(([t, rules]) => ({ t, rules: rules.map((r) => ({ n: N[i++], t: r })) })),
+      a1, a2,
+      t1: () => this.setState({ a1: !a1 }),
+      t2: () => this.setState({ a2: !a2 }),
+      ok: left === 0, notOk: left > 0,
+      hint: left === 0 ? 'দুটিতেই সম্মতি দেওয়া হয়েছে' : left === 2 ? 'দুটি ঘরেই টিক দিন' : 'আর একটি ঘরে টিক দিন',
+    };
+  }
+}
+</script>
+</body>
+</html>

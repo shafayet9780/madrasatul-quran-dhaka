@@ -7,7 +7,7 @@
  "title": "Pre-admission 2027 mockups",
  "launch": {
   "view": "canvas",
-  "page": "phone"
+  "page": "upd"
  },
  "pages": [
   {
@@ -25,6 +25,18 @@
   {
    "id": "admin",
    "name": "অ্যাডমিন"
+  },
+  {
+   "id": "upd",
+   "name": "আপডেট · অভিভাবক"
+  },
+  {
+   "id": "upd-pdf",
+   "name": "আপডেট · আবেদনপত্র PDF"
+  },
+  {
+   "id": "offline",
+   "name": "অফলাইন ফর্ম ২০২৭"
   }
  ],
  "boards": {
@@ -272,6 +284,160 @@
    "title": "সাইডবার (কম্পোনেন্ট)",
    "is_interactive": true,
    "page": "admin"
+  },
+  "UStudent.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 390,
+   "h": 1640,
+   "title": "শিক্ষার্থী · পূর্ববর্তী শিক্ষা ও কাগজপত্র",
+   "page": "upd",
+   "is_interactive": true
+  },
+  "UFatherDress.dc.html": {
+   "x": 470,
+   "y": 0,
+   "w": 390,
+   "h": 640,
+   "title": "পিতা · ‘উপরোক্ত কোনটিই নয়’",
+   "page": "upd",
+   "is_interactive": true
+  },
+  "UTransport.dc.html": {
+   "x": 940,
+   "y": 0,
+   "w": 390,
+   "h": 1640,
+   "title": "অতিরিক্ত তথ্য · পরিবহন",
+   "page": "upd",
+   "is_interactive": true
+  },
+  "UPledge.dc.html": {
+   "x": 1410,
+   "y": 0,
+   "w": 390,
+   "h": 2300,
+   "title": "অঙ্গীকার (নতুন ধাপ)",
+   "page": "upd",
+   "is_interactive": true
+  },
+  "UConfirmation.dc.html": {
+   "x": 1880,
+   "y": 0,
+   "w": 390,
+   "h": 2050,
+   "title": "নিশ্চিতকরণ · হোয়াটসঅ্যাপ ও যা আনবেন",
+   "page": "upd",
+   "is_interactive": true
+  },
+  "QRWhatsApp.dc.html": {
+   "x": 2350,
+   "y": 0,
+   "w": 168,
+   "h": 168,
+   "title": "QR + হোয়াটসঅ্যাপ লোগো (কম্পোনেন্ট)",
+   "page": "upd"
+  },
+  "UTransportDesktop.dc.html": {
+   "x": 0,
+   "y": 2720,
+   "w": 1440,
+   "h": 1500,
+   "title": "ডেস্কটপ · পরিবহন",
+   "page": "upd",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "UPledgeDesktop.dc.html": {
+   "x": 1520,
+   "y": 2720,
+   "w": 1440,
+   "h": 1700,
+   "title": "ডেস্কটপ · অঙ্গীকার",
+   "page": "upd",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "UPdf1.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 794,
+   "h": 1123,
+   "title": "আবেদনপত্র · পৃষ্ঠা ১ (হালনাগাদ)",
+   "page": "upd-pdf",
+   "paper": "a4"
+  },
+  "UPdf3.dc.html": {
+   "x": 874,
+   "y": 0,
+   "w": 794,
+   "h": 1123,
+   "title": "আবেদনপত্র · পৃষ্ঠা ৩ (যোগাযোগ, অতিরিক্ত, আচরণবিধি)",
+   "page": "upd-pdf",
+   "paper": "a4"
+  },
+  "UPdf4.dc.html": {
+   "x": 1748,
+   "y": 0,
+   "w": 794,
+   "h": 1123,
+   "title": "আবেদনপত্র · পৃষ্ঠা ৪ (অঙ্গীকার, স্বাক্ষর, অফিস)",
+   "page": "upd-pdf",
+   "paper": "a4"
+  },
+  "Off1.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 794,
+   "h": 1123,
+   "title": "অফলাইন ফর্ম · পৃষ্ঠা ১",
+   "page": "offline",
+   "paper": "a4"
+  },
+  "Off2.dc.html": {
+   "x": 874,
+   "y": 0,
+   "w": 794,
+   "h": 1123,
+   "title": "অফলাইন ফর্ম · পৃষ্ঠা ২",
+   "page": "offline",
+   "paper": "a4"
+  },
+  "Off3.dc.html": {
+   "x": 1748,
+   "y": 0,
+   "w": 794,
+   "h": 1123,
+   "title": "অফলাইন ফর্ম · পৃষ্ঠা ৩",
+   "page": "offline",
+   "paper": "a4"
+  },
+  "Off4.dc.html": {
+   "x": 2622,
+   "y": 0,
+   "w": 794,
+   "h": 1123,
+   "title": "অফলাইন ফর্ম · পৃষ্ঠা ৪",
+   "page": "offline",
+   "paper": "a4"
+  },
+  "Off5.dc.html": {
+   "x": 3496,
+   "y": 0,
+   "w": 794,
+   "h": 1123,
+   "title": "অফলাইন ফর্ম · পৃষ্ঠা ৫",
+   "page": "offline",
+   "paper": "a4"
+  },
+  "Off6.dc.html": {
+   "x": 4370,
+   "y": 0,
+   "w": 794,
+   "h": 1123,
+   "title": "অফলাইন ফর্ম · অভিভাবকের কপি (ফেরত দেওয়া হয়)",
+   "page": "offline",
+   "paper": "a4"
   }
  },
  "order": [
@@ -300,7 +466,24 @@
   "AdminOverview.dc.html",
   "AdminList.dc.html",
   "AdminDetail.dc.html",
-  "AdminSide.dc.html"
+  "AdminSide.dc.html",
+  "UStudent.dc.html",
+  "UFatherDress.dc.html",
+  "UTransport.dc.html",
+  "UPledge.dc.html",
+  "UConfirmation.dc.html",
+  "QRWhatsApp.dc.html",
+  "UTransportDesktop.dc.html",
+  "UPledgeDesktop.dc.html",
+  "UPdf1.dc.html",
+  "UPdf3.dc.html",
+  "UPdf4.dc.html",
+  "Off1.dc.html",
+  "Off2.dc.html",
+  "Off3.dc.html",
+  "Off4.dc.html",
+  "Off5.dc.html",
+  "Off6.dc.html"
  ],
  "notes": {
   "rowGuardian": {
@@ -337,6 +520,42 @@
    "kind": "title1",
    "maxW": 4824,
    "page": "admin",
+   "w": 240
+  },
+  "updPhone": {
+   "x": 0,
+   "y": -300,
+   "text": "আপডেট · অভিভাবক, ফোন",
+   "kind": "title1",
+   "maxW": 2518,
+   "page": "upd",
+   "w": 240
+  },
+  "updDesktop": {
+   "x": 0,
+   "y": 2420,
+   "text": "আপডেট · অভিভাবক, ডেস্কটপ",
+   "kind": "title1",
+   "maxW": 2960,
+   "page": "upd",
+   "w": 240
+  },
+  "updPdf": {
+   "x": 0,
+   "y": -300,
+   "text": "আবেদনপত্র PDF · A4, ৪ পৃষ্ঠা (পৃষ্ঠা ২ অপরিবর্তিত)",
+   "kind": "title1",
+   "maxW": 2542,
+   "page": "upd-pdf",
+   "w": 240
+  },
+  "offline": {
+   "x": 0,
+   "y": -300,
+   "text": "অফলাইন ফর্ম ২০২৭ · A4, ৫ পৃষ্ঠা + অভিভাবকের কপি",
+   "kind": "title1",
+   "maxW": 5164,
+   "page": "offline",
    "w": 240
   }
  },

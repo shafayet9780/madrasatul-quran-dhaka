@@ -2,6 +2,8 @@
 
 Implementation plan: [`pre-admission-implementation-plan.md`](pre-admission-implementation-plan.md). Status: **Decisions agreed with the owner 2026-10-07. Mockups LOCKED 2026-10-07:** [`pre-admission-mockups/`](pre-admission-mockups/README.md), live canvas https://claude.ai/artifact/YNFRWPUJiTvhJRrTzW1Myb (private until shared). Build starts only after the mockups are approved (same process as `docs/survey-mockups/`).
 
+Updates agreed 2026-10-11 (code of conduct, result card, transport routes, assessment fee, WhatsApp, offline form, cash for paper forms): [`pre-admission-2027-updates.md`](pre-admission-2027-updates.md).
+
 ## Goals
 
 1. Rebuilt pre-admission form page — a calm, phone-first, bilingual step-by-step flow.
