@@ -1,5 +1,5 @@
 import { defineArrayMember, defineField, defineType } from 'sanity'
-import { FIELD_TYPES, ROLE_SPECS, ROLES, checkFormConfig, type RawSection } from '../../src/lib/admissions/form-config'
+import { FIELD_TYPES, ROLE_SPECS, ROLES, checkBringList, checkFormConfig, type RawBringItem, type RawSection } from '../../src/lib/admissions/form-config'
 
 // The 2027 pre-admission form: one uniform field definition in every section, plus the cycle
 // settings. Lives inside the `preAdmissionForm` document (groups “Form 2027” and “Cycle 2027”).
@@ -34,13 +34,17 @@ const TYPE_TITLES: Record<(typeof FIELD_TYPES)[number], string> = {
   checkbox: 'Checkboxes (several choices)',
   yesno: 'Yes / No',
   file: 'Photo or document upload',
+  transportStop: 'Transport stop (routes from Fees & Discounts)',
 }
 
 export const admissionOption = defineType({
   name: 'admissionOption',
   title: 'Option',
   type: 'object',
-  fieldsets: [{ name: 'class', title: 'Class field only', options: { collapsible: true, collapsed: true } }],
+  fieldsets: [
+    { name: 'class', title: 'Class field only', options: { collapsible: true, collapsed: true } },
+    { name: 'checkbox', title: 'Checkbox questions only', options: { collapsible: true, collapsed: true } },
+  ],
   fields: [
     bi('label', 'Label', { required: true }),
     defineField({ name: 'value', title: 'Stored value', type: 'string', description: 'Short and stable, e.g. kg or daily.', validation: (Rule) => Rule.required() }),
@@ -54,6 +58,13 @@ export const admissionOption = defineType({
       description: 'A child of this age is already too old. Nursery for 4-year-olds: from 4, up to 5.',
     }),
     defineField({ name: 'special', title: 'By special consideration', type: 'boolean', fieldset: 'class' }),
+    defineField({
+      name: 'exclusive',
+      title: 'Only this choice',
+      type: 'boolean',
+      fieldset: 'checkbox',
+      description: 'For “none of the above”: ticking it clears the other choices, and ticking another choice clears it.',
+    }),
   ],
   preview: { select: { title: 'label.bengali', subtitle: 'value', code: 'code' }, prepare: ({ title, subtitle, code }) => ({ title, subtitle: code ? `${subtitle} · ${code}` : subtitle }) },
 })
@@ -88,6 +99,15 @@ export const admissionField = defineType({
       options: { list: [{ value: 'photo', title: 'Photo (image only)' }, { value: 'document', title: 'Document (image or PDF)' }], layout: 'radio' },
       hidden: ({ parent }) => parent?.type !== 'file',
     }),
+    defineField({
+      name: 'allowMissing',
+      title: 'Allow “don’t have it now”',
+      type: 'boolean',
+      description: 'Shows a tick box under the upload. Ticking it counts as answered; the document is then brought on assessment day.',
+      hidden: ({ parent }) => parent?.type !== 'file',
+    }),
+    { ...bi('missingLabel', 'Text of the “don’t have it now” tick box'), hidden: ({ parent }: any) => parent?.type !== 'file' || !parent?.allowMissing },
+    { ...bi('missingNote', 'Note shown once it is ticked', { rows: 2 }), hidden: ({ parent }: any) => parent?.type !== 'file' || !parent?.allowMissing },
     bi('placeholder', 'Placeholder'),
     bi('help', 'Help text'),
     defineField({
@@ -176,6 +196,64 @@ export const admissionCycle = defineType({
     defineField({ name: 'whatsappUrl', title: 'WhatsApp group link', type: 'url', validation: (Rule) => Rule.uri({ scheme: ['https'] }) }),
     bi('pdfInstructions', 'Instructions printed on the application PDF', { rows: 3 }),
     bi('refundNote', 'Refund note (shown before payment)', { rows: 2 }),
+    bi('conductIntro', 'Code of conduct: introduction (pledge page)', { rows: 2 }),
+    defineField({
+      name: 'conductGroups',
+      title: 'Code of conduct: rule groups',
+      description: 'Shown on the pledge page, the application PDF and the offline form. Rules are numbered 1, 2, 3… across all groups.',
+      type: 'array',
+      of: [
+        defineArrayMember({
+          type: 'object',
+          name: 'conductGroup',
+          fields: [
+            bi('title', 'Group heading', { required: true }),
+            defineField({
+              name: 'rules',
+              title: 'Rules',
+              type: 'array',
+              of: [defineArrayMember({ type: 'object', name: 'conductRule', fields: [lang('bengali', 'Bengali', 3, true), lang('english', 'English', 3, false)], preview: { select: { title: 'bengali' } } })],
+              validation: (Rule) => Rule.min(1),
+            }),
+          ],
+          preview: { select: { title: 'title.bengali', rules: 'rules' }, prepare: ({ title, rules }) => ({ title, subtitle: `${rules?.length ?? 0} rules` }) },
+        }),
+      ],
+    }),
+    bi('conductPledge', 'Code of conduct pledge (first tick box)', { rows: 2 }),
+    bi('familyDeclaration', 'Declaration (second tick box, shown boxed)', { rows: 4 }),
+    defineField({
+      name: 'bringList',
+      title: 'What to bring on assessment day',
+      description: 'Shown on the success page, the application PDF, the email and the intro page. Write {fee} for the assessment fee.',
+      type: 'array',
+      of: [
+        defineArrayMember({
+          type: 'object',
+          name: 'bringItem',
+          fields: [
+            bi('text', 'Item', { required: true }),
+            defineField({
+              name: 'showWhen',
+              title: 'Show only when',
+              type: 'object',
+              description: 'Leave empty to always show. Otherwise: the key of a choice or yes/no question and the values that show this item.',
+              fields: [
+                defineField({ name: 'field', title: 'Field key', type: 'string' }),
+                defineField({ name: 'values', title: 'Values', type: 'array', of: [defineArrayMember({ type: 'string' })] }),
+              ],
+            }),
+            defineField({ name: 'document', title: 'Upload question key', type: 'string', description: 'Optional: when this document was not uploaded online, the item is highlighted as “must bring”.' }),
+          ],
+          preview: { select: { title: 'text.bengali', subtitle: 'document' } },
+        }),
+      ],
+      validation: (Rule) =>
+        Rule.custom((items, ctx) => {
+          const problems = checkBringList(items as RawBringItem[] | undefined, (ctx.document as { sections?: RawSection[] } | undefined)?.sections)
+          return problems.length ? problems.join('\n') : true
+        }),
+    }),
   ],
 })
 

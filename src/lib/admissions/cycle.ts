@@ -21,8 +21,12 @@ export type CycleState = {
   testPass?: boolean;
 };
 
+// Transport routes and charges (Fees & Discounts) are frozen with the form.
+const FEES = '{ _rev, transport, transportRoutes }';
+
 export const FORM_QUERY = `*[_type == "preAdmissionForm" && !(_id in path("drafts.**"))][0]{
-  _rev, formSettings{ isEnabled }, declarationText, cycle, sections
+  _rev, formSettings{ isEnabled }, declarationText, cycle, sections,
+  "fees": *[_id == "feeSettings"][0]${FEES}
 }`;
 
 /**
@@ -104,7 +108,10 @@ export async function loadSnapshot(cycleId: string, version: number): Promise<Fo
  * document with a random ID, so the draft is found as drafts.<published ID>.
  */
 const DRAFT_FORM_QUERY = `*[_type == "preAdmissionForm" && !(_id in path("drafts.**"))][0]{
-  "doc": coalesce(*[_id == "drafts." + ^._id][0], @){ _rev, formSettings{ isEnabled }, declarationText, cycle, sections }
+  "doc": coalesce(*[_id == "drafts." + ^._id][0], @){
+    _rev, formSettings{ isEnabled }, declarationText, cycle, sections,
+    "fees": coalesce(*[_id == "drafts.feeSettings"][0], *[_id == "feeSettings"][0])${FEES}
+  }
 }.doc`;
 
 /**
@@ -133,6 +140,6 @@ async function loadCurrentCycle(): Promise<CycleState | null> {
     return state && { ...state, enabled: true, window: 'open' };
   }
   const { sanityFetch } = await import('@/lib/sanity-fetch');
-  const doc = await sanityFetch<FormDocument | null>({ query: FORM_QUERY, tags: ['preAdmissionForm'] });
+  const doc = await sanityFetch<FormDocument | null>({ query: FORM_QUERY, tags: ['preAdmissionForm', 'feeSettings'] });
   return syncCycle(doc);
 }

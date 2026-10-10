@@ -1,0 +1,1793 @@
+{
+  "_id": "ez3GCFW5nbkfogTJJukM1C",
+  "_rev": "GKgUyDB06tUVYfZpCdnyHf",
+  "formSettings": {
+    "isEnabled": false
+  },
+  "declarationText": {
+    "bengali": "মাদরাসাতুল কুরআন একটি সম্পূর্ণ ইসলামিক শিক্ষা প্রতিষ্ঠান। আমি স্বীকৃতি প্রদান করছি যে,  \n\n১। উপরে প্রদত্ত সকল তথ্য সঠিক ও সত্য। কোন তথ্য ভুল প্রমাণিত হলে কর্তৃপক্ষ ভর্তি বাতিল করতে পারবে।\n\n২। আমি সকল অভিভাবক আচরণবিধি পড়েছি ও তা মানতে বাধ্য থাকবো।",
+    "english": "Madrasatul Quran is a complete Islamic educational institution. I hereby declare that,\n\n1. All the information given above is correct and true. If any information is found to be incorrect, the authority has the full discretion to cancel the admission.\n\n2. I have read all the guardian code of conduct and will be bound to abide by it."
+  },
+  "cycle": {
+    "_type": "admissionCycle",
+    "applicationFee": 500,
+    "evaluationFee": 500,
+    "pdfInstructions": {
+      "bengali": "এই আবেদনপত্রটি প্রিন্ট করে মূল্যায়নের দিন অবশ্যই সঙ্গে আনুন। সঙ্গে আনবেন শিক্ষার্থীর জন্ম নিবন্ধন সনদের মূল কপি এবং নগদ মূল্যায়ন ফি।",
+      "english": "Print this application and bring it on evaluation day, with the original birth certificate and the evaluation fee in cash."
+    },
+    "refundNote": {
+      "bengali": "আবেদন ফি ফেরতযোগ্য নয়।",
+      "english": "The application fee is non-refundable."
+    },
+    "session": "2027"
+  },
+  "sections": [
+    {
+      "_key": "student",
+      "_type": "admissionSection",
+      "fields": [
+        {
+          "_key": "student_photo",
+          "_type": "admissionField",
+          "fileKind": "photo",
+          "group": "photo_names",
+          "help": {
+            "bengali": "শিক্ষার্থীর সদ্য তোলা পাসপোর্ট সাইজ ছবি",
+            "english": "A recent passport size photograph of the student"
+          },
+          "key": "student_photo",
+          "label": {
+            "bengali": "শিক্ষার্থীর ছবি",
+            "english": "Student Photo"
+          },
+          "placeholder": {
+            "bengali": "ছবি আপলোড করুন",
+            "english": "Upload photo"
+          },
+          "required": true,
+          "role": "studentPhoto",
+          "type": "file"
+        },
+        {
+          "_key": "student_name_bengali",
+          "_type": "admissionField",
+          "group": "photo_names",
+          "key": "student_name_bengali",
+          "label": {
+            "bengali": "নাম (বাংলায়)",
+            "english": "Name (in Bengali)"
+          },
+          "placeholder": {
+            "bengali": "শিক্ষার্থীর নাম লিখুন (বাংলায়)",
+            "english": "Enter student name (in bengali)"
+          },
+          "required": true,
+          "role": "studentNameBn",
+          "type": "text",
+          "width": "half"
+        },
+        {
+          "_key": "student_name_english",
+          "_type": "admissionField",
+          "group": "photo_names",
+          "key": "student_name_english",
+          "label": {
+            "bengali": "Name (in English)",
+            "english": "Name (in English)"
+          },
+          "placeholder": {
+            "bengali": "Enter student name (in english)",
+            "english": "Enter student name (in english)"
+          },
+          "required": true,
+          "role": "studentNameEn",
+          "type": "text",
+          "width": "half"
+        },
+        {
+          "_key": "student_gender",
+          "_type": "admissionField",
+          "group": "photo_names",
+          "key": "student_gender",
+          "label": {
+            "bengali": "লিঙ্গ",
+            "english": "Gender"
+          },
+          "options": [
+            {
+              "_key": "male",
+              "_type": "admissionOption",
+              "label": {
+                "bengali": "ছেলে",
+                "english": "Male"
+              },
+              "value": "male"
+            },
+            {
+              "_key": "female",
+              "_type": "admissionOption",
+              "label": {
+                "bengali": "মেয়ে",
+                "english": "Female"
+              },
+              "value": "female"
+            }
+          ],
+          "placeholder": {
+            "bengali": "নির্বাচন করুন",
+            "english": "Select gender"
+          },
+          "required": true,
+          "type": "radio"
+        },
+        {
+          "_key": "date_of_birth",
+          "_type": "admissionField",
+          "group": "birth_class",
+          "key": "date_of_birth",
+          "label": {
+            "bengali": "জন্ম তারিখ",
+            "english": "Date of Birth"
+          },
+          "required": true,
+          "role": "dateOfBirth",
+          "type": "date"
+        },
+        {
+          "_key": "desired_class",
+          "_type": "admissionField",
+          "group": "birth_class",
+          "key": "desired_class",
+          "label": {
+            "bengali": "যে ক্লাসে ভর্তি হতে ইচ্ছুক",
+            "english": "Desired Class for Admission"
+          },
+          "options": [
+            {
+              "_key": "play",
+              "_type": "admissionOption",
+              "ageMax": 5,
+              "ageMin": 4,
+              "code": "PL",
+              "label": {
+                "bengali": "প্লে",
+                "english": "Play"
+              },
+              "value": "play"
+            },
+            {
+              "_key": "nursery",
+              "_type": "admissionOption",
+              "ageMax": 6,
+              "ageMin": 5,
+              "code": "N",
+              "label": {
+                "bengali": "নার্সারি",
+                "english": "Nursery"
+              },
+              "value": "nursery"
+            },
+            {
+              "_key": "kg",
+              "_type": "admissionOption",
+              "ageMax": 7,
+              "ageMin": 6,
+              "code": "KG",
+              "label": {
+                "bengali": "কেজি",
+                "english": "KG"
+              },
+              "value": "kg"
+            },
+            {
+              "_key": "class_1",
+              "_type": "admissionOption",
+              "ageMax": 8,
+              "ageMin": 7,
+              "code": "C1",
+              "label": {
+                "bengali": "১ম শ্রেণী",
+                "english": "Class 1"
+              },
+              "value": "class_1"
+            },
+            {
+              "_key": "class_2",
+              "_type": "admissionOption",
+              "ageMax": 9,
+              "ageMin": 8,
+              "code": "C2",
+              "label": {
+                "bengali": "২য় শ্রেণী",
+                "english": "Class 2"
+              },
+              "value": "class_2"
+            },
+            {
+              "_key": "class_3",
+              "_type": "admissionOption",
+              "ageMax": 10,
+              "ageMin": 9,
+              "code": "C3",
+              "label": {
+                "bengali": "৩য় শ্রেণী",
+                "english": "Class 3"
+              },
+              "value": "class_3"
+            },
+            {
+              "_key": "class_4",
+              "_type": "admissionOption",
+              "ageMax": 11,
+              "ageMin": 10,
+              "code": "C4",
+              "label": {
+                "bengali": "৪র্থ শ্রেণী",
+                "english": "Class 4"
+              },
+              "special": true,
+              "value": "class_4"
+            },
+            {
+              "_key": "class_5",
+              "_type": "admissionOption",
+              "ageMax": 12,
+              "ageMin": 11,
+              "code": "C5",
+              "label": {
+                "bengali": "৫ম শ্রেণী",
+                "english": "Class 5"
+              },
+              "special": true,
+              "value": "class_5"
+            },
+            {
+              "_key": "class_6",
+              "_type": "admissionOption",
+              "ageMax": 14,
+              "ageMin": 12,
+              "code": "C6",
+              "label": {
+                "bengali": "৬ষ্ঠ শ্রেণী",
+                "english": "Class 6"
+              },
+              "value": "class_6"
+            }
+          ],
+          "placeholder": {
+            "bengali": "ক্লাস বাছাই করুন",
+            "english": "Select class"
+          },
+          "required": true,
+          "role": "classApplied",
+          "type": "select"
+        },
+        {
+          "_key": "last_class_attended",
+          "_type": "admissionField",
+          "group": "previous",
+          "key": "last_class_attended",
+          "label": {
+            "bengali": "সর্বশেষ যে শ্রেণীতে অধ্যয়ন করেছে (যদি প্রযোজ্য হয়)",
+            "english": "Last Class Attended (if applicable)"
+          },
+          "required": false,
+          "type": "text"
+        },
+        {
+          "_key": "previous_school",
+          "_type": "admissionField",
+          "group": "previous",
+          "key": "previous_school",
+          "label": {
+            "bengali": "পূর্ববর্তী শিক্ষা প্রতিষ্ঠানের নাম (প্রযোজ্য ক্ষেত্রে)",
+            "english": "Previous School/Madrasa Name (if applicable)"
+          },
+          "required": false,
+          "type": "text"
+        },
+        {
+          "_key": "quran_level",
+          "_type": "admissionField",
+          "group": "current_level",
+          "key": "quran_level",
+          "label": {
+            "bengali": "কুরআন পড়ার দক্ষতা",
+            "english": "Quran level"
+          },
+          "options": [
+            {
+              "_key": "not_started",
+              "_type": "admissionOption",
+              "label": {
+                "bengali": "এখনো শুরু করেনি",
+                "english": "Not started yet"
+              },
+              "value": "not_started"
+            },
+            {
+              "_key": "qaida",
+              "_type": "admissionOption",
+              "label": {
+                "bengali": "কায়দা",
+                "english": "Qaida"
+              },
+              "value": "qaida"
+            },
+            {
+              "_key": "ammapara",
+              "_type": "admissionOption",
+              "label": {
+                "bengali": "আম্মাপারা",
+                "english": "Ammapara"
+              },
+              "value": "ammapara"
+            },
+            {
+              "_key": "najera",
+              "_type": "admissionOption",
+              "label": {
+                "bengali": "নাজেরা",
+                "english": "Najera"
+              },
+              "value": "najera"
+            },
+            {
+              "_key": "hifz",
+              "_type": "admissionOption",
+              "label": {
+                "bengali": "হিফয",
+                "english": "Hifz"
+              },
+              "value": "hifz"
+            }
+          ],
+          "required": true,
+          "showWhen": {
+            "field": "desired_class",
+            "values": [
+              "nursery",
+              "kg",
+              "class_1",
+              "class_2",
+              "class_3",
+              "class_4",
+              "class_5",
+              "class_6"
+            ]
+          },
+          "type": "radio"
+        },
+        {
+          "_key": "arabic_level",
+          "_type": "admissionField",
+          "group": "current_level",
+          "key": "arabic_level",
+          "label": {
+            "bengali": "আরবি ভাষার দক্ষতা",
+            "english": "Arabic language level"
+          },
+          "options": [
+            {
+              "_key": "beginner",
+              "_type": "admissionOption",
+              "label": {
+                "bengali": "একেবারে নতুন",
+                "english": "Beginner"
+              },
+              "value": "beginner"
+            },
+            {
+              "_key": "can_read_write",
+              "_type": "admissionOption",
+              "label": {
+                "bengali": "আরবি শব্দ ও বাক্য দেখে পড়তে ও লিখতে পারে",
+                "english": "Can read and write Arabic words and sentences"
+              },
+              "value": "can_read_write"
+            },
+            {
+              "_key": "can_make_small_sentences",
+              "_type": "admissionOption",
+              "label": {
+                "bengali": "ছোট ছোট বাক্য তৈরি করতে পারে",
+                "english": "Can make small sentences"
+              },
+              "value": "can_make_small_sentences"
+            },
+            {
+              "_key": "knows_nahw_sarf",
+              "_type": "admissionOption",
+              "label": {
+                "bengali": "নাহু, সরফ জানে",
+                "english": "Knows nahw and sarf"
+              },
+              "value": "knows_nahw_sarf"
+            }
+          ],
+          "required": true,
+          "showWhen": {
+            "field": "desired_class",
+            "values": [
+              "nursery",
+              "kg",
+              "class_1",
+              "class_2",
+              "class_3",
+              "class_4",
+              "class_5",
+              "class_6"
+            ]
+          },
+          "type": "radio"
+        },
+        {
+          "_key": "general_subjects_level",
+          "_type": "admissionField",
+          "group": "current_level",
+          "key": "general_subjects_level",
+          "label": {
+            "bengali": "জেনারেল শিক্ষার দক্ষতা",
+            "english": "General subjects level"
+          },
+          "options": [
+            {
+              "_key": "80_percent_plus",
+              "_type": "admissionOption",
+              "label": {
+                "bengali": "আগের পরীক্ষায় ৮০%+ নম্বর পেয়েছে",
+                "english": "Obtained 80%+ in previous exam"
+              },
+              "value": "80_percent_plus"
+            },
+            {
+              "_key": "60_percent_plus",
+              "_type": "admissionOption",
+              "label": {
+                "bengali": "আগের পরীক্ষায় ৬০%+ নম্বর পেয়েছে",
+                "english": "Obtained 60%+ in previous exam"
+              },
+              "value": "60_percent_plus"
+            },
+            {
+              "_key": "40_percent_plus",
+              "_type": "admissionOption",
+              "label": {
+                "bengali": "আগের পরীক্ষায় ৪০%+ নম্বর পেয়েছে",
+                "english": "Obtained 40%+ in previous exam"
+              },
+              "value": "40_percent_plus"
+            },
+            {
+              "_key": "less_than_40_percent",
+              "_type": "admissionOption",
+              "label": {
+                "bengali": "আগের পরীক্ষায় ৪০% এর কম নম্বর পেয়েছে",
+                "english": "Obtained less than 40% in previous exam"
+              },
+              "value": "less_than_40_percent"
+            },
+            {
+              "_key": "did_not_attend_school",
+              "_type": "admissionOption",
+              "label": {
+                "bengali": "এখনো কোন প্রতিষ্ঠানে পড়ে নি ",
+                "english": "Did not attend school/madrasa yet"
+              },
+              "value": "did_not_attend_school"
+            }
+          ],
+          "required": true,
+          "showWhen": {
+            "field": "desired_class",
+            "values": [
+              "nursery",
+              "kg",
+              "class_1",
+              "class_2",
+              "class_3",
+              "class_4",
+              "class_5",
+              "class_6"
+            ]
+          },
+          "type": "radio"
+        },
+        {
+          "_key": "obeying_parents",
+          "_type": "admissionField",
+          "group": "character_goals",
+          "key": "obeying_parents",
+          "label": {
+            "bengali": "আপনার সন্তান কি পিতামাতার অনুগত?",
+            "english": "Is your child obedient to parents?"
+          },
+          "required": true,
+          "type": "yesno"
+        },
+        {
+          "_key": "purpose_of_study",
+          "_type": "admissionField",
+          "group": "character_goals",
+          "key": "purpose_of_study",
+          "label": {
+            "bengali": "আপনার সন্তানের শিক্ষার মূল উদ্দেশ্য কি? ",
+            "english": "What is the main purpose of your child's education?"
+          },
+          "options": [
+            {
+              "_key": "to_be_alim",
+              "_type": "admissionOption",
+              "label": {
+                "bengali": "আলেম হওয়া",
+                "english": "To become an Alim/Islamic scholar"
+              },
+              "value": "to_be_alim"
+            },
+            {
+              "_key": "to_be_non_alim",
+              "_type": "admissionOption",
+              "label": {
+                "bengali": "চাকুরিজীবী/ব্যবসায়ী হওয়া ",
+                "english": "To be a service holder/businessman"
+              },
+              "value": "to_be_non_alim"
+            }
+          ],
+          "required": true,
+          "type": "radio"
+        },
+        {
+          "_key": "student_birth_registration",
+          "_type": "admissionField",
+          "fileKind": "document",
+          "group": "documents",
+          "key": "student_birth_registration",
+          "label": {
+            "bengali": "শিক্ষার্থীর জন্ম নিবন্ধন সনদ",
+            "english": "Student's birth registration certificate"
+          },
+          "required": false,
+          "role": "birthCertificate",
+          "type": "file"
+        }
+      ],
+      "groups": [
+        {
+          "_key": "photo_names",
+          "_type": "admissionGroup",
+          "key": "photo_names",
+          "title": {
+            "bengali": "পরিচয়",
+            "english": "Identity"
+          }
+        },
+        {
+          "_key": "birth_class",
+          "_type": "admissionGroup",
+          "key": "birth_class",
+          "title": {
+            "bengali": "জন্ম তারিখ ও শ্রেণী",
+            "english": "Date of birth and class"
+          }
+        },
+        {
+          "_key": "previous",
+          "_type": "admissionGroup",
+          "key": "previous",
+          "title": {
+            "bengali": "পূর্ববর্তী শিক্ষা",
+            "english": "Previous schooling"
+          }
+        },
+        {
+          "_key": "current_level",
+          "_type": "admissionGroup",
+          "key": "current_level",
+          "title": {
+            "bengali": "পড়াশোনার বর্তমান অবস্থা",
+            "english": "Current level of learning"
+          }
+        },
+        {
+          "_key": "character_goals",
+          "_type": "admissionGroup",
+          "key": "character_goals",
+          "title": {
+            "bengali": "আচরণ ও শিক্ষার লক্ষ্য",
+            "english": "Character and goals"
+          }
+        },
+        {
+          "_key": "documents",
+          "_type": "admissionGroup",
+          "key": "documents",
+          "title": {
+            "bengali": "কাগজপত্র",
+            "english": "Documents"
+          }
+        }
+      ],
+      "key": "student",
+      "title": {
+        "bengali": "শিক্ষার্থীর তথ্য",
+        "english": "Student information"
+      }
+    },
+    {
+      "_key": "father",
+      "_type": "admissionSection",
+      "fields": [
+        {
+          "_key": "father_name",
+          "_type": "admissionField",
+          "group": "basic",
+          "key": "father_name",
+          "label": {
+            "bengali": "পিতার নাম",
+            "english": "Father's Name"
+          },
+          "required": true,
+          "role": "fatherName",
+          "type": "text",
+          "width": "half"
+        },
+        {
+          "_key": "father_name_english",
+          "_type": "admissionField",
+          "group": "basic",
+          "key": "father_name_english",
+          "label": {
+            "bengali": "Father's Name (English)",
+            "english": "Father's Name (English)"
+          },
+          "required": true,
+          "type": "text",
+          "width": "half"
+        },
+        {
+          "_key": "father_photo",
+          "_type": "admissionField",
+          "fileKind": "photo",
+          "group": "basic",
+          "help": {
+            "bengali": "সদ্য তোলা পাসপোর্ট সাইজ ছবি",
+            "english": "A recent passport size photograph"
+          },
+          "key": "father_photo",
+          "label": {
+            "bengali": "পিতার ছবি",
+            "english": "Father's Photo"
+          },
+          "placeholder": {
+            "bengali": "ছবি আপলোড করুন",
+            "english": "Upload photo"
+          },
+          "required": true,
+          "role": "fatherPhoto",
+          "type": "file"
+        },
+        {
+          "_key": "father_occupation",
+          "_type": "admissionField",
+          "group": "occupation",
+          "key": "father_occupation",
+          "label": {
+            "bengali": "পেশার বিবরণ",
+            "english": "Occupation"
+          },
+          "options": [
+            {
+              "_key": "business",
+              "_type": "admissionOption",
+              "label": {
+                "bengali": "ব্যবসায়ী",
+                "english": "Business"
+              },
+              "value": "business"
+            },
+            {
+              "_key": "service",
+              "_type": "admissionOption",
+              "label": {
+                "bengali": "চাকরিজীবী",
+                "english": "Service"
+              },
+              "value": "service"
+            },
+            {
+              "_key": "teacher",
+              "_type": "admissionOption",
+              "label": {
+                "bengali": "শিক্ষক",
+                "english": "Teacher"
+              },
+              "value": "teacher"
+            },
+            {
+              "_key": "doctor",
+              "_type": "admissionOption",
+              "label": {
+                "bengali": "ডাক্তার",
+                "english": "Doctor"
+              },
+              "value": "doctor"
+            },
+            {
+              "_key": "engineer",
+              "_type": "admissionOption",
+              "label": {
+                "bengali": "ইঞ্জিনিয়ার",
+                "english": "Engineer"
+              },
+              "value": "engineer"
+            },
+            {
+              "_key": "other",
+              "_type": "admissionOption",
+              "label": {
+                "bengali": "অন্যান্য",
+                "english": "Other"
+              },
+              "value": "other"
+            }
+          ],
+          "required": true,
+          "type": "select"
+        },
+        {
+          "_key": "father_organization",
+          "_type": "admissionField",
+          "group": "occupation",
+          "key": "father_organization",
+          "label": {
+            "bengali": "প্রতিষ্ঠান / ব্যবসার ধরণ (Organization)",
+            "english": "Organization Type"
+          },
+          "required": false,
+          "showWhen": {
+            "field": "father_occupation",
+            "values": [
+              "business",
+              "service",
+              "teacher",
+              "doctor",
+              "engineer"
+            ]
+          },
+          "type": "text",
+          "width": "half"
+        },
+        {
+          "_key": "father_designation",
+          "_type": "admissionField",
+          "group": "occupation",
+          "key": "father_designation",
+          "label": {
+            "bengali": "পদবী (Designation)",
+            "english": "Designation"
+          },
+          "required": false,
+          "showWhen": {
+            "field": "father_occupation",
+            "values": [
+              "service",
+              "teacher",
+              "doctor",
+              "engineer"
+            ]
+          },
+          "type": "text",
+          "width": "half"
+        },
+        {
+          "_key": "father_monthly_income",
+          "_type": "admissionField",
+          "group": "occupation",
+          "key": "father_monthly_income",
+          "label": {
+            "bengali": "মাসিক আয়",
+            "english": "Monthly income"
+          },
+          "options": [
+            {
+              "_key": "less_than_fifty_thousand",
+              "_type": "admissionOption",
+              "label": {
+                "bengali": "৫০,০০০ এর কম",
+                "english": "less than 50,000"
+              },
+              "value": "less_than_fifty_thousand"
+            },
+            {
+              "_key": "fifty_thousand_to_one_lac",
+              "_type": "admissionOption",
+              "label": {
+                "bengali": "৫০,০০০-১,০০,০০০",
+                "english": "50,000-1,00,000"
+              },
+              "value": "fifty_thousand_to_one_lac"
+            },
+            {
+              "_key": "greater_than_one_lac",
+              "_type": "admissionOption",
+              "label": {
+                "bengali": "১,০০,০০০ এর বেশি",
+                "english": "more than 1,00,000"
+              },
+              "value": "greater_than_one_lac"
+            }
+          ],
+          "placeholder": {
+            "bengali": "-----সিলেক্ট করুন-----",
+            "english": "-----select one-----"
+          },
+          "required": true,
+          "type": "select"
+        },
+        {
+          "_key": "father_prayer_times",
+          "_type": "admissionField",
+          "group": "faith",
+          "key": "father_prayer_times",
+          "label": {
+            "bengali": "আপনি কি ৫ ওয়াক্ত সালাত সময়ের মধ্যে আদায় করেন?",
+            "english": "Do you pray 5 times daily prayers on time?"
+          },
+          "required": true,
+          "type": "yesno"
+        },
+        {
+          "_key": "father_prayer_location",
+          "_type": "admissionField",
+          "group": "faith",
+          "key": "father_prayer_location",
+          "label": {
+            "bengali": "সালাত কোথায় আদায় করেন?",
+            "english": "Where do you perform prayers?"
+          },
+          "options": [
+            {
+              "_key": "mosque",
+              "_type": "admissionOption",
+              "label": {
+                "bengali": "মসজিদে",
+                "english": "At Mosque"
+              },
+              "value": "mosque"
+            },
+            {
+              "_key": "home",
+              "_type": "admissionOption",
+              "label": {
+                "bengali": "বাসায়",
+                "english": "At Home"
+              },
+              "value": "home"
+            },
+            {
+              "_key": "office",
+              "_type": "admissionOption",
+              "label": {
+                "bengali": "অফিসে",
+                "english": "At Office"
+              },
+              "value": "office"
+            }
+          ],
+          "required": true,
+          "type": "checkbox"
+        },
+        {
+          "_key": "father_daily_quran",
+          "_type": "admissionField",
+          "group": "faith",
+          "key": "father_daily_quran",
+          "label": {
+            "bengali": "আপনি কি নিয়মিত আল-কুরআনুল কারীম তেলাওয়াত করেন?",
+            "english": "Do you recite the Holy Quran regularly?"
+          },
+          "options": [
+            {
+              "_key": "daily",
+              "_type": "admissionOption",
+              "label": {
+                "bengali": "প্রতিদিন",
+                "english": "Everyday"
+              },
+              "value": "daily"
+            },
+            {
+              "_key": "sometimes",
+              "_type": "admissionOption",
+              "label": {
+                "bengali": "মাঝে মাঝে",
+                "english": "Sometimes"
+              },
+              "value": "sometimes"
+            },
+            {
+              "_key": "never",
+              "_type": "admissionOption",
+              "label": {
+                "bengali": "তিলাওয়াত করা হয় না",
+                "english": "I don't recite"
+              },
+              "value": "never"
+            }
+          ],
+          "required": true,
+          "type": "radio"
+        },
+        {
+          "_key": "father_islamic_clothing",
+          "_type": "admissionField",
+          "group": "faith",
+          "key": "father_islamic_clothing",
+          "label": {
+            "bengali": "আপনার ইসলামী পোশাক (লিবাস) মেনে চলা",
+            "english": "Following Islamic clothing (Libas)"
+          },
+          "options": [
+            {
+              "_key": "loose_clothing",
+              "_type": "admissionOption",
+              "label": {
+                "bengali": "ঢিলেঢালা পোশাক",
+                "english": "Loose clothing"
+              },
+              "value": "loose_clothing"
+            },
+            {
+              "_key": "pants_above_ankle",
+              "_type": "admissionOption",
+              "label": {
+                "bengali": "প্যান্ট গোড়ালির উপরে",
+                "english": "Pants above ankle"
+              },
+              "value": "pants_above_ankle"
+            },
+            {
+              "_key": "beard",
+              "_type": "admissionOption",
+              "label": {
+                "bengali": "দাড়ি",
+                "english": "Beard"
+              },
+              "value": "beard"
+            },
+            {
+              "_key": "none",
+              "_type": "admissionOption",
+              "label": {
+                "bengali": "উপরোক্ত কোনটিই নয়",
+                "english": "None of the above"
+              },
+              "value": "none"
+            }
+          ],
+          "required": true,
+          "type": "checkbox"
+        },
+        {
+          "_key": "father_mahram",
+          "_type": "admissionField",
+          "group": "faith",
+          "key": "father_mahram",
+          "label": {
+            "bengali": "আপনি  কি মাহরাম/নন মাহরাম মেনে চলেন?",
+            "english": "Do you maintain Mahram/Non-mahram?"
+          },
+          "required": true,
+          "type": "yesno"
+        },
+        {
+          "_key": "father_time_with_children",
+          "_type": "admissionField",
+          "group": "family",
+          "key": "father_time_with_children",
+          "label": {
+            "bengali": "আপনি প্রতিদিন গড়ে সন্তানদের সাথে কত সময় ব্যয় করেন?",
+            "english": "How much time do you spend with your children on average everyday?"
+          },
+          "options": [
+            {
+              "_key": "1_hour_plus",
+              "_type": "admissionOption",
+              "label": {
+                "bengali": "১ ঘণ্টা+",
+                "english": "1 hour+"
+              },
+              "value": "1_hour_plus"
+            },
+            {
+              "_key": "30_minutes_plus",
+              "_type": "admissionOption",
+              "label": {
+                "bengali": "৩০ মিনিট+",
+                "english": "30 minutes+"
+              },
+              "value": "30_minutes_plus"
+            },
+            {
+              "_key": "not_regular",
+              "_type": "admissionOption",
+              "label": {
+                "bengali": "নিয়মিত নয়",
+                "english": "Not regular"
+              },
+              "value": "not_regular"
+            }
+          ],
+          "required": true,
+          "type": "radio"
+        },
+        {
+          "_key": "father_tv_at_home",
+          "_type": "admissionField",
+          "group": "family",
+          "key": "father_tv_at_home",
+          "label": {
+            "bengali": "আপনার বাসায় কি টিভি আছে (ডিশ লাইন সহ)?",
+            "english": "Do you have TV at home (with cable connection)?"
+          },
+          "required": true,
+          "type": "yesno"
+        },
+        {
+          "_key": "father_screen_time",
+          "_type": "admissionField",
+          "group": "family",
+          "key": "father_screen_time",
+          "label": {
+            "bengali": "টিভি/ইন্টারনেট/মোবাইলের সাথে প্রতিদিন কত সময় ব্যয় করেন?",
+            "english": "How much time do you spend daily with TV/Internet/Mobile?"
+          },
+          "options": [
+            {
+              "_key": "1_hour",
+              "_type": "admissionOption",
+              "label": {
+                "bengali": "১ ঘণ্টা",
+                "english": "1 hour"
+              },
+              "value": "1_hour"
+            },
+            {
+              "_key": "2_hours",
+              "_type": "admissionOption",
+              "label": {
+                "bengali": "২ ঘণ্টা",
+                "english": "2 hours"
+              },
+              "value": "2_hours"
+            },
+            {
+              "_key": "3_hours",
+              "_type": "admissionOption",
+              "label": {
+                "bengali": "৩ ঘণ্টা",
+                "english": "3 hours"
+              },
+              "value": "3_hours"
+            },
+            {
+              "_key": "4_hours",
+              "_type": "admissionOption",
+              "label": {
+                "bengali": "৪ ঘণ্টা",
+                "english": "4 hours"
+              },
+              "value": "4_hours"
+            },
+            {
+              "_key": "5_plus_hours",
+              "_type": "admissionOption",
+              "label": {
+                "bengali": "৫+ ঘণ্টা",
+                "english": "5+ hours"
+              },
+              "value": "5_plus_hours"
+            }
+          ],
+          "required": true,
+          "type": "select"
+        },
+        {
+          "_key": "father_smoking",
+          "_type": "admissionField",
+          "group": "family",
+          "key": "father_smoking",
+          "label": {
+            "bengali": "আপনার কি ধুমপানের অভ্যাস আছে?",
+            "english": "Do you have habit of smoking?"
+          },
+          "required": true,
+          "type": "yesno"
+        },
+        {
+          "_key": "father_favorite_scholar",
+          "_type": "admissionField",
+          "group": "other",
+          "key": "father_favorite_scholar",
+          "label": {
+            "bengali": "আপনার  প্রিয় আলেম এর নাম",
+            "english": "Name of your favorite Islamic scholars"
+          },
+          "required": false,
+          "type": "text"
+        },
+        {
+          "_key": "father_facebook_id",
+          "_type": "admissionField",
+          "group": "other",
+          "key": "father_facebook_id",
+          "label": {
+            "bengali": "আপনার ফেসবুক আইডি (না থাকলে \"নেই\" লিখুন)",
+            "english": "Your facebook id (write \"No\" if you don't have any)"
+          },
+          "placeholder": {
+            "bengali": "https://facebook.com/******",
+            "english": "https://facebook.com/******"
+          },
+          "required": true,
+          "type": "text"
+        }
+      ],
+      "groups": [
+        {
+          "_key": "basic",
+          "_type": "admissionGroup",
+          "key": "basic",
+          "title": {
+            "bengali": "মৌলিক তথ্য",
+            "english": "Basic information"
+          }
+        },
+        {
+          "_key": "occupation",
+          "_type": "admissionGroup",
+          "key": "occupation",
+          "title": {
+            "bengali": "পেশা",
+            "english": "Occupation"
+          }
+        },
+        {
+          "_key": "faith",
+          "_type": "admissionGroup",
+          "description": {
+            "bengali": "আপনার পরিবারকে জানতে এবং ঘর ও মাদরাসার মধ্যে মিল রাখতে এই প্রশ্নগুলো করা হয়।",
+            "english": "These questions help us know your family and keep home and madrasa in step."
+          },
+          "key": "faith",
+          "title": {
+            "bengali": "দ্বীনি অনুশীলন",
+            "english": "Religious practice"
+          }
+        },
+        {
+          "_key": "family",
+          "_type": "admissionGroup",
+          "key": "family",
+          "title": {
+            "bengali": "পরিবার ও জীবনযাপন",
+            "english": "Family and lifestyle"
+          }
+        },
+        {
+          "_key": "other",
+          "_type": "admissionGroup",
+          "key": "other",
+          "title": {
+            "bengali": "অন্যান্য",
+            "english": "Other"
+          }
+        }
+      ],
+      "key": "father",
+      "title": {
+        "bengali": "পিতার তথ্য",
+        "english": "Father’s information"
+      }
+    },
+    {
+      "_key": "mother",
+      "_type": "admissionSection",
+      "fields": [
+        {
+          "_key": "mother_name",
+          "_type": "admissionField",
+          "group": "basic",
+          "key": "mother_name",
+          "label": {
+            "bengali": "মাতার নাম",
+            "english": "Mother's Name"
+          },
+          "required": true,
+          "role": "motherName",
+          "type": "text",
+          "width": "half"
+        },
+        {
+          "_key": "mother_name_english",
+          "_type": "admissionField",
+          "group": "basic",
+          "key": "mother_name_english",
+          "label": {
+            "bengali": "Mother's Name (English)",
+            "english": "Mother's Name (English)"
+          },
+          "required": true,
+          "type": "text",
+          "width": "half"
+        },
+        {
+          "_key": "mother_occupation",
+          "_type": "admissionField",
+          "group": "occupation",
+          "key": "mother_occupation",
+          "label": {
+            "bengali": "পেশার বিবরণ",
+            "english": "Occupation"
+          },
+          "options": [
+            {
+              "_key": "homemaker",
+              "_type": "admissionOption",
+              "label": {
+                "bengali": "গৃহিণী",
+                "english": "Homemaker"
+              },
+              "value": "homemaker"
+            },
+            {
+              "_key": "business",
+              "_type": "admissionOption",
+              "label": {
+                "bengali": "ব্যবসায়ী",
+                "english": "Business"
+              },
+              "value": "business"
+            },
+            {
+              "_key": "service",
+              "_type": "admissionOption",
+              "label": {
+                "bengali": "চাকরিজীবী",
+                "english": "Service"
+              },
+              "value": "service"
+            },
+            {
+              "_key": "teacher",
+              "_type": "admissionOption",
+              "label": {
+                "bengali": "শিক্ষক",
+                "english": "Teacher"
+              },
+              "value": "teacher"
+            },
+            {
+              "_key": "doctor",
+              "_type": "admissionOption",
+              "label": {
+                "bengali": "ডাক্তার",
+                "english": "Doctor"
+              },
+              "value": "doctor"
+            },
+            {
+              "_key": "other",
+              "_type": "admissionOption",
+              "label": {
+                "bengali": "অন্যান্য",
+                "english": "Other"
+              },
+              "value": "other"
+            }
+          ],
+          "required": true,
+          "type": "select"
+        },
+        {
+          "_key": "mother_organization",
+          "_type": "admissionField",
+          "group": "occupation",
+          "key": "mother_organization",
+          "label": {
+            "bengali": "প্রতিষ্ঠান / ব্যবসার ধরণ (Organization)",
+            "english": "Organization Type"
+          },
+          "required": false,
+          "showWhen": {
+            "field": "mother_occupation",
+            "values": [
+              "business",
+              "service",
+              "teacher",
+              "doctor"
+            ]
+          },
+          "type": "text",
+          "width": "half"
+        },
+        {
+          "_key": "mother_designation",
+          "_type": "admissionField",
+          "group": "occupation",
+          "key": "mother_designation",
+          "label": {
+            "bengali": "পদবী (Designation)",
+            "english": "Designation"
+          },
+          "required": false,
+          "showWhen": {
+            "field": "mother_occupation",
+            "values": [
+              "service",
+              "teacher",
+              "doctor"
+            ]
+          },
+          "type": "text",
+          "width": "half"
+        },
+        {
+          "_key": "mother_prayer_times",
+          "_type": "admissionField",
+          "group": "faith",
+          "key": "mother_prayer_times",
+          "label": {
+            "bengali": "আপনি কি ৫ ওয়াক্ত সালাত সময়ের মধ্যে আদায় করেন?",
+            "english": "Do you pray 5 times daily prayers on time?"
+          },
+          "required": true,
+          "type": "yesno"
+        },
+        {
+          "_key": "mother_daily_quran",
+          "_type": "admissionField",
+          "group": "faith",
+          "key": "mother_daily_quran",
+          "label": {
+            "bengali": "আপনি কি নিয়মিত আল-কুরআনুল কারীম তেলাওয়াত করেন?",
+            "english": "Do you recite the Holy Quran regularly?"
+          },
+          "options": [
+            {
+              "_key": "daily",
+              "_type": "admissionOption",
+              "label": {
+                "bengali": "প্রতিদিন",
+                "english": "Everyday"
+              },
+              "value": "daily"
+            },
+            {
+              "_key": "sometimes",
+              "_type": "admissionOption",
+              "label": {
+                "bengali": "মাঝে মাঝে",
+                "english": "Sometimes"
+              },
+              "value": "sometimes"
+            },
+            {
+              "_key": "never",
+              "_type": "admissionOption",
+              "label": {
+                "bengali": "তিলাওয়াত করা হয় না",
+                "english": "I don't recite"
+              },
+              "value": "never"
+            }
+          ],
+          "required": true,
+          "type": "radio"
+        },
+        {
+          "_key": "mother_islamic_clothing",
+          "_type": "admissionField",
+          "group": "faith",
+          "key": "mother_islamic_clothing",
+          "label": {
+            "bengali": "আপনি কি পর্দা করেন?",
+            "english": "Do you observe veil?"
+          },
+          "options": [
+            {
+              "_key": "borka_niqab",
+              "_type": "admissionOption",
+              "label": {
+                "bengali": "বোরকা + নিকাব",
+                "english": "Borka + Niqab"
+              },
+              "value": "borka_niqab"
+            },
+            {
+              "_key": "borka_hijab",
+              "_type": "admissionOption",
+              "label": {
+                "bengali": "বোরকা + হিজাব",
+                "english": "Borka + Hijab"
+              },
+              "value": "borka_hijab"
+            },
+            {
+              "_key": "normal_clothing",
+              "_type": "admissionOption",
+              "label": {
+                "bengali": "সাধারণ শালীন পোশাক",
+                "english": "Normal modest cloting"
+              },
+              "value": "normal_clothing"
+            }
+          ],
+          "required": true,
+          "type": "radio"
+        },
+        {
+          "_key": "mother_mahram",
+          "_type": "admissionField",
+          "group": "faith",
+          "key": "mother_mahram",
+          "label": {
+            "bengali": "আপনি  কি মাহরাম/নন মাহরাম মেনে চলেন?",
+            "english": "Do you maintain Mahram/Non-mahram?"
+          },
+          "required": true,
+          "type": "yesno"
+        },
+        {
+          "_key": "mother_screen_time",
+          "_type": "admissionField",
+          "group": "media",
+          "key": "mother_screen_time",
+          "label": {
+            "bengali": "টিভি/ইন্টারনেট/মোবাইলের সাথে প্রতিদিন কত সময় ব্যয় করেন?",
+            "english": "How much time do you spend daily with TV/Internet/Mobile?"
+          },
+          "options": [
+            {
+              "_key": "1_hour",
+              "_type": "admissionOption",
+              "label": {
+                "bengali": "১ ঘণ্টা",
+                "english": "1 hour"
+              },
+              "value": "1_hour"
+            },
+            {
+              "_key": "2_hours",
+              "_type": "admissionOption",
+              "label": {
+                "bengali": "২ ঘণ্টা",
+                "english": "2 hours"
+              },
+              "value": "2_hours"
+            },
+            {
+              "_key": "3_hours",
+              "_type": "admissionOption",
+              "label": {
+                "bengali": "৩ ঘণ্টা",
+                "english": "3 hours"
+              },
+              "value": "3_hours"
+            },
+            {
+              "_key": "4_hours",
+              "_type": "admissionOption",
+              "label": {
+                "bengali": "৪ ঘণ্টা",
+                "english": "4 hours"
+              },
+              "value": "4_hours"
+            },
+            {
+              "_key": "5_plus_hours",
+              "_type": "admissionOption",
+              "label": {
+                "bengali": "৫+ ঘণ্টা",
+                "english": "5+ hours"
+              },
+              "value": "5_plus_hours"
+            }
+          ],
+          "required": true,
+          "type": "select"
+        },
+        {
+          "_key": "mother_favorite_scholar",
+          "_type": "admissionField",
+          "group": "other",
+          "key": "mother_favorite_scholar",
+          "label": {
+            "bengali": "প্রিয় আলেম এর নাম",
+            "english": "Name of favorite Islamic scholars"
+          },
+          "required": false,
+          "type": "text"
+        },
+        {
+          "_key": "mother_facebook_id",
+          "_type": "admissionField",
+          "group": "other",
+          "key": "mother_facebook_id",
+          "label": {
+            "bengali": "আপনার ফেসবুক আইডি (না থাকলে \"নেই\" লিখুন)",
+            "english": "Your facebook id (write \"No\" if you don't have any)"
+          },
+          "placeholder": {
+            "bengali": "https://facebook.com/******",
+            "english": "https://facebook.com/******"
+          },
+          "required": true,
+          "type": "text"
+        }
+      ],
+      "groups": [
+        {
+          "_key": "basic",
+          "_type": "admissionGroup",
+          "key": "basic",
+          "title": {
+            "bengali": "মৌলিক তথ্য",
+            "english": "Basic information"
+          }
+        },
+        {
+          "_key": "occupation",
+          "_type": "admissionGroup",
+          "key": "occupation",
+          "title": {
+            "bengali": "পেশা",
+            "english": "Occupation"
+          }
+        },
+        {
+          "_key": "faith",
+          "_type": "admissionGroup",
+          "description": {
+            "bengali": "আপনার পরিবারকে জানতে এবং ঘর ও মাদরাসার মধ্যে মিল রাখতে এই প্রশ্নগুলো করা হয়।",
+            "english": "These questions help us know your family and keep home and madrasa in step."
+          },
+          "key": "faith",
+          "title": {
+            "bengali": "দ্বীনি অনুশীলন",
+            "english": "Religious practice"
+          }
+        },
+        {
+          "_key": "media",
+          "_type": "admissionGroup",
+          "key": "media",
+          "title": {
+            "bengali": "মিডিয়া",
+            "english": "Media"
+          }
+        },
+        {
+          "_key": "other",
+          "_type": "admissionGroup",
+          "key": "other",
+          "title": {
+            "bengali": "অন্যান্য",
+            "english": "Other"
+          }
+        }
+      ],
+      "key": "mother",
+      "title": {
+        "bengali": "মাতার তথ্য",
+        "english": "Mother’s information"
+      }
+    },
+    {
+      "_key": "contact",
+      "_type": "admissionSection",
+      "fields": [
+        {
+          "_key": "present_address",
+          "_type": "admissionField",
+          "key": "present_address",
+          "label": {
+            "bengali": "বর্তমান ঠিকানা",
+            "english": "Present Address"
+          },
+          "placeholder": {
+            "bengali": "বাসা, রোড নম্বর সহ বিস্তারিত ঠিকানা লিখুন",
+            "english": "Enter your detail address including house no, road no etc."
+          },
+          "required": true,
+          "role": "address",
+          "type": "textarea"
+        },
+        {
+          "_key": "father_phone",
+          "_type": "admissionField",
+          "key": "father_phone",
+          "label": {
+            "bengali": "মোবাইল ফোন নম্বর (পিতা)",
+            "english": "Mobile Phone Number (Father)"
+          },
+          "required": true,
+          "role": "primaryMobile",
+          "type": "tel",
+          "width": "half"
+        },
+        {
+          "_key": "mother_phone",
+          "_type": "admissionField",
+          "key": "mother_phone",
+          "label": {
+            "bengali": "মোবাইল ফোন নম্বর (মাতা)",
+            "english": "Mobile Phone Number (Mother)"
+          },
+          "required": true,
+          "role": "secondaryMobile",
+          "type": "tel",
+          "width": "half"
+        },
+        {
+          "_key": "email",
+          "_type": "admissionField",
+          "key": "email",
+          "label": {
+            "bengali": "ইমেইল",
+            "english": "Email"
+          },
+          "required": true,
+          "role": "email",
+          "type": "email"
+        }
+      ],
+      "groups": [],
+      "key": "contact",
+      "title": {
+        "bengali": "যোগাযোগের তথ্য",
+        "english": "Contact information"
+      }
+    },
+    {
+      "_key": "additional",
+      "_type": "admissionSection",
+      "fields": [
+        {
+          "_key": "heard_from",
+          "_type": "admissionField",
+          "key": "heard_from",
+          "label": {
+            "bengali": "আপনি কিভাবে মাদরাসাতুল কুরআন সম্পর্কে জানতে পেরেছেন?",
+            "english": "How did you learn about Madrasatul Quran?"
+          },
+          "options": [
+            {
+              "_key": "social_media",
+              "_type": "admissionOption",
+              "label": {
+                "bengali": "সোশাল মিডিয়া",
+                "english": "Social Media"
+              },
+              "value": "social_media"
+            },
+            {
+              "_key": "friends_family",
+              "_type": "admissionOption",
+              "label": {
+                "bengali": "বন্ধু/পরিবার",
+                "english": "Friends/Family"
+              },
+              "value": "friends_family"
+            },
+            {
+              "_key": "advertisement",
+              "_type": "admissionOption",
+              "label": {
+                "bengali": "বিজ্ঞাপন",
+                "english": "Advertisement"
+              },
+              "value": "advertisement"
+            },
+            {
+              "_key": "other",
+              "_type": "admissionOption",
+              "label": {
+                "bengali": "অন্যান্য",
+                "english": "Other"
+              },
+              "value": "other"
+            }
+          ],
+          "placeholder": {
+            "bengali": "-----বাছাই করুন-----",
+            "english": "-----select one-----"
+          },
+          "required": true,
+          "role": "heardFrom",
+          "type": "select"
+        },
+        {
+          "_key": "transport_requirement",
+          "_type": "admissionField",
+          "key": "transport_requirement",
+          "label": {
+            "bengali": "আপনার সন্তানকে ভর্তি করার সিদ্ধান্তের জন্য পরিবহন সুবিধা থাকা কি গুরুত্বপূর্ণ?",
+            "english": "Is having transportation facilities important to your decision to enroll your child?"
+          },
+          "required": true,
+          "type": "yesno"
+        },
+        {
+          "_key": "transport_location",
+          "_type": "admissionField",
+          "key": "transport_location",
+          "label": {
+            "bengali": "আপনি যদি স্কুলের পরিবহন নেন, তাহলে কোন এলাকা থেকে আসবেন?",
+            "english": "If you take school transport, from which area will you come?"
+          },
+          "options": [
+            {
+              "_key": "mirpur",
+              "_type": "admissionOption",
+              "label": {
+                "bengali": "মিরপুর",
+                "english": "Mirpur"
+              },
+              "value": "mirpur"
+            },
+            {
+              "_key": "uttara",
+              "_type": "admissionOption",
+              "label": {
+                "bengali": "উত্তরা",
+                "english": "Uttara"
+              },
+              "value": "uttara"
+            },
+            {
+              "_key": "others",
+              "_type": "admissionOption",
+              "label": {
+                "bengali": "অন্যান্য",
+                "english": "Others"
+              },
+              "value": "others"
+            }
+          ],
+          "required": false,
+          "showWhen": {
+            "field": "transport_requirement",
+            "values": [
+              "yes"
+            ]
+          },
+          "type": "select"
+        },
+        {
+          "_key": "comments",
+          "_type": "admissionField",
+          "key": "comments",
+          "label": {
+            "bengali": "মন্তব্য/পরামর্শ",
+            "english": "Comments/Suggestions"
+          },
+          "placeholder": {
+            "bengali": "আপনার কোন মন্তব্য/পরামর্শ থাকলে আমাদের জানান",
+            "english": "Let us know if you have any comments/suggestions."
+          },
+          "required": false,
+          "type": "textarea"
+        }
+      ],
+      "groups": [],
+      "key": "additional",
+      "title": {
+        "bengali": "অতিরিক্ত তথ্য",
+        "english": "Additional information"
+      }
+    }
+  ]
+}

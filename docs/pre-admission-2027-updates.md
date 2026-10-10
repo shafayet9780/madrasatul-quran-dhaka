@@ -252,9 +252,9 @@ Example: Father → **আপনার ইসলামী পোশাক (লি
 
 No open items remain.
 
-## Open question (ask the owner before building page 6)
+## Paper application ID (owner, 2026-10-11)
 
-- **Paper applicants and the application ID.** Page 6 of the offline form has an "আবেদন আইডি" box, and WhatsApp announces assessment slots by ID. Paper applicants get no system ID. Either the office uses its own numbering (e.g. `KG-P01`), or the box is dropped and they are listed by name.
+- **The office numbers paper forms itself:** class code + `P` + a running number from its register (e.g. `KG-P01`). The `P` keeps it apart from system IDs. The office writes it in the box on page 1 and on page 6 ("আবেদন আইডি (অফিস পূরণ করবে)"), and WhatsApp announces paper and online applicants alike by ID.
 
 ## Build notes (found while planning, 2026-10-11)
 
