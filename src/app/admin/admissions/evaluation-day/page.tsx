@@ -6,7 +6,7 @@ import { toBengaliDigits as bn } from '@/lib/admissions/normalise';
 import { cn } from '@/lib/utils';
 import { PageTop } from '../../AdminShell';
 import { NoCycle } from '../ListPage';
-import { AdmBody, Card, LAT, PageTitle } from '../ui';
+import { Card, LAT, PageBody, PageTitle } from '../../ui';
 import { CheckInForm } from './CheckInForm';
 
 export const metadata: Metadata = { title: 'মূল্যায়নের দিন' };
@@ -22,7 +22,7 @@ export default async function EvaluationDayPage() {
   return (
     <>
       <PageTop crumbs={[{ label: 'ভর্তি', href: '/admin/admissions' }, { label: 'মূল্যায়নের দিন' }]} round={false} />
-      <AdmBody className="gap-5">
+      <PageBody className="gap-5">
         <PageTitle sub={`আবেদনপত্রের “অফিস ব্যবহারের জন্য” QR ফোনের ক্যামেরায় স্ক্যান করলে সরাসরি আবেদনটি খোলে। না হলে নিচে আইডি লিখুন। আবেদনের পাতায় উপস্থিতি ও মূল্যায়ন ফি ${taka(cycle.snapshot.settings.evaluationFee, 'bengali')} চিহ্নিত করুন।`}>
           মূল্যায়নের দিন
         </PageTitle>
@@ -61,7 +61,7 @@ export default async function EvaluationDayPage() {
             )}
           </Card>
         </div>
-      </AdmBody>
+      </PageBody>
     </>
   );
 }

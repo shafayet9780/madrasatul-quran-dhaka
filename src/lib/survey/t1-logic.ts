@@ -12,13 +12,16 @@ export function resolveBatch(snapshot: RoundSnapshot, key: BatchKeyInput) {
   return { teacherName: teacher.name, subjectName: subject.name };
 }
 
-/** Keeps only answers to rating questions with marks on the scale; null when anything is invalid. */
-export function validRowAnswers(snapshot: RoundSnapshot, row: DraftRow): Record<string, number> | null {
+/**
+ * Keeps only answers to rating questions with marks on the scale (null = withdraw the mark);
+ * null when anything is invalid.
+ */
+export function validRowAnswers(snapshot: RoundSnapshot, row: DraftRow): Record<string, number | null> | null {
   const { questions, scale } = snapshot.template;
-  const answers: Record<string, number> = {};
+  const answers: Record<string, number | null> = {};
   for (const [questionKey, mark] of Object.entries(row.answers ?? {})) {
     const question = questions.find((q) => q.key === questionKey);
-    if (!question || question.type !== 'marks' || !scale.includes(mark)) return null;
+    if (!question || question.type !== 'marks' || (mark !== null && !scale.includes(mark))) return null;
     answers[questionKey] = mark;
   }
   return answers;

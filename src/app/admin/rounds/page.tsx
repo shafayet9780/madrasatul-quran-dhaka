@@ -9,6 +9,7 @@ import { t1PairCount } from '@/lib/survey/snapshot';
 import { RoundsBoard } from './RoundsBoard';
 import type { BoardRow, OpenedRow, UnopenedRow } from './types';
 import { PageTop } from '../AdminShell';
+import { PageBody, PageTitle } from '../ui';
 
 export const metadata: Metadata = { title: 'রাউন্ড' };
 export const dynamic = 'force-dynamic';
@@ -75,13 +76,10 @@ export default async function RoundsPage() {
   return (
     <>
       <PageTop crumbs={[{ label: 'অ্যাডমিন' }, { label: 'রাউন্ড' }]} round={false} />
-      <div className="flex flex-col gap-1">
-        <h1 className="sv-head" style={{ margin: 0, fontSize: 30 }}>রাউন্ড</h1>
-        <p style={{ margin: 0, fontSize: 14, color: 'var(--sv-text-muted)' }}>
-          প্রশ্ন ও রাউন্ডের খসড়া Studio-তে তৈরি হয়; এখানে খোলা, লিংক শেয়ার, মেয়াদ বাড়ানো ও বন্ধ করা হয়
-        </p>
-      </div>
-      <RoundsBoard rows={rows} />
+      <PageBody>
+        <PageTitle sub="প্রশ্ন ও রাউন্ডের খসড়া Studio-তে তৈরি হয়; এখানে খোলা, লিংক শেয়ার, মেয়াদ বাড়ানো ও বন্ধ করা হয়">রাউন্ড</PageTitle>
+        <RoundsBoard rows={rows} />
+      </PageBody>
     </>
   );
 }

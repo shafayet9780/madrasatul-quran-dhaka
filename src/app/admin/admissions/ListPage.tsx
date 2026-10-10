@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import Link from 'next/link';
 import { Download } from 'lucide-react';
 import { Button } from '@/components/shadcn/button';
@@ -11,7 +12,8 @@ import { formatMobile, toBengaliDigits as bn } from '@/lib/admissions/normalise'
 import { cn } from '@/lib/utils';
 import { PageTop } from '../AdminShell';
 import { DeleteUnpaid, ListFilters, PaidTable, type PaidRow } from './ListControls';
-import { AdmBody, EmptyState, LAT, ListTabs, PageTitle } from './ui';
+import { EmptyState, LAT, PageBody, PageTitle } from '../ui';
+import { ListTabs } from './ui';
 
 export type ListSearch = { q?: string; class?: string; status?: string; eval?: string; page?: string; deleted?: string };
 
@@ -20,14 +22,15 @@ const PAGE_SIZE = 25;
 export const classOptions = (snapshot: FormSnapshot) =>
   (fieldWithRole(snapshot, 'classApplied')?.options ?? []).filter((o) => o.code).map((o) => ({ value: o.code!, label: txt(o.label, 'bengali'), optionValue: o.value }));
 
-export function NoCycle() {
+export function NoCycle({ children }: { children?: ReactNode }) {
   return (
     <>
       <PageTop crumbs={[{ label: 'ভর্তি' }]} round={false} />
-      <AdmBody>
+      <PageBody>
         <PageTitle>ভর্তি</PageTitle>
         <EmptyState>এখনো কোনো ভর্তি সেশন খোলা হয়নি। স্টুডিওতে প্রি-অ্যাডমিশন ফর্মটি প্রকাশ করলে এখানে আবেদন দেখা যাবে।</EmptyState>
-      </AdmBody>
+        {children}
+      </PageBody>
     </>
   );
 }
@@ -105,7 +108,7 @@ export async function ListPage({ tab, search }: { tab: ListTab; search: ListSear
   return (
     <>
       <PageTop crumbs={[{ label: 'ভর্তি', href: '/admin/admissions' }, { label: title }]} round={false} actions={tab === 'paid' ? <ExportButton /> : undefined} />
-      <AdmBody>
+      <PageBody>
         <PageTitle>{title}</PageTitle>
         <ListTabs current={tab} paid={counts.paid} unpaid={counts.unpaid} />
         <ListFilters filters={filters} />
@@ -150,7 +153,7 @@ export async function ListPage({ tab, search }: { tab: ListTab; search: ListSear
             </div>
           </div>
         )}
-      </AdmBody>
+      </PageBody>
     </>
   );
 }

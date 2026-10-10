@@ -21,6 +21,7 @@ export const sheetTabName = (session: string) => `ভর্তি ${toBengaliDig
 const isPending = (now: Date) =>
   and(
     isNotNull(applications.publicRef),
+    eq(applications.isTest, false),
     isNull(applications.mirroredAt),
     or(isNull(applications.mirrorClaimedAt), lt(applications.mirrorClaimedAt, new Date(now.getTime() - CLAIM_TTL_MS))),
   );

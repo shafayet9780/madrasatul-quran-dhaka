@@ -23,6 +23,10 @@ describe('validRowAnswers', () => {
     expect(validRowAnswers(snapshot, { studentErpId: 's1', answers: { attendance: 10, attention: 4 } })).toEqual({ attendance: 10, attention: 4 });
     expect(validRowAnswers(snapshot, { studentErpId: 's1' })).toEqual({});
   });
+  it('keeps null as a withdrawn mark', () => {
+    expect(validRowAnswers(snapshot, { studentErpId: 's1', answers: { attendance: null, attention: 6 } })).toEqual({ attendance: null, attention: 6 });
+    expect(validRowAnswers(snapshot, { studentErpId: 's1', answers: { history: null } })).toBeNull();
+  });
   it('rejects off-scale marks and unknown questions', () => {
     expect(validRowAnswers(snapshot, { studentErpId: 's1', answers: { attendance: 7 } })).toBeNull();
     expect(validRowAnswers(snapshot, { studentErpId: 's1', answers: { history: 10 } })).toBeNull();

@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
     return new NextResponse(Buffer.from(pdf), {
       headers: {
         'Content-Type': 'application/pdf',
-        'Content-Disposition': `${inline ? 'inline' : 'attachment'}; filename="${pdfFileName(current.app.publicRef)}"`,
+        'Content-Disposition': `${inline ? 'inline' : 'attachment'}; filename="${pdfFileName(current.app)}"`,
         'Cache-Control': 'private, no-store',
         'X-Content-Type-Options': 'nosniff',
       },

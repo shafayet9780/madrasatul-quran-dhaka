@@ -29,6 +29,11 @@ export async function latestPayment(applicationId: string): Promise<Payment | nu
   return row ?? null;
 }
 
+/** A test application (the office's test pass) pays 10 taka, SSLCommerz's minimum. */
+export const TEST_FEE = 10;
+
+export const applicationFee = (app: Pick<Application, 'isTest'>, snapshot: FormSnapshot) => (app.isTest ? TEST_FEE : snapshot.settings.applicationFee);
+
 export type StartPaymentResult =
   | { ok: true; gatewayUrl: string }
   | { ok: false; reason: 'not_configured' | 'not_payable' | 'already_paid' | 'under_review' | 'gateway' };
@@ -45,10 +50,14 @@ export async function startPayment(app: Application, snapshot: FormSnapshot, ori
   if (settled.some((p) => p.status === 'valid')) return { ok: false, reason: 'already_paid' };
   if (settled.length) return { ok: false, reason: 'under_review' };
 
-  const amount = snapshot.settings.applicationFee;
+  const amount = applicationFee(app, snapshot);
   const tranId = `MQ${snapshot.settings.session.slice(-2)}-${randomBytes(8).toString('hex')}`;
   const [payment] = await db.insert(payments).values({ applicationId: app.id, tranId, amount }).returning();
-  const callback = (path: string) => `${origin}/api/admissions/sslcommerz/${path}`;
+  // Vercel's deployment protection would turn SSLCommerz's posts on a preview into a login redirect
+  // (a GET without the form): the automation bypass secret lets them through. Never on production.
+  const bypass = process.env.VERCEL_ENV === 'preview' ? process.env.VERCEL_AUTOMATION_BYPASS_SECRET : undefined;
+  const query = bypass ? `?x-vercel-protection-bypass=${encodeURIComponent(bypass)}` : '';
+  const callback = (path: string) => `${origin}/api/admissions/sslcommerz/${path}${query}`;
   const result = await gateway.createSession({
     tranId,
     amount,
@@ -82,12 +91,13 @@ export type SettleResult = { outcome: SettleOutcome; applicationId?: string; pub
  * Marks the application paid and hands out the next serial for its class, in one statement: the
  * row lock and `public_ref IS NULL` make a second confirmation (IPN and browser at once) a no-op.
  * Only a submitted application (unpaid) qualifies: one reopened for editing during checkout keeps
- * its valid payment and gets the ID when it is submitted again (completeAfterResubmit).
+ * its valid payment and gets the ID when it is submitted again (completeAfterResubmit). A test
+ * application is numbered on its own: TEST-001.
  */
 async function assignApplicationId(applicationId: string): Promise<string | null> {
   const result = await getAdmissionsDb().execute<{ public_ref: string }>(sql`
     WITH target AS (
-      SELECT id, cycle_id, class_code FROM applications
+      SELECT id, cycle_id, CASE WHEN is_test THEN 'TEST' ELSE class_code END AS class_code FROM applications
       WHERE id = ${applicationId} AND public_ref IS NULL AND status = 'unpaid' AND class_code IS NOT NULL
       FOR UPDATE
     ), bump AS (

@@ -14,7 +14,8 @@ import { cn } from '@/lib/utils';
 import { PageTop } from '../../AdminShell';
 import { DeleteUnpaid } from '../ListControls';
 import { AcceptHeld, EvaluationSwitches, NoteForm, ResendEmail, StatusForm } from '../DetailControls';
-import { AdmBody, Card, LAT, StatusBadge } from '../ui';
+import { Card, LAT, PageBody } from '../../ui';
+import { StatusBadge } from '../ui';
 import { isOwnKey } from '@/lib/admissions/files';
 
 export const metadata: Metadata = { title: 'আবেদন' };
@@ -71,7 +72,7 @@ export default async function ApplicationPage({ params, searchParams }: Props) {
   return (
     <>
       <PageTop crumbs={[{ label: 'ভর্তি', href: '/admin/admissions' }, back, { label: app.publicRef ?? name }]} round={false} />
-      <AdmBody className="gap-5">
+      <PageBody className="gap-5">
         {from === 'evaluation-day' && (
           <Link href={back.href} className="inline-flex items-center gap-1.5 self-start text-sm text-muted-foreground no-underline hover:text-foreground">
             <ArrowLeft className="size-4" aria-hidden />
@@ -87,7 +88,7 @@ export default async function ApplicationPage({ params, searchParams }: Props) {
           )}
           <div className="flex min-w-0 flex-[1_1_300px] flex-col gap-0.5">
             <div className="flex flex-wrap items-baseline gap-3">
-              <h1 className="m-0 text-2xl font-bold tracking-[-0.01em]">{name}</h1>
+              <h1 className="m-0 text-2xl font-semibold tracking-[-0.01em]">{name}</h1>
               {app.publicRef && <span className={cn(LAT, 'text-base font-semibold text-muted-foreground')}>{app.publicRef}</span>}
               <StatusBadge status={app.status} />
             </div>
@@ -113,6 +114,7 @@ export default async function ApplicationPage({ params, searchParams }: Props) {
                   </a>
                 </Button>
                 <ResendEmail id={app.id} />
+                {app.isTest && <DeleteUnpaid id={app.id} name={name} from="detail" />}
               </>
             ) : (
               <DeleteUnpaid id={app.id} name={name} from="detail" />
@@ -251,7 +253,7 @@ export default async function ApplicationPage({ params, searchParams }: Props) {
             </Card>
           </div>
         </div>
-      </AdmBody>
+      </PageBody>
     </>
   );
 }

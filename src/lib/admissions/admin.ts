@@ -180,26 +180,31 @@ export async function addNote(id: string, text: string): Promise<boolean> {
  * Deletes an application that was never paid: its answers, uploaded documents and payment
  * attempts. The activity log keeps a "deleted" entry (application_id becomes null). Refused while
  * a payment is settled, held, or still open on the SSLCommerz page (less than two hours old).
+ * A test application (the office's test pass) can always be deleted, paid or not.
  */
 export async function deleteUnpaid(id: string, store: BlobStore = blobStore()): Promise<'deleted' | 'not_found' | 'paid' | 'paying'> {
   const db = getAdmissionsDb();
   const [app] = await db.select().from(applications).where(eq(applications.id, id));
   if (!app) return 'not_found';
-  if (app.publicRef) return 'paid';
-  const [open] = await db
-    .select({ id: payments.id })
-    .from(payments)
-    .where(and(eq(payments.applicationId, id), eq(payments.status, 'initiated'), sql`${payments.createdAt} > now() - interval '2 hours'`))
-    .limit(1);
-  if (open) return 'paying';
-  // One statement decides: no ID and no settled or held payment at the moment of deletion.
+  if (!app.isTest) {
+    if (app.publicRef) return 'paid';
+    const [open] = await db
+      .select({ id: payments.id })
+      .from(payments)
+      .where(and(eq(payments.applicationId, id), eq(payments.status, 'initiated'), sql`${payments.createdAt} > now() - interval '2 hours'`))
+      .limit(1);
+    if (open) return 'paying';
+  }
+  // One statement decides: a test, or no ID and no settled or held payment at the moment of deletion.
   const [gone] = await db
     .delete(applications)
     .where(
       and(
         eq(applications.id, id),
-        isNull(applications.publicRef),
-        sql`NOT EXISTS (SELECT 1 FROM payments p WHERE p.application_id = ${id} AND p.status IN ('valid', 'held'))`,
+        or(
+          eq(applications.isTest, true),
+          and(isNull(applications.publicRef), sql`NOT EXISTS (SELECT 1 FROM payments p WHERE p.application_id = ${id} AND p.status IN ('valid', 'held'))`),
+        ),
       ),
     )
     .returning({ id: applications.id });

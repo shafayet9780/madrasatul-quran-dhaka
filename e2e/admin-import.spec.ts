@@ -1,12 +1,11 @@
-import { execFileSync } from 'node:child_process';
 import { expect, test } from '@playwright/test';
+import { loadFixtures } from './survey-fixtures';
 
 // ERP import against the Neon dev database and the Studio class mapping; fixtures are reloaded after.
-const loadFixtures = () => execFileSync('pnpm', ['survey:fixtures'], { stdio: 'ignore' });
 
 test.describe.configure({ mode: 'serial' });
-test.beforeAll(loadFixtures);
-test.afterAll(loadFixtures);
+test.beforeAll(() => loadFixtures());
+test.afterAll(() => loadFixtures());
 test.use({ httpCredentials: { username: 'playwright-editor', password: 'playwright-test-password' } });
 
 const CSV = [

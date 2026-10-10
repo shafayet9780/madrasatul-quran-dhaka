@@ -298,7 +298,7 @@ export function AdminShell({ data, admissions, children }: { data: ShellData; ad
 
   return (
     <ShellContext.Provider value={{ data, roundId, chooseRound, openMenu, mod }}>
-      <div className="sv-shell" data-collapsed={collapsed} data-module={mod}>
+      <div className="sv-shell" data-collapsed={collapsed}>
         <aside className="sv-side sv-no-print" aria-label="অ্যাপ মেনু">
           <Brand mod={mod} session={admissions?.session ?? '2027'}>
             <button type="button" className="sv-icon-btn" aria-label={collapsed ? 'সাইডবার বড় করুন' : 'সাইডবার ছোট করুন'} onClick={() => setFolded(!collapsed)}>

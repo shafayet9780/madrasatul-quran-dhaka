@@ -6,7 +6,7 @@ import { useTranslations } from 'next-intl';
 import { Button } from '@/components/shadcn/button';
 import { num, type Locale } from '@/lib/admissions/display';
 
-type Props = { locale: Locale; publicRef: string; pdfUrl: string | null; whatsappUrl: string | null; qrSvg: string | null; emailed: boolean };
+type Props = { locale: Locale; publicRef: string; pdfUrl: string | null; pdfName: string; whatsappUrl: string | null; qrSvg: string | null; emailed: boolean };
 
 const storageKey = (ref: string) => `mq-admission-tasks:${ref}`;
 
@@ -31,7 +31,7 @@ export function CopyId({ value, label }: { value: string; label: string }) {
 }
 
 /** The two required tasks after payment, each ticked when done (remembered on this device). */
-export function ConfirmationTasks({ locale, publicRef, pdfUrl, whatsappUrl, qrSvg, emailed }: Props) {
+export function ConfirmationTasks({ locale, publicRef, pdfUrl, pdfName, whatsappUrl, qrSvg, emailed }: Props) {
   const t = useTranslations('preAdmission.status');
   const [done, setDone] = useState({ pdf: false, whatsapp: false });
 
@@ -83,10 +83,10 @@ export function ConfirmationTasks({ locale, publicRef, pdfUrl, whatsappUrl, qrSv
             <>
               <div className="flex items-center gap-2.5 rounded-lg border px-3 py-2.5">
                 <FileText className="size-5 flex-none text-muted-foreground" aria-hidden />
-                <span className="text-[13.5px] font-medium">application-{publicRef}.pdf</span>
+                <span className="min-w-0 break-all text-[13.5px] font-medium">{pdfName}</span>
               </div>
               <Button asChild variant={done.pdf ? 'outline' : 'default'} className={done.pdf ? 'h-11 bg-card shadow-none' : 'h-11'}>
-                <a href={pdfUrl} download={`application-${publicRef}.pdf`} onClick={() => mark('pdf')}>
+                <a href={pdfUrl} download={pdfName} onClick={() => mark('pdf')}>
                   {!done.pdf && <Download aria-hidden />}
                   {done.pdf ? t('pdfOpenAgain') : t('pdfDownload')}
                 </a>

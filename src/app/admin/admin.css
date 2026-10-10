@@ -4,102 +4,12 @@
   background: var(--sv-report);
 }
 
-/* Admissions page bodies (.adm) style their own links with Tailwind. */
-.sv-admin a:not(.adm a) {
+/* Page bodies and buttons built with shadcn (.adm) style their own links with Tailwind. */
+.sv-admin a:not(.adm, .adm a) {
   color: var(--sv-link);
 }
-.sv-admin a:not(.adm a):hover {
+.sv-admin a:not(.adm, .adm a):hover {
   color: var(--sv-link-hover);
-}
-
-.sv-admin .sv-card {
-  background: #fff;
-  border: 1px solid var(--sv-hairline);
-  border-radius: 16px;
-  padding: 20px;
-}
-
-.sv-admin .sv-h2 {
-  margin: 0;
-  font-size: 19px;
-}
-
-/* Small row button: white with a hairline border; .is-primary is the one solid bronze action. */
-.sv-admin .sv-sbtn {
-  display: inline-flex;
-  align-items: center;
-  height: 34px;
-  padding: 0 10px;
-  border-radius: 9px;
-  border: 1px solid var(--sv-button-border);
-  background: #fff;
-  font: inherit;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--sv-text);
-  cursor: pointer;
-  white-space: nowrap;
-  text-decoration: none;
-}
-.sv-admin a.sv-sbtn:hover {
-  color: var(--sv-text);
-}
-.sv-admin .sv-sbtn:hover {
-  background: var(--sv-stone);
-}
-.sv-admin .sv-sbtn.is-stone {
-  background: var(--sv-stone);
-  border-color: transparent;
-}
-.sv-admin .sv-sbtn.is-primary {
-  background: var(--sv-bronze);
-  border-color: var(--sv-bronze);
-  color: #fff;
-}
-.sv-admin .sv-sbtn.is-primary:hover {
-  background: var(--sv-bronze-pressed);
-}
-.sv-admin .sv-sbtn.is-tall {
-  height: 40px;
-}
-.sv-admin .sv-sbtn:disabled {
-  opacity: 0.55;
-  cursor: not-allowed;
-}
-
-.sv-admin .sv-pbtn {
-  height: 48px;
-  padding: 0 18px;
-  border-radius: 12px;
-  border: 0;
-  background: var(--sv-bronze);
-  color: #fff;
-  font-family: var(--sv-font-head), 'Anek Bangla', sans-serif;
-  font-weight: 600;
-  font-size: 17px;
-  cursor: pointer;
-  box-shadow: 0 1px 2px rgba(94, 59, 36, 0.28), 0 8px 20px rgba(135, 91, 61, 0.22);
-}
-.sv-admin .sv-pbtn:hover {
-  background: var(--sv-bronze-pressed);
-}
-.sv-admin .sv-pbtn:disabled {
-  background: var(--sv-track);
-  color: var(--sv-text-muted);
-  box-shadow: none;
-  cursor: not-allowed;
-}
-
-.sv-admin .sv-input {
-  height: 44px;
-  width: 100%;
-  border-radius: 10px;
-  border: 1px solid var(--sv-input-border);
-  padding: 0 12px;
-  font: inherit;
-  font-size: 15px;
-  color: var(--sv-text);
-  background: #fff;
 }
 
 .sv-admin .sv-table {
@@ -122,33 +32,6 @@
   vertical-align: middle;
 }
 
-.sv-admin .sv-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  border-radius: 999px;
-  padding: 2px 10px;
-  font-size: 13px;
-  font-weight: 600;
-  white-space: nowrap;
-}
-.sv-admin .sv-chip::before {
-  content: '';
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: currentColor;
-}
-
-.sv-admin .sv-tag {
-  background: var(--sv-report);
-  border-radius: 6px;
-  padding: 2px 8px;
-  font-size: 13px;
-  font-weight: 600;
-}
-
-/* Inline confirmation / editor panel under the table. */
 /* Student page: one mark per chip (colours from markTone), the three answer tabs. */
 .sv-admin .sv-mark {
   display: inline-block;
@@ -221,9 +104,7 @@
     font-size: 13px;
   }
   .sv-admin .sv-answers td,
-  .sv-admin .sv-answers th,
-  .sv-admin .sv-compare td,
-  .sv-admin .sv-compare th {
+  .sv-admin .sv-answers th {
     padding-left: 6px;
     padding-right: 6px;
   }
@@ -243,31 +124,6 @@
   .sv-admin .sv-print-only {
     display: block;
   }
-}
-
-.sv-admin .sv-confirm {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  align-items: center;
-  padding: 14px 16px;
-  border-radius: 14px;
-  border: 1.5px solid var(--sv-tint-border);
-  background: var(--sv-tint);
-}
-
-.sv-admin .sv-note {
-  padding: 10px 14px;
-  border-radius: 12px;
-  font-size: 14px;
-}
-.sv-admin .sv-note.is-ok {
-  background: var(--sv-ok-bg);
-  color: var(--sv-ok);
-}
-.sv-admin .sv-note.is-error {
-  background: var(--sv-error-bg);
-  color: var(--sv-error);
 }
 
 /* Narrow screens: each table row becomes a card with labelled cells. */
@@ -303,18 +159,6 @@
   .sv-admin .sv-table.is-stackable td > [role='img'] {
     flex: 1 1 auto;
     min-width: 0;
-  }
-  .sv-admin .sv-table.is-stackable .sv-phone-hide {
-    display: none;
-  }
-  /* Compact cards (class list): two cells per line, the name across. */
-  .sv-admin .sv-table.is-stackable.is-compact tr {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 6px 12px;
-  }
-  .sv-admin .sv-table.is-stackable.is-compact td.sv-span-2 {
-    grid-column: 1 / -1;
   }
 }
 
@@ -368,19 +212,6 @@
 .sv-admin .sv-cover td.is-todo {
   background: var(--sv-stone-soft);
 }
-.sv-admin .sv-jump {
-  display: inline-flex;
-  align-items: center;
-  height: 34px;
-  padding: 0 12px;
-  border-radius: 999px;
-  background: #fff;
-  border: 1px solid var(--sv-hairline);
-  font-size: 13.5px;
-  font-weight: 600;
-  text-decoration: none;
-  color: var(--sv-text) !important;
-}
 
 @media print {
   .sv-admin .sv-no-print {
@@ -389,11 +220,9 @@
   .sv-admin {
     background: #fff;
   }
-  .sv-admin .sv-card {
-    break-inside: avoid;
-  }
   /* Let wide tables use the page instead of a scroll box. */
-  .sv-admin [style*='overflow-x'] {
+  .sv-admin [style*='overflow-x'],
+  .sv-admin .overflow-x-auto {
     overflow: visible !important;
   }
   .sv-admin .sv-cover {
@@ -404,43 +233,6 @@
     position: static;
     white-space: normal;
   }
-}
-
-/* Report flags and KPI tiles (R3–R5) */
-.sv-admin .sv-flag {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  background: var(--sv-warn-bg);
-  color: var(--sv-warn);
-  border-radius: 6px;
-  padding: 1px 7px;
-  font-size: 13px;
-  font-weight: 500;
-  white-space: nowrap;
-}
-.sv-admin .sv-kpi {
-  padding: 16px 18px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-.sv-admin .sv-kpi.is-muted .sv-num {
-  color: var(--sv-text-muted);
-}
-
-/* Status tags on the guardian tracker (গণ্য / আগের). */
-.sv-admin .sv-chip.is-ok {
-  background: var(--sv-ok-bg);
-  color: var(--sv-ok);
-}
-.sv-admin .sv-chip.is-warn {
-  background: var(--sv-warn-bg);
-  color: var(--sv-warn);
-}
-.sv-admin .sv-chip.is-muted {
-  background: var(--sv-neutral-bg);
-  color: var(--sv-text-body);
 }
 
 /* Teaching-quality heatmap (R1/R2): one link per class × subject cell. */
@@ -524,25 +316,27 @@
   }
 }
 
-/* Student area rows: name · bar · values; on phones the values wrap under the bar. */
-.sv-admin .sv-pair-row {
-  display: grid;
-  grid-template-columns: minmax(120px, 180px) minmax(0, 1fr) 200px;
-  gap: 12px;
-  align-items: center;
-}
-.sv-admin .sv-pair-text {
-  text-align: right;
-}
-@media (max-width: 720px) {
-  .sv-admin .sv-pair-row {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 4px;
+/* The internal print (.is-long) runs over several pages: sections may break, rows and headings do
+   not, and the sticky question column of the screen tables is plain on paper. */
+@media print {
+  .sv-admin .sv-print-sheet.is-long {
+    gap: 20px !important;
   }
-  .sv-admin .sv-pair-text {
-    text-align: left;
+  .sv-admin .sv-print-sheet.is-long section {
+    break-inside: auto;
+  }
+  .sv-admin .sv-print-sheet.is-long tr,
+  .sv-admin .sv-print-sheet.is-long li {
+    break-inside: avoid;
+  }
+  .sv-admin .sv-print-sheet.is-long :is(h2, h3) {
+    break-after: avoid;
   }
 }
+.sv-admin .sv-print-sheet.is-long .sv-answers th[scope='row'] {
+  position: static;
+}
+
 @media print {
   .sv-admin .sv-print-sheet section {
     break-inside: avoid;
@@ -563,7 +357,6 @@
     max-height: 150px;
   }
 }
-
 
 /* ---- App shell (dashboard frames D1–D4): sidebar, top bar, phone tabs and menu sheet. ---- */
 .sv-admin .sv-shell {
@@ -618,6 +411,10 @@
 }
 .sv-admin .sv-icon-btn:hover {
   background: var(--sv-stone);
+}
+/* An icon link (phone search) stays in text colour, like the icon buttons beside it. */
+.sv-admin a.sv-icon-btn {
+  color: var(--sv-text);
 }
 .sv-admin .sv-round-select {
   position: relative;
@@ -956,17 +753,9 @@
   .sv-admin .sv-pagetop-actions {
     display: none;
   }
-  /* Phones show only the page name as the title, in the top bar (the page's h1 stays for screen readers). */
+  /* Phones show only the page name in the top bar. */
   .sv-admin .sv-crumb:not([data-last='true']) {
     display: none;
-  }
-  .sv-admin .sv-shell-main h1.sv-head:not(.sv-print-sheet h1):not(.sv-card h1) {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip: rect(0 0 0 0);
-    white-space: nowrap;
   }
   .sv-admin .sv-crumbs {
     flex: 1;
@@ -1006,60 +795,72 @@
   }
 }
 
-/* Report rows of two cards: a flexible main column and a fixed side column (or two equal halves),
-   the same on every row so cards line up; one column on narrower screens. */
-.sv-admin .sv-split {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: 16px;
-  align-items: start;
-}
-@media (min-width: 1100px) {
-  .sv-admin .sv-split {
-    grid-template-columns: minmax(0, 1fr) 360px;
-  }
-  .sv-admin .sv-split.is-even {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-.sv-admin .sv-split > * {
-  min-width: 0;
-}
-
 /* The site's html/body overflow-x: hidden makes body a scroll container, which stops the sidebar
    and top bar from sticking; clip keeps horizontal scroll away without that. Admin pages only. */
 html:has(.sv-admin),
 html:has(.sv-admin) body {
   overflow-x: clip;
 }
-
-/* The admissions module uses the neutral admissions palette (shadcn.css), not the survey's warm stone. */
-.sv-admin:has(.sv-shell[data-module='admissions']) {
-  background: #fff;
+/* An open menu or dialog locks scrolling with body{overflow:hidden}. With html clipped, that would
+   make body the scroll box: the sticky sidebar and top bar would jump to the top of the page and the
+   menu open off screen. Lock the page at html instead and keep body unscrollable. */
+html:has(.sv-admin):has(body[data-scroll-locked]) {
+  overflow: hidden;
 }
-.sv-admin .sv-shell[data-module='admissions'] {
+html:has(.sv-admin) body[data-scroll-locked] {
+  overflow: clip !important;
+}
+
+/* One look for the whole admin (docs/admin-redesign-plan.md): the neutral shadcn palette of
+   shadcn.css instead of the survey's warm stone, Anek Bangla headings, and text in the site's Inter +
+   Noto Sans Bengali. Status colours (ok, warn, error, info) keep the survey's values. */
+.sv-root.sv-admin {
   --sv-bronze: #7a4d32;
   --sv-bronze-pressed: #643e28;
+  --sv-bronze-text: #7a4d32;
   --sv-link: #7a4d32;
   --sv-link-hover: #5c3a25;
+  --sv-paper: #fff;
   --sv-report: #fff;
   --sv-stone: #f5f5f5;
   --sv-stone-soft: #fafafa;
+  --sv-track: #f0f0f0;
   --sv-hairline: #e5e5e5;
   --sv-hairline-soft: #f0f0f0;
+  --sv-input-border: #d4d4d4;
+  --sv-dashed: #d4d4d4;
   --sv-tint: #f0f0f0;
+  --sv-tint-border: #e5e5e5;
   --sv-bronze-ink: #171717;
   --sv-button-border: #d4d4d4;
   --sv-text: #171717;
   --sv-text-body: #404040;
   --sv-text-muted: #525252;
   --sv-icon-muted: #737373;
+  --sv-neutral-bg: #f5f5f5;
+  --sv-focus: #7a4d32;
+  --sv-font-body: var(--font-english), var(--font-bengali);
   background: #fff;
-  font-family: var(--font-english), var(--font-bengali), system-ui, sans-serif;
+  font-family: var(--sv-font-body), system-ui, sans-serif;
 }
-.sv-admin .sv-shell[data-module='admissions'] .sv-side {
+.sv-admin :is(h1, h2, h3) {
+  font-family: var(--sv-font-head), 'Anek Bangla', sans-serif;
+}
+.sv-admin .sv-side {
   background: #fafafa;
 }
-.sv-admin .sv-shell[data-module='admissions'] .sv-pagetop {
+.sv-admin .sv-pagetop {
   background: rgb(255 255 255 / 0.94);
+}
+/* The app frame never prints: only the page does (the phone tab bar used to print on every page). */
+@media print {
+  .sv-admin .sv-side,
+  .sv-admin .sv-tabs,
+  .sv-admin .sv-pagetop,
+  .sv-admin .sv-sheet-wrap {
+    display: none !important;
+  }
+  .sv-admin .sv-shell-main {
+    padding: 0 !important;
+  }
 }

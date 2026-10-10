@@ -3,7 +3,7 @@ import { toBengaliDigits as bn } from '@/lib/survey/normalise';
 // Hand-built charts for the T1 reports. Teacher marks are one series (#2F6FA3), so no legend box;
 // axes start at the scale floor (৪) and the unit is the mark out of ১০.
 
-export const TEACHER = '#2F6FA3';
+const TEACHER = '#2F6FA3';
 const FLOOR = 4;
 const TOP = 10;
 const pos = (mark: number) => Math.max(0, Math.min(1, (mark - FLOOR) / (TOP - FLOOR)));
@@ -43,6 +43,20 @@ export function MarkChip({ mark, average = false }: { mark: number | null; avera
 
 /** Distribution colours (R5): ৪ rust → ১০ teacher blue; text stays in ink, the legend names them. */
 export const DIST_COLORS: Record<number, string> = { 4: '#B0521A', 6: '#E59A5B', 8: '#8DB4DB', 10: '#2F6FA3' };
+
+/** The key for Distribution bars: one swatch per mark. */
+export function DistLegend() {
+  return (
+    <div className="flex gap-3 text-[12.5px] text-muted-foreground" aria-hidden="true">
+      {[4, 6, 8, 10].map((m) => (
+        <span key={m} className="flex items-center gap-1">
+          <span className="size-2.5 rounded-[2px]" style={{ background: DIST_COLORS[m] }} />
+          {bn(m)}
+        </span>
+      ))}
+    </div>
+  );
+}
 
 export function Distribution({ items, label }: { items: { mark: number; count: number }[]; label: string }) {
   const total = items.reduce((s, i) => s + i.count, 0) || 1;
@@ -171,124 +185,5 @@ export function PairTrendChart({ points, width = 620 }: { points: { label: strin
   );
 }
 
-// Guardian ↔ teacher comparisons are drawn on the same ৪–১০ mark scale as everything else.
-const score = (mark: number) => pos(mark) * 100;
 /** The class page marks an area when guardian and teachers are at least this many marks apart. */
 export const AREA_GAP_MARKS = 1;
-
-/** One area: guardian dot, teacher dot, the span between them and an optional class-average tick. */
-export function PairBar({
-  guardian,
-  teacher,
-  reference,
-  muted = {},
-  label,
-}: {
-  guardian: number | null;
-  teacher: number | null;
-  reference?: number | null;
-  /** A side with fewer than 3 children: drawn faint (spec §7 greys n < 3). */
-  muted?: { guardian?: boolean; teacher?: boolean };
-  label: string;
-}) {
-  const dot = (mark: number, color: string, faint?: boolean) => (
-    <div
-      style={{ position: 'absolute', top: 3, left: `${score(mark)}%`, width: 14, height: 14, marginLeft: -7, borderRadius: '50%', background: color, boxShadow: '0 0 0 2px #fff', opacity: faint ? 0.35 : 1 }}
-    />
-  );
-  return (
-    <div style={{ position: 'relative', height: 20 }} title={label} role="img" aria-label={label}>
-      <div style={{ position: 'absolute', left: 0, right: 0, top: 9, height: 2, background: 'var(--sv-hairline-soft)' }} />
-      {guardian !== null && teacher !== null && (
-        <div style={{ position: 'absolute', top: 8, height: 4, background: 'var(--sv-hairline)', left: `${score(Math.min(guardian, teacher))}%`, width: `${Math.abs(score(guardian) - score(teacher))}%` }} />
-      )}
-      {reference != null && <div style={{ position: 'absolute', top: 1, left: `${score(reference)}%`, width: 3, height: 18, marginLeft: -1, background: 'var(--sv-text-body)' }} />}
-      {guardian !== null && dot(guardian, GUARDIAN, muted.guardian)}
-      {teacher !== null && dot(teacher, TEACHER, muted.teacher)}
-    </div>
-  );
-}
-
-export function MarkAxis() {
-  return (
-    <div className="flex justify-between" style={{ fontSize: 13, color: 'var(--sv-text-muted)' }} aria-hidden="true">
-      <span>৪</span>
-      <span>৭</span>
-      <span>১০</span>
-    </div>
-  );
-}
-
-/** R3 scatter: each child's guardian average (x) against the teachers' (y) on the areas both rated; lines at ৮. */
-export function GapScatter({ points }: { points: { erpId: string; name: string; guardian: number; teacher: number; flagged: boolean }[] }) {
-  const left = 50;
-  const right = 480;
-  const top = 40;
-  const bottom = 360;
-  const x = (mark: number) => left + (score(mark) / 100) * (right - left);
-  const y = (mark: number) => bottom - (score(mark) / 100) * (bottom - top);
-  const ticks = [4, 7, 10];
-  // Names of flagged children beside their dots, kept inside the plot: right-aligned near the right
-  // edge; below the dot, else above, else further out, skipping places another name already took.
-  const labels: { erpId: string; name: string; x: number; y: number; end: boolean; width: number }[] = [];
-  for (const p of [...points].filter((q) => q.flagged).sort((a, b) => a.guardian - b.guardian)) {
-    // Rough text width at 12px bold; Bengali letters run wider than Latin.
-    const width = p.name.length * (/[\u0980-\u09FF]/.test(p.name) ? 9 : 7);
-    const end = x(p.guardian) + width > right - 4;
-    const lx = end ? x(p.guardian) + 10 : x(p.guardian) - 10;
-    const span = (l: { x: number; end: boolean; width: number }) => (l.end ? [l.x - l.width, l.x] : [l.x, l.x + l.width]);
-    const [a0, a1] = span({ x: lx, end, width });
-    const free = (ly: number) => ly > top + 12 && ly < bottom - 4 && !labels.some((l) => Math.abs(l.y - ly) < 15 && span(l)[0] < a1 && a0 < span(l)[1]);
-    const dy = y(p.teacher);
-    const ly = [22, -12, 37, -27, 52, -42].map((d) => dy + d).find(free) ?? Math.min(Math.max(dy + 22, top + 14), bottom - 6);
-    labels.push({ erpId: p.erpId, name: p.name, x: lx, y: ly, end, width });
-  }
-  return (
-    <svg viewBox="0 0 500 410" width="100%" style={{ maxWidth: 560 }} role="img" aria-label={`${bn(points.length)} জন শিক্ষার্থীর অভিভাবক ও শিক্ষকদের গড় মার্ক (একই ক্ষেত্রে); বিস্তারিত নিচের তালিকায়`}>
-      <rect x={left} y={top} width={right - left} height={bottom - top} fill="#fff" />
-      <g stroke="var(--sv-icon-muted)" strokeDasharray="4 4">
-        <line x1={x(8)} y1={top} x2={x(8)} y2={bottom} />
-        <line x1={left} y1={y(8)} x2={right} y2={y(8)} />
-      </g>
-      <line x1={left} y1={bottom} x2={right} y2={bottom} stroke="var(--sv-hairline)" />
-      <line x1={left} y1={top} x2={left} y2={bottom} stroke="var(--sv-hairline)" />
-      <g fill="var(--sv-text-muted)" fontSize="12">
-        {ticks.map((t) => (
-          <text key={`x${t}`} x={x(t)} y={bottom + 18} textAnchor="middle">
-            {bn(t)}
-          </text>
-        ))}
-        {ticks.map((t) => (
-          <text key={`y${t}`} x={left - 8} y={y(t) + 4} textAnchor="end">
-            {bn(t)}
-          </text>
-        ))}
-      </g>
-      <text x={(left + right) / 2} y={bottom + 40} textAnchor="middle" fontSize="13" fontWeight="600" fill="var(--sv-text-body)">
-        অভিভাবকের গড় মার্ক →
-      </text>
-      <text x={14} y={(top + bottom) / 2} textAnchor="middle" fontSize="13" fontWeight="600" fill="var(--sv-text-body)" transform={`rotate(-90 14 ${(top + bottom) / 2})`}>
-        শিক্ষকদের গড় মার্ক →
-      </text>
-      <g fontSize="12.5" fill="var(--sv-text-muted)" textAnchor="end">
-        <text x={right - 8} y={top + 18}>দুই দিকেই ভালো</text>
-        <text x={right - 8} y={y(8) + 20}>অভিভাবক বেশি দিয়েছেন</text>
-        <text x={x(8) - 8} y={top + 18}>শিক্ষক বেশি দিয়েছেন</text>
-        <text x={x(8) - 8} y={y(8) + 20}>দুই দিকেই কম</text>
-      </g>
-      <text x={x(8)} y={top - 7} textAnchor="middle" fontSize="12" fontWeight="600" fill="var(--sv-text-muted)">
-        মার্ক ৮
-      </text>
-      {points.map((p) => (
-        <circle key={p.erpId} cx={x(p.guardian)} cy={y(p.teacher)} r={p.flagged ? 7 : 5} fill={p.flagged ? '#8A4416' : TEACHER} stroke="#fff" strokeWidth="2">
-          <title>{`${p.name}: অভিভাবক ${bn(p.guardian.toFixed(1))}, শিক্ষক ${bn(p.teacher.toFixed(1))}`}</title>
-        </circle>
-      ))}
-      {labels.map((l) => (
-        <text key={`n${l.erpId}`} x={l.x} y={l.y} textAnchor={l.end ? 'end' : 'start'} fontSize="12" fontWeight="600" fill="var(--sv-text)">
-          {l.name}
-        </text>
-      ))}
-    </svg>
-  );
-}

@@ -1,9 +1,9 @@
 // @vitest-environment node
-import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { eq, sql } from 'drizzle-orm';
 import { syncCycle, type CycleState } from './cycle';
 import { createDraft, getByToken, saveDraft, submitDraft, type Application } from './drafts';
-import { closePayment, completeAfterResubmit, confirmPayment, latestPayment, reconcilePending, startPayment } from './payments';
+import { TEST_FEE, closePayment, completeAfterResubmit, confirmPayment, latestPayment, reconcilePending, startPayment } from './payments';
 import { retryConfirmationEmails, sendConfirmationEmail, type MailMessage } from './mail';
 import { applicationEvents, applications, payments } from './schema';
 import type { FormDocument } from './snapshot';
@@ -85,6 +85,20 @@ describe('startPayment', () => {
     expect(await startPayment((await getByToken(token))!, cycle.snapshot, ORIGIN, gateway)).toEqual({ ok: false, reason: 'not_payable' });
   });
 
+  it('adds the Vercel bypass secret to the callbacks on a preview deployment only', async () => {
+    const { app } = await submitted();
+    vi.stubEnv('VERCEL_AUTOMATION_BYPASS_SECRET', 's3cret');
+    vi.stubEnv('VERCEL_ENV', 'production');
+    await pay(app);
+    expect(gateway.attempts.get((await latestPayment(app.id))!.tranId)!.request.successUrl).toBe(`${ORIGIN}/api/admissions/sslcommerz/success`);
+    vi.stubEnv('VERCEL_ENV', 'preview');
+    await pay(app);
+    const session = gateway.attempts.get((await latestPayment(app.id))!.tranId)!.request;
+    expect(session.successUrl).toBe(`${ORIGIN}/api/admissions/sslcommerz/success?x-vercel-protection-bypass=s3cret`);
+    expect(session.ipnUrl).toBe(`${ORIGIN}/api/admissions/sslcommerz/ipn?x-vercel-protection-bypass=s3cret`);
+    vi.unstubAllEnvs();
+  });
+
   it('closes the attempt when SSLCommerz refuses the session', async () => {
     const { app } = await submitted();
     gateway.setDown(true);
@@ -94,6 +108,22 @@ describe('startPayment', () => {
 });
 
 describe('confirmPayment', () => {
+  it('a test application (the office test pass) pays the test fee and is numbered on its own', async () => {
+    const real = await submitted('kg');
+    cycle = { ...cycle, testPass: true };
+    const test = await submitted('kg', '01812345678');
+    expect(test.app.isTest).toBe(true);
+    expect(real.app.isTest).toBe(false);
+
+    const p = await pay(test.app);
+    expect(p.amount).toBe(TEST_FEE);
+    expect(gateway.attempts.get(p.tranId)!.request.amount).toBe(TEST_FEE);
+    expect((await confirmPayment(p.tranId, gateway.complete(p.tranId, 'pay')!, 'return', gateway)).publicRef).toBe('TEST-001');
+    const p2 = await pay(real.app);
+    expect(p2.amount).toBe(500);
+    expect((await confirmPayment(p2.tranId, gateway.complete(p2.tranId, 'pay')!, 'return', gateway)).publicRef).toBe('KG-001');
+  });
+
   it('marks the application paid with the next serial for its class, once', async () => {
     const first = await submitted('kg');
     const second = await submitted('kg', '01812345678');

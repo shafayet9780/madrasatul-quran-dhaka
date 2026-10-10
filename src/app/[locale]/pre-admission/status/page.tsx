@@ -12,7 +12,8 @@ import { asLocale, dateTime, taka, txt, type Locale } from '@/lib/admissions/dis
 import { loadById, type Application } from '@/lib/admissions/drafts';
 import { fieldWithRole, type FormSnapshot } from '@/lib/admissions/form-config';
 import { flowPath } from '@/lib/admissions/pages';
-import { latestPayment, paymentGateway, reconcilePayment, type Payment } from '@/lib/admissions/payments';
+import { pdfFileName } from '@/lib/admissions/pdf';
+import { applicationFee, latestPayment, paymentGateway, reconcilePayment, type Payment } from '@/lib/admissions/payments';
 import { currentApplication, siteOrigin } from '@/lib/admissions/session';
 import { afterPaid } from '@/lib/admissions/after-paid';
 
@@ -51,7 +52,7 @@ export default async function StatusPage({ params, searchParams }: Props) {
     payment = await latestPayment(app.id);
   }
 
-  const fee = taka(snapshot.settings.applicationFee, locale);
+  const fee = taka(applicationFee(app, snapshot), locale);
   const shell = (children: React.ReactNode) => (
     <FlowShell locale={locale} session={snapshot.settings.session} back={{ href: flowPath(locale), label: t('back') }}>
       {children}
@@ -160,7 +161,7 @@ async function Confirmation({ app, snapshot, payment, locale, fee }: { app: Appl
         <CopyId value={app.publicRef ?? ''} label={t('copyId')} />
       </div>
 
-      <ConfirmationTasks locale={locale} publicRef={app.publicRef ?? ''} pdfUrl="/api/admissions/pdf" whatsappUrl={whatsappUrl} qrSvg={qrSvg} emailed={!!app.confirmationEmailAt} />
+      <ConfirmationTasks locale={locale} publicRef={app.publicRef ?? ''} pdfUrl="/api/admissions/pdf" pdfName={pdfFileName(app)} whatsappUrl={whatsappUrl} qrSvg={qrSvg} emailed={!!app.confirmationEmailAt} />
 
       <div className="grid gap-8 border-t pt-6 md:grid-cols-2 md:gap-10">
         <section className="flex flex-col gap-2.5">

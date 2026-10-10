@@ -20,7 +20,7 @@ import { OFFICE_STATUSES, STATUS_LABEL, statusTone, type ApplicationStatus } fro
 import { toBengaliDigits as bn } from '@/lib/admissions/normalise';
 import { cn } from '@/lib/utils';
 import { changeStatusAction, deleteUnpaidAction } from './actions';
-import { LAT, TONE_TEXT } from './ui';
+import { LAT, TONE_TEXT } from '../ui';
 
 type Option = { value: string; label: string };
 

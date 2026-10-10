@@ -15,6 +15,7 @@
     "test:e2e:admissions": "playwright test --config playwright.admissions.config.ts",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
+    "admin:screenshots": "tsx scripts/admin-screenshots.ts",
     "survey:fixtures": "tsx --conditions=react-server scripts/survey-dev-fixtures.ts",
     "setup:fees": "tsx scripts/setup-fees.ts",
     "setup:admissions": "tsx scripts/setup-admissions.ts",

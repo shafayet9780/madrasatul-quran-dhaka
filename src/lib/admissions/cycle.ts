@@ -4,6 +4,7 @@ import { getAdmissionsDb } from './db';
 import { localOverrides } from './local';
 import type { FormSnapshot } from './form-config';
 import { admissionCycles, admissionSnapshots } from './schema';
+import { hasTestPass } from './test-pass';
 import { FormConfigError, buildSnapshot, cycleWindow, type CycleWindow, type FormDocument } from './snapshot';
 
 export type CycleState = {
@@ -16,6 +17,8 @@ export type CycleState = {
   window: CycleWindow;
   /** Problems in the published form that kept it from replacing the current version. */
   problems: string[];
+  /** Opened for this device by the office's test pass (test-pass.ts). */
+  testPass?: boolean;
 };
 
 export const FORM_QUERY = `*[_type == "preAdmissionForm" && !(_id in path("drafts.**"))][0]{
@@ -116,6 +119,11 @@ export function previewDraftMode(env: Record<string, string | undefined> = proce
 
 /** Current cycle from the published form (Sanity, cached like the rest of the site). */
 export async function getCurrentCycle(): Promise<CycleState | null> {
+  const state = await loadCurrentCycle();
+  return state && (await hasTestPass()) ? { ...state, enabled: true, window: 'open', testPass: true } : state;
+}
+
+async function loadCurrentCycle(): Promise<CycleState | null> {
   const local = localOverrides();
   if (local) return syncCycle(local.form);
   if (previewDraftMode()) {
