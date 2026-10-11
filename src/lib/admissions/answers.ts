@@ -24,10 +24,10 @@ const optionValues = (f: FormField) => new Set(f.options.map((o) => o.value));
 export const isMissingFile = (f: FormField, v: unknown) => f.type === 'file' && !!f.allowMissing && v === FILE_MISSING;
 
 /**
- * Checkbox options marked "only this choice": ticking one keeps only it; ticking another option
- * drops it. `added` is the option just ticked.
+ * Ticking a checkbox option. Options marked "only this choice": ticking one keeps only it; ticking
+ * another option drops it. (Unticking is a plain removal.)
  */
-export function toggleChoice(f: FormField, current: string[], added: string): string[] {
+export function tickChoice(f: FormField, current: string[], added: string): string[] {
   const exclusive = new Set(f.options.filter((o) => o.exclusive).map((o) => o.value));
   if (exclusive.has(added)) return [added];
   return [...current.filter((v) => !exclusive.has(v)), added];

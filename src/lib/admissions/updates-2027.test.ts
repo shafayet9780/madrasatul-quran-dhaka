@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { checkField, checkSection, isVisible, sanitizeDraft, toggleChoice } from './answers';
+import { checkField, checkSection, isVisible, sanitizeDraft, tickChoice } from './answers';
 import { FILE_MISSING, NO_ROUTE, allFields, checkBringList, checkFormConfig, type RawSection } from './form-config';
 import { FormConfigError, buildSnapshot, type FormDocument } from './snapshot';
 import published from './testing/published-form.json';
@@ -20,7 +20,7 @@ describe('the updated published form', () => {
   });
 
   it('is a valid form with the transport routes frozen in', () => {
-    expect(snap.sourceRev).toBe(`${published._rev}+local-fees-1`);
+    expect(snap.sourceRev).toMatch(new RegExp(`^${published._rev}\\+\\w+$`));
     expect(snap.transport?.routes.map((r) => r.key)).toEqual(['mirpur_micro', 'mirpur_auto', 'uttara_micro_1', 'uttara_micro_2', 'uttara_auto']);
     expect(snap.transport?.vehicles).toEqual([
       { key: 'micro', name: { bengali: 'মাইক্রো', english: 'Micro' }, monthly: 5000 },
@@ -56,9 +56,9 @@ describe('the updated published form', () => {
 
   it('keeps "none of the above" on its own', () => {
     const dress = field('father_islamic_clothing');
-    expect(toggleChoice(dress, ['loose_clothing', 'beard'], 'none')).toEqual(['none']);
-    expect(toggleChoice(dress, ['none'], 'beard')).toEqual(['beard']);
-    expect(toggleChoice(dress, ['beard'], 'loose_clothing')).toEqual(['beard', 'loose_clothing']);
+    expect(tickChoice(dress, ['loose_clothing', 'beard'], 'none')).toEqual(['none']);
+    expect(tickChoice(dress, ['none'], 'beard')).toEqual(['beard']);
+    expect(tickChoice(dress, ['beard'], 'loose_clothing')).toEqual(['beard', 'loose_clothing']);
     expect(checkField(dress, ['none'])).toEqual({ value: ['none'] });
     expect(checkField(dress, ['beard', 'none'])).toEqual({ error: 'invalid_option' });
   });
@@ -114,6 +114,8 @@ describe('transport in the snapshot', () => {
     fees.transportRoutes![0].visible = false;
     const s = buildSnapshot({ ...doc, fees });
     expect(s.transport?.routes).toHaveLength(4);
+    expect(s.sourceRev).not.toBe(snap.sourceRev);
+    expect(buildSnapshot({ ...doc, fees: { ...liveFeeDocument(), _rev: 'school-fees-edited' } }).sourceRev).toBe(snap.sourceRev);
     expect(s.transport?.vehicles.find((v) => v.key === 'auto')?.monthly).toBeUndefined();
 
     expect(() => buildSnapshot({ ...doc, fees: { transport: fees.transport } })).toThrow(FormConfigError);

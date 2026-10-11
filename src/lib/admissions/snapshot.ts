@@ -64,6 +64,13 @@ function clean(value: unknown): unknown {
   return value;
 }
 
+/** Short FNV-1a hash, so a version changes only when the frozen transport data changes. */
+function hash(text: string): string {
+  let h = 0x811c9dc5;
+  for (let i = 0; i < text.length; i++) h = Math.imul(h ^ text.charCodeAt(i), 0x01000193);
+  return (h >>> 0).toString(36);
+}
+
 /** Visible routes with at least one stop, and the vehicles they use. */
 function buildTransport(fees: FeeDocument | null | undefined): Transport {
   const routes = (fees?.transportRoutes ?? [])
@@ -117,8 +124,8 @@ export function buildSnapshot(doc: FormDocument, takenAt: Date = new Date()): Fo
 
   const parsed = formSnapshotSchema.safeParse({
     takenAt: takenAt.toISOString(),
-    // A change to the routes or charges is a new version too.
-    sourceRev: transport && doc.fees?._rev ? `${doc._rev}+${doc.fees._rev}` : doc._rev,
+    // A change to the routes or charges is a new version too (other fee edits are not).
+    sourceRev: transport ? `${doc._rev}+${hash(JSON.stringify(transport))}` : doc._rev,
     settings: clean({
       session: c!.session,
       applicationFee: c!.applicationFee,
