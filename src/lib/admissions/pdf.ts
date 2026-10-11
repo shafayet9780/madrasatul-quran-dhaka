@@ -1,4 +1,5 @@
 import 'server-only';
+import { createHash } from 'node:crypto';
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import QRCode from 'qrcode';
@@ -9,6 +10,7 @@ import type { FileAnswer } from './answers';
 import type { FormSnapshot } from './form-config';
 import { latestPayment } from './payments';
 import { applicationHtml, footerTemplate, type PdfData } from './pdf-html';
+import { guardianCopyHtml, offlineFooterTemplate, offlineFormHtml, offlineHeaderTemplate, type OfflineData } from './offline-html';
 import { applications } from './schema';
 import { blobStore, type BlobStore } from './uploads';
 import { isOwnKey } from './files';
@@ -68,9 +70,9 @@ async function schoolInfo() {
     // The admissions number, else an active admission line, else the primary number.
     const phones = activePhones(contact);
     const phone = contact?.admissionsPhone || (phones.find((p) => p.type === 'admission') ?? phones[0])?.number;
-    return { name: 'মাদরাসাতুল কুরআন', line: [address, phone].filter(Boolean).join(' · '), logo };
+    return { name: 'মাদরাসাতুল কুরআন', line: [address, phone].filter(Boolean).join(' · '), logo, phone: phone ?? '' };
   } catch {
-    return { name: 'মাদরাসাতুল কুরআন', line: '', logo: null };
+    return { name: 'মাদরাসাতুল কুরআন', line: '', logo: null, phone: '' };
   }
 }
 
@@ -157,4 +159,80 @@ export async function ensureApplicationPdf(app: Application, snapshot: FormSnaps
 export async function readStoredPdf(key: string, store = blobStore()): Promise<Uint8Array | null> {
   const file = await store.get(key).catch(() => null);
   return file ? new Uint8Array(await new Response(file.stream).arrayBuffer()) : null;
+}
+
+/** The offline form's data: the current form version, the school, the WhatsApp group QR (large, for paper). */
+export async function offlineData(snapshot: FormSnapshot, origin: string): Promise<OfflineData> {
+  const school = await schoolInfo();
+  return {
+    snapshot,
+    school: { ...school, website: new URL(origin).host.replace(/^www\./, '') },
+    whatsappQrSvg: snapshot.settings.whatsappUrl ? await svgQr(snapshot.settings.whatsappUrl, 170) : null,
+    fontCss: embeddedFonts(),
+  };
+}
+
+/**
+ * Pages 1–5 and page 6 (the guardian's copy) as one PDF. Pages 2–5 repeat the application ID line
+ * in the header; page 1 has it in its office box, so page 1 is printed again without the header.
+ */
+export async function renderOfflinePdf(data: OfflineData): Promise<Uint8Array> {
+  const { PDFDocument } = await import('pdf-lib');
+  const session = data.snapshot.settings.session;
+  const browser = await launchBrowser();
+  try {
+    const open = async (html: string) => {
+      const page = await browser.newPage();
+      await page.setContent(html, { waitUntil: 'load' });
+      await page.evaluate(() => document.fonts.ready);
+      return page;
+    };
+    const options = { format: 'A4', printBackground: true, preferCSSPageSize: true } as const;
+    const formPage = await open(offlineFormHtml(data));
+    const printForm = async () =>
+      PDFDocument.load(
+        await formPage.pdf({ ...options, displayHeaderFooter: true, headerTemplate: offlineHeaderTemplate(session, data.fontCss), footerTemplate: offlineFooterTemplate(session, data.fontCss) }),
+      );
+    let form = await printForm();
+    // The instructions name the pages to hand in ("পৃষ্ঠা ১ থেকে ৫"): print again if a longer form needs more.
+    if (form.getPageCount() !== (data.formPages ?? 5)) {
+      await formPage.setContent(offlineFormHtml({ ...data, formPages: form.getPageCount() }), { waitUntil: 'load' });
+      await formPage.evaluate(() => document.fonts.ready);
+      form = await printForm();
+    }
+    const first = await PDFDocument.load(
+      await formPage.pdf({
+        ...options,
+        pageRanges: '1',
+        displayHeaderFooter: true,
+        headerTemplate: '<span></span>',
+        footerTemplate: offlineFooterTemplate(session, data.fontCss, form.getPageCount()),
+      }),
+    );
+    const copy = await PDFDocument.load(await (await open(guardianCopyHtml(data))).pdf(options));
+    const merged = await PDFDocument.create();
+    const [page1] = await merged.copyPages(first, [0]);
+    merged.addPage(page1);
+    for (const page of await merged.copyPages(form, form.getPageIndices().slice(1))) merged.addPage(page);
+    for (const page of await merged.copyPages(copy, copy.getPageIndices())) merged.addPage(page);
+    return await merged.save();
+  } finally {
+    await browser.close();
+  }
+}
+
+/**
+ * mqd_pre_admission_form_2027_v3.pdf for the current form version. Stored under a hash of its pages,
+ * so a new form version, a layout change or new school details make it again on the next download.
+ */
+export async function ensureOfflinePdf(cycle: { session: string; version: number; snapshot: FormSnapshot }, origin: string, store = blobStore()): Promise<{ name: string; bytes: Uint8Array }> {
+  const name = `mqd_pre_admission_form_${cycle.session}_v${cycle.version}.pdf`;
+  const data = await offlineData(cycle.snapshot, origin);
+  const hash = createHash('sha256').update(offlineFormHtml(data)).update(guardianCopyHtml(data)).digest('hex').slice(0, 16);
+  const key = `admissions/offline/${name.replace(/\.pdf$/, '')}_${hash}.pdf`;
+  const stored = await readStoredPdf(key, store);
+  if (stored) return { name, bytes: stored };
+  const bytes = await renderOfflinePdf(data);
+  await store.put(key, bytes, 'application/pdf', { overwrite: true });
+  return { name, bytes };
 }

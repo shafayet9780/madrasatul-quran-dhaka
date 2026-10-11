@@ -297,7 +297,7 @@ No open items remain.
 | M1 Schema + Sanity draft script | Done (`bd4ec0c`, `f0ac748`) | `src/lib/admissions/updates-2027.ts` (shared by `pnpm setup:admissions-updates` and the local preview); drafts written 2026-10-11, publish after deploy |
 | M2 Guardian pages | Done (`965092f`, `e416aa2`) | pledge step (`/pledge`, migration `0007_pledges.sql`: run `pnpm db:migrate` before deploy), "don't have it now", exclusive checkbox, route cards (`route-cards.tsx`), bring list (`bring-list.ts`) |
 | M3 Application PDF (4 pages) | Done (`999aac2`) | `pdf-html.ts`; checked with the local and the published form, both 4 pages |
-| M4 Offline form | Next | blank mode of the PDF engine, download on the intro page and in admin |
-| M5 Rename + WhatsApp | To do | PDF already says অ্যাসেসমেন্ট / পরীক্ষক |
+| M4 Offline form | Done | `offline-html.ts`, `/api/admissions/offline-form` (stored under a hash of its pages); "অফলাইন ফর্ম (PDF)" on the intro page while open, "অফলাইন ফর্ম" on the admin overview; 6 pages with the published form |
+| M5 Rename + WhatsApp | Next | PDF already says অ্যাসেসমেন্ট / পরীক্ষক |
 | M6 Export columns from all versions | To do | |
 | E2E | At the end | update `e2e/pre-admission.spec.ts` (pledge step, "সব ধাপ শেষ হলে খুলবে"); blank `SSLCOMMERZ_*` in `playwright.admissions.config.ts` (`.env.local` now has sandbox credentials) |

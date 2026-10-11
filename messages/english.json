@@ -873,6 +873,7 @@
       "start": "Start application",
       "continue": "Continue my application",
       "find": "Find my application",
+      "offlineForm": "Offline form (PDF)",
       "feesTitle": "Fees",
       "applicationFee": "Application fee",
       "applicationFeeNote": "Now, online (bKash, Nagad, card). Non-refundable.",

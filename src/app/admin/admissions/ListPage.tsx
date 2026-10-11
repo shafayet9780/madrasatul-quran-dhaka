@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import Link from 'next/link';
-import { Download } from 'lucide-react';
+import { Download, Printer } from 'lucide-react';
 import { Button } from '@/components/shadcn/button';
 import { adminCycle, applicationCounts, listApplications, type AdminCycle, type ListTab } from '@/lib/admissions/admin';
 import { OFFICE_STATUSES, STATUS_LABEL, attemptsText, lastActive, shortDate, type ApplicationStatus } from '@/lib/admissions/admin-labels';
@@ -43,6 +43,18 @@ export function ExportButton() {
       <a href="/admin/admissions/export">
         <Download aria-hidden />
         Excel এক্সপোর্ট
+      </a>
+    </Button>
+  );
+}
+
+/** The printable offline form of the current form version, for printing copies at the office. */
+export function OfflineFormButton() {
+  return (
+    <Button asChild variant="outline" className="adm h-9 bg-white shadow-none">
+      <a href="/api/admissions/offline-form?view=1" target="_blank" rel="noreferrer">
+        <Printer aria-hidden />
+        অফলাইন ফর্ম
       </a>
     </Button>
   );
