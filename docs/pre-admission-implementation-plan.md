@@ -1,6 +1,7 @@
 # Pre-admission 2027 — Implementation Plan
 
 Status: **M1 to M5 done** (2026-10-08); M3 waits for the SSLCommerz sandbox credentials for a real sandbox run, M4 for the private Blob store and Resend, M5's Sheet copy for `FORM_GOOGLE_SHEETS_ID` and the Google service account in the Vercel env (all work in the local preview). Next M6 (hardening and go-live). Database tests run against in-memory Postgres (PGlite, all migrations applied) in the normal `pnpm test`; `pnpm test:db` against the Neon dev branch is still available. Admin guide: [`pre-admission-admin-guide.md`](pre-admission-admin-guide.md).
+**2027 updates (2026-10-11):** pledge step, "don't have it now", transport routes, 4-page PDF, offline form, অ্যাসেসমেন্ট rename, WhatsApp emphasis and export columns from every form version are built (branch `pre-admission-2027`); see section 7 and [`pre-admission-2027-updates.md`](pre-admission-2027-updates.md).
 Inputs: [`pre-admission-2027.md`](pre-admission-2027.md) (spec) · [`pre-admission-mockups/`](pre-admission-mockups/README.md) (prototype + design language, locked)
 
 ## 1. Decisions (planning interview, 2026-10-07)
@@ -111,3 +112,27 @@ Remove the old form, `/api/submit-form` and `/api/upload`; security review; sand
 
 ## 6. Out of scope for this phase
 Online evaluation-fee payment, SMS, interview slot booking, merit lists, ERP push (export only), restyling survey page bodies.
+
+## 7. 2027 updates (2026-10-11)
+
+Agreed changes in [`pre-admission-2027-updates.md`](pre-admission-2027-updates.md) (its "Build status" table lists each milestone; U1–U6 below are its M1–M6, renamed here so they don't clash with this plan's milestones); the boards in `pre-admission-mockups/` marked "Updates 2026-10-11" win over older boards.
+
+| Milestone | Code |
+|---|---|
+| U1 Schema + drafts | `sanity/schemas/admissionForm.ts` (conduct, pledges, bring list, `allowMissing`, `exclusive`, field type `transportStop`), `feeSettings.ts` (routes); `src/lib/admissions/form-config.ts`, `snapshot.ts` (transport frozen with the form); `updates-2027.ts` + `pnpm setup:admissions-updates [--write]` (drafts only) |
+| U2 Guardian pages | `src/app/[locale]/pre-admission/pledge/`, `pledge.ts`, `transport.ts`, route cards, `bring-list.ts`; migration `0007` (pledge times) |
+| U3 Application PDF | `pdf-html.ts`: 4 pages, page 4 = pledges with their times, signatures, office/assessor section |
+| U4 Offline form | `offline-html.ts`, `pdf.ts` (`renderOfflinePdf`, `ensureOfflinePdf`, stored under a hash of its HTML), `GET /api/admissions/offline-form`; 6 pages (5 to hand in + guardian copy) |
+| U5 Rename + WhatsApp | অ্যাসেসমেন্ট / assessment in what people see (keys such as `evaluationFee` and `/admin/admissions/evaluation-day` unchanged); `whatsapp-qr.ts` (level H, logo), `whatsapp-logo.ts`, success-card states |
+| U6 Export | `export-rows.ts` (`exportForm`: columns from the current version plus every version a submitted application answered; transport split into route, vehicle, stop, charge), `cycle.ts` (`loadAnsweredSnapshots`) |
+
+Tests: unit and PGlite tests in `pnpm test`; `pnpm test:e2e:admissions` covers the pledge step, the WhatsApp "joined" task and the offline-form download.
+
+**Release steps (in order):**
+1. Merge `pre-admission-2027` and deploy.
+2. `pnpm db:migrate` against Neon (migration `0007`), before or right after the deploy: the pledge step writes the new columns.
+3. Publish the Sanity drafts written by `pnpm setup:admissions-updates --write` (the form and Fees & Discounts → Transport). Studio shows any problem; until then the website keeps the last good form.
+4. Set *Cycle settings → WhatsApp group link*, opens/closes dates; check the form on a phone with the test pass (admin overview).
+5. Delete the staff test applications made before the update (their PDFs use the old 3-page layout).
+6. Print the application PDF and the offline form once on the office printer and scan the WhatsApp QR with an Android phone and an iPhone.
+
