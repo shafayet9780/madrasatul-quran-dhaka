@@ -21,6 +21,8 @@ export type OfflineData = {
 
 const esc = (value: string) => value.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
 const bn = (value: number | string) => num(value, 'bengali');
+// Drawn, like any symbol outside the embedded fonts (the server has no font to fall back on).
+const ARROW = '<svg viewBox="0 0 14 8" width="14" height="8" aria-hidden="true"><path d="M1 4h11M9 1l3 3-3 3" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 const label = (f: FormField) => esc(txt(f.label, 'bengali'));
 const star = (f: FormField) => (f.required ? ' <span class="req">*</span>' : '');
 const isPhoto = (f: FormField) => f.type === 'file' && f.fileKind === 'photo';
@@ -56,7 +58,7 @@ body{padding:0 0.6mm}
 .idgrid{break-inside:avoid;display:grid;grid-template-columns:1fr auto;gap:0 18px;align-items:start}.idgrid .q:last-child{border-bottom:0}
 .photos{display:flex;gap:12px;padding-top:10px}.frame{width:35mm;height:45mm;border:1.3px dashed #7a4d32;border-radius:5px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;font-size:10px;gap:2px;padding:4px}
 .routes{width:100%;border-collapse:collapse;margin-top:6px}.routes th,.routes td{border:1px solid #bfb2a6;padding:4px 8px;text-align:left;vertical-align:top}.routes th{font-weight:600;background:#f6f0eb}.routes .area td{font-weight:700;color:#7a4d32;background:#fbf8f5}
-.stops{display:flex;flex-wrap:wrap;gap:4px 14px}
+.stops{display:flex;flex-wrap:wrap;gap:4px 14px}.to{display:inline-flex;align-items:center;gap:5px}
 .note{margin:10px 0 2px;padding:6px 11px;background:#f6f0eb;border-radius:6px;line-height:1.55;break-after:avoid}
 .first .idgrid .ans{height:11.5mm}
 .rules ol{list-style:none;margin:0;padding:0}.rules li{display:grid;grid-template-columns:22px 1fr;line-height:1.55;padding:2px 0}.rules li b{color:#7a4d32}.rules .gh{font-weight:700;margin-top:10px;padding-bottom:2px;border-bottom:1px solid #e6dfd9}
@@ -139,7 +141,7 @@ function answer(f: FormField, snapshot: FormSnapshot, dependents: FormField[]): 
                 const fee = v?.monthly != null ? `${taka(v.monthly, 'bengali')} / মাস` : 'ভাড়া অফিসে জানুন';
                 return `<tr><td style="width:34%"><b>${esc(txt(r.name, 'bengali'))}</b><div class="small">${esc(txt(v?.name, 'bengali'))}, ${esc(fee)}</div></td><td><div class="stops">${r.stops
                   .map((s) => `<span class="opt"><i class="c"></i>${esc(txt(s.name, 'bengali'))}</span>`)
-                  .join('')}<span class="muted">→ মাদরাসা</span></div></td></tr>`;
+                  .join('')}<span class="muted to">${ARROW}মাদরাসা</span></div></td></tr>`;
               })
               .join(''),
         )
