@@ -54,7 +54,7 @@ export default async function PreAdmissionIntro({ params }: Props) {
   const steps = [1, 2, 3, 4, 5, 6].map((n) => ({
     n: num(n, locale),
     title: t(`step${n}`),
-    note: n === 5 && bring.length ? null : t(`step${n}Note`, { fee: n === 5 ? evalFee : fee }),
+    note: n === 5 && bring.length ? t('step5Bring') : t(`step${n}Note`, { fee: n === 5 ? evalFee : fee }),
     list: n === 5 ? bring : [],
   }));
   const faq = [

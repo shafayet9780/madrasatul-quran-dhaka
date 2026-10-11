@@ -35,6 +35,8 @@ export function PledgeForm({ locale, steps, index, intro, groups, pledge, declar
   const { state: saveState, setState: setSave } = useSaveStatus();
   const [agreed, setAgreed] = useState(initial);
   const left = Number(!agreed.conduct) + Number(!agreed.family);
+  // The review opens only once both ticks are stored (it checks them on the server).
+  const ready = left === 0 && saveState !== 'saving' && saveState !== 'error';
   const hint = left === 0 ? t('pledge.hintDone') : left === 2 ? t('pledge.hintBoth') : t('pledge.hintOne');
   // The rail shows this step's state as ticked here, before the server page is reloaded.
   const shownSteps = steps.map((s, i) => (i === index ? { ...s, status: left === 0 ? ('done' as const) : left === 2 ? ('not_started' as const) : ('in_progress' as const) } : s));
@@ -76,8 +78,8 @@ export function PledgeForm({ locale, steps, index, intro, groups, pledge, declar
             {intro && <p className="text-[14.5px] leading-[1.65] text-muted-foreground md:text-[15px] md:leading-[1.7]">{intro}</p>}
           </div>
 
-          {groups.map((g) => (
-            <section key={g.title} className="flex flex-col gap-2.5 border-t py-5 md:flex-row md:flex-wrap md:gap-x-10 md:py-8">
+          {groups.map((g, gi) => (
+            <section key={gi} className="flex flex-col gap-2.5 border-t py-5 md:flex-row md:flex-wrap md:gap-x-10 md:py-8">
               <h2 className="text-[15px] font-semibold md:max-w-[260px] md:flex-[1_1_200px] md:text-base">{g.title}</h2>
               <ol className="flex flex-col gap-3 md:flex-[999_1_420px]">
                 {g.rules.map((r) => (
@@ -112,7 +114,7 @@ export function PledgeForm({ locale, steps, index, intro, groups, pledge, declar
               <span aria-live="polite" className="text-[13.5px] text-muted-foreground">
                 {hint}
               </span>
-              {left === 0 ? (
+              {ready ? (
                 <Button asChild className="h-11 px-[18px] text-[15px]">
                   <Link href={reviewHref}>{t('hub.review')}</Link>
                 </Button>
@@ -130,7 +132,7 @@ export function PledgeForm({ locale, steps, index, intro, groups, pledge, declar
         <span aria-live="polite" className="text-[13.5px] text-muted-foreground">
           {saveState === 'error' ? <SaveIndicator /> : hint}
         </span>
-        {left === 0 ? (
+        {ready ? (
           <Button asChild className="h-11 px-4 text-[15px]">
             <Link href={reviewHref}>
               {t('pledge.toReview')} <ChevronRight aria-hidden />

@@ -270,7 +270,12 @@ export function ChapterForm({ locale, applicationId, session, section, otherFiel
                   <section className={cn(sectionClass, bi > 0 && 'border-t')}>
                     {block.group && head(txt(block.group.title, locale), txt(block.group.description, locale))}
                     <div className={bodyClass}>
-                      <RouteCards transport={transport!} locale={locale} selected={typeof answers[stopField!.key] === 'string' ? (answers[stopField!.key] as string) : undefined} />
+                      <RouteCards
+                        transport={transport!}
+                        locale={locale}
+                        // A stop kept from before "not interested" is not marked.
+                        selected={isVisible(stopField!, answers) && typeof answers[stopField!.key] === 'string' ? (answers[stopField!.key] as string) : undefined}
+                      />
                     </div>
                   </section>
                 )}
