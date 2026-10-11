@@ -67,7 +67,9 @@ function photoBox(src: string | undefined, w: number, h: number, alt: string) {
 
 const consentTime = (at: Date | null) => (at ? `<div class="muted small">অনলাইনে সম্মতি: ${esc(dateTime(at.toISOString(), 'bengali'))}</div>` : '');
 /** An empty box for the office to tick, or a ticked one (agreed online). */
-const box = (ticked = false) => (ticked ? '<i class="tick on">✓</i>' : '<i class="tick"></i>');
+// The tick is drawn: the embedded fonts have no ✓, and the server has no other font to fall back on.
+const TICK = '<svg viewBox="0 0 12 12" width="11" height="11" aria-hidden="true"><path d="M2.4 6.3l2.4 2.4 4.8-5.2" fill="none" stroke="#171717" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const box = (ticked = false) => (ticked ? `<i class="tick on">${TICK}</i>` : '<i class="tick"></i>');
 
 const sectionTitle = (n: number, title: string) => `<h2 class="sec"><span>${bn(n)}</span>${esc(title)}</h2>`;
 
@@ -191,7 +193,8 @@ html,body{margin:0;background:#fff;color:#171717;font-family:'Inter','Noto Sans 
 /* Tight: closer rows, a wider question column (long questions wrap less), a smaller assessment box. */
 .tight .qa th,.tight .qa td{padding:2.5px 8px;line-height:1.35}.tight .qa.compact th,.tight .qa.compact td{padding:1.5px 8px;line-height:1.3}.tight .qa th{width:360px}
 .tight .page1 .box{margin-top:8px;padding:6px 12px}.tight .page1 .block,.tight .page1 .idrow{margin-top:8px}.tight .eval ol{line-height:1.45}.tight .qr.wa svg{width:100px;height:100px}
-.final{margin-top:0}
+/* Page 4 fills the page: the office section sits at the bottom (content height 297 - 13 - 15 mm, less a margin). */
+.final{margin-top:0;display:flex;flex-direction:column;min-height:265mm}.final .office{margin-top:auto}
 .final .box{margin-top:10px}
 .decl p{margin:0;line-height:1.6}
 .sign{display:flex;gap:24px;margin-top:22px}.sign>span{display:flex;flex-direction:column;gap:4px;font-size:11.5px;color:#525252}
@@ -202,7 +205,7 @@ html,body{margin:0;background:#fff;color:#171717;font-family:'Inter','Noto Sans 
 .rules .group{margin-top:8px;break-inside:avoid}.rules .gh{font-weight:700;margin-bottom:2px}.rules ol{list-style:none;margin:0;padding:0}.rules li{display:grid;grid-template-columns:22px 1fr;gap:2px;line-height:1.6;padding:2px 0}.rules li b{color:#525252}
 .to-sign{margin:10px 0 0;padding:6px 10px;border:1px solid #d4d4d4;border-radius:6px;font-weight:700}
 .consent{display:flex;gap:10px;align-items:flex-start;border:1px solid #d4d4d4;border-radius:8px;padding:9px 12px;margin-top:8px;line-height:1.6}.consent.boxed{border:2px solid #171717}.consent .tick{margin-top:3px}
-.tick.on{font-style:normal;font-size:11px;font-weight:700;line-height:11px;text-align:center}
+.tick.on{display:inline-flex;align-items:center;justify-content:center}
 .signs{display:grid;grid-template-columns:1fr 150px;gap:26px 24px;margin-top:26px}.signs>span{display:flex;flex-direction:column;gap:4px;font-size:11.5px;color:#525252}
 </style></head><body${tight ? ' class="tight"' : ''}>
 

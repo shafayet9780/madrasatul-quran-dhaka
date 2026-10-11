@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { missingGlyphs } from './testing/print-fonts';
 import { conductPageHtml, guardianCopyHtml, offlineFooterTemplate, offlineFormHtml, type OfflineData } from './offline-html';
 import { buildSnapshot } from './snapshot';
 import published from './testing/published-form.json';
@@ -53,6 +54,12 @@ describe('offline form (HTML)', () => {
     expect(html).toContain('(৬-এ ‘হ্যাঁ’ হলে)');
     expect(html).toContain('(প্লে ছাড়া)');
     expect(html.match(/class="frame"/g)).toHaveLength(2);
+  });
+
+  it('prints only characters the embedded fonts have', () => {
+    expect(missingGlyphs(html)).toEqual([]);
+    expect(missingGlyphs(conductPageHtml(data)!)).toEqual([]);
+    expect(missingGlyphs(guardianCopyHtml(data))).toEqual([]);
   });
 
   it("prints a class's requirements beside it", () => {

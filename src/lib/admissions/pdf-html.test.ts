@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { missingGlyphs } from './testing/print-fonts';
 import { applicationHtml, type PdfData } from './pdf-html';
 import { buildSnapshot } from './snapshot';
 import { liveFormDocument } from './testing/live-form';
@@ -41,6 +42,15 @@ describe('application PDF (HTML)', () => {
     expect(html.indexOf('অভিভাবকদের আচরণবিধি')).toBeLessThan(html.indexOf('অঙ্গীকার ও ঘোষণা'));
     expect(html.indexOf('অঙ্গীকার ও ঘোষণা')).toBeLessThan(html.indexOf('শুধু অফিস ও পরীক্ষকের জন্য'));
     expect(html).toContain('এই আচরণবিধি মেনে চলার অঙ্গীকার ও স্বাক্ষর: পৃষ্ঠা ৪');
+  });
+
+  it('prints only characters the embedded fonts have (the tick is drawn)', () => {
+    expect(missingGlyphs(html)).toEqual([]);
+    expect(html).toContain('<i class="tick on"><svg');
+  });
+
+  it('keeps the office section at the bottom of page 4', () => {
+    expect(html).toMatch(/\.final\{[^}]*min-height:265mm\}\.final \.office\{margin-top:auto\}/);
   });
 
   it('has a tighter layout for the reprint when a form runs past four pages', () => {
