@@ -16,9 +16,25 @@ const data: OfflineData = {
 describe('offline form (HTML)', () => {
   const html = offlineFormHtml(data);
 
-  it('has five pages: student, the middle chapters, the last chapter, the pledge', () => {
-    expect(html.match(/class="page-break"/g)).toHaveLength(3);
+  it('starts with the first chapter on page 1, keeps later chapters whole and the pledge on a page of its own', () => {
+    expect(html.match(/class="page-break"/g)).toHaveLength(1);
+    expect(html.match(/<section class="chapter first">/g)).toHaveLength(1);
+    expect(html.match(/<section class="chapter keep">/g)).toHaveLength(snapshot.sections.length - 1);
+    expect(html).toMatch(/\.keep\{break-inside:avoid\}/);
     expect(html.indexOf('শিক্ষার্থীর তথ্য')).toBeLessThan(html.indexOf('অভিভাবকদের আচরণবিধি ও অঙ্গীকার'));
+  });
+
+  it("stacks the child's names beside the photo frames and pairs short questions", () => {
+    // The fixture mixes Unicode forms of Bengali, so compare normalised text.
+    const page = html.normalize('NFC');
+    const id = page.slice(page.indexOf('class="idgrid"'), page.indexOf('class="photos"'));
+    // The names (gender, a choice, comes next and pairs with the date of birth below the frames).
+    expect(id.match(/class="q"/g)).toHaveLength(2);
+    expect(id).toContain('নাম (বাংলায়)'.normalize('NFC'));
+    expect(id).toContain('Name (in English)');
+    expect(id).not.toContain('class="pair"');
+    const pairs = page.match(/<div class="pair">.*?<\/div><\/div><\/div>/g) ?? [];
+    expect(pairs.some((p) => p.includes('(পিতা)'.normalize('NFC')) && p.includes('(মাতা)'.normalize('NFC')))).toBe(true);
   });
 
   it('numbers questions per chapter, notes conditions and leaves photos to the frames', () => {
