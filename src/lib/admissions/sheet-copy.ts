@@ -1,9 +1,9 @@
 import 'server-only';
 import { and, asc, eq, isNotNull, isNull, lt, or } from 'drizzle-orm';
 import { getSheetsClient, sheetsConfigured } from '@/lib/google-sheets-server';
-import { loadSnapshot } from './cycle';
+import { loadAnsweredSnapshots } from './cycle';
 import { getAdmissionsDb } from './db';
-import { exportHeader, exportRow } from './export-rows';
+import { exportForm, exportHeader, exportRow, type ExportForm } from './export-rows';
 import { toBengaliDigits } from './normalise';
 import { admissionCycles, applications, payments } from './schema';
 
@@ -27,9 +27,9 @@ const isPending = (now: Date) =>
   );
 
 /**
- * Creates the tab when missing and returns ID → row. When the form's columns changed, the header
- * is rewritten and every application of the cycle is queued again, so no row sits under the
- * wrong titles.
+ * Creates the tab when missing and returns ID → row. When the columns changed (a new form version
+ * added a question or changed a label), the header is rewritten and every application of the
+ * cycle is queued again, so no row sits under the wrong titles.
  */
 async function prepareTab(spreadsheetId: string, cycleId: string, title: string, header: string[]): Promise<Map<string, number>> {
   const sheets = getSheetsClient();
@@ -65,7 +65,7 @@ export async function copyPendingToSheet({ limit = 100, budgetMs = 20_000 }: { l
   const pending = await db.select({ id: applications.id, cycleId: applications.cycleId }).from(applications).where(isPending(new Date())).orderBy(asc(applications.paidAt)).limit(limit);
   let copied = 0;
   let failed = 0;
-  const tabs = new Map<string, { title: string; rows: Map<string, number>; snapshot: NonNullable<Awaited<ReturnType<typeof loadSnapshot>>> } | null>();
+  const tabs = new Map<string, { title: string; rows: Map<string, number>; form: ExportForm } | null>();
 
   for (const { id, cycleId } of pending) {
     if (Date.now() - start > budgetMs) break;
@@ -76,11 +76,12 @@ export async function copyPendingToSheet({ limit = 100, budgetMs = 20_000 }: { l
     try {
       if (!tabs.has(cycleId)) {
         const [cycle] = await db.select().from(admissionCycles).where(eq(admissionCycles.id, cycleId));
-        const snapshot = cycle && (await loadSnapshot(cycle.id, cycle.currentVersion));
-        if (!cycle || !snapshot) tabs.set(cycleId, null);
+        const versions = cycle ? await loadAnsweredSnapshots(cycle.id) : new Map();
+        if (!cycle || !versions.size) tabs.set(cycleId, null);
         else {
           const title = sheetTabName(cycle.session);
-          tabs.set(cycleId, { title, snapshot, rows: await prepareTab(spreadsheetId, cycle.id, title, exportHeader(snapshot)) });
+          const form = exportForm(versions);
+          tabs.set(cycleId, { title, form, rows: await prepareTab(spreadsheetId, cycle.id, title, exportHeader(form)) });
         }
       }
       const tab = tabs.get(cycleId);
@@ -91,7 +92,7 @@ export async function copyPendingToSheet({ limit = 100, budgetMs = 20_000 }: { l
         .where(and(eq(payments.applicationId, id), eq(payments.status, 'valid')))
         .orderBy(asc(payments.completedAt))
         .limit(1);
-      const values = [exportRow(tab.snapshot, app, payment ?? null)];
+      const values = [exportRow(tab.form, app, payment ?? null)];
       const sheets = getSheetsClient();
       const row = tab.rows.get(app.publicRef);
       if (row) {

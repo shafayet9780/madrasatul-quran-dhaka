@@ -1,9 +1,9 @@
 import 'server-only';
-import { and, eq, sql } from 'drizzle-orm';
+import { and, eq, inArray, isNotNull, sql } from 'drizzle-orm';
 import { getAdmissionsDb } from './db';
 import { localOverrides } from './local';
 import type { FormSnapshot } from './form-config';
-import { admissionCycles, admissionSnapshots } from './schema';
+import { admissionCycles, admissionSnapshots, applications } from './schema';
 import { hasTestPass } from './test-pass';
 import { FormConfigError, buildSnapshot, cycleWindow, type CycleWindow, type FormDocument } from './snapshot';
 
@@ -101,6 +101,25 @@ export async function loadSnapshot(cycleId: string, version: number): Promise<Fo
     .from(admissionSnapshots)
     .where(and(eq(admissionSnapshots.cycleId, cycleId), eq(admissionSnapshots.version, version)));
   return row?.snapshot ?? null;
+}
+
+/** The current version and every version a submitted application was answered against (export columns). */
+export async function loadAnsweredSnapshots(cycleId: string): Promise<Map<number, FormSnapshot>> {
+  const db = getAdmissionsDb();
+  const [cycle, used] = await Promise.all([
+    db.select({ version: admissionCycles.currentVersion }).from(admissionCycles).where(eq(admissionCycles.id, cycleId)),
+    db
+      .selectDistinct({ version: applications.snapshotVersion })
+      .from(applications)
+      .where(and(eq(applications.cycleId, cycleId), isNotNull(applications.publicRef))),
+  ]);
+  const versions = [...new Set([...cycle, ...used].map((r) => r.version))];
+  if (!versions.length) return new Map();
+  const rows = await db
+    .select({ version: admissionSnapshots.version, snapshot: admissionSnapshots.snapshot })
+    .from(admissionSnapshots)
+    .where(and(eq(admissionSnapshots.cycleId, cycleId), inArray(admissionSnapshots.version, versions)));
+  return new Map(rows.map((r) => [r.version, r.snapshot]));
 }
 
 /**

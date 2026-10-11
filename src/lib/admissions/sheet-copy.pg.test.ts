@@ -42,6 +42,7 @@ import type { AdmissionsDb } from './db';
 let db: AdmissionsDb;
 let stop: () => Promise<void>;
 let cycle: CycleState;
+let doc: FormDocument;
 
 beforeAll(async () => {
   ({ db, stop } = await startTestDb());
@@ -57,7 +58,7 @@ beforeEach(async () => {
   sheet.rows = [];
   sheet.fail = false;
   const s = sampleSnapshot();
-  const doc: FormDocument = {
+  doc = {
     _rev: 'r1',
     formSettings: { isEnabled: true },
     declarationText: s.settings.declaration,
@@ -124,6 +125,20 @@ describe('sheet copy', () => {
     expect(sheet.rows[0][0]).toBe('আবেদন আইডি');
     expect(await copyPendingToSheet()).toEqual({ copied: 1, failed: 0 });
     expect(sheet.rows.map((r) => r[0])).toEqual(['আবেদন আইডি', 'KG-001', 'KG-002']);
+  });
+
+  it('keeps the column of a question deleted after applications answered it', async () => {
+    await paidApplication('আব্দুল্লাহ', '01712345678');
+    // The office deletes ফেসবুক আইডি and publishes: a new form version.
+    const sections = structuredClone(doc.sections)!;
+    sections[1].fields = sections[1].fields!.filter((f) => f.key !== 'father_facebook');
+    cycle = (await syncCycle({ ...doc, _rev: 'r2', sections }))!;
+    expect(cycle.version).toBe(2);
+    await paidApplication('উমর', '01912345678');
+    expect(await copyPendingToSheet()).toEqual({ copied: 2, failed: 0 });
+    const col = sheet.rows[0].indexOf('ফেসবুক আইডি');
+    expect(col).toBeGreaterThan(0);
+    expect(sheet.rows.map((r) => r[col])).toEqual(['ফেসবুক আইডি', 'নেই', '']);
   });
 
   it('a failed write is retried on the next run', async () => {

@@ -1,11 +1,14 @@
 import type { AnswerValue, Answers } from './answers';
 import { STATUS_LABEL, type ApplicationStatus } from './admin-labels';
 import { txt } from './display';
-import { allFields, type FormField, type FormSnapshot, type Role } from './form-config';
+import { FILE_MISSING, NO_ROUTE, NO_ROUTE_LABEL, allFields, type FormField, type FormSnapshot, type Role } from './form-config';
 import { normaliseMobile } from './normalise';
+import { findStop } from './transport';
 
 // One row per paid application for the Excel export and the Google Sheet copy (ERP-ready: one
-// column per form field, ASCII digits, ISO dates, mobiles as 01XXXXXXXXX). Pure.
+// column per form field, ASCII digits, ISO dates, mobiles as 01XXXXXXXXX). The columns come from
+// every form version the applications were answered against, so a question deleted in Sanity
+// keeps its column; each row reads its answers with its own version. Pure.
 
 export type ExportApplication = {
   publicRef: string | null;
@@ -17,6 +20,7 @@ export type ExportApplication = {
   studentNameEn: string | null;
   dateOfBirth: string | null;
   answers: Answers;
+  snapshotVersion: number;
   createdAt: Date;
   submittedAt: Date | null;
   paidAt: Date | null;
@@ -47,7 +51,34 @@ const FIXED_HEADER = [
   'আবেদন শুরু',
 ];
 
+/** A transport stop answer fills these four columns (the area typed in has its own field column). */
+const TRANSPORT_HEADER = ['পরিবহন: রুট', 'পরিবহন: গাড়ি', 'পরিবহন: স্টপ', 'পরিবহন: মাসিক ভাড়া (৳)'];
+
 const fieldColumns = (snapshot: FormSnapshot) => allFields(snapshot).filter((f) => !(f.role && FIXED_ROLES.includes(f.role)));
+
+type Column = { field: FormField; section: string };
+export type ExportForm = { columns: Column[]; versions: Map<number, FormSnapshot>; latest: FormSnapshot };
+
+/**
+ * The columns of the latest version in its order; a field only older versions have goes right
+ * after the field it followed there. Labels come from the newest version that has the field.
+ */
+export function exportForm(versions: Map<number, FormSnapshot>): ExportForm {
+  const newestFirst = [...versions.entries()].sort(([a], [b]) => b - a).map(([, s]) => s);
+  const latest = newestFirst[0];
+  if (!latest) throw new Error('No form version to export');
+  const columns: Column[] = [];
+  for (const snapshot of newestFirst) {
+    const sectionOf = new Map(snapshot.sections.flatMap((s) => s.fields.map((f) => [f.key, txt(s.title, 'bengali')] as const)));
+    let at = 0;
+    for (const field of fieldColumns(snapshot)) {
+      const known = columns.findIndex((c) => c.field.key === field.key);
+      if (known >= 0) at = known + 1;
+      else columns.splice(at++, 0, { field, section: sectionOf.get(field.key) ?? '' });
+    }
+  }
+  return { columns, versions, latest };
+}
 
 /** "2026-10-07 14:05" in Dhaka time. */
 export function dhakaTime(d: Date | null): string {
@@ -62,6 +93,7 @@ const plainMobile = (canonical: string) => (/^8801\d{9}$/.test(canonical) ? cano
 
 export function exportValue(field: FormField, value: AnswerValue | undefined): string {
   if (value == null || value === '' || (Array.isArray(value) && value.length === 0)) return '';
+  if (field.type === 'file' && value === FILE_MISSING) return 'জমা দেওয়া হয়নি, সঙ্গে আনবেন';
   const option = (v: string) => txt(field.options.find((o) => o.value === v)?.label, 'bengali') || v;
   if (typeof value === 'object' && !Array.isArray(value)) return 'আছে';
   if (Array.isArray(value)) return value.map(option).join(', ');
@@ -75,20 +107,34 @@ export function exportValue(field: FormField, value: AnswerValue | undefined): s
   return s;
 }
 
-export function exportHeader(snapshot: FormSnapshot): string[] {
-  const fields = fieldColumns(snapshot);
-  const counts = new Map<string, number>();
-  for (const f of fields) counts.set(txt(f.label, 'bengali'), (counts.get(txt(f.label, 'bengali')) ?? 0) + 1);
-  const sectionOf = new Map(snapshot.sections.flatMap((s) => s.fields.map((f) => [f.key, txt(s.title, 'bengali')] as const)));
-  // The same label in two chapters (পেশা for father and mother) gets the chapter's name.
-  const names = fields.map((f) => {
-    const name = txt(f.label, 'bengali') || f.key;
-    return (counts.get(name) ?? 0) > 1 ? `${name} (${sectionOf.get(f.key)})` : name;
-  });
-  return [...FIXED_HEADER, ...names];
+/** Route, vehicle, stop and monthly charge, read against the routes frozen with the answer's version. */
+function transportValues(snapshot: FormSnapshot, value: AnswerValue | undefined): string[] {
+  if (value == null || value === '') return ['', '', '', ''];
+  if (value === NO_ROUTE) return [NO_ROUTE_LABEL.bengali, '', '', ''];
+  const chosen = findStop(snapshot.transport, value);
+  if (!chosen) return [String(value), '', '', ''];
+  const monthly = chosen.vehicle?.monthly;
+  return [txt(chosen.route.name, 'bengali'), txt(chosen.vehicle?.name, 'bengali') || chosen.route.vehicle, txt(chosen.stop.name, 'bengali'), monthly == null ? '' : String(monthly)];
 }
 
-export function exportRow(snapshot: FormSnapshot, app: ExportApplication, payment: ExportPayment): string[] {
+export function exportHeader(form: ExportForm): string[] {
+  const counts = new Map<string, number>();
+  for (const { field } of form.columns) counts.set(txt(field.label, 'bengali'), (counts.get(txt(field.label, 'bengali')) ?? 0) + 1);
+  // The same label in two chapters (পেশা for father and mother) gets the chapter's name.
+  const named = form.columns.flatMap(({ field, section }) => {
+    if (field.type === 'transportStop') return TRANSPORT_HEADER.map((name) => ({ name, key: field.key }));
+    const name = txt(field.label, 'bengali') || field.key;
+    return [{ name: (counts.get(name) ?? 0) > 1 ? `${name} (${section})` : name, key: field.key }];
+  });
+  // Still the same (a question deleted and added again under a new key): the key tells them apart.
+  const seen = new Map<string, number>();
+  for (const { name } of named) seen.set(name, (seen.get(name) ?? 0) + 1);
+  return [...FIXED_HEADER, ...named.map(({ name, key }) => ((seen.get(name) ?? 0) > 1 ? `${name} [${key}]` : name))];
+}
+
+export function exportRow(form: ExportForm, app: ExportApplication, payment: ExportPayment): string[] {
+  const own = form.versions.get(app.snapshotVersion) ?? form.latest;
+  const ownFields = new Map(allFields(own).map((f) => [f.key, f]));
   return [
     app.publicRef ?? '',
     STATUS_LABEL[app.status],
@@ -106,6 +152,12 @@ export function exportRow(snapshot: FormSnapshot, app: ExportApplication, paymen
     dhakaTime(app.evalFeeReceivedAt),
     app.locale === 'english' ? 'English' : 'বাংলা',
     dhakaTime(app.createdAt),
-    ...fieldColumns(snapshot).map((f) => exportValue(f, app.answers[f.key])),
+    ...form.columns.flatMap(({ field: column }) => {
+      // The wording (option labels) of the version the guardian answered, when it has the field.
+      const mine = ownFields.get(column.key);
+      const field = mine?.type === column.type ? mine : column;
+      const value = app.answers[field.key];
+      return field.type === 'transportStop' ? transportValues(own, value) : [exportValue(field, value)];
+    }),
   ];
 }
