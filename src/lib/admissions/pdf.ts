@@ -117,20 +117,30 @@ export async function pdfData(app: Application, snapshot: FormSnapshot, origin: 
   };
 }
 
+/** The application is printed on 4 pages ("এই আবেদনপত্রটি (৪ পৃষ্ঠা) প্রিন্ট করুন"). */
+const APPLICATION_PAGES = 4;
+
 export async function renderPdf(data: PdfData): Promise<Uint8Array> {
+  const { PDFDocument } = await import('pdf-lib');
   const browser = await launchBrowser();
   try {
     const page = await browser.newPage();
-    await page.setContent(applicationHtml(data), { waitUntil: 'load' });
-    await page.evaluate(() => document.fonts.ready);
-    return await page.pdf({
-      format: 'A4',
-      printBackground: true,
-      preferCSSPageSize: true,
-      displayHeaderFooter: true,
-      headerTemplate: '<span></span>',
-      footerTemplate: footerTemplate(data.publicRef, data.studentNameBn, data.fontCss, data.snapshot.settings.session),
-    });
+    const print = async (tight: boolean) => {
+      await page.setContent(applicationHtml(data, tight), { waitUntil: 'load' });
+      await page.evaluate(() => document.fonts.ready);
+      return page.pdf({
+        format: 'A4',
+        printBackground: true,
+        preferCSSPageSize: true,
+        displayHeaderFooter: true,
+        headerTemplate: '<span></span>',
+        footerTemplate: footerTemplate(data.publicRef, data.studentNameBn, data.fontCss, data.snapshot.settings.session),
+      });
+    };
+    // Longer answers or questions added in Sanity can push a page over: print again, tighter.
+    const pdf = await print(false);
+    if ((await PDFDocument.load(pdf)).getPageCount() <= APPLICATION_PAGES) return pdf;
+    return await print(true);
   } finally {
     await browser.close();
   }

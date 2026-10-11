@@ -43,6 +43,14 @@ describe('application PDF (HTML)', () => {
     expect(html).toContain('এই আচরণবিধি মেনে চলার অঙ্গীকার ও স্বাক্ষর: পৃষ্ঠা ৪');
   });
 
+  it('has a tighter layout for the reprint when a form runs past four pages', () => {
+    expect(html).toContain('<body>');
+    const tight = applicationHtml(data(), true);
+    expect(tight).toContain('<body class="tight">');
+    expect(tight).toMatch(/\.tight \.qa th\{width:360px\}/);
+    expect(tight.match(/class="page-break"/g)).toHaveLength(3);
+  });
+
   it('shows each consent ticked with its time only when given online, and both signatures', () => {
     expect(html.match(/class="tick on"/g)).toHaveLength(2);
     expect(html.match(/অনলাইনে সম্মতি:/g)).toHaveLength(2);
