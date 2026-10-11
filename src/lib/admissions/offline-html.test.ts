@@ -78,6 +78,19 @@ describe('offline form (HTML)', () => {
     expect(guardianCopyHtml({ ...data, whatsappQrSvg: null })).not.toContain('হোয়াটসঅ্যাপ গ্রুপে যোগ দিন');
   });
 
+  it("lists every office number with its label on the guardian's copy", () => {
+    const phones = [
+      { label: 'সিনিয়র এডমিন', number: '+880 1302-332244' },
+      { label: 'এডমিন সেকশন', number: '+880 1301 226644' },
+      { label: 'একাউন্টস সেকশন', number: '+880 1304 226644' },
+    ];
+    const copy = guardianCopyHtml({ ...data, school: { ...data.school, phones } });
+    for (const p of phones) expect(copy).toContain(`<span class="small muted">${p.label}</span><b>${p.number}</b>`);
+    expect(copy).toContain('madrasatulquranbd.com');
+    // Without the list, the single number is shown.
+    expect(guardianCopyHtml(data)).toContain('<b>01301226644</b>');
+  });
+
   it('names the pages to hand in, and numbers page 1 printed on its own against the whole form', () => {
     expect(html).toContain('পূরণ করা পৃষ্ঠা ১ থেকে ৪');
     expect(html).toContain('আচরণবিধির পৃষ্ঠা (৫) আপনার কাছে রাখুন');

@@ -11,7 +11,8 @@ import { CHOICE_TYPES, NO_ROUTE, allFields, type FormField, type FormSection, ty
 
 export type OfflineData = {
   snapshot: FormSnapshot;
-  school: { name: string; line: string; logo: string | null; phone: string; website: string };
+  /** `phones`: every active number with its label (Site Settings), printed on the guardian's copy. */
+  school: { name: string; line: string; logo: string | null; phone: string; website: string; phones?: { label: string; number: string }[] };
   whatsappQrSvg: string | null;
   fontCss: string;
   /** Pages handed in (before the code of conduct and the guardian's copy); pdf.ts corrects it if the printed form differs. */
@@ -66,6 +67,8 @@ body{padding:0 0.6mm}
 .office{border:1.5px dashed #7a4d32;border-radius:6px;padding:9px 14px;margin-top:14px;display:flex;flex-direction:column;gap:10px;break-inside:avoid}.office > b{color:#7a4d32}
 .band{grid-column:1/-1;padding:6px 10px;font-size:15px;font-weight:700;background:#f6f0eb;border-radius:6px}
 .receipt{border:1.5px solid #7a4d32;border-radius:8px;padding:14px 18px;margin-top:18px;display:grid;grid-template-columns:1fr 1fr;gap:14px 24px}
+.contact{margin-top:18px;padding:12px 16px;background:#f6f0eb;border-radius:8px}.contact .k{font-weight:700;margin-bottom:8px}
+.contact .nums{display:grid;grid-template-columns:repeat(auto-fit,minmax(40mm,1fr));gap:8px 18px}.contact .nums span{display:flex;flex-direction:column;gap:1px}.contact .nums b{font-size:13.5px;white-space:nowrap}
 .wa{border:1.5px solid #7a4d32;border-radius:8px;padding:16px 18px;margin-top:18px;display:flex;gap:20px;align-items:center}.wa svg{width:44mm;height:44mm}
 `;
 
@@ -276,6 +279,15 @@ export function conductPageHtml(d: OfflineData): string | null {
 </body></html>`;
 }
 
+/** "প্রশ্ন থাকলে যোগাযোগ করুন": each office number with its label, then the website. */
+function contactBlock(school: OfflineData['school']): string {
+  const phones = school.phones?.length ? school.phones : school.phone ? [{ label: '', number: school.phone }] : [];
+  if (!phones.length && !school.website) return '';
+  return `<section class="contact"><div class="k">প্রশ্ন থাকলে যোগাযোগ করুন</div>${
+    phones.length ? `<div class="nums">${phones.map((p) => `<span>${p.label ? `<span class="small muted">${esc(p.label)}</span>` : ''}<b>${esc(p.number)}</b></span>`).join('')}</div>` : ''
+  }${school.website ? `<div class="small muted" style="margin-top:8px">${esc(school.website)}</div>` : ''}</section>`;
+}
+
 /** The last page, the guardian's copy: the fee receipt the office fills in and the WhatsApp group. */
 export function guardianCopyHtml(d: OfflineData): string {
   const s = d.snapshot.settings;
@@ -298,6 +310,6 @@ ${
     ? `<section class="wa">${d.whatsappQrSvg}<div><div style="font-size:16px;font-weight:700">হোয়াটসঅ্যাপ গ্রুপে যোগ দিন</div><p style="margin:6px 0">অ্যাসেসমেন্টের তারিখ, সময় ও অন্যান্য সব খবর <b>শুধু এই গ্রুপেই</b>, আবেদন আইডি অনুযায়ী জানানো হবে।</p><div class="muted">ফোনের ক্যামেরা দিয়ে কোডটি স্ক্যান করুন</div></div></section>`
     : ''
 }
-<p class="muted" style="margin-top:18px;text-align:center">প্রশ্ন থাকলে: ${esc([d.school.phone, d.school.website].filter(Boolean).join(' · '))}</p>
+${contactBlock(d.school)}
 </body></html>`;
 }

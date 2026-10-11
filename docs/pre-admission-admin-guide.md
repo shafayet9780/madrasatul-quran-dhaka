@@ -66,7 +66,7 @@ For families who cannot apply online. **অফলাইন ফর্ম** (admin
 - Pages 1–4 are filled in and handed to the office with the ৳500 application fee in cash; page 4 ends with the pledges, the parents' signatures and the office checks.
 - Page 5 is the **code of conduct**: the family keeps it (the pledges on page 4 refer to it).
 - Number paper applications yourself in the office box on page 1 (e.g. `KG-P01`, `KG-P02`), so they never clash with online IDs.
-- Page 6 is the **guardian's copy**: fill in the receipt part (name, class, ID, receipt number, date, signature) and give it back. It has the WhatsApp group QR code.
+- Page 6 is the **guardian's copy**: fill in the receipt part (name, class, ID, receipt number, date, signature) and give it back. It has the WhatsApp group QR code and every active office number with its label from *Site Settings → Contact* (change a number or label there).
 - Paper applications are **not entered into the system**: no email, no Sheet row, no application PDF, no admin step. Keep the paper file.
 - After a change to the form in the Studio, download the form again before printing more copies.
 
