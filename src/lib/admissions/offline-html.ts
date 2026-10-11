@@ -2,18 +2,19 @@ import { num, taka, txt } from './display';
 import { CHOICE_TYPES, NO_ROUTE, allFields, type FormField, type FormSection, type FormSnapshot } from './form-config';
 
 // The printable offline form (docs/pre-admission-mockups/Off1–Off6), generated from the same form
-// version as the online one. Pages 1 to 5 are handed in to the office with the fee; page 6 (the
-// guardian's copy: fee receipt and WhatsApp QR) comes back. Black text with the application PDF's
+// version as the online one. Pages 1 to 4 (the chapters, pledges, signatures and office checks) are
+// handed in to the office with the fee; page 5 (the code of conduct) stays with the family and page 6
+// (the guardian's copy: fee receipt and WhatsApp QR) comes back. Black text with the application PDF's
 // brown as a small accent and only light tints, so it survives photocopying. Paper forms are never
-// typed into the system. Printed to A4 by pdf.ts: pages 2–5 repeat the application ID line in the
-// header (page 1 has it in the office box), page 6 stands alone.
+// typed into the system. Printed to A4 by pdf.ts: pages 2–4 repeat the application ID line in the
+// header (page 1 has it in the office box); the last two pages stand alone.
 
 export type OfflineData = {
   snapshot: FormSnapshot;
   school: { name: string; line: string; logo: string | null; phone: string; website: string };
   whatsappQrSvg: string | null;
   fontCss: string;
-  /** Pages handed in (all but the guardian's copy); pdf.ts corrects it if the printed form differs. */
+  /** Pages handed in (before the code of conduct and the guardian's copy); pdf.ts corrects it if the printed form differs. */
   formPages?: number;
 };
 
@@ -41,28 +42,28 @@ body{padding:0 0.6mm}
 .officebox label{display:flex;flex-direction:column;gap:14px;font-size:11px;white-space:nowrap}.officebox label i{display:block;border-bottom:1px solid #000}
 .howto{border:1px solid #cdbfb3;border-radius:6px;padding:8px 12px;line-height:1.55;font-size:11.5px}
 .howto ol{margin:0;padding:0;list-style:none;display:grid;gap:2px}.howto li{display:grid;grid-template-columns:18px 1fr}.howto li b:first-child{color:#7a4d32}
-.chapter{margin-top:14px}.keep{break-inside:avoid}
+.chapter{margin-top:12px}.keep{break-inside:avoid}
 .ch{margin:0 0 4px;padding:6px 10px;font-size:15px;font-weight:700;display:flex;align-items:center;gap:10px;background:#f6f0eb;border-radius:6px;break-after:avoid}
 .ch span{flex:none;display:inline-flex;align-items:center;justify-content:center;width:23px;height:23px;border-radius:50%;background:#7a4d32;color:#fff;font-size:12px;line-height:1}
-.q{break-inside:avoid;padding:6px 2px 8px;border-bottom:1px solid #e6dfd9}.q .lbl{font-weight:600}
+.q{break-inside:avoid;padding:5px 2px 7px;border-bottom:1px solid #e6dfd9}.q .lbl{font-weight:600}
 .q.row{display:flex;flex-wrap:wrap;align-items:center;gap:5px 22px}.q.row .opts{margin-top:0}
 .pair{display:grid;grid-template-columns:1fr 1fr;gap:0 22px;break-inside:avoid;border-bottom:1px solid #e6dfd9}.pair .q{border-bottom:0}.pair .q.row{display:block}.pair .q.row .opts{margin-top:6px}
-.ans{display:block;height:9.5mm;border:1px solid #8c8c8c;border-radius:5px;margin-top:5px}.ans.tall{height:18mm}
+.ans{display:block;height:9mm;border:1px solid #8c8c8c;border-radius:5px;margin-top:5px}.ans.tall{height:16mm}
 .opts{display:flex;flex-wrap:wrap;gap:5px 22px;margin-top:6px}.opt{display:inline-flex;align-items:center;gap:7px}
 .o{flex:none;display:inline-block;width:13px;height:13px;border:1.3px solid #000;border-radius:50%}.c{flex:none;display:inline-block;width:13px;height:13px;border:1.3px solid #000;border-radius:2px}
-.date{display:flex;gap:10px;margin-top:5px}.date span{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:10px;color:#404040}.date i{display:block;height:9.5mm;border:1px solid #8c8c8c;border-radius:5px}
+.date{display:flex;gap:10px;margin-top:5px}.date span{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:10px;color:#404040}.date i{display:block;height:9mm;border:1px solid #8c8c8c;border-radius:5px}
 .idgrid{break-inside:avoid;display:grid;grid-template-columns:1fr auto;gap:0 18px;align-items:start}.idgrid .q:last-child{border-bottom:0}
 .photos{display:flex;gap:12px;padding-top:10px}.frame{width:35mm;height:45mm;border:1.3px dashed #7a4d32;border-radius:5px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;font-size:10px;gap:2px;padding:4px}
 .routes{width:100%;border-collapse:collapse;margin-top:6px}.routes th,.routes td{border:1px solid #bfb2a6;padding:4px 8px;text-align:left;vertical-align:top}.routes th{font-weight:600;background:#f6f0eb}.routes .area td{font-weight:700;color:#7a4d32;background:#fbf8f5}
 .stops{display:flex;flex-wrap:wrap;gap:4px 14px}
 .note{margin:10px 0 2px;padding:6px 11px;background:#f6f0eb;border-radius:6px;line-height:1.55;break-after:avoid}
-.first .idgrid .ans{height:12mm}
-.page-break{break-before:page}
+.first .idgrid .ans{height:11.5mm}
 .rules ol{list-style:none;margin:0;padding:0}.rules li{display:grid;grid-template-columns:22px 1fr;line-height:1.55;padding:2px 0}.rules li b{color:#7a4d32}.rules .gh{font-weight:700;margin-top:10px;padding-bottom:2px;border-bottom:1px solid #e6dfd9}
+.rules.big{font-size:14px;margin-top:18px}.rules.big li{grid-template-columns:28px 1fr;line-height:1.75;padding:5px 0}.rules.big .gh{font-size:15px;margin-top:20px;padding-bottom:4px}
 .consent{display:flex;gap:9px;align-items:flex-start;border:1px solid #8c8c8c;border-radius:6px;padding:8px 12px;margin-top:8px;line-height:1.55}.consent.boxed{border:2px solid #7a4d32}.consent .c{margin-top:3px}
-.signs{display:grid;grid-template-columns:1fr 1fr;gap:16px 32px;margin-top:34px}.signs span{display:flex;flex-direction:column;gap:4px;font-size:10.5px}
+.signs{display:grid;grid-template-columns:1fr 1fr;gap:16px 32px;margin-top:28px}.signs span{display:flex;flex-direction:column;gap:4px;font-size:10.5px}
 .line{display:inline-block;border-bottom:1px solid #000;height:18px;min-width:120px}
-.office{border:1.5px dashed #7a4d32;border-radius:6px;padding:10px 14px;margin-top:20px;display:flex;flex-direction:column;gap:10px;break-inside:avoid}.office > b{color:#7a4d32}
+.office{border:1.5px dashed #7a4d32;border-radius:6px;padding:9px 14px;margin-top:14px;display:flex;flex-direction:column;gap:10px;break-inside:avoid}.office > b{color:#7a4d32}
 .band{grid-column:1/-1;padding:6px 10px;font-size:15px;font-weight:700;background:#f6f0eb;border-radius:6px}
 .receipt{border:1.5px solid #7a4d32;border-radius:8px;padding:14px 18px;margin-top:18px;display:grid;grid-template-columns:1fr 1fr;gap:14px 24px}
 .wa{border:1.5px solid #7a4d32;border-radius:8px;padding:16px 18px;margin-top:18px;display:flex;gap:20px;align-items:center}.wa svg{width:44mm;height:44mm}
@@ -183,12 +184,12 @@ function chapterHtml(section: FormSection, n: number, snapshot: FormSnapshot, fi
     // A group's note stays on the page of its first question.
     blocks.push(note ? `<div class="keep">${note}${block}</div>` : block);
   }
-  // Page 1 always starts with the first chapter; a later one moves whole to the next page when it
-  // doesn't fit. One taller than what is left breaks only between questions: the heading stays with
-  // the first question and the last two stay together, so it never leaves one question behind.
+  // Chapters run on from page to page so the form fits four pages, breaking only between questions:
+  // the heading stays with the first question and the last two stay together, so a page never ends
+  // on a heading and a chapter never leaves one question behind.
   const heading = `<h2 class="ch"><span>${bn(n)}</span>${esc(txt(section.title, 'bengali'))}</h2>`;
-  const cls = photosHtml ? 'chapter first' : 'chapter keep';
-  if (blocks.length < 4) return `<section class="${cls}">${heading}${blocks.join('')}</section>`;
+  const cls = photosHtml ? 'chapter first' : 'chapter';
+  if (blocks.length < 4) return `<section class="${cls} keep">${heading}${blocks.join('')}</section>`;
   const [head, ...rest] = blocks;
   const tail = rest.splice(-2).join('');
   return `<section class="${cls}"><div class="keep">${heading}${head}</div>${rest.join('')}<div class="keep">${tail}</div></section>`;
@@ -208,18 +209,13 @@ export function offlineFormHtml(d: OfflineData): string {
   let n = 0;
   const chapters = sections.map((sec, i) => chapterHtml(sec, ++n, snapshot, fields, i === 0 ? photosHtml : '')).join('');
 
-  let ruleNo = 0;
   const conduct = s.conduct;
+  const pages = d.formPages ?? 4;
   const consent = (text: string, boxed = false) => `<div class="consent${boxed ? ' boxed' : ''}"><i class="c"></i><div>${esc(text)}</div></div>`;
-  const pledgePage = `<div class="page-break"></div><section class="chapter rules"><h2 class="ch"><span>${bn(++n)}</span>${conduct ? 'অভিভাবকদের আচরণবিধি ও অঙ্গীকার' : 'ঘোষণা'}</h2>
-${
-  conduct
-    ? conduct.groups
-        .map((g) => `<div class="gh">${esc(txt(g.title, 'bengali'))}</div><ol>${g.rules.map((r) => `<li><b>${bn(++ruleNo)}</b><span>${esc(txt(r, 'bengali'))}</span></li>`).join('')}</ol>`)
-        .join('')
-    : ''
-}
-<div class="lbl" style="font-weight:700;margin-top:10px">${conduct ? 'অঙ্গীকার ও ঘোষণা (তিনটি ঘরেই টিক দিন)' : 'ঘোষণা (ঘরে টিক দিন)'}</div>
+  // The pledges, signatures and office checks close the form, kept together; the rules themselves
+  // are on the page after it, which the family keeps (conductPageHtml).
+  const pledgeSection = `<section class="chapter keep pledge"><h2 class="ch"><span>${bn(++n)}</span>${conduct ? 'অঙ্গীকার ও ঘোষণা' : 'ঘোষণা'}</h2>
+${conduct ? `<p class="note">অভিভাবকদের আচরণবিধি পৃষ্ঠা ${bn(pages + 1)}-এ দেওয়া আছে। পড়ে নিচের তিনটি ঘরেই টিক দিন; পৃষ্ঠাটি আপনার কাছে রাখুন।</p>` : ''}
 ${conduct ? consent(txt(conduct.pledge, 'bengali')) + consent(txt(conduct.declaration, 'bengali'), true) : ''}
 ${consent(txt(s.declaration, 'bengali').replace('উপরে প্রদত্ত', 'এই ফর্মে প্রদত্ত'))}
 <div class="signs"><span><i class="line"></i>পিতার স্বাক্ষর ও তারিখ</span><span><i class="line"></i>মাতার স্বাক্ষর ও তারিখ</span></div>
@@ -239,15 +235,15 @@ ${consent(txt(s.declaration, 'bengali').replace('উপরে প্রদত্
 <div class="intro"><div class="officebox"><span class="k">শুধু অফিসের জন্য</span><label class="wide"><span>আবেদন আইডি <span class="muted">(যেমন KG-P01)</span></span><i></i></label><label><span>গ্রহণের তারিখ</span><i></i></label><label><span>গ্রহণকারী</span><i></i></label></div>
 <div class="howto"><ol>
 <li><b>১</b><span>স্পষ্ট করে লিখুন। <b class="req">*</b> চিহ্নিত প্রশ্নের উত্তর আবশ্যক। <i class="o" style="vertical-align:-2px"></i> চিহ্নে একটি, <i class="c" style="vertical-align:-2px"></i> চিহ্নে একাধিক বাছাই করা যাবে।</span></li>
-<li><b>২</b><span>পূরণ করা পৃষ্ঠা ১ থেকে ${bn(d.formPages ?? 5)} আবেদন ফি <b>${esc(fee)}</b> সহ অফিসে জমা দিন।</span></li>
-<li><b>৩</b><span>শেষ পৃষ্ঠা (অভিভাবকের কপি) অফিস পূরণ করে আপনাকে ফেরত দেবে।</span></li>
+<li><b>২</b><span>পূরণ করা পৃষ্ঠা ১ থেকে ${bn(pages)} আবেদন ফি <b>${esc(fee)}</b> সহ অফিসে জমা দিন।</span></li>
+<li><b>৩</b><span>${conduct ? `আচরণবিধির পৃষ্ঠা (${bn(pages + 1)}) আপনার কাছে রাখুন। ` : ''}শেষ পৃষ্ঠা (অভিভাবকের কপি) অফিস পূরণ করে আপনাকে ফেরত দেবে।</span></li>
 </ol></div></div>
 ${chapters}
-${pledgePage}
+${pledgeSection}
 </body></html>`;
 }
 
-/** Repeated on pages 2–5: the school and form, and the application ID line the office fills in (e.g. KG-P01). */
+/** Repeated on pages 2–4: the school and form, and the application ID line the office fills in (e.g. KG-P01). */
 export function offlineHeaderTemplate(session: string, fontCss: string): string {
   return `<div style="width:100%;padding:0 13mm;display:flex;justify-content:space-between;align-items:flex-end;gap:12px;font-size:9.5px;color:#000;font-family:'Inter','Noto Sans Bengali',sans-serif"><style>${fontCss}</style><span>মাদরাসাতুল কুরআন · প্রি-অ্যাডমিশন ফর্ম ${bn(session)}</span><span>আবেদন আইডি (অফিস পূরণ করবে) <span style="display:inline-block;width:42mm;border-bottom:1px solid #000"></span></span></div>`;
 }
@@ -258,7 +254,29 @@ export function offlineFooterTemplate(session: string, fontCss: string, total?: 
   return `<div style="width:100%;padding:0 13mm;display:flex;justify-content:space-between;gap:12px;font-size:9px;color:#000;font-family:'Inter','Noto Sans Bengali',sans-serif"><style>${fontCss}</style><span>শিক্ষার্থীর নাম <span style="display:inline-block;width:60mm;border-bottom:1px solid #000"></span></span><span>প্রি-অ্যাডমিশন ফর্ম ${bn(session)} · অফলাইন · পৃষ্ঠা <span class="pageNumber"></span> / ${totalHtml}</span></div>`;
 }
 
-/** Page 6, the guardian's copy: the fee receipt the office fills in and the WhatsApp group. */
+/**
+ * The parents' code of conduct on a page of its own, after the form: the family reads it, ticks the
+ * pledges on the form's last page and keeps it. The online introduction ("the pledges below") does
+ * not fit paper, so the note says where the pledges are. Null when the form has none.
+ */
+export function conductPageHtml(d: OfflineData): string | null {
+  const s = d.snapshot.settings;
+  const conduct = s.conduct;
+  if (!conduct) return null;
+  let ruleNo = 0;
+  return `<!doctype html><html lang="bn"><head><meta charset="utf-8"><style>${d.fontCss}${CSS}@page{margin:14mm 13mm}</style></head><body>
+<header class="top">
+  <div class="brand">${d.school.logo ? `<img src="${d.school.logo}" alt="">` : ''}<div><div class="name">${esc(d.school.name)}</div>${schoolLine(d.school.line)}</div></div>
+  <div class="title"><div>অভিভাবকদের আচরণবিধি</div><div class="muted">প্রি-অ্যাডমিশন ${bn(s.session)}</div></div>
+</header>
+<p class="note" style="margin-top:12px;font-weight:700">এই পৃষ্ঠাটি জমা দেবেন না, আপনার কাছে রাখুন। মনোযোগ দিয়ে পড়ে ফর্মের পৃষ্ঠা ${bn(d.formPages ?? 4)}-এ অঙ্গীকারের ঘরগুলোতে টিক দিন।</p>
+<section class="rules big">${conduct.groups
+    .map((g) => `<div class="gh">${esc(txt(g.title, 'bengali'))}</div><ol>${g.rules.map((r) => `<li><b>${bn(++ruleNo)}</b><span>${esc(txt(r, 'bengali'))}</span></li>`).join('')}</ol>`)
+    .join('')}</section>
+</body></html>`;
+}
+
+/** The last page, the guardian's copy: the fee receipt the office fills in and the WhatsApp group. */
 export function guardianCopyHtml(d: OfflineData): string {
   const s = d.snapshot.settings;
   const fee = taka(s.applicationFee, 'bengali');

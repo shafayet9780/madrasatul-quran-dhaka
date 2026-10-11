@@ -204,7 +204,7 @@ The same green WhatsApp button on the **Find my application** results and in the
 Last year's form (`~/Documents/shafayet/mqd-form/form.html`) was typed by hand. The new one is **generated from the same Sanity form** by the existing PDF engine in a "blank" mode, so it always matches the online form.
 
 - **Download:** from the pre-admission intro page ("অফলাইন ফর্ম (PDF)") and from admin (to print copies).
-- **Format:** Bengali, A4, Noto Sans Bengali, numbered questions, two columns where questions pair up. Black text with the application PDF's brown (`#7a4d32`) as a small accent (chapter bands, number badges, office box) and only light tints, so it survives photocopying. Chapters after the first are kept whole on a page when they fit; name boxes are full-width beside the passport-size (35 × 45 mm) photo frames. (Revised 2026-10-11 after the owner's print review.)
+- **Format:** Bengali, A4, Noto Sans Bengali, numbered questions, two columns where questions pair up. Black text with the application PDF's brown (`#7a4d32`) as a small accent (chapter bands, number badges, office box) and only light tints, so it survives photocopying. Chapters run on from page to page, breaking only between questions (a heading never ends a page, a chapter never leaves one question behind); name boxes are full-width beside the passport-size (35 × 45 mm) photo frames. (Revised 2026-10-11 after the owner's print review.)
 - **Answer spaces:**
   - text: a quiet answer box (thin grey border, 5px corner, about 8.5 mm tall), not a line and not a web-style rounded field
   - long answer (address, comments): one taller box
@@ -216,17 +216,16 @@ Last year's form (`~/Documents/shafayet/mqd-form/form.html`) was typed by hand. 
   - documents: "ফটোকপি সংযুক্ত করুন"
 - **Conditional questions** are printed with a hint, e.g. "(আগের প্রশ্নে ‘হ্যাঁ’ হলে)".
 - **"None of the above" options** (section 10) are printed with the hint "(এটি বাছলে অন্যগুলো নয়)" (if you tick this, tick nothing else).
-- **Contents, in order.** Pages 1 to 5 are handed in to the office; page 6 is handed back to the guardian.
-  1. **Page 1:** header (logo, প্রি-অ্যাডমিশন ফর্ম ২০২৭), **office box** (application ID, received on, received by), instructions (pages 1 to 5 go in with the ৳500 fee; the last page comes back), photo frames, student questions and documents.
-  2. **Pages 2 to 3:** father; mother; contact.
-  3. **Page 4:** additional questions only, with the transport **route table** grouped by মিরপুর / উত্তরা (☐ beside each stop), interest, nearest stop or area, comments.
-  4. **Page 5:** the 9 rules in 3 groups, the three consents with tick boxes, **father's and mother's signatures and dates**, then **office use only** (documents checked, fee received + receipt no., entered into the system, application ID).
+- **Contents, in order** (revised 2026-10-11: the code of conduct on a page of its own, the rest in 4 pages). Pages 1 to 4 are handed in to the office; page 5 stays with the family; page 6 is handed back to the guardian.
+  1. **Page 1:** header (logo, প্রি-অ্যাডমিশন ফর্ম ২০২৭), **office box** (application ID, received on, received by) beside the instructions (pages 1 to 4 go in with the ৳500 fee; keep page 5; the last page comes back), photo frames, student questions and documents.
+  2. **Pages 1 to 4:** the chapters run on (student, father, mother, contact, additional with the transport **route table** grouped by মিরপুর / উত্তরা, ☐ beside each stop), breaking only between questions; then **অঙ্গীকার ও ঘোষণা**: a note that the rules are on page 5, the three consents with tick boxes, **father's and mother's signatures and dates**, and **office use only** (photo, documents checked, fee received + receipt no., application ID, signature), kept together.
+  3. **Page 5, অভিভাবকদের আচরণবিধি:** the 9 rules in 3 groups in larger type; "do not hand this in, keep it; tick the pledges on page 4".
   5. **Page 6, অভিভাবকের কপি (guardian's copy):** "do not hand this in"; the **application fee receipt** the office fills (student name, class, application ID, receipt no., date, ৳500 received in cash and non-refundable, signature and seal) and the **WhatsApp group** (large QR with the logo; assessment date, time and all news are posted only there, by application ID). Office phone and website in the footer. Nothing else.
 ---
 
 ## 9. Paper forms stay on paper
 
-- **Paper applications are not typed into the system.** The office keeps pages 1 to 5 (with the signatures) and works from them on assessment day.
+- **Paper applications are not typed into the system.** The office keeps pages 1 to 4 (with the signatures) and works from them on assessment day.
 - **Nothing is emailed** to paper applicants and there is **no admin step** for them: no cash-payment action, no Sheet row, no application PDF.
 - **The guardian keeps page 6:** the fee receipt (filled and signed by the office) and the WhatsApp group QR, where every later update is posted.
 ---
@@ -301,5 +300,6 @@ No open items remain.
 | M5 Rename + WhatsApp | Done | অ্যাসেসমেন্ট / assessment in pre-admission messages, email, admin, export header, Studio title; shared logo `src/lib/whatsapp-logo.ts` + `whatsapp-icon.tsx`; QR `whatsapp-qr.ts` (level H, logo green on screen, black on paper; decoded with jsQR); success card states join → opened → joined; green button on Find and in the email (no logo: Gmail strips SVG); email lists what to bring |
 | M6 Export columns from all versions | Done | Excel and Sheet columns from the current version plus every version a submitted application answered (`loadAnsweredSnapshots`, `exportForm`); a deleted question keeps its column next to the one it followed; each row uses its own version's wording; transport stop → route, vehicle, stop, monthly charge (area typed in is its own column); "don't have it now" documents read জমা দেওয়া হয়নি, সঙ্গে আনবেন |
 | End of build | Done | e2e updated (pledge step, WhatsApp joined, offline form download); `pnpm test:e2e:admissions` 49 passed; admin guide and implementation plan (section 7: release steps) updated. Left for the owner: merge + deploy, `pnpm db:migrate`, publish the Sanity drafts, print check, two-phone QR scan |
-| Print review (2026-10-11) | Done | Offline form redesigned after the owner's print check: brown accent (chapter bands, number badges, office box), roomier answers, names full-width beside 35 × 45 mm photo frames, short questions two to a row, later chapters kept whole on a page (real Sanity draft form: 5 pages + guardian copy); pledge page waits for every tick to be saved before opening the review |
+| Print review (2026-10-11) | Done | Offline form redesigned after the owner's print check: brown accent (chapter bands, number badges, office box), roomier answers, names full-width beside 35 × 45 mm photo frames, short questions two to a row (later revised: see Print review 2); pledge page waits for every tick to be saved before opening the review |
+| Print review 2 (2026-10-11) | Done | Offline form: the 9-rule code of conduct on its own page (kept by the family, larger type); chapters, pledges, signatures and office checks in 4 pages (chapters run on between questions). Application PDF and offline form: a 0.6 mm inset so borders at the right edge are not clipped |
 | E2E | At the end | update `e2e/pre-admission.spec.ts` (pledge step, "সব ধাপ শেষ হলে খুলবে"); blank `SSLCOMMERZ_*` in `playwright.admissions.config.ts` (`.env.local` now has sandbox credentials) |

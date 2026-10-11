@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { guardianCopyHtml, offlineFooterTemplate, offlineFormHtml, type OfflineData } from './offline-html';
+import { conductPageHtml, guardianCopyHtml, offlineFooterTemplate, offlineFormHtml, type OfflineData } from './offline-html';
 import { buildSnapshot } from './snapshot';
 import published from './testing/published-form.json';
 import { liveFeeDocument } from './testing/live-form';
@@ -16,12 +16,23 @@ const data: OfflineData = {
 describe('offline form (HTML)', () => {
   const html = offlineFormHtml(data);
 
-  it('starts with the first chapter on page 1, keeps later chapters whole and the pledge on a page of its own', () => {
-    expect(html.match(/class="page-break"/g)).toHaveLength(1);
+  it('runs the chapters on from page 1 and closes with the pledges kept together, without the rules', () => {
+    expect(html).not.toContain('class="page-break"');
     expect(html.match(/<section class="chapter first">/g)).toHaveLength(1);
-    expect(html.match(/<section class="chapter keep">/g)).toHaveLength(snapshot.sections.length - 1);
     expect(html).toMatch(/\.keep\{break-inside:avoid\}/);
-    expect(html.indexOf('শিক্ষার্থীর তথ্য')).toBeLessThan(html.indexOf('অভিভাবকদের আচরণবিধি ও অঙ্গীকার'));
+    expect(html).toContain('<section class="chapter keep pledge">');
+    expect(html.indexOf('শিক্ষার্থীর তথ্য')).toBeLessThan(html.indexOf('অঙ্গীকার ও ঘোষণা'));
+    expect(html).toContain('অভিভাবকদের আচরণবিধি পৃষ্ঠা ৫-এ দেওয়া আছে');
+    expect(html).not.toContain('class="rules');
+  });
+
+  it('prints the code of conduct on a page of its own for the family to keep', () => {
+    const page = conductPageHtml(data)!;
+    const rules = snapshot.settings.conduct!.groups.flatMap((g) => g.rules);
+    expect(page.match(/<li>/g)).toHaveLength(rules.length);
+    expect(page).toContain('এই পৃষ্ঠাটি জমা দেবেন না, আপনার কাছে রাখুন');
+    expect(page).toContain('ফর্মের পৃষ্ঠা ৪-এ');
+    expect(conductPageHtml({ ...data, snapshot: { ...snapshot, settings: { ...snapshot.settings, conduct: undefined } } })).toBeNull();
   });
 
   it("stacks the child's names beside the photo frames and pairs short questions", () => {
@@ -68,8 +79,11 @@ describe('offline form (HTML)', () => {
   });
 
   it('names the pages to hand in, and numbers page 1 printed on its own against the whole form', () => {
-    expect(html).toContain('পূরণ করা পৃষ্ঠা ১ থেকে ৫');
-    expect(offlineFormHtml({ ...data, formPages: 6 })).toContain('পূরণ করা পৃষ্ঠা ১ থেকে ৬');
+    expect(html).toContain('পূরণ করা পৃষ্ঠা ১ থেকে ৪');
+    expect(html).toContain('আচরণবিধির পৃষ্ঠা (৫) আপনার কাছে রাখুন');
+    const longer = offlineFormHtml({ ...data, formPages: 5 });
+    expect(longer).toContain('পূরণ করা পৃষ্ঠা ১ থেকে ৫');
+    expect(longer).toContain('আচরণবিধি পৃষ্ঠা ৬-এ');
     expect(offlineFooterTemplate('2027', '', 5)).toContain('/ 5</span>');
     expect(offlineFooterTemplate('2027', '')).toContain('class="totalPages"');
   });
