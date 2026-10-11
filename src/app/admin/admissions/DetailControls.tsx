@@ -88,7 +88,7 @@ export function EvaluationSwitches({ id, attended, evalFee, attendedNote, feeNot
       <div className="flex items-center justify-between gap-3 py-2.5">
         <span className="flex flex-col">
           <span id={`fee-${id}`} className="text-sm font-medium">
-            মূল্যায়ন ফি {fee} গৃহীত
+            অ্যাসেসমেন্ট ফি {fee} গৃহীত
           </span>
           <span className="text-[12.5px] text-muted-foreground">{feeNote}</span>
         </span>

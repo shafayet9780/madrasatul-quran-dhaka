@@ -1,4 +1,6 @@
+import type { BringItem } from './bring-list';
 import { num, taka, type Locale } from './display';
+import { WHATSAPP_BUTTON_GREEN } from '@/lib/whatsapp-logo';
 
 // The two admissions emails, in the guardian's language. Plain single-column HTML with inline
 // styles (email clients ignore stylesheets) and a text version.
@@ -18,8 +20,8 @@ function layout(locale: Locale, title: string, body: string): string {
 </table></td></tr></table></body></html>`;
 }
 
-const button = (href: string, label: string) =>
-  `<a href="${esc(href)}" style="display:inline-block;background:#7a4d32;color:#ffffff;text-decoration:none;font-weight:600;padding:12px 18px;border-radius:8px">${esc(label)}</a>`;
+const button = (href: string, label: string, background = '#7a4d32') =>
+  `<a href="${esc(href)}" style="display:inline-block;background:${background};color:#ffffff;text-decoration:none;font-weight:600;padding:12px 18px;border-radius:8px">${esc(label)}</a>`;
 
 export function confirmationEmail(p: {
   locale: Locale;
@@ -29,6 +31,8 @@ export function confirmationEmail(p: {
   whatsappUrl: string | null;
   statusUrl: string;
   evaluationFee: number;
+  /** What to bring, personalised (bring-list.ts); empty for a form version from before the list. */
+  bring: BringItem[];
 }): Email {
   const bn = p.locale === 'bengali';
   const session = num(p.session, p.locale);
@@ -38,19 +42,23 @@ export function confirmationEmail(p: {
     ? {
         title: 'আলহামদুলিল্লাহ, আবেদন জমা হয়েছে',
         id: 'আবেদন আইডি',
-        pdf: 'আবেদনপত্র (PDF) এই ইমেইলের সঙ্গে সংযুক্ত। এটি প্রিন্ট করে মূল্যায়নের দিন অবশ্যই সঙ্গে আনবেন।',
-        group: 'মূল্যায়নের তারিখ ও সময় শুধু হোয়াটসঅ্যাপ গ্রুপে, আবেদন আইডি অনুযায়ী জানানো হবে।',
+        pdf: 'আবেদনপত্র (PDF) এই ইমেইলের সঙ্গে সংযুক্ত। এটি প্রিন্ট করে অ্যাসেসমেন্টের দিন অবশ্যই সঙ্গে আনবেন।',
+        group: 'অ্যাসেসমেন্টের তারিখ ও সময় শুধু হোয়াটসঅ্যাপ গ্রুপে, আবেদন আইডি অনুযায়ী জানানো হবে।',
         join: 'হোয়াটসঅ্যাপ গ্রুপে যোগ দিন',
-        bring: 'সঙ্গে আনবেন: আবেদনপত্রের প্রিন্ট, জন্ম নিবন্ধন সনদের মূল কপি এবং নগদ ' + fee + ' মূল্যায়ন ফি।',
+        bringTitle: 'অ্যাসেসমেন্টের দিন সঙ্গে আনবেন',
+        missing: 'অনলাইনে জমা দেওয়া হয়নি, অবশ্যই আনবেন',
+        bring: 'সঙ্গে আনবেন: আবেদনপত্রের প্রিন্ট, জন্ম নিবন্ধন সনদের মূল কপি এবং নগদ ' + fee + ' অ্যাসেসমেন্ট ফি।',
         again: 'আবেদনপত্র আবার ডাউনলোড করতে এখানে যান',
       }
     : {
         title: 'Alhamdulillah, your application is complete',
         id: 'Application ID',
-        pdf: 'The application (PDF) is attached. Print it and bring it on evaluation day.',
-        group: 'The evaluation date and time are announced only in the WhatsApp group, by application ID.',
+        pdf: 'The application (PDF) is attached. Print it and bring it on assessment day.',
+        group: 'The assessment date and time are announced only in the WhatsApp group, by application ID.',
         join: 'Join the WhatsApp group',
-        bring: `Bring: the printed application, the original birth certificate and the ${fee} evaluation fee in cash.`,
+        bringTitle: 'Bring on assessment day',
+        missing: 'Not uploaded online, you must bring it',
+        bring: `Bring: the printed application, the original birth certificate and the ${fee} assessment fee in cash.`,
         again: 'To download the application again, open your application page',
       };
   const html = layout(
@@ -62,11 +70,18 @@ export function confirmationEmail(p: {
 <p style="margin:0 0 20px;color:#525252">${esc(p.studentName)}</p>
 <p style="margin:0 0 16px">${esc(lines.pdf)}</p>
 <p style="margin:0 0 12px">${esc(lines.group)}</p>
-${p.whatsappUrl ? `<p style="margin:0 0 20px">${button(p.whatsappUrl, lines.join)}</p>` : ''}
-<p style="margin:0 0 16px">${esc(lines.bring)}</p>
+${p.whatsappUrl ? `<p style="margin:0 0 20px">${button(p.whatsappUrl, lines.join, WHATSAPP_BUTTON_GREEN)}</p>` : ''}
+${
+  p.bring.length
+    ? // Numbered in the text (Bengali digits): email clients ignore list-style types.
+      `<p style="margin:0 0 6px;font-weight:600">${esc(lines.bringTitle)}</p><div style="margin:0 0 16px">${p.bring
+        .map((i, n) => `<p style="margin:0 0 4px">${num(n + 1, p.locale)}. ${esc(i.text)}${i.missing ? `<br><b>${esc(lines.missing)}</b>` : ''}</p>`)
+        .join('')}</div>`
+    : `<p style="margin:0 0 16px">${esc(lines.bring)}</p>`
+}
 <p style="margin:0;font-size:13px;color:#525252">${esc(lines.again)}: <a href="${esc(p.statusUrl)}" style="color:#171717">${esc(p.statusUrl)}</a></p>`,
   );
-  const text = [lines.title, '', `${lines.id}: ${p.publicRef}`, p.studentName, '', lines.pdf, lines.group, p.whatsappUrl ? `${lines.join}: ${p.whatsappUrl}` : '', lines.bring, '', `${lines.again}: ${p.statusUrl}`]
+  const text = [lines.title, '', `${lines.id}: ${p.publicRef}`, p.studentName, '', lines.pdf, lines.group, p.whatsappUrl ? `${lines.join}: ${p.whatsappUrl}` : '', ...(p.bring.length ? ['', `${lines.bringTitle}:`, ...p.bring.map((i, n) => `${num(n + 1, p.locale)}. ${i.text}${i.missing ? ` (${lines.missing})` : ''}`)] : [lines.bring]), '', `${lines.again}: ${p.statusUrl}`]
     .filter((l, i, all) => l !== '' || all[i - 1] !== '')
     .join('\n');
   return { subject, html, text };

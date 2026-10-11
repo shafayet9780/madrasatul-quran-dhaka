@@ -74,11 +74,13 @@ async function fillChapter(page: Page) {
   }
 }
 
-test('a guardian fills in every chapter, reviews, declares, pays after a failed attempt, gets an ID, the PDF and the emails', async ({ page, browser }) => {
+test('a guardian fills in every chapter, takes the pledges, reviews, declares, pays after a failed attempt, gets an ID, the PDF and the emails', async ({ page, browser }) => {
   await page.goto(BASE);
   await dismissConsent(page);
   await expect(page.getByRole('heading', { level: 1 })).toContainText('প্রি-অ্যাডমিশন আবেদন');
   await noSeriousA11yIssues(page);
+  // The paper form is for families at the campus only: the office prints it from admin.
+  await expect(page.getByRole('link', { name: /অফলাইন ফর্ম/ })).toHaveCount(0);
   await page.getByRole('link', { name: /আবেদন শুরু করুন/ }).click();
 
   await expect(page.getByRole('heading', { name: 'আবেদন শুরু করুন' })).toBeVisible();
@@ -91,12 +93,12 @@ test('a guardian fills in every chapter, reviews, declares, pays after a failed 
   await page.getByRole('button', { name: 'শুরু করুন' }).click();
 
   await expect(page.getByRole('heading', { name: 'আপনার আবেদন' })).toBeVisible();
-  await expect(page.getByText('সব অধ্যায় শেষ হলে খুলবে')).toBeVisible();
+  await expect(page.getByText('সব ধাপ শেষ হলে খুলবে')).toBeVisible();
   await noSeriousA11yIssues(page);
   await page.getByRole('link', { name: /দিয়ে শুরু করুন/ }).last().click();
 
   let a11yChecked = false;
-  for (let chapter = 0; chapter < 10 && !page.url().endsWith('/review'); chapter++) {
+  for (let chapter = 0; chapter < 10 && !/\/(review|pledge)$/.test(page.url()); chapter++) {
     await expect(page).toHaveURL(/\/form\/[a-z_]+$/);
     await fillChapter(page);
     if (!a11yChecked) {
@@ -107,6 +109,15 @@ test('a guardian fills in every chapter, reviews, declares, pays after a failed 
     await page.getByRole('button', { name: /^(পরবর্তী|পর্যালোচনা)/ }).filter({ visible: true }).click();
     await page.waitForURL((url) => url.toString() !== before);
   }
+
+  // The অঙ্গীকার step: the parents' code of conduct and two pledges, both needed for the review.
+  await expect(page).toHaveURL(/\/pre-admission\/pledge$/);
+  await expect(page.getByRole('heading', { name: 'অভিভাবকদের আচরণবিধি' })).toBeVisible();
+  await expect(page.getByText('দুটি ঘরেই টিক দিন').filter({ visible: true })).toBeVisible();
+  await noSeriousA11yIssues(page);
+  for (const box of await page.getByRole('checkbox').all()) await box.check();
+  await expect(page.getByText('দুটিতেই সম্মতি দেওয়া হয়েছে').filter({ visible: true })).toBeVisible();
+  await page.getByRole('link', { name: /পর্যালোচনা/ }).filter({ visible: true }).first().click();
 
   await expect(page.getByRole('heading', { name: 'জমা দেওয়ার আগে দেখে নিন' })).toBeVisible();
   await expect(page.getByText('আব্দুল্লাহ আল-মাহমুদ').or(page.getByText('পরীক্ষামূলক উত্তর')).first()).toBeVisible();
@@ -129,7 +140,7 @@ test('a guardian fills in every chapter, reviews, declares, pays after a failed 
   await expect(page).toHaveURL(/\/pre-admission\/status$/);
   await expect(page.getByRole('heading', { name: 'আলহামদুলিল্লাহ, আবেদন জমা হয়েছে' })).toBeVisible();
   await expect(page.getByText(/^[A-Z][A-Z0-9]{0,3}-\d{3}$/)).toBeVisible();
-  await expect(page.getByRole('link', { name: 'গ্রুপে যোগ দিন' })).toHaveAttribute('href', 'https://chat.whatsapp.com/LocalPreviewGroup');
+  await expect(page.getByRole('link', { name: 'হোয়াটসঅ্যাপ গ্রুপে যোগ দিন' })).toHaveAttribute('href', 'https://chat.whatsapp.com/LocalPreviewGroup');
   await expect(page.getByRole('img', { name: 'হোয়াটসঅ্যাপ গ্রুপের QR কোড' })).toBeVisible();
   await expect(page.getByText('পেমেন্টের রসিদ')).toBeVisible();
   await noSeriousA11yIssues(page);
@@ -144,6 +155,16 @@ test('a guardian fills in every chapter, reviews, declares, pays after a failed 
   const pdf = await (await download.createReadStream()).toArray();
   expect(Buffer.concat(pdf).subarray(0, 5).toString()).toBe('%PDF-');
   await expect(page.getByText('১ / ২ সম্পন্ন')).toBeVisible();
+
+  // WhatsApp: opening the group is not enough; the task is done once the guardian says they joined.
+  await page.context().route('https://chat.whatsapp.com/**', (route) => route.fulfill({ body: 'WhatsApp' }));
+  const [group] = await Promise.all([page.waitForEvent('popup'), page.getByRole('link', { name: 'হোয়াটসঅ্যাপ গ্রুপে যোগ দিন' }).click()]);
+  await group.close();
+  await expect(page.getByText('১ / ২ সম্পন্ন')).toBeVisible();
+  await page.getByRole('button', { name: 'যোগ দিয়েছি' }).click();
+  await expect(page.getByText('২ / ২ সম্পন্ন')).toBeVisible();
+  await page.reload();
+  await expect(page.getByRole('link', { name: 'গ্রুপ খুলুন' })).toBeVisible();
 
   // Emails (collected by the local preview): the resume link and the confirmation with the PDF.
   await expect

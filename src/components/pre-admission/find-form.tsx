@@ -2,7 +2,7 @@
 
 import { useActionState, useEffect, useRef, useState } from 'react';
 import { useFormStatus } from 'react-dom';
-import { Download, LoaderCircle, MessageCircle } from 'lucide-react';
+import { Download, LoaderCircle } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/shadcn/button';
 import { Input } from '@/components/shadcn/input';
@@ -10,6 +10,7 @@ import { findApplication, openFound, type FindState, type FoundApplication } fro
 import { num, type Locale } from '@/lib/admissions/display';
 import { cn } from '@/lib/utils';
 import { DateSelect, Required } from './fields';
+import { WhatsAppIcon } from '@/components/ui/whatsapp-icon';
 
 function Submit({ label, variant = 'default', icon }: { label: string; variant?: 'default' | 'outline'; icon?: React.ReactNode }) {
   const { pending } = useFormStatus();
@@ -49,9 +50,9 @@ function Result({ r, locale, session, fee, deadline, whatsappUrl }: { r: FoundAp
           <Open locale={locale} id={r.id} to="pdf" label={t('download')} icon={<Download aria-hidden />} />
           <Open locale={locale} id={r.id} to="status" label={t('openConfirmation')} variant="outline" />
           {whatsappUrl && (
-            <Button asChild variant="outline" className="h-11 bg-card text-[15px] shadow-none">
+            <Button asChild className="h-11 bg-whatsapp text-[15px] font-semibold text-whatsapp-foreground hover:bg-whatsapp/90">
               <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">
-                <MessageCircle aria-hidden />
+                <WhatsAppIcon className="size-[18px]" />
                 {t('whatsapp')}
               </a>
             </Button>

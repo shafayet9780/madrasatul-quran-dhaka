@@ -36,6 +36,9 @@ export default defineConfig({
       STUDIO_USERNAME: 'playwright-editor',
       STUDIO_PASSWORD: 'playwright-test-password',
       SURVEY_SHEET_ID: '',
+      // The stand-in checkout page, even when .env.local has SSLCommerz sandbox keys.
+      SSLCOMMERZ_STORE_ID: '',
+      SSLCOMMERZ_STORE_PASSWORD: '',
     },
     reuseExistingServer: !process.env.CI,
     timeout: 300_000,

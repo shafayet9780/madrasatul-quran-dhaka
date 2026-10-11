@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<title>প্রি-অ্যাডমিশন ২০২৭ · পরিবহন সুবিধা (ডেস্কটপ)</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;500;600;700&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.ui{--bg:#fafafa;--surface:#fff;--fg:#171717;--mfg:#525252;--muted:#f5f5f5;--border:#e5e5e5;--input:#d4d4d4;--primary:#7a4d32;--primary-h:#663f28;--pfg:#fff;--ring:rgba(122,77,50,.3);--ok:#15803d;--warn:#b45309;--bad:#dc2626;font-family:'Noto Sans Bengali','Inter',sans-serif;color:var(--fg);background:var(--bg)}
+.ui.dark{--bg:#111;--surface:#171717;--fg:#f5f5f5;--mfg:#a3a3a3;--muted:#262626;--border:#2a2a2a;--input:#404040;--primary:#c8946b;--primary-h:#d6a682;--pfg:#1c130d;--ring:rgba(200,148,107,.35);--ok:#4ade80;--warn:#fbbf24;--bad:#f87171}
+.ui a{color:var(--fg);text-underline-offset:3px}
+.lat{font-family:Inter,sans-serif}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:44px;padding:0 18px;border-radius:8px;background:var(--primary);color:var(--pfg) !important;font:inherit;font-size:15px;font-weight:500;text-decoration:none;border:0;cursor:pointer;white-space:nowrap}
+.btn:hover{background:var(--primary-h)}
+.btn-o{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:44px;padding:0 16px;border-radius:8px;background:var(--surface);border:1px solid var(--border);font:inherit;font-size:15px;font-weight:500;text-decoration:none;cursor:pointer;color:var(--fg)}
+.label{display:block;font-size:14px;font-weight:500;line-height:1.45;margin:0 0 8px;padding:0}
+.req{color:var(--bad)}
+.desc{font-size:13px;color:var(--mfg);line-height:1.55;margin:6px 0 0}
+.input{box-sizing:border-box;width:100%;height:40px;border:1px solid var(--input);border-radius:8px;background:var(--surface);padding:0 12px;font:inherit;font-size:15px;color:var(--fg)}
+.input:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px var(--ring)}
+select.input{padding:0 8px 0 10px}
+.r{appearance:none;flex:none;width:16px;height:16px;margin:0;border:1px solid var(--input);border-radius:50%;background:var(--surface);display:grid;place-content:center;cursor:pointer}
+.r:checked{border-color:var(--primary)}
+.r:checked::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--primary)}
+.r:focus-visible{outline:none;box-shadow:0 0 0 3px var(--ring)}
+.ri{display:inline-flex;align-items:center;gap:10px;min-height:36px;font-size:14.5px;cursor:pointer}
+.sec{display:flex;flex-wrap:wrap;gap:20px 40px;padding:32px 0;border-top:1px solid var(--border)}
+.sec > .head{flex:1 1 200px;max-width:260px}
+.sec > .body{flex:999 1 420px;display:flex;flex-direction:column;gap:16px;min-width:0}
+.sec-h{margin:0;font-size:16px;font-weight:600}
+.rail a{display:flex;align-items:center;gap:10px;height:36px;padding:0 10px;border-radius:8px;text-decoration:none;font-size:14px;color:var(--mfg)}
+.rail a:hover{background:var(--muted);color:var(--fg)}
+.rail a.on{background:var(--muted);color:var(--fg);font-weight:500}
+.tabs{display:inline-grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px;padding:4px;border-radius:10px;background:var(--muted);width:280px}
+.tab{height:34px;border:0;border-radius:7px;background:transparent;font:inherit;font-size:14px;font-weight:500;color:var(--mfg);cursor:pointer}
+.tab.on{background:var(--surface);color:var(--fg);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.route{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 20px;display:flex;flex-wrap:wrap;gap:16px 24px;align-items:flex-start}
+.route.sel{border-color:var(--primary);box-shadow:0 0 0 1px var(--primary)}
+.badge{display:inline-flex;align-items:center;height:22px;padding:0 8px;border:1px solid var(--border);border-radius:6px;font-size:12.5px;font-weight:500;color:var(--mfg)}
+.hline{flex:999 1 420px;min-width:0;list-style:none;margin:0;padding:4px 0 0;display:grid;gap:0}
+.hs{position:relative;display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;font-size:13.5px;line-height:1.4;padding:0 4px}
+.hs::before{content:"";position:absolute;top:6px;left:0;right:0;height:2px;background:var(--input)}
+.hs:first-child::before{left:50%}
+.hs:last-child::before{right:50%}
+.dot{position:relative;z-index:1;flex:none;width:14px;height:14px;box-sizing:border-box;border-radius:50%;border:2px solid var(--input);background:var(--surface)}
+.hs.sel{font-weight:600}
+.hs.sel .dot{border-color:var(--primary);background:var(--primary);box-shadow:0 0 0 3px var(--ring)}
+.hs.end{font-weight:600}
+.hs.end .dot{border-radius:4px;border-color:var(--fg);background:var(--fg)}
+fieldset{border:0;margin:0;padding:0;min-width:0}
+</style>
+</helmet>
+<div class="ui {{theme}}" style="min-height: 100vh">
+  <header style="background: var(--surface); border-bottom: 1px solid var(--border)">
+    <div style="max-width: 1240px; margin: 0 auto; padding: 0 32px; height: 64px; display: flex; align-items: center; justify-content: space-between">
+      <a href="IntroDesktop.dc.html" style="display: flex; align-items: center; gap: 12px; text-decoration: none">
+        <span style="width: 36px; height: 36px; border-radius: 8px; border: 1px dashed var(--input); display: flex; align-items: center; justify-content: center; font-size: 9px; color: var(--mfg)">লোগো</span>
+        <span style="font-size: 15px; font-weight: 600">মাদরাসাতুল কুরআন <span style="font-weight: 400; color: var(--mfg)">/ প্রি-অ্যাডমিশন ২০২৭</span></span>
+      </a>
+      <div style="display: flex; align-items: center; gap: 20px; font-size: 13.5px">
+        <span style="display: inline-flex; align-items: center; gap: 6px; color: var(--mfg)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>সংরক্ষিত</span>
+        <a class="lat" href="#" style="font-weight: 600; text-decoration: none">English</a>
+      </div>
+    </div>
+  </header>
+  <div style="max-width: 1240px; margin: 0 auto; padding: 40px 32px 72px; display: flex; flex-wrap: wrap; gap: 48px; align-items: flex-start">
+    <nav class="rail" aria-label="ধাপসমূহ" style="flex: 1 1 200px; max-width: 220px; display: flex; flex-direction: column; gap: 2px">
+      <span style="font-size: 12.5px; color: var(--mfg); padding: 0 10px 8px">ধাপ</span>
+      <sc-for list="{{chapters}}" as="c" hint-placeholder-count="6">
+        <a class="{{c.cls}}" href="{{c.href}}">
+          <sc-if value="{{c.done}}" hint-placeholder-val="{{ false }}"><svg style="color: var(--ok)" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg></sc-if>
+          <sc-if value="{{c.notDone}}" hint-placeholder-val="{{ true }}"><svg style="color: var(--mfg)" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/></svg></sc-if>
+          {{c.t}}
+        </a>
+      </sc-for>
+      <a href="#" style="margin-top: 6px; border-top: 1px solid var(--border); border-radius: 0; padding-top: 14px; height: auto"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>পর্যালোচনা ও ফি</a>
+    </nav>
+    <main style="flex: 999 1 640px; min-width: 0">
+      <div style="display: flex; flex-direction: column; gap: 4px; padding-bottom: 24px">
+        <span style="font-size: 13.5px; color: var(--mfg)">ধাপ ৫ / ৬</span>
+        <h1 style="margin: 0; font-size: 28px; line-height: 1.3; font-weight: 700; letter-spacing: -.015em">অতিরিক্ত তথ্য</h1>
+      </div>
+
+      <section class="sec">
+        <div class="head"><h2 class="sec-h">পরিবহন সুবিধা</h2><p class="desc">মাদরাসার নিজস্ব মাইক্রো ও অটো নিচের রুটগুলোতে চলে। মাসিক ভাড়া প্রতিটি রুটের সাথে দেওয়া আছে।</p></div>
+        <div class="body">
+          <div class="tabs" role="tablist" aria-label="এলাকা">
+            <button class="tab {{mirpurCls}}" role="tab" aria-selected="{{isMirpur}}" onClick="{{showMirpur}}">মিরপুর</button>
+            <button class="tab {{uttaraCls}}" role="tab" aria-selected="{{isUttara}}" onClick="{{showUttara}}">উত্তরা</button>
+          </div>
+          <div role="tabpanel" style="display: flex; flex-direction: column; gap: 12px">
+            <sc-for list="{{routes}}" as="r" hint-placeholder-count="2">
+              <article class="route {{r.cls}}" aria-label="{{r.name}}">
+                <div style="flex: 1 1 170px; max-width: 200px; display: flex; flex-direction: column; gap: 6px; align-items: flex-start">
+                  <h3 style="margin: 0; font-size: 15.5px; font-weight: 600; line-height: 1.4">{{r.name}}</h3>
+                  <span class="badge">{{r.veh}}</span>
+                  <span style="font-size: 17px; font-weight: 700; line-height: 1.3; margin-top: 4px">{{r.fee}} <span style="font-size: 12.5px; font-weight: 400; color: var(--mfg)">প্রতি মাসে</span></span>
+                </div>
+                <ol class="hline" style="grid-template-columns: {{r.cols}}">
+                  <sc-for list="{{r.stops}}" as="s" hint-placeholder-count="5">
+                    <li class="hs {{s.cls}}"><span class="dot" aria-hidden="true"></span><span>{{s.t}}</span></li>
+                  </sc-for>
+                  <li class="hs end"><span class="dot" aria-hidden="true"></span><span>মাদরাসা</span></li>
+                </ol>
+              </article>
+            </sc-for>
+          </div>
+          <p style="margin: 0; display: flex; gap: 8px; align-items: center; font-size: 13.5px; color: var(--mfg)">
+            <svg style="flex: none" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+            আসন সীমিত। ভর্তি নিশ্চিত হওয়ার পর পরিবহন বরাদ্দ জানানো হবে। মাদরাসা: সেক্টর ১৭, উত্তরা।
+          </p>
+        </div>
+      </section>
+
+      <section class="sec">
+        <div class="head"><h2 class="sec-h">আপনার আগ্রহ</h2><p class="desc">পরিবহন নিলে কোন স্টপ থেকে উঠবে জানালে রুট পরিকল্পনা সহজ হয়।</p></div>
+        <div class="body" style="gap: 20px">
+          <fieldset>
+            <legend class="label" style="margin-bottom: 2px">আপনি কি সন্তানের জন্য মাদরাসার পরিবহন সুবিধা নিতে আগ্রহী? <span class="req">*</span></legend>
+            <div style="display: flex; gap: 0 24px">
+              <label class="ri"><input class="r" type="radio" name="ti" checked="{{want}}" onChange="{{pickYes}}">হ্যাঁ</label>
+              <label class="ri"><input class="r" type="radio" name="ti" checked="{{dontWant}}" onChange="{{pickNo}}">না</label>
+            </div>
+          </fieldset>
+          <sc-if value="{{want}}" hint-placeholder-val="{{ true }}">
+            <div style="display: flex; flex-direction: column; gap: 20px; max-width: 440px">
+              <div>
+                <label class="label" for="stopd" style="margin-bottom: 2px">আপনার বাসার সবচেয়ে কাছের স্টপ কোনটি? <span class="req">*</span></label>
+                <p class="desc" style="margin: 0 0 8px">যে স্টপ থেকে সন্তান গাড়িতে উঠবে। উপরের রুটে সেটি চিহ্নিত হবে।</p>
+                <select id="stopd" class="input" value="{{stop}}" onChange="{{onStop}}">
+                  <option value="">বাছাই করুন</option>
+                  <sc-for list="{{groups}}" as="g" hint-placeholder-count="5">
+                    <optgroup label="{{g.label}}">
+                      <sc-for list="{{g.opts}}" as="o" hint-placeholder-count="5"><option value="{{o.v}}">{{o.t}}</option></sc-for>
+                    </optgroup>
+                  </sc-for>
+                  <option value="none">আমার এলাকা কোনো রুটে নেই</option>
+                </select>
+                <sc-if value="{{hasChoice}}" hint-placeholder-val="{{ true }}">
+                  <p style="margin: 8px 0 0; display: flex; gap: 8px; align-items: center; font-size: 13.5px">
+                    <svg style="flex: none; color: var(--ok)" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+                    <span>{{summary}}</span>
+                  </p>
+                </sc-if>
+              </div>
+              <sc-if value="{{noRoute}}" hint-placeholder-val="{{ false }}">
+                <div>
+                  <label class="label" for="aread">আপনার এলাকার নাম লিখুন <span class="req">*</span></label>
+                  <input id="aread" class="input" placeholder="যেমন: বনানী, ডিওএইচএস">
+                </div>
+              </sc-if>
+            </div>
+          </sc-if>
+        </div>
+      </section>
+
+      <div style="display: flex; justify-content: space-between; padding-top: 24px; border-top: 1px solid var(--border)">
+        <a class="btn-o" href="FatherDesktop.dc.html">আগের ধাপ</a>
+        <a class="btn" href="UPledgeDesktop.dc.html">পরবর্তী: অঙ্গীকার</a>
+      </div>
+    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"$preview":{"width":1440,"height":1500}}'>
+class Component extends DCLogic {
+  constructor(p) { super(p); this.state = { area: 'uttara', want: 'yes', stop: 'um1:3' }; }
+  renderVals() {
+    const R = [
+      { id: 'mm', area: 'mirpur', name: 'মিরপুর মাইক্রো', veh: 'মাইক্রো', fee: '৳৫,০০০', stops: ['মিরপুর ১০', 'মিরপুর ১৩', 'মিরপুর ১১', 'কালশী', 'শাগুফতা', 'মিরপুর ডিওএইচএস'] },
+      { id: 'ma', area: 'mirpur', name: 'মিরপুর অটো', veh: 'অটো', fee: '৳২,৫০০', stops: ['রূপনগর আবাসিক এলাকা', 'পল্লবী', 'মিরপুর সাড়ে ১১', 'মিরপুর ১২ (বি/সি ব্লক)'] },
+      { id: 'um1', area: 'uttara', name: 'উত্তরা মাইক্রো ১', veh: 'মাইক্রো', fee: '৳৫,০০০', stops: ['হাউস বিল্ডিং', 'সেক্টর ৭', 'সেক্টর ১১', 'সেক্টর ১৩', 'খালপাড়'] },
+      { id: 'um2', area: 'uttara', name: 'উত্তরা মাইক্রো ২', veh: 'মাইক্রো', fee: '৳৫,০০০', stops: ['জসীমউদ্দীন রোড', 'সেক্টর ১৪', 'সেক্টর ১২', 'সেক্টর ১৫'] },
+      { id: 'ua', area: 'uttara', name: 'উত্তরা অটো', veh: 'অটো', fee: '৳২,৫০০', stops: ['সেক্টর ১৮'] },
+    ];
+    const { area, want, stop } = this.state;
+    const chosen = want === 'yes' ? stop : '';
+    const [rid, idx] = chosen && chosen !== 'none' ? chosen.split(':') : ['', ''];
+    const route = R.find((r) => r.id === rid);
+    const ch = [['শিক্ষার্থীর তথ্য', 1], ['পিতার তথ্য', 1], ['মাতার তথ্য', 1], ['যোগাযোগের তথ্য', 1], ['অতিরিক্ত তথ্য', 0, 'on'], ['অঙ্গীকার', 0, '', 'UPledgeDesktop.dc.html']];
+    return {
+      theme: this.props.theme === 'dark' ? 'dark' : '',
+      chapters: ch.map(([t, d, cls, href]) => ({ t, done: !!d, notDone: !d, cls: cls || '', href: href || '#' })),
+      isMirpur: area === 'mirpur', isUttara: area === 'uttara',
+      mirpurCls: area === 'mirpur' ? 'on' : '', uttaraCls: area === 'uttara' ? 'on' : '',
+      showMirpur: () => this.setState({ area: 'mirpur' }),
+      showUttara: () => this.setState({ area: 'uttara' }),
+      routes: R.filter((r) => r.area === area).map((r) => ({
+        ...r,
+        cls: r.id === rid ? 'sel' : '',
+        cols: 'repeat(' + (r.stops.length + 1) + ', minmax(0, 1fr))',
+        stops: r.stops.map((t, i) => ({ t, cls: r.id === rid && String(i) === idx ? 'sel' : '' })),
+      })),
+      want: want === 'yes', dontWant: want === 'no',
+      pickYes: () => this.setState({ want: 'yes' }),
+      pickNo: () => this.setState({ want: 'no' }),
+      stop,
+      onStop: (e) => {
+        const v = e.target.value;
+        const r = R.find((x) => v.startsWith(x.id + ':'));
+        this.setState(r ? { stop: v, area: r.area } : { stop: v });
+      },
+      groups: R.map((r) => ({ label: r.name + ', ' + r.fee + ' মাসে', opts: r.stops.map((t, i) => ({ v: r.id + ':' + i, t })) })),
+      hasChoice: !!route,
+      summary: route ? route.name + ' রুট, ' + route.veh + ', মাসিক ' + route.fee : '',
+      noRoute: chosen === 'none',
+    };
+  }
+}
+</script>
+</body>
+</html>

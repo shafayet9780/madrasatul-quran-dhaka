@@ -1,9 +1,9 @@
 import 'server-only';
-import { and, eq, sql } from 'drizzle-orm';
+import { and, eq, inArray, isNotNull, sql } from 'drizzle-orm';
 import { getAdmissionsDb } from './db';
 import { localOverrides } from './local';
 import type { FormSnapshot } from './form-config';
-import { admissionCycles, admissionSnapshots } from './schema';
+import { admissionCycles, admissionSnapshots, applications } from './schema';
 import { hasTestPass } from './test-pass';
 import { FormConfigError, buildSnapshot, cycleWindow, type CycleWindow, type FormDocument } from './snapshot';
 
@@ -21,8 +21,12 @@ export type CycleState = {
   testPass?: boolean;
 };
 
+// Transport routes and charges (Fees & Discounts) are frozen with the form.
+const FEES = '{ _rev, transport, transportRoutes }';
+
 export const FORM_QUERY = `*[_type == "preAdmissionForm" && !(_id in path("drafts.**"))][0]{
-  _rev, formSettings{ isEnabled }, declarationText, cycle, sections
+  _rev, formSettings{ isEnabled }, declarationText, cycle, sections,
+  "fees": *[_id == "feeSettings"][0]${FEES}
 }`;
 
 /**
@@ -99,12 +103,34 @@ export async function loadSnapshot(cycleId: string, version: number): Promise<Fo
   return row?.snapshot ?? null;
 }
 
+/** The current version and every version a submitted application was answered against (export columns). */
+export async function loadAnsweredSnapshots(cycleId: string): Promise<Map<number, FormSnapshot>> {
+  const db = getAdmissionsDb();
+  const [cycle, used] = await Promise.all([
+    db.select({ version: admissionCycles.currentVersion }).from(admissionCycles).where(eq(admissionCycles.id, cycleId)),
+    db
+      .selectDistinct({ version: applications.snapshotVersion })
+      .from(applications)
+      .where(and(eq(applications.cycleId, cycleId), isNotNull(applications.publicRef))),
+  ]);
+  const versions = [...new Set([...cycle, ...used].map((r) => r.version))];
+  if (!versions.length) return new Map();
+  const rows = await db
+    .select({ version: admissionSnapshots.version, snapshot: admissionSnapshots.snapshot })
+    .from(admissionSnapshots)
+    .where(and(eq(admissionSnapshots.cycleId, cycleId), inArray(admissionSnapshots.version, versions)));
+  return new Map(rows.map((r) => [r.version, r.snapshot]));
+}
+
 /**
  * The Studio draft of the form when there is one, else the published form. The Studio creates the
  * document with a random ID, so the draft is found as drafts.<published ID>.
  */
 const DRAFT_FORM_QUERY = `*[_type == "preAdmissionForm" && !(_id in path("drafts.**"))][0]{
-  "doc": coalesce(*[_id == "drafts." + ^._id][0], @){ _rev, formSettings{ isEnabled }, declarationText, cycle, sections }
+  "doc": coalesce(*[_id == "drafts." + ^._id][0], @){
+    _rev, formSettings{ isEnabled }, declarationText, cycle, sections,
+    "fees": coalesce(*[_id == "drafts.feeSettings"][0], *[_id == "feeSettings"][0])${FEES}
+  }
 }.doc`;
 
 /**
@@ -133,6 +159,6 @@ async function loadCurrentCycle(): Promise<CycleState | null> {
     return state && { ...state, enabled: true, window: 'open' };
   }
   const { sanityFetch } = await import('@/lib/sanity-fetch');
-  const doc = await sanityFetch<FormDocument | null>({ query: FORM_QUERY, tags: ['preAdmissionForm'] });
+  const doc = await sanityFetch<FormDocument | null>({ query: FORM_QUERY, tags: ['preAdmissionForm', 'feeSettings'] });
   return syncCycle(doc);
 }

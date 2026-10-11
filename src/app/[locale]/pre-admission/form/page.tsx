@@ -9,6 +9,7 @@ import { chapterStatus } from '@/lib/admissions/answers';
 import { asLocale, num, txt } from '@/lib/admissions/display';
 import { fieldWithRole, guardianSections } from '@/lib/admissions/form-config';
 import { flowPath, requireDraft } from '@/lib/admissions/pages';
+import { PLEDGE_STEP, pledgeStatus } from '@/lib/admissions/pledge';
 import { currentAccess, resumeUrl } from '@/lib/admissions/session';
 
 type Props = { params: Promise<{ locale: string }> };
@@ -25,29 +26,36 @@ export default async function HubPage({ params }: Props) {
   const token = (await currentAccess())?.token;
   const link = token ? await resumeUrl(locale, token) : null;
 
+  const statusText = (s: { status: string; answered: number; required: number }, minutes: number) =>
+    s.status === 'done'
+      ? t('hub.statusDone')
+      : s.status === 'in_progress'
+        ? t('hub.statusProgress', { answered: num(s.answered, locale), total: num(s.required, locale) })
+        : t('hub.statusTodo', { minutes: num(minutes, locale) });
   const chapters = guardianSections(snapshot).map((section) => {
     const s = chapterStatus(section, app.answers);
-    const minutes = Math.max(1, Math.round((section.fields.length * 10) / 60));
     return {
-      section,
+      key: section.key,
+      title: txt(section.title, locale),
       ...s,
       href: flowPath(locale, `/form/${section.key}`),
       sub: section.groups.map((g) => txt(g.title, locale)).join(', '),
-      statusText:
-        s.status === 'done'
-          ? t('hub.statusDone')
-          : s.status === 'in_progress'
-            ? t('hub.statusProgress', { answered: num(s.answered, locale), total: num(s.required, locale) })
-            : t('hub.statusTodo', { minutes: num(minutes, locale) }),
+      statusText: statusText(s, Math.max(1, Math.round((section.fields.length * 10) / 60))),
     };
   });
+  // The অঙ্গীকার step comes after the chapters, counted as two answers (one per pledge).
+  const pledge = pledgeStatus(snapshot, app);
+  if (pledge) {
+    const s = { status: pledge, required: 2, answered: Number(!!app.conductPledgedAt) + Number(!!app.familyDeclaredAt) };
+    chapters.push({ key: PLEDGE_STEP, title: t('pledge.title'), ...s, href: flowPath(locale, '/pledge'), sub: t('pledge.hubSub'), statusText: statusText(s, 2) });
+  }
   const done = chapters.filter((c) => c.status === 'done').length;
   const allDone = done === chapters.length;
   const required = chapters.reduce((n, c) => n + c.required, 0);
   const answered = chapters.reduce((n, c) => n + c.answered, 0);
   const next = chapters.find((c) => c.status !== 'done');
   const nextLabel = next
-    ? t(next.status === 'not_started' && done === 0 ? 'hub.startChapter' : 'hub.continueChapter', { chapter: txt(next.section.title, locale) })
+    ? t(next.status === 'not_started' && done === 0 ? 'hub.startChapter' : 'hub.continueChapter', { chapter: next.title })
     : t('hub.goReview');
   const nextHref = next ? next.href : flowPath(locale, '/review');
 
@@ -87,7 +95,7 @@ export default async function HubPage({ params }: Props) {
         <nav aria-label={t('hub.chapters')} className="overflow-hidden rounded-xl border bg-card">
           <ul>
             {chapters.map((c) => (
-              <li key={c.section.key} className="border-b">
+              <li key={c.key} className="border-b">
                 <Link href={c.href} className="flex min-h-16 items-center gap-3.5 px-4 py-3 hover:bg-muted/60">
                   {c.status === 'done' ? (
                     <CircleCheck className="size-5 flex-none text-success" aria-hidden />
@@ -97,7 +105,7 @@ export default async function HubPage({ params }: Props) {
                     <Circle className="size-5 flex-none text-input" aria-hidden />
                   )}
                   <span className="flex min-w-0 flex-1 flex-col gap-px">
-                    <span className="text-[15px] font-medium md:text-base">{txt(c.section.title, locale)}</span>
+                    <span className="text-[15px] font-medium md:text-base">{c.title}</span>
                     <span className="text-[13px] text-muted-foreground md:hidden">{c.statusText}</span>
                     {c.sub && <span className="hidden truncate text-[13.5px] text-muted-foreground md:block">{c.sub}</span>}
                   </span>

@@ -1,5 +1,5 @@
 import { parseIsoDate } from './age';
-import { allFields, type FormField, type FormSection, type FormSnapshot } from './form-config';
+import { FILE_MISSING, allFields, type FormField, type FormSection, type FormSnapshot } from './form-config';
 import { normaliseEmail, normaliseMobile, toAsciiDigits } from './normalise';
 
 // Answers are stored per field key. The same rules run in the browser (inline errors, chapter
@@ -20,12 +20,30 @@ const isFileAnswer = (v: unknown): v is FileAnswer =>
 
 const optionValues = (f: FormField) => new Set(f.options.map((o) => o.value));
 
+/** A file field answered with "don't have it now". */
+export const isMissingFile = (f: FormField, v: unknown) => f.type === 'file' && !!f.allowMissing && v === FILE_MISSING;
+
+/**
+ * Ticking a checkbox option. Options marked "only this choice": ticking one keeps only it; ticking
+ * another option drops it. (Unticking is a plain removal.)
+ */
+export function tickChoice(f: FormField, current: string[], added: string): string[] {
+  const exclusive = new Set(f.options.filter((o) => o.exclusive).map((o) => o.value));
+  if (exclusive.has(added)) return [added];
+  return [...current.filter((v) => !exclusive.has(v)), added];
+}
+
+/** Whether a "show only when" condition holds for the answers (no condition always holds). */
+export function conditionMet(condition: FormField['showWhen'], answers: Answers): boolean {
+  if (!condition) return true;
+  const answer = answers[condition.field];
+  const given = Array.isArray(answer) ? answer : typeof answer === 'string' ? [answer] : [];
+  return given.some((v) => condition.values.includes(v));
+}
+
 /** Whether a field is shown, given the answers so far (show-when on an earlier choice/yes-no field). */
 export function isVisible(field: FormField, answers: Answers): boolean {
-  if (!field.showWhen) return true;
-  const answer = answers[field.showWhen.field];
-  const given = Array.isArray(answer) ? answer : typeof answer === 'string' ? [answer] : [];
-  return given.some((v) => field.showWhen!.values.includes(v));
+  return conditionMet(field.showWhen, answers);
 }
 
 function isEmpty(v: AnswerValue | undefined): boolean {
@@ -53,13 +71,15 @@ export function sanitizeDraft(snapshot: FormSnapshot, input: Record<string, unkn
       }
       case 'select':
       case 'radio':
+      case 'transportStop':
         if (typeof v === 'string' && optionValues(f).has(v)) out[f.key] = v;
         break;
       case 'yesno':
         if (v === 'yes' || v === 'no') out[f.key] = v;
         break;
       case 'file':
-        if (isFileAnswer(v) && isOwnFile(v)) out[f.key] = { key: v.key, name: String(v.name).slice(0, 200), size: Number(v.size) || 0, type: String(v.type).slice(0, 100) };
+        if (isMissingFile(f, v)) out[f.key] = FILE_MISSING;
+        else if (isFileAnswer(v) && isOwnFile(v)) out[f.key] = { key: v.key, name: String(v.name).slice(0, 200), size: Number(v.size) || 0, type: String(v.type).slice(0, 100) };
         break;
       case 'number':
         if (typeof v === 'number' && Number.isFinite(v)) out[f.key] = v;
@@ -97,15 +117,19 @@ export function checkField(f: FormField, v: AnswerValue | undefined): { value?: 
     }
     case 'select':
     case 'radio':
+    case 'transportStop':
       return typeof v === 'string' && optionValues(f).has(v) ? { value: v } : { error: 'invalid_option' };
     case 'checkbox': {
       const allowed = optionValues(f);
-      return Array.isArray(v) && v.every((x) => allowed.has(x)) ? { value: v } : { error: 'invalid_option' };
+      if (!Array.isArray(v) || !v.every((x) => allowed.has(x))) return { error: 'invalid_option' };
+      // An "only this choice" option cannot be combined with others.
+      const exclusive = f.options.filter((o) => o.exclusive).map((o) => o.value);
+      return v.length > 1 && v.some((x) => exclusive.includes(x)) ? { error: 'invalid_option' } : { value: v };
     }
     case 'yesno':
       return v === 'yes' || v === 'no' ? { value: v } : { error: 'invalid_option' };
     case 'file':
-      return isFileAnswer(v) ? { value: v } : { error: 'invalid' };
+      return isFileAnswer(v) || isMissingFile(f, v) ? { value: v } : { error: 'invalid' };
   }
 }
 

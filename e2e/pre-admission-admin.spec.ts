@@ -23,7 +23,7 @@ const idCells = (page: Page) => page.locator('tbody td:nth-child(2) a');
 
 test('the admin needs the Studio login, pages and downloads alike', async ({ browser, baseURL }) => {
   const anonymous = await browser.newContext({ baseURL, httpCredentials: undefined });
-  for (const path of ['/admin/admissions', '/admin/admissions/export', '/admin/admissions/file?id=x&key=y']) {
+  for (const path of ['/admin/admissions', '/admin/admissions/export', '/admin/admissions/offline-form', '/admin/admissions/file?id=x&key=y']) {
     expect((await anonymous.request.get(path)).status(), path).toBe(401);
   }
   await anonymous.close();
@@ -75,13 +75,13 @@ test('bulk status change on selected rows', async ({ page }) => {
   await page.getByRole('checkbox', { name: /নির্বাচন$/ }).nth(1).check();
   await page.getByRole('checkbox', { name: /নির্বাচন$/ }).nth(2).check();
   await expect(page.getByText('২টি নির্বাচিত')).toBeVisible();
-  await page.getByRole('combobox', { name: 'নতুন অবস্থা' }).selectOption({ label: 'মূল্যায়ন নির্ধারিত' });
+  await page.getByRole('combobox', { name: 'নতুন অবস্থা' }).selectOption({ label: 'অ্যাসেসমেন্ট নির্ধারিত' });
   await page.getByRole('button', { name: 'প্রয়োগ করুন' }).click();
   await expect(page.getByRole('status')).toHaveText('২টি আবেদনের অবস্থা বদলানো হয়েছে।');
-  await expect(page.locator('tbody').getByText('মূল্যায়ন নির্ধারিত')).toHaveCount(2);
+  await expect(page.locator('tbody').getByText('অ্যাসেসমেন্ট নির্ধারিত')).toHaveCount(2);
 
   await page.getByRole('button', { name: 'অবস্থা' }).click();
-  await page.getByRole('menuitemradio', { name: 'মূল্যায়ন নির্ধারিত' }).click();
+  await page.getByRole('menuitemradio', { name: 'অ্যাসেসমেন্ট নির্ধারিত' }).click();
   await expect(idCells(page)).toHaveCount(2);
 });
 
@@ -109,11 +109,11 @@ test('detail: answers, documents, notes, status, evaluation day, PDF and Excel',
   await expect(page.getByText('অবস্থা বদলেছে: অপেক্ষমাণ').first()).toBeVisible();
 
   // The switches start off on a fresh preview; setChecked keeps a rerun on the same server working.
-  const fee = page.getByRole('switch', { name: /মূল্যায়ন ফি/ });
+  const fee = page.getByRole('switch', { name: /অ্যাসেসমেন্ট ফি/ });
   await fee.setChecked(false);
   await page.getByPlaceholder('ঐচ্ছিক').fill('R-102');
   await fee.setChecked(true);
-  await expect(page.getByText('মূল্যায়ন ফি গৃহীত (রসিদ R-102)').first()).toBeVisible();
+  await expect(page.getByText('অ্যাসেসমেন্ট ফি গৃহীত (রসিদ R-102)').first()).toBeVisible();
   await page.getByRole('switch', { name: 'উপস্থিত' }).setChecked(true);
   await expect(page.getByRole('switch', { name: 'উপস্থিত' })).toBeChecked();
 
@@ -125,6 +125,12 @@ test('detail: answers, documents, notes, status, evaluation day, PDF and Excel',
   expect(xlsx.status()).toBe(200);
   expect(xlsx.headers()['content-disposition']).toMatch(/pre-admission-2027-.*\.xlsx/);
   expect((await xlsx.body()).subarray(0, 2).toString()).toBe('PK');
+
+  // The paper form for families at the campus, printed by the office.
+  const offline = await page.request.get('/admin/admissions/offline-form');
+  expect(offline.status()).toBe(200);
+  expect(offline.headers()['content-disposition']).toMatch(/mqd_pre_admission_form_2027_v\d+\.pdf/);
+  expect((await offline.body()).subarray(0, 5).toString()).toBe('%PDF-');
 });
 
 test('evaluation day: an ID opens the application, today’s check-ins are listed', async ({ page }) => {
@@ -140,7 +146,7 @@ test('evaluation day: an ID opens the application, today’s check-ins are liste
   await expect(page).toHaveURL(/from=evaluation-day/);
   await page.getByRole('switch', { name: 'উপস্থিত' }).setChecked(true);
   await expect(page.getByRole('switch', { name: 'উপস্থিত' })).toBeChecked();
-  await page.getByRole('link', { name: /মূল্যায়নের দিনে ফিরুন/ }).click();
+  await page.getByRole('link', { name: /অ্যাসেসমেন্টের দিনে ফিরুন/ }).click();
   await expect(page.getByRole('link', { name: id })).toBeVisible();
   await noSeriousA11yIssues(page);
 });

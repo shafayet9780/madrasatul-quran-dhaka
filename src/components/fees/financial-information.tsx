@@ -8,6 +8,8 @@ import {
 import Link from 'next/link';
 import { ArrowUpRight } from 'lucide-react';
 import styles from './financial-information.module.css';
+import { RouteCards } from '@/components/pre-admission/route-cards';
+import { buildTransport } from '@/lib/admissions/snapshot';
 
 export function financialLinks(
   settings: FeeSettings | null,
@@ -100,6 +102,8 @@ export function FinancialInformation({
     settings.hifzLabel?.[locale] || 'Hifz',
   ];
   const vehicles = settings.transport?.filter(v => v.visible) || [];
+  // With routes, the cards show each route's vehicle and charge (same cards as the form).
+  const routes = buildTransport(settings);
   const discounts = settings.discounts?.filter(d => d.visible) || [];
 
   return (
@@ -209,38 +213,42 @@ export function FinancialInformation({
           <p className={styles.introduction}>
             {settings.transportIntroduction?.[locale]}
           </p>
-          <div className={styles.panel}>
-            <table className={`${styles.table} ${styles.transportTable}`}>
-              <caption className="sr-only">
-                {settings.transportHeading?.[locale]}
-              </caption>
-              <thead>
-                <tr>
-                  <th scope="col">{bn ? 'যানবাহন' : 'Vehicle'}</th>
-                  <th scope="col">{bn ? 'মাসিক ফি' : 'Monthly fee'}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {vehicles.map(vehicle => (
-                  <tr key={vehicle._key} className={styles.feeRow}>
-                    <th scope="row">
-                      <span className={styles.feeName}>
-                        {vehicle.name?.[locale]}
-                      </span>
-                      {vehicle.note?.[locale] && (
-                        <span className={styles.note}>
-                          {vehicle.note[locale]}
-                        </span>
-                      )}
-                    </th>
-                    <td>
-                      <Price value={vehicle.price} locale={locale} />
-                    </td>
+          {routes.routes.length > 0 ? (
+            <RouteCards transport={routes} locale={locale} />
+          ) : (
+            <div className={styles.panel}>
+              <table className={`${styles.table} ${styles.transportTable}`}>
+                <caption className="sr-only">
+                  {settings.transportHeading?.[locale]}
+                </caption>
+                <thead>
+                  <tr>
+                    <th scope="col">{bn ? 'যানবাহন' : 'Vehicle'}</th>
+                    <th scope="col">{bn ? 'মাসিক ফি' : 'Monthly fee'}</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {vehicles.map(vehicle => (
+                    <tr key={vehicle._key} className={styles.feeRow}>
+                      <th scope="row">
+                        <span className={styles.feeName}>
+                          {vehicle.name?.[locale]}
+                        </span>
+                        {vehicle.note?.[locale] && (
+                          <span className={styles.note}>
+                            {vehicle.note[locale]}
+                          </span>
+                        )}
+                      </th>
+                      <td>
+                        <Price value={vehicle.price} locale={locale} />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </section>
       )}
       {discounts.length > 0 && (

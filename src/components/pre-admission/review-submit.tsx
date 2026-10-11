@@ -41,7 +41,13 @@ export function ReviewSubmit({ locale, fee, evaluationFee, declaration, payLabel
 
       {state.message && (
         <p role="alert" className="text-[13.5px] text-destructive">
-          {state.message === 'declaration' ? t('review.declarationNeeded') : state.message === 'invalid' ? t('review.incompleteLead') : t(state.message)}
+          {state.message === 'declaration'
+            ? t('review.declarationNeeded')
+            : state.message === 'pledge'
+              ? t('review.pledgeNeeded')
+              : state.message === 'invalid'
+                ? t('review.incompleteLead')
+                : t(state.message)}
         </p>
       )}
 
