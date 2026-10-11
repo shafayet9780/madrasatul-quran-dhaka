@@ -43,8 +43,10 @@ export default async function PreAdmissionIntro({ params }: Props) {
   const fee = settings ? taka(settings.applicationFee, locale) : '';
   const evalFee = settings ? taka(settings.evaluationFee, locale) : '';
   const classes = cycle ? (fieldWithRole(cycle.snapshot, 'classApplied')?.options ?? []) : [];
-  const regular = classes.filter((o) => !o.special).map((o) => txt(o.label, locale));
-  const special = classes.filter((o) => o.special).map((o) => txt(o.label, locale));
+  // A class with requirements shows them beside it: "৭ম শ্রেণী (শুধু মেয়েদের জন্য; …)".
+  const name = (o: (typeof classes)[number]) => (o.requires?.length ? `${txt(o.label, locale)} (${o.requires.map((r) => txt(r.message, locale)).join('; ')})` : txt(o.label, locale));
+  const regular = classes.filter((o) => !o.special).map(name);
+  const special = classes.filter((o) => o.special).map(name);
   const resumable = current && (current.app.status === 'draft' || current.app.status === 'unpaid');
   const photo = (facilities ?? []).find((f) => f.images?.length)?.images[0];
 

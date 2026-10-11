@@ -87,6 +87,7 @@ Publish a change and the website uses it within about a minute. Applications alr
   - *Cycle settings*: **Code of conduct** (introduction, rule groups, the pledge and the boxed declaration), **What to bring on assessment day** (an item can show only for some answers, or be highlighted when a document was not uploaded), **WhatsApp group link**, **Assessment fee**.
   - A file question: **Allow "don't have it now"**, with the text of the tick box and the note shown once it is ticked.
   - A checkbox option: **Only this choice** (e.g. "none of the above" clears the other choices).
+  - A class option: **Requirements (all must be met)**. Each one names a question by its key, the answers that meet it and a short message (2027: class 7 takes girls only, `student_gender` = `female`, who know nahw and sarf, `arabic_level` = `knows_nahw_sarf`). The messages show beside the class on the website, the intro page and the paper form. A class whose requirement fails on an earlier question (gender) cannot be chosen; a later question (Arabic level) shows the message and the form cannot be submitted until the answer or the class changes. The question must be shown for that class (its "show only when" must include it).
   - **Fees & Discounts → Transport**: vehicles with their monthly charge (none means "contact the office") and routes with their stops in order. A change here also makes a new form version, so guardians who already applied keep the charge they saw.
 
 The full rules are in [`pre-admission-2027-updates.md`](pre-admission-2027-updates.md), section 2.

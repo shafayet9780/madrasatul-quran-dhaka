@@ -8,7 +8,7 @@ import { answerText } from '@/lib/admissions/answer-text';
 import { chapterStatus, isVisible, type FileAnswer } from '@/lib/admissions/answers';
 import { asLocale, num, taka, txt } from '@/lib/admissions/display';
 import { countOtherApplications } from '@/lib/admissions/drafts';
-import { guardianSections, type FormField } from '@/lib/admissions/form-config';
+import { allFields, guardianSections, type FormField } from '@/lib/admissions/form-config';
 import { flowPath, requireDraft } from '@/lib/admissions/pages';
 import { pledgeStatus } from '@/lib/admissions/pledge';
 import { applicationFee } from '@/lib/admissions/payments';
@@ -30,7 +30,7 @@ export default async function ReviewPage({ params }: Props) {
   const chapters = guardianSections(snapshot);
   const pledge = pledgeStatus(snapshot, app);
   const incomplete = [
-    ...chapters.filter((s) => chapterStatus(s, app.answers).status !== 'done').map((s) => ({ key: s.key, title: txt(s.title, locale), href: flowPath(locale, `/form/${s.key}`) })),
+    ...chapters.filter((s) => chapterStatus(s, app.answers, allFields(snapshot)).status !== 'done').map((s) => ({ key: s.key, title: txt(s.title, locale), href: flowPath(locale, `/form/${s.key}`) })),
     ...(pledge && pledge !== 'done' ? [{ key: 'pledge', title: t('pledge.title'), href: flowPath(locale, '/pledge') }] : []),
   ];
   const others = incomplete.length ? 0 : await countOtherApplications(app).catch(() => 0);

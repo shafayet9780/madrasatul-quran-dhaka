@@ -7,7 +7,7 @@ import { OFFICE_STATUSES, STATUS_LABEL, attemptsText, lastActive, shortDate, typ
 import { chapterStatus } from '@/lib/admissions/answers';
 import { loadSnapshot } from '@/lib/admissions/cycle';
 import { longDate, txt } from '@/lib/admissions/display';
-import { fieldWithRole, guardianSections, type FormSnapshot } from '@/lib/admissions/form-config';
+import { allFields, fieldWithRole, guardianSections, type FormSnapshot } from '@/lib/admissions/form-config';
 import { formatMobile, toBengaliDigits as bn } from '@/lib/admissions/normalise';
 import { cn } from '@/lib/utils';
 import { PageTop } from '../AdminShell';
@@ -64,7 +64,7 @@ export function OfflineFormButton() {
 function progress(status: ApplicationStatus, snapshot: FormSnapshot | null, answers: Record<string, unknown>): string {
   if (status === 'unpaid') return 'ফর্ম সম্পূর্ণ';
   if (!snapshot) return '';
-  const chapters = guardianSections(snapshot).map((s) => chapterStatus(s, answers as never));
+  const chapters = guardianSections(snapshot).map((s) => chapterStatus(s, answers as never, allFields(snapshot)));
   if (chapters.every((c) => c.answered === 0)) return 'শুধু শুরু';
   return `${bn(chapters.length)}টির মধ্যে ${bn(chapters.filter((c) => c.status === 'done').length)}টি অধ্যায়`;
 }

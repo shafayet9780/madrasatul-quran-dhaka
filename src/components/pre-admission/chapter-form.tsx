@@ -8,7 +8,7 @@ import { useTranslations } from 'next-intl';
 import { Button } from '@/components/shadcn/button';
 import { saveAnswers } from '@/app/[locale]/pre-admission/actions';
 import { ageOn, classesForAge, sessionStart } from '@/lib/admissions/age';
-import { checkField, checkSection, isVisible, type AnswerError, type Answers, type AnswerValue } from '@/lib/admissions/answers';
+import { blockedClasses, checkField, checkSection, classRequirementErrors, isVisible, type AnswerError, type Answers, type AnswerValue } from '@/lib/admissions/answers';
 import { num, txt, type Locale } from '@/lib/admissions/display';
 import type { FormField, FormSection, Transport } from '@/lib/admissions/form-config';
 import type { Step } from '@/lib/admissions/pages';
@@ -170,14 +170,20 @@ export function ChapterForm({ locale, applicationId, session, section, otherFiel
   const dobYears = Array.from({ length: 14 }, (_, i) => sessionYear - 2 - i);
 
   const stopField = section.fields.find((f) => f.type === 'transportStop');
-  const check = checkSection(section, answers);
+  const check = checkSection(section, answers, all);
+  // The chosen class's requirements (e.g. girls only), shown on the question that breaks one.
+  const broken = classRequirementErrors(all, answers);
   const errorFor = (f: FormField): AnswerError | undefined => {
-    if (!showAll && !touched.has(f.key)) return undefined;
+    if (!showAll && !touched.has(f.key) && !broken.has(f.key)) return undefined;
     if (!isVisible(f, answers)) return undefined;
-    return checkField(f, answers[f.key]).error;
+    return checkField(f, answers[f.key]).error ?? (broken.has(f.key) ? 'class_requirement' : undefined);
   };
   const errorText = (f: FormField, e: AnswerError | undefined) => {
     if (!e) return null;
+    if (e === 'class_requirement') {
+      const b = broken.get(f.key)!;
+      return t('chapter.errors.class_requirement', { class: txt(b.className, locale), message: txt(b.message, locale) });
+    }
     if (e === 'required' && f.type === 'file') return t('chapter.errors.required');
     return t(`chapter.errors.${e}`);
   };
@@ -298,7 +304,7 @@ export function ChapterForm({ locale, applicationId, session, section, otherFiel
                                 setTouched((s) => (s.has(f.key) ? s : new Set(s).add(f.key)));
                                 void flush();
                               }}
-                              classFit={f.role === 'classApplied' ? { fits: classesForAge(f.options, age), age } : undefined}
+                              classFit={f.role === 'classApplied' ? { fits: classesForAge(f.options, age), age, blocked: blockedClasses(all, answers), unmet: broken.size > 0 } : undefined}
                               years={f.role === 'dateOfBirth' ? dobYears : undefined}
                               transport={f.type === 'transportStop' ? transport : undefined}
                             />
