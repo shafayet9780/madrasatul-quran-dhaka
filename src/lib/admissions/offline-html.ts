@@ -36,7 +36,7 @@ body{padding:0 0.6mm}
 .brand{display:flex;align-items:center;gap:11px}.brand img{width:50px;height:50px;border-radius:50%;object-fit:cover}.brand .name{font-size:20px;font-weight:700;line-height:1.3}
 .title{text-align:right;flex:none}.title div:first-child{font-size:17px;font-weight:700}
 .intro{margin-top:12px;display:grid;grid-template-columns:42fr 58fr;gap:12px;align-items:stretch}
-.officebox{display:grid;grid-template-columns:1fr 1fr;gap:6px 16px;padding:8px 14px 12px;background:#f6f0eb;border-left:4px solid #7a4d32;border-radius:6px}
+.officebox{display:grid;grid-template-columns:1fr 1fr;gap:6px 16px;padding:8px 14px 12px;background:#f6f0eb;border-radius:6px}
 .officebox .k{grid-column:1/-1;font-weight:700;color:#7a4d32}.officebox .wide{grid-column:1/-1}
 .officebox label{display:flex;flex-direction:column;gap:14px;font-size:11px;white-space:nowrap}.officebox label i{display:block;border-bottom:1px solid #000}
 .howto{border:1px solid #cdbfb3;border-radius:6px;padding:8px 12px;line-height:1.55;font-size:11.5px}
@@ -55,7 +55,7 @@ body{padding:0 0.6mm}
 .photos{display:flex;gap:12px;padding-top:10px}.frame{width:35mm;height:45mm;border:1.3px dashed #7a4d32;border-radius:5px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;font-size:10px;gap:2px;padding:4px}
 .routes{width:100%;border-collapse:collapse;margin-top:6px}.routes th,.routes td{border:1px solid #bfb2a6;padding:4px 8px;text-align:left;vertical-align:top}.routes th{font-weight:600;background:#f6f0eb}.routes .area td{font-weight:700;color:#7a4d32;background:#fbf8f5}
 .stops{display:flex;flex-wrap:wrap;gap:4px 14px}
-.note{margin:10px 0 2px;padding:6px 11px;border-left:3px solid #7a4d32;background:#fbf8f5;line-height:1.55;break-after:avoid}
+.note{margin:10px 0 2px;padding:6px 11px;background:#f6f0eb;border-radius:6px;line-height:1.55;break-after:avoid}
 .first .idgrid .ans{height:12mm}
 .page-break{break-before:page}
 .rules ol{list-style:none;margin:0;padding:0}.rules li{display:grid;grid-template-columns:22px 1fr;line-height:1.55;padding:2px 0}.rules li b{color:#7a4d32}.rules .gh{font-weight:700;margin-top:10px;padding-bottom:2px;border-bottom:1px solid #e6dfd9}
