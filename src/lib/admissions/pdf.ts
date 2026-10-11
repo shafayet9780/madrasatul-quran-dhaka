@@ -96,6 +96,10 @@ export async function pdfData(app: Application, snapshot: FormSnapshot, origin: 
     studentNameEn: app.studentNameEn,
     submittedAt: app.submittedAt,
     declaredAt: app.declaredAt,
+    conductPledgedAt: app.conductPledgedAt,
+    familyDeclaredAt: app.familyDeclaredAt,
+    fatherName: app.fatherName,
+    motherName: app.motherName,
     receipt: paid
       ? { amount: paid.amount, method: (paid.cardType?.split('-').at(-1) ?? 'SSLCommerz').trim(), transactionId: paid.bankTranId || paid.tranId, paidAt: paid.completedAt }
       : null,

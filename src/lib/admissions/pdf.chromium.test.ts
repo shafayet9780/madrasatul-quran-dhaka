@@ -17,9 +17,11 @@ const answers: Answers = {
   student_name_english: 'Abdullah Al-Mahmud',
   date_of_birth: '2021-03-12',
   desired_class: 'kg',
+  studied_before: 'yes',
   last_class_attended: 'নার্সারি',
   previous_school: 'আল-আমিন কিন্ডারগার্টেন',
   student_birth_registration: { key: 'k', name: 'c.pdf', size: 1, type: 'application/pdf' },
+  previous_result_card: 'missing',
   father_name: 'মোহাম্মদ রফিকুল ইসলাম',
   father_name_english: 'Mohammad Rafiqul Islam',
   father_occupation: 'service',
@@ -45,8 +47,8 @@ const answers: Answers = {
   mother_mahram: 'yes',
   mother_facebook_id: 'নেই',
   heard_from: 'friends_family',
-  transport_requirement: 'yes',
-  transport_location: 'mirpur',
+  transport_interest: 'yes',
+  transport_stop: 'uttara_micro_1:uttara_micro_1_4',
   present_address: 'বাসা ১২, রোড ৫, মিরপুর ১০, ঢাকা',
   father_phone: '8801712345678',
   mother_phone: '8801819876543',
@@ -76,6 +78,10 @@ describe.skipIf(!canRender)('application PDF (Chromium)', () => {
       studentNameEn: 'Abdullah Al-Mahmud',
       submittedAt: new Date('2026-10-07T14:38:00Z'),
       declaredAt: new Date('2026-10-07T14:38:00Z'),
+      conductPledgedAt: new Date('2026-10-07T14:36:00Z'),
+      familyDeclaredAt: new Date('2026-10-07T14:36:00Z'),
+      fatherName: 'মোহাম্মদ রফিকুল ইসলাম',
+      motherName: 'সাবিনা ইয়াসমিন',
       receipt: { amount: 500, method: 'BKash', transactionId: 'BKX7Q2M4N9', paidAt: new Date('2026-10-07T14:42:00Z') },
       photos: {},
       staffQrSvg: '<svg xmlns="http://www.w3.org/2000/svg" width="112" height="112"><rect width="112" height="112" fill="#eee"/></svg>',
@@ -92,7 +98,8 @@ describe.skipIf(!canRender)('application PDF (Chromium)', () => {
     expect(info).toMatch(/Page size:\s+59[45]\.\d+ x 841\.\d+ pts \(A4\)/);
     const pages = Number(/Pages:\s+(\d+)/.exec(info)![1]);
     expect(pages).toBeGreaterThanOrEqual(2);
-    expect(pages).toBe(3);
+    // Student; parents; contact, additional and the code of conduct; consents and the office section.
+    expect(pages).toBe(4);
     const text = execFileSync('pdftotext', ['-layout', out, '-']).toString();
     expect(text).toContain('KG-017');
     expect(text).toContain('Abdullah Al-Mahmud');

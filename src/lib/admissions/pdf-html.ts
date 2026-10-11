@@ -1,12 +1,17 @@
 import { ageOn, sessionStart } from './age';
 import { answerText } from './answer-text';
 import { isVisible, type Answers } from './answers';
+import { bringItems } from './bring-list';
 import { dateTime, longDate, num, taka, txt } from './display';
-import type { FormField, FormSnapshot } from './form-config';
+import { NO_ROUTE, type FormField, type FormSnapshot } from './form-config';
+import { findStop } from './transport';
 
-// The application PDF as one HTML document (docs/pre-admission-mockups/Pdf1–3), printed to A4 by
-// Chromium (pdf.ts). Always Bengali: it is the office's working copy on evaluation day. Fonts,
-// photos and QR codes arrive inline (data URIs, SVG), so printing needs no network.
+// The application PDF as one HTML document (docs/pre-admission-mockups/Pdf1–2, UPdf1, UPdf3,
+// UPdf4), printed to A4 by Chromium (pdf.ts). Always Bengali: it is the office's working copy on
+// assessment day. Pages: 1 the ID, the student, the receipt and the assessment box; 2 the parents;
+// 3 the rest of the form and the code of conduct; 4 the consents, signatures and the office section
+// (ordered by who fills it, so the office comes last). Fonts, photos and QR codes arrive inline
+// (data URIs, SVG), so printing needs no network.
 
 export type PdfData = {
   snapshot: FormSnapshot;
@@ -16,6 +21,10 @@ export type PdfData = {
   studentNameEn: string | null;
   submittedAt: Date | null;
   declaredAt: Date | null;
+  conductPledgedAt: Date | null;
+  familyDeclaredAt: Date | null;
+  fatherName: string | null;
+  motherName: string | null;
   receipt: { amount: number; method: string; transactionId: string; paidAt: Date | null } | null;
   /** Data URIs keyed by field key (photos). */
   photos: Record<string, string>;
@@ -38,19 +47,35 @@ function value(f: FormField, answers: Answers): string {
   return `<td${latin(text) ? ' class="lat"' : ''}>${esc(text)}</td>`;
 }
 
+/** A field's rows: a transport stop also shows the charge the guardian saw ("stop (route)", then "৳৫,০০০, মাইক্রো"). */
+function fieldRows(f: FormField, answers: Answers, snapshot: FormSnapshot): string {
+  const chosen = f.type === 'transportStop' && answers[f.key] !== NO_ROUTE ? findStop(snapshot.transport, answers[f.key]) : null;
+  if (!chosen) return row(txt(f.label, 'bengali'), value(f, answers));
+  const monthly = chosen.vehicle?.monthly;
+  const charge = [monthly != null ? taka(monthly, 'bengali') : 'অফিসে জানুন', txt(chosen.vehicle?.name, 'bengali')].filter(Boolean).join(', ');
+  return (
+    row(txt(f.label, 'bengali'), `<td>${esc(`${txt(chosen.stop.name, 'bengali')} (${txt(chosen.route.name, 'bengali')})`)}</td>`) +
+    row('মাসিক ভাড়া (আবেদনের সময়)', `<td>${esc(charge)}</td>`)
+  );
+}
+
 function photoBox(src: string | undefined, w: number, h: number, alt: string) {
   return src
     ? `<img src="${src}" alt="${esc(alt)}" style="width:${w}px;height:${h}px" class="photo">`
     : `<div class="photo empty" style="width:${w}px;height:${h}px">ছবি</div>`;
 }
 
+const consentTime = (at: Date | null) => (at ? `<div class="muted small">অনলাইনে সম্মতি: ${esc(dateTime(at.toISOString(), 'bengali'))}</div>` : '');
+/** An empty box for the office to tick, or a ticked one (agreed online). */
+const box = (ticked = false) => (ticked ? '<i class="tick on">✓</i>' : '<i class="tick"></i>');
+
 const sectionTitle = (n: number, title: string) => `<h2 class="sec"><span>${bn(n)}</span>${esc(title)}</h2>`;
 
 const row = (label: string, cell: string) => `<tr><th>${esc(label)}</th>${cell}</tr>`;
 
 /** One chapter: its title, a label / answer table and, for a parent, the photo beside it. */
-function sectionHtml(n: number, title: string, rows: string, photo?: string) {
-  const table = `<table class="qa"><tbody>${rows}</tbody></table>`;
+function sectionHtml(n: number, title: string, rows: string, photo?: string, compact = false) {
+  const table = `<table class="qa${compact ? ' compact' : ''}"><tbody>${rows}</tbody></table>`;
   return `<section class="block">${sectionTitle(n, title)}${photo ? `<div class="with-photo">${table}${photo}</div>` : table}</section>`;
 }
 
@@ -71,21 +96,35 @@ export function applicationHtml(d: PdfData): string {
   const studentRows = first.fields
     .filter((f) => !isPhoto(f))
     .flatMap((f) => {
-      const r = row(txt(f.label, 'bengali'), value(f, answers));
+      const r = fieldRows(f, answers, snapshot);
       return f.role === 'dateOfBirth' && age ? [r, row('বয়স (শিক্ষাবর্ষের শুরুতে)', `<td>${bn(age.years)} বছর ${bn(age.months)} মাস</td>`)] : [r];
     })
     .join('');
 
-  const restHtml = rest
-    .map((sec, i) => {
-      const photo = sec.fields.find(isPhoto);
-      const rows = sec.fields
-        .filter((f) => !isPhoto(f))
-        .map((f) => row(txt(f.label, 'bengali'), value(f, answers)))
-        .join('');
-      return sectionHtml(i + 2, txt(sec.title, 'bengali'), rows, photo ? photoBox(d.photos[photo.key], 84, 105, txt(photo.label, 'bengali')) : undefined);
-    })
-    .join('');
+  const chapterHtml = (sec: (typeof rest)[number], n: number) => {
+    const photo = sec.fields.find(isPhoto);
+    const rows = sec.fields
+      .filter((f) => !isPhoto(f))
+      .map((f) => fieldRows(f, answers, snapshot))
+      .join('');
+    return sectionHtml(n, txt(sec.title, 'bengali'), rows, photo ? photoBox(d.photos[photo.key], 84, 105, txt(photo.label, 'bengali')) : undefined);
+  };
+  // Page 2: the parents (the next two chapters); page 3: the rest, then the code of conduct.
+  const page2 = rest.slice(0, 2).map((sec, i) => chapterHtml(sec, i + 2)).join('');
+  const page3 = rest.slice(2).map((sec, i) => chapterHtml(sec, i + 4)).join('');
+  let n = rest.length + 1;
+  let ruleNo = 0;
+  const conduct = s.conduct;
+  const conductHtml = conduct
+    ? `<section class="block rules">${sectionTitle(++n, 'অভিভাবকদের আচরণবিধি')}${conduct.groups
+        .map(
+          (g) =>
+            `<div class="group"><div class="gh">${esc(txt(g.title, 'bengali'))}</div><ol>${g.rules
+              .map((r) => `<li><b>${bn(++ruleNo)}</b><span>${esc(txt(r, 'bengali'))}</span></li>`)
+              .join('')}</ol></div>`,
+        )
+        .join('')}<p class="to-sign">এই আচরণবিধি মেনে চলার অঙ্গীকার ও স্বাক্ষর: পৃষ্ঠা ৪</p></section>`
+    : '';
 
   const receipt = d.receipt
     ? `<section class="box receipt">
@@ -95,9 +134,21 @@ export function applicationHtml(d: PdfData): string {
       </section>`
     : '';
 
-  // The office's instructions from the Studio replace the default notice and the list of what to bring.
+  // The office's instructions from the Studio replace the default notice.
   const instructions = txt(s.pdfInstructions, 'bengali');
   const evalFee = esc(taka(s.evaluationFee, 'bengali'));
+  // What to bring (Sanity), personalised; the office ticks the same items on page 4.
+  const bring = bringItems(snapshot, answers, 'bengali');
+  const bringHtml = bring.length
+    ? `<div style="font-weight:700">সঙ্গে আনবেন</div><ol>${bring
+        .map((i) => `<li>${esc(i.text)}${i.missing ? '<b class="must">। অনলাইনে জমা দেওয়া হয়নি, অবশ্যই আনবেন।</b>' : ''}</li>`)
+        .join('')}</ol>`
+    : instructions
+      ? `<p>অ্যাসেসমেন্ট ফি: <b>${evalFee}</b> (নগদ, অ্যাসেসমেন্টের দিন)</p>`
+      : `<div style="font-weight:700">সঙ্গে আনবেন</div><ol><li>এই আবেদনপত্রের প্রিন্ট</li><li>শিক্ষার্থীর জন্ম নিবন্ধন সনদের মূল কপি</li><li><b>${evalFee} অ্যাসেসমেন্ট ফি</b> (নগদ)</li></ol>`;
+  const officeChecks = bring.length
+    ? bring.map((i) => `<span class="cb">${box()}${esc(i.text)}</span>`).join('')
+    : `<span class="cb">${box()}জন্ম নিবন্ধনের মূল কপি দেখা হয়েছে</span><span class="cb">${box()}অ্যাসেসমেন্ট ফি ${evalFee} গৃহীত</span>`;
   const line = (width = '100%') => `<span class="line" style="width:${width}"></span>`;
 
   return `<!doctype html><html lang="bn"><head><meta charset="utf-8"><title>${esc(d.publicRef)}</title><style>
@@ -126,25 +177,35 @@ html,body{margin:0;background:#fff;color:#171717;font-family:'Inter','Noto Sans 
 /* One label width everywhere, so the answers line up in every chapter (a parent's photo narrows only the answers). */
 .qa th{width:300px;font-weight:400;color:#525252;background:#f7f7f7}.qa td{font-weight:600;overflow-wrap:anywhere}
 .with-photo{display:flex;gap:14px;align-items:flex-start}.with-photo .qa{flex:1}
+/* Page 1 holds the student chapter, the receipt and the assessment box: its rows are a little tighter. */
+.qa.compact th,.qa.compact td{padding:2.5px 8px;line-height:1.35}
+.page1 .box{margin-top:10px;padding:8px 14px}.page1 .block{margin-top:10px}.page1 .idrow{margin-top:10px}
 .box{border:1px solid #d4d4d4;border-radius:8px;padding:10px 14px;margin-top:14px;break-inside:avoid}
 .receipt{display:flex;justify-content:space-between;align-items:center;gap:16px}
 .amount{font-size:20px;font-weight:700}.stamp{display:inline-block;font-size:11px;font-weight:700;color:#15803d;border:1.5px solid #15803d;border-radius:6px;padding:0 8px}
-.eval{display:flex;gap:18px;align-items:flex-start;border:1.5px solid #7a4d32}.eval p{margin:4px 0 6px}.eval ol{margin:2px 0 0;padding-left:20px;line-height:1.6}
+.eval{display:flex;gap:18px;align-items:flex-start;border:1.5px solid #7a4d32}.eval p{margin:4px 0 6px}.eval ol{margin:2px 0 0;padding-left:20px;line-height:1.6;list-style-type:bengali}
 .page-break{break-before:page}
-.final{break-inside:avoid;margin-top:14px}
+.final{margin-top:0}
 .final .box{margin-top:10px}
 .decl p{margin:0;line-height:1.6}
 .sign{display:flex;gap:24px;margin-top:22px}.sign>span{display:flex;flex-direction:column;gap:4px;font-size:11.5px;color:#525252}
 .line{display:inline-block;border-bottom:1px solid #525252;height:20px}
-.office{border:1px dashed #737373;border-radius:8px;padding:10px 14px;margin-top:10px;display:flex;flex-direction:column;gap:8px}
-.cbs{display:flex;flex-wrap:wrap;align-items:center;gap:8px 22px}.cb{display:inline-flex;align-items:center;gap:7px}.cb i{flex:none;display:inline-block;width:14px;height:14px;border:1.5px solid #171717;border-radius:3px}
+.office{break-inside:avoid;border:1px dashed #737373;border-radius:8px;padding:10px 14px;margin-top:10px;display:flex;flex-direction:column;gap:8px}
+.cbs{display:flex;flex-wrap:wrap;align-items:center;gap:8px 22px}.cb{display:inline-flex;align-items:center;gap:7px}.tick{flex:none;display:inline-block;width:14px;height:14px;border:1.5px solid #171717;border-radius:3px}
+.must{color:#171717}
+.rules .group{margin-top:8px;break-inside:avoid}.rules .gh{font-weight:700;margin-bottom:2px}.rules ol{list-style:none;margin:0;padding:0}.rules li{display:grid;grid-template-columns:22px 1fr;gap:2px;line-height:1.6;padding:2px 0}.rules li b{color:#525252}
+.to-sign{margin:10px 0 0;padding:6px 10px;border:1px solid #d4d4d4;border-radius:6px;font-weight:700}
+.consent{display:flex;gap:10px;align-items:flex-start;border:1px solid #d4d4d4;border-radius:8px;padding:9px 12px;margin-top:8px;line-height:1.6}.consent.boxed{border:2px solid #171717}.consent .tick{margin-top:3px}
+.tick.on{font-style:normal;font-size:11px;font-weight:700;line-height:11px;text-align:center}
+.signs{display:grid;grid-template-columns:1fr 150px;gap:26px 24px;margin-top:26px}.signs>span{display:flex;flex-direction:column;gap:4px;font-size:11.5px;color:#525252}
 </style></head><body>
 
+<div class="page1">
 <header class="top">
   <div class="brand">${d.school.logo ? `<img src="${d.school.logo}" alt="">` : ''}<div><div class="name">${esc(d.school.name)}</div>${d.school.line ? `<div class="small muted">${esc(d.school.line)}</div>` : ''}</div></div>
   <div class="title"><div>প্রি-অ্যাডমিশন আবেদনপত্র</div><div class="muted">শিক্ষাবর্ষ ${session}</div></div>
 </header>
-<div class="notice">${esc(instructions || 'এই আবেদনপত্রটি প্রিন্ট করে মূল্যায়নের দিন অবশ্যই সঙ্গে আনুন।')}</div>
+<div class="notice">${esc(instructions || 'এই আবেদনপত্রটি প্রিন্ট করে অ্যাসেসমেন্টের দিন অবশ্যই সঙ্গে আনুন।')}</div>
 
 <section class="idrow">
   ${studentPhoto ? photoBox(d.photos[studentPhoto.key], 100, 125, 'শিক্ষার্থীর ছবি') : ''}
@@ -157,36 +218,43 @@ html,body{margin:0;background:#fff;color:#171717;font-family:'Inter','Noto Sans 
   <div class="qr">${d.staffQrSvg}<span>অফিস ব্যবহারের জন্য</span></div>
 </section>
 
-${sectionHtml(1, txt(first.title, 'bengali'), studentRows)}
+${sectionHtml(1, txt(first.title, 'bengali'), studentRows, undefined, true)}
 ${receipt}
 <section class="box eval">
   <div style="flex:1">
-    <div class="strong">মূল্যায়নের দিন</div>
+    <div class="strong">অ্যাসেসমেন্টের দিন</div>
     <p>তারিখ ও সময় আবেদন আইডি অনুযায়ী <b>হোয়াটসঅ্যাপ গ্রুপে</b> জানানো হবে।${d.whatsappQrSvg ? ' গ্রুপে যোগ না দিয়ে থাকলে পাশের কোড স্ক্যান করুন।' : ''}</p>
-    ${
-      instructions
-        ? `<p>মূল্যায়ন ফি: <b>${evalFee}</b> (নগদ, মূল্যায়নের দিন)</p>`
-        : `<div style="font-weight:700">সঙ্গে আনবেন</div><ol><li>এই আবেদনপত্রের প্রিন্ট</li><li>শিক্ষার্থীর জন্ম নিবন্ধন সনদের মূল কপি</li><li><b>${evalFee} মূল্যায়ন ফি</b> (নগদ)</li></ol>`
-    }
+    ${bringHtml}
   </div>
   ${d.whatsappQrSvg ? `<div class="qr">${d.whatsappQrSvg}<span>হোয়াটসঅ্যাপ গ্রুপ</span></div>` : ''}
 </section>
+</div>
 
 <div class="page-break"></div>
-${restHtml}
+${page2}
+${page3 || conductHtml ? `<div class="page-break"></div>${page3}${conductHtml}` : ''}
+<div class="page-break"></div>
 <div class="final">
-  <section class="box decl">
-    ${sectionTitle(rest.length + 2, 'ঘোষণা')}
-    <p>${esc(txt(s.declaration, 'bengali'))}</p>
-    ${d.declaredAt ? `<p class="muted small" style="margin-top:6px">অনলাইনে সম্মতি দেওয়া হয়েছে: ${esc(dateTime(d.declaredAt.toISOString(), 'bengali'))}</p>` : ''}
-    <div class="sign"><span style="flex:1">${line()}অভিভাবকের স্বাক্ষর (মূল্যায়নের দিন)</span><span style="width:150px">${line()}তারিখ</span></div>
+  <section class="block decl">
+    ${sectionTitle(++n, conduct ? 'অঙ্গীকার ও ঘোষণা' : 'ঘোষণা')}
+    ${
+      conduct
+        ? `<div class="consent">${box(!!d.conductPledgedAt)}<div>${esc(txt(conduct.pledge, 'bengali').replace(/আচরণবিধি/, 'আচরণবিধি (পৃষ্ঠা ৩)'))}${consentTime(d.conductPledgedAt)}</div></div>
+    <div class="consent boxed">${box(!!d.familyDeclaredAt)}<div>${esc(txt(conduct.declaration, 'bengali'))}${consentTime(d.familyDeclaredAt)}</div></div>`
+        : ''
+    }
+    <div class="consent">${box(!!d.declaredAt)}<div>${esc(txt(s.declaration, 'bengali'))}${consentTime(d.declaredAt)}</div></div>
+    <div class="signs">
+      <span>${line()}পিতার স্বাক্ষর${d.fatherName ? `: ${esc(d.fatherName)}` : ''}</span><span>${line()}তারিখ</span>
+      <span>${line()}মাতার স্বাক্ষর${d.motherName ? `: ${esc(d.motherName)}` : ''}</span><span>${line()}তারিখ</span>
+    </div>
   </section>
   <section class="office">
-    <div class="strong">শুধু অফিস ও মূল্যায়নকারীর জন্য</div>
-    <div class="cbs"><span class="cb"><i></i>উপস্থিত</span><span class="cb"><i></i>জন্ম নিবন্ধনের মূল কপি দেখা হয়েছে</span><span class="cb"><i></i>মূল্যায়ন ফি ${evalFee} গৃহীত</span><span class="cb">রসিদ নং ${line('110px')}</span></div>
-    <div><div style="font-weight:600">মূল্যায়নকারীর মন্তব্য</div>${line()}${line()}${line()}</div>
-    <div class="cbs"><span style="font-weight:600">সুপারিশ:</span><span class="cb"><i></i>ভর্তি</span><span class="cb"><i></i>অপেক্ষমাণ</span><span class="cb"><i></i>নির্বাচিত নয়</span></div>
-    <div class="sign"><span style="flex:1">${line()}মূল্যায়নকারীর নাম ও স্বাক্ষর</span><span style="width:150px">${line()}তারিখ</span></div>
+    <div class="strong">শুধু অফিস ও পরীক্ষকের জন্য</div>
+    <div class="cbs"><span class="cb">${box()}উপস্থিত</span>${officeChecks}<span class="cb">ফি-র রসিদ নং ${line('110px')}</span></div>
+    <div><div style="font-weight:600">পরীক্ষকের মন্তব্য</div>${line()}${line()}${line()}</div>
+    <div class="cbs"><span style="font-weight:600">সুপারিশ:</span><span class="cb">${box()}ভর্তি</span><span class="cb">${box()}অপেক্ষমাণ</span><span class="cb">${box()}নির্বাচিত নয়</span></div>
+    <div class="sign"><span style="flex:1">${line()}পরীক্ষকের নাম ও স্বাক্ষর</span><span style="width:150px">${line()}তারিখ</span></div>
   </section>
   <p class="muted small" style="margin:8px 0 0">কম্পিউটারে তৈরি, ${esc(longDate(d.generatedAt.toISOString().slice(0, 10), 'bengali'))}</p>
 </div>
