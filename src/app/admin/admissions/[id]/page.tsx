@@ -67,7 +67,7 @@ export default async function ApplicationPage({ params, searchParams }: Props) {
 
   const back =
     from === 'evaluation-day'
-      ? { label: 'মূল্যায়নের দিন', href: '/admin/admissions/evaluation-day' }
+      ? { label: 'অ্যাসেসমেন্টের দিন', href: '/admin/admissions/evaluation-day' }
       : paid
         ? { label: 'আবেদন', href: '/admin/admissions/applications' }
         : { label: 'ফি বাকি', href: '/admin/admissions/unpaid' };
@@ -81,7 +81,7 @@ export default async function ApplicationPage({ params, searchParams }: Props) {
         {from === 'evaluation-day' && (
           <Link href={back.href} className="inline-flex items-center gap-1.5 self-start text-sm text-muted-foreground no-underline hover:text-foreground">
             <ArrowLeft className="size-4" aria-hidden />
-            পরের আইডি খুঁজতে মূল্যায়নের দিনে ফিরুন
+            পরের আইডি খুঁজতে অ্যাসেসমেন্টের দিনে ফিরুন
           </Link>
         )}
         <div className="flex flex-wrap items-center gap-5">
@@ -148,11 +148,11 @@ export default async function ApplicationPage({ params, searchParams }: Props) {
             {paid && (
               <Card title="অবস্থা">
                 <StatusForm id={app.id} status={app.status} />
-                <p className="m-0 mt-2.5 text-[13px] text-muted-foreground">ধাপ: জমা, মূল্যায়ন নির্ধারিত, মূল্যায়িত, সিদ্ধান্ত, ERP-তে পাঠানো</p>
+                <p className="m-0 mt-2.5 text-[13px] text-muted-foreground">ধাপ: জমা, অ্যাসেসমেন্ট নির্ধারিত, অ্যাসেসমেন্ট হয়েছে, সিদ্ধান্ত, ERP-তে পাঠানো</p>
               </Card>
             )}
             {paid && (
-              <Card title="মূল্যায়নের দিন">
+              <Card title="অ্যাসেসমেন্টের দিন">
                 <EvaluationSwitches
                   id={app.id}
                   attended={!!app.attendedAt}

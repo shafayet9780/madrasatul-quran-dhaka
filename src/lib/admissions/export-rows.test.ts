@@ -36,7 +36,7 @@ describe('export rows', () => {
     const at = (name: string) => row[header.indexOf(name)];
     expect(at('আবেদন আইডি')).toBe('KG-017');
     expect(at('অভিভাবকের মোবাইল')).toBe('01712345678');
-    expect(at('অবস্থা')).toBe('মূল্যায়ন নির্ধারিত');
+    expect(at('অবস্থা')).toBe('অ্যাসেসমেন্ট নির্ধারিত');
     expect(at('পরিশোধের সময়')).toBe('2026-09-29 20:42');
     expect(at('শিক্ষার্থীর ছবি')).toBe('আছে');
     expect(at('ধূমপানের অভ্যাস আছে?')).toBe('না');

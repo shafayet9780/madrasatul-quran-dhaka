@@ -2,7 +2,6 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
-import QRCode from 'qrcode';
 import { CircleAlert, CircleCheck, Clock, ShieldCheck, Square } from 'lucide-react';
 import { ConfirmationTasks, CopyId } from '@/components/pre-admission/confirmation-tasks';
 import { FlowShell } from '@/components/pre-admission/flow-shell';
@@ -17,6 +16,7 @@ import { pdfFileName } from '@/lib/admissions/pdf';
 import { applicationFee, latestPayment, paymentGateway, reconcilePayment, type Payment } from '@/lib/admissions/payments';
 import { currentApplication, siteOrigin } from '@/lib/admissions/session';
 import { afterPaid } from '@/lib/admissions/after-paid';
+import { whatsappQrSvg } from '@/lib/admissions/whatsapp-qr';
 
 type Props = { params: Promise<{ locale: string }>; searchParams: Promise<{ payment?: string }> };
 
@@ -140,7 +140,7 @@ export default async function StatusPage({ params, searchParams }: Props) {
 async function Confirmation({ app, snapshot, payment, locale, fee }: { app: Application; snapshot: FormSnapshot; payment: Payment | null; locale: Locale; fee: string }) {
   const t = await getTranslations({ locale, namespace: 'preAdmission.status' });
   const whatsappUrl = snapshot.settings.whatsappUrl || null;
-  const qrSvg = whatsappUrl ? await QRCode.toString(whatsappUrl, { type: 'svg', margin: 0, errorCorrectionLevel: 'M' }) : null;
+  const qrSvg = whatsappUrl ? await whatsappQrSvg(whatsappUrl, { size: 104, ink: 'screen' }) : null;
   const paid = payment?.status === 'valid' ? payment : null;
   const evalFee = taka(snapshot.settings.evaluationFee, locale);
   const instructions = txt(snapshot.settings.pdfInstructions, locale);

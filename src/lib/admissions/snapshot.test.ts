@@ -37,7 +37,7 @@ describe('buildSnapshot', () => {
     } catch (e) {
       expect(e).toBeInstanceOf(FormConfigError);
       expect((e as FormConfigError).problems).toEqual(
-        expect.arrayContaining(['Assign the role “Student photo” to a field.', 'Cycle settings: add the application fee.', 'Cycle settings: add the evaluation fee.']),
+        expect.arrayContaining(['Assign the role “Student photo” to a field.', 'Cycle settings: add the application fee.', 'Cycle settings: add the assessment fee.']),
       );
     }
   });

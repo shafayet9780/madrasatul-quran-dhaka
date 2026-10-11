@@ -13,6 +13,7 @@ import { applicationHtml, footerTemplate, type PdfData } from './pdf-html';
 import { guardianCopyHtml, offlineFooterTemplate, offlineFormHtml, offlineHeaderTemplate, type OfflineData } from './offline-html';
 import { applications } from './schema';
 import { blobStore, type BlobStore } from './uploads';
+import { whatsappQrSvg } from './whatsapp-qr';
 import { isOwnKey } from './files';
 import { activePhones } from '@/lib/contact';
 
@@ -107,7 +108,7 @@ export async function pdfData(app: Application, snapshot: FormSnapshot, origin: 
       : null,
     photos,
     staffQrSvg: await svgQr(`${origin}/admin/admissions/${app.id}`, 112),
-    whatsappQrSvg: snapshot.settings.whatsappUrl ? await svgQr(snapshot.settings.whatsappUrl, 120) : null,
+    whatsappQrSvg: snapshot.settings.whatsappUrl ? await whatsappQrSvg(snapshot.settings.whatsappUrl, { size: 120, ink: 'print' }) : null,
     school: await schoolInfo(),
     fontCss: embeddedFonts(),
     generatedAt: new Date(),
@@ -167,7 +168,7 @@ export async function offlineData(snapshot: FormSnapshot, origin: string): Promi
   return {
     snapshot,
     school: { ...school, website: new URL(origin).host.replace(/^www\./, '') },
-    whatsappQrSvg: snapshot.settings.whatsappUrl ? await svgQr(snapshot.settings.whatsappUrl, 170) : null,
+    whatsappQrSvg: snapshot.settings.whatsappUrl ? await whatsappQrSvg(snapshot.settings.whatsappUrl, { size: 170, ink: 'print' }) : null,
     fontCss: embeddedFonts(),
   };
 }

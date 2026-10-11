@@ -98,7 +98,7 @@ export function buildSnapshot(doc: FormDocument, takenAt: Date = new Date()): Fo
   const c = doc.cycle;
   if (!c?.session) problems.push('Cycle settings: add the session.');
   if (!c?.applicationFee) problems.push('Cycle settings: add the application fee.');
-  if (c?.evaluationFee == null) problems.push('Cycle settings: add the evaluation fee.');
+  if (c?.evaluationFee == null) problems.push('Cycle settings: add the assessment fee.');
   if (!doc.declarationText?.bengali) problems.push('Add the declaration text.');
   problems.push(...checkBringList(c?.bringList, doc.sections));
   const conductGiven = !!(c?.conductGroups?.length || c?.conductPledge?.bengali || c?.familyDeclaration?.bengali);

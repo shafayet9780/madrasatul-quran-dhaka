@@ -104,7 +104,7 @@ export async function ListPage({ tab, search }: { tab: ListTab; search: ListSear
       ],
     },
     ...(tab === 'paid'
-      ? [{ key: 'eval', label: 'মূল্যায়ন ফি', options: [{ value: 'yes', label: 'গৃহীত' }, { value: 'no', label: 'বাকি' }] }]
+      ? [{ key: 'eval', label: 'অ্যাসেসমেন্ট ফি', options: [{ value: 'yes', label: 'গৃহীত' }, { value: 'no', label: 'বাকি' }] }]
       : []),
   ];
 

@@ -129,7 +129,7 @@ test('a guardian fills in every chapter, reviews, declares, pays after a failed 
   await expect(page).toHaveURL(/\/pre-admission\/status$/);
   await expect(page.getByRole('heading', { name: 'আলহামদুলিল্লাহ, আবেদন জমা হয়েছে' })).toBeVisible();
   await expect(page.getByText(/^[A-Z][A-Z0-9]{0,3}-\d{3}$/)).toBeVisible();
-  await expect(page.getByRole('link', { name: 'গ্রুপে যোগ দিন' })).toHaveAttribute('href', 'https://chat.whatsapp.com/LocalPreviewGroup');
+  await expect(page.getByRole('link', { name: 'হোয়াটসঅ্যাপ গ্রুপে যোগ দিন' })).toHaveAttribute('href', 'https://chat.whatsapp.com/LocalPreviewGroup');
   await expect(page.getByRole('img', { name: 'হোয়াটসঅ্যাপ গ্রুপের QR কোড' })).toBeVisible();
   await expect(page.getByText('পেমেন্টের রসিদ')).toBeVisible();
   await noSeriousA11yIssues(page);

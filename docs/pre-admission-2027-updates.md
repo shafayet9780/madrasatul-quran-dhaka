@@ -298,6 +298,6 @@ No open items remain.
 | M2 Guardian pages | Done (`965092f`, `e416aa2`) | pledge step (`/pledge`, migration `0007_pledges.sql`: run `pnpm db:migrate` before deploy), "don't have it now", exclusive checkbox, route cards (`route-cards.tsx`), bring list (`bring-list.ts`) |
 | M3 Application PDF (4 pages) | Done (`999aac2`) | `pdf-html.ts`; checked with the local and the published form, both 4 pages |
 | M4 Offline form | Done | `offline-html.ts`, `/api/admissions/offline-form` (stored under a hash of its pages); "অফলাইন ফর্ম (PDF)" on the intro page while open, "অফলাইন ফর্ম" on the admin overview; 6 pages with the published form |
-| M5 Rename + WhatsApp | Next | PDF already says অ্যাসেসমেন্ট / পরীক্ষক |
-| M6 Export columns from all versions | To do | |
+| M5 Rename + WhatsApp | Done | অ্যাসেসমেন্ট / assessment in pre-admission messages, email, admin, export header, Studio title; shared logo `src/lib/whatsapp-logo.ts` + `whatsapp-icon.tsx`; QR `whatsapp-qr.ts` (level H, logo green on screen, black on paper; decoded with jsQR); success card states join → opened → joined; green button on Find and in the email (no logo: Gmail strips SVG); email lists what to bring |
+| M6 Export columns from all versions | Next | |
 | E2E | At the end | update `e2e/pre-admission.spec.ts` (pledge step, "সব ধাপ শেষ হলে খুলবে"); blank `SSLCOMMERZ_*` in `playwright.admissions.config.ts` (`.env.local` now has sandbox credentials) |

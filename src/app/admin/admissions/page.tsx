@@ -136,9 +136,9 @@ export default async function AdmissionsOverview() {
     { label: 'ফি বাকি', value: o.unpaid, sub: `ফর্ম আছে, পরিশোধ হয়নি; আরও ${bn(o.drafts)}টি অসম্পূর্ণ`, href: '/admin/admissions/unpaid' },
     { label: 'আজ নতুন', value: today, sub: `গতকাল ${bn(yesterday)}টি`, href: null },
     {
-      label: 'মূল্যায়ন ফি গৃহীত',
+      label: 'অ্যাসেসমেন্ট ফি গৃহীত',
       value: o.evalFees,
-      sub: o.attended ? `উপস্থিত ${bn(o.attended)} জন` : 'মূল্যায়ন এখনো শুরু হয়নি',
+      sub: o.attended ? `উপস্থিত ${bn(o.attended)} জন` : 'অ্যাসেসমেন্ট এখনো শুরু হয়নি',
       href: '/admin/admissions/evaluation-day',
     },
   ];

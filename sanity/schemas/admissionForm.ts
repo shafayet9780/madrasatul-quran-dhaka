@@ -181,7 +181,7 @@ export const admissionCycle = defineType({
   fields: [
     defineField({ name: 'session', title: 'Session', type: 'string', description: 'e.g. 2027', validation: (Rule) => Rule.required() }),
     defineField({ name: 'applicationFee', title: 'Application fee (৳)', type: 'number', validation: (Rule) => Rule.required().integer().positive() }),
-    defineField({ name: 'evaluationFee', title: 'Evaluation fee (৳, paid in cash on the day)', type: 'number', validation: (Rule) => Rule.required().integer().min(0) }),
+    defineField({ name: 'evaluationFee', title: 'Assessment fee (৳, paid in cash on the day)', type: 'number', validation: (Rule) => Rule.required().integer().min(0) }),
     defineField({ name: 'opensAt', title: 'Opens at', type: 'datetime' }),
     defineField({
       name: 'closesAt',

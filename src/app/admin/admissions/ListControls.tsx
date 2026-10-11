@@ -196,7 +196,7 @@ export function PaidTable({ rows }: { rows: PaidRow[] }) {
               <th>অভিভাবকের মোবাইল</th>
               <th>অবস্থা</th>
               <th>পরিশোধ</th>
-              <th>মূল্যায়ন ফি</th>
+              <th>অ্যাসেসমেন্ট ফি</th>
             </tr>
           </thead>
           <tbody>

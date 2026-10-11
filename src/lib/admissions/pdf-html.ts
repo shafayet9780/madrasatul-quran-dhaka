@@ -166,7 +166,7 @@ html,body{margin:0;background:#fff;color:#171717;font-family:'Inter','Noto Sans 
 .photo{flex:none;display:block;border:1px solid #d4d4d4;border-radius:6px;object-fit:cover}.photo.empty{display:flex;align-items:center;justify-content:center;background:#f5f5f5;color:#525252;font-size:11px}
 .who{flex:1;display:flex;flex-direction:column;gap:2px;min-width:0}
 .bigid{font-family:'Inter',sans-serif;font-size:48px;font-weight:700;letter-spacing:.03em;line-height:1.1}
-.qr{flex:none;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;color:#525252}.qr svg{display:block;width:96px;height:96px;border:1px solid #d4d4d4;border-radius:6px;padding:4px;background:#fff}
+.qr{flex:none;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;color:#525252}.qr.wa{max-width:150px;text-align:center}.qr.wa svg{width:124px;height:124px}.qr svg{display:block;width:96px;height:96px;border:1px solid #d4d4d4;border-radius:6px;padding:4px;background:#fff}
 /* A chapter starts on the next page rather than leaving its title and a row or two behind (every chapter fits on a page). */
 .block{margin-top:14px;break-inside:avoid}
 .sec{margin:0 0 6px;font-size:14px;font-weight:700;display:flex;align-items:center;gap:8px;break-after:avoid}
@@ -226,7 +226,7 @@ ${receipt}
     <p>তারিখ ও সময় আবেদন আইডি অনুযায়ী <b>হোয়াটসঅ্যাপ গ্রুপে</b> জানানো হবে।${d.whatsappQrSvg ? ' গ্রুপে যোগ না দিয়ে থাকলে পাশের কোড স্ক্যান করুন।' : ''}</p>
     ${bringHtml}
   </div>
-  ${d.whatsappQrSvg ? `<div class="qr">${d.whatsappQrSvg}<span>হোয়াটসঅ্যাপ গ্রুপ</span></div>` : ''}
+  ${d.whatsappQrSvg ? `<div class="qr wa">${d.whatsappQrSvg}<span>হোয়াটসঅ্যাপ গ্রুপ</span><span>ফোনের ক্যামেরা দিয়ে স্ক্যান করুন</span></div>` : ''}
 </section>
 </div>
 
