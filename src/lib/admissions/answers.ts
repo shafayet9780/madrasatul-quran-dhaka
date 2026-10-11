@@ -146,9 +146,10 @@ export function classRequirementErrors(fields: FormField[], answers: Answers): M
   const classField = fields.find((f) => f.role === 'classApplied');
   const chosen = classField?.options.find((o) => o.value === answers[classField.key]);
   for (const r of chosen?.requires ?? []) {
-    if (conditionMet(r, answers)) continue;
     const target = fields.find((f) => f.key === r.field);
     const shown = !!target && isVisible(target, answers);
+    // An answer to a hidden question is dropped on submit, so it cannot meet a requirement.
+    if (shown && conditionMet(r, answers)) continue;
     const answered = !isEmpty(answers[r.field]);
     const on = shown && answered ? r.field : shown && target.required ? null : classField!.key;
     if (on && !out.has(on)) out.set(on, { className: chosen!.label, message: r.message });

@@ -473,7 +473,7 @@ function ClassChoice({ field, value, locale, fit, onChange, onBlur, invalid }: {
               {txt(o.label, locale)}
               {notes && <span className={cn('text-[12.5px] leading-snug', warn ? 'text-warning' : 'text-muted-foreground')}>{notes}</span>}
             </span>
-            {fits.includes(o.value) ? (
+            {fits.includes(o.value) && !blocked.includes(o.value) ? (
               <span className="text-[12.5px] text-success">{t('classFits')}</span>
             ) : o.special ? (
               <span className="text-[12.5px] text-muted-foreground">{t('classSpecial')}</span>

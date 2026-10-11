@@ -129,6 +129,8 @@ describe('class requirements', () => {
   it('leaves an unanswered required question to "required", and puts a hidden one on the class', () => {
     expect(errorsOf(withRules(), { class_applied: 'class_4', gender: 'female' })).toEqual({});
     expect(errorsOf(withRules(['kg']), { class_applied: 'class_4', gender: 'female' })).toEqual({ class_applied: 'নাহু-সরফ জানা আবশ্যক' });
+    // A hidden question's leftover answer does not count.
+    expect(errorsOf(withRules(['kg']), { class_applied: 'class_4', gender: 'female', arabic: 'nahw' })).toEqual({ class_applied: 'নাহু-সরফ জানা আবশ্যক' });
   });
 
   it('blocks submitting and keeps the chapter open', () => {
