@@ -155,6 +155,8 @@ export function applicationHtml(d: PdfData): string {
 ${d.fontCss}
 @page{size:A4;margin:13mm 13mm 15mm}
 *{box-sizing:border-box}
+/* An inset so borders at the right edge are not clipped by the printable area. */
+body{padding:0 0.6mm}
 html,body{margin:0;background:#fff;color:#171717;font-family:'Inter','Noto Sans Bengali',sans-serif;font-size:12.5px;line-height:1.45;-webkit-print-color-adjust:exact;print-color-adjust:exact}
 .lat{font-family:'Inter',sans-serif}.muted{color:#525252}.ink{color:#171717;font-weight:600}.small{font-size:11.5px}.strong{font-size:14px;font-weight:700}.right{text-align:right}
 .top{display:flex;justify-content:space-between;align-items:center;gap:16px;padding-bottom:10px;border-bottom:2px solid #7a4d32}
