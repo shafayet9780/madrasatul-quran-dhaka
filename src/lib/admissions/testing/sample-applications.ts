@@ -1,5 +1,5 @@
 import { getCurrentCycle } from '../cycle';
-import { createDraft, getByToken, saveDraft, submitDraft } from '../drafts';
+import { createDraft, getByToken, saveDraft, savePledge, submitDraft } from '../drafts';
 import type { FormField } from '../form-config';
 import { closePayment, confirmPayment, latestPayment, startPayment } from '../payments';
 import type { BlobStore } from '../uploads';
@@ -41,7 +41,11 @@ function answerFor(f: FormField, i: number, appId: string): unknown {
   const choose = (n: number) => f.options[n % Math.max(1, f.options.length)]?.value;
   switch (f.type) {
     case 'file':
+      // Some guardians will bring the document on assessment day instead.
+      if (f.allowMissing && i % 4 === 1) return 'missing';
       return { key: `admissions/${appId}/${f.key}-sample`, name: `${f.key}.jpg`, size: 120_000 + i * 1000, type: 'image/jpeg' };
+    case 'transportStop':
+      return choose(i);
     case 'select':
     case 'radio':
       return choose(f.role === 'classApplied' ? i : 0);
@@ -78,10 +82,13 @@ export async function seedSampleApplications(opts: { paid: number; unpaid: numbe
       const v = answerFor(f, i, app.id);
       if (v === undefined) continue;
       answers[f.key] = v;
-      if (f.type === 'file') await opts.store.put((v as { key: string }).key, JPEG, 'image/jpeg', { overwrite: true });
+      if (f.type === 'file' && typeof v === 'object') await opts.store.put((v as { key: string }).key, JPEG, 'image/jpeg', { overwrite: true });
     }
     await saveDraft(app, cycle.snapshot, answers);
     if (kind !== 'drafts') {
+      app = (await getByToken(started.token))!;
+      await savePledge(app, 'conduct', true);
+      await savePledge(app, 'family', true);
       app = (await getByToken(started.token))!;
       const submitted = await submitDraft(app, cycle.snapshot, true);
       if (!submitted.ok) throw new Error(`Submit failed: ${JSON.stringify(submitted)}`);

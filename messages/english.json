@@ -937,13 +937,13 @@
     "hub": {
       "title": "Your application",
       "untitled": "New application",
-      "progress": "{done} of {total} chapters complete",
-      "chapters": "Chapters",
+      "progress": "{done} of {total} steps complete",
+      "chapters": "Steps",
       "statusDone": "Complete",
       "statusProgress": "{answered} of {total} answered",
       "statusTodo": "About {minutes} min",
       "review": "Review and fee",
-      "reviewLocked": "Opens when every chapter is complete",
+      "reviewLocked": "Opens when every step is complete",
       "reviewReady": "Submit and pay the fee",
       "continueChapter": "Continue: {chapter}",
       "startChapter": "Start: {chapter}",
@@ -955,8 +955,8 @@
       "submittedNote": "Submitted, the fee is still due. If you change anything, submit again."
     },
     "chapter": {
-      "of": "Chapter {n} of {total}",
-      "chapterLabel": "Chapters",
+      "of": "Step {n} of {total}",
+      "chapterLabel": "Steps",
       "next": "Next",
       "nextTo": "Next: {chapter}",
       "toReview": "Review",
@@ -975,6 +975,8 @@
       "classFits": "Fits the age",
       "classSpecial": "Special consideration",
       "classMismatch": "This is outside the usual age for this class. You can still apply; it will be considered at evaluation.",
+      "several": "You can choose more than one",
+      "exclusiveCleared": "Other choices were cleared because ‘{option}’ was ticked.",
       "mobilePrefixHint": "11 digits, like 01712 345678",
       "errors": {
         "required": "Please fill this in",
@@ -1017,6 +1019,32 @@
         "unavailable": "The camera could not start. Choose a photo from the gallery instead."
       }
     },
+    "pledge": {
+      "title": "Pledge",
+      "heading": "Parents' code of conduct",
+      "hubSub": "Parents' code of conduct and two pledges",
+      "pledgesTitle": "Pledges",
+      "pledgesLead": "Agree to both to go on to the review. The time of each agreement is saved with the application.",
+      "printNote": "This page is part of the printed application. The father and mother both sign it on assessment day.",
+      "hintBoth": "Tick both boxes",
+      "hintOne": "Tick one more box",
+      "hintDone": "Both agreed",
+      "toReview": "Review",
+      "previous": "Previous step"
+    },
+    "transport": {
+      "perMonth": "a month",
+      "contactOffice": "Contact the office for the charge",
+      "madrasa": "Madrasa",
+      "madrasaPlace": "Sector 17, Uttara",
+      "yourStop": "Your stop",
+      "seatNote": "Seats are limited. Transport is assigned after admission is confirmed.",
+      "routeOption": "{route}, {fee} a month",
+      "summary": "{route} route, {vehicle}, {fee} a month",
+      "summaryNoFee": "{route} route, {vehicle}",
+      "areas": "Area",
+      "interestTitle": "Your interest"
+    },
     "review": {
       "title": "Check before you submit",
       "lead": "If something is wrong, tap “Edit”, fix it and come back to this page.",
@@ -1033,6 +1061,8 @@
       "methods": "bKash, Nagad, Rocket, card or net banking, on the SSLCommerz page.",
       "declarationTitle": "Declaration",
       "declarationNeeded": "Tick the declaration to pay",
+      "pledgeNeeded": "Tick both pledges before submitting.",
+      "fileMissing": "Not uploaded, will bring it",
       "pay": "Pay {fee}",
       "submitting": "Submitting",
       "duplicate": "This mobile number already has another application this session. If it is for the same student, open it from “Find my application” instead of applying twice. If it is for a brother or sister, carry on."
@@ -1081,6 +1111,7 @@
       "whatsappQrLabel": "QR code for the WhatsApp group",
       "whatsappMissing": "The group link will be added here soon.",
       "bringTitle": "Bring on evaluation day",
+      "bringMissing": "Not uploaded online, you must bring it",
       "bringPrint": "The printed application",
       "bringCertificate": "The original birth certificate",
       "bringFee": "The {fee} evaluation fee, in cash",

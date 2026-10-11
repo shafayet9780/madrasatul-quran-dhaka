@@ -29,7 +29,7 @@ export type PdfData = {
 
 const esc = (value: string) => value.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
 const bn = (value: number | string) => num(value, 'bengali');
-const LABELS = { yes: 'হ্যাঁ', no: 'না', notGiven: 'দেওয়া হয়নি', fileAttached: () => 'অনলাইনে জমা' };
+const LABELS = { yes: 'হ্যাঁ', no: 'না', notGiven: 'দেওয়া হয়নি', fileAttached: () => 'অনলাইনে জমা', fileMissing: 'জমা দেওয়া হয়নি, সঙ্গে আনবেন' };
 const isPhoto = (f: FormField) => f.type === 'file' && f.fileKind === 'photo';
 const latin = (s: string) => /^[\x20-\x7e]+$/.test(s);
 

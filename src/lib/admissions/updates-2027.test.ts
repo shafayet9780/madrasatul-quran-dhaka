@@ -16,7 +16,7 @@ const file = { key: 'drafts/abc/card.pdf', name: 'card.pdf', size: 84000, type: 
 
 describe('the updated published form', () => {
   it('lists every change once', () => {
-    expect(changed).toHaveLength(15);
+    expect(changed).toHaveLength(17);
   });
 
   it('is a valid form with the transport routes frozen in', () => {
@@ -66,6 +66,8 @@ describe('the updated published form', () => {
   it('asks for a stop, then the area when no route fits', () => {
     const additional = section('additional');
     expect(additional.fields.map((f) => f.key)).toEqual(['heard_from', 'transport_interest', 'transport_stop', 'transport_area', 'comments']);
+    expect(additional.groups.map((g) => g.key)).toEqual(['heard', 'transport', 'comments']);
+    expect(additional.fields.map((f) => f.group)).toEqual(['heard', 'transport', 'transport', 'transport', 'comments']);
     const base = { heard_from: 'friends_family' };
     expect(Object.keys(checkSection(additional, { ...base, transport_interest: 'no' }).errors)).toEqual([]);
     expect(checkSection(additional, { ...base, transport_interest: 'yes' }).errors).toEqual({ transport_stop: 'required' });

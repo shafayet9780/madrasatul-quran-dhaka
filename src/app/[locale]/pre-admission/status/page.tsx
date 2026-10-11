@@ -3,11 +3,12 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
 import QRCode from 'qrcode';
-import { CircleAlert, CircleCheck, Clock, ShieldCheck } from 'lucide-react';
+import { CircleAlert, CircleCheck, Clock, ShieldCheck, Square } from 'lucide-react';
 import { ConfirmationTasks, CopyId } from '@/components/pre-admission/confirmation-tasks';
 import { FlowShell } from '@/components/pre-admission/flow-shell';
 import { PayButton } from '@/components/pre-admission/pay-button';
 import { Button } from '@/components/shadcn/button';
+import { bringItems } from '@/lib/admissions/bring-list';
 import { asLocale, dateTime, taka, txt, type Locale } from '@/lib/admissions/display';
 import { loadById, type Application } from '@/lib/admissions/drafts';
 import { fieldWithRole, type FormSnapshot } from '@/lib/admissions/form-config';
@@ -143,6 +144,7 @@ async function Confirmation({ app, snapshot, payment, locale, fee }: { app: Appl
   const paid = payment?.status === 'valid' ? payment : null;
   const evalFee = taka(snapshot.settings.evaluationFee, locale);
   const instructions = txt(snapshot.settings.pdfInstructions, locale);
+  const bring = bringItems(snapshot, app.answers, locale);
 
   return (
     <main className="mx-auto flex w-full max-w-[1040px] flex-col gap-4 px-4 pb-10 pt-7 md:gap-6 md:px-8 md:py-12">
@@ -166,12 +168,29 @@ async function Confirmation({ app, snapshot, payment, locale, fee }: { app: Appl
       <div className="grid gap-8 border-t pt-6 md:grid-cols-2 md:gap-10">
         <section className="flex flex-col gap-2.5">
           <h2 className="text-[17px] font-semibold">{t('bringTitle')}</h2>
-          <ol className="list-decimal pl-5 text-[14.5px] leading-[1.9]">
-            <li>{t('bringPrint')}</li>
-            <li>{t('bringCertificate')}</li>
-            <li>{t('bringFee', { fee: evalFee })}</li>
-          </ol>
-          {instructions && <p className="text-[13.5px] leading-relaxed text-muted-foreground">{instructions}</p>}
+          {bring.length ? (
+            <ul className="flex flex-col">
+              {bring.map((item) => (
+                <li key={item.text} className="flex items-start gap-3 border-t py-[11px] text-[14.5px] leading-[1.6] first:border-t-0">
+                  <Square className="mt-[3px] size-[18px] flex-none text-muted-foreground" aria-hidden />
+                  <span className="flex flex-col">
+                    <span>{item.text}</span>
+                    {item.missing && <span className="text-[13px] font-semibold text-warning">{t('bringMissing')}</span>}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            // A form version from before the list was editable in Sanity.
+            <>
+              <ol className="list-decimal pl-5 text-[14.5px] leading-[1.9]">
+                <li>{t('bringPrint')}</li>
+                <li>{t('bringCertificate')}</li>
+                <li>{t('bringFee', { fee: evalFee })}</li>
+              </ol>
+              {instructions && <p className="text-[13.5px] leading-relaxed text-muted-foreground">{instructions}</p>}
+            </>
+          )}
         </section>
         {paid && (
           <section className="flex flex-col gap-2.5">

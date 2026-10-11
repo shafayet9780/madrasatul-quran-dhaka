@@ -2,7 +2,8 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { eq, sql } from 'drizzle-orm';
 import { syncCycle, type CycleState } from './cycle';
-import { countOtherApplications, createDraft, findApplications, loadWithSnapshot, getByToken, loadById, saveDraft, submitDraft, type Application } from './drafts';
+import { countOtherApplications, createDraft, findApplications, loadWithSnapshot, getByToken, loadById, saveDraft, savePledge, submitDraft, type Application } from './drafts';
+import { buildSnapshot } from './snapshot';
 import { applicationEvents, applications } from './schema';
 import type { FormDocument } from './snapshot';
 import { sampleSnapshot } from './testing/fixtures';
@@ -139,6 +140,61 @@ describe('drafts', () => {
     current = (await getByToken(token))!;
     expect(current.status).toBe('draft');
     expect(current.declaredAt).toBeNull();
+  });
+
+  it('needs both pledges before submitting, keeps the first tick time, and reopens when one is unticked', async () => {
+    const t = (bengali: string) => ({ bengali });
+    const withConduct = buildSnapshot(
+      formDoc('r-pledge', {
+        cycle: {
+          session: '2027',
+          applicationFee: 500,
+          evaluationFee: 500,
+          conductGroups: [{ title: t('মাদরাসায়'), rules: [t('নিয়ম ১')] }],
+          conductPledge: t('আমি আচরণবিধি মেনে চলব।'),
+          familyDeclaration: t('আমি ঘোষণা করছি।'),
+        },
+      }),
+    );
+    const { app, token } = await start();
+    const file = (k: string) => ({ key: `admissions/${app.id}/${k}-x`, name: k, size: 1, type: 'image/jpeg' });
+    await saveDraft(app, withConduct, {
+      student_photo: file('p'),
+      student_name_bn: 'উমর',
+      student_name_en: 'Umar',
+      date_of_birth: '2021-03-12',
+      class_applied: 'kg',
+      birth_certificate: file('b'),
+      father_name: 'রফিক',
+      father_occupation: 'other',
+      father_prayer_location: ['mosque'],
+      father_smoking: 'no',
+      father_facebook: 'নেই',
+      address: 'মিরপুর',
+    });
+
+    let current = (await getByToken(token))!;
+    expect(await submitDraft(current, withConduct, true)).toEqual({ ok: false, reason: 'pledge' });
+    await savePledge(current, 'conduct', true);
+    current = (await getByToken(token))!;
+    expect(await submitDraft(current, withConduct, true)).toEqual({ ok: false, reason: 'pledge' });
+    await savePledge(current, 'family', true);
+    current = (await getByToken(token))!;
+    const firstTick = current.conductPledgedAt;
+    await savePledge(current, 'conduct', true);
+    current = (await getByToken(token))!;
+    expect(current.conductPledgedAt).toEqual(firstTick);
+    expect(await submitDraft(current, withConduct, true)).toEqual({ ok: true, classCode: 'KG' });
+
+    current = (await getByToken(token))!;
+    await savePledge(current, 'family', false);
+    current = (await getByToken(token))!;
+    expect(current.status).toBe('draft');
+    expect(current.familyDeclaredAt).toBeNull();
+    expect(current.conductPledgedAt).toEqual(firstTick);
+
+    await db.update(applications).set({ status: 'paid', publicRef: 'KG-009' }).where(eq(applications.id, app.id));
+    expect(await savePledge((await getByToken(token))!, 'family', true)).toEqual({ ok: false, reason: 'locked' });
   });
 
   it('refuses changes once paid', async () => {

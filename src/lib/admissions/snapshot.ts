@@ -71,8 +71,8 @@ function hash(text: string): string {
   return (h >>> 0).toString(36);
 }
 
-/** Visible routes with at least one stop, and the vehicles they use. */
-function buildTransport(fees: FeeDocument | null | undefined): Transport {
+/** Visible routes with at least one stop, and the vehicles they use (also the public Admissions page). */
+export function buildTransport(fees: FeeDocument | null | undefined): Transport {
   const routes = (fees?.transportRoutes ?? [])
     .filter((r) => r.visible !== false && r._key && r.vehicle && r.stops?.some((s) => s._key))
     .map((r) => ({

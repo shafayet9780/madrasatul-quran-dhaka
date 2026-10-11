@@ -33,12 +33,17 @@ export function tickChoice(f: FormField, current: string[], added: string): stri
   return [...current.filter((v) => !exclusive.has(v)), added];
 }
 
+/** Whether a "show only when" condition holds for the answers (no condition always holds). */
+export function conditionMet(condition: FormField['showWhen'], answers: Answers): boolean {
+  if (!condition) return true;
+  const answer = answers[condition.field];
+  const given = Array.isArray(answer) ? answer : typeof answer === 'string' ? [answer] : [];
+  return given.some((v) => condition.values.includes(v));
+}
+
 /** Whether a field is shown, given the answers so far (show-when on an earlier choice/yes-no field). */
 export function isVisible(field: FormField, answers: Answers): boolean {
-  if (!field.showWhen) return true;
-  const answer = answers[field.showWhen.field];
-  const given = Array.isArray(answer) ? answer : typeof answer === 'string' ? [answer] : [];
-  return given.some((v) => field.showWhen!.values.includes(v));
+  return conditionMet(field.showWhen, answers);
 }
 
 function isEmpty(v: AnswerValue | undefined): boolean {

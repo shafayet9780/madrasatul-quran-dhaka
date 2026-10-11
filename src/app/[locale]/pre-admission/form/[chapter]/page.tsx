@@ -3,10 +3,9 @@ import { notFound } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
 import { ChapterForm } from '@/components/pre-admission/chapter-form';
 import { FlowShell } from '@/components/pre-admission/flow-shell';
-import { chapterStatus } from '@/lib/admissions/answers';
 import { asLocale, txt } from '@/lib/admissions/display';
 import { allFields, guardianSections } from '@/lib/admissions/form-config';
-import { flowPath, requireDraft } from '@/lib/admissions/pages';
+import { flowPath, guardianSteps, requireDraft } from '@/lib/admissions/pages';
 import { currentApplication } from '@/lib/admissions/session';
 
 type Props = { params: Promise<{ locale: string; chapter: string }> };
@@ -27,12 +26,7 @@ export default async function ChapterPage({ params }: Props) {
   const index = sections.findIndex((s) => s.key === chapter);
   if (index < 0) notFound();
   const section = sections[index];
-  const chapters = sections.map((s) => ({
-    key: s.key,
-    title: txt(s.title, locale),
-    status: chapterStatus(s, app.answers).status,
-    href: flowPath(locale, `/form/${s.key}`),
-  }));
+  const chapters = await guardianSteps(locale, snapshot, app);
 
   return (
     <FlowShell locale={locale} session={snapshot.settings.session} title={txt(section.title, locale)} back={{ href: flowPath(locale, '/form'), label: t('backToChapters') }} saving>
@@ -48,7 +42,7 @@ export default async function ChapterPage({ params }: Props) {
         initialAnswers={app.answers}
         hubHref={flowPath(locale, '/form')}
         reviewHref={flowPath(locale, '/review')}
-        reviewOpen={chapters.every((c) => c.status === 'done')}
+        transport={section.fields.some((f) => f.type === 'transportStop') ? snapshot.transport : undefined}
       />
     </FlowShell>
   );

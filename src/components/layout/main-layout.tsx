@@ -12,7 +12,7 @@ import type { SiteSettings, FooterSettings } from '@/types/sanity';
 import type { PeopleNavData } from '@/lib/queries/site';
 import type { AdmissionCta } from '@/lib/admissions/intake';
 
-const FOCUSED_FLOW = /^\/(bengali|english)\/pre-admission\/(start|form|review|status|find)(\/|$)/;
+const FOCUSED_FLOW = /^\/(bengali|english)\/pre-admission\/(start|form|pledge|review|status|find)(\/|$)/;
 
 interface MainLayoutProps {
   children: React.ReactNode;

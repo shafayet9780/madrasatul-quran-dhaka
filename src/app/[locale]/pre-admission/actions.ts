@@ -5,7 +5,7 @@ import { after } from 'next/server';
 import { getCurrentCycle } from '@/lib/admissions/cycle';
 import { createHash } from 'node:crypto';
 import { parseIsoDate } from '@/lib/admissions/age';
-import { createDraft, findApplications, getByToken, loadById, saveDraft, submitDraft } from '@/lib/admissions/drafts';
+import { createDraft, findApplications, getByToken, loadById, saveDraft, savePledge, submitDraft } from '@/lib/admissions/drafts';
 import { sendResumeEmail } from '@/lib/admissions/mail';
 import { asLocale, txt } from '@/lib/admissions/display';
 import { fieldWithRole } from '@/lib/admissions/form-config';
@@ -70,7 +70,21 @@ export async function saveAnswers(patch: Record<string, unknown>): Promise<SaveR
   }
 }
 
-export type SubmitState = { message?: 'declaration' | 'invalid' | 'closed' | 'rateLimited' | 'failed' };
+/** অঙ্গীকার step: one pledge ticked or unticked (the time is stored on the server). */
+export async function pledgeAnswer(pledge: 'conduct' | 'family', agreed: boolean): Promise<SaveResponse> {
+  if (pledge !== 'conduct' && pledge !== 'family') return { ok: false, reason: 'failed' };
+  try {
+    if (!(await withinLimit('save'))) return { ok: false, reason: 'rateLimited' };
+    const current = await currentApplication();
+    if (!current) return { ok: false, reason: 'expired' };
+    return await savePledge(current.app, pledge, agreed === true);
+  } catch (e) {
+    console.error('Admissions: pledge save failed', e);
+    return { ok: false, reason: 'failed' };
+  }
+}
+
+export type SubmitState = { message?: 'declaration' | 'pledge' | 'invalid' | 'closed' | 'rateLimited' | 'failed' };
 
 /**
  * Submitting stops at the deadline or when the office turns the form off. An application submitted

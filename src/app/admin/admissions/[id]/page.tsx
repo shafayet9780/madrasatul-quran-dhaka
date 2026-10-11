@@ -6,7 +6,7 @@ import { Button } from '@/components/shadcn/button';
 import { applicationDetail } from '@/lib/admissions/admin';
 import { PAYMENT_STATUS_LABEL, eventText, shortDate } from '@/lib/admissions/admin-labels';
 import { answerText } from '@/lib/admissions/answer-text';
-import { isVisible, type FileAnswer } from '@/lib/admissions/answers';
+import { isMissingFile, isVisible, type FileAnswer } from '@/lib/admissions/answers';
 import { dateTime, longDate, taka, txt } from '@/lib/admissions/display';
 import { fieldWithRole } from '@/lib/admissions/form-config';
 import { formatMobile, toBengaliDigits as bn } from '@/lib/admissions/normalise';
@@ -21,7 +21,7 @@ import { isOwnKey } from '@/lib/admissions/files';
 export const metadata: Metadata = { title: 'আবেদন' };
 export const dynamic = 'force-dynamic';
 
-const LABELS = { yes: 'হ্যাঁ', no: 'না', notGiven: 'দেওয়া হয়নি', fileAttached: (type: string) => `${type} সংযুক্ত` };
+const LABELS = { yes: 'হ্যাঁ', no: 'না', notGiven: 'দেওয়া হয়নি', fileAttached: (type: string) => `${type} সংযুক্ত`, fileMissing: 'জমা দেওয়া হয়নি, সঙ্গে আনবেন' };
 const when = (d: Date) => dateTime(d.toISOString(), 'bengali');
 /** "৮ অক্টো, সকাল ৬:০৬" for the activity log. */
 const logWhen = (d: Date) => `${shortDate(d)}, ${when(d).split(', ')[1]}`;
@@ -49,7 +49,7 @@ export default async function ApplicationPage({ params, searchParams }: Props) {
       title: txt(section.title, 'bengali'),
       rows: section.fields
         .filter((f) => f.type !== 'file' && isVisible(f, app.answers))
-        .map((f) => ({ key: f.key, label: txt(f.label, 'bengali'), value: answerText(f, app.answers[f.key], 'bengali', LABELS), lat: f.type === 'email' || f.role === 'studentNameEn' })),
+        .map((f) => ({ key: f.key, label: txt(f.label, 'bengali'), value: answerText(f, app.answers[f.key], 'bengali', LABELS, snapshot.transport), lat: f.type === 'email' || f.role === 'studentNameEn' })),
     }))
     .filter((s) => s.rows.length);
   const documents = snapshot.sections
@@ -57,6 +57,11 @@ export default async function ApplicationPage({ params, searchParams }: Props) {
     .filter((f) => f.type === 'file' && app.answers[f.key])
     .map((f) => ({ label: txt(f.label, 'bengali'), file: app.answers[f.key] as FileAnswer }))
     .filter((d) => !!d.file.key && isOwnKey(app.id, d.file.key));
+  // Documents the guardian will bring on assessment day ("don't have it now").
+  const missingDocuments = snapshot.sections
+    .flatMap((s) => s.fields)
+    .filter((f) => isMissingFile(f, app.answers[f.key]) && isVisible(f, app.answers))
+    .map((f) => txt(f.label, 'bengali'));
   const notes = events.filter((e) => e.kind === 'note');
   const log = events.filter((e) => e.kind !== 'note');
 
@@ -160,8 +165,17 @@ export default async function ApplicationPage({ params, searchParams }: Props) {
             )}
 
             <Card title="কাগজপত্র">
-              {documents.length ? (
+              {documents.length || missingDocuments.length ? (
                 <ul className="m-0 flex list-none flex-col p-0">
+                  {missingDocuments.map((label) => (
+                    <li key={label} className="flex items-center justify-between gap-3 border-b py-2.5 text-sm last:border-b-0">
+                      <span className="flex items-center gap-2.5">
+                        <FileText className="size-4 text-muted-foreground" aria-hidden />
+                        {label}
+                      </span>
+                      <span className="text-[12.5px] text-warning">{LABELS.fileMissing}</span>
+                    </li>
+                  ))}
                   {documents.map((d) => (
                     <li key={d.file.key} className="border-b last:border-b-0">
                       <a href={fileUrl(app.id, d.file.key)} target="_blank" rel="noreferrer" className="flex items-center justify-between gap-3 py-2.5 text-sm text-foreground no-underline hover:underline">

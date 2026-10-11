@@ -9,6 +9,7 @@ import { fieldWithRole } from '@/lib/admissions/form-config';
 import { asLocale, num, taka, txt, type Locale } from '@/lib/admissions/display';
 import { intakeStatus } from '@/lib/admissions/intake';
 import { flowPath, safeCurrentCycle } from '@/lib/admissions/pages';
+import { allBringItems } from '@/lib/admissions/bring-list';
 import { currentApplication } from '@/lib/admissions/session';
 import type { CycleState } from '@/lib/admissions/cycle';
 
@@ -47,10 +48,14 @@ export default async function PreAdmissionIntro({ params }: Props) {
   const resumable = current && (current.app.status === 'draft' || current.app.status === 'unpaid');
   const photo = (facilities ?? []).find((f) => f.images?.length)?.images[0];
 
+  // Step 5 lists what to bring (Sanity → Cycle settings) when the form has the list.
+  const tc = await getTranslations({ locale, namespace: 'preAdmission.chapter' });
+  const bring = cycle ? allBringItems(cycle.snapshot, locale).map((i) => (i.conditional ? `${i.text} ${tc('ifApplicable')}` : i.text)) : [];
   const steps = [1, 2, 3, 4, 5, 6].map((n) => ({
     n: num(n, locale),
     title: t(`step${n}`),
-    note: t(`step${n}Note`, { fee: n === 5 ? evalFee : fee }),
+    note: n === 5 && bring.length ? null : t(`step${n}Note`, { fee: n === 5 ? evalFee : fee }),
+    list: n === 5 ? bring : [],
   }));
   const faq = [
     { q: t('faqRefundQ'), a: [txt(settings?.refundNote, locale), t('faqRefundA')].filter(Boolean).join(' ') },
@@ -153,7 +158,14 @@ export default async function PreAdmissionIntro({ params }: Props) {
                 </div>
                 <div className="flex flex-col gap-0.5 pb-[18px] pt-px">
                   <span className="text-[15px] font-medium">{s.title}</span>
-                  <span className="text-[13.5px] leading-normal text-muted-foreground">{s.note}</span>
+                  {s.note && <span className="text-[13.5px] leading-normal text-muted-foreground">{s.note}</span>}
+                  {s.list.length > 0 && (
+                    <ul className="list-disc pl-4 text-[13.5px] leading-normal text-muted-foreground">
+                      {s.list.map((item) => (
+                        <li key={item}>{item}</li>
+                      ))}
+                    </ul>
+                  )}
                 </div>
               </li>
             ))}
@@ -163,7 +175,14 @@ export default async function PreAdmissionIntro({ params }: Props) {
               <li key={s.n} className="flex flex-col gap-1.5 pr-5 pt-[18px]">
                 <span className="text-[13px] font-semibold text-muted-foreground">{s.n}</span>
                 <span className="text-base font-medium">{s.title}</span>
-                <span className="text-sm leading-relaxed text-muted-foreground">{s.note}</span>
+                {s.note && <span className="text-sm leading-relaxed text-muted-foreground">{s.note}</span>}
+                {s.list.length > 0 && (
+                  <ul className="list-disc pl-4 text-sm leading-relaxed text-muted-foreground">
+                    {s.list.map((item) => (
+                      <li key={item}>{item}</li>
+                    ))}
+                  </ul>
+                )}
               </li>
             ))}
           </ol>

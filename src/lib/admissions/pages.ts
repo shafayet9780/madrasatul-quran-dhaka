@@ -1,10 +1,12 @@
 import 'server-only';
 import { redirect } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
+import { chapterStatus, type ChapterStatus } from './answers';
 import { FORM_QUERY, getCurrentCycle, type CycleState } from './cycle';
-import { num, type Locale } from './display';
+import { num, txt, type Locale } from './display';
 import type { Application } from './drafts';
-import type { FormSnapshot } from './form-config';
+import { guardianSections, type FormSnapshot } from './form-config';
+import { PLEDGE_STEP, pledgeStatus } from './pledge';
 import { intakeFrom, intakeStatus, type AdmissionCta, type Intake } from './intake';
 import { localOverrides } from './local';
 import { currentApplication } from './session';
@@ -56,4 +58,22 @@ export async function requireDraft(locale: string, opts: { allowPaid?: boolean }
   if (!current) redirect(flowPath(locale, '/start'));
   if (!opts.allowPaid && current.app.status !== 'draft' && current.app.status !== 'unpaid') redirect(flowPath(locale, '/status'));
   return current;
+}
+
+export type Step = { key: string; title: string; status: ChapterStatus; href: string };
+
+/** The guardian's steps in order: each chapter, then the অঙ্গীকার step when the form has one. */
+export async function guardianSteps(locale: Locale, snapshot: FormSnapshot, app: Application): Promise<Step[]> {
+  const steps: Step[] = guardianSections(snapshot).map((s) => ({
+    key: s.key,
+    title: txt(s.title, locale),
+    status: chapterStatus(s, app.answers).status,
+    href: flowPath(locale, `/form/${s.key}`),
+  }));
+  const pledge = pledgeStatus(snapshot, app);
+  if (pledge) {
+    const t = await getTranslations({ locale, namespace: 'preAdmission.pledge' });
+    steps.push({ key: PLEDGE_STEP, title: t('title'), status: pledge, href: flowPath(locale, '/pledge') });
+  }
+  return steps;
 }

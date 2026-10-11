@@ -85,6 +85,12 @@ export const TRANSPORT_FIELDS = [
 
 const OLD_TRANSPORT_KEYS = ['transport_requirement', 'transport_location'];
 
+/** With a transport group in the chapter, the questions around it get groups too (else they would join it). */
+const AROUND_TRANSPORT = [
+  { field: 'heard_from', group: { _key: 'heard', _type: 'admissionGroup', key: 'heard', title: bi('যেভাবে জেনেছেন', 'How you heard about us') }, before: true },
+  { field: 'comments', group: { _key: 'comments', _type: 'admissionGroup', key: 'comments', title: bi('মন্তব্য ও পরামর্শ', 'Comments and suggestions') }, before: false },
+];
+
 export const DECLARATION = bi(
   'মাদরাসাতুল কুরআন একটি সম্পূর্ণ ইসলামিক শিক্ষা প্রতিষ্ঠান। আমি স্বীকৃতি প্রদান করছি যে, উপরে প্রদত্ত সকল তথ্য সঠিক ও সত্য। কোন তথ্য ভুল প্রমাণিত হলে কর্তৃপক্ষ ভর্তি বাতিল করতে পারবে।',
   'Madrasatul Quran is a fully Islamic educational institution. I confirm that all the information given above is correct and true. If any information is found to be false, the authority may cancel the admission.',
@@ -253,6 +259,16 @@ export function applyFormUpdates(doc: Doc): { sections: Doc[]; cycle: Doc; decla
     additional.fields = [...kept, ...structuredClone(TRANSPORT_FIELDS), ...rest];
     additional.groups = [...(additional.groups ?? []).filter((g: Doc) => g.key !== 'transport'), structuredClone(TRANSPORT_GROUP)];
     changed.push('Additional: transport questions replaced by interest, nearest stop and area (group “পরিবহন সুবিধা”).');
+  }
+  if (additional?.groups?.some((g: Doc) => g.key === 'transport')) {
+    for (const { field: key, group, before } of AROUND_TRANSPORT) {
+      const f = additional.fields.find((x: Doc) => x.key === key);
+      if (!f || f.group || additional.groups.some((g: Doc) => g.key === group.key)) continue;
+      f.group = group.key;
+      const at = additional.groups.findIndex((g: Doc) => g.key === 'transport');
+      additional.groups.splice(before ? at : at + 1, 0, structuredClone(group));
+      changed.push(`Additional: “${key}” gets its own heading (${group.title.bengali}), apart from transport.`);
+    }
   }
 
   if (!declarationText.bengali || declarationText.bengali.startsWith(OLD_DECLARATION_START)) {
