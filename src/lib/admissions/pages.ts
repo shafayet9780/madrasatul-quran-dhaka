@@ -5,7 +5,7 @@ import { chapterStatus, type ChapterStatus } from './answers';
 import { FORM_QUERY, getCurrentCycle, type CycleState } from './cycle';
 import { num, txt, type Locale } from './display';
 import type { Application } from './drafts';
-import { guardianSections, type FormSnapshot } from './form-config';
+import { allFields, guardianSections, type FormSnapshot } from './form-config';
 import { PLEDGE_STEP, pledgeStatus } from './pledge';
 import { intakeFrom, intakeStatus, type AdmissionCta, type Intake } from './intake';
 import { localOverrides } from './local';
@@ -67,7 +67,7 @@ export async function guardianSteps(locale: Locale, snapshot: FormSnapshot, app:
   const steps: Step[] = guardianSections(snapshot).map((s) => ({
     key: s.key,
     title: txt(s.title, locale),
-    status: chapterStatus(s, app.answers).status,
+    status: chapterStatus(s, app.answers, allFields(snapshot)).status,
     href: flowPath(locale, `/form/${s.key}`),
   }));
   const pledge = pledgeStatus(snapshot, app);

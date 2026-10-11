@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { chapterStatus, checkAll, checkField, checkSection, isVisible, sanitizeDraft, type Answers } from './answers';
+import { blockedClasses, chapterStatus, checkAll, checkField, checkSection, classRequirementErrors, isVisible, sanitizeDraft, type Answers } from './answers';
 import { allFields } from './form-config';
 import { sampleSnapshot } from './testing/fixtures';
 
@@ -91,5 +91,59 @@ describe('chapters and submit', () => {
     expect(chapterStatus(father, { father_name: 'ক', father_occupation: 'service' }).status).toBe('in_progress');
     expect(chapterStatus(father, complete)).toEqual({ status: 'done', required: 5, answered: 5 });
     expect(checkSection(father, complete).errors).toEqual({});
+  });
+});
+
+describe('class requirements', () => {
+  // Class 4 takes girls who know nahw and sarf: gender is asked before the class, Arabic after it.
+  const withRules = (arabicShownFor = ['kg', 'class_4']) => {
+    const s = sampleSnapshot();
+    const fields = s.sections[0].fields;
+    fields.splice(3, 0, { key: 'gender', label: { bengali: 'লিঙ্গ' }, type: 'radio', required: true, options: [{ value: 'male', label: { bengali: 'ছেলে' } }, { value: 'female', label: { bengali: 'মেয়ে' } }] });
+    fields.push({
+      key: 'arabic',
+      label: { bengali: 'আরবি' },
+      type: 'radio',
+      required: true,
+      showWhen: { field: 'class_applied', values: arabicShownFor },
+      options: [{ value: 'beginner', label: { bengali: 'নতুন' } }, { value: 'nahw', label: { bengali: 'নাহু, সরফ জানে' } }],
+    });
+    fields.find((f) => f.key === 'class_applied')!.options.find((o) => o.value === 'class_4')!.requires = [
+      { field: 'gender', values: ['female'], message: { bengali: 'শুধু মেয়েদের জন্য' } },
+      { field: 'arabic', values: ['nahw'], message: { bengali: 'নাহু-সরফ জানা আবশ্যক' } },
+    ];
+    return s;
+  };
+  const errorsOf = (s: ReturnType<typeof sampleSnapshot>, answers: Answers) =>
+    Object.fromEntries([...classRequirementErrors(allFields(s), answers)].map(([k, v]) => [k, v.message.bengali]));
+
+  it('shows a broken requirement on the question that breaks it', () => {
+    const s = withRules();
+    expect(errorsOf(s, { class_applied: 'class_4', gender: 'male', arabic: 'nahw' })).toEqual({ gender: 'শুধু মেয়েদের জন্য' });
+    expect(errorsOf(s, { class_applied: 'class_4', gender: 'female', arabic: 'beginner' })).toEqual({ arabic: 'নাহু-সরফ জানা আবশ্যক' });
+    expect(errorsOf(s, { class_applied: 'class_4', gender: 'female', arabic: 'nahw' })).toEqual({});
+    // Other classes have no requirements.
+    expect(errorsOf(s, { class_applied: 'kg', gender: 'male', arabic: 'beginner' })).toEqual({});
+  });
+
+  it('leaves an unanswered required question to "required", and puts a hidden one on the class', () => {
+    expect(errorsOf(withRules(), { class_applied: 'class_4', gender: 'female' })).toEqual({});
+    expect(errorsOf(withRules(['kg']), { class_applied: 'class_4', gender: 'female' })).toEqual({ class_applied: 'নাহু-সরফ জানা আবশ্যক' });
+  });
+
+  it('blocks submitting and keeps the chapter open', () => {
+    const s = withRules();
+    const answers = { ...complete, class_applied: 'class_4', gender: 'female', arabic: 'beginner' };
+    expect(checkAll(s, answers).errors).toEqual({ arabic: 'class_requirement' });
+    expect(chapterStatus(s.sections[0], answers, allFields(s)).status).toBe('in_progress');
+    expect(checkAll(s, { ...answers, arabic: 'nahw' }).errors).toEqual({});
+  });
+
+  it('rules out a class once an earlier answer breaks one of its requirements', () => {
+    const fields = allFields(withRules());
+    expect(blockedClasses(fields, {})).toEqual([]);
+    expect(blockedClasses(fields, { gender: 'male' })).toEqual(['class_4']);
+    // A question after the class never rules it out (it may be hidden for the class chosen now).
+    expect(blockedClasses(fields, { gender: 'female', arabic: 'beginner' })).toEqual([]);
   });
 });

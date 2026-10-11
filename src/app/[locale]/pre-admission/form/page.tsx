@@ -7,7 +7,7 @@ import { FlowShell } from '@/components/pre-admission/flow-shell';
 import { Button } from '@/components/shadcn/button';
 import { chapterStatus } from '@/lib/admissions/answers';
 import { asLocale, num, txt } from '@/lib/admissions/display';
-import { fieldWithRole, guardianSections } from '@/lib/admissions/form-config';
+import { allFields, fieldWithRole, guardianSections } from '@/lib/admissions/form-config';
 import { flowPath, requireDraft } from '@/lib/admissions/pages';
 import { PLEDGE_STEP, pledgeStatus } from '@/lib/admissions/pledge';
 import { currentAccess, resumeUrl } from '@/lib/admissions/session';
@@ -33,7 +33,7 @@ export default async function HubPage({ params }: Props) {
         ? t('hub.statusProgress', { answered: num(s.answered, locale), total: num(s.required, locale) })
         : t('hub.statusTodo', { minutes: num(minutes, locale) });
   const chapters = guardianSections(snapshot).map((section) => {
-    const s = chapterStatus(section, app.answers);
+    const s = chapterStatus(section, app.answers, allFields(snapshot));
     return {
       key: section.key,
       title: txt(section.title, locale),

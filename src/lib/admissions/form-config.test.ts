@@ -80,6 +80,37 @@ describe('checkFormConfig', () => {
   });
 });
 
+describe('class requirements', () => {
+  const withRequirement = (r: { field?: string; values?: string[]; message?: { bengali?: string } }, shownFor?: string[]) => {
+    const s = sections();
+    const student = s[0].fields!;
+    student.push({ key: 'arabic', label: { bengali: 'আরবি' }, type: 'radio', options: [{ value: 'beginner', label: { bengali: 'নতুন' } }, { value: 'nahw', label: { bengali: 'নাহু' } }], ...(shownFor ? { showWhen: { field: 'class_applied', values: shownFor } } : {}) });
+    student.find((f) => f.key === 'class_applied')!.options!.find((o) => o.value === 'class_4')!.requires = [r];
+    return s;
+  };
+  const message = { bengali: 'নাহু-সরফ জানা আবশ্যক' };
+
+  it('accepts a requirement on a later choice question shown for the class', () => {
+    expect(checkFormConfig(withRequirement({ field: 'arabic', values: ['nahw'], message }, ['kg', 'class_4']))).toEqual([]);
+  });
+
+  it('reports a missing or unsuitable question, wrong answers, a hidden question and a missing message', () => {
+    const one = (r: Parameters<typeof withRequirement>[0], shownFor?: string[]) => checkFormConfig(withRequirement(r, shownFor)).join(' ');
+    expect(one({ field: 'nope', values: ['x'], message })).toContain('choose the key of another question');
+    expect(one({ field: 'class_applied', values: ['kg'], message })).toContain('choose the key of another question');
+    expect(one({ field: 'father_name', values: ['x'], message })).toContain('must be a choice or yes/no question');
+    expect(one({ field: 'arabic', values: ['fluent'], message })).toContain('the answers must be options');
+    expect(one({ field: 'arabic', values: ['nahw'], message }, ['kg'])).toContain('is not shown for this class');
+    expect(one({ field: 'arabic', values: ['nahw'] })).toContain('add the message');
+  });
+
+  it('allows requirements on the class question only', () => {
+    const s = sections();
+    s[1].fields!.find((f) => f.key === 'father_occupation')!.options![0].requires = [{ field: 'father_smoking', values: ['no'], message }];
+    expect(checkFormConfig(s).join(' ')).toContain('requirements work on the class question only');
+  });
+});
+
 describe('formSnapshotSchema', () => {
   it('parses the sample and finds fields by role', () => {
     const snap = formSnapshotSchema.parse(sampleSnapshot());

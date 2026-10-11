@@ -55,6 +55,16 @@ describe('offline form (HTML)', () => {
     expect(html.match(/class="frame"/g)).toHaveLength(2);
   });
 
+  it("prints a class's requirements beside it", () => {
+    const withRules = structuredClone(snapshot);
+    const classField = withRules.sections.flatMap((s) => s.fields).find((f) => f.role === 'classApplied')!;
+    classField.options.at(-1)!.requires = [
+      { field: 'student_gender', values: ['female'], message: { bengali: 'শুধু মেয়েদের জন্য' } },
+      { field: 'arabic_level', values: ['knows_nahw_sarf'], message: { bengali: 'নাহু-সরফ জানা আবশ্যক' } },
+    ];
+    expect(offlineFormHtml({ ...data, snapshot: withRules })).toContain('<span class="hint">(শুধু মেয়েদের জন্য; নাহু-সরফ জানা আবশ্যক)</span>');
+  });
+
   it('lists every route with its stops and charge, and asks for the area of a guardian off the routes', () => {
     for (const r of snapshot.transport!.routes) expect(html).toContain(r.name.bengali);
     expect(html).toContain('৳৫,০০০ / মাস');

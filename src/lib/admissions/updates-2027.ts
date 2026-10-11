@@ -174,6 +174,12 @@ export const CONDUCT = {
   ),
 };
 
+/** 2027: class 7 takes girls only, who know Arabic nahw and sarf (owner, 2026-10-11). */
+const CLASS_7_REQUIRES = [
+  { _key: 'girls', _type: 'classRequirement', field: 'student_gender', values: ['female'], message: bi('শুধু মেয়েদের জন্য', 'Girls only') },
+  { _key: 'nahw_sarf', _type: 'classRequirement', field: 'arabic_level', values: ['knows_nahw_sarf'], message: bi('আরবি ভাষায় নাহু-সরফ জানা আবশ্যক', 'Must know Arabic nahw and sarf') },
+];
+
 const item = (key: string, text: Bi, extra: Doc = {}) => ({ _key: key, _type: 'bringItem', text, ...extra });
 
 export const BRING_LIST = [
@@ -238,6 +244,24 @@ export function applyFormUpdates(doc: Doc): { sections: Doc[]; cycle: Doc; decla
     if (birth && !birth.allowMissing) {
       Object.assign(birth, { required: true, ...structuredClone(BIRTH_CERTIFICATE_MISSING) });
       changed.push(`Student: birth certificate (“${birth.key}”) now required, with “don’t have it now”.`);
+    }
+
+    const classField = fields.find((f) => f.role === 'classApplied');
+    const class7 = classField?.options?.find((o: Doc) => o.value === 'class_7');
+    if (class7) {
+      // Class 7 came after the questions asked "for every class but play": ask them for class 7 too.
+      for (const f of fields) {
+        const values: string[] | undefined = f.showWhen?.field === classField!.key ? f.showWhen.values : undefined;
+        if (values?.includes('class_6') && !values.includes('class_7')) {
+          values.push('class_7');
+          changed.push(`Student: “${f.key}” is now asked for class 7 too.`);
+        }
+      }
+      const hasOption = (key: string, value: string) => get(key)?.options?.some((o: Doc) => o.value === value);
+      if (!class7.requires?.length && hasOption('student_gender', 'female') && hasOption('arabic_level', 'knows_nahw_sarf')) {
+        class7.requires = structuredClone(CLASS_7_REQUIRES);
+        changed.push('Student: class 7 only for girls who know Arabic nahw and sarf.');
+      }
     }
   }
 

@@ -59,6 +59,25 @@ export const admissionOption = defineType({
     }),
     defineField({ name: 'special', title: 'By special consideration', type: 'boolean', fieldset: 'class' }),
     defineField({
+      name: 'requires',
+      title: 'Requirements (all must be met)',
+      type: 'array',
+      fieldset: 'class',
+      description: 'A child can apply for this class only when every requirement is met (e.g. girls only). The message shows under the class and on the question that does not meet it.',
+      of: [
+        defineArrayMember({
+          type: 'object',
+          name: 'classRequirement',
+          fields: [
+            defineField({ name: 'field', title: 'Question key', type: 'string', description: 'A choice or yes/no question, e.g. student_gender.', validation: (Rule) => Rule.required() }),
+            defineField({ name: 'values', title: 'Answers that meet it', type: 'array', of: [defineArrayMember({ type: 'string' })], description: 'Option values, e.g. female.', validation: (Rule) => Rule.required().min(1) }),
+            bi('message', 'Message', { required: true, description: 'Short, e.g. শুধু মেয়েদের জন্য.' }),
+          ],
+          preview: { select: { title: 'message.bengali', field: 'field', values: 'values' }, prepare: ({ title, field, values }) => ({ title, subtitle: `${field} = ${(values ?? []).join(' / ')}` }) },
+        }),
+      ],
+    }),
+    defineField({
       name: 'exclusive',
       title: 'Only this choice',
       type: 'boolean',

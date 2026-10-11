@@ -62,6 +62,12 @@ const option = z.object({
   ageMax: z.number().optional(),
   /** Class options only: "by special consideration" note. */
   special: z.boolean().optional(),
+  /**
+   * Class options only: what a child must meet to apply for the class, all of them (e.g. girls only,
+   * knows Arabic nahw and sarf), each an earlier or later choice question with the answers that meet
+   * it, and the message shown under the class and on the question that breaks it.
+   */
+  requires: z.array(z.object({ field: z.string(), values: z.array(z.string()).min(1), message: text })).optional(),
   /** Checkbox options only: ticking it clears the other choices ("none of the above"). */
   exclusive: z.boolean().optional(),
 });
@@ -165,7 +171,15 @@ export type RawField = {
   role?: string;
   group?: string;
   showWhen?: { field?: string; values?: string[] };
-  options?: { value?: string; label?: { bengali?: string }; code?: string; ageMin?: number; ageMax?: number; exclusive?: boolean }[];
+  options?: {
+    value?: string;
+    label?: { bengali?: string };
+    code?: string;
+    ageMin?: number;
+    ageMax?: number;
+    exclusive?: boolean;
+    requires?: { field?: string; values?: string[]; message?: { bengali?: string } }[];
+  }[];
   allowMissing?: boolean;
   missingLabel?: { bengali?: string; english?: string };
 };
@@ -211,6 +225,7 @@ export function checkFormConfig(sections: RawSection[] | undefined): string[] {
         if ((f.options ?? []).some((o) => !o.value?.trim() || !o.label?.bengali?.trim())) problems.push(`${where}: every option needs a value and a Bengali label.`);
       }
 
+      if (f.role !== 'classApplied' && (f.options ?? []).some((o) => o.requires?.length)) problems.push(`${where}: requirements work on the class question only.`);
       if (type !== 'checkbox' && (f.options ?? []).some((o) => o.exclusive)) problems.push(`${where}: “Only this choice” works on checkbox questions only.`);
       if (type === 'file' && f.allowMissing && !f.missingLabel?.bengali?.trim()) problems.push(`${where}: add the text of the “don't have it now” tick box.`);
 
@@ -250,10 +265,34 @@ export function checkFormConfig(sections: RawSection[] | undefined): string[] {
     }
   }
 
+  problems.push(...checkClassRequirements(seenFieldKeys));
+
   for (const role of ROLES) {
     const n = roleCount.get(role) ?? 0;
     if (n > 1) problems.push(`The role “${ROLE_SPECS[role].title}” is assigned to ${n} fields; use it once.`);
     if (n === 0 && ROLE_SPECS[role].required) problems.push(`Assign the role “${ROLE_SPECS[role].title}” to a field.`);
+  }
+  return problems;
+}
+
+/** Class requirements point to a choice or yes/no question (before or after the class) that is shown for that class. */
+function checkClassRequirements(fields: Map<string, RawField>): string[] {
+  const problems: string[] = [];
+  const classField = [...fields.values()].find((f) => f.role === 'classApplied');
+  for (const o of classField?.options ?? []) {
+    for (const r of o.requires ?? []) {
+      const where = `Class “${o.label?.bengali ?? o.value}” → requirement`;
+      const target = r.field ? fields.get(r.field) : undefined;
+      const type = target?.type as FieldType | undefined;
+      const allowed = type === 'yesno' ? ['yes', 'no'] : type && CHOICE_TYPES.includes(type) ? (target!.options ?? []).map((x) => x.value) : null;
+      if (!target || target === classField) problems.push(`${where}: choose the key of another question in the form.`);
+      else if (!allowed) problems.push(`${where}: “${target.label?.bengali ?? target.key}” must be a choice or yes/no question.`);
+      else if (!r.values?.length || r.values.some((v) => !allowed.includes(v))) problems.push(`${where}: the answers must be options of “${target.label?.bengali ?? target.key}”.`);
+      else if (target.showWhen?.field === classField!.key && !target.showWhen?.values?.includes(o.value ?? '')) {
+        problems.push(`${where}: “${target.label?.bengali ?? target.key}” is not shown for this class; add the class to its “show only when”.`);
+      }
+      if (!r.message?.bengali?.trim()) problems.push(`${where}: add the message (Bengali).`);
+    }
   }
   return problems;
 }

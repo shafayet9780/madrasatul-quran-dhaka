@@ -111,7 +111,11 @@ function answer(f: FormField, snapshot: FormSnapshot, dependents: FormField[]): 
       return options(['হ্যাঁ', 'না'], 'o');
     case 'select':
     case 'radio':
-      return options(f.options.map((o) => esc(txt(o.label, 'bengali'))), 'o');
+      // A class's requirements are printed beside it ("শুধু মেয়েদের জন্য; …").
+      return options(
+        f.options.map((o) => `${esc(txt(o.label, 'bengali'))}${o.requires?.length ? ` <span class="hint">(${esc(o.requires.map((r) => txt(r.message, 'bengali')).join('; '))})</span>` : ''}`),
+        'o',
+      );
     case 'checkbox':
       return options(
         f.options.map((o) => `${esc(txt(o.label, 'bengali'))}${o.exclusive ? ' <span class="hint">(এটি বাছলে অন্যগুলো নয়)</span>' : ''}`),

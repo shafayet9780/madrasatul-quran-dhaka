@@ -986,7 +986,8 @@
         "invalid_mobile": "Enter a valid mobile number, like 01712 345678",
         "invalid_email": "Enter a valid email address",
         "invalid_date": "Enter a valid date",
-        "invalid_number": "Enter a number"
+        "invalid_number": "Enter a number",
+        "class_requirement": "{class}: {message}"
       }
     },
     "file": {

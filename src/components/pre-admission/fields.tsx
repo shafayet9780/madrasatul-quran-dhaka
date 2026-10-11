@@ -24,7 +24,8 @@ export type FieldProps = {
   onChange: (value: AnswerValue | '') => void;
   onBlur: () => void;
   /** Class field: options that fit the child's age, and the age itself. */
-  classFit?: { fits: string[]; age: Age | null };
+  /** Class field: the classes that fit the age, those the answers so far rule out, and whether the chosen one has an unmet requirement. */
+  classFit?: { fits: string[]; age: Age | null; blocked?: string[]; unmet?: boolean };
   /** Date of birth: year range offered. */
   years?: number[];
   /** Transport stop questions: the routes the options belong to. */
@@ -440,6 +441,7 @@ export function DateSelect({ id, value, locale, years, invalid, onChange, onBlur
 function ClassChoice({ field, value, locale, fit, onChange, onBlur, invalid }: { field: FormField; value: string; locale: Locale; fit?: FieldProps['classFit']; onChange: (v: string) => void; onBlur: () => void; invalid: boolean }) {
   const t = useTranslations('preAdmission.chapter');
   const fits = fit?.fits ?? [];
+  const blocked = fit?.blocked ?? [];
   const mismatch = !!value && fits.length > 0 && !fits.includes(value);
   return (
     <>
@@ -451,24 +453,34 @@ function ClassChoice({ field, value, locale, fit, onChange, onBlur, invalid }: {
         }}
         className="flex flex-col gap-2"
       >
-        {field.options.map((o, i) => (
+        {field.options.map((o, i) => {
+          // A class the answers so far rule out cannot be chosen (one already chosen stays, with the message on the other question).
+          const ruledOut = blocked.includes(o.value) && value !== o.value;
+          const warn = blocked.includes(o.value) || (value === o.value && !!fit?.unmet);
+          const notes = (o.requires ?? []).map((r) => txt(r.message, locale)).join(' · ');
+          return (
           <label
             key={o.value}
             className={cn(
               'flex min-h-11 cursor-pointer items-center gap-3 rounded-lg border bg-card px-3.5 py-2 text-[15px]',
               value === o.value && 'border-primary ring-1 ring-primary',
               invalid && !value && 'border-destructive',
+              ruledOut && 'cursor-not-allowed opacity-60',
             )}
           >
-            <RadioGroupItem id={i === 0 ? `f-${field.key}` : undefined} value={o.value} className="size-[18px] shadow-none" />
-            <span className="flex-1">{txt(o.label, locale)}</span>
+            <RadioGroupItem id={i === 0 ? `f-${field.key}` : undefined} value={o.value} disabled={ruledOut} className="size-[18px] shadow-none" />
+            <span className="flex flex-1 flex-col">
+              {txt(o.label, locale)}
+              {notes && <span className={cn('text-[12.5px] leading-snug', warn ? 'text-warning' : 'text-muted-foreground')}>{notes}</span>}
+            </span>
             {fits.includes(o.value) ? (
               <span className="text-[12.5px] text-success">{t('classFits')}</span>
             ) : o.special ? (
               <span className="text-[12.5px] text-muted-foreground">{t('classSpecial')}</span>
             ) : null}
           </label>
-        ))}
+          );
+        })}
       </RadioGroup>
       {mismatch && (
         <div role="status" className="mt-2.5 flex items-start gap-2.5 rounded-lg border bg-card px-3 py-2.5 text-[13.5px] leading-normal">

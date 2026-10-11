@@ -978,7 +978,8 @@
         "invalid_mobile": "সঠিক মোবাইল নম্বর দিন, যেমন ০১৭১২ ৩৪৫৬৭৮",
         "invalid_email": "সঠিক ইমেইল ঠিকানা দিন",
         "invalid_date": "সঠিক তারিখ দিন",
-        "invalid_number": "সংখ্যায় লিখুন"
+        "invalid_number": "সংখ্যায় লিখুন",
+        "class_requirement": "{class}: {message}"
       }
     },
     "file": {
