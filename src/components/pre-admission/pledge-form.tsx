@@ -34,9 +34,11 @@ export function PledgeForm({ locale, steps, index, intro, groups, pledge, declar
   const router = useRouter();
   const { state: saveState, setState: setSave } = useSaveStatus();
   const [agreed, setAgreed] = useState(initial);
+  // Saves still on their way: two quick ticks are two saves, and the first may finish before the second.
+  const [pending, setPending] = useState(0);
   const left = Number(!agreed.conduct) + Number(!agreed.family);
   // The review opens only once both ticks are stored (it checks them on the server).
-  const ready = left === 0 && saveState !== 'saving' && saveState !== 'error';
+  const ready = left === 0 && pending === 0 && saveState !== 'saving' && saveState !== 'error';
   const hint = left === 0 ? t('pledge.hintDone') : left === 2 ? t('pledge.hintBoth') : t('pledge.hintOne');
   // The rail shows this step's state as ticked here, before the server page is reloaded.
   const shownSteps = steps.map((s, i) => (i === index ? { ...s, status: left === 0 ? ('done' as const) : left === 2 ? ('not_started' as const) : ('in_progress' as const) } : s));
@@ -44,7 +46,9 @@ export function PledgeForm({ locale, steps, index, intro, groups, pledge, declar
   async function tick(which: Pledge, value: boolean) {
     setAgreed((a) => ({ ...a, [which]: value }));
     setSave('saving');
+    setPending((n) => n + 1);
     const result = await pledgeAnswer(which, value).catch(() => ({ ok: false as const, reason: 'failed' as const }));
+    setPending((n) => n - 1);
     if (result.ok) return setSave('saved');
     if (result.reason === 'expired') return router.replace(`/${locale}/pre-admission/start`);
     if (result.reason === 'locked') return router.replace(`/${locale}/pre-admission/status`);
