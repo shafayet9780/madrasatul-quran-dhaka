@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
-import { ArrowRight, Camera, ChevronDown, Clock, FileDown, FileText, Smartphone } from 'lucide-react';
+import { ArrowRight, Camera, ChevronDown, Clock, FileText, Smartphone } from 'lucide-react';
 import { Button } from '@/components/shadcn/button';
 import { getContentService } from '@/lib/content-service';
 import { urlFor } from '@/lib/sanity';
@@ -94,14 +94,6 @@ export default async function PreAdmissionIntro({ params }: Props) {
               <Button asChild variant="outline" className="h-11 bg-card px-4 text-[15px] shadow-none">
                 <Link href={flowPath(locale, '/find')}>{t('find')}</Link>
               </Button>
-              {status.open && (
-                // A file download, not a page.
-                // eslint-disable-next-line @next/next/no-html-link-for-pages
-                <a href="/api/admissions/offline-form" className="inline-flex h-11 items-center gap-1.5 px-1 text-[15px] font-medium underline underline-offset-[3px]">
-                  <FileDown className="size-4" aria-hidden />
-                  {t('offlineForm')}
-                </a>
-              )}
             </div>
           </div>
           {photo && (

@@ -23,7 +23,7 @@ const idCells = (page: Page) => page.locator('tbody td:nth-child(2) a');
 
 test('the admin needs the Studio login, pages and downloads alike', async ({ browser, baseURL }) => {
   const anonymous = await browser.newContext({ baseURL, httpCredentials: undefined });
-  for (const path of ['/admin/admissions', '/admin/admissions/export', '/admin/admissions/file?id=x&key=y']) {
+  for (const path of ['/admin/admissions', '/admin/admissions/export', '/admin/admissions/offline-form', '/admin/admissions/file?id=x&key=y']) {
     expect((await anonymous.request.get(path)).status(), path).toBe(401);
   }
   await anonymous.close();
@@ -125,6 +125,12 @@ test('detail: answers, documents, notes, status, evaluation day, PDF and Excel',
   expect(xlsx.status()).toBe(200);
   expect(xlsx.headers()['content-disposition']).toMatch(/pre-admission-2027-.*\.xlsx/);
   expect((await xlsx.body()).subarray(0, 2).toString()).toBe('PK');
+
+  // The paper form for families at the campus, printed by the office.
+  const offline = await page.request.get('/admin/admissions/offline-form');
+  expect(offline.status()).toBe(200);
+  expect(offline.headers()['content-disposition']).toMatch(/mqd_pre_admission_form_2027_v\d+\.pdf/);
+  expect((await offline.body()).subarray(0, 5).toString()).toBe('%PDF-');
 });
 
 test('evaluation day: an ID opens the application, today’s check-ins are listed', async ({ page }) => {

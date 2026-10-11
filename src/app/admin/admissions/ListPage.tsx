@@ -52,7 +52,7 @@ export function ExportButton() {
 export function OfflineFormButton() {
   return (
     <Button asChild variant="outline" className="adm h-9 bg-white shadow-none">
-      <a href="/api/admissions/offline-form?view=1" target="_blank" rel="noreferrer">
+      <a href="/admin/admissions/offline-form?view=1" target="_blank" rel="noreferrer">
         <Printer aria-hidden />
         অফলাইন ফর্ম
       </a>

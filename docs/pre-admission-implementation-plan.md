@@ -122,11 +122,11 @@ Agreed changes in [`pre-admission-2027-updates.md`](pre-admission-2027-updates.m
 | U1 Schema + drafts | `sanity/schemas/admissionForm.ts` (conduct, pledges, bring list, `allowMissing`, `exclusive`, field type `transportStop`), `feeSettings.ts` (routes); `src/lib/admissions/form-config.ts`, `snapshot.ts` (transport frozen with the form); `updates-2027.ts` + `pnpm setup:admissions-updates [--write]` (drafts only) |
 | U2 Guardian pages | `src/app/[locale]/pre-admission/pledge/`, `pledge.ts`, `transport.ts`, route cards, `bring-list.ts`; migration `0007` (pledge times) |
 | U3 Application PDF | `pdf-html.ts`: 4 pages, page 4 = pledges with their times, signatures, office/assessor section |
-| U4 Offline form | `offline-html.ts`, `pdf.ts` (`renderOfflinePdf`, `ensureOfflinePdf`, stored under a hash of its HTML), `GET /api/admissions/offline-form`; 6 pages (4 to hand in, the code of conduct to keep, the guardian copy) |
+| U4 Offline form | `offline-html.ts`, `pdf.ts` (`renderOfflinePdf`, `ensureOfflinePdf`, stored under a hash of its HTML), `GET /admin/admissions/offline-form` (staff only, not linked from the public site); 6 pages (4 to hand in, the code of conduct to keep, the guardian copy) |
 | U5 Rename + WhatsApp | অ্যাসেসমেন্ট / assessment in what people see (keys such as `evaluationFee` and `/admin/admissions/evaluation-day` unchanged); `whatsapp-qr.ts` (level H, logo), `whatsapp-logo.ts`, success-card states |
 | U6 Export | `export-rows.ts` (`exportForm`: columns from the current version plus every version a submitted application answered; transport split into route, vehicle, stop, charge), `cycle.ts` (`loadAnsweredSnapshots`) |
 
-Tests: unit and PGlite tests in `pnpm test`; `pnpm test:e2e:admissions` covers the pledge step, the WhatsApp "joined" task and the offline-form download.
+Tests: unit and PGlite tests in `pnpm test`; `pnpm test:e2e:admissions` covers the pledge step, the WhatsApp "joined" task, the offline-form download from admin (and that the public page has no link to it).
 
 **Release steps (in order):**
 1. Merge `pre-admission-2027` and deploy.

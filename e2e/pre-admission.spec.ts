@@ -79,11 +79,8 @@ test('a guardian fills in every chapter, takes the pledges, reviews, declares, p
   await dismissConsent(page);
   await expect(page.getByRole('heading', { level: 1 })).toContainText('প্রি-অ্যাডমিশন আবেদন');
   await noSeriousA11yIssues(page);
-  // The printable form for families who apply on paper.
-  const offline = page.getByRole('link', { name: 'অফলাইন ফর্ম (PDF)' });
-  const offlinePdf = await page.request.get((await offline.getAttribute('href'))!);
-  expect(offlinePdf.headers()['content-disposition']).toMatch(/mqd_pre_admission_form_2027_v\d+\.pdf/);
-  expect((await offlinePdf.body()).subarray(0, 5).toString()).toBe('%PDF-');
+  // The paper form is for families at the campus only: the office prints it from admin.
+  await expect(page.getByRole('link', { name: /অফলাইন ফর্ম/ })).toHaveCount(0);
   await page.getByRole('link', { name: /আবেদন শুরু করুন/ }).click();
 
   await expect(page.getByRole('heading', { name: 'আবেদন শুরু করুন' })).toBeVisible();

@@ -61,7 +61,7 @@ Assessment dates and times are announced only in the **WhatsApp group**. The suc
 
 ## Paper applications (অফলাইন ফর্ম)
 
-For families who cannot apply online. **অফলাইন ফর্ম** (admin overview, and *অফলাইন ফর্ম (PDF)* on the pre-admission page while the form is open) downloads a 6-page Bengali form made from the current Studio form, so it always matches the online questions.
+For families who come to the campus and cannot apply online. **অফলাইন ফর্ম** on the admin overview (staff only; it is not on the public website) downloads a 6-page Bengali form made from the current Studio form, so it always matches the online questions.
 
 - Pages 1–4 are filled in and handed to the office with the ৳500 application fee in cash; page 4 ends with the pledges, the parents' signatures and the office checks.
 - Page 5 is the **code of conduct**: the family keeps it (the pledges on page 4 refer to it).
