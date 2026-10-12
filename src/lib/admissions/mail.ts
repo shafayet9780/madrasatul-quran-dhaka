@@ -8,6 +8,7 @@ import { localOverrides } from './local';
 import { confirmationEmail, resumeEmail } from './mail-templates';
 import { ensureApplicationPdf, pdfFileName, readStoredPdf } from './pdf';
 import { applications } from './schema';
+import { bringItems } from './bring-list';
 
 // Admissions email through Resend (installed from the Vercel Marketplace: RESEND_API_KEY), sent
 // from ADMISSIONS_EMAIL_FROM on the school's verified domain. Best effort: a failure is logged and
@@ -95,6 +96,7 @@ export async function sendConfirmationEmail(applicationId: string, origin: strin
     whatsappUrl: snapshot.settings.whatsappUrl || null,
     statusUrl: `${origin}/${locale}/pre-admission/find`,
     evaluationFee: snapshot.settings.evaluationFee,
+    bring: bringItems(snapshot, app.answers, locale),
   });
   const result = await send({ to: app.email, ...email, attachments: attachment ? [{ filename: pdfFileName(app), content: attachment }] : undefined });
   if (result.ok) {

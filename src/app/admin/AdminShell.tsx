@@ -50,7 +50,7 @@ function admissionsSections(nav: AdmissionsNav): { heading: string; links: NavLi
         { label: 'ওভারভিউ', href: '/admin/admissions', icon: 'overview' },
         { label: 'আবেদন', href: '/admin/admissions/applications', icon: 'people', count: nav?.paid },
         { label: 'ফি বাকি', href: '/admin/admissions/unpaid', icon: 'clock', count: nav?.unpaid },
-        { label: 'মূল্যায়নের দিন', href: '/admin/admissions/evaluation-day', icon: 'scan' },
+        { label: 'অ্যাসেসমেন্টের দিন', href: '/admin/admissions/evaluation-day', icon: 'scan' },
       ],
     },
     { heading: 'সেটআপ', links: [{ label: 'ফর্ম ও ফি (স্টুডিও)', href: '/studio/structure/preAdmissionForm', icon: 'sliders', external: true }] },
@@ -61,7 +61,7 @@ type Tab = readonly [label: string, href: string, icon: IconName];
 const ADMISSIONS_TABS: Tab[] = [
   ['ওভারভিউ', '/admin/admissions', 'overview'],
   ['আবেদন', '/admin/admissions/applications', 'people'],
-  ['মূল্যায়ন', '/admin/admissions/evaluation-day', 'scan'],
+  ['অ্যাসেসমেন্ট', '/admin/admissions/evaluation-day', 'scan'],
 ];
 const SURVEY_TABS: Tab[] = [
   ['ওভারভিউ', '/admin/reports/overview', 'overview'],

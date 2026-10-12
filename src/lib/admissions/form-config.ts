@@ -4,11 +4,21 @@ import { z } from 'zod';
 // frozen into Postgres when a cycle opens (`admission_cycles.snapshot`). Pure: imported by the
 // Studio (validation) and by the server (snapshot, validation of answers, PDF, admin views).
 
-export const FIELD_TYPES = ['text', 'textarea', 'number', 'email', 'tel', 'date', 'select', 'radio', 'checkbox', 'yesno', 'file'] as const;
+export const FIELD_TYPES = ['text', 'textarea', 'number', 'email', 'tel', 'date', 'select', 'radio', 'checkbox', 'yesno', 'file', 'transportStop'] as const;
 export type FieldType = (typeof FIELD_TYPES)[number];
 
 /** Field types whose answer is one or more option values. */
 export const CHOICE_TYPES: readonly FieldType[] = ['select', 'radio', 'checkbox'];
+
+/**
+ * Transport stop fields: the options are the stops of the routes in Fees & Discounts, filled in when
+ * the snapshot is taken (value `<route key>:<stop key>`), plus this last one.
+ */
+export const NO_ROUTE = 'none';
+export const NO_ROUTE_LABEL = { bengali: 'আমার এলাকা কোনো রুটে নেই', english: 'My area is not on any route' };
+
+/** Stored instead of a file when the guardian ticks "don't have it now" (fields with `allowMissing`). */
+export const FILE_MISSING = 'missing';
 
 /**
  * Roles tell the code which Sanity field means what (the form itself stays fully editable).
@@ -52,7 +62,17 @@ const option = z.object({
   ageMax: z.number().optional(),
   /** Class options only: "by special consideration" note. */
   special: z.boolean().optional(),
+  /**
+   * Class options only: what a child must meet to apply for the class, all of them (e.g. girls only,
+   * knows Arabic nahw and sarf), each an earlier or later choice question with the answers that meet
+   * it, and the message shown under the class and on the question that breaks it.
+   */
+  requires: z.array(z.object({ field: z.string(), values: z.array(z.string()).min(1), message: text })).optional(),
+  /** Checkbox options only: ticking it clears the other choices ("none of the above"). */
+  exclusive: z.boolean().optional(),
 });
+
+const condition = z.object({ field: z.string(), values: z.array(z.string()).min(1) });
 
 const field = z.object({
   key: z.string().regex(KEY),
@@ -64,15 +84,36 @@ const field = z.object({
   role: z.enum(ROLES as [Role, ...Role[]]).optional(),
   group: z.string().optional(),
   /** Shown only when another field's answer is one of these values. */
-  showWhen: z.object({ field: z.string(), values: z.array(z.string()).min(1) }).optional(),
+  showWhen: condition.optional(),
   options: z.array(option).default([]),
   /** File fields: photos are images only; documents allow images or PDF. */
   fileKind: z.enum(['photo', 'document']).optional(),
+  /** File fields: a "don't have it now" tick box satisfies required (the answer is FILE_MISSING). */
+  allowMissing: z.boolean().optional(),
+  /** Text of that tick box, and the note shown once it is ticked. */
+  missingLabel: optionalText,
+  missingNote: optionalText,
   /** Desktop layout hint: two half-width fields sit side by side. */
   width: z.enum(['full', 'half']).optional(),
 });
 
 const group = z.object({ key: z.string().regex(KEY), title: text, description: optionalText });
+
+/** Fees & Discounts → Transport, frozen with the form so the charge the guardian saw is kept. */
+const transport = z.object({
+  /** Monthly charge per vehicle; none means "contact the office". */
+  vehicles: z.array(z.object({ key: z.string().min(1), name: text, monthly: z.number().nonnegative().optional() })),
+  /** Stops in order; the madrasa (always the last stop) is not listed. */
+  routes: z.array(
+    z.object({
+      key: z.string().min(1),
+      name: text,
+      area: text,
+      vehicle: z.string().min(1),
+      stops: z.array(z.object({ key: z.string().min(1), name: text })).min(1),
+    }),
+  ),
+});
 
 const section = z.object({
   key: z.string().regex(KEY),
@@ -96,8 +137,20 @@ export const formSnapshotSchema = z.object({
     declaration: text,
     pdfInstructions: optionalText,
     refundNote: optionalText,
+    /** The অঙ্গীকার step: the parents' code of conduct and the two pledges (both must be ticked). */
+    conduct: z
+      .object({
+        intro: optionalText,
+        groups: z.array(z.object({ title: text, rules: z.array(text).min(1) })).min(1),
+        pledge: text,
+        declaration: text,
+      })
+      .optional(),
+    /** What to bring on assessment day; `{fee}` is replaced by the assessment fee. */
+    bringList: z.array(z.object({ text, showWhen: condition.optional(), document: z.string().optional() })).optional(),
   }),
   sections: z.array(section).min(1),
+  transport: transport.optional(),
 });
 
 export type FormSnapshot = z.infer<typeof formSnapshotSchema>;
@@ -106,6 +159,8 @@ export type FormField = FormSection['fields'][number];
 export type FormOption = FormField['options'][number];
 export type FormGroup = FormSection['groups'][number];
 export type BiText = z.infer<typeof text>;
+export type Transport = z.infer<typeof transport>;
+export type TransportRoute = Transport['routes'][number];
 
 /** Loosely typed config as it comes from Sanity (missing values while an editor is typing). */
 export type RawField = {
@@ -116,7 +171,17 @@ export type RawField = {
   role?: string;
   group?: string;
   showWhen?: { field?: string; values?: string[] };
-  options?: { value?: string; label?: { bengali?: string }; code?: string; ageMin?: number; ageMax?: number }[];
+  options?: {
+    value?: string;
+    label?: { bengali?: string };
+    code?: string;
+    ageMin?: number;
+    ageMax?: number;
+    exclusive?: boolean;
+    requires?: { field?: string; values?: string[]; message?: { bengali?: string } }[];
+  }[];
+  allowMissing?: boolean;
+  missingLabel?: { bengali?: string; english?: string };
 };
 export type RawSection = { key?: string; title?: { bengali?: string }; groups?: { key?: string }[]; fields?: RawField[] };
 
@@ -160,6 +225,10 @@ export function checkFormConfig(sections: RawSection[] | undefined): string[] {
         if ((f.options ?? []).some((o) => !o.value?.trim() || !o.label?.bengali?.trim())) problems.push(`${where}: every option needs a value and a Bengali label.`);
       }
 
+      if (f.role !== 'classApplied' && (f.options ?? []).some((o) => o.requires?.length)) problems.push(`${where}: requirements work on the class question only.`);
+      if (type !== 'checkbox' && (f.options ?? []).some((o) => o.exclusive)) problems.push(`${where}: “Only this choice” works on checkbox questions only.`);
+      if (type === 'file' && f.allowMissing && !f.missingLabel?.bengali?.trim()) problems.push(`${where}: add the text of the “don't have it now” tick box.`);
+
       if (f.group && !groupKeys.has(f.group)) problems.push(`${where}: group “${f.group}” does not exist in this section.`);
 
       if (f.role) {
@@ -178,8 +247,14 @@ export function checkFormConfig(sections: RawSection[] | undefined): string[] {
         else {
           const targetType = target.type as FieldType | undefined;
           const allowed =
-            targetType === 'yesno' ? ['yes', 'no'] : targetType && CHOICE_TYPES.includes(targetType) ? (target.options ?? []).map((o) => o.value) : null;
-          if (!allowed) problems.push(`${where}: “show when” can only depend on a choice or yes/no field.`);
+            targetType === 'yesno'
+              ? ['yes', 'no']
+              : targetType === 'transportStop'
+                ? [NO_ROUTE]
+                : targetType && CHOICE_TYPES.includes(targetType)
+                  ? (target.options ?? []).map((o) => o.value)
+                  : null;
+          if (!allowed) problems.push(`${where}: “show when” can only depend on a choice, yes/no or transport stop field (value ${NO_ROUTE}).`);
           else if (!f.showWhen.values?.length || f.showWhen.values.some((v) => !allowed.includes(v))) {
             problems.push(`${where}: “show when” values must be options of “${target.label?.bengali ?? target.key}”.`);
           }
@@ -190,10 +265,34 @@ export function checkFormConfig(sections: RawSection[] | undefined): string[] {
     }
   }
 
+  problems.push(...checkClassRequirements(seenFieldKeys));
+
   for (const role of ROLES) {
     const n = roleCount.get(role) ?? 0;
     if (n > 1) problems.push(`The role “${ROLE_SPECS[role].title}” is assigned to ${n} fields; use it once.`);
     if (n === 0 && ROLE_SPECS[role].required) problems.push(`Assign the role “${ROLE_SPECS[role].title}” to a field.`);
+  }
+  return problems;
+}
+
+/** Class requirements point to a choice or yes/no question (before or after the class) that is shown for that class. */
+function checkClassRequirements(fields: Map<string, RawField>): string[] {
+  const problems: string[] = [];
+  const classField = [...fields.values()].find((f) => f.role === 'classApplied');
+  for (const o of classField?.options ?? []) {
+    for (const r of o.requires ?? []) {
+      const where = `Class “${o.label?.bengali ?? o.value}” → requirement`;
+      const target = r.field ? fields.get(r.field) : undefined;
+      const type = target?.type as FieldType | undefined;
+      const allowed = type === 'yesno' ? ['yes', 'no'] : type && CHOICE_TYPES.includes(type) ? (target!.options ?? []).map((x) => x.value) : null;
+      if (!target || target === classField) problems.push(`${where}: choose the key of another question in the form.`);
+      else if (!allowed) problems.push(`${where}: “${target.label?.bengali ?? target.key}” must be a choice or yes/no question.`);
+      else if (!r.values?.length || r.values.some((v) => !allowed.includes(v))) problems.push(`${where}: the answers must be options of “${target.label?.bengali ?? target.key}”.`);
+      else if (target.showWhen?.field === classField!.key && !target.showWhen?.values?.includes(o.value ?? '')) {
+        problems.push(`${where}: “${target.label?.bengali ?? target.key}” is not shown for this class; add the class to its “show only when”.`);
+      }
+      if (!r.message?.bengali?.trim()) problems.push(`${where}: add the message (Bengali).`);
+    }
   }
   return problems;
 }
@@ -207,6 +306,26 @@ function checkClassOptions(where: string, f: RawField): string[] {
     else if (codes.has(o.code)) problems.push(`${where} → ${name}: class code “${o.code}” is used twice.`);
     else codes.add(o.code);
     if (o.ageMin != null && o.ageMax != null && o.ageMin >= o.ageMax) problems.push(`${where} → ${name}: “up to age” must be above “from age” (Nursery for 4-year-olds: from 4, up to 5).`);
+  }
+  return problems;
+}
+
+export type RawBringItem = { text?: { bengali?: string }; showWhen?: { field?: string; values?: string[] }; document?: string };
+
+/** The "what to bring" list may only point to questions of the form (Studio and snapshot). */
+export function checkBringList(items: RawBringItem[] | undefined, sections: RawSection[] | undefined): string[] {
+  const problems: string[] = [];
+  const fields = new Map((sections ?? []).flatMap((s) => s.fields ?? []).map((f) => [f.key, f]));
+  for (const [i, item] of (items ?? []).entries()) {
+    const where = `What to bring → ${item.text?.bengali || `item ${i + 1}`}`;
+    if (!item.text?.bengali?.trim()) problems.push(`${where}: add the Bengali text.`);
+    if (item.document && fields.get(item.document)?.type !== 'file') problems.push(`${where}: “document” must be the key of an upload question.`);
+    if (item.showWhen?.field || item.showWhen?.values?.length) {
+      const target = item.showWhen.field ? fields.get(item.showWhen.field) : undefined;
+      const allowed = target?.type === 'yesno' ? ['yes', 'no'] : target && CHOICE_TYPES.includes(target.type as FieldType) ? (target.options ?? []).map((o) => o.value) : null;
+      if (!allowed) problems.push(`${where}: “show only when” must point to a choice or yes/no question.`);
+      else if (!item.showWhen.values?.length || item.showWhen.values.some((v) => !allowed.includes(v))) problems.push(`${where}: “show only when” values must be options of “${target!.label?.bengali ?? target!.key}”.`);
+    }
   }
   return problems;
 }

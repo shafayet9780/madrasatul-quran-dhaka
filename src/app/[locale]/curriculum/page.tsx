@@ -18,6 +18,7 @@ import {
   financialLinks,
 } from '@/components/fees/financial-information';
 import { getContentService } from '@/lib/content-service';
+import { getIntake } from '@/lib/admissions/pages';
 import { getTranslations } from 'next-intl/server';
 import type { FeeLocale } from '@/types/fees';
 interface CurriculumPageProps {
@@ -45,12 +46,12 @@ export default async function CurriculumPage({ params }: CurriculumPageProps) {
     namespace: 'admissionsExperience',
   });
   const service = getContentService(false);
-  const [settings, form, site] = await Promise.all([
+  const [settings, intake, site] = await Promise.all([
     service.getFeeSettings(),
-    service.getPreAdmissionForm(),
+    getIntake(),
     service.getSiteSettings(),
   ]);
-  const available = !!form?.formSettings?.isEnabled;
+  const available = intake.state === 'open' || intake.state === 'not_open';
   const libraryImage = curriculumImage('higher-education');
   return (
     <div className={`${styles.page} bg-white pb-20`}>

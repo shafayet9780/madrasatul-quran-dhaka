@@ -9,7 +9,7 @@ import { NoCycle } from '../ListPage';
 import { Card, LAT, PageBody, PageTitle } from '../../ui';
 import { CheckInForm } from './CheckInForm';
 
-export const metadata: Metadata = { title: 'মূল্যায়নের দিন' };
+export const metadata: Metadata = { title: 'অ্যাসেসমেন্টের দিন' };
 export const dynamic = 'force-dynamic';
 
 const time = (d: Date) => dateTime(d.toISOString(), 'bengali').split(', ')[1];
@@ -21,16 +21,16 @@ export default async function EvaluationDayPage() {
   const fees = today.filter((t) => t.evalFeeReceivedAt).length;
   return (
     <>
-      <PageTop crumbs={[{ label: 'ভর্তি', href: '/admin/admissions' }, { label: 'মূল্যায়নের দিন' }]} round={false} />
+      <PageTop crumbs={[{ label: 'ভর্তি', href: '/admin/admissions' }, { label: 'অ্যাসেসমেন্টের দিন' }]} round={false} />
       <PageBody className="gap-5">
-        <PageTitle sub={`আবেদনপত্রের “অফিস ব্যবহারের জন্য” QR ফোনের ক্যামেরায় স্ক্যান করলে সরাসরি আবেদনটি খোলে। না হলে নিচে আইডি লিখুন। আবেদনের পাতায় উপস্থিতি ও মূল্যায়ন ফি ${taka(cycle.snapshot.settings.evaluationFee, 'bengali')} চিহ্নিত করুন।`}>
-          মূল্যায়নের দিন
+        <PageTitle sub={`আবেদনপত্রের “অফিস ব্যবহারের জন্য” QR ফোনের ক্যামেরায় স্ক্যান করলে সরাসরি আবেদনটি খোলে। না হলে নিচে আইডি লিখুন। আবেদনের পাতায় উপস্থিতি ও অ্যাসেসমেন্ট ফি ${taka(cycle.snapshot.settings.evaluationFee, 'bengali')} চিহ্নিত করুন।`}>
+          অ্যাসেসমেন্টের দিন
         </PageTitle>
         <div className="flex flex-wrap items-start gap-5">
           <Card className="flex-[1_1_320px]">
             <CheckInForm />
           </Card>
-          <Card className="flex-[2_1_420px]" title={`আজ উপস্থিত: ${bn(today.length)} জন`} action={<span className="text-[13px] text-muted-foreground">মূল্যায়ন ফি গৃহীত {bn(fees)}টি</span>}>
+          <Card className="flex-[2_1_420px]" title={`আজ উপস্থিত: ${bn(today.length)} জন`} action={<span className="text-[13px] text-muted-foreground">অ্যাসেসমেন্ট ফি গৃহীত {bn(fees)}টি</span>}>
             {today.length ? (
               <table className="w-full border-collapse text-sm">
                 <thead>
@@ -38,7 +38,7 @@ export default async function EvaluationDayPage() {
                     <th>আইডি</th>
                     <th>শিক্ষার্থী</th>
                     <th>উপস্থিত</th>
-                    <th>মূল্যায়ন ফি</th>
+                    <th>অ্যাসেসমেন্ট ফি</th>
                   </tr>
                 </thead>
                 <tbody>

@@ -1,13 +1,13 @@
 import type { ReactNode } from 'react';
 import Link from 'next/link';
-import { Download } from 'lucide-react';
+import { Download, Printer } from 'lucide-react';
 import { Button } from '@/components/shadcn/button';
 import { adminCycle, applicationCounts, listApplications, type AdminCycle, type ListTab } from '@/lib/admissions/admin';
 import { OFFICE_STATUSES, STATUS_LABEL, attemptsText, lastActive, shortDate, type ApplicationStatus } from '@/lib/admissions/admin-labels';
 import { chapterStatus } from '@/lib/admissions/answers';
 import { loadSnapshot } from '@/lib/admissions/cycle';
 import { longDate, txt } from '@/lib/admissions/display';
-import { fieldWithRole, guardianSections, type FormSnapshot } from '@/lib/admissions/form-config';
+import { allFields, fieldWithRole, guardianSections, type FormSnapshot } from '@/lib/admissions/form-config';
 import { formatMobile, toBengaliDigits as bn } from '@/lib/admissions/normalise';
 import { cn } from '@/lib/utils';
 import { PageTop } from '../AdminShell';
@@ -48,11 +48,23 @@ export function ExportButton() {
   );
 }
 
+/** The printable offline form of the current form version, for printing copies at the office. */
+export function OfflineFormButton() {
+  return (
+    <Button asChild variant="outline" className="adm h-9 bg-white shadow-none">
+      <a href="/admin/admissions/offline-form?view=1" target="_blank" rel="noreferrer">
+        <Printer aria-hidden />
+        অফলাইন ফর্ম
+      </a>
+    </Button>
+  );
+}
+
 /** Progress of an unpaid application: complete, chapters done, or only started. */
 function progress(status: ApplicationStatus, snapshot: FormSnapshot | null, answers: Record<string, unknown>): string {
   if (status === 'unpaid') return 'ফর্ম সম্পূর্ণ';
   if (!snapshot) return '';
-  const chapters = guardianSections(snapshot).map((s) => chapterStatus(s, answers as never));
+  const chapters = guardianSections(snapshot).map((s) => chapterStatus(s, answers as never, allFields(snapshot)));
   if (chapters.every((c) => c.answered === 0)) return 'শুধু শুরু';
   return `${bn(chapters.length)}টির মধ্যে ${bn(chapters.filter((c) => c.status === 'done').length)}টি অধ্যায়`;
 }
@@ -92,7 +104,7 @@ export async function ListPage({ tab, search }: { tab: ListTab; search: ListSear
       ],
     },
     ...(tab === 'paid'
-      ? [{ key: 'eval', label: 'মূল্যায়ন ফি', options: [{ value: 'yes', label: 'গৃহীত' }, { value: 'no', label: 'বাকি' }] }]
+      ? [{ key: 'eval', label: 'অ্যাসেসমেন্ট ফি', options: [{ value: 'yes', label: 'গৃহীত' }, { value: 'no', label: 'বাকি' }] }]
       : []),
   ];
 

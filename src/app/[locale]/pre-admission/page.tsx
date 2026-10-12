@@ -6,8 +6,10 @@ import { Button } from '@/components/shadcn/button';
 import { getContentService } from '@/lib/content-service';
 import { urlFor } from '@/lib/sanity';
 import { fieldWithRole } from '@/lib/admissions/form-config';
-import { asLocale, dateTime, daysLeft, num, taka, txt, type Locale } from '@/lib/admissions/display';
+import { asLocale, num, taka, txt, type Locale } from '@/lib/admissions/display';
+import { intakeStatus } from '@/lib/admissions/intake';
 import { flowPath, safeCurrentCycle } from '@/lib/admissions/pages';
+import { allBringItems } from '@/lib/admissions/bring-list';
 import { currentApplication } from '@/lib/admissions/session';
 import type { CycleState } from '@/lib/admissions/cycle';
 
@@ -22,16 +24,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 function statusLine(cycle: CycleState | null, locale: Locale, t: Awaited<ReturnType<typeof getTranslations>>): { text: string; open: boolean } {
-  if (!cycle || !cycle.enabled) return { text: t('statusUnavailable'), open: false };
-  const { opensAt, closesAt } = cycle.snapshot.settings;
-  if (cycle.window === 'not_open' && opensAt) return { text: t('statusNotOpen', { opens: dateTime(opensAt, locale) }), open: false };
-  if (cycle.window === 'closed') return { text: t('statusClosed'), open: false };
-  if (!closesAt) return { text: t('statusOpenNoDeadline'), open: true };
-  const deadline = dateTime(closesAt, locale);
-  const days = daysLeft(closesAt);
-  if (days === 0) return { text: t('statusLastDay', { deadline }), open: true };
-  if (days !== null) return { text: t('statusClosingSoon', { days: num(days, locale), deadline }), open: true };
-  return { text: t('statusOpen', { deadline }), open: true };
+  const settings = cycle?.snapshot.settings;
+  const state = !cycle || !cycle.enabled ? 'off' : cycle.window;
+  return { text: intakeStatus({ state, opensAt: settings?.opensAt, closesAt: settings?.closesAt }, locale, t), open: state === 'open' };
 }
 
 export default async function PreAdmissionIntro({ params }: Props) {
@@ -48,15 +43,21 @@ export default async function PreAdmissionIntro({ params }: Props) {
   const fee = settings ? taka(settings.applicationFee, locale) : '';
   const evalFee = settings ? taka(settings.evaluationFee, locale) : '';
   const classes = cycle ? (fieldWithRole(cycle.snapshot, 'classApplied')?.options ?? []) : [];
-  const regular = classes.filter((o) => !o.special).map((o) => txt(o.label, locale));
-  const special = classes.filter((o) => o.special).map((o) => txt(o.label, locale));
+  // A class with requirements shows them beside it: "৭ম শ্রেণী (শুধু মেয়েদের জন্য; …)".
+  const name = (o: (typeof classes)[number]) => (o.requires?.length ? `${txt(o.label, locale)} (${o.requires.map((r) => txt(r.message, locale)).join('; ')})` : txt(o.label, locale));
+  const regular = classes.filter((o) => !o.special).map(name);
+  const special = classes.filter((o) => o.special).map(name);
   const resumable = current && (current.app.status === 'draft' || current.app.status === 'unpaid');
   const photo = (facilities ?? []).find((f) => f.images?.length)?.images[0];
 
+  // Step 5 lists what to bring (Sanity → Cycle settings) when the form has the list.
+  const tc = await getTranslations({ locale, namespace: 'preAdmission.chapter' });
+  const bring = cycle ? allBringItems(cycle.snapshot, locale).map((i) => (i.conditional ? `${i.text} ${tc('ifApplicable')}` : i.text)) : [];
   const steps = [1, 2, 3, 4, 5, 6].map((n) => ({
     n: num(n, locale),
     title: t(`step${n}`),
-    note: t(`step${n}Note`, { fee: n === 5 ? evalFee : fee }),
+    note: n === 5 && bring.length ? t('step5Bring') : t(`step${n}Note`, { fee: n === 5 ? evalFee : fee }),
+    list: n === 5 ? bring : [],
   }));
   const faq = [
     { q: t('faqRefundQ'), a: [txt(settings?.refundNote, locale), t('faqRefundA')].filter(Boolean).join(' ') },
@@ -159,7 +160,14 @@ export default async function PreAdmissionIntro({ params }: Props) {
                 </div>
                 <div className="flex flex-col gap-0.5 pb-[18px] pt-px">
                   <span className="text-[15px] font-medium">{s.title}</span>
-                  <span className="text-[13.5px] leading-normal text-muted-foreground">{s.note}</span>
+                  {s.note && <span className="text-[13.5px] leading-normal text-muted-foreground">{s.note}</span>}
+                  {s.list.length > 0 && (
+                    <ul className="list-disc pl-4 text-[13.5px] leading-normal text-muted-foreground">
+                      {s.list.map((item) => (
+                        <li key={item}>{item}</li>
+                      ))}
+                    </ul>
+                  )}
                 </div>
               </li>
             ))}
@@ -169,7 +177,14 @@ export default async function PreAdmissionIntro({ params }: Props) {
               <li key={s.n} className="flex flex-col gap-1.5 pr-5 pt-[18px]">
                 <span className="text-[13px] font-semibold text-muted-foreground">{s.n}</span>
                 <span className="text-base font-medium">{s.title}</span>
-                <span className="text-sm leading-relaxed text-muted-foreground">{s.note}</span>
+                {s.note && <span className="text-sm leading-relaxed text-muted-foreground">{s.note}</span>}
+                {s.list.length > 0 && (
+                  <ul className="list-disc pl-4 text-sm leading-relaxed text-muted-foreground">
+                    {s.list.map((item) => (
+                      <li key={item}>{item}</li>
+                    ))}
+                  </ul>
+                )}
               </li>
             ))}
           </ol>

@@ -1,16 +1,17 @@
 'use client';
 
 import { useState } from 'react';
-import { Check, TriangleAlert } from 'lucide-react';
+import { Bus, Check, Info, TriangleAlert } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Checkbox } from '@/components/shadcn/checkbox';
 import { Input } from '@/components/shadcn/input';
 import { RadioGroup, RadioGroupItem } from '@/components/shadcn/radio-group';
 import { Textarea } from '@/components/shadcn/textarea';
 import type { Age } from '@/lib/admissions/age';
-import type { AnswerValue, FileAnswer } from '@/lib/admissions/answers';
-import { num, txt, type Locale } from '@/lib/admissions/display';
-import type { FormField } from '@/lib/admissions/form-config';
+import { tickChoice, type AnswerValue, type FileAnswer } from '@/lib/admissions/answers';
+import { num, taka, txt, type Locale } from '@/lib/admissions/display';
+import { FILE_MISSING, NO_ROUTE, type FormField, type Transport } from '@/lib/admissions/form-config';
+import { findStop } from '@/lib/admissions/transport';
 import { emailSuggestion, normaliseMobile } from '@/lib/admissions/normalise';
 import { cn } from '@/lib/utils';
 import { FileField } from './file-field';
@@ -23,9 +24,12 @@ export type FieldProps = {
   onChange: (value: AnswerValue | '') => void;
   onBlur: () => void;
   /** Class field: options that fit the child's age, and the age itself. */
-  classFit?: { fits: string[]; age: Age | null };
+  /** Class field: the classes that fit the age, those the answers so far rule out, and whether the chosen one has an unmet requirement. */
+  classFit?: { fits: string[]; age: Age | null; blocked?: string[]; unmet?: boolean };
   /** Date of birth: year range offered. */
   years?: number[];
+  /** Transport stop questions: the routes the options belong to. */
+  transport?: Transport;
 };
 
 const inputClass = 'h-11 rounded-lg bg-card px-3 text-base shadow-none md:text-base';
@@ -61,9 +65,17 @@ export function FieldBlock(props: FieldProps) {
   );
 
   const control = <Control {...props} describedBy={describedBy} />;
+  // Uploads and the stop question explain themselves before the control (upload box and its
+  // "don't have it now" tick box; the stop list and the chosen route under it).
+  const helpFirst = field.type === 'file' || field.type === 'transportStop';
+  const helpAbove = help && (
+    <p id={helpId} className="-mt-1.5 mb-2 text-[13px] leading-normal text-muted-foreground">
+      {help}
+    </p>
+  );
   const footer = (
     <>
-      {help && (
+      {help && !helpFirst && (
         <p id={helpId} className="mt-1.5 text-[13px] leading-normal text-muted-foreground">
           {help}
         </p>
@@ -94,13 +106,14 @@ export function FieldBlock(props: FieldProps) {
           {label}
         </label>
       )}
+      {helpFirst && helpAbove}
       {control}
       {footer}
     </div>
   );
 }
 
-function Control({ field, value, locale, error, onChange, onBlur, classFit, years, describedBy }: FieldProps & { describedBy?: string }) {
+function Control({ field, value, locale, error, onChange, onBlur, classFit, years, transport, describedBy }: FieldProps & { describedBy?: string }) {
   const t = useTranslations('preAdmission.chapter');
   const id = `f-${field.key}`;
   const common = { id, 'aria-invalid': !!error || undefined, 'aria-describedby': describedBy, 'aria-required': field.required || undefined };
@@ -174,40 +187,40 @@ function Control({ field, value, locale, error, onChange, onBlur, classFit, year
         </RadioGroup>
       );
     }
-    case 'checkbox': {
-      const selected = Array.isArray(value) ? value : [];
+    case 'checkbox':
+      return <Checkboxes id={id} field={field} value={value} locale={locale} error={error} onChange={onChange} onBlur={onBlur} />;
+    case 'file': {
+      const file = value && typeof value === 'object' && !Array.isArray(value) ? (value as FileAnswer) : undefined;
+      const missing = !file && !!field.allowMissing && value === FILE_MISSING;
       return (
-        <div className="flex flex-wrap gap-x-[22px]">
-          {field.options.map((o, i) => (
-            <label key={o.value} className="inline-flex min-h-10 cursor-pointer items-center gap-2.5 text-[15px] md:min-h-[34px] md:text-[14.5px]">
+        <>
+          {missing ? (
+            <div role="status" className="flex gap-2.5 rounded-lg border bg-card p-3 text-sm leading-[1.6]">
+              <Info className="mt-[3px] size-4 flex-none text-muted-foreground" aria-hidden />
+              <span>{txt(field.missingNote, locale) || txt(field.missingLabel, locale)}</span>
+            </div>
+          ) : (
+            <FileField field={field} value={file} locale={locale} error={error} describedBy={describedBy} onUploaded={(f) => onChange(f)} />
+          )}
+          {field.allowMissing && !file && (
+            <label className="mt-1 flex cursor-pointer items-start gap-2.5 py-2 text-[14.5px] leading-normal">
               <Checkbox
-                id={i === 0 ? id : undefined}
-                checked={selected.includes(o.value)}
-                aria-invalid={!!error || undefined}
-                className="size-[18px] bg-card shadow-none"
+                id={missing ? id : undefined}
+                checked={missing}
+                className="mt-0.5 size-[18px] bg-card shadow-none"
                 onCheckedChange={(checked) => {
-                  const next = checked ? [...selected, o.value] : selected.filter((v) => v !== o.value);
-                  onChange(next.length ? field.options.map((x) => x.value).filter((v) => next.includes(v)) : '');
+                  onChange(checked === true ? FILE_MISSING : '');
                   onBlur();
                 }}
               />
-              {txt(o.label, locale)}
+              {txt(field.missingLabel, locale)}
             </label>
-          ))}
-        </div>
+          )}
+        </>
       );
     }
-    case 'file':
-      return (
-        <FileField
-          field={field}
-          value={value && typeof value === 'object' && !Array.isArray(value) ? (value as FileAnswer) : undefined}
-          locale={locale}
-          error={error}
-          describedBy={describedBy}
-          onUploaded={(file) => onChange(file)}
-        />
-      );
+    case 'transportStop':
+      return <StopSelect common={common} field={field} value={asString(value)} locale={locale} transport={transport} onChange={onChange} onBlur={onBlur} />;
     default:
       return (
         <Input
@@ -224,6 +237,106 @@ function Control({ field, value, locale, error, onChange, onBlur, classFit, year
 }
 
 type Common = { id: string; 'aria-invalid'?: boolean; 'aria-describedby'?: string; 'aria-required'?: boolean };
+
+/**
+ * Checkboxes. An option marked "only this choice" (none of the above) clears the others when
+ * ticked, and is cleared when another is ticked; a note says so when choices were cleared.
+ */
+function Checkboxes({ id, field, value, locale, error, onChange, onBlur }: { id: string; field: FormField; value: AnswerValue | undefined; locale: Locale; error: string | null; onChange: (v: string[] | '') => void; onBlur: () => void }) {
+  const t = useTranslations('preAdmission.chapter');
+  const [note, setNote] = useState('');
+  const selected = Array.isArray(value) ? value : [];
+  const exclusive = field.options.some((o) => o.exclusive);
+  return (
+    <>
+      {exclusive && <p className="mb-1 text-[13px] leading-normal text-muted-foreground">{t('several')}</p>}
+      <div className={cn('flex flex-wrap gap-x-[22px]', exclusive && 'flex-col')}>
+        {field.options.map((o, i) => (
+          <label key={o.value} className="inline-flex min-h-10 cursor-pointer items-center gap-2.5 text-[15px] md:min-h-[34px] md:text-[14.5px]">
+            <Checkbox
+              id={i === 0 ? id : undefined}
+              checked={selected.includes(o.value)}
+              aria-invalid={!!error || undefined}
+              className="size-[18px] bg-card shadow-none"
+              onCheckedChange={(checked) => {
+                const next = checked ? tickChoice(field, selected, o.value) : selected.filter((v) => v !== o.value);
+                setNote(checked && o.exclusive && selected.some((v) => v !== o.value) ? t('exclusiveCleared', { option: txt(o.label, locale) }) : '');
+                onChange(next.length ? field.options.map((x) => x.value).filter((v) => next.includes(v)) : '');
+                onBlur();
+              }}
+            />
+            {txt(o.label, locale)}
+          </label>
+        ))}
+      </div>
+      {exclusive && (
+        <p aria-live="polite" className="mt-1.5 flex min-h-[21px] items-start gap-2 text-[13.5px] leading-[1.55] text-muted-foreground">
+          {note && (
+            <>
+              <Info className="mt-[3px] size-[15px] flex-none" aria-hidden />
+              <span>{note}</span>
+            </>
+          )}
+        </p>
+      )}
+    </>
+  );
+}
+
+/** Nearest stop: one native select grouped by route, then "my area is not on any route". */
+function StopSelect({ common, field, value, locale, transport, onChange, onBlur }: { common: Common; field: FormField; value: string; locale: Locale; transport?: Transport; onChange: (v: string) => void; onBlur: () => void }) {
+  const t = useTranslations('preAdmission');
+  const chosen = findStop(transport, value);
+  const vehicleOf = (key: string) => transport?.vehicles.find((v) => v.key === key);
+  const fee = (monthly: number | undefined) => (monthly != null ? taka(monthly, locale) : null);
+  const summary = chosen
+    ? fee(chosen.vehicle?.monthly)
+      ? t('transport.summary', { route: txt(chosen.route.name, locale), vehicle: txt(chosen.vehicle?.name, locale), fee: fee(chosen.vehicle?.monthly)! })
+      : t('transport.summaryNoFee', { route: txt(chosen.route.name, locale), vehicle: txt(chosen.vehicle?.name, locale) })
+    : null;
+  const none = field.options.find((o) => o.value === NO_ROUTE);
+  return (
+    <>
+      <select
+        {...common}
+        value={value}
+        onChange={(e) => {
+          onChange(e.target.value);
+          onBlur();
+        }}
+        className={cn(
+          'h-11 w-full rounded-lg border border-input bg-card pl-2.5 pr-2 text-base outline-none focus:border-primary focus:ring-[3px] focus:ring-ring aria-invalid:border-destructive md:max-w-[440px]',
+          !value && 'text-muted-foreground',
+        )}
+      >
+        <option value="">{t('chapter.select')}</option>
+        {transport?.routes.map((r) => {
+          const monthly = fee(vehicleOf(r.vehicle)?.monthly);
+          return (
+            <optgroup key={r.key} label={monthly ? t('transport.routeOption', { route: txt(r.name, locale), fee: monthly }) : txt(r.name, locale)} className="text-foreground">
+              {r.stops.map((s) => (
+                <option key={s.key} value={`${r.key}:${s.key}`} className="text-foreground">
+                  {txt(s.name, locale)}
+                </option>
+              ))}
+            </optgroup>
+          );
+        })}
+        {none && (
+          <option value={NO_ROUTE} className="text-foreground">
+            {txt(none.label, locale)}
+          </option>
+        )}
+      </select>
+      {summary && (
+        <p className="mt-2 flex items-center gap-2 text-[13.5px]">
+          <Bus className="size-4 flex-none text-muted-foreground" aria-hidden />
+          <span>{summary}</span>
+        </p>
+      )}
+    </>
+  );
+}
 
 function MobileInput({ common, value, error, onChange, onBlur }: { common: Common; value: string; error: boolean; onChange: (v: string) => void; onBlur: () => void }) {
   const ok = !!value && normaliseMobile(value) !== null;
@@ -328,6 +441,7 @@ export function DateSelect({ id, value, locale, years, invalid, onChange, onBlur
 function ClassChoice({ field, value, locale, fit, onChange, onBlur, invalid }: { field: FormField; value: string; locale: Locale; fit?: FieldProps['classFit']; onChange: (v: string) => void; onBlur: () => void; invalid: boolean }) {
   const t = useTranslations('preAdmission.chapter');
   const fits = fit?.fits ?? [];
+  const blocked = fit?.blocked ?? [];
   const mismatch = !!value && fits.length > 0 && !fits.includes(value);
   return (
     <>
@@ -339,24 +453,34 @@ function ClassChoice({ field, value, locale, fit, onChange, onBlur, invalid }: {
         }}
         className="flex flex-col gap-2"
       >
-        {field.options.map((o, i) => (
+        {field.options.map((o, i) => {
+          // A class the answers so far rule out cannot be chosen (one already chosen stays, with the message on the other question).
+          const ruledOut = blocked.includes(o.value) && value !== o.value;
+          const warn = blocked.includes(o.value) || (value === o.value && !!fit?.unmet);
+          const notes = (o.requires ?? []).map((r) => txt(r.message, locale)).join(' · ');
+          return (
           <label
             key={o.value}
             className={cn(
               'flex min-h-11 cursor-pointer items-center gap-3 rounded-lg border bg-card px-3.5 py-2 text-[15px]',
               value === o.value && 'border-primary ring-1 ring-primary',
               invalid && !value && 'border-destructive',
+              ruledOut && 'cursor-not-allowed opacity-60',
             )}
           >
-            <RadioGroupItem id={i === 0 ? `f-${field.key}` : undefined} value={o.value} className="size-[18px] shadow-none" />
-            <span className="flex-1">{txt(o.label, locale)}</span>
-            {fits.includes(o.value) ? (
+            <RadioGroupItem id={i === 0 ? `f-${field.key}` : undefined} value={o.value} disabled={ruledOut} className="size-[18px] shadow-none" />
+            <span className="flex flex-1 flex-col">
+              {txt(o.label, locale)}
+              {notes && <span className={cn('text-[12.5px] leading-snug', warn ? 'text-warning' : 'text-muted-foreground')}>{notes}</span>}
+            </span>
+            {fits.includes(o.value) && !blocked.includes(o.value) ? (
               <span className="text-[12.5px] text-success">{t('classFits')}</span>
             ) : o.special ? (
               <span className="text-[12.5px] text-muted-foreground">{t('classSpecial')}</span>
             ) : null}
           </label>
-        ))}
+          );
+        })}
       </RadioGroup>
       {mismatch && (
         <div role="status" className="mt-2.5 flex items-start gap-2.5 rounded-lg border bg-card px-3 py-2.5 text-[13.5px] leading-normal">

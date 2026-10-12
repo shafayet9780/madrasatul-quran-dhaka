@@ -5,7 +5,7 @@ export async function register() {
 
   const { createPgliteDb, pgliteDrizzle } = await import('@/lib/admissions/testing/pg');
   const surveySchema = await import('@/lib/survey/schema');
-  const { liveFormDocument } = await import('@/lib/admissions/testing/live-form');
+  const { liveFeeDocument, liveFormDocument } = await import('@/lib/admissions/testing/live-form');
   const { mockGateway } = await import('@/lib/admissions/testing/mock-gateway');
   const { sslConfigFromEnv } = await import('@/lib/admissions/sslcommerz');
   const files = new Map<string, { body: Uint8Array; contentType: string }>();
@@ -13,8 +13,11 @@ export async function register() {
   setLocalOverrides({
     db,
     surveyDb: pgliteDrizzle(client, surveySchema) as never,
-    // ADMISSIONS_LOCAL_FORM: a form exported from the Studio (Inspect → Raw JSON) instead of the built-in one.
-    form: process.env.ADMISSIONS_LOCAL_FORM ? JSON.parse((await import('node:fs')).readFileSync(process.env.ADMISSIONS_LOCAL_FORM, 'utf8')) : liveFormDocument(),
+    // ADMISSIONS_LOCAL_FORM: a form exported from the Studio (Inspect → Raw JSON) instead of the built-in one
+    // (with the built-in transport routes unless the file has `fees`).
+    form: process.env.ADMISSIONS_LOCAL_FORM
+      ? { fees: liveFeeDocument(), ...JSON.parse((await import('node:fs')).readFileSync(process.env.ADMISSIONS_LOCAL_FORM, 'utf8')) }
+      : liveFormDocument(),
     // With SSLCommerz sandbox credentials in the environment the real sandbox is used instead.
     gateway: sslConfigFromEnv() ? undefined : mockGateway(),
     outbox: [],

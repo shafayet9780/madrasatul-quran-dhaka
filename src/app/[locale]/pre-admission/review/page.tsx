@@ -8,8 +8,9 @@ import { answerText } from '@/lib/admissions/answer-text';
 import { chapterStatus, isVisible, type FileAnswer } from '@/lib/admissions/answers';
 import { asLocale, num, taka, txt } from '@/lib/admissions/display';
 import { countOtherApplications } from '@/lib/admissions/drafts';
-import { guardianSections, type FormField } from '@/lib/admissions/form-config';
+import { allFields, guardianSections, type FormField } from '@/lib/admissions/form-config';
 import { flowPath, requireDraft } from '@/lib/admissions/pages';
+import { pledgeStatus } from '@/lib/admissions/pledge';
 import { applicationFee } from '@/lib/admissions/payments';
 
 type Props = { params: Promise<{ locale: string }> };
@@ -27,13 +28,18 @@ export default async function ReviewPage({ params }: Props) {
   const { app, snapshot } = await requireDraft(locale);
   const { settings } = snapshot;
   const chapters = guardianSections(snapshot);
-  const incomplete = chapters.filter((s) => chapterStatus(s, app.answers).status !== 'done');
+  const pledge = pledgeStatus(snapshot, app);
+  const incomplete = [
+    ...chapters.filter((s) => chapterStatus(s, app.answers, allFields(snapshot)).status !== 'done').map((s) => ({ key: s.key, title: txt(s.title, locale), href: flowPath(locale, `/form/${s.key}`) })),
+    ...(pledge && pledge !== 'done' ? [{ key: 'pledge', title: t('pledge.title'), href: flowPath(locale, '/pledge') }] : []),
+  ];
   const others = incomplete.length ? 0 : await countOtherApplications(app).catch(() => 0);
   const labels = {
     yes: t('chapter.yes'),
     no: t('chapter.no'),
     notGiven: t('notGiven'),
     fileAttached: (type: string) => t('review.fileAttached', { type }),
+    fileMissing: t('review.fileMissing'),
   };
   const fee = taka(applicationFee(app, snapshot), locale);
 
@@ -42,7 +48,7 @@ export default async function ReviewPage({ params }: Props) {
     const fields = section.fields.filter((f) => isVisible(f, app.answers) && !(f.type === 'file' && f.fileKind === 'photo'));
     const photo = section.fields.find((f) => f.type === 'file' && f.fileKind === 'photo' && app.answers[f.key]);
     const editable = chapters.some((c) => c.key === section.key);
-    const row = (f: FormField) => ({ key: f.key, label: txt(f.label, locale), value: answerText(f, app.answers[f.key], locale, labels), lat: f.role === 'email' || f.role === 'studentNameEn' });
+    const row = (f: FormField) => ({ key: f.key, label: txt(f.label, locale), value: answerText(f, app.answers[f.key], locale, labels, snapshot.transport), lat: f.role === 'email' || f.role === 'studentNameEn' });
     return {
       key: section.key,
       title: txt(section.title, locale),
@@ -68,8 +74,8 @@ export default async function ReviewPage({ params }: Props) {
               <div className="flex flex-col gap-1 text-sm">
                 <span className="font-semibold text-destructive">{t('review.incompleteLead')}</span>
                 {incomplete.map((s) => (
-                  <Link key={s.key} href={flowPath(locale, `/form/${s.key}`)} className="text-destructive underline underline-offset-[3px]">
-                    {t('review.incomplete', { chapter: txt(s.title, locale) })}
+                  <Link key={s.key} href={s.href} className="text-destructive underline underline-offset-[3px]">
+                    {t('review.incomplete', { chapter: s.title })}
                   </Link>
                 ))}
               </div>

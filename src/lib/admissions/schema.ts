@@ -84,7 +84,11 @@ export const applications = pgTable(
     classCode: text('class_code'),
     serial: integer('serial'),
 
+    /** "Information is true" (review page). */
     declaredAt: ts('declared_at'),
+    /** The two pledges on the অঙ্গীকার step: code of conduct, and the declaration about the parents. */
+    conductPledgedAt: ts('conduct_pledged_at'),
+    familyDeclaredAt: ts('family_declared_at'),
     submittedAt: ts('submitted_at'),
     paidAt: ts('paid_at'),
     attendedAt: ts('attended_at'),

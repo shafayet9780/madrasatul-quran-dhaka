@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<title>প্রি-অ্যাডমিশন ২০২৭ · শিক্ষার্থী, পূর্ববর্তী শিক্ষা ও কাগজপত্র</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;500;600;700&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.ui{--bg:#fafafa;--surface:#fff;--fg:#171717;--mfg:#525252;--muted:#f5f5f5;--border:#e5e5e5;--input:#d4d4d4;--primary:#7a4d32;--primary-h:#663f28;--pfg:#fff;--ring:rgba(122,77,50,.3);--ok:#15803d;--warn:#b45309;--bad:#dc2626;font-family:'Noto Sans Bengali','Inter',sans-serif;color:var(--fg);background:var(--bg)}
+.ui.dark{--bg:#111;--surface:#171717;--fg:#f5f5f5;--mfg:#a3a3a3;--muted:#262626;--border:#2a2a2a;--input:#404040;--primary:#c8946b;--primary-h:#d6a682;--pfg:#1c130d;--ring:rgba(200,148,107,.35);--ok:#4ade80;--warn:#fbbf24;--bad:#f87171}
+.ui a{color:var(--fg);text-underline-offset:3px}
+.lat{font-family:Inter,sans-serif}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:44px;padding:0 16px;border-radius:8px;background:var(--primary);color:var(--pfg) !important;font:inherit;font-size:15px;font-weight:500;text-decoration:none;border:0;cursor:pointer;white-space:nowrap}
+.btn:hover{background:var(--primary-h)}
+.btn-o{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:36px;padding:0 12px;border-radius:8px;background:var(--surface);border:1px solid var(--border);font:inherit;font-size:14px;font-weight:500;cursor:pointer;color:var(--fg)}
+.btn-o:hover{background:var(--muted)}
+.ghost{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:8px;border:0;background:transparent;color:var(--fg);text-decoration:none;cursor:pointer}
+.label{display:block;font-size:14px;font-weight:500;line-height:1.45;margin:0 0 8px;padding:0}
+.req{color:var(--bad)}
+.desc{font-size:13px;color:var(--mfg);line-height:1.5;margin:-4px 0 8px}
+.input{box-sizing:border-box;width:100%;height:44px;border:1px solid var(--input);border-radius:8px;background:var(--surface);padding:0 12px;font:inherit;font-size:16px;color:var(--fg)}
+.input:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px var(--ring)}
+.r,.c{appearance:none;flex:none;width:18px;height:18px;margin:0;border:1px solid var(--input);background:var(--surface);display:grid;place-content:center;cursor:pointer}
+.r{border-radius:50%}.c{border-radius:5px}
+.r:checked{border-color:var(--primary)}
+.r:checked::before{content:"";width:9px;height:9px;border-radius:50%;background:var(--primary)}
+.c:checked{background:var(--primary);border-color:var(--primary)}
+.c:checked::before{content:"";width:5px;height:9px;border:solid var(--pfg);border-width:0 2px 2px 0;transform:translateY(-1px) rotate(45deg)}
+.r:focus-visible,.c:focus-visible{outline:none;box-shadow:0 0 0 3px var(--ring)}
+.opts{display:flex;flex-wrap:wrap;gap:0 22px}
+.stack{display:flex;flex-direction:column}
+.ri{display:inline-flex;align-items:center;gap:10px;min-height:40px;font-size:15px;cursor:pointer}
+.ri.top{align-items:flex-start;padding:9px 0;min-height:0;line-height:1.5}
+.ri.top .r,.ri.top .c{margin-top:2px}
+.sec{display:flex;flex-direction:column;gap:20px;padding:24px 0;border-top:1px solid var(--border)}
+.sec-h{margin:0;font-size:16px;font-weight:600}
+.drop{border:1px dashed var(--input);border-radius:8px;background:var(--surface);padding:18px;display:flex;flex-direction:column;align-items:center;gap:12px}
+.file{display:flex;align-items:center;gap:10px;border:1px solid var(--border);border-radius:8px;background:var(--surface);padding:10px 12px}
+.note{display:flex;gap:10px;border:1px solid var(--border);border-radius:8px;background:var(--surface);padding:12px;font-size:14px;line-height:1.6}
+fieldset{border:0;margin:0;padding:0;min-width:0}
+</style>
+</helmet>
+<div class="ui {{theme}}" style="width: 390px; height: 1640px; box-sizing: border-box; display: flex; flex-direction: column; position: relative">
+  <header style="height: 56px; background: var(--surface); border-bottom: 1px solid var(--border); display: grid; grid-template-columns: 48px 1fr 48px; align-items: center; padding: 0 4px">
+    <a class="ghost" href="Hub.dc.html" aria-label="অধ্যায় তালিকায় ফিরুন"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></a>
+    <span style="text-align: center; font-size: 15px; font-weight: 600">শিক্ষার্থীর তথ্য</span>
+    <a class="ghost lat" href="#" style="font-size: 13px; font-weight: 600">EN</a>
+  </header>
+  <div style="background: var(--surface); padding: 10px 16px 12px; border-bottom: 1px solid var(--border); display: flex; flex-direction: column; gap: 6px">
+    <span style="font-size: 12.5px; color: var(--mfg)">ধাপ ১ / ৬</span>
+    <div style="height: 4px; border-radius: 999px; background: var(--muted)"><div style="width: 12%; height: 4px; background: var(--primary); border-radius: 999px"></div></div>
+  </div>
+
+  <main style="padding: 8px 16px 120px; display: flex; flex-direction: column">
+    <section class="sec" style="border-top: 0">
+      <h2 class="sec-h">পূর্ববর্তী শিক্ষা</h2>
+      <fieldset>
+        <legend class="label" style="margin-bottom: 2px">শিক্ষার্থী কি আগে কোনো শিক্ষা প্রতিষ্ঠানে পড়েছে? <span class="req">*</span></legend>
+        <div class="opts">
+          <label class="ri"><input class="r" type="radio" name="sb" checked="{{yes}}" onChange="{{pickYes}}">হ্যাঁ</label>
+          <label class="ri"><input class="r" type="radio" name="sb" checked="{{no}}" onChange="{{pickNo}}">না</label>
+        </div>
+      </fieldset>
+
+      <sc-if value="{{yes}}" hint-placeholder-val="{{ true }}">
+        <div style="display: flex; flex-direction: column; gap: 20px">
+          <div><label class="label" for="lc">সর্বশেষ যে শ্রেণীতে পড়েছে <span class="req">*</span></label><input id="lc" class="input" value="নার্সারি"></div>
+          <div><label class="label" for="ps">পূর্ববর্তী শিক্ষা প্রতিষ্ঠানের নাম <span class="req">*</span></label><input id="ps" class="input" value="আল-আমিন কিন্ডারগার্টেন"></div>
+          <fieldset>
+            <legend class="label" style="margin-bottom: 0">জেনারেল শিক্ষার দক্ষতা <span class="req">*</span></legend>
+            <div class="stack">
+              <sc-for list="{{levels}}" as="o" hint-placeholder-count="4">
+                <label class="ri top"><input class="r" type="radio" name="gl" checked="{{o.on}}" onChange="{{o.pick}}">{{o.t}}</label>
+              </sc-for>
+            </div>
+          </fieldset>
+
+          <div>
+            <span class="label">সর্বশেষ ফলাফল কার্ড <span class="req">*</span></span>
+            <p class="desc">সর্বশেষ পরীক্ষার ফলাফল কার্ড বা রিপোর্ট কার্ডের একটি ছবি অথবা একটি PDF।</p>
+            <sc-if value="{{resultEmpty}}" hint-placeholder-val="{{ true }}">
+              <div class="drop">
+                <svg style="color: var(--mfg)" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M12 12v6"/><path d="m15 15-3-3-3 3"/></svg>
+                <div style="display: flex; gap: 8px"><button class="btn-o" onClick="{{addResult}}">ছবি তুলুন</button><button class="btn-o" onClick="{{addResult}}">ফাইল বাছাই</button></div>
+                <span style="font-size: 12.5px; color: var(--mfg)">ছবি বা PDF, সর্বোচ্চ ৪ MB</span>
+              </div>
+            </sc-if>
+            <sc-if value="{{resultFile}}" hint-placeholder-val="{{ false }}">
+              <div class="file">
+                <svg style="flex: none; color: var(--mfg)" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg>
+                <span style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span class="lat" style="font-size: 13.5px; font-weight: 500">result-card.pdf</span><span style="font-size: 12.5px; color: var(--mfg)">PDF, ২ পৃষ্ঠা, ৮৪০ KB</span></span>
+                <button class="btn-o" onClick="{{removeResult}}">সরান</button>
+              </div>
+            </sc-if>
+            <sc-if value="{{resultNone}}" hint-placeholder-val="{{ false }}">
+              <div class="note" role="status">
+                <svg style="flex: none; margin-top: 3px; color: var(--mfg)" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                <span>ঠিক আছে। অ্যাসেসমেন্টের দিন ফলাফল কার্ডের <b style="font-weight: 600">মূল কপি</b> সঙ্গে আনবেন। পরে পেলে এখানে যুক্ত করতে পারবেন।</span>
+              </div>
+            </sc-if>
+            <sc-if value="{{resultNoFile}}" hint-placeholder-val="{{ true }}">
+              <label class="ri top" style="font-size: 14.5px"><input class="c" type="checkbox" checked="{{noResult}}" onChange="{{toggleNoResult}}">এখন নেই, অ্যাসেসমেন্টের দিন মূল কপি সঙ্গে আনব</label>
+            </sc-if>
+          </div>
+        </div>
+      </sc-if>
+    </section>
+
+    <section class="sec">
+      <h2 class="sec-h">কাগজপত্র</h2>
+      <div>
+        <span class="label">শিক্ষার্থীর জন্ম নিবন্ধন সনদ <span class="req">*</span></span>
+        <p class="desc">একটি ছবি অথবা একটি PDF।</p>
+        <sc-if value="{{birthEmpty}}" hint-placeholder-val="{{ false }}">
+          <div class="drop">
+            <svg style="color: var(--mfg)" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M12 12v6"/><path d="m15 15-3-3-3 3"/></svg>
+            <div style="display: flex; gap: 8px"><button class="btn-o" onClick="{{addBirth}}">ছবি তুলুন</button><button class="btn-o" onClick="{{addBirth}}">ফাইল বাছাই</button></div>
+            <span style="font-size: 12.5px; color: var(--mfg)">ছবি বা PDF, সর্বোচ্চ ৪ MB</span>
+          </div>
+        </sc-if>
+        <sc-if value="{{birthFile}}" hint-placeholder-val="{{ true }}">
+          <div class="file">
+            <svg style="flex: none; color: var(--mfg)" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+            <span style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span class="lat" style="font-size: 13.5px; font-weight: 500">birth-certificate.jpg</span><span style="font-size: 12.5px; color: var(--mfg)">ছবি, ছোট করে ৪২০ KB</span></span>
+            <button class="btn-o" onClick="{{removeBirth}}">সরান</button>
+          </div>
+        </sc-if>
+        <sc-if value="{{birthNone}}" hint-placeholder-val="{{ false }}">
+          <div class="note" role="status">
+            <svg style="flex: none; margin-top: 3px; color: var(--mfg)" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+            <span>ঠিক আছে। অ্যাসেসমেন্টের দিন জন্ম নিবন্ধন সনদের <b style="font-weight: 600">ফটোকপি</b> সঙ্গে আনবেন।</span>
+          </div>
+        </sc-if>
+        <sc-if value="{{birthNoFile}}" hint-placeholder-val="{{ false }}">
+          <label class="ri top" style="font-size: 14.5px"><input class="c" type="checkbox" checked="{{noBirth}}" onChange="{{toggleNoBirth}}">এখন নেই, অ্যাসেসমেন্টের দিন ফটোকপি সঙ্গে আনব</label>
+        </sc-if>
+      </div>
+    </section>
+  </main>
+
+  <div style="position: absolute; left: 0; right: 0; bottom: 0; background: var(--surface); border-top: 1px solid var(--border); padding: 12px 16px 20px; display: flex; align-items: center; justify-content: space-between; gap: 12px">
+    <span style="display: inline-flex; align-items: center; gap: 6px; font-size: 13.5px; color: var(--mfg)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>সংরক্ষিত</span>
+    <a class="btn" href="UFatherDress.dc.html">পরবর্তী <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></a>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"$preview":{"width":390,"height":1640}}'>
+class Component extends DCLogic {
+  constructor(p) {
+    super(p);
+    this.state = { studied: 'yes', level: 1, resultFile: false, noResult: false, birthFile: true, noBirth: false };
+  }
+  renderVals() {
+    const s = this.state;
+    const levels = ['আগের পরীক্ষায় ৮০%+ নম্বর পেয়েছে', 'আগের পরীক্ষায় ৬০%+ নম্বর পেয়েছে', 'আগের পরীক্ষায় ৪০%+ নম্বর পেয়েছে', 'আগের পরীক্ষায় ৪০% এর কম নম্বর পেয়েছে'];
+    return {
+      theme: this.props.theme === 'dark' ? 'dark' : '',
+      yes: s.studied === 'yes', no: s.studied === 'no',
+      pickYes: () => this.setState({ studied: 'yes' }),
+      pickNo: () => this.setState({ studied: 'no' }),
+      levels: levels.map((t, i) => ({ t, on: s.level === i, pick: () => this.setState({ level: i }) })),
+      resultEmpty: !s.resultFile && !s.noResult,
+      resultFile: s.resultFile,
+      resultNone: !s.resultFile && s.noResult,
+      resultNoFile: !s.resultFile,
+      noResult: s.noResult,
+      addResult: () => this.setState({ resultFile: true, noResult: false }),
+      removeResult: () => this.setState({ resultFile: false }),
+      toggleNoResult: () => this.setState({ noResult: !s.noResult }),
+      birthEmpty: !s.birthFile && !s.noBirth,
+      birthFile: s.birthFile,
+      birthNone: !s.birthFile && s.noBirth,
+      birthNoFile: !s.birthFile,
+      noBirth: s.noBirth,
+      addBirth: () => this.setState({ birthFile: true, noBirth: false }),
+      removeBirth: () => this.setState({ birthFile: false }),
+      toggleNoBirth: () => this.setState({ noBirth: !s.noBirth }),
+    };
+  }
+}
+</script>
+</body>
+</html>

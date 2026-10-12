@@ -1,5 +1,6 @@
 import { defineField, defineType } from 'sanity';
 import { FeeTargetsInput } from '../components/FeeTargetsInput';
+import { VehicleSelectInput } from '../components/VehicleSelectInput';
 import { validateDiscountTargets } from '../../src/lib/fees';
 import type { FeeSettings, FeeDiscount, FeePrice } from '../../src/types/fees';
 
@@ -25,6 +26,23 @@ const bilingual = (name: string, title: string, required = true) =>
       })
     ),
     validation: rule => (required ? rule.required() : rule),
+  });
+// One line per language (stop names are short).
+const bilingualLine = (name: string, title: string) =>
+  defineField({
+    name,
+    title,
+    type: 'object',
+    options: { columns: 2 },
+    fields: ['bengali', 'english'].map(language =>
+      defineField({
+        name: language,
+        title: language === 'bengali' ? 'Bengali' : 'English',
+        type: 'string',
+        validation: rule => rule.required(),
+      })
+    ),
+    validation: rule => rule.required(),
   });
 const price = (name: string, title: string) =>
   defineField({
@@ -164,6 +182,59 @@ export const feeSettings = defineType({
             price('price', 'Monthly price (both programs)'),
           ],
           preview: entryPreview,
+        },
+      ],
+    }),
+    defineField({
+      name: 'transportRoutes',
+      title: 'Routes',
+      description:
+        'Shown on the Admissions page and in the pre-admission form, where the guardian picks the nearest stop. The charge comes from the route’s vehicle. After the form opens, edit names freely but do not delete a route or stop that guardians may have chosen; hide the route instead.',
+      type: 'array',
+      group: 'transport',
+      of: [
+        {
+          type: 'object',
+          name: 'transportRoute',
+          fields: [
+            visible,
+            bilingualLine('name', 'Route name'),
+            bilingualLine('area', 'Area (routes are grouped by area)'),
+            defineField({
+              name: 'vehicle',
+              title: 'Vehicle',
+              type: 'string',
+              components: { input: VehicleSelectInput },
+              validation: r =>
+                r.required().custom((value, context) =>
+                  ((context.document as unknown as FeeSettings)?.transport || []).some(
+                    v => v._key === value
+                  ) || 'Choose one of the vehicles above.'
+                ),
+            }),
+            defineField({
+              name: 'stops',
+              title: 'Stops, in order',
+              description: 'From the first pickup to the last. The madrasa is added at the end automatically.',
+              type: 'array',
+              of: [
+                {
+                  type: 'object',
+                  name: 'transportStop',
+                  fields: [bilingualLine('name', 'Stop')],
+                  preview: { select: { title: 'name.bengali', subtitle: 'name.english' } },
+                },
+              ],
+              validation: r => r.required().min(1),
+            }),
+          ],
+          preview: {
+            select: { title: 'name.bengali', area: 'area.bengali', stops: 'stops', visible: 'visible' },
+            prepare: ({ title, area, stops, visible }: any) => ({
+              title: `${title ?? 'Untitled route'}${visible === false ? ' (hidden)' : ''}`,
+              subtitle: `${area ?? ''} · ${stops?.length ?? 0} stops`,
+            }),
+          },
         },
       ],
     }),

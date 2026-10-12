@@ -2,20 +2,21 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ChevronRight, Circle, CircleAlert, CircleCheck, Contrast, Lock } from 'lucide-react';
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { ChevronRight, CircleAlert } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/shadcn/button';
 import { saveAnswers } from '@/app/[locale]/pre-admission/actions';
 import { ageOn, classesForAge, sessionStart } from '@/lib/admissions/age';
-import { checkField, checkSection, isVisible, type AnswerError, type Answers, type AnswerValue, type ChapterStatus } from '@/lib/admissions/answers';
+import { blockedClasses, checkField, checkSection, classRequirementErrors, isVisible, type AnswerError, type Answers, type AnswerValue } from '@/lib/admissions/answers';
 import { num, txt, type Locale } from '@/lib/admissions/display';
-import type { FormField, FormSection } from '@/lib/admissions/form-config';
+import type { FormField, FormSection, Transport } from '@/lib/admissions/form-config';
+import type { Step } from '@/lib/admissions/pages';
 import { cn } from '@/lib/utils';
 import { FieldBlock } from './fields';
+import { RouteCards } from './route-cards';
 import { SaveIndicator, useSaveStatus } from './save-status';
-
-export type ChapterNav = { key: string; title: string; status: ChapterStatus; href: string };
+import { StepRail } from './step-rail';
 
 type Props = {
   locale: Locale;
@@ -25,11 +26,13 @@ type Props = {
   /** Fields of other chapters, for show-when rules and the age hint. */
   otherFields: FormField[];
   index: number;
-  chapters: ChapterNav[];
+  /** Every step (chapters, then the pledge step), for the rail and the next/previous buttons. */
+  chapters: Step[];
   initialAnswers: Answers;
   hubHref: string;
   reviewHref: string;
-  reviewOpen: boolean;
+  /** Routes and charges, for a transport stop question. */
+  transport?: Transport;
 };
 
 type Block = { group?: FormSection['groups'][number]; fields: FormField[] };
@@ -65,7 +68,7 @@ function rows(fields: FormField[]): FormField[][] {
 
 const PENDING_KEY = (id: string) => `mq-admission-pending:${id}`;
 
-export function ChapterForm({ locale, applicationId, session, section, otherFields, index, chapters, initialAnswers, hubHref, reviewHref, reviewOpen }: Props) {
+export function ChapterForm({ locale, applicationId, session, section, otherFields, index, chapters, initialAnswers, hubHref, reviewHref, transport }: Props) {
   const t = useTranslations('preAdmission');
   const router = useRouter();
   const { setState: setSave } = useSaveStatus();
@@ -146,9 +149,18 @@ export function ChapterForm({ locale, applicationId, session, section, otherFiel
       else next[field.key] = value;
       return next;
     });
-    // Uploads are saved by the upload route itself.
-    if (field.type !== 'file') queue(field.key, value);
-    else setSave('saved');
+    // Uploads are saved by the upload route itself ("don't have it now" is a typed answer).
+    if (field.type !== 'file' || typeof value === 'string') queue(field.key, value);
+    else {
+      // An unticked "don't have it now" still waiting to be sent must not remove the new file
+      // (nor be replayed from the copy kept for a closed tab).
+      delete pending.current[field.key];
+      try {
+        if (Object.keys(pending.current).length) localStorage.setItem(PENDING_KEY(applicationId), JSON.stringify(pending.current));
+        else localStorage.removeItem(PENDING_KEY(applicationId));
+      } catch {}
+      setSave('saved');
+    }
   }
 
   const all = useMemo(() => [...otherFields, ...section.fields], [otherFields, section.fields]);
@@ -157,14 +169,21 @@ export function ChapterForm({ locale, applicationId, session, section, otherFiel
   const sessionYear = Number(/^\d{4}/.exec(session)?.[0] ?? new Date().getFullYear() + 1);
   const dobYears = Array.from({ length: 14 }, (_, i) => sessionYear - 2 - i);
 
-  const check = checkSection(section, answers);
+  const stopField = section.fields.find((f) => f.type === 'transportStop');
+  const check = checkSection(section, answers, all);
+  // The chosen class's requirements (e.g. girls only), shown on the question that breaks one.
+  const broken = classRequirementErrors(all, answers);
   const errorFor = (f: FormField): AnswerError | undefined => {
-    if (!showAll && !touched.has(f.key)) return undefined;
+    if (!showAll && !touched.has(f.key) && !broken.has(f.key)) return undefined;
     if (!isVisible(f, answers)) return undefined;
-    return checkField(f, answers[f.key]).error;
+    return checkField(f, answers[f.key]).error ?? (broken.has(f.key) ? 'class_requirement' : undefined);
   };
   const errorText = (f: FormField, e: AnswerError | undefined) => {
     if (!e) return null;
+    if (e === 'class_requirement') {
+      const b = broken.get(f.key)!;
+      return t('chapter.errors.class_requirement', { class: txt(b.className, locale), message: txt(b.message, locale) });
+    }
     if (e === 'required' && f.type === 'file') return t('chapter.errors.required');
     return t(`chapter.errors.${e}`);
   };
@@ -202,38 +221,7 @@ export function ChapterForm({ locale, applicationId, session, section, otherFiel
       </div>
 
       <div className="mx-auto flex w-full max-w-[1240px] items-start gap-12 px-4 pb-32 pt-1 md:px-8 md:pb-18 md:pt-10">
-        <nav aria-label={t('hub.chapters')} className="sticky top-26 hidden w-[220px] flex-none flex-col gap-0.5 lg:flex">
-          <span className="px-2.5 pb-2 text-[12.5px] text-muted-foreground">{t('chapter.chapterLabel')}</span>
-          {chapters.map((c, i) => (
-            <Link
-              key={c.key}
-              href={c.href}
-              aria-current={i === index ? 'step' : undefined}
-              onClick={() => void flush()}
-              className={cn('flex h-9 items-center gap-2.5 rounded-lg px-2.5 text-sm text-muted-foreground hover:bg-muted hover:text-foreground', i === index && 'bg-muted font-medium text-foreground')}
-            >
-              {c.status === 'done' && i !== index ? (
-                <CircleCheck className="size-4 text-success" aria-hidden />
-              ) : i === index || c.status === 'in_progress' ? (
-                <Contrast className="size-4 text-primary" aria-hidden />
-              ) : (
-                <Circle className="size-4 text-input" aria-hidden />
-              )}
-              {c.title}
-            </Link>
-          ))}
-          {reviewOpen ? (
-            <Link href={reviewHref} className="mt-1.5 flex items-center gap-2.5 border-t px-2.5 pt-3.5 text-sm text-muted-foreground hover:text-foreground">
-              <ChevronRight className="size-4" aria-hidden />
-              {t('hub.review')}
-            </Link>
-          ) : (
-            <span className="mt-1.5 flex items-center gap-2.5 border-t px-2.5 pt-3.5 text-sm text-muted-foreground">
-              <Lock className="size-4" aria-hidden />
-              {t('hub.review')}
-            </span>
-          )}
-        </nav>
+        <StepRail steps={chapters} index={index} reviewHref={reviewHref} onNavigate={() => void flush()} />
 
         <main className="min-w-0 flex-1">
           <div className="hidden flex-col gap-1 pb-6 md:flex">
@@ -269,51 +257,72 @@ export function ChapterForm({ locale, applicationId, session, section, otherFiel
             const visible = block.fields.filter((f) => isVisible(f, answers));
             if (!visible.length) return null;
             const optional = visible.every((f) => !f.required);
+            const sectionClass = 'flex flex-col gap-5 py-6 md:flex-row md:flex-wrap md:gap-x-10 md:py-8';
+            const bodyClass = cn('flex min-w-0 flex-col gap-5 md:flex-[999_1_420px]', !section.groups.length && 'md:max-w-[640px]');
+            const head = (title: string, description?: string, className?: string) => (
+              <div className={cn('md:max-w-[260px] md:flex-[1_1_200px]', className)}>
+                <h2 className="text-base font-semibold">
+                  {title}
+                  {optional && <span className="text-sm font-normal text-muted-foreground"> {t('chapter.ifApplicable')}</span>}
+                </h2>
+                {description && <p className="mt-1 text-[13px] leading-normal text-muted-foreground">{description}</p>}
+              </div>
+            );
+            // The transport group: the route cards under the group's heading, then its questions.
+            const routes = !!transport && !!stopField && block.fields.includes(stopField);
             return (
-              <section key={block.group?.key ?? `b${bi}`} className={cn('flex flex-col gap-5 py-6 md:flex-row md:flex-wrap md:gap-x-10 md:py-8', bi > 0 && 'border-t')}>
-                {block.group && (
-                  <div className="md:max-w-[260px] md:flex-[1_1_200px]">
-                    <h2 className="text-base font-semibold">
-                      {txt(block.group.title, locale)}
-                      {optional && <span className="text-sm font-normal text-muted-foreground"> {t('chapter.ifApplicable')}</span>}
-                    </h2>
-                    {txt(block.group.description, locale) && <p className="mt-1 text-[13px] leading-normal text-muted-foreground">{txt(block.group.description, locale)}</p>}
-                  </div>
-                )}
-                <div className={cn('flex min-w-0 flex-col gap-5 md:flex-[999_1_420px]', !section.groups.length && 'md:max-w-[640px]')}>
-                  {rows(visible).map((row) => (
-                    <div key={row[0].key} className={cn(row.length > 1 && 'grid gap-5 sm:grid-cols-2')}>
-                      {row.map((f) => {
-                        const error = errorFor(f);
-                        return (
-                          <FieldBlock
-                            key={f.key}
-                            field={f}
-                            value={answers[f.key]}
-                            locale={locale}
-                            error={errorText(f, error)}
-                            onChange={(v) => change(f, v)}
-                            onBlur={() => {
-                              setTouched((s) => (s.has(f.key) ? s : new Set(s).add(f.key)));
-                              void flush();
-                            }}
-                            classFit={f.role === 'classApplied' ? { fits: classesForAge(f.options, age), age } : undefined}
-                            years={f.role === 'dateOfBirth' ? dobYears : undefined}
-                          />
-                        );
-                      })}
-                      {row.some((f) => f.role === 'dateOfBirth') && age && (
-                        <p className="mt-1.5 text-[13px] text-muted-foreground">
-                          {t.rich('chapter.ageAt', {
-                            age: t('chapter.age', { years: num(age.years, locale), months: num(age.months, locale) }),
-                            b: (c) => <b className="font-semibold text-foreground">{c}</b>,
-                          })}
-                        </p>
-                      )}
+              <Fragment key={block.group?.key ?? `b${bi}`}>
+                {routes && (
+                  <section className={cn(sectionClass, bi > 0 && 'border-t')}>
+                    {block.group && head(txt(block.group.title, locale), txt(block.group.description, locale))}
+                    <div className={bodyClass}>
+                      <RouteCards
+                        transport={transport!}
+                        locale={locale}
+                        // A stop kept from before "not interested" is not marked.
+                        selected={isVisible(stopField!, answers) && typeof answers[stopField!.key] === 'string' ? (answers[stopField!.key] as string) : undefined}
+                      />
                     </div>
-                  ))}
-                </div>
-              </section>
+                  </section>
+                )}
+                <section className={cn(sectionClass, (bi > 0 || routes) && 'border-t')}>
+                  {block.group && (routes ? head(t('transport.interestTitle'), undefined, 'hidden md:block') : head(txt(block.group.title, locale), txt(block.group.description, locale)))}
+                  <div className={bodyClass}>
+                    {rows(visible).map((row) => (
+                      <div key={row[0].key} className={cn(row.length > 1 && 'grid gap-5 sm:grid-cols-2')}>
+                        {row.map((f) => {
+                          const error = errorFor(f);
+                          return (
+                            <FieldBlock
+                              key={f.key}
+                              field={f}
+                              value={answers[f.key]}
+                              locale={locale}
+                              error={errorText(f, error)}
+                              onChange={(v) => change(f, v)}
+                              onBlur={() => {
+                                setTouched((s) => (s.has(f.key) ? s : new Set(s).add(f.key)));
+                                void flush();
+                              }}
+                              classFit={f.role === 'classApplied' ? { fits: classesForAge(f.options, age), age, blocked: blockedClasses(all, answers), unmet: broken.size > 0 } : undefined}
+                              years={f.role === 'dateOfBirth' ? dobYears : undefined}
+                              transport={f.type === 'transportStop' ? transport : undefined}
+                            />
+                          );
+                        })}
+                        {row.some((f) => f.role === 'dateOfBirth') && age && (
+                          <p className="mt-1.5 text-[13px] text-muted-foreground">
+                            {t.rich('chapter.ageAt', {
+                              age: t('chapter.age', { years: num(age.years, locale), months: num(age.months, locale) }),
+                              b: (c) => <b className="font-semibold text-foreground">{c}</b>,
+                            })}
+                          </p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              </Fragment>
             );
           })}
 

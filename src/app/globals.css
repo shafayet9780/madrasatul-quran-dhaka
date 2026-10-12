@@ -720,26 +720,6 @@ slamic geometric pattern background */
     animation: glow 2s ease-in-out infinite alternate;
   }
 
-  /* Admission banner styles */
-  .admission-banner {
-    min-height: 3.5rem;
-    max-height: 4.5rem;
-  }
-
-  @media (min-width: 768px) {
-    .admission-banner {
-      min-height: 4rem;
-      max-height: 5rem;
-    }
-  }
-
-  @media (min-width: 1024px) {
-    .admission-banner {
-      min-height: 4.5rem;
-      max-height: 5.5rem;
-    }
-  }
-
   .animate-slide-in-right {
     animation: slideInRight 0.3s ease-out;
   }

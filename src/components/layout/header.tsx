@@ -14,6 +14,7 @@ import type { PeopleNavData } from '@/lib/queries/site';
 import { getLocalizedText, getLocalizedSlug, getFontClass } from '@/lib/sanity-utils';
 import { isSectionVisible } from '@/lib/nav-visibility';
 import { trackClickToCall, trackOutboundClick } from '@/lib/analytics/track';
+import { trackAdmissionCta, useAdmissionCta } from './admission-cta-context';
 
 interface HeaderProps {
   siteSettings?: SiteSettings | null;
@@ -53,6 +54,8 @@ const NAV_ITEMS: NavItem[] = [
 export default function Header({ siteSettings, peopleNav }: HeaderProps) {
   const t = useTranslations('navigation');
   const tCommon = useTranslations('common');
+  const tCta = useTranslations('admissionCta');
+  const admissionCta = useAdmissionCta();
   const locale = useLocale() as Locale;
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -386,6 +389,18 @@ export default function Header({ siteSettings, peopleNav }: HeaderProps) {
           </nav>
 
           <div className="border-t border-gray-200 p-4">
+            {admissionCta && (
+              <Link
+                href={`/${locale}/pre-admission`}
+                onClick={() => {
+                  trackAdmissionCta('header_mobile', locale);
+                  setIsMobileMenuOpen(false);
+                }}
+                className="mb-3 flex min-h-12 items-center justify-center rounded-xl bg-primary-700 px-4 py-3 font-semibold text-white shadow-lg"
+              >
+                {tCta('title', { session: admissionCta.session })}
+              </Link>
+            )}
             <a
               href="https://www.eximusedu.com/go/mqd"
               target="_blank"
@@ -508,6 +523,15 @@ export default function Header({ siteSettings, peopleNav }: HeaderProps) {
             </nav>
 
             <div className="flex items-center space-x-2 md:space-x-3 flex-shrink-0">
+              {admissionCta && (
+                <Link
+                  href={`/${locale}/pre-admission`}
+                  onClick={() => trackAdmissionCta('header', locale)}
+                  className="hidden md:flex items-center px-4 py-2 rounded-full bg-primary-500 text-white hover:bg-primary-600 transition-colors duration-300 shadow-lg font-semibold text-sm whitespace-nowrap"
+                >
+                  {tCta('title', { session: admissionCta.session })}
+                </Link>
+              )}
               <a
                 href="https://www.eximusedu.com/go/mqd"
                 target="_blank"

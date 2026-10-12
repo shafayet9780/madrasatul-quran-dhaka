@@ -9,7 +9,7 @@ import { TEST_FEE } from '@/lib/admissions/payments';
 import { hasTestPass } from '@/lib/admissions/test-pass';
 import { cn } from '@/lib/utils';
 import { PageTop } from '../AdminShell';
-import { ExportButton, NoCycle, classOptions } from './ListPage';
+import { ExportButton, NoCycle, OfflineFormButton, classOptions } from './ListPage';
 import { TestPass } from './DetailControls';
 import { Card, LAT, PageBody, PageTitle, StatTile, StatTiles } from '../ui';
 
@@ -136,16 +136,16 @@ export default async function AdmissionsOverview() {
     { label: 'ফি বাকি', value: o.unpaid, sub: `ফর্ম আছে, পরিশোধ হয়নি; আরও ${bn(o.drafts)}টি অসম্পূর্ণ`, href: '/admin/admissions/unpaid' },
     { label: 'আজ নতুন', value: today, sub: `গতকাল ${bn(yesterday)}টি`, href: null },
     {
-      label: 'মূল্যায়ন ফি গৃহীত',
+      label: 'অ্যাসেসমেন্ট ফি গৃহীত',
       value: o.evalFees,
-      sub: o.attended ? `উপস্থিত ${bn(o.attended)} জন` : 'মূল্যায়ন এখনো শুরু হয়নি',
+      sub: o.attended ? `উপস্থিত ${bn(o.attended)} জন` : 'অ্যাসেসমেন্ট এখনো শুরু হয়নি',
       href: '/admin/admissions/evaluation-day',
     },
   ];
 
   return (
     <>
-      <PageTop crumbs={[{ label: 'ভর্তি', href: '/admin/admissions' }, { label: 'ওভারভিউ' }]} round={false} actions={<ExportButton />} />
+      <PageTop crumbs={[{ label: 'ভর্তি', href: '/admin/admissions' }, { label: 'ওভারভিউ' }]} round={false} actions={<><OfflineFormButton /><ExportButton /></>} />
       <PageBody className="gap-5">
         <PageTitle sub={sub}>প্রি-অ্যাডমিশন {bn(cycle.session)}</PageTitle>
 

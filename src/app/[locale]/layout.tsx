@@ -9,6 +9,8 @@ import { MainLayout } from '@/components/layout';
 import { ConsentBanner } from '@/components/analytics/consent-banner';
 import { getContentService } from '@/lib/content-service';
 import { getPeopleNav } from '@/lib/queries/site';
+import { getAdmissionCta } from '@/lib/admissions/pages';
+import { asLocale } from '@/lib/admissions/display';
 
 export function generateStaticParams() {
   return locales.map(locale => ({ locale }));
@@ -33,17 +35,18 @@ export default async function LocaleLayout({
   // Fetch site/footer settings server-side (cached) and pass to the client
   // layout as props.
   const contentService = getContentService(false);
-  const [siteSettings, footerSettings, peopleNav] = await Promise.all([
+  const [siteSettings, footerSettings, peopleNav, admissionCta] = await Promise.all([
     contentService.getSiteSettings(),
     contentService.getFooterSettings(),
     getPeopleNav(),
+    getAdmissionCta(asLocale(locale)),
   ]);
 
   return (
     <LocaleProvider locale={locale}>
       <NextIntlClientProvider messages={messages}>
         <LanguageContextProvider>
-          <MainLayout siteSettings={siteSettings} footerSettings={footerSettings} peopleNav={peopleNav}>
+          <MainLayout siteSettings={siteSettings} footerSettings={footerSettings} peopleNav={peopleNav} admissionCta={admissionCta}>
             {children}
           </MainLayout>
           <ConsentBanner />

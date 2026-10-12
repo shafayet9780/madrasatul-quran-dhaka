@@ -10,6 +10,7 @@ import { classCodeFor, roleColumns } from './roles';
 import { admissionCycles, applicationEvents, applications } from './schema';
 import { hashToken, newResumeToken } from './tokens';
 import { isOwnKey } from './files';
+import { pledgeStatus, type Pledge } from './pledge';
 
 export type Application = typeof applications.$inferSelect;
 
@@ -148,15 +149,39 @@ export async function saveDraft(app: Application, snapshot: FormSnapshot, patch:
   return { ok: true, answers: row.answers, status: row.status };
 }
 
+/**
+ * অঙ্গীকার step: a pledge ticked (stored with the time) or unticked. Unticking after the
+ * declaration sends the application back to draft, like editing an answer.
+ */
+export async function savePledge(app: Application, pledge: Pledge, agreed: boolean): Promise<{ ok: true } | { ok: false; reason: 'locked' }> {
+  if (!(EDITABLE as readonly string[]).includes(app.status)) return { ok: false, reason: 'locked' };
+  const column = pledge === 'conduct' ? applications.conductPledgedAt : applications.familyDeclaredAt;
+  const [updated] = await getAdmissionsDb()
+    .update(applications)
+    .set({
+      [pledge === 'conduct' ? 'conductPledgedAt' : 'familyDeclaredAt']: agreed ? new Date() : null,
+      ...(!agreed && { status: 'draft' as const, declaredAt: null, submittedAt: null }),
+      lastActiveAt: new Date(),
+      updatedAt: new Date(),
+    })
+    // Ticking again keeps the first time.
+    .where(and(eq(applications.id, app.id), inArray(applications.status, [...EDITABLE]), ...(agreed ? [sql`${column} IS NULL`] : [])))
+    .returning({ id: applications.id });
+  if (updated && !agreed && app.status === 'unpaid') await logEvent(app.id, label(app), 'reopened', 'guardian');
+  return { ok: true };
+}
+
 export type SubmitResult =
   | { ok: true; classCode: string }
-  | { ok: false; reason: 'locked' | 'declaration' }
+  | { ok: false; reason: 'locked' | 'declaration' | 'pledge' }
   | { ok: false; reason: 'invalid'; errors: Record<string, AnswerError> };
 
 /** Review page: the whole form is checked, the declaration recorded, and the clean answers stored. */
 export async function submitDraft(app: Application, snapshot: FormSnapshot, declared: boolean): Promise<SubmitResult> {
   if (!(EDITABLE as readonly string[]).includes(app.status)) return { ok: false, reason: 'locked' };
   if (!declared) return { ok: false, reason: 'declaration' };
+  const pledge = pledgeStatus(snapshot, app);
+  if (pledge && pledge !== 'done') return { ok: false, reason: 'pledge' };
   const { errors, values } = checkAll(snapshot, app.answers);
   if (Object.keys(errors).length) return { ok: false, reason: 'invalid', errors };
   const classCode = classCodeFor(snapshot, values);

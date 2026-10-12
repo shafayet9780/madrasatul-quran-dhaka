@@ -17,6 +17,20 @@ The `.dc.html` files are the canvas source (Design Component format): each file 
 
 Mother, contact and additional chapters follow the Father/Student page patterns and are not drawn separately.
 
+### Updates 2026-10-11 (approved by the owner 2026-10-11)
+
+Drawn for [`../pre-admission-2027-updates.md`](../pre-admission-2027-updates.md). Where an update board and an older board differ, the update board wins.
+
+| Canvas page | Files |
+|---|---|
+| আপডেট · অভিভাবক | `UStudent` (studied before, result card and birth certificate with "don't have it now"), `UFatherDress` ("none of the above" clears the others), `UTransport` / `UTransportDesktop` (route cards, interest, nearest stop), `UPledge` / `UPledgeDesktop` (new pledge step), `UConfirmation` (WhatsApp card, "what to bring"; Tweaks: studied, result missing, birth certificate missing), `QRWhatsApp` (QR with the logo; Tweak: screen / print) |
+| আপডেট · আবেদনপত্র PDF | `UPdf1` (assessment box, bring list, QR with logo), `UPdf3` (contact, additional with transport answers, code of conduct rules spread to fill the page), `UPdf4` (new page 4: the three consents, father and mother signatures, office/assessor section last). Page 2 is unchanged. |
+| অফলাইন ফর্ম ২০২৭ | `Off1`–`Off5` (A4, black-and-white safe; quiet answer boxes, digit boxes for the date only) handed in to the office, and `Off6` (অভিভাবকের কপি: fee receipt and WhatsApp QR only) handed back to the guardian. Paper forms are not entered into the system. This page holds only the form, so "All artboards (.pdf)" exports it as one file. |
+
+Phone flow: `UStudent` → `UFatherDress` → `UTransport` → `UPledge` → `Review` (existing). Desktop flow: `UTransportDesktop` → `UPledgeDesktop` → `ReviewDesktop`.
+
+Design exception agreed for these updates: **WhatsApp green** (`#008069` button with white text in light mode, `#25D366` with dark text in dark mode; the logo `#25D366`) is used only for the WhatsApp task, beside the single brown accent.
+
 ## Design language (locked)
 
 shadcn/ui conventions, themed with the school's colour. Reviewed against the design-taste-frontend skill.

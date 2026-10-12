@@ -19,6 +19,15 @@ export interface SchoolFee extends FinancialEntry {
 export interface TransportFee extends FinancialEntry {
   price: FeePrice;
 }
+export interface TransportRoute {
+  _key: string;
+  visible: boolean;
+  name: MultilingualText;
+  area: MultilingualText;
+  /** `_key` of a vehicle in `transport`. */
+  vehicle: string;
+  stops: Array<{ _key: string; name: MultilingualText }>;
+}
 export interface FeeDiscount {
   _key: string;
   visible: boolean;
@@ -44,6 +53,7 @@ export interface FeeSettings {
   faqAnswer: MultilingualText;
   fees: SchoolFee[];
   transport: TransportFee[];
+  transportRoutes?: TransportRoute[];
   discounts: FeeDiscount[];
   policies: Array<{ _key: string; text: MultilingualText }>;
 }

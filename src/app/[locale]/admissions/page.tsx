@@ -3,6 +3,7 @@ import styles from '@/components/admissions/admissions-experience.module.css';
 import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 import { getContentService } from '@/lib/content-service';
+import { getIntake } from '@/lib/admissions/pages';
 import { AdmissionsFaq } from '@/components/admissions/admissions-faq';
 import {
   ApplicationAction,
@@ -38,12 +39,12 @@ export default async function AdmissionsPage({ params }: AdmissionsPageProps) {
     namespace: 'admissionsExperience',
   });
   const service = getContentService(false);
-  const [settings, form, site] = await Promise.all([
+  const [settings, intake, site] = await Promise.all([
     service.getFeeSettings(),
-    service.getPreAdmissionForm(),
+    getIntake(),
     service.getSiteSettings(),
   ]);
-  const available = !!form?.formSettings?.isEnabled;
+  const available = intake.state === 'open' || intake.state === 'not_open';
   const links = [
     { id: 'application', label: t('stepsHeading') },
     ...financialLinks(settings, locale),

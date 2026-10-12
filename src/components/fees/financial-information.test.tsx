@@ -3,6 +3,9 @@ import { render, screen, cleanup, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { FinancialInformation, financialLinks } from './financial-information';
 import { initialFeeSettings } from '@/lib/fee-setup';
+import { NextIntlClientProvider } from 'next-intl';
+import bengali from '../../../messages/bengali.json';
+import { applyFeeUpdates } from '@/lib/admissions/updates-2027';
 import {
   ApplicationAction,
   ContactPanel,
@@ -13,6 +16,23 @@ vi.mock('@/lib/analytics/track', () => ({
 }));
 afterEach(cleanup);
 describe('financial information', () => {
+  it('shows the transport routes as cards, with each route’s monthly charge, instead of the vehicle table', () => {
+    const { transport, transportRoutes } = applyFeeUpdates(initialFeeSettings);
+    const settings = { ...initialFeeSettings, transport, transportRoutes } as typeof initialFeeSettings;
+    render(
+      <NextIntlClientProvider locale="bengali" messages={bengali}>
+        <FinancialInformation settings={settings} locale="bengali" />
+      </NextIntlClientProvider>
+    );
+    const section = within(document.querySelector('#transport') as HTMLElement);
+    expect(section.queryByRole('table')).not.toBeInTheDocument();
+    expect(section.getByRole('tab', { name: 'মিরপুর', selected: true })).toBeInTheDocument();
+    const card = within(section.getByRole('article', { name: 'মিরপুর মাইক্রো' }));
+    expect(card.getByText('৳৫,০০০')).toBeInTheDocument();
+    expect(card.getAllByText('কালশী').length).toBeGreaterThan(0);
+    expect(section.getByText(/আসন সীমিত/)).toBeInTheDocument();
+  });
+
   it.each(['english', 'bengali'] as const)(
     'shows the configured notice for removed or hidden fees in %s while preserving other sections',
     locale => {
