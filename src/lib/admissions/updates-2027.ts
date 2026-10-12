@@ -187,7 +187,7 @@ export const BRING_LIST = [
   item('birth_certificate', bi('জন্ম নিবন্ধন সনদের ফটোকপি', 'Photocopy of the birth certificate'), { document: 'student_birth_registration' }),
   item('result_card', bi('সর্বশেষ ফলাফল কার্ডের মূল কপি', 'The original latest result card'), { showWhen: STUDIED_YES, document: 'previous_result_card' }),
   item('photos', bi('পাসপোর্ট সাইজ ছবি: শিক্ষার্থীর ২ কপি, পিতার ১ কপি', 'Passport-size photos: 2 of the student, 1 of the father')),
-  item('fee', bi('অ্যাসেসমেন্ট ফি ৳{fee}, নগদে', 'Assessment fee ৳{fee} in cash')),
+  item('fee', bi('অ্যাসেসমেন্ট ফি ৳{fee} (ক্যাশ)', 'Assessment fee ৳{fee} in cash')),
 ];
 
 /**

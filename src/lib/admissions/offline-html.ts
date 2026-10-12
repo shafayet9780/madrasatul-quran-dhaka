@@ -4,10 +4,10 @@ import { CHOICE_TYPES, NO_ROUTE, allFields, type FormField, type FormSection, ty
 // The printable offline form (docs/pre-admission-mockups/Off1–Off6), generated from the same form
 // version as the online one. Pages 1 to 4 (the chapters, pledges, signatures and office checks) are
 // handed in to the office with the fee; page 5 (the code of conduct) stays with the family and page 6
-// (the guardian's copy: fee receipt and WhatsApp QR) comes back. Black text with the application PDF's
-// brown as a small accent and only light tints, so it survives photocopying. Paper forms are never
-// typed into the system. Printed to A4 by pdf.ts: pages 2–4 repeat the application ID line in the
-// header (page 1 has it in the office box); the last two pages stand alone.
+// (the guardian's copy: fee receipt, what to bring and WhatsApp QR) comes back. Black text with the
+// application PDF's brown as a small accent and only light tints, so it survives photocopying. Paper
+// forms are never typed into the system. Printed to A4 by pdf.ts: pages 2–4 repeat the application ID
+// line in the header (page 1 has it in the office box); the last two pages stand alone.
 
 export type OfflineData = {
   snapshot: FormSnapshot;
@@ -72,6 +72,7 @@ body{padding:0 0.6mm}
 .contact{margin-top:18px;padding:12px 16px;background:#f6f0eb;border-radius:8px}.contact .k{font-weight:700;margin-bottom:8px}
 .contact .nums{display:grid;grid-template-columns:repeat(auto-fit,minmax(40mm,1fr));gap:8px 18px}.contact .nums span{display:flex;flex-direction:column;gap:1px}.contact .nums b{font-size:13.5px;white-space:nowrap}
 .wa{border:1.5px solid #7a4d32;border-radius:8px;padding:16px 18px;margin-top:18px;display:flex;gap:20px;align-items:center}.wa svg{width:44mm;height:44mm}
+.bring{border:1.5px solid #7a4d32;border-radius:8px;padding:14px 18px;margin-top:18px}.bring ol{list-style:none;margin:10px 0 0;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:2px 24px}.bring li{display:grid;grid-template-columns:22px 1fr;line-height:1.6;padding:2px 0}.bring li b:first-child{color:#7a4d32}
 `;
 
 /** "(৬-এ ‘হ্যাঁ’ হলে)", or "(প্লে শ্রেণী ছাড়া)" when most options show the question. */
@@ -294,10 +295,22 @@ function contactBlock(school: OfflineData['school']): string {
   }${school.website ? `<div class="small muted" style="margin-top:8px">${esc(school.website)}</div>` : ''}</section>`;
 }
 
-/** The last page, the guardian's copy: the fee receipt the office fills in and the WhatsApp group. */
+/**
+ * The last page, the guardian's copy: the fee receipt the office fills in, what to bring on
+ * assessment day and the WhatsApp group.
+ */
 export function guardianCopyHtml(d: OfflineData): string {
   const s = d.snapshot.settings;
   const fee = taka(s.applicationFee, 'bengali');
+  // What to bring on assessment day. Not the Sanity list: paper families have handed in the form
+  // and attached the photocopies already, and this receipt is their only record of the ID.
+  const fields = allFields(d.snapshot);
+  const bring = [
+    'এই পৃষ্ঠাটি (রসিদ)',
+    `অ্যাসেসমেন্ট ফি <b>${esc(taka(s.evaluationFee, 'bengali'))}</b> (ক্যাশ), অফিসে জমা দিন`,
+    ...(fields.some((f) => f.key === 'previous_result_card') ? ['সর্বশেষ ফলাফল কার্ডের মূল কপি (প্রযোজ্য হলে)'] : []),
+    ...(fields.some((f) => f.type === 'file' && !isPhoto(f) && f.allowMissing) ? ['ফর্মের সঙ্গে যে কাগজ জমা দিতে পারেননি'] : []),
+  ];
   const field = (name: string) => `<span style="display:flex;flex-direction:column;gap:3px"><span class="small">${name}</span><i class="ans"></i></span>`;
   return `<!doctype html><html lang="bn"><head><meta charset="utf-8"><style>${d.fontCss}${CSS}@page{margin:14mm 13mm}</style></head><body>
 <header class="top">
@@ -308,8 +321,12 @@ export function guardianCopyHtml(d: OfflineData): string {
 <section class="receipt">
   <div class="band">আবেদন ফি-র রসিদ <span class="hint">(অফিস পূরণ করবে)</span></div>
   <span style="grid-column:1/-1">${field('শিক্ষার্থীর নাম')}</span>${field('আবেদিত শ্রেণী')}${field('আবেদন আইডি (অফিস পূরণ করবে)')}${field('রসিদ নং')}${field('তারিখ')}
-  <div style="grid-column:1/-1">আবেদন ফি <b>${esc(fee)}</b> নগদে গৃহীত। ফেরতযোগ্য নয়।</div>
+  <div style="grid-column:1;align-self:end">আবেদন ফি <b>${esc(fee)}</b> ক্যাশে গৃহীত। ফেরতযোগ্য নয়।</div>
   <span style="grid-column:2;display:flex;flex-direction:column;gap:3px;margin-top:18px"><i class="line"></i><span class="small">গ্রহণকারীর স্বাক্ষর ও সিল</span></span>
+</section>
+<section class="bring">
+  <div class="band">অ্যাসেসমেন্টের দিন সঙ্গে আনবেন</div>
+  <ol>${bring.map((item, i) => `<li><b>${bn(i + 1)}</b><span>${item}</span></li>`).join('')}</ol>
 </section>
 ${
   d.whatsappQrSvg
