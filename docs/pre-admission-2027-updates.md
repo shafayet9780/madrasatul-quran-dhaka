@@ -220,14 +220,14 @@ Last year's form (`~/Documents/shafayet/mqd-form/form.html`) was typed by hand. 
   1. **Page 1:** header (logo, প্রি-অ্যাডমিশন ফর্ম ২০২৭), **office box** (application ID, received on, received by) beside the instructions (pages 1 to 4 go in with the ৳500 fee; keep page 5; the last page comes back), photo frames, student questions and documents.
   2. **Pages 1 to 4:** the chapters run on (student, father, mother, contact, additional with the transport **route table** grouped by মিরপুর / উত্তরা, ☐ beside each stop), breaking only between questions; then **অঙ্গীকার ও ঘোষণা**: a note that the rules are on page 5, the three consents with tick boxes, **father's and mother's signatures and dates**, and **office use only** (photo, documents checked, fee received + receipt no., application ID, signature), kept together.
   3. **Page 5, অভিভাবকদের আচরণবিধি:** the 9 rules in 3 groups in larger type; "do not hand this in, keep it; tick the pledges on page 4".
-  5. **Page 6, অভিভাবকের কপি (guardian's copy):** "do not hand this in"; the **application fee receipt** the office fills (student name, class, application ID, receipt no., date, ৳500 received in cash and non-refundable, signature and seal) and the **WhatsApp group** (large QR with the logo; assessment date, time and all news are posted only there, by application ID). Office phone and website in the footer. Nothing else.
+  5. **Page 6, অভিভাবকের কপি (guardian's copy):** "do not hand this in"; the **application fee receipt** the office fills (student name, class, application ID, receipt no., date, ৳500 received in cash and non-refundable, signature and seal), **what to bring on assessment day** (this page, the assessment fee in cash, the original result card if applicable, any document not handed in with the form; added 2026-10-12) and the **WhatsApp group** (large QR with the logo; assessment date, time and all news are posted only there, by application ID). Office phone and website in the footer. Nothing else.
 ---
 
 ## 9. Paper forms stay on paper
 
 - **Paper applications are not typed into the system.** The office keeps pages 1 to 4 (with the signatures) and works from them on assessment day.
 - **Nothing is emailed** to paper applicants and there is **no admin step** for them: no cash-payment action, no Sheet row, no application PDF.
-- **The guardian keeps page 6:** the fee receipt (filled and signed by the office) and the WhatsApp group QR, where every later update is posted.
+- **The guardian keeps page 6:** the fee receipt (filled and signed by the office), what to bring on assessment day, and the WhatsApp group QR, where every later update is posted.
 ---
 
 ---
@@ -247,7 +247,7 @@ Example: Father → **আপনার ইসলামী পোশাক (লি
 2. **English translation of the rules:** accepted as drafted.
 3. **Result card on assessment day:** the **original** (birth certificate stays a photocopy).
 4. **`general_subjects_level`:** shown only when the child studied before; "এখনো কোন প্রতিষ্ঠানে পড়ে নি" removed.
-5. **Paper applicants:** not entered into the system (owner, 2026-10-11). The guardian's copy keeps only the fee receipt and the WhatsApp group.
+5. **Paper applicants:** not entered into the system (owner, 2026-10-11). The guardian's copy keeps only the fee receipt, what to bring on assessment day and the WhatsApp group.
 
 No open items remain.
 

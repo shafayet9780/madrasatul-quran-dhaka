@@ -95,6 +95,17 @@ describe('offline form (HTML)', () => {
     expect(guardianCopyHtml({ ...data, whatsappQrSvg: null })).not.toContain('হোয়াটসঅ্যাপ গ্রুপে যোগ দিন');
   });
 
+  it("tells the guardian what to bring on assessment day, with the assessment fee in cash", () => {
+    const copy = guardianCopyHtml(data);
+    expect(copy).toContain('অ্যাসেসমেন্টের দিন সঙ্গে আনবেন');
+    expect(copy).toContain('এই পৃষ্ঠাটি (রসিদ)');
+    expect(copy).toContain('অ্যাসেসমেন্ট ফি <b>৳৫০০</b> (ক্যাশ), অফিসে জমা দিন');
+    expect(copy).toContain('সর্বশেষ ফলাফল কার্ডের মূল কপি (প্রযোজ্য হলে)');
+    expect(copy).toContain('ফর্মের সঙ্গে যে কাগজ জমা দিতে পারেননি');
+    expect(copy).toContain('ক্যাশে গৃহীত');
+    expect(copy).not.toContain('নগদ');
+  });
+
   it("lists every office number with its label on the guardian's copy", () => {
     const phones = [
       { label: 'সিনিয়র এডমিন', number: '+880 1302-332244' },

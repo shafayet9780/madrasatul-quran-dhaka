@@ -147,8 +147,8 @@ export function applicationHtml(d: PdfData, tight = false): string {
         .map((i) => `<li>${esc(i.text)}${i.missing ? '<b class="must">। অনলাইনে জমা দেওয়া হয়নি, অবশ্যই আনবেন।</b>' : ''}</li>`)
         .join('')}</ol>`
     : instructions
-      ? `<p>অ্যাসেসমেন্ট ফি: <b>${evalFee}</b> (নগদ, অ্যাসেসমেন্টের দিন)</p>`
-      : `<div style="font-weight:700">সঙ্গে আনবেন</div><ol><li>এই আবেদনপত্রের প্রিন্ট</li><li>শিক্ষার্থীর জন্ম নিবন্ধন সনদের মূল কপি</li><li><b>${evalFee} অ্যাসেসমেন্ট ফি</b> (নগদ)</li></ol>`;
+      ? `<p>অ্যাসেসমেন্ট ফি: <b>${evalFee}</b> (ক্যাশ, অ্যাসেসমেন্টের দিন)</p>`
+      : `<div style="font-weight:700">সঙ্গে আনবেন</div><ol><li>এই আবেদনপত্রের প্রিন্ট</li><li>শিক্ষার্থীর জন্ম নিবন্ধন সনদের মূল কপি</li><li><b>${evalFee} অ্যাসেসমেন্ট ফি</b> (ক্যাশ)</li></ol>`;
   const officeChecks = bring.length
     ? bring.map((i) => `<span class="cb">${box()}${esc(i.text)}</span>`).join('')
     : `<span class="cb">${box()}জন্ম নিবন্ধনের মূল কপি দেখা হয়েছে</span><span class="cb">${box()}অ্যাসেসমেন্ট ফি ${evalFee} গৃহীত</span>`;
