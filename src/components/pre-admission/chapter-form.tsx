@@ -173,8 +173,10 @@ export function ChapterForm({ locale, applicationId, session, section, otherFiel
   const check = checkSection(section, answers, all);
   // The chosen class's requirements (e.g. girls only), shown on the question that breaks one.
   const broken = classRequirementErrors(all, answers);
+  // A class closed after this draft chose it shows at once, like a broken requirement.
+  const closedChoice = (f: FormField) => !!f.closedOptions?.some((o) => o.value === answers[f.key]);
   const errorFor = (f: FormField): AnswerError | undefined => {
-    if (!showAll && !touched.has(f.key) && !broken.has(f.key)) return undefined;
+    if (!showAll && !touched.has(f.key) && !broken.has(f.key) && !closedChoice(f)) return undefined;
     if (!isVisible(f, answers)) return undefined;
     return checkField(f, answers[f.key]).error ?? (broken.has(f.key) ? 'class_requirement' : undefined);
   };
@@ -184,6 +186,7 @@ export function ChapterForm({ locale, applicationId, session, section, otherFiel
       const b = broken.get(f.key)!;
       return t('chapter.errors.class_requirement', { class: txt(b.className, locale), message: txt(b.message, locale) });
     }
+    if (e === 'class_closed') return t('chapter.errors.class_closed', { class: txt(f.closedOptions?.find((o) => o.value === answers[f.key])?.label, locale) });
     if (e === 'required' && f.type === 'file') return t('chapter.errors.required');
     return t(`chapter.errors.${e}`);
   };

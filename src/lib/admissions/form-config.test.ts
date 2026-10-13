@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { checkFormConfig, classesAcrossVersions, fieldWithRole, formSnapshotSchema, type FormSnapshot, type RawSection } from './form-config';
+import { applyClosedClasses, checkFormConfig, classesAcrossVersions, fieldWithRole, formSnapshotSchema, type FormSnapshot, type RawSection } from './form-config';
 import { sampleSnapshot } from './testing/fixtures';
 
 const sections = () => structuredClone(sampleSnapshot().sections) as RawSection[];
@@ -140,5 +140,62 @@ describe('classesAcrossVersions', () => {
 
   it('leaves out options without a class code', () => {
     expect(classesAcrossVersions([withClasses([{ value: 'x', label: 'X' }])])).toEqual([]);
+  });
+});
+
+describe('closed classes', () => {
+  /** The sample form as raw Studio sections, with “Play” closed and questions that depend on the class. */
+  const raw = () => {
+    const sections = structuredClone(sampleSnapshot().sections) as RawSection[];
+    const fields = sections[0].fields!;
+    const classField = fields.find((f) => f.role === 'classApplied')!;
+    classField.options = [{ value: 'play', label: { bengali: 'প্লে' }, code: 'PL', closed: true }, ...classField.options!];
+    const ask = (key: string, values: string[]) => fields.push({ key, label: { bengali: key }, type: 'text', showWhen: { field: 'class_applied', values } });
+    ask('all_but_play', ['nursery', 'kg', 'class_1', 'class_4']);
+    ask('some', ['play', 'kg']);
+    ask('play_only', ['play']);
+    return sections;
+  };
+  const byKey = (sections: RawSection[], key: string) => sections.flatMap((s) => s.fields ?? []).find((f) => f.key === key)!;
+
+  it('moves closed classes aside and tidies the conditions that named them', () => {
+    const sections = raw();
+    const bring = [{ text: { bengali: 'x' }, showWhen: { field: 'class_applied', values: ['play', 'nursery', 'kg', 'class_1', 'class_4'] } }];
+    applyClosedClasses(sections, bring);
+    const classField = byKey(sections, 'class_applied');
+    expect(classField.options!.map((o) => o.value)).toEqual(['nursery', 'kg', 'class_1', 'class_4']);
+    expect(classField.closedOptions!.map((o) => o.value)).toEqual(['play']);
+    expect(byKey(sections, 'all_but_play').showWhen).toBeUndefined();
+    expect(byKey(sections, 'some').showWhen!.values).toEqual(['kg']);
+    expect(byKey(sections, 'play_only').showWhen!.values).toEqual(['play']);
+    expect(bring[0].showWhen).toBeUndefined();
+  });
+
+  it('leaves a form without closed classes as it is', () => {
+    const sections = raw();
+    byKey(sections, 'class_applied').options![0].closed = false;
+    const before = structuredClone(sections);
+    applyClosedClasses(sections);
+    expect(sections).toEqual(before);
+  });
+
+  it('needs at least one open class', () => {
+    const sections = raw();
+    for (const o of byKey(sections, 'class_applied').options!) o.closed = true;
+    expect(checkFormConfig(sections).join(' ')).toContain('keep at least one open');
+    expect(checkFormConfig(raw())).toEqual([]);
+  });
+
+  it('ignores the requirements of a closed class', () => {
+    const sections = raw();
+    byKey(sections, 'class_applied').options![0].requires = [{ field: 'no_such_question', values: ['x'], message: { bengali: 'x' } }];
+    expect(checkFormConfig(sections)).toEqual([]);
+  });
+
+  it('keeps closed classes findable across versions', () => {
+    const sections = raw();
+    applyClosedClasses(sections);
+    const snap = formSnapshotSchema.parse({ ...sampleSnapshot(), sections });
+    expect(classesAcrossVersions([snap]).map((o) => o.code)).toEqual(['N', 'KG', 'C1', 'C4', 'PL']);
   });
 });

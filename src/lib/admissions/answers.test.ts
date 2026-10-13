@@ -149,3 +149,12 @@ describe('class requirements', () => {
     expect(blockedClasses(fields, { gender: 'female', arabic: 'beginner' })).toEqual([]);
   });
 });
+
+describe('closed class', () => {
+  it('asks a draft that chose a closed class to choose again', () => {
+    const f = { ...field('class_applied'), closedOptions: [{ value: 'play', label: { bengali: 'প্লে' } }] };
+    expect(checkField(f, 'play')).toEqual({ error: 'class_closed' });
+    expect(checkField(f, 'nope')).toEqual({ error: 'invalid_option' });
+    expect(checkField(f, 'kg')).toEqual({ value: 'kg' });
+  });
+});

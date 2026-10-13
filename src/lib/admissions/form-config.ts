@@ -86,6 +86,11 @@ const field = z.object({
   /** Shown only when another field's answer is one of these values. */
   showWhen: condition.optional(),
   options: z.array(option).default([]),
+  /**
+   * Class field only: classes closed for the session (Studio: “Closed for this session”). Not
+   * offered to guardians; kept so the office still finds applications made for them.
+   */
+  closedOptions: z.array(option).optional(),
   /** File fields: photos are images only; documents allow images or PDF. */
   fileKind: z.enum(['photo', 'document']).optional(),
   /** File fields: a "don't have it now" tick box satisfies required (the answer is FILE_MISSING). */
@@ -178,10 +183,12 @@ export type RawField = {
     ageMin?: number;
     ageMax?: number;
     exclusive?: boolean;
+    closed?: boolean;
     requires?: { field?: string; values?: string[]; message?: { bengali?: string } }[];
   }[];
   allowMissing?: boolean;
   missingLabel?: { bengali?: string; english?: string };
+  closedOptions?: RawField['options'];
 };
 export type RawSection = { key?: string; title?: { bengali?: string }; groups?: { key?: string }[]; fields?: RawField[] };
 
@@ -279,7 +286,8 @@ export function checkFormConfig(sections: RawSection[] | undefined): string[] {
 function checkClassRequirements(fields: Map<string, RawField>): string[] {
   const problems: string[] = [];
   const classField = [...fields.values()].find((f) => f.role === 'classApplied');
-  for (const o of classField?.options ?? []) {
+  // A closed class's requirements are not used while it is closed.
+  for (const o of (classField?.options ?? []).filter((x) => !x.closed)) {
     for (const r of o.requires ?? []) {
       const where = `Class “${o.label?.bengali ?? o.value}” → requirement`;
       const target = r.field ? fields.get(r.field) : undefined;
@@ -307,7 +315,32 @@ function checkClassOptions(where: string, f: RawField): string[] {
     else codes.add(o.code);
     if (o.ageMin != null && o.ageMax != null && o.ageMin >= o.ageMax) problems.push(`${where} → ${name}: “up to age” must be above “from age” (Nursery for 4-year-olds: from 4, up to 5).`);
   }
+  if (f.options?.length && f.options.every((o) => o.closed)) problems.push(`${where}: every class is “Closed for this session”; keep at least one open.`);
   return problems;
+}
+
+/**
+ * Classes ticked “Closed for this session” (snapshot step, on the cleaned copy): they move from the
+ * class options to `closedOptions`, and leave the “show only when” lists that name them. A list
+ * left naming every open class is dropped (the question is for everyone); one naming only closed
+ * classes is kept as it is, so its question stays hidden.
+ */
+export function applyClosedClasses(sections: RawSection[], bringList: RawBringItem[] = []): void {
+  const classField = sections.flatMap((s) => s.fields ?? []).find((f) => f.role === 'classApplied');
+  const closed = classField?.options?.filter((o) => o.closed) ?? [];
+  if (!classField?.key || !closed.length) return;
+  const open = classField.options!.filter((o) => !o.closed);
+  classField.closedOptions = closed;
+  classField.options = open;
+  const closedValues = new Set(closed.map((o) => o.value));
+  const holders: { showWhen?: { field?: string; values?: string[] } }[] = [...sections.flatMap((s) => s.fields ?? []), ...bringList];
+  for (const h of holders) {
+    if (h.showWhen?.field !== classField.key) continue;
+    const kept = (h.showWhen.values ?? []).filter((v) => !closedValues.has(v));
+    if (!kept.length) continue;
+    if (open.every((o) => kept.includes(o.value!))) delete h.showWhen;
+    else h.showWhen.values = kept;
+  }
 }
 
 export type RawBringItem = { text?: { bengali?: string }; showWhen?: { field?: string; values?: string[] }; document?: string };
@@ -341,13 +374,14 @@ export function fieldWithRole(snapshot: Pick<FormSnapshot, 'sections'>, role: Ro
 }
 
 /**
- * The class options (with a code) of several form versions, newest first: one per class code, the
+ * The class options (with a code, closed ones included) of several form versions, newest first: one per class code, the
  * newest version's label winning. A class taken out of the form stays findable by its applications.
  */
 export function classesAcrossVersions(snapshots: Pick<FormSnapshot, 'sections'>[]): FormOption[] {
   const byCode = new Map<string, FormOption>();
   for (const snapshot of snapshots) {
-    for (const o of fieldWithRole(snapshot, 'classApplied')?.options ?? []) if (o.code && !byCode.has(o.code)) byCode.set(o.code, o);
+    const field = fieldWithRole(snapshot, 'classApplied');
+    for (const o of [...(field?.options ?? []), ...(field?.closedOptions ?? [])]) if (o.code && !byCode.has(o.code)) byCode.set(o.code, o);
   }
   return [...byCode.values()];
 }
