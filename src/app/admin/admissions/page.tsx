@@ -110,13 +110,12 @@ export default async function AdmissionsOverview() {
     );
   const { snapshot } = cycle;
   const heard = fieldWithRole(snapshot, 'heardFrom');
-  const o = await overview(cycle.cycleId, heard?.key ?? null);
+  const [o, classes] = await Promise.all([overview(cycle.cycleId, heard?.key ?? null), classOptions(cycle)]);
   const now = new Date();
   const days = dailySeries(o.byDay, now);
   const today = days.at(-1)?.count ?? 0;
   const yesterday = days.at(-2)?.count ?? 0;
   const maxDay = Math.max(1, ...days.map((d) => d.count));
-  const classes = classOptions(snapshot);
   // Each class opens the paid list filtered to it.
   const byClass = classes.map((c) => ({ label: c.label, count: o.byClass.find((b) => b.classCode === c.value)?.count ?? 0, href: `/admin/admissions/applications?class=${c.value}` }));
   const heardRows = heard

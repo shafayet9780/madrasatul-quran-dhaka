@@ -2,13 +2,12 @@
 
 import { redirect, unstable_rethrow } from 'next/navigation';
 import { after } from 'next/server';
-import { getCurrentCycle } from '@/lib/admissions/cycle';
+import { cycleClasses, getCurrentCycle } from '@/lib/admissions/cycle';
 import { createHash } from 'node:crypto';
 import { parseIsoDate } from '@/lib/admissions/age';
 import { createDraft, findApplications, getByToken, loadById, saveDraft, savePledge, submitDraft } from '@/lib/admissions/drafts';
 import { sendResumeEmail } from '@/lib/admissions/mail';
 import { asLocale, txt } from '@/lib/admissions/display';
-import { fieldWithRole } from '@/lib/admissions/form-config';
 import { parseApplicationId } from '@/lib/admissions/ids';
 import { normaliseMobile } from '@/lib/admissions/normalise';
 import { flowPath } from '@/lib/admissions/pages';
@@ -167,8 +166,8 @@ export async function findApplication(localeParam: string, _prev: FindState, for
   try {
     const cycle = await getCurrentCycle();
     if (!cycle) return { message: 'notConfigured' };
-    const classField = fieldWithRole(cycle.snapshot, 'classApplied');
-    const codes = classField?.options.map((o) => o.code).filter((c): c is string => !!c) ?? [];
+    const classes = await cycleClasses(cycle.cycleId, cycle.snapshot);
+    const codes = classes.map((o) => o.code!);
     const ref = parseApplicationId(query, codes);
     const mobile = ref ? null : normaliseMobile(query);
     const errors: FindState['errors'] = {
@@ -186,7 +185,7 @@ export async function findApplication(localeParam: string, _prev: FindState, for
     await rememberFound(found.map((a) => a.id));
     return {
       results: found.map((a) => {
-        const option = classField?.options.find((o) => o.value === a.classValue);
+        const option = classes.find((o) => o.value === a.classValue);
         return {
           id: a.id,
           publicRef: a.publicRef,

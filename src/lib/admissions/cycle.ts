@@ -1,8 +1,8 @@
 import 'server-only';
-import { and, eq, inArray, isNotNull, sql } from 'drizzle-orm';
+import { and, desc, eq, inArray, isNotNull, sql } from 'drizzle-orm';
 import { getAdmissionsDb } from './db';
 import { localOverrides } from './local';
-import type { FormSnapshot } from './form-config';
+import { classesAcrossVersions, type FormOption, type FormSnapshot } from './form-config';
 import { admissionCycles, admissionSnapshots, applications } from './schema';
 import { hasTestPass } from './test-pass';
 import { FormConfigError, buildSnapshot, cycleWindow, type CycleWindow, type FormDocument } from './snapshot';
@@ -28,6 +28,30 @@ export const FORM_QUERY = `*[_type == "preAdmissionForm" && !(_id in path("draft
   _rev, formSettings{ isEnabled }, declarationText, cycle, sections,
   "fees": *[_id == "feeSettings"][0]${FEES}
 }`;
+
+/**
+ * Every class of the cycle with a code: the current form's, then those of older versions that a
+ * submitted application chose (a class since taken out of the form). For the admin filters and
+ * chart, and for reading application IDs.
+ */
+export async function cycleClasses(cycleId: string, current: FormSnapshot): Promise<FormOption[]> {
+  const db = getAdmissionsDb();
+  const used = await db
+    .selectDistinct({ version: applications.snapshotVersion, code: applications.classCode })
+    .from(applications)
+    .where(and(eq(applications.cycleId, cycleId), isNotNull(applications.classCode)));
+  const usedCodes = new Set(used.map((r) => r.code));
+  const older = used.length
+    ? await db
+        .select({ snapshot: admissionSnapshots.snapshot })
+        .from(admissionSnapshots)
+        .where(and(eq(admissionSnapshots.cycleId, cycleId), inArray(admissionSnapshots.version, [...new Set(used.map((r) => r.version))])))
+        .orderBy(desc(admissionSnapshots.version))
+    : [];
+  const classes = classesAcrossVersions([current, ...older.map((r) => r.snapshot)]);
+  const inCurrent = new Set(classesAcrossVersions([current]).map((o) => o.code));
+  return classes.filter((o) => inCurrent.has(o.code) || usedCodes.has(o.code!));
+}
 
 /**
  * Keeps the cycle's frozen form in step with the published Sanity document: a valid new revision

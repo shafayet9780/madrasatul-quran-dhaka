@@ -340,6 +340,18 @@ export function fieldWithRole(snapshot: Pick<FormSnapshot, 'sections'>, role: Ro
   return allFields(snapshot).find((f) => f.role === role);
 }
 
+/**
+ * The class options (with a code) of several form versions, newest first: one per class code, the
+ * newest version's label winning. A class taken out of the form stays findable by its applications.
+ */
+export function classesAcrossVersions(snapshots: Pick<FormSnapshot, 'sections'>[]): FormOption[] {
+  const byCode = new Map<string, FormOption>();
+  for (const snapshot of snapshots) {
+    for (const o of fieldWithRole(snapshot, 'classApplied')?.options ?? []) if (o.code && !byCode.has(o.code)) byCode.set(o.code, o);
+  }
+  return [...byCode.values()];
+}
+
 /** The chapters the guardian fills in: start-page fields (mobile, email) left out, empty chapters dropped. */
 export function guardianSections(snapshot: Pick<FormSnapshot, 'sections'>): FormSection[] {
   return snapshot.sections

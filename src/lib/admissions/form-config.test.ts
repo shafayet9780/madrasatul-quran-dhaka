@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { checkFormConfig, fieldWithRole, formSnapshotSchema, type RawSection } from './form-config';
+import { checkFormConfig, classesAcrossVersions, fieldWithRole, formSnapshotSchema, type FormSnapshot, type RawSection } from './form-config';
 import { sampleSnapshot } from './testing/fixtures';
 
 const sections = () => structuredClone(sampleSnapshot().sections) as RawSection[];
@@ -116,5 +116,29 @@ describe('formSnapshotSchema', () => {
     const snap = formSnapshotSchema.parse(sampleSnapshot());
     expect(fieldWithRole(snap, 'classApplied')?.key).toBe('class_applied');
     expect(fieldWithRole(snap, 'motherName')).toBeUndefined();
+  });
+});
+
+describe('classesAcrossVersions', () => {
+  const withClasses = (options: { value: string; code?: string; label: string }[]) => {
+    const snap = formSnapshotSchema.parse(sampleSnapshot());
+    fieldWithRole(snap, 'classApplied')!.options = options.map((o) => ({ ...o, label: { bengali: o.label } }));
+    return snap as FormSnapshot;
+  };
+
+  it('keeps a class taken out of the newer form, the newer label winning', () => {
+    const current = withClasses([{ value: 'nursery', code: 'N', label: 'নার্সারি (নতুন)' }]);
+    const older = withClasses([
+      { value: 'play', code: 'PL', label: 'প্লে' },
+      { value: 'nursery', code: 'N', label: 'নার্সারি' },
+    ]);
+    expect(classesAcrossVersions([current, older]).map((o) => [o.code, o.label.bengali])).toEqual([
+      ['N', 'নার্সারি (নতুন)'],
+      ['PL', 'প্লে'],
+    ]);
+  });
+
+  it('leaves out options without a class code', () => {
+    expect(classesAcrossVersions([withClasses([{ value: 'x', label: 'X' }])])).toEqual([]);
   });
 });
