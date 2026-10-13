@@ -2,8 +2,8 @@ import 'server-only';
 import { and, eq, inArray, isNotNull, sql } from 'drizzle-orm';
 import { getAdmissionsDb } from './db';
 import { localOverrides } from './local';
-import type { FormSnapshot } from './form-config';
-import { admissionCycles, admissionSnapshots, applications } from './schema';
+import { classesAcrossVersions, type FormOption, type FormSnapshot } from './form-config';
+import { admissionCycles, admissionSnapshots, applicationSerials, applications } from './schema';
 import { hasTestPass } from './test-pass';
 import { FormConfigError, buildSnapshot, cycleWindow, type CycleWindow, type FormDocument } from './snapshot';
 
@@ -28,6 +28,26 @@ export const FORM_QUERY = `*[_type == "preAdmissionForm" && !(_id in path("draft
   _rev, formSettings{ isEnabled }, declarationText, cycle, sections,
   "fees": *[_id == "feeSettings"][0]${FEES}
 }`;
+
+/**
+ * Class codes that read an application ID: the current form's (closed classes included) and every
+ * code that has given an ID this cycle, so a class since taken out of the form still works.
+ */
+export async function idClassCodes(cycleId: string, current: FormSnapshot): Promise<string[]> {
+  const issued = await getAdmissionsDb().select({ code: applicationSerials.classCode }).from(applicationSerials).where(eq(applicationSerials.cycleId, cycleId));
+  return [...new Set([...classesAcrossVersions([current]).map((o) => o.code!), ...issued.map((r) => r.code)])];
+}
+
+/**
+ * Every class of the cycle with its label: the current form's, then a class since taken out of the
+ * form that gave an ID, labelled as in the newest version that had it. For the admin filters and chart.
+ */
+export async function cycleClasses(cycleId: string, current: FormSnapshot): Promise<FormOption[]> {
+  const [codes, answered] = await Promise.all([idClassCodes(cycleId, current), loadAnsweredSnapshots(cycleId)]);
+  const older = [...answered].sort(([a], [b]) => b - a).map(([, snapshot]) => snapshot);
+  const keep = new Set(codes);
+  return classesAcrossVersions([current, ...older]).filter((o) => keep.has(o.code!));
+}
 
 /**
  * Keeps the cycle's frozen form in step with the published Sanity document: a valid new revision

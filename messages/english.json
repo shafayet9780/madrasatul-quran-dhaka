@@ -987,7 +987,8 @@
         "invalid_email": "Enter a valid email address",
         "invalid_date": "Enter a valid date",
         "invalid_number": "Enter a number",
-        "class_requirement": "{class}: {message}"
+        "class_requirement": "{class}: {message}",
+        "class_closed": "{class}: closed this session, please choose another class"
       }
     },
     "file": {

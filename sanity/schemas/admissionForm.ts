@@ -59,6 +59,13 @@ export const admissionOption = defineType({
     }),
     defineField({ name: 'special', title: 'By special consideration', type: 'boolean', fieldset: 'class' }),
     defineField({
+      name: 'closed',
+      title: 'Closed for this session',
+      type: 'boolean',
+      fieldset: 'class',
+      description: 'Parents cannot choose this class. Untick to open it again. Applications already made are not affected.',
+    }),
+    defineField({
       name: 'requires',
       title: 'Requirements (all must be met)',
       type: 'array',
@@ -85,7 +92,10 @@ export const admissionOption = defineType({
       description: 'For “none of the above”: ticking it clears the other choices, and ticking another choice clears it.',
     }),
   ],
-  preview: { select: { title: 'label.bengali', subtitle: 'value', code: 'code' }, prepare: ({ title, subtitle, code }) => ({ title, subtitle: code ? `${subtitle} · ${code}` : subtitle }) },
+  preview: {
+    select: { title: 'label.bengali', subtitle: 'value', code: 'code', closed: 'closed' },
+    prepare: ({ title, subtitle, code, closed }) => ({ title, subtitle: [subtitle, code, closed && 'Closed for this session'].filter(Boolean).join(' · ') }),
+  },
 })
 
 export const admissionField = defineType({

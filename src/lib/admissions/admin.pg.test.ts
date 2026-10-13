@@ -2,7 +2,7 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { eq, sql } from 'drizzle-orm';
 import { addNote, adminCycle, applicationCounts, applicationDetail, deleteUnpaid, listApplications, overview, setEvaluationDay, setStatuses } from './admin';
-import { syncCycle, type CycleState } from './cycle';
+import { cycleClasses, idClassCodes, syncCycle, type CycleState } from './cycle';
 import { createDraft, getByToken, saveDraft, submitDraft, type Application } from './drafts';
 import { acceptHeldPayment, confirmPayment, latestPayment, startPayment } from './payments';
 import { applicationEvents, applications } from './schema';
@@ -17,6 +17,7 @@ let db: AdmissionsDb;
 let stop: () => Promise<void>;
 let cycle: CycleState;
 let gateway: MockGateway;
+let formDoc: FormDocument;
 
 beforeAll(async () => {
   ({ db, stop } = await startTestDb());
@@ -32,6 +33,7 @@ beforeEach(async () => {
     cycle: { session: '2027', applicationFee: 500, evaluationFee: 500, closesAt: '2099-01-01T00:00:00Z' },
     sections: structuredClone(s.sections),
   };
+  formDoc = doc;
   cycle = (await syncCycle(doc))!;
   gateway = mockGateway();
 });
@@ -165,5 +167,18 @@ describe('admin queries', () => {
     expect(o.byDay).toHaveLength(1);
     expect(o.byDay[0].count).toBe(2);
     expect(o.recent).toHaveLength(2);
+  });
+
+  it('keeps a class taken out of the form for filters and IDs while an application chose it', async () => {
+    await application({ name: 'আয়েশা', mobile: '01812345678', classValue: 'nursery', pay: 'pay' });
+    await application({ name: 'উমর', mobile: '01912345678', submit: false });
+    const next = structuredClone(formDoc);
+    const classField = next.sections!.flatMap((x) => x.fields ?? []).find((f) => f.role === 'classApplied')!;
+    classField.options = classField.options!.filter((o) => o.value !== 'nursery' && o.value !== 'class_4');
+    const updated = (await syncCycle({ ...next, _rev: 'r2' }))!;
+    expect(updated.version).toBe(2);
+    // Nursery gave an ID on version 1 and stays; class 4 gave none and is gone.
+    expect((await cycleClasses(updated.cycleId, updated.snapshot)).map((o) => o.code)).toEqual(['KG', 'C1', 'N']);
+    expect(await idClassCodes(updated.cycleId, updated.snapshot)).toEqual(['KG', 'C1', 'N']);
   });
 });

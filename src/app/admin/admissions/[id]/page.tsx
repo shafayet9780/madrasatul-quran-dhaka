@@ -38,7 +38,8 @@ export default async function ApplicationPage({ params, searchParams }: Props) {
   const fee = taka(snapshot.settings.evaluationFee, 'bengali');
 
   const classField = fieldWithRole(snapshot, 'classApplied');
-  const classLabel = txt(classField?.options.find((o) => o.value === app.classValue)?.label, 'bengali');
+  // A draft may still hold a class closed since (closedOptions).
+  const classLabel = txt([...(classField?.options ?? []), ...(classField?.closedOptions ?? [])].find((o) => o.value === app.classValue)?.label, 'bengali');
   const photoField = fieldWithRole(snapshot, 'studentPhoto');
   const photo = photoField ? (app.answers[photoField.key] as FileAnswer | undefined) : undefined;
   const name = app.studentNameBn || 'নাম দেওয়া হয়নি';

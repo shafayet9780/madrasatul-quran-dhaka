@@ -5,9 +5,9 @@ import { Button } from '@/components/shadcn/button';
 import { adminCycle, applicationCounts, listApplications, type AdminCycle, type ListTab } from '@/lib/admissions/admin';
 import { OFFICE_STATUSES, STATUS_LABEL, attemptsText, lastActive, shortDate, type ApplicationStatus } from '@/lib/admissions/admin-labels';
 import { chapterStatus } from '@/lib/admissions/answers';
-import { loadSnapshot } from '@/lib/admissions/cycle';
+import { cycleClasses, loadSnapshot } from '@/lib/admissions/cycle';
 import { longDate, txt } from '@/lib/admissions/display';
-import { allFields, fieldWithRole, guardianSections, type FormSnapshot } from '@/lib/admissions/form-config';
+import { allFields, guardianSections, type FormSnapshot } from '@/lib/admissions/form-config';
 import { formatMobile, toBengaliDigits as bn } from '@/lib/admissions/normalise';
 import { cn } from '@/lib/utils';
 import { PageTop } from '../AdminShell';
@@ -19,8 +19,9 @@ export type ListSearch = { q?: string; class?: string; status?: string; eval?: s
 
 const PAGE_SIZE = 25;
 
-export const classOptions = (snapshot: FormSnapshot) =>
-  (fieldWithRole(snapshot, 'classApplied')?.options ?? []).filter((o) => o.code).map((o) => ({ value: o.code!, label: txt(o.label, 'bengali'), optionValue: o.value }));
+/** Every class of the cycle, a class since taken out of the form included (cycleClasses). */
+export const classOptions = async (cycle: AdminCycle) =>
+  (await cycleClasses(cycle.cycleId, cycle.snapshot)).map((o) => ({ value: o.code!, label: txt(o.label, 'bengali'), optionValue: o.value }));
 
 export function NoCycle({ children }: { children?: ReactNode }) {
   return (
@@ -72,7 +73,7 @@ function progress(status: ApplicationStatus, snapshot: FormSnapshot | null, answ
 export async function ListPage({ tab, search }: { tab: ListTab; search: ListSearch }) {
   const cycle = await adminCycle();
   if (!cycle) return <NoCycle />;
-  const classes = classOptions(cycle.snapshot);
+  const classes = await classOptions(cycle);
   const page = Math.max(1, Number(search.page) || 1);
   const statuses: ApplicationStatus[] = tab === 'paid' ? OFFICE_STATUSES : ['draft', 'unpaid'];
   const status = statuses.find((s) => s === search.status);

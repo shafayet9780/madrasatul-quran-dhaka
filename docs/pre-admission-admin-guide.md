@@ -88,9 +88,27 @@ Publish a change and the website uses it within about a minute. Applications alr
   - A file question: **Allow "don't have it now"**, with the text of the tick box and the note shown once it is ticked.
   - A checkbox option: **Only this choice** (e.g. "none of the above" clears the other choices).
   - A class option: **Requirements (all must be met)**. Each one names a question by its key, the answers that meet it and a short message (2027: class 7 takes girls only, `student_gender` = `female`, who know nahw and sarf, `arabic_level` = `knows_nahw_sarf`). The messages show beside the class on the website, the intro page and the paper form. A class whose requirement fails on an earlier question (gender) cannot be chosen; a later question (Arabic level) shows the message and the form cannot be submitted until the answer or the class changes. The question must be shown for that class (its "show only when" must include it).
+  - A class option: **Closed for this session** (under *Class field only*). See *Closing a class for a session* below.
   - **Fees & Discounts → Transport**: vehicles with their monthly charge (none means "contact the office") and routes with their stops in order. A change here also makes a new form version, so guardians who already applied keep the charge they saw.
 
 The full rules are in [`pre-admission-2027-updates.md`](pre-admission-2027-updates.md), section 2.
+
+### Closing a class for a session
+
+To stop taking applications for a class (e.g. Play for 2027), don't delete it. Close it:
+
+1. *Preadmission Form* → Student section → the class question → the class → *Class field only* → tick **Closed for this session**.
+2. Publish. The option list now shows "Closed for this session" next to the class.
+3. Open the form on the website and check the class is gone.
+
+What happens:
+- Parents no longer see the class: not on the form, the intro page, the age hint or the paper form.
+- Questions shown "only when" that class is chosen are tidied by themselves: the class is dropped from the list, and a question that is then asked for every open class is simply asked of everyone. Nothing to edit by hand.
+- A parent whose unfinished form had chosen the class sees "এ বছর এই শ্রেণীতে ভর্তি বন্ধ, অন্য শ্রেণী বেছে নিন" and picks another class; their other answers stay.
+- Applications already made for the class are not affected. The class stays in the admin filter and chart, and its IDs (e.g. `PL-001`) still work on assessment day and in "find my application".
+- The class's requirements (if any) are not used while it is closed.
+
+To open it again, untick the box and publish. At least one class must stay open; the Studio won't publish otherwise.
 
 ## Good to know
 

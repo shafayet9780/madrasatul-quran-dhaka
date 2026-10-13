@@ -10,7 +10,7 @@ export type FileAnswer = { key: string; name: string; size: number; type: string
 export type AnswerValue = string | string[] | number | FileAnswer;
 export type Answers = Record<string, AnswerValue>;
 
-export type AnswerError = 'required' | 'invalid' | 'invalid_option' | 'invalid_mobile' | 'invalid_email' | 'invalid_date' | 'invalid_number' | 'class_requirement';
+export type AnswerError = 'required' | 'invalid' | 'invalid_option' | 'invalid_mobile' | 'invalid_email' | 'invalid_date' | 'invalid_number' | 'class_requirement' | 'class_closed';
 
 const MAX_TEXT = 500;
 const MAX_LONG_TEXT = 3000;
@@ -118,7 +118,9 @@ export function checkField(f: FormField, v: AnswerValue | undefined): { value?: 
     case 'select':
     case 'radio':
     case 'transportStop':
-      return typeof v === 'string' && optionValues(f).has(v) ? { value: v } : { error: 'invalid_option' };
+      if (typeof v === 'string' && optionValues(f).has(v)) return { value: v };
+      // A class closed after the draft chose it: the guardian is asked to choose another.
+      return f.closedOptions?.some((o) => o.value === v) ? { error: 'class_closed' } : { error: 'invalid_option' };
     case 'checkbox': {
       const allowed = optionValues(f);
       if (!Array.isArray(v) || !v.every((x) => allowed.has(x))) return { error: 'invalid_option' };

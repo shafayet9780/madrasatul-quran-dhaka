@@ -979,7 +979,8 @@
         "invalid_email": "সঠিক ইমেইল ঠিকানা দিন",
         "invalid_date": "সঠিক তারিখ দিন",
         "invalid_number": "সংখ্যায় লিখুন",
-        "class_requirement": "{class}: {message}"
+        "class_requirement": "{class}: {message}",
+        "class_closed": "{class}: এ বছর এই শ্রেণীতে ভর্তি বন্ধ, অন্য শ্রেণী বেছে নিন"
       }
     },
     "file": {
