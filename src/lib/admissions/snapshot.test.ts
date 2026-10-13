@@ -27,6 +27,18 @@ describe('buildSnapshot', () => {
     expect(field.closedOptions).toEqual([{ value: 'nursery', label: { bengali: 'নার্সারি' }, code: 'N', ageMin: 4, ageMax: 5 }]);
   });
 
+  it('drops a closed class’s requirements and leaves the document as it was', () => {
+    const doc = sanityDoc();
+    const classField = doc.sections![0].fields!.find((f) => f.role === 'classApplied')!;
+    Object.assign(classField.options!.find((o) => o.value === 'nursery')!, { closed: true, requires: [{ field: 'x', values: [], message: {} }] });
+    doc.cycle!.bringList = [{ text: { bengali: 'x' }, showWhen: { field: 'class_applied', values: ['nursery', 'kg'] } }];
+    const before = structuredClone(doc);
+    const snap = buildSnapshot(doc);
+    expect(snap.sections[0].fields.find((f) => f.role === 'classApplied')!.closedOptions![0].requires).toBeUndefined();
+    expect(snap.settings.bringList![0].showWhen).toEqual({ field: 'class_applied', values: ['kg'] });
+    expect(doc).toEqual(before);
+  });
+
   it('strips Sanity keys and empty values', () => {
     const snap = buildSnapshot(sanityDoc(), new Date('2026-10-07T00:00:00Z'));
     expect(snap.takenAt).toBe('2026-10-07T00:00:00.000Z');

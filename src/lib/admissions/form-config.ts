@@ -330,7 +330,8 @@ export function applyClosedClasses(sections: RawSection[], bringList: RawBringIt
   const closed = classField?.options?.filter((o) => o.closed) ?? [];
   if (!classField?.key || !closed.length) return;
   const open = classField.options!.filter((o) => !o.closed);
-  classField.closedOptions = closed;
+  // Their requirements are not used while closed (nor checked), so they are not kept.
+  classField.closedOptions = closed.map((o) => ({ ...o, requires: undefined }));
   classField.options = open;
   const closedValues = new Set(closed.map((o) => o.value));
   const holders: { showWhen?: { field?: string; values?: string[] } }[] = [...sections.flatMap((s) => s.fields ?? []), ...bringList];
@@ -338,6 +339,7 @@ export function applyClosedClasses(sections: RawSection[], bringList: RawBringIt
     if (h.showWhen?.field !== classField.key) continue;
     const kept = (h.showWhen.values ?? []).filter((v) => !closedValues.has(v));
     if (!kept.length) continue;
+    // Asked for every open class: asked of everyone (a draft still on a closed class must change it anyway).
     if (open.every((o) => kept.includes(o.value!))) delete h.showWhen;
     else h.showWhen.values = kept;
   }

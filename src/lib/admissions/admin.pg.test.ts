@@ -2,7 +2,7 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { eq, sql } from 'drizzle-orm';
 import { addNote, adminCycle, applicationCounts, applicationDetail, deleteUnpaid, listApplications, overview, setEvaluationDay, setStatuses } from './admin';
-import { cycleClasses, syncCycle, type CycleState } from './cycle';
+import { cycleClasses, idClassCodes, syncCycle, type CycleState } from './cycle';
 import { createDraft, getByToken, saveDraft, submitDraft, type Application } from './drafts';
 import { acceptHeldPayment, confirmPayment, latestPayment, startPayment } from './payments';
 import { applicationEvents, applications } from './schema';
@@ -177,7 +177,8 @@ describe('admin queries', () => {
     classField.options = classField.options!.filter((o) => o.value !== 'nursery' && o.value !== 'class_4');
     const updated = (await syncCycle({ ...next, _rev: 'r2' }))!;
     expect(updated.version).toBe(2);
-    // Nursery was chosen on version 1 and stays; class 4 was chosen by no one and is gone.
+    // Nursery gave an ID on version 1 and stays; class 4 gave none and is gone.
     expect((await cycleClasses(updated.cycleId, updated.snapshot)).map((o) => o.code)).toEqual(['KG', 'C1', 'N']);
+    expect(await idClassCodes(updated.cycleId, updated.snapshot)).toEqual(['KG', 'C1', 'N']);
   });
 });

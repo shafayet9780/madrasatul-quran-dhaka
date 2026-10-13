@@ -123,7 +123,7 @@ export function buildSnapshot(doc: FormDocument, takenAt: Date = new Date()): Fo
   const sections = clean(doc.sections) as RawSection[];
   for (const f of sections.flatMap((s) => s.fields ?? [])) if (f.type === 'transportStop') f.options = stopOptions;
   // Studio leaves an emptied "show only when" behind as an empty object.
-  const bringList = c!.bringList?.map(({ text, showWhen, document }) => ({ text, showWhen: showWhen?.field ? showWhen : undefined, document }));
+  const bringList = c!.bringList?.map(({ text, showWhen, document }) => ({ text, showWhen: showWhen?.field ? { ...showWhen } : undefined, document }));
   applyClosedClasses(sections, bringList);
 
   const parsed = formSnapshotSchema.safeParse({

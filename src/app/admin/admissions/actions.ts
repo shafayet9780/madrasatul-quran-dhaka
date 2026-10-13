@@ -11,7 +11,7 @@ import { toBengaliDigits } from '@/lib/admissions/normalise';
 import { sendConfirmationEmail } from '@/lib/admissions/mail';
 import { afterPaid } from '@/lib/admissions/after-paid';
 import { acceptHeldPayment } from '@/lib/admissions/payments';
-import { cycleClasses } from '@/lib/admissions/cycle';
+import { idClassCodes } from '@/lib/admissions/cycle';
 import { copyPendingToSheet } from '@/lib/admissions/sheet-copy';
 import { endTestPass, giveTestPass } from '@/lib/admissions/test-pass';
 import { assertAdmin, requestOrigin } from '@/lib/survey/admin-auth';
@@ -113,8 +113,7 @@ export async function checkInAction(_: CheckInState, form: FormData): Promise<Ch
   if (scanned) redirect(`/admin/admissions/${scanned}?from=evaluation-day`);
   const cycle = await adminCycle();
   if (!cycle) return { error: 'কোনো ভর্তি সেশন খোলা নেই।', query };
-  const codes = (await cycleClasses(cycle.cycleId, cycle.snapshot)).map((o) => o.code!);
-  const ref = parseApplicationId(query, codes);
+  const ref = parseApplicationId(query, await idClassCodes(cycle.cycleId, cycle.snapshot));
   const found = ref ? await byPublicRef(cycle.cycleId, ref) : null;
   if (!found) return { error: ref ? `${ref} আইডির কোনো আবেদন নেই।` : 'আইডিটি পড়া যায়নি। যেমন: KG-017', query };
   redirect(`/admin/admissions/${found}?from=evaluation-day`);

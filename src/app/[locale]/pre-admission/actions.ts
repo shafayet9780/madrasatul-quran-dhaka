@@ -2,7 +2,7 @@
 
 import { redirect, unstable_rethrow } from 'next/navigation';
 import { after } from 'next/server';
-import { cycleClasses, getCurrentCycle } from '@/lib/admissions/cycle';
+import { cycleClasses, getCurrentCycle, idClassCodes } from '@/lib/admissions/cycle';
 import { createHash } from 'node:crypto';
 import { parseIsoDate } from '@/lib/admissions/age';
 import { createDraft, findApplications, getByToken, loadById, saveDraft, savePledge, submitDraft } from '@/lib/admissions/drafts';
@@ -166,9 +166,7 @@ export async function findApplication(localeParam: string, _prev: FindState, for
   try {
     const cycle = await getCurrentCycle();
     if (!cycle) return { message: 'notConfigured' };
-    const classes = await cycleClasses(cycle.cycleId, cycle.snapshot);
-    const codes = classes.map((o) => o.code!);
-    const ref = parseApplicationId(query, codes);
+    const ref = parseApplicationId(query, await idClassCodes(cycle.cycleId, cycle.snapshot));
     const mobile = ref ? null : normaliseMobile(query);
     const errors: FindState['errors'] = {
       ...(!ref && !mobile && { query: 'invalidQuery' as const }),
@@ -183,9 +181,11 @@ export async function findApplication(localeParam: string, _prev: FindState, for
     const found = await findApplications(cycle.cycleId, ref ? { publicRef: ref } : { mobile: mobile! }, dob);
     if (!found.length) return { message: 'none' };
     await rememberFound(found.map((a) => a.id));
+    const classes = await cycleClasses(cycle.cycleId, cycle.snapshot);
     return {
       results: found.map((a) => {
-        const option = classes.find((o) => o.value === a.classValue);
+        // A submitted application by its class code (stable across form versions), a draft by its choice.
+        const option = classes.find((o) => (a.classCode ? o.code === a.classCode : o.value === a.classValue));
         return {
           id: a.id,
           publicRef: a.publicRef,
