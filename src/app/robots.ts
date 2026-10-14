@@ -18,17 +18,9 @@ export default function robots(): MetadataRoute.Robots {
         ],
       },
       {
-        // Preserve the existing restrictions on AI training and selected crawlers.
-        userAgent: [
-          'GPTBot',
-          'ChatGPT-User',
-          'CCBot',
-          'anthropic-ai',
-          'Claude-Web',
-          'SemrushBot',
-          'AhrefsBot',
-          'MJ12bot',
-        ],
+        // SEO-tool crawlers only. AI assistants and search (ChatGPT, Claude, Perplexity, Gemini) follow the rule
+        // above, so they can read the public pages when a guardian asks them about the school.
+        userAgent: ['SemrushBot', 'AhrefsBot', 'MJ12bot'],
         disallow: '/',
       },
     ],

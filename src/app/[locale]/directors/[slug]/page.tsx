@@ -22,7 +22,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const description =
     getLocalizedText(director.summary, language) || getLocalizedText(director.designation, language);
   return {
-    title: `${name} - ${getLocalizedText(director.designation, language)}`,
+    title: `${name}, ${getLocalizedText(director.designation, language)}`,
     description,
   };
 }

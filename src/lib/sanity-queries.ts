@@ -727,3 +727,8 @@ export const preAdmissionFormQuery = groq`
 `;
 
 export const feeSettingsQuery = groq`*[_type == "feeSettings" && _id == "feeSettings"][0]`;
+
+export const homePageQuery = groq`*[_type == "homePage" && _id == "homePage"][0]{ routine, playSpaces, faq }`;
+
+// Only reviews whose consent is recorded; the homepage shows the first three.
+export const homeTestimonialsQuery = groq`*[_type == "testimonial" && consent == true && show != false] | order(coalesce(order, 1000) asc, _createdAt asc)[0...3]{ _id, originalLanguage, quote, who, classLine, consent, show }`;

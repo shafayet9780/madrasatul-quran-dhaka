@@ -11,6 +11,8 @@ const intlMiddleware = createMiddleware({
   locales: ['bengali', 'english'],
   defaultLocale: 'bengali',
   localePrefix: 'always',
+  // Pages declare their own hreflang alternates (bn-BD, en); the middleware's Link header would use the segment names.
+  alternateLinks: false,
 })
 
 function isUnder(pathname: string, base: string): boolean {

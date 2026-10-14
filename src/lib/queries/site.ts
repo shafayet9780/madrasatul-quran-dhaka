@@ -1,59 +1,7 @@
 import { sanityFetch } from '@/lib/sanity-fetch';
 import type { AvatarPlaceholders } from '@/lib/profile-avatar';
 import type { NavigationVisibility } from '@/lib/nav-visibility';
-import type { MultilingualText, MultilingualSlug, SanityImage } from '@/types/sanity';
-
-export interface PeopleNavDirector {
-  _id: string;
-  name: MultilingualText;
-  slug: MultilingualSlug;
-  gender: 'male' | 'female';
-  photo?: SanityImage;
-  showDetailPage?: boolean;
-}
-
-export interface PeopleNavAdvisor {
-  _id: string;
-  name: MultilingualText;
-  gender: 'male' | 'female';
-  photo?: SanityImage;
-}
-
-export interface PeopleNavDepartment {
-  _id: string;
-  name: MultilingualText;
-  slug: MultilingualSlug;
-}
-
-export interface PeopleNavData {
-  directors: PeopleNavDirector[];
-  advisors: PeopleNavAdvisor[];
-  departments: PeopleNavDepartment[];
-}
-
-/** Compact data for the "Our People" navigation mega-menu. */
-export async function getPeopleNav(): Promise<PeopleNavData> {
-  const query = `{
-    "directors": *[_type == "director" && featured == true] | order(displayOrder asc)[0...6] {
-      _id, name, slug, gender, photo { ..., alt }, showDetailPage
-    },
-    "advisors": *[_type == "advisor" && featured == true] | order(displayOrder asc)[0...6] {
-      _id, name, gender, photo { ..., alt }
-    },
-    "departments": *[_type == "department"] | order(displayOrder asc) {
-      _id, name, slug
-    }
-  }`;
-  const result = await sanityFetch<PeopleNavData | null>({
-    query,
-    tags: ['director', 'advisor', 'department'],
-  });
-  return {
-    directors: result?.directors ?? [],
-    advisors: result?.advisors ?? [],
-    departments: result?.departments ?? [],
-  };
-}
+import type { SanityImage } from '@/types/sanity';
 
 /** Editor-controlled show/hide toggles for the "Our People" nav sections. */
 export async function getNavigationVisibility(): Promise<NavigationVisibility> {

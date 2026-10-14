@@ -111,81 +111,41 @@ export async function generateMetadata(
 }
 
 /**
- * Generate structured data for educational institution
+ * The school for search engines (schema.org School), built only from Site Settings: the name, logo, address, the
+ * admissions phone, the active emails, the map and the social pages. Anything missing is left out.
  */
-export function generateEducationalInstitutionStructuredData(locale: 'bengali' | 'english') {
-  const baseUrl = getSiteUrl();
-  
+export function generateSchoolStructuredData({
+  locale,
+  logo,
+  address,
+  telephone,
+  emails,
+  mapUrl,
+  sameAs,
+}: {
+  locale: 'bengali' | 'english';
+  logo?: string;
+  address?: string;
+  telephone?: string;
+  emails: string[];
+  mapUrl?: string;
+  sameAs: string[];
+}) {
+  const origin = getSiteUrl();
+  const [name, alternateName] = locale === 'bengali' ? ['মাদরাসাতুল কুরআন', 'Madrasatul Quran'] : ['Madrasatul Quran', 'মাদরাসাতুল কুরআন'];
   return {
     '@context': 'https://schema.org',
-    '@type': 'EducationalOrganization',
-    '@id': `${baseUrl}/#organization`,
-    name: locale === 'bengali' ? 'মাদরাসাতুল কুরআন' : 'Madrasatul Quran',
-    alternateName: locale === 'bengali' ? 'Madrasatul Quran' : 'মাদরাসাতুল কুরআন',
-    description: locale === 'bengali' 
-      ? 'ঢাকার একটি প্রতিষ্ঠিত ইসলামী শিক্ষা প্রতিষ্ঠান যা ঐতিহ্যবাহী ইসলামী শিক্ষার সাথে আধুনিক শিক্ষার সমন্বয় করে।'
-      : 'A leading Islamic educational institution in Dhaka combining traditional Islamic education with modern curriculum.',
-    url: baseUrl,
-    logo: `${baseUrl}/images/logo.png`,
-    image: `${baseUrl}/images/campus-main.jpg`,
-    
-    // Contact Information
-    address: {
-      '@type': 'PostalAddress',
-      streetAddress: 'House 123, Road 456',
-      addressLocality: 'Dhaka',
-      addressRegion: 'Dhaka Division',
-      postalCode: '1000',
-      addressCountry: 'BD',
-    },
-    
-    telephone: '+880-2-1234567',
-    email: 'info@madrasatul-quran.edu.bd',
-    
-    // Educational Details
-    foundingDate: '1995',
-    numberOfStudents: 500,
-    
-    // Programs Offered
-    hasOfferCatalog: {
-      '@type': 'OfferCatalog',
-      name: locale === 'bengali' ? 'শিক্ষা কার্যক্রম' : 'Educational Programs',
-      itemListElement: [
-        {
-          '@type': 'Course',
-          name: locale === 'bengali' ? 'কুরআন মুখস্থকরণ' : 'Quran Memorization',
-          description: locale === 'bengali' 
-            ? 'সম্পূর্ণ কুরআন মুখস্থকরণের জন্য বিশেষ কার্যক্রম'
-            : 'Specialized program for complete Quran memorization',
-        },
-        {
-          '@type': 'Course',
-          name: locale === 'bengali' ? 'ইসলামী শিক্ষা' : 'Islamic Studies',
-          description: locale === 'bengali'
-            ? 'হাদিস, ফিকহ, আরবি ভাষা এবং ইসলামী ইতিহাস'
-            : 'Hadith, Fiqh, Arabic language, and Islamic history',
-        },
-        {
-          '@type': 'Course',
-          name: locale === 'bengali' ? 'এনসিটিবি পাঠ্যক্রম' : 'NCTB Curriculum',
-          description: locale === 'bengali'
-            ? 'জাতীয় শিক্ষাক্রম ও পাঠ্যপুস্তক বোর্ডের অনুমোদিত পাঠ্যক্রম'
-            : 'National Curriculum and Textbook Board approved curriculum',
-        },
-      ],
-    },
-    
-    // Social Media
-    sameAs: [
-      'https://www.facebook.com/madrasatul.quran',
-      'https://www.youtube.com/c/madrasatulquran',
-    ],
-    
-    // Accreditation
-    accreditedBy: {
-      '@type': 'Organization',
-      name: locale === 'bengali' ? 'বাংলাদেশ মাদরাসা শিক্ষা বোর্ড' : 'Bangladesh Madrasah Education Board',
-    },
+    '@type': 'School',
+    '@id': `${origin}/#school`,
+    name,
+    alternateName,
+    url: `${origin}/${locale}`,
+    ...(logo && { logo, image: logo }),
+    ...(address && { address: { '@type': 'PostalAddress', streetAddress: address, addressLocality: 'Dhaka', addressCountry: 'BD' } }),
+    ...(telephone && { telephone }),
+    ...(emails.length > 0 && { email: emails.length === 1 ? emails[0] : emails }),
+    ...(mapUrl && { hasMap: mapUrl }),
+    ...(sameAs.length > 0 && { sameAs }),
   };
 }
 
@@ -267,104 +227,6 @@ export function generateFAQStructuredData(
         text: faq.answer,
       },
     })),
-  };
-}
-
-/**
- * Generate local business structured data
- */
-export function generateLocalBusinessStructuredData(locale: 'bengali' | 'english') {
-  const baseUrl = getSiteUrl();
-  
-  return {
-    '@context': 'https://schema.org',
-    '@type': 'LocalBusiness',
-    '@id': `${baseUrl}/#localbusiness`,
-    name: locale === 'bengali' ? 'মাদরাসাতুল কুরআন' : 'Madrasatul Quran',
-    description: locale === 'bengali'
-      ? 'ঢাকার একটি প্রতিষ্ঠিত ইসলামী শিক্ষা প্রতিষ্ঠান'
-      : 'A leading Islamic educational institution in Dhaka',
-    
-    // Location
-    address: {
-      '@type': 'PostalAddress',
-      streetAddress: 'House 123, Road 456',
-      addressLocality: 'Dhaka',
-      addressRegion: 'Dhaka Division',
-      postalCode: '1000',
-      addressCountry: 'BD',
-    },
-    
-    geo: {
-      '@type': 'GeoCoordinates',
-      latitude: 23.8103,
-      longitude: 90.4125,
-    },
-    
-    // Contact
-    telephone: '+880-2-1234567',
-    email: 'info@madrasatul-quran.edu.bd',
-    url: baseUrl,
-    
-    // Business Hours
-    openingHoursSpecification: [
-      {
-        '@type': 'OpeningHoursSpecification',
-        dayOfWeek: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'],
-        opens: '08:00',
-        closes: '15:00',
-      },
-      {
-        '@type': 'OpeningHoursSpecification',
-        dayOfWeek: 'Friday',
-        opens: '08:00',
-        closes: '11:30',
-      },
-    ],
-    
-    // Services
-    hasOfferCatalog: {
-      '@type': 'OfferCatalog',
-      name: locale === 'bengali' ? 'শিক্ষা সেবা' : 'Educational Services',
-      itemListElement: [
-        {
-          '@type': 'Offer',
-          itemOffered: {
-            '@type': 'Service',
-            name: locale === 'bengali' ? 'প্রাথমিক শিক্ষা' : 'Primary Education',
-          },
-        },
-        {
-          '@type': 'Offer',
-          itemOffered: {
-            '@type': 'Service',
-            name: locale === 'bengali' ? 'মাধ্যমিক শিক্ষা' : 'Secondary Education',
-          },
-        },
-        {
-          '@type': 'Offer',
-          itemOffered: {
-            '@type': 'Service',
-            name: locale === 'bengali' ? 'ইসলামী শিক্ষা' : 'Islamic Education',
-          },
-        },
-      ],
-    },
-    
-    // Reviews and Ratings
-    aggregateRating: {
-      '@type': 'AggregateRating',
-      ratingValue: '4.8',
-      reviewCount: '150',
-      bestRating: '5',
-      worstRating: '1',
-    },
-    
-    // Social Media
-    sameAs: [
-      'https://www.facebook.com/madrasatul.quran',
-      'https://www.youtube.com/c/madrasatulquran',
-    ],
   };
 }
 

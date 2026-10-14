@@ -23,12 +23,13 @@ it('keeps search-engine crawl protections shared and leaves rendering resources 
   ).toBe(false);
   expect(result.sitemap).toBe(`${DEFAULT_SITE_URL}/sitemap.xml`);
 });
-it('preserves the existing blocked crawler policy', () => {
+it('blocks only SEO-tool crawlers and lets AI assistants read the public pages', () => {
   const rules = robots().rules as Array<{
     userAgent: string | string[];
     disallow: string | string[];
   }>;
   expect(rules[1]).toMatchObject({ disallow: '/' });
-  expect(rules[1].userAgent).toContain('GPTBot');
   expect(rules[1].userAgent).toContain('AhrefsBot');
+  const blocked = rules.slice(1).flatMap((rule) => rule.userAgent);
+  for (const bot of ['GPTBot', 'ChatGPT-User', 'OAI-SearchBot', 'ClaudeBot', 'Claude-User', 'PerplexityBot']) expect(blocked).not.toContain(bot);
 });

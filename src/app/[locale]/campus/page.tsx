@@ -7,6 +7,8 @@ import SafetySecuritySection from '@/components/campus/safety-security-section';
 import { getContentService } from '@/lib/content-service';
 import { getPreviewContext } from '@/lib/preview';
 import { PreviewBanner } from '@/components/preview/preview-banner';
+import { generatePageMetadata } from '@/lib/page-metadata';
+import type { Locale } from '@/lib/i18n';
 
 export async function generateMetadata({
   params,
@@ -16,10 +18,7 @@ export async function generateMetadata({
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'campus.meta' });
 
-  return {
-    title: t('title'),
-    description: t('description'),
-  };
+  return generatePageMetadata({ title: t('title'), description: t('description'), locale: locale as Locale, path: '/campus' });
 }
 
 export default async function CampusPage() {

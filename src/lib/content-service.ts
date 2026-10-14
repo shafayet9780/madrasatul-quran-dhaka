@@ -1,5 +1,6 @@
 import type { FeeSettings } from '@/types/fees';
-import { feeSettingsQuery } from './sanity-queries';
+import type { HomePage, Testimonial } from '@/types/home';
+import { feeSettingsQuery, homePageQuery, homeTestimonialsQuery } from './sanity-queries';
 import { client, previewClient } from './sanity';
 import { sanityFetch } from './sanity-fetch';
 import type { SanityDocument } from '@sanity/client';
@@ -48,6 +49,28 @@ export class ContentService {
     } catch (error) {
       console.error('Error fetching fee settings:', error);
       return null;
+    }
+  }
+
+  /** Studio → Homepage: the routine, play-space photos and FAQ. */
+  async getHomePage(): Promise<HomePage | null> {
+    try {
+      if (this.isPreview) return await this.client.fetch(homePageQuery);
+      return await sanityFetch({ query: homePageQuery, tags: ['homePage'] });
+    } catch (error) {
+      console.error('Error fetching the homepage content:', error);
+      return null;
+    }
+  }
+
+  /** Studio → Guardian reviews: the first three with recorded consent. */
+  async getHomeTestimonials(): Promise<Testimonial[]> {
+    try {
+      if (this.isPreview) return (await this.client.fetch(homeTestimonialsQuery)) ?? [];
+      return (await sanityFetch<Testimonial[]>({ query: homeTestimonialsQuery, tags: ['testimonial'] })) ?? [];
+    } catch (error) {
+      console.error('Error fetching guardian reviews:', error);
+      return [];
     }
   }
 

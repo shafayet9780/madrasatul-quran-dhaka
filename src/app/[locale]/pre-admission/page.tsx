@@ -4,6 +4,7 @@ import { getTranslations } from 'next-intl/server';
 import { ArrowRight, Camera, ChevronDown, Clock, FileText, Smartphone } from 'lucide-react';
 import { Button } from '@/components/shadcn/button';
 import { getContentService } from '@/lib/content-service';
+import { generatePageMetadata } from '@/lib/page-metadata';
 import { urlFor } from '@/lib/sanity';
 import { fieldWithRole } from '@/lib/admissions/form-config';
 import { asLocale, num, taka, txt, type Locale } from '@/lib/admissions/display';
@@ -20,7 +21,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const t = await getTranslations({ locale, namespace: 'preAdmission.intro' });
   const cycle = await safeCurrentCycle();
   const session = num(cycle?.session ?? '2027', locale);
-  return { title: t('metaTitle', { session }), description: t('metaDescription', { session }) };
+  const title = t('metaTitle', { session });
+  // The shared helper adds the canonical link and hreflang; the title keeps the site's "| Madrasatul Quran" suffix.
+  return { ...generatePageMetadata({ title, description: t('metaDescription', { session }), locale, path: '/pre-admission' }), title };
 }
 
 function statusLine(cycle: CycleState | null, locale: Locale, t: Awaited<ReturnType<typeof getTranslations>>): { text: string; open: boolean } {
@@ -67,7 +70,7 @@ export default async function PreAdmissionIntro({ params }: Props) {
   ];
 
   return (
-    <div className="adm [font-family:var(--font-english),var(--font-bengali),system-ui,sans-serif]">
+    <div className="adm font-sans">
       <section className="border-b bg-card">
         <div className="mx-auto grid max-w-[1200px] items-center gap-12 px-4 py-7 md:px-8 md:py-16 lg:grid-cols-2">
           <div className="flex flex-col gap-4 md:gap-5">

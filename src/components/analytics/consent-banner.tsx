@@ -106,11 +106,11 @@ export function ConsentBanner() {
   }
 
   return (
-    <div className="fixed inset-x-0 bottom-0 z-[9998] border-t border-gray-700 bg-gray-900 p-4 text-white shadow-lg">
-      <div className="container-custom flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <p className="text-sm text-gray-100">
+    <div className="fixed inset-x-0 bottom-0 z-[9998] border-t border-line-dark bg-dark py-4 text-on-dark shadow-bar">
+      <div className="page-wrap flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <p className="m-0 text-15 text-on-dark-body">
           {consent.requiresOptIn ? t('regulatedMessage') : t('noticeMessage')}{' '}
-          <Link href={`${policyBase}/cookie-policy`} className="underline text-blue-300">
+          <Link href={`${policyBase}/cookie-policy`} className="font-strong text-on-dark underline underline-offset-4">
             {t('learnMore')}
           </Link>
         </p>
@@ -121,7 +121,7 @@ export function ConsentBanner() {
               acceptAll();
               setVisible(false);
             }}
-            className="rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold hover:bg-green-700"
+            className="inline-flex min-h-11 items-center rounded-full bg-cream px-4 text-15 font-strong text-dark hover:bg-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-bronze-light"
           >
             {t('acceptAll')}
           </button>
@@ -131,14 +131,14 @@ export function ConsentBanner() {
               rejectNonEssential();
               setVisible(false);
             }}
-            className="rounded-lg bg-gray-600 px-4 py-2 text-sm font-semibold hover:bg-gray-500"
+            className="inline-flex min-h-11 items-center rounded-full border border-line-dark-strong px-4 text-15 font-strong text-on-dark hover:bg-panel focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-bronze-light"
           >
             {t('rejectNonEssential')}
           </button>
           <button
             type="button"
             onClick={openPreferences}
-            className="rounded-lg border border-gray-500 px-4 py-2 text-sm font-semibold hover:bg-gray-800"
+            className="inline-flex min-h-11 items-center rounded-full border border-line-dark-strong px-4 text-15 font-strong text-on-dark hover:bg-panel focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-bronze-light"
           >
             {t('managePreferences')}
           </button>

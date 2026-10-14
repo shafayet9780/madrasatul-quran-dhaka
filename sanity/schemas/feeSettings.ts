@@ -189,7 +189,7 @@ export const feeSettings = defineType({
       name: 'transportRoutes',
       title: 'Routes',
       description:
-        'Shown on the Admissions page and in the pre-admission form, where the guardian picks the nearest stop. The charge comes from the route’s vehicle. After the form opens, edit names freely but do not delete a route or stop that guardians may have chosen; hide the route instead.',
+        'Shown on the homepage (stops only, no charges), the Admissions page and in the pre-admission form, where the guardian picks the nearest stop. The charge comes from the route’s vehicle. After the form opens, edit names freely but do not delete a route or stop that guardians may have chosen; hide the route instead.',
       type: 'array',
       group: 'transport',
       of: [

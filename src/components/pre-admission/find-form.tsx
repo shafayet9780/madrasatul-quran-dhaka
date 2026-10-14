@@ -39,7 +39,7 @@ function Result({ r, locale, session, fee, deadline, whatsappUrl }: { r: FoundAp
     <div className="flex flex-col gap-3.5 rounded-xl border bg-card p-4">
       <div className="flex items-start justify-between gap-3">
         <div className="flex flex-col gap-0.5">
-          {r.publicRef && <span className="font-[family-name:var(--font-english)] text-[22px] font-bold tracking-[0.02em]">{r.publicRef}</span>}
+          {r.publicRef && <span className="text-[22px] font-bold tracking-[0.02em]">{r.publicRef}</span>}
           <span className="text-[15px] font-medium">{r.studentName}</span>
           <span className="text-[13px] text-muted-foreground">{[r.classLabel, t('session', { session: num(session, locale) })].filter(Boolean).join(', ')}</span>
         </div>
@@ -107,8 +107,8 @@ export function FindForm(props: { locale: Locale; session: string; fee: string; 
             aria-describedby="query-help"
             className="h-11 rounded-lg bg-card px-3 text-base shadow-none md:text-base"
           />
-          <p id="query-help" className={cn('mt-1.5 text-[13px] leading-normal', state.errors?.query ? 'text-destructive' : 'text-muted-foreground')}>
-            {state.errors?.query ? t('find.invalidQuery') : t.rich('find.queryHelp', { id: (c) => <span className="font-[family-name:var(--font-english)]">{c}</span> })}
+          <p id="query-help" className={cn('mt-1.5 text-[14px] font-[450] leading-normal', state.errors?.query ? 'text-destructive' : 'text-muted-foreground')}>
+            {state.errors?.query ? t('find.invalidQuery') : t.rich('find.queryHelp', { id: (c) => <span>{c}</span> })}
           </p>
         </div>
         <fieldset className="min-w-0" aria-describedby="dob-help">
@@ -118,7 +118,7 @@ export function FindForm(props: { locale: Locale; session: string; fee: string; 
           </legend>
           <input type="hidden" name="dob" value={dob} />
           <DateSelect id="dob" value={dob} locale={locale} years={props.years} invalid={!!state.errors?.dob} onChange={setDob} onBlur={() => {}} />
-          <p id="dob-help" className={cn('mt-1.5 text-[13px] leading-normal', state.errors?.dob ? 'text-destructive' : 'text-muted-foreground')}>
+          <p id="dob-help" className={cn('mt-1.5 text-[14px] font-[450] leading-normal', state.errors?.dob ? 'text-destructive' : 'text-muted-foreground')}>
             {state.errors?.dob ? t('find.invalidDob') : t('find.dobHelp')}
           </p>
         </fieldset>

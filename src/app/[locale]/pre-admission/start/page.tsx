@@ -53,7 +53,7 @@ export default async function StartPage({ params }: Props) {
             {t('start.findLink')}
           </Link>
         </p>
-        <p className="-mt-3 text-[13px] leading-relaxed text-muted-foreground">{t('start.privacy')}</p>
+        <p className="-mt-3 text-[14px] font-[450] leading-relaxed text-muted-foreground">{t('start.privacy')}</p>
       </main>
     </FlowShell>
   );

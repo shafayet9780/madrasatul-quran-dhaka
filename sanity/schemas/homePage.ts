@@ -1,0 +1,103 @@
+import { defineArrayMember, defineField, defineType } from 'sanity'
+import { mlString, mlText } from './shared'
+
+// The homepage's own content (Studio → Homepage). Each list is optional: while it is empty the site shows
+// the wording it was launched with, so the page never goes blank.
+
+const PARTS = [
+  { title: 'Morning', value: 'morning' },
+  { title: 'Midday', value: 'midday' },
+  { title: 'Afternoon', value: 'afternoon' },
+  { title: 'Evening and night', value: 'evening' },
+]
+
+const KINDS = [
+  { title: 'Quran', value: 'quran' },
+  { title: 'Classes', value: 'study' },
+  { title: 'Meal', value: 'meal' },
+  { title: 'Rest', value: 'rest' },
+  { title: 'Salat', value: 'salat' },
+  { title: 'Play', value: 'play' },
+  { title: 'Home time', value: 'home' },
+]
+
+const photo = (name: string, title: string, description: string) =>
+  defineField({
+    name,
+    title,
+    description,
+    type: 'image',
+    options: { hotspot: true },
+    fields: [mlString('alt', 'What the photo shows (for screen readers)', { required: true })],
+  })
+
+export const homePage = defineType({
+  name: 'homePage',
+  title: 'Homepage',
+  type: 'document',
+  fields: [
+    defineField({
+      name: 'routine',
+      title: 'A day in hifz day-care',
+      description:
+        'The routine, by part of the day. Morning steps take clock times; afternoon and evening steps follow the salat (for example "আসরের পর"). Home time is 8:30 pm. Leave empty to keep the launch routine.',
+      type: 'array',
+      validation: (rule) => rule.max(4),
+      of: [
+        defineArrayMember({
+          type: 'object',
+          name: 'routinePart',
+          fields: [
+            defineField({ name: 'part', title: 'Part of the day', type: 'string', options: { list: PARTS, layout: 'radio', direction: 'horizontal' }, validation: (rule) => rule.required() }),
+            mlString('name', 'Heading', { required: true }),
+            defineField({
+              name: 'steps',
+              title: 'Steps',
+              type: 'array',
+              validation: (rule) => rule.required().min(1),
+              of: [
+                defineArrayMember({
+                  type: 'object',
+                  name: 'routineStep',
+                  fields: [
+                    defineField({ name: 'kind', title: 'Kind (sets the icon and colour)', type: 'string', options: { list: KINDS }, validation: (rule) => rule.required() }),
+                    mlString('time', 'Time', { required: true }),
+                    mlString('title', 'What happens', { required: true }),
+                    mlString('gloss', 'Short explanation (optional, for terms like সবক)'),
+                  ],
+                  preview: { select: { title: 'title.bengali', subtitle: 'time.bengali' } },
+                }),
+              ],
+            }),
+          ],
+          preview: { select: { title: 'name.bengali', subtitle: 'part' } },
+        }),
+      ],
+    }),
+    defineField({
+      name: 'playSpaces',
+      title: 'Play spaces',
+      description: 'Shown beside the building photo in the campus section. Until a photo is added its frame shows a placeholder.',
+      type: 'object',
+      fields: [
+        photo('roof', 'Girls: the rooftop garden', 'A landscape photo of the rooftop garden.'),
+        photo('field', 'Boys: the field next door', 'A landscape photo of the field.'),
+      ],
+    }),
+    defineField({
+      name: 'faq',
+      title: 'Questions parents ask',
+      description: 'Facts only, no fees (point to the admissions page). Leave empty to keep the launch questions.',
+      type: 'array',
+      of: [
+        defineArrayMember({
+          type: 'object',
+          name: 'faqItem',
+          fields: [mlString('question', 'Question', { required: true }), mlText('answer', 'Answer', { required: true })],
+          preview: { select: { title: 'question.bengali' } },
+        }),
+      ],
+    }),
+  ],
+  preview: { prepare: () => ({ title: 'Homepage' }) },
+})

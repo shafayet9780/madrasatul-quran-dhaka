@@ -1,5 +1,6 @@
 @import 'tailwindcss';
 @import './shadcn.css';
+@import '../styles/tokens.css';
 
 /* Tailwind CSS v4 @theme directive */
 /* eslint-disable-next-line */
@@ -40,11 +41,6 @@
   --color-accent-700: #8D6B6B;
   --color-accent-800: #755A5A;
   --color-accent-900: #5C4848;
-
-  --font-family-bengali:
-    'Noto Sans Bengali', 'Kalpurush', 'SolaimanLipi', sans-serif;
-  --font-family-english: 'Inter', 'Open Sans', system-ui, sans-serif;
-  --font-family-arabic: 'Noto Sans Arabic', serif;
 }
 /* stylelint-enable at-rule-no-unknown */
 /* eslint-enable */
@@ -100,12 +96,25 @@
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    overflow-x: hidden;
+    /* clip, not hidden: hidden would make the body a scroll container, and scroll-driven animations would follow it. */
+    overflow-x: clip;
     width: 100%;
   }
 
   * {
     box-sizing: border-box;
+  }
+
+  /* Motion is opt-in per component; this is the safety net. */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    ::before,
+    ::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
   }
 }
 
@@ -114,8 +123,7 @@
   html.font-bengali,
   html.font-bengali body,
   .font-bengali {
-    font-family:
-      'Noto Sans Bengali', 'Kalpurush', 'SolaimanLipi', sans-serif !important;
+    font-family: var(--font-sans) !important;
     line-height: 1.7;
     font-feature-settings: 'liga';
     -webkit-font-feature-settings: 'liga';
@@ -126,7 +134,7 @@
   html.font-english,
   html.font-english body,
   .font-english {
-    font-family: 'Inter', 'Open Sans', system-ui, sans-serif !important;
+    font-family: var(--font-sans) !important;
   }
 
   .font-arabic {
@@ -847,11 +855,10 @@ slamic geometric pattern background */
     }
   }
 
-  /* Responsive font adjustments */
+  /* Responsive font adjustments. Never on <html> (locale-provider puts the class there): the rem tokens need the browser's root size. */
   @media (max-width: 430px) {
-    html.font-bengali,
     html.font-bengali body,
-    .font-bengali {
+    .font-bengali:not(html) {
       font-size: 15px;
       line-height: 1.6;
     }
@@ -893,9 +900,8 @@ slamic geometric pattern background */
   }
 
   @media (max-width: 640px) {
-    html.font-bengali,
     html.font-bengali body,
-    .font-bengali {
+    .font-bengali:not(html) {
       font-size: 15px;
       line-height: 1.6;
     }

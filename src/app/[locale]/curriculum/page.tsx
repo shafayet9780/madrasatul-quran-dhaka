@@ -31,8 +31,8 @@ export async function generateMetadata({ params }: CurriculumPageProps) {
     locale,
     path: '/curriculum',
     title: bn
-      ? 'আমাদের কারিকুলাম - মাদরাসাতুল কুরআন'
-      : 'Our Curriculum - Madrasatul Quran',
+      ? 'আমাদের কারিকুলাম | মাদরাসাতুল কুরআন'
+      : 'Our Curriculum | Madrasatul Quran',
     description: bn
       ? 'উত্তরা, ঢাকার মাদরাসাতুল কুরআনের সমন্বিত কুরআন, আরবি ও NCTB কারিকুলাম, শ্রেণি ও পিরিয়ড অনুযায়ী পাঠ পরিকল্পনা, শিক্ষার লক্ষ্য এবং ফি সম্পর্কে জানুন।'
       : 'Explore our integrated Quran, Arabic and NCTB curriculum, class-by-class study plan, learning goals and school fees in Uttara, Dhaka.',

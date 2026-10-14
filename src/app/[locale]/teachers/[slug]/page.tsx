@@ -22,7 +22,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const description =
     getLocalizedText(teacher.summary, language) ||
     (teacher.designation ? getLocalizedText(teacher.designation, language) : name);
-  return { title: `${name} - Madrasatul Quran`, description };
+  return { title: `${name} | Madrasatul Quran`, description };
 }
 
 export default async function TeacherProfile({ params }: Props) {

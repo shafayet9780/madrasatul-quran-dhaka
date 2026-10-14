@@ -1,14 +1,13 @@
 import { NextIntlClientProvider } from 'next-intl';
-import { getMessages } from 'next-intl/server';
+import { getMessages, getTranslations } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 // import { SpeedInsights } from '@vercel/speed-insights/next';
 import { locales } from '@/lib/i18n';
 import LocaleProvider from '@/components/locale-provider';
 import { LanguageContextProvider } from '@/contexts/language-context';
-import { MainLayout } from '@/components/layout';
+import { MainLayout, SiteHeader, SiteFooter } from '@/components/layout';
 import { ConsentBanner } from '@/components/analytics/consent-banner';
 import { getContentService } from '@/lib/content-service';
-import { getPeopleNav } from '@/lib/queries/site';
 import { getAdmissionCta } from '@/lib/admissions/pages';
 import { asLocale } from '@/lib/admissions/display';
 
@@ -32,21 +31,25 @@ export default async function LocaleLayout({
   // side is the easiest way to get started
   const messages = await getMessages();
 
-  // Fetch site/footer settings server-side (cached) and pass to the client
-  // layout as props.
+  // Site and footer settings (cached) feed the server-rendered header and footer.
   const contentService = getContentService(false);
-  const [siteSettings, footerSettings, peopleNav, admissionCta] = await Promise.all([
+  const [siteSettings, footerSettings, admissionCta, t] = await Promise.all([
     contentService.getSiteSettings(),
     contentService.getFooterSettings(),
-    getPeopleNav(),
     getAdmissionCta(asLocale(locale)),
+    getTranslations({ locale, namespace: 'site' }),
   ]);
 
   return (
     <LocaleProvider locale={locale}>
       <NextIntlClientProvider messages={messages}>
         <LanguageContextProvider>
-          <MainLayout siteSettings={siteSettings} footerSettings={footerSettings} peopleNav={peopleNav} admissionCta={admissionCta}>
+          <MainLayout
+            header={<SiteHeader locale={asLocale(locale)} siteSettings={siteSettings} />}
+            footer={<SiteFooter locale={asLocale(locale)} siteSettings={siteSettings} footerSettings={footerSettings} />}
+            skipLabel={t('skip')}
+            admissionCta={admissionCta}
+          >
             {children}
           </MainLayout>
           <ConsentBanner />

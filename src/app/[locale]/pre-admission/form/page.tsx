@@ -141,7 +141,7 @@ export default async function HubPage({ params }: Props) {
           <div className="flex items-center justify-between gap-3 md:gap-4">
             <p className="text-[13.5px] leading-normal text-muted-foreground md:text-sm">
               {app.resumeEmailAt
-                ? t.rich('hub.resumeSent', { email: app.email, addr: (c) => <span className="text-foreground [font-family:var(--font-english)]">{c}</span> })
+                ? t.rich('hub.resumeSent', { email: app.email, addr: (c) => <span className="text-foreground">{c}</span> })
                 : t('hub.resumeNote')}
             </p>
             <CopyLink url={link} label={t('hub.copyLink')} done={t('hub.copied')} />

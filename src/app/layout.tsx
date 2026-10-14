@@ -4,52 +4,23 @@ import { getSiteUrl } from '@/lib/site-url';
 import { SOCIAL_IMAGE } from '@/lib/page-metadata';
 import type { Locale } from '@/lib/i18n';
 import type { Metadata, Viewport } from 'next';
-import { Inter, Noto_Sans_Bengali, Amiri } from 'next/font/google';
 import { PageErrorBoundary } from '@/components/error-boundary';
 import { AnalyticsShell } from '@/components/analytics/analytics-shell';
+import { siteFontVariables } from '@/lib/fonts';
 import './globals.css';
 
-// Font configurations with optimized loading
-const inter = Inter({
-  subsets: ['latin'],
-  variable: '--font-english',
-  display: 'swap',
-  preload: true,
-  fallback: ['system-ui', 'arial'],
-  adjustFontFallback: true,
-});
-
-const notoSansBengali = Noto_Sans_Bengali({
-  subsets: ['bengali'],
-  variable: '--font-bengali',
-  display: 'swap',
-  preload: true,
-  fallback: ['SolaimanLipi', 'Kalpurush', 'sans-serif'],
-  adjustFontFallback: true,
-});
-
-const amiri = Amiri({
-  subsets: ['arabic'],
-  weight: ['400', '700'],
-  variable: '--font-arabic',
-  display: 'swap',
-  preload: false, // Load on demand for Arabic text
-  fallback: ['Times New Roman', 'serif'],
-  adjustFontFallback: true,
-});
-
-// Browser chrome color — matches the light navbar surface.
+// Browser chrome color: the header's paper surface (--color-paper).
 export const viewport: Viewport = {
-  themeColor: '#ffffff',
+  themeColor: '#fbf7ef',
 };
 
 export const metadata: Metadata = {
   metadataBase: new URL(getSiteUrl()),
   title: {
     template: '%s | Madrasatul Quran',
-    default: 'Madrasatul Quran - Excellence in Islamic Education',
+    default: 'Madrasatul Quran, Uttara | An ideal combination of Islamic and general education',
   },
-  description: 'A leading Islamic educational institution in Dhaka combining traditional Islamic values with contemporary education for holistic development',
+  description: 'At Madrasatul Quran in Uttara, Dhaka, Islamic and general education are given equal weight in one ten-year plan. Day-care hifz with general study alongside. Nursery to Class 11.',
   keywords: ['Islamic education', 'Madrasah', 'Quran', 'Hadith', 'Dhaka', 'Bangladesh', 'Educational institution'],
   authors: [{ name: 'Madrasatul Quran' }],
   creator: 'Madrasatul Quran',
@@ -69,8 +40,8 @@ export const metadata: Metadata = {
     locale: 'en_US',
     url: getSiteUrl(),
     siteName: 'Madrasatul Quran',
-    title: 'Madrasatul Quran - Excellence in Islamic Education',
-    description: 'A leading Islamic educational institution in Dhaka combining traditional Islamic values with contemporary education for holistic development',
+    title: 'Madrasatul Quran, Uttara | An ideal combination of Islamic and general education',
+    description: 'At Madrasatul Quran in Uttara, Dhaka, Islamic and general education are given equal weight in one ten-year plan. Day-care hifz with general study alongside. Nursery to Class 11.',
     images: [
       {
         url: SOCIAL_IMAGE,
@@ -84,8 +55,8 @@ export const metadata: Metadata = {
   // Twitter
   twitter: {
     card: 'summary_large_image',
-    title: 'Madrasatul Quran - Excellence in Islamic Education',
-    description: 'A leading Islamic educational institution in Dhaka combining traditional Islamic values with contemporary education for holistic development',
+    title: 'Madrasatul Quran, Uttara | An ideal combination of Islamic and general education',
+    description: 'At Madrasatul Quran in Uttara, Dhaka, Islamic and general education are given equal weight in one ten-year plan. Day-care hifz with general study alongside. Nursery to Class 11.',
     images: [SOCIAL_IMAGE],
   },
   
@@ -119,7 +90,7 @@ export default async function RootLayout({
 }>) {
   const locale = await getLocale() as Locale;
   return (
-    <html lang={languageTag(locale)} className={`${inter.variable} ${notoSansBengali.variable} ${amiri.variable}`}>
+    <html lang={languageTag(locale)} className={siteFontVariables}>
       <body className={`${locale === 'bengali' ? 'font-bengali' : 'font-english'} antialiased`}>
         <AnalyticsShell>
           <PageErrorBoundary>{children}</PageErrorBoundary>
