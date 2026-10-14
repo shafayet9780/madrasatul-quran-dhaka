@@ -101,12 +101,12 @@ Many `scripts/*.js` / `.ts` are one-shot Sanity data seeders (e.g. `populate-san
 - Locales are `'bengali'` and `'english'` (literal segment values, **not** `bn`/`en`). Default `bengali`, `localePrefix: 'always'` — every page lives under `/[locale]/...`.
 - `src/proxy.ts` runs `next-intl` middleware for all routes except `api`, `_next`, `studio`, sitemap/robots. It also gates `/studio` with optional basic auth (`STUDIO_AUTH_ENABLED`, `STUDIO_USERNAME`, `STUDIO_PASSWORD`). (Next 16 renamed the `middleware` convention to `proxy`; nodejs runtime only.)
 - `src/lib/i18n.ts` is the next-intl request config; messages load from `messages/{locale}.json`.
-- Pages: `src/app/[locale]/{about,admissions,campus,contact,curriculum,news,programs,pre-admission}`. Root `src/app/layout.tsx` sets up fonts (Inter/Noto Sans Bengali/Amiri) + analytics; per-locale `src/app/[locale]/layout.tsx` is a Server Component that fetches site/footer settings server-side and passes them as props into the (client) `MainLayout` — don't import the content service into client components.
+- Pages: `src/app/[locale]/{about,admissions,campus,contact,curriculum,news,programs,pre-admission}`. Root `src/app/layout.tsx` sets up the site fonts (`src/lib/fonts.ts`: Anek Latin + Anek Bangla, Tiro Bangla for Bengali quotations) + analytics; per-locale `src/app/[locale]/layout.tsx` is a Server Component that fetches site/footer settings server-side and passes them as props into the (client) `MainLayout` — don't import the content service into client components.
 
 **Cache Components (`cacheComponents`) is intentionally OFF** — next-intl doesn't support it yet (locale reads via `getMessages`/`getTranslations` can't be statically resolved; awaits Next's `next/root-params`). Don't enable the flag or add `'use cache'` to the fetch layer until next-intl ships support.
 
 ### Content (Sanity CMS)
-- Schemas in `sanity/schemas/` (registered via `sanity/schemas/index.ts`): `siteSettings`, `page`, `newsEvent`, `academicProgram`, `staffMember`, `facility`, `footer`, `prospectus`, `preAdmissionForm`. Studio config: `sanity.config.ts` + custom `sanity/structure.ts`.
+- Schemas in `sanity/schemas/` (registered via `sanity/schemas/index.ts`): `siteSettings`, `page`, `newsEvent`, `academicProgram`, `staffMember`, `facility`, `footer`, `prospectus`, `preAdmissionForm`, `homePage` (singleton: the homepage routine, play-space photos and FAQ; empty lists fall back to `messages` `home.*`), `testimonial` (guardian reviews, shown only with consent). Studio config: `sanity.config.ts` + custom `sanity/structure.ts`.
 - All content is multilingual — fields carry Bengali + English variants.
 - Client layer in `src/lib/`:
   - `sanity.ts` — `client` (CDN in prod, no CDN in dev), `previewClient` (token-auth, never CDN), `urlFor()` (built via `@sanity/image-url` v2 named `createImageUrlBuilder`), `getClient(preview)`.
@@ -123,8 +123,9 @@ Many `scripts/*.js` / `.ts` are one-shot Sanity data seeders (e.g. `populate-san
 ### Conventions
 - Import alias `@/*` → `src/*`.
 - `@typescript-eslint/no-explicit-any` is **off**; unused vars are warnings only. TypeScript `strict` on but `noImplicitAny` off.
-- Components grouped by domain under `src/components/` (`homepage`, `about`, `admissions`, `news-events`, `curriculum`, `campus`, `programs`, `forms`, `layout`, `ui`, `translation`, `seo`, `analytics`, `preview`).
-- Cross-cutting libs in `src/lib/`: SEO (`seo.ts`, `local-seo.ts`, `sitemap.ts`), performance (`performance-monitoring.ts`, `image-optimization.ts`, `font-optimization.ts`), `design-system.ts`, `multilingual-content.ts`, `content-validation.ts`, `publishing-workflow.ts`.
+- Components grouped by domain under `src/components/` (`homepage`, `about`, `admissions`, `news-events`, `curriculum`, `campus`, `programs`, `forms`, `layout`, `ui`, `translation`, `analytics`, `preview`).
+- Cross-cutting libs in `src/lib/`: SEO (`seo.ts`: JSON-LD builders, the homepage's School data comes from Site Settings; `page-metadata.ts`: canonical + hreflang; `sitemap.ts`), performance (`performance-monitoring.ts`, `image-optimization.ts`), `fonts.ts`, `multilingual-content.ts`, `content-validation.ts`, `publishing-workflow.ts`.
+- Public-site design tokens (2027 revamp) live in `src/styles/tokens.css` (Tailwind v4 `@theme`, imported by `globals.css`); `DESIGN.md` and the Claude design system are written from it. The old `primary`/`secondary`/`accent` scales in `globals.css` stay until every page is redesigned, then go. The admin keeps Inter + Noto Sans Bengali (`src/components/survey/fonts.ts`).
 - Next images: only `cdn.sanity.io` is whitelisted; WebP/AVIF, 1-year cache TTL (`next.config.ts`).
 
 ## Surveys (teacher/guardian reviews)

@@ -1,0 +1,722 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-14T09:39:07+00:00",
+  "title": "Design System: Madrasatul Quran, Dhaka",
+  "extensions": {
+    "colorMeta": {
+      "cream": {
+        "role": "neutral",
+        "displayName": "Cream",
+        "canonical": "#F4ECDD",
+        "tonalRamp": [
+          "#0C0B08",
+          "#272520",
+          "#46413A",
+          "#676055",
+          "#888276",
+          "#A9A49B",
+          "#CCC9C2",
+          "#F0EEEA"
+        ]
+      },
+      "paper": {
+        "role": "neutral",
+        "displayName": "Paper",
+        "canonical": "#FBF7EF",
+        "tonalRamp": [
+          "#0C0B0A",
+          "#262522",
+          "#44423E",
+          "#64615B",
+          "#85827C",
+          "#A7A5A0",
+          "#CAC9C6",
+          "#EFEEEC"
+        ]
+      },
+      "surface": {
+        "role": "neutral",
+        "displayName": "Surface",
+        "canonical": "#FFFDF8",
+        "tonalRamp": [
+          "#0B0B0A",
+          "#262523",
+          "#43423F",
+          "#63615D",
+          "#84827E",
+          "#A6A5A2",
+          "#CAC9C7",
+          "#EFEEED"
+        ]
+      },
+      "sand": {
+        "role": "neutral",
+        "displayName": "Sand",
+        "canonical": "#EBD5B3",
+        "tonalRamp": [
+          "#0F0A05",
+          "#2B2419",
+          "#4C402E",
+          "#6F5E44",
+          "#918064",
+          "#B1A38E",
+          "#D1C8BA",
+          "#F4EDE3"
+        ]
+      },
+      "sand-deep": {
+        "role": "neutral",
+        "displayName": "Sand Deep",
+        "canonical": "#E3C9A6",
+        "tonalRamp": [
+          "#0F0A04",
+          "#2C2418",
+          "#4D3F2C",
+          "#725D42",
+          "#947F62",
+          "#B3A28C",
+          "#D2C7B9",
+          "#F5EDE3"
+        ]
+      },
+      "sand-pale": {
+        "role": "neutral",
+        "displayName": "Sand Pale",
+        "canonical": "#EFE3CF",
+        "tonalRamp": [
+          "#0D0B07",
+          "#28241E",
+          "#474136",
+          "#696051",
+          "#8B8171",
+          "#ABA498",
+          "#CDC8C0",
+          "#F2EEE8"
+        ]
+      },
+      "dark": {
+        "role": "neutral",
+        "displayName": "Dark",
+        "canonical": "#2C1F15",
+        "tonalRamp": [
+          "#0E0A08",
+          "#292420",
+          "#494039",
+          "#6C5E54",
+          "#8E7F74",
+          "#AEA39A",
+          "#CFC7C2",
+          "#F3EDE9"
+        ]
+      },
+      "panel": {
+        "role": "neutral",
+        "displayName": "Panel",
+        "canonical": "#3A2A1E",
+        "tonalRamp": [
+          "#0E0A07",
+          "#2A241F",
+          "#4B3F37",
+          "#6E5E52",
+          "#907F72",
+          "#AFA299",
+          "#D0C7C1",
+          "#F4EDE8"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Ink",
+        "canonical": "#2B1608",
+        "tonalRamp": [
+          "#0F0A07",
+          "#2C231D",
+          "#4E3E35",
+          "#735C4E",
+          "#957D6E",
+          "#B4A196",
+          "#D3C6BF",
+          "#F6ECE7"
+        ]
+      },
+      "ink-body": {
+        "role": "neutral",
+        "displayName": "Ink Body",
+        "canonical": "#4A2810",
+        "tonalRamp": [
+          "#110905",
+          "#302219",
+          "#543C2D",
+          "#7A5943",
+          "#9D7A63",
+          "#BA9F8E",
+          "#D8C5B9",
+          "#F9EBE3"
+        ]
+      },
+      "ink-muted": {
+        "role": "neutral",
+        "displayName": "Ink Muted",
+        "canonical": "#6B4526",
+        "tonalRamp": [
+          "#120904",
+          "#302216",
+          "#543C29",
+          "#7C593D",
+          "#9E7A5E",
+          "#BB9F89",
+          "#D9C5B7",
+          "#FAECE1"
+        ]
+      },
+      "ink-faint": {
+        "role": "neutral",
+        "displayName": "Ink Faint",
+        "canonical": "#8C7158",
+        "tonalRamp": [
+          "#100A05",
+          "#2D231A",
+          "#4F3E30",
+          "#735C47",
+          "#967D67",
+          "#B4A190",
+          "#D3C7BB",
+          "#F6EDE4"
+        ]
+      },
+      "on-dark": {
+        "role": "neutral",
+        "displayName": "On Dark",
+        "canonical": "#F4ECDD",
+        "tonalRamp": [
+          "#0C0B08",
+          "#272520",
+          "#46413A",
+          "#676055",
+          "#888276",
+          "#A9A49B",
+          "#CCC9C2",
+          "#F0EEEA"
+        ]
+      },
+      "on-dark-body": {
+        "role": "neutral",
+        "displayName": "On Dark Body",
+        "canonical": "#E3D3B8",
+        "tonalRamp": [
+          "#0E0B06",
+          "#29241C",
+          "#494132",
+          "#6C5F4A",
+          "#8D806B",
+          "#AEA493",
+          "#CFC8BD",
+          "#F3EEE6"
+        ]
+      },
+      "on-dark-muted": {
+        "role": "neutral",
+        "displayName": "On Dark Muted",
+        "canonical": "#CDB99A",
+        "tonalRamp": [
+          "#0E0A05",
+          "#2B241A",
+          "#4B402F",
+          "#6E5F46",
+          "#908066",
+          "#B0A38F",
+          "#D0C8BB",
+          "#F4EEE4"
+        ]
+      },
+      "on-dark-faint": {
+        "role": "neutral",
+        "displayName": "On Dark Faint",
+        "canonical": "#A8916F",
+        "tonalRamp": [
+          "#0F0A04",
+          "#2C2418",
+          "#4D402C",
+          "#715E42",
+          "#937F62",
+          "#B2A38C",
+          "#D2C8B9",
+          "#F5EDE3"
+        ]
+      },
+      "rust": {
+        "role": "primary",
+        "displayName": "Rust",
+        "canonical": "#8A3F0A",
+        "tonalRamp": [
+          "#170601",
+          "#391D0D",
+          "#623419",
+          "#904D26",
+          "#B46E47",
+          "#CE977A",
+          "#E6C0AD",
+          "#FFE8DA"
+        ]
+      },
+      "rust-deep": {
+        "role": "primary",
+        "displayName": "Rust Deep",
+        "canonical": "#5C2A08",
+        "tonalRamp": [
+          "#140803",
+          "#332015",
+          "#5A3926",
+          "#845439",
+          "#A77559",
+          "#C39B86",
+          "#DEC3B5",
+          "#FEEAE0"
+        ]
+      },
+      "on-rust-soft": {
+        "role": "primary",
+        "displayName": "On Rust Soft",
+        "canonical": "#FBE6D2",
+        "tonalRamp": [
+          "#0E0A07",
+          "#2A241D",
+          "#4B4035",
+          "#6E5E4F",
+          "#907F6F",
+          "#AFA396",
+          "#D0C7BF",
+          "#F4EDE7"
+        ]
+      },
+      "clay": {
+        "role": "primary",
+        "displayName": "Clay",
+        "canonical": "#9E5420",
+        "tonalRamp": [
+          "#160701",
+          "#381D0C",
+          "#613517",
+          "#8E4E22",
+          "#B36F45",
+          "#CC9879",
+          "#E5C1AC",
+          "#FFE9DA"
+        ]
+      },
+      "bronze": {
+        "role": "secondary",
+        "displayName": "Bronze",
+        "canonical": "#C58A4B",
+        "tonalRamp": [
+          "#140800",
+          "#34200A",
+          "#5B3A13",
+          "#85551C",
+          "#A97640",
+          "#C49D76",
+          "#DFC4AA",
+          "#FEEBD8"
+        ]
+      },
+      "bronze-light": {
+        "role": "secondary",
+        "displayName": "Bronze Light",
+        "canonical": "#E2A867",
+        "tonalRamp": [
+          "#140800",
+          "#34200A",
+          "#5A3A12",
+          "#84561B",
+          "#A8773F",
+          "#C39D75",
+          "#DEC4AA",
+          "#FDEBD8"
+        ]
+      },
+      "open": {
+        "role": "status",
+        "displayName": "Open",
+        "canonical": "#5FC383",
+        "tonalRamp": [
+          "#010F05",
+          "#0D2C19",
+          "#184E2E",
+          "#247244",
+          "#499564",
+          "#7EB48E",
+          "#B0D3BA",
+          "#DDF6E4"
+        ]
+      },
+      "line": {
+        "role": "neutral",
+        "displayName": "Line",
+        "canonical": "#E4D5BC",
+        "tonalRamp": [
+          "#0E0B06",
+          "#29241C",
+          "#494133",
+          "#6B604C",
+          "#8D816C",
+          "#ADA494",
+          "#CFC8BE",
+          "#F2EEE6"
+        ]
+      },
+      "line-strong": {
+        "role": "neutral",
+        "displayName": "Line Strong",
+        "canonical": "#D9C3A0",
+        "tonalRamp": [
+          "#0F0A05",
+          "#2B2418",
+          "#4C402D",
+          "#705E42",
+          "#928063",
+          "#B1A38D",
+          "#D1C8B9",
+          "#F4EEE3"
+        ]
+      },
+      "line-sand": {
+        "role": "neutral",
+        "displayName": "Line Sand",
+        "canonical": "#D9BE95",
+        "tonalRamp": [
+          "#100A04",
+          "#2C2416",
+          "#4E3F28",
+          "#735D3C",
+          "#957F5C",
+          "#B4A289",
+          "#D3C7B6",
+          "#F6EDE1"
+        ]
+      },
+      "line-bronze": {
+        "role": "neutral",
+        "displayName": "Line Bronze",
+        "canonical": "#B98A5E",
+        "tonalRamp": [
+          "#120902",
+          "#312112",
+          "#563C22",
+          "#7E5833",
+          "#A27953",
+          "#BE9E82",
+          "#DAC5B2",
+          "#FBEBDE"
+        ]
+      },
+      "line-dark": {
+        "role": "neutral",
+        "displayName": "Line Dark",
+        "canonical": "#4B372A",
+        "tonalRamp": [
+          "#0F0A07",
+          "#2B231E",
+          "#4C3F36",
+          "#705D50",
+          "#927E71",
+          "#B1A197",
+          "#D2C7C0",
+          "#F5EDE8"
+        ]
+      },
+      "line-dark-strong": {
+        "role": "neutral",
+        "displayName": "Line Dark Strong",
+        "canonical": "#68503E",
+        "tonalRamp": [
+          "#0F0A06",
+          "#2C231C",
+          "#4E3F33",
+          "#725C4C",
+          "#947D6C",
+          "#B3A194",
+          "#D3C7BE",
+          "#F5EDE6"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "The ৫০/৫০ mark only."
+      },
+      "hero": {
+        "displayName": "Hero",
+        "purpose": "The H1 (name and promise)."
+      },
+      "hero-english": {
+        "displayName": "Hero English",
+        "purpose": "The H1 on English pages."
+      },
+      "h2": {
+        "displayName": "H2",
+        "purpose": "Section H2s."
+      },
+      "h3": {
+        "displayName": "H3",
+        "purpose": "Sub-section heads (play spaces, transport, the walk)."
+      },
+      "h4": {
+        "displayName": "H4",
+        "purpose": "Panel titles (the ten-year map)."
+      },
+      "lead": {
+        "displayName": "Lead",
+        "purpose": "Paragraph under the ৫০/৫০ mark."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Reading text in panels."
+      },
+      "body-sm": {
+        "displayName": "Body Sm",
+        "purpose": "Card text, notes."
+      },
+      "caption": {
+        "displayName": "Caption",
+        "purpose": "Photo captions, sources."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Times, tags, small labels."
+      },
+      "figure-xl": {
+        "displayName": "Figure Xl",
+        "purpose": "Split percentages."
+      },
+      "figure-lg": {
+        "displayName": "Figure Lg",
+        "purpose": "Numbers band."
+      },
+      "figure-md": {
+        "displayName": "Figure Md",
+        "purpose": "Goal figures on reason cards."
+      },
+      "figure-sm": {
+        "displayName": "Figure Sm",
+        "purpose": "The ৫০/৫০ chip."
+      },
+      "quote-xl": {
+        "displayName": "Quote Xl",
+        "purpose": "The founder's words."
+      },
+      "quote-lg": {
+        "displayName": "Quote Lg",
+        "purpose": "The prospectus quote."
+      },
+      "quote": {
+        "displayName": "Quote",
+        "purpose": "Guardians' words."
+      },
+      "letter": {
+        "displayName": "Letter",
+        "purpose": "The founder's aim."
+      }
+    },
+    "shadows": [
+      {
+        "name": "photo",
+        "value": "0 30px 60px -30px rgb(44 31 21 / 0.55)",
+        "purpose": "Under hero photos."
+      },
+      {
+        "name": "raise",
+        "value": "0 16px 30px -18px rgb(44 31 21 / 0.8)",
+        "purpose": "A raised card on dark (the ৫০/৫০ chip)."
+      },
+      {
+        "name": "raise-rust",
+        "value": "0 16px 30px -18px rgb(92 42 8 / 0.55)",
+        "purpose": "Raised chips on light."
+      },
+      {
+        "name": "button",
+        "value": "0 12px 24px -14px rgb(92 42 8 / 0.7)",
+        "purpose": "Under the rust apply button."
+      },
+      {
+        "name": "bar",
+        "value": "0 -12px 24px -14px rgb(44 31 21 / 0.7)",
+        "purpose": "Above the phone's apply bar."
+      },
+      {
+        "name": "frame-dark",
+        "value": "0 0 0 1.5px #68503e, 0 24px 40px -24px rgb(0 0 0 / 0.7)",
+        "purpose": "Photo frames on dark (play spaces)."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease-out-expo",
+        "value": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "Glides: split tiles, tab pill, apply bar (700ms / 300ms)."
+      },
+      {
+        "name": "ease-standard",
+        "value": "cubic-bezier(0.33, 0, 0.2, 1)",
+        "purpose": "Small moves: FAQ answers, buttons."
+      },
+      {
+        "name": "animate-settle",
+        "value": "settle 1.1s var(--ease-out-expo) both",
+        "purpose": "Hero photos 2 and 3 on load."
+      },
+      {
+        "name": "animate-rise",
+        "value": "rise 0.7s var(--ease-out-expo) both",
+        "purpose": "Hero chips on load, staggered."
+      },
+      {
+        "name": "animate-tile-in",
+        "value": "tile-in 0.9s var(--ease-out-expo) both",
+        "purpose": "A hero tile's next photo."
+      },
+      {
+        "name": "animate-answer",
+        "value": "answer 0.28s var(--ease-standard) both",
+        "purpose": "An FAQ answer as it opens."
+      },
+      {
+        "name": "draw-x / draw-y",
+        "value": "scroll-driven clip-path, timeline --plan",
+        "purpose": "The ten-year map draws as it scrolls in."
+      },
+      {
+        "name": "route-stop / route-line",
+        "value": "scroll-driven pop and clip-path, timeline --route",
+        "purpose": "Van routes draw down to the school."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "intrinsic",
+        "value": "auto-fit grids and weighted flex bases; phone target 390px; the ten-year map switches at 1200px, the play spaces at 760px"
+      }
+    ],
+    "fonts": {
+      "bengali": "Anek Bangla (Bengali glyphs, weight axis only) via next/font",
+      "english": "Anek Latin (weight axis only)",
+      "quotation": "Tiro Bangla (Bengali quotations only, not preloaded)"
+    },
+    "source": "src/styles/tokens.css; DESIGN.md is generated from it"
+  },
+  "components": [
+    {
+      "name": "SiteHeader",
+      "kind": "section",
+      "description": "The header on every public page (`src/components/layout/site-header.tsx`, a server component): the logo and name, the five main pages, the language switch. It scrolls away with the page."
+    },
+    {
+      "name": "AdmissionBanner",
+      "kind": "section",
+      "description": "The site-wide pre-admission strip above the header (`src/components/layout/admission-banner.tsx`): shown while the form is open or announced, hidden otherwise."
+    },
+    {
+      "name": "Button",
+      "kind": "section",
+      "description": "Pill links (`ButtonLink`, `src/components/site/button.tsx`): `primary` (rust) is the apply action and nothing else; `outline` is the second action on light sections; `light` and `outline-dark` sit on dark sections and bars; `quiet` is the language switch."
+    },
+    {
+      "name": "Hero",
+      "kind": "section",
+      "description": "The homepage opener (`Hero`, `src/components/homepage/hero.tsx`): the H1 (name in `rust`, the promise in `ink`, `text-hero`), two buttons only (apply, prospectus download), the photo mosaic and the three HeroChips."
+    },
+    {
+      "name": "HeroChip",
+      "kind": "section",
+      "description": "The three chips under the hero photos, overlapping them by 40px: the dark ৫০/৫০ chip, then sand (ডে-কেয়ার হিফজ) and paper (আরবি মিডিয়াম) with a rust Phosphor icon."
+    },
+    {
+      "name": "NumbersBand",
+      "kind": "section",
+      "description": "The school in numbers (`NumbersBand`, `src/components/homepage/numbers-band.tsx`), a dark band right after the hero."
+    },
+    {
+      "name": "EducationModel",
+      "kind": "section",
+      "description": "The education model (`EducationModel`, `src/components/homepage/education-model.tsx`; the card is `StageSplit`, `stage-split.tsx`). A `cream` section after the numbers band."
+    },
+    {
+      "name": "StudyPlan",
+      "kind": "section",
+      "description": "Nursery to Class 11 in five stages (`StudyPlan`, `src/components/homepage/study-plan.tsx`): a `dark` section with the H2 and lead, then the ten-year map on a `cream` panel, the exits after Dakhil, the AQVI note and a link to the full plan (`/curriculum`)."
+    },
+    {
+      "name": "SchoolDay",
+      "kind": "section",
+      "description": "A day in hifz day-care (`SchoolDay`, `src/components/homepage/school-day.tsx`): a `paper` section after the ten-year map. The H2 and lead, the routine, the stage hours, then the school's transport."
+    },
+    {
+      "name": "Campus",
+      "kind": "section",
+      "description": "The campus (`Campus`, `src/components/homepage/campus.tsx`): a `dark` section after the day. The H2 and lead, where the students play, two photos of the school, and the walk from the metro. Copy in `home.campus`."
+    },
+    {
+      "name": "Why",
+      "kind": "section",
+      "description": "Why Madrasatul Quran (`Why`, `src/components/homepage/why.tsx`): a `cream` section after the campus. The H2, the founders' reason in their own words, then eight reasons as cards. Copy in `home.why`."
+    },
+    {
+      "name": "Founder",
+      "kind": "section",
+      "description": "The founder's letter (`Founder`, `src/components/homepage/founder.tsx`): a `dark` section after Why. No visible heading (the H2 প্রতিষ্ঠাতার কথা is screen-reader only): the quotation is the heading. Copy in `home.founder`, word for word from the founder."
+    },
+    {
+      "name": "Reviews",
+      "kind": "section",
+      "description": "What guardians say (`Reviews`, `src/components/homepage/reviews.tsx`): a `paper` section after the founder's letter. The H2 with a note on the right (`text-15` `ink-muted`): each review is shared with the guardian's permission, in their own words. Copy in `home.reviews`."
+    },
+    {
+      "name": "Faq",
+      "kind": "section",
+      "description": "Questions parents ask (`Faq`, `src/components/homepage/faq.tsx`): a `cream` section after the reviews, with no bottom padding: the pre-admission card follows on the same ground. Copy in `home.faq`."
+    },
+    {
+      "name": "PreAdmissionCard",
+      "kind": "section",
+      "description": "The homepage's close (`PreAdmissionCard`, `src/components/homepage/pre-admission-card.tsx`): on `cream` straight after the FAQ, the page's one rust block (`rust`, `radius-panel`, text `surface`, secondary text `on-rust-soft`)."
+    },
+    {
+      "name": "SiteFooter",
+      "kind": "section",
+      "description": "The footer on every public page (`src/components/layout/site-footer.tsx`, a server component), on `dark` with the footer texture (`texture-dots`: cream dots at 10%, every 24px; used nowhere else, so it marks the end of the page)."
+    },
+    {
+      "name": "ApplyBar",
+      "kind": "section",
+      "description": "Phones only (below 640px): the pre-admission bar fixed to the foot of the screen (`src/components/layout/apply-bar.tsx`), with a spacer of the same height after the footer so it never covers it."
+    }
+  ],
+  "narrative": {
+    "northStar": "The School That Shows Its Working",
+    "overview": "A warm, cream-and-brown page that argues with its own diagrams instead of slogans. The school's claim (Islamic and general education given equal weight) is drawn, not asserted: a giant solid/outlined ৫০/৫০, a stage split whose tiles are sized by the real percentages, the ten-year map, the school day with each stage's hours on one axis, the van routes and a sketch of the walk from the metro. Real photographs of the school sit between the diagrams, captioned underneath.\n\nThe public website of Madrasatul Quran, an Islamic day school in Uttara, Dhaka (Nursery to Class 11). Its promise is the 50/50 model: Islamic and general education carry equal weight in one ten-year plan, with hifz done in a day-care format without dropping general study. The readers are practising, educated guardians in Dhaka who compare schools over weeks, mostly on Android phones, and share links in family WhatsApp groups. Every page has one job: help a guardian understand the model, trust the people and the service, and take the next step (apply, download the prospectus, visit, call).\n\nThe site is bilingual. Bengali is the default and is designed first; English mirrors it.\n\nRejected (owner, 2026-10-10): the austere white signage look; traditional or ornamental Islamic decoration; a photo carousel over a slogan; a people grid.",
+    "dos": [
+      "Do alternate light (cream/paper) and dark sections, each padded `section` (64px to 112px).",
+      "Do keep rust for the one primary action per view (and the single rust pre-admission card near the page end); use bronze for decoration on dark.",
+      "Do draw the 50-50 claim from real data: tiles sized by percentage, the hours axis by real hours, routes by real stops from the CMS.",
+      "Do use real school photographs with a caption below (14px, `ink-muted` or `on-dark-muted`) in `radius-photo` frames.",
+      "Do use Phosphor regular icons inline, next to a word, never instead of one.",
+      "Do write Bengali numerals on Bengali pages everywhere (dates, times, phones, percentages).",
+      "Do tag goals (৩০০+ হাদিস, ৯০%+ কুরআনের অর্থ) with লক্ষ্য / Goal.",
+      "Do keep unknown facts as visible bracketed placeholders until the owner supplies them.",
+      "Do read changing facts (intake, phones, routes, statistics, reviews) from the CMS, never from copy.",
+      "Do apply `text-wrap: balance` to headings."
+    ],
+    "donts": [
+      "Don't use em dashes or en dashes in copy; use a comma, colon, full stop or \"to\" / \"থেকে\".",
+      "Don't overlay text on photographs or put a photo carousel behind a slogan.",
+      "Don't use green for anything but the open-status dot.",
+      "Don't return to white surfaces with 4px radii (the rejected signage system).",
+      "Don't add ornamental Islamic patterns, arches or decorative borders.",
+      "Don't set headings or UI in Tiro Bangla, or use Tiro's own danda.",
+      "Don't show fees on the homepage.",
+      "Don't add a small uppercase label above section headings; the H2 starts the section.",
+      "Don't use `font-stretch`: the fonts load without the width axis."
+    ]
+  }
+}
