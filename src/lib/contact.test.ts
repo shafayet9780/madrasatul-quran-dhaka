@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { activePhones } from './contact';
 import type { ContactInfo } from '@/types/sanity';
 
-const phone = (number: string, isActive: boolean, isPrimary: boolean): ContactInfo['phone'][number] => ({
+const phone = (number: string, isActive: boolean, isPrimary: boolean): NonNullable<ContactInfo['phone']>[number] => ({
   number,
   type: 'main',
   isActive,

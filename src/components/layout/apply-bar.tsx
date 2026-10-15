@@ -24,7 +24,7 @@ export function ApplyBar() {
 
   useEffect(() => {
     const hero = document.querySelector('[data-hero]');
-    if (!hero) return setShown(true);
+    if (!hero) return; // pages without a hero start with the bar shown
     const io = new IntersectionObserver(([entry]) => setShown(!entry.isIntersecting));
     io.observe(hero);
     return () => io.disconnect();

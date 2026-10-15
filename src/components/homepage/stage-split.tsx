@@ -51,8 +51,9 @@ export function StageSplit({ stages, subjects, title, hoursLabel, note, bengali 
       setShown(v);
     };
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return show(to);
-    const start = performance.now();
+    let start: number | undefined;
     const step = (now: number) => {
+      start ??= now;
       const p = Math.min(1, (now - start) / ROLL_MS);
       const e = p === 1 ? 1 : 1 - Math.pow(2, -10 * p);
       show(from.map((f, i) => Math.round(f + (to[i] - f) * e)));

@@ -67,7 +67,7 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 
 ## Project
 
-Bilingual (Bengali/English) marketing + CMS website for Madrasatul Quran, an Islamic school in Dhaka. Next.js 16 App Router (Turbopack default), React 19.2, Sanity v5 CMS, next-intl v4, Tailwind CSS v4, TypeScript.
+Bilingual (Bengali/English) marketing + CMS website for Madrasatul Quran, an Islamic school in Dhaka. Next.js 16 App Router (Turbopack default), React 19.3, Sanity v5 CMS, next-intl v4, Tailwind CSS v4, TypeScript.
 
 **Package manager is pnpm** (`pnpm-lock.yaml`, `node_modules/.pnpm`). Use `pnpm`, not `npm` — installs with npm desync the lockfile.
 
@@ -89,7 +89,7 @@ pnpm setup:form     # node scripts/populate-pre-admission-form.js
 pnpm setup:all      # setup:form + setup:headers + test:sheets
 ```
 
-Tests: **Vitest** unit (`src/lib/*.test.ts`, jsdom; setup `vitest.setup.ts`) + **Playwright** route smoke (`e2e/`, `playwright.config.ts`). E2E serves on **port 3100** (3000 often occupied). One-off run: `pnpm exec playwright install chromium` first. Lint scope: eslint flat config ignores build output and `scripts/**` (Node CJS tooling) — Next 16 removed `next lint`.
+Tests: **Vitest** unit (`src/lib/*.test.ts`, jsdom; setup `vitest.setup.ts`) + **Playwright** route smoke (`e2e/`, `playwright.config.ts`). E2E serves on **port 3100** (3000 often occupied). One-off run: `pnpm exec playwright install chromium` first. Lint scope: eslint flat config (`eslint-config-next` 16, imported natively) ignores build output, `scripts/**` (Node CJS tooling) and `docs/**` (prototypes) — Next 16 removed `next lint`. The React Compiler rules (`react-hooks/set-state-in-effect`, `refs`, `purity`, `immutability`, `preserve-manual-memoization`) are warnings until older components are reworked; new code should pass them.
 
 Sanity Studio served in-app at `/studio`.
 
