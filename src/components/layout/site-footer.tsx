@@ -7,15 +7,8 @@ import { urlFor } from '@/lib/sanity';
 import { getAdmissionsContact } from '@/lib/admissions-contact';
 import { sitePhone } from '@/lib/site/phone';
 import { Icon, type IconName } from '@/components/site/icon';
+import { navPages, siteNav } from '@/lib/site/nav';
 
-const PAGES = [
-  { key: 'nav.curriculum', path: '/curriculum' },
-  { key: 'nav.campus', path: '/campus' },
-  { key: 'nav.admissions', path: '/admissions' },
-  { key: 'nav.about', path: '/about' },
-  { key: 'nav.contact', path: '/contact' },
-  { key: 'footer.preAdmission', path: '/pre-admission' },
-] as const;
 
 const SOCIAL_ICONS: Partial<Record<string, IconName>> = { facebook: 'facebook-logo', youtube: 'youtube-logo' };
 
@@ -93,11 +86,14 @@ export async function SiteFooter({ locale, siteSettings, footerSettings }: { loc
 
           <nav aria-label={t('footer.label')} className="flex flex-[1_1_170px] flex-col gap-0.5 text-15">
             <h2 className={`${heading} mb-2`}>{t('footer.pages')}</h2>
-            {PAGES.map((p) => (
-              <Link key={p.path} href={`/${locale}${p.path}`} className={pageLink}>
-                {t(p.key)}
+            {navPages(siteNav(locale, siteSettings?.navigationVisibility)).map((p) => (
+              <Link key={p.key} href={p.href} className={pageLink}>
+                {t(`nav.${p.key}`)}
               </Link>
             ))}
+            <Link href={`/${locale}/pre-admission`} className={pageLink}>
+              {t('footer.preAdmission')}
+            </Link>
             {/* A file, not a page: a plain link downloads it. */}
             {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
             <a href="/api/download-prospectus" className={pageLink}>

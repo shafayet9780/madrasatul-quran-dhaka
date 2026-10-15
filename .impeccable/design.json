@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-14T09:39:07+00:00",
+  "generatedAt": "2026-10-15T00:31:12+00:00",
   "title": "Design System: Madrasatul Quran, Dhaka",
   "extensions": {
     "colorMeta": {
@@ -609,7 +609,7 @@
     {
       "name": "SiteHeader",
       "kind": "section",
-      "description": "The header on every public page (`src/components/layout/site-header.tsx`, a server component): the logo and name, the five main pages, the language switch. It scrolls away with the page."
+      "description": "The header on every public page (`src/components/layout/site-header.tsx`, a server component, with the menu in `site-nav.tsx`): the logo and name, the main menu, the language switch. It scrolls away with the page."
     },
     {
       "name": "AdmissionBanner",

@@ -225,10 +225,14 @@ The homepage, top to bottom, then the site chrome. Each has a preview in the Cla
 
 ### SiteHeader
 
-The header on every public page (`src/components/layout/site-header.tsx`, a server component): the logo and name, the five main pages, the language switch. It scrolls away with the page.
+The header on every public page (`src/components/layout/site-header.tsx`, a server component, with the menu in `site-nav.tsx`): the logo and name, the main menu, the language switch. It scrolls away with the page.
 
-- Logo: `siteSettings.logo` at 42px. Name `text-18` 700, place `text-13` `ink-muted`.
-- Links: শিক্ষা পদ্ধতি, ক্যাম্পাস, ভর্তি ও ফি, আমরা, যোগাযোগ (`messages` `site.nav`). On phones they drop to a second row that scrolls sideways, fading at the right edge.
+- Logo: `siteSettings.logo` at 42px. Name `text-18` 700, place `text-13` `ink-muted`. The logo is the link home.
+- Menu, in the live site's order: আমাদের সম্পর্কে ▾ (আমাদের কথা, ক্যাম্পাস ও সুবিধা, সংবাদ ও ইভেন্ট), কারিকুলাম, আমাদের সদস্যবৃন্দ ▾ (পরিচালকবৃন্দ, উপদেষ্টাবৃন্দ, শিক্ষকমণ্ডলী), ভর্তি, যোগাযোগ, আমাদের বইসমূহ ↗ (opens alquranervasha.com in a new tab). Labels: `messages` `site.nav`.
+- Site Settings → Navigation decides what shows (`siteNav` in `src/lib/site/nav.ts`): a section's switch hides its whole menu, and a menu with nothing left is dropped. The footer's Pages list follows the same switches.
+- From 1180px: one row. A menu opens on hover or click (a click keeps it open), and Escape or a click elsewhere closes it. Its panel: `surface`, `line` border, `radius-card`, `shadow-photo`.
+- আমাদের সদস্যবৃন্দ opens wide, as on the live site: the featured directors and advisors (Studio → featured, in display order, up to six each) with a 36px round photo (or the gender placeholder from Site Settings) and their name, directors linking to their profile; the teacher departments when Teachers is shown; each column ends in সকল … → (`text-rust`). The photos load only when the menu opens. If the people query fails, plain links show instead.
+- Below 1180px: a মেনু / Menu pill (Phosphor list, ✕ while open) opens the same links under the header, grouped under their section names. Below 480px the language switch moves to the top of that menu, so the row fits a 360px phone.
 - The language switch (`quiet` pill) opens the same page in the other language.
 
 ### AdmissionBanner
