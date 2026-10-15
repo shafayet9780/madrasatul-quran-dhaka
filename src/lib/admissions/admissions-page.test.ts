@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { classTiles, feeGroups } from './admissions-page';
+import { classTiles, feeGroups, keepHyphens } from './admissions-page';
 import type { FormSnapshot } from './form-config';
 import type { SchoolFee } from '@/types/fees';
 
@@ -38,6 +38,13 @@ describe('classTiles', () => {
 
   it('is empty without a class question', () => {
     expect(classTiles({ sections: [] } as unknown as Pick<FormSnapshot, 'sections'>, 'bengali')).toEqual([]);
+  });
+});
+
+describe('keepHyphens', () => {
+  it('joins each hyphen to the letters around it', () => {
+    expect(keepHyphens('নন ডে-কেয়ার')).toBe('নন ডে\u2060-\u2060কেয়ার');
+    expect(keepHyphens('Tuition')).toBe('Tuition');
   });
 });
 

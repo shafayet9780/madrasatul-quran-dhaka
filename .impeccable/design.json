@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-15T02:58:28+00:00",
+  "generatedAt": "2026-10-15T04:34:59+00:00",
   "title": "Design System: Madrasatul Quran, Dhaka",
   "extensions": {
     "colorMeta": {
@@ -659,7 +659,7 @@
     {
       "name": "Why",
       "kind": "section",
-      "description": "Why Madrasatul Quran (`Why`, `src/components/homepage/why.tsx`): a `cream` section after the campus. The H2, the founders' reason in their own words, then eight reasons as cards. Copy in `home.why`. The cards are `ReasonCards` (same file), which the Admissions page reuses for four of them (AdmissionsWhy); the section carries `id=\"why\"` so it can link here."
+      "description": "Why Madrasatul Quran (`Why`, `src/components/homepage/why.tsx`): a `cream` section after the campus. The H2, the founders' reason in their own words, then eight reasons as cards. Copy in `home.why`. The cards are `ReasonCards` (`src/components/site/reason-cards.tsx`), which the Admissions page reuses for four of them (AdmissionsWhy); the section carries `id=\"why\"` so it can link here."
     },
     {
       "name": "Founder",
@@ -669,7 +669,7 @@
     {
       "name": "Reviews",
       "kind": "section",
-      "description": "What guardians say (`Reviews`, `src/components/homepage/reviews.tsx`): a `paper` section after the founder's letter. The H2 with a note on the right (`text-15` `ink-muted`): each review is shared with the guardian's permission, in their own words. Copy in `home.reviews`. On the Admissions page the same section sits on `dark` (`tone=\"dark\"`: `on-dark` heading, `on-dark-muted` note), the cards staying `surface`."
+      "description": "What guardians say (`Reviews`, `src/components/site/reviews.tsx`, shared with the Admissions page): a `paper` section after the founder's letter. The H2 with a note on the right (`text-15` `ink-muted`): each review is shared with the guardian's permission, in their own words. Copy in `home.reviews`. On the Admissions page the same section sits on `dark` (`tone=\"dark\"`: `on-dark` heading, `on-dark-muted` note), the cards staying `surface`."
     },
     {
       "name": "Faq",

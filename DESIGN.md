@@ -322,7 +322,7 @@ The campus (`Campus`, `src/components/homepage/campus.tsx`): a `dark` section af
 
 ### Why
 
-Why Madrasatul Quran (`Why`, `src/components/homepage/why.tsx`): a `cream` section after the campus. The H2, the founders' reason in their own words, then eight reasons as cards. Copy in `home.why`. The cards are `ReasonCards` (same file), which the Admissions page reuses for four of them (AdmissionsWhy); the section carries `id="why"` so it can link here.
+Why Madrasatul Quran (`Why`, `src/components/homepage/why.tsx`): a `cream` section after the campus. The H2, the founders' reason in their own words, then eight reasons as cards. Copy in `home.why`. The cards are `ReasonCards` (`src/components/site/reason-cards.tsx`), which the Admissions page reuses for four of them (AdmissionsWhy); the section carries `id="why"` so it can link here.
 
 - **The quote:** from the prospectus, verbatim, with its source under it (`text-14` `ink-muted`). `text-quote-lg` in `ink-body`, at most 40em. Bengali quotations are set in Tiro Bangla (`font-quote`), English in Anek Latin. Each danda is set in Anek Bangla (`QuoteText`, `src/components/site/quote-text.tsx`), as in every quotation on the site.
 - **The reasons:** an auto-fill grid, four columns on wide screens and two on phones (`max(150px, 25% - 18px)` minimum). Three looks: `paper` (accent `rust`), `sand` (accent `rust-deep`), `dark` (accent `bronze`), mixed so no two of a kind sit side by side. A card leads with a 16:10 photo, a 48px Phosphor icon in its accent, or a goal figure (`text-figure-md`); the title (`text-18` 700, an `h3`) and one sentence sit at the foot of the card.
@@ -341,7 +341,7 @@ The founder's letter (`Founder`, `src/components/homepage/founder.tsx`): a `dark
 
 ### Reviews
 
-What guardians say (`Reviews`, `src/components/homepage/reviews.tsx`): a `paper` section after the founder's letter. The H2 with a note on the right (`text-15` `ink-muted`): each review is shared with the guardian's permission, in their own words. Copy in `home.reviews`. On the Admissions page the same section sits on `dark` (`tone="dark"`: `on-dark` heading, `on-dark-muted` note), the cards staying `surface`.
+What guardians say (`Reviews`, `src/components/site/reviews.tsx`, shared with the Admissions page): a `paper` section after the founder's letter. The H2 with a note on the right (`text-15` `ink-muted`): each review is shared with the guardian's permission, in their own words. Copy in `home.reviews`. On the Admissions page the same section sits on `dark` (`tone="dark"`: `on-dark` heading, `on-dark-muted` note), the cards staying `surface`.
 
 - **Cards:** `surface` with a `line` border, `radius-card`, in an auto-fit grid (300px minimum: three across on wide screens, one on phones). A 30px `bronze` quotes icon, the words (`text-quote`; Tiro Bangla for Bengali with `QuoteText`, Anek Latin for English), then over a `sand-pale` rule who said it (`text-15` 650) and their child's class and stage (`text-13` `ink-muted`).
 - **Rules:** quotes stay word for word, never edited or translated into the other language's card; only reviews whose consent is recorded may show; never invent one.
@@ -391,9 +391,9 @@ Phones only (below 640px): the pre-admission bar fixed to the foot of the screen
 
 The Admissions page's opening (`src/components/admissions/admissions-hero.tsx`), on `paper`.
 
-- **Left:** the intake's status line in a `surface` pill (green `open` dot while open, `ink-faint` otherwise), the H1 ভর্তি ও ফি (`text-hero`), a lead (`text-lead`) and the actions.
+- **Left:** the H1 ভর্তি ও ফি (`text-hero`), a lead (`text-lead`) and the actions. Only while no intake is open or announced (so the site banner is hidden) does the status line sit above the H1, in a `surface` pill with an `ink-faint` dot.
 - **Actions:** while the form is open, the rust আবেদন করুন (the page's apply action); while it is only announced, an `outline` বিস্তারিত দেখুন; with no intake, an `outline` ভর্তি বিষয়ে যোগাযোগ to the contact page. Beside it, the `outline` prospectus download.
-- **Right, while an intake is open or announced:** a `surface` card (`radius-card`, `line` border) titled প্রি-অ্যাডমিশন {session} (`text-h4`) with the application and assessment fees, each with its note, the amount at 26px 750.
+- **Right, while an intake is open or announced:** a `surface` card (`radius-card`, `line` border) titled প্রি-অ্যাডমিশন {session} (`text-h4`), the status line under the title (green `open` dot while open), then the application and assessment fees, each with its note, the amount at 26px 750. The status sits in the card, not above the H1, because the site banner already shows it at the top of the page.
 - **Under it:** "এই পৃষ্ঠায়", links to the page's sections (16px 650, `line-sand` underline turning `rust` on hover), only for the sections shown.
 - **Data:** the published Pre-admission form (`getPublishedIntake`, no database, so the page stays cacheable). Never a placeholder date or fee.
 - No motion.
@@ -424,7 +424,7 @@ What it costs (`src/components/admissions/admission-fees.tsx`): one `paper` band
 
 - **Fees (`#fees`):** the CMS heading and introduction, then the fee table on a `surface` card (`radius-card`, `line` border): one real `table`, the same on phones (it fits at 320px). Columns: ফি, then the CMS's two column labels (নন ডে-কেয়ার, ডে-কেয়ার) right-aligned under a 2px `ink` rule. Rows grouped (মাসিক ফি; এককালীন ও বাৎসরিক ফি; অন্যান্য ফি) under 13px 650 `rust` group labels; each row the fee name (17px 650), its frequency when the group does not already say it, and its note; amounts in 750 with tabular figures (`৳১০,০০০`), and words (প্রযোজ্য নয়, অফিসে যোগাযোগ করুন) in 14px `ink-muted`. Under the table: সকল পরিমাণ বাংলাদেশি টাকায় and ডে-কেয়ার: ২য় থেকে ৫ম শ্রেণি.
 - **Beside it:** `cream` blocks for the visible discounts (`#discounts`: title in `rust`, description, conditions, প্রযোজ্য ফি) and the payment rules (`#payment`: instructions and the policies as a list with `rust` markers).
-- **Transport (`#transport`):** the CMS heading and introduction, then a `surface` card (`line` border) per visible route (`buildTransport`): the homepage's `RouteLine` (stops drawn down to মাদরাসাতুল কুরআন) with the vehicle and monthly charge under the route name. Under the cards, the approved seat note with an info icon, and the transport desk phone (`outline` with a `rust` border) when Site Settings has one.
+- **Transport (`#transport`):** the CMS heading and introduction, then a `surface` card (`line` border) per visible route (`buildTransport`): the shared `RouteLine` (`src/components/site/route-line.tsx`, also on the homepage) (stops drawn down to মাদরাসাতুল কুরআন) with the vehicle and monthly charge under the route name. Under the cards, the approved seat note with an info icon, and the transport desk phone (`outline` with a `rust` border) when Site Settings has one.
 - **Without usable fee settings:** ফি সম্পর্কিত তথ্য, the CMS's unavailable message and an `outline` button to the contact page.
 - **Motion:** only the route lines (`route-stop`/`route-line`, scroll-driven, as on the homepage), off with reduced motion.
 
@@ -433,7 +433,7 @@ What it costs (`src/components/admissions/admission-fees.tsx`): one `paper` band
 Why Madrasatul Quran, short (`src/components/admissions/admissions-why.tsx`), on `dark` straight before the fees, so the value comes before the price: four of the homepage's reasons. After the fees come the guardian reviews, also on `dark` (the homepage's Reviews, consented reviews only; with none, left out).
 
 - The homepage H2 কেন মাদরাসাতুল কুরআন? with a `bronze-light` link সব দেখুন (arrow) to the homepage's Why section (`/{locale}#why`), on the right on wide screens and under the H2 on phones.
-- The cards are the homepage's `ReasonCards` (`only` picks reasons 1, 2, 3 and 5: the blend, the four language skills, the hadith goal with its লক্ষ্য tag, the path after Class 8). On `dark` the dark card turns `panel` (inset `line-dark` ring) so it still shows. Same approved copy (`home.why.reasons`), no new claims.
+- The cards are the shared `ReasonCards` (`src/components/site/reason-cards.tsx`, all eight on the homepage) (`only` picks reasons 1, 2, 3 and 5: the blend, the four language skills, the hadith goal with its লক্ষ্য tag, the path after Class 8). On `dark` the dark card turns `panel` (inset `line-dark` ring) so it still shows. Same approved copy (`home.why.reasons`), no new claims.
 - No motion.
 
 ### AdmissionsClose

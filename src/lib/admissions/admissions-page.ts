@@ -39,11 +39,14 @@ export function classTiles(snapshot: Pick<FormSnapshot, 'sections'>, locale: Loc
     });
 }
 
+/** Keeps a hyphenated word on one line (ডে-কেয়ার), with word joiners around each hyphen. */
+export const keepHyphens = (text: string) => text.replace(/-/g, '\u2060-\u2060');
+
 export type FeeRow = { key: string; name: string; frequency: string; note?: string; prices: { text: string; amount: boolean }[] };
 export type FeeGroup = { key: 'monthly' | 'admission' | 'custom'; rows: FeeRow[] };
 
 /** A price as the table shows it: an amount (৳১০,০০০) or what stands in for one (প্রযোজ্য নয়). */
-export function priceText(price: FeePrice | undefined, locale: Locale, words: { notApplicable: string; contactOffice: string; free: string }) {
+function priceText(price: FeePrice | undefined, locale: Locale, words: { notApplicable: string; contactOffice: string; free: string }) {
   if (price?.status === 'notApplicable') return { text: words.notApplicable, amount: false };
   if (price?.status !== 'priced' || typeof price.amount !== 'number' || !Number.isFinite(price.amount) || price.amount < 0)
     return { text: words.contactOffice, amount: false };

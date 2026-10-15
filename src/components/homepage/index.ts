@@ -6,7 +6,7 @@ export { SchoolDay } from './school-day';
 export { Campus } from './campus';
 export { Why } from './why';
 export { Founder } from './founder';
-export { Reviews } from './reviews';
+export { Reviews } from '@/components/site/reviews';
 export { Faq } from './faq';
 export { PreAdmissionCard } from './pre-admission-card';
 export { default as CurriculumSection } from './curriculum-section';

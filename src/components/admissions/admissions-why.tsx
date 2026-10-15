@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
 import type { Locale } from '@/lib/i18n';
-import { ReasonCards } from '@/components/homepage/why';
+import { ReasonCards } from '@/components/site/reason-cards';
 import { Icon } from '@/components/site/icon';
 
 /** The homepage reasons shown here, by their place in home.why.reasons: the blend, the languages, the hadith goal, the path after Class 8. */

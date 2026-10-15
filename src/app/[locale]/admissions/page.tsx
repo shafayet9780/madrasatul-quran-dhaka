@@ -20,7 +20,7 @@ import { AdmissionSteps } from '@/components/admissions/admission-steps';
 import { AdmissionFees } from '@/components/admissions/admission-fees';
 import { AdmissionsClose } from '@/components/admissions/admissions-close';
 import { AdmissionsWhy } from '@/components/admissions/admissions-why';
-import { Reviews } from '@/components/homepage/reviews';
+import { Reviews } from '@/components/site/reviews';
 import { reviewsFor } from '@/lib/home/reviews';
 import { FaqSection } from '@/components/site/faq-section';
 
@@ -52,16 +52,17 @@ export default async function AdmissionsPage({ params }: Props) {
   const chapter = await getTranslations({ locale, namespace: 'preAdmission.chapter' });
   const faqCopy = await getTranslations({ locale, namespace: 'home.faq' });
 
-  // The intake's classes and steps show while it is open or announced.
+  // The intake's classes, steps and questions show while it is open or announced.
   const offer = snapshot && (intake.state === 'open' || intake.state === 'not_open') ? snapshot : undefined;
+  const year = offer ? sessionStart(offer.settings.session).slice(0, 4) : '';
   const fees = offer && { session: num(offer.settings.session, locale), applicationFee: taka(offer.settings.applicationFee, locale), evaluationFee: taka(offer.settings.evaluationFee, locale) };
   const classes = offer ? classTiles(offer, locale) : [];
   // The pre-admission page's steps; step 5 lists what to bring.
   const bring = offer ? allBringItems(offer, locale).map((i) => (i.conditional ? `${i.text} ${chapter('ifApplicable')}` : i.text)) : [];
-  const steps = offer
+  const steps = fees
     ? [1, 2, 3, 4, 5, 6].map((n) => ({
         title: intro(`step${n}`),
-        note: n === 5 && bring.length ? intro('step5Bring') : intro(`step${n}Note`, { fee: n === 5 ? fees!.evaluationFee : fees!.applicationFee }),
+        note: n === 5 && bring.length ? intro('step5Bring') : intro(`step${n}Note`, { fee: n === 5 ? fees.evaluationFee : fees.applicationFee }),
         list: n === 5 ? bring : [],
       }))
     : [];
@@ -89,7 +90,7 @@ export default async function AdmissionsPage({ params }: Props) {
   return (
     <>
       <AdmissionsHero locale={locale} state={intake.state} status={intakeStatus(intake, locale, intro)} facts={fees} links={links} />
-      {classes.length > 0 && <AdmissionClasses locale={locale} classes={classes} year={sessionStart(offer!.settings.session).slice(0, 4)} />}
+      {classes.length > 0 && <AdmissionClasses locale={locale} classes={classes} year={year} />}
       {steps.length > 0 && <AdmissionSteps locale={locale} title={intro('stepsTitle')} steps={steps} />}
       <AdmissionsWhy locale={locale} />
       <AdmissionFees locale={locale} settings={settings} transportPhone={transportPhone(contact)} />

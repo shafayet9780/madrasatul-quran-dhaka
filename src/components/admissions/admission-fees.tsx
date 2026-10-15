@@ -2,11 +2,11 @@ import { getTranslations } from 'next-intl/server';
 import type { Locale } from '@/lib/i18n';
 import type { FeeSettings } from '@/types/fees';
 import { applicableNames, usableFeeSettings } from '@/lib/fees';
-import { feeGroups } from '@/lib/admissions/admissions-page';
+import { feeGroups, keepHyphens } from '@/lib/admissions/admissions-page';
 import { buildTransport } from '@/lib/admissions/snapshot';
 import { taka, txt } from '@/lib/admissions/display';
 import { sitePhone } from '@/lib/site/phone';
-import { RouteLine } from '@/components/homepage/school-day';
+import { RouteLine } from '@/components/site/route-line';
 import { ButtonLink } from '@/components/site/button';
 import { Icon } from '@/components/site/icon';
 import { cn } from '@/lib/utils';
@@ -40,7 +40,8 @@ export async function AdmissionFees({ locale, settings, transportPhone }: { loca
 
   const words = { ...(t.raw('price') as { notApplicable: string; contactOffice: string; free: string }), ...(t.raw('frequency') as { monthly: string; oneTime: string; annual: string }) };
   const groups = feeGroups(settings, locale, words);
-  const columns = [txt(settings.preHifzLabel, locale), txt(settings.hifzLabel, locale)];
+  // Column labels keep ডে-কেয়ার on one line on narrow phones.
+  const columns = [txt(settings.preHifzLabel, locale), txt(settings.hifzLabel, locale)].map(keepHyphens);
   const discounts = (settings.discounts ?? []).filter((d) => d.visible);
   const policies = (settings.policies ?? []).map((p) => txt(p.text, locale)).filter(Boolean);
   const transport = buildTransport(settings);

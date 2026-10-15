@@ -8,8 +8,9 @@ import { cn } from '@/lib/utils';
 export type IntakeFacts = { session: string; applicationFee: string; evaluationFee: string };
 
 /**
- * The page's opening, on `paper`: the intake's status line (green dot while open), the H1, a lead and the actions,
- * with the intake's two fees beside it; under it, links to each section of the page.
+ * The page's opening, on `paper`: the H1, a lead and the actions, with the intake beside it (its title, status line
+ * with the green dot while open, and two fees); under it, links to each section of the page. With no intake open or
+ * announced (and so no site banner) the status line sits above the H1 instead.
  * While the form is open the rust button applies; while it is announced it shows the details; otherwise it points
  * to the contact page. The intake comes from the published pre-admission form, never a placeholder.
  */
@@ -32,6 +33,12 @@ export async function AdmissionsHero({
   const cta = await getTranslations({ locale, namespace: 'admissionCta' });
   const home = await getTranslations({ locale, namespace: 'home.hero' });
   const open = state === 'open';
+  const statusLine = (className: string) => (
+    <p className={cn('m-0 inline-flex items-center gap-2.5 text-15 leading-[1.35] text-ink-body', className)}>
+      <span aria-hidden="true" className={cn('size-2 shrink-0 rounded-full', open ? 'bg-open' : 'bg-ink-faint')} />
+      {status}
+    </p>
+  );
   const fee = (label: string, note: string, amount: string) => (
     <div className="flex items-start justify-between gap-4 border-t border-line py-4 first:border-t-0 first:pt-0 last:pb-0">
       <dt className="flex min-w-0 flex-col gap-0.5">
@@ -47,10 +54,7 @@ export async function AdmissionsHero({
       <div className="page-wrap flex flex-col gap-[clamp(2rem,4vw,3rem)] pb-8 pt-[clamp(2rem,5vw,4.5rem)]">
         <div className="flex flex-wrap items-end gap-x-16 gap-y-10">
           <div className="flex min-w-0 flex-[3_1_440px] flex-col items-start gap-5">
-            <p className="m-0 inline-flex items-center gap-2.5 rounded-full border border-line-strong bg-surface py-1.5 pl-3 pr-4 text-15 leading-[1.35] text-ink-body">
-              <span aria-hidden="true" className={cn('size-2 shrink-0 rounded-full', open ? 'bg-open' : 'bg-ink-faint')} />
-              {status}
-            </p>
+            {!facts && statusLine('rounded-full border border-line-strong bg-surface py-1.5 pl-3 pr-4')}
             <h1 className="m-0 text-hero text-balance">{t('title')}</h1>
             <p className="m-0 max-w-[34em] text-lead text-ink-body">{facts ? intro('lead') : cta('fallbackLead')}</p>
             <div className="mt-1 flex flex-wrap gap-3">
@@ -73,7 +77,10 @@ export async function AdmissionsHero({
           </div>
           {facts && (
             <div className="flex min-w-0 flex-[2_1_320px] flex-col gap-4 rounded-card border border-line bg-surface p-[clamp(20px,2.4vw,28px)]">
-              <h2 className="m-0 text-h4">{cta('title', { session: facts.session })}</h2>
+              <div className="flex flex-col gap-1.5">
+                <h2 className="m-0 text-h4">{cta('title', { session: facts.session })}</h2>
+                {statusLine('items-start [&>span]:mt-[0.45em]')}
+              </div>
               <dl className="m-0 flex flex-col">
                 {fee(intro('applicationFee'), intro('applicationFeeNote'), facts.applicationFee)}
                 {fee(intro('evaluationFee'), intro('evaluationFeeNote'), facts.evaluationFee)}
@@ -81,13 +88,15 @@ export async function AdmissionsHero({
             </div>
           )}
         </div>
-        <nav aria-label={t('onThisPage')} className="flex flex-wrap items-center gap-x-7 gap-y-1 border-t border-line pt-3">
-          <span className="text-14 font-strong text-ink-muted">{t('onThisPage')}</span>
+        <nav aria-labelledby="on-this-page" className="flex flex-wrap items-center gap-x-7 gap-y-1 border-t border-line pt-3">
+          <span id="on-this-page" className="text-14 font-strong text-ink-muted">
+            {t('onThisPage')}
+          </span>
           {links.map((l) => (
             <a
               key={l.id}
               href={`#${l.id}`}
-              className="inline-flex min-h-11 items-center text-16 font-strong text-ink underline decoration-line-sand underline-offset-[6px] hover:text-rust hover:decoration-rust focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
+              className="inline-flex min-h-11 min-w-6 items-center justify-center text-16 font-strong text-ink underline decoration-line-sand underline-offset-[6px] hover:text-rust hover:decoration-rust focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
             >
               {l.label}
             </a>
