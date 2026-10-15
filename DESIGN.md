@@ -146,7 +146,7 @@ spacing:
 
 # Design System: Madrasatul Quran, Dhaka
 
-Source of truth: `src/styles/tokens.css` (Tailwind v4 `@theme`) and the components in `src/components/homepage`, `src/components/admissions`, `src/components/layout` and `src/components/site`, built from the owner-approved homepage canvas (October 2026) and carried to the Admissions page. This file and the Claude design system ("Madrasatul Quran") are written from the repo; when they disagree, the repo wins. The frontmatter is generated from `tokens.css`.
+Source of truth: `src/styles/tokens.css` (Tailwind v4 `@theme`) and the components in `src/components/homepage`, `src/components/admissions`, `src/components/curriculum`, `src/components/layout` and `src/components/site`, built from the owner-approved homepage canvas (October 2026) and carried to the Admissions and Curriculum pages. This file and the Claude design system ("Madrasatul Quran") are written from the repo; when they disagree, the repo wins. The frontmatter is generated from `tokens.css`.
 
 ## Overview
 
@@ -167,7 +167,8 @@ Rejected (owner, 2026-10-10): the austere white signage look; traditional or orn
 - **Numbers on the homepage come from the CMS** (`siteSettings.statistics`) and are rounded down with a plus: steps of 10 from 100, steps of 5 below (130 → ১৩০+, 28 → ২৫+). A ratio (১:৫) is worked out from the exact values.
 - **Bengali numerals in Bengali copy** (৭:০০, ১৩০+, ৫০/৫০); Latin numerals in English.
 - **Words the school uses:** শিক্ষার্থী / "student" (never "pupil"); সালাত (not নামাজ); অভিভাবক / "guardian". Terms of the hifz routine (সবক, সাত সবক, আমুখতা, মাশক) keep their names and get a short gloss the first time.
-- **Board path:** Dakhil is the only board path. After Dakhil the paths are college or Mutawassita. Do not mention SSC, Alim or Kafiya.
+- **Board path:** Dakhil is the only board path; never SSC. The school runs in three stages (প্রি-হিফজ, হিফজ, আফটার হিফজ from Class 6 to Mutawassita, Dakhil inside it). After Dakhil a student goes on to Mutawassita here or to college; the Curriculum page also names Kafiya at a Qawmi madrasa, as the prospectus does. Do not mention Alim or Sanawiya.
+- **The prospectus is the source of truth** for the curriculum; the detailed curriculum PDF only adds each class's books.
 - **Punctuation:** no em dashes or en dashes in either language; use a comma, a full stop or the danda (।).
 - **No decorative Arabic** (no calligraphy as ornament, no Bismillah banners). Quranic text appears only as content, with reverence.
 - **No fees on the homepage.** Fees live on the admissions page and the prospectus.
@@ -289,9 +290,9 @@ The education model (`EducationModel`, `src/components/homepage/education-model.
 
 ### StudyPlan
 
-Nursery to Class 11 in five stages (`StudyPlan`, `src/components/homepage/study-plan.tsx`): a `dark` section with the H2 and lead, then the ten-year map on a `cream` panel, the exits after Dakhil, the AQVI note and a link to the full plan (`/curriculum`).
+Nursery to Class 11 in three stages (`StudyPlan`, `src/components/homepage/study-plan.tsx`): a `dark` section with the H2 and lead, then the ten-year map on a `cream` panel, the exits after Dakhil, the AQVI note and a link to the full plan (`/curriculum`).
 
-- **Data** (`src/lib/home/plan.ts`, labels in `home.plan`): 13 classes in five stages; four strands. Quran: Qaida, Ammapara, Nazera, Hifz 1 to 3, Shunani (to Class 5). Arabic language to Class 8. Islamic studies, in Arabic from Class 6. General: Bangla, English, Maths, with science added in Class 5 and BGS from Class 6. Dakhil and Mutawassita are one "মাদরাসা বোর্ড · সব বিষয়" block each (`dark`, then `panel`).
+- **Data** (`src/lib/home/plan.ts`, labels in `home.plan`): 13 classes in three stages (Pre-Hifz Nursery to Class 1, Hifz Classes 2 to 5, After-Hifz Class 6 to Mutawassita, as the prospectus has them); four strands. Quran: Qaida, Ammapara, Nazera, Hifz 1 to 3, Shunani (to Class 5). Arabic language to Class 8. Islamic studies, in Arabic from Class 6. General: Bangla, English, Maths, with science added in Class 5 and BGS from Class 6. Inside After-Hifz, Dakhil (Classes 9 and 10, "বোর্ডের সিলেবাস") and Mutawassita (Class 11, "দাখিলের পর এক বছর") are one block each (`BOARD_BLOCKS`; `dark`, then `panel`), labels in `home.plan.blocks`.
 - **Strand colours** (the same family as the stage split): Quran `rust-deep`, Arabic `clay`, Islam `sand-deep` with a `line-sand` edge, general `paper` with a `line-bronze` edge. Stage bands are `dark`. Cells use `radius-cell`.
 - **Wide screens (1200px and up):** 13 class columns (the Class 11 column is 1.5 parts so মুতাওয়াসসিতা fits without stretching at 1440; narrower, it may break inside the word) by four 46px lanes. Segment text is `text-12` up to 1440px, then `text-13`.
 - **Phones and tablets:** the same map turned top to bottom (see StudyPlanPhone): each stage heads its own rows and a segment is cut where stages meet (`splitAtStages`).
@@ -444,6 +445,76 @@ The Admissions page's close (`src/components/admissions/admissions-close.tsx`): 
 - **Actions, in one row:** the rust আবেদন করুন while the form is open; a `light` ভর্তি অফিসে কল করুন (phone icon, the admissions phone); an `outline-dark` হোয়াটসঅ্যাপ. The call and WhatsApp clicks are counted (`admissions_contact`).
 - No motion.
 
+## Curriculum page
+
+কারিকুলাম (`src/app/[locale]/curriculum/page.tsx`, components in `src/components/curriculum`), from the prospectus of 14 October 2026 (the source of truth; the detailed curriculum PDF only adds each class's books). Top to bottom: CurriculumHero (`paper`), TeachingModel (`dark`: the 50-50 model and the three stages with their hours), Strands (`paper`), Goals (`dark`), StudyPlanTable with ClassBooks (`cream`), HigherEducation (`dark`) and CurriculumClose (`paper`). No fees on this page: the close links to Admissions. The three stages are the same everywhere (`STAGE_CLASSES` in `src/lib/home/plan.ts`): প্রি-হিফজ নার্সারি to Class 1, হিফজ Classes 2 to 5, আফটার হিফজ Class 6 to Mutawassita with Dakhil inside it.
+
+### OnThisPage
+
+Links to each section of a page, under its opening (`OnThisPage`, `src/components/site/on-this-page.tsx`): used by the Admissions and Curriculum heroes.
+
+- A `nav` named by its label ("এই পৃষ্ঠায়" / "On this page", `text-14` 650 `ink-muted`), above a `line` rule.
+- Each link 16px 650 `ink`, a `line-sand` underline 6px below, turning `rust` on hover; 44px tall for touch. A page passes only the sections it shows.
+
+### CurriculumHero
+
+The Curriculum page's opening (`src/components/curriculum/curriculum-hero.tsx`), on `paper`, laid out like AdmissionsHero.
+
+- **Left:** the H1 কারিকুলাম (`text-hero`), the prospectus's one-line summary as the lead, and two `outline` downloads: the detailed curriculum (`/api/download-curriculum`) and the prospectus. No apply button here: the close card carries it.
+- **Right:** "এক নজরে", a `surface` card (`radius-card`, `line` border) with five facts (classes, hifz, AQVI books, Islamic studies in Arabic, the board exam) as label and value rows; on a narrow phone a value drops under its label, right-aligned, and hyphenated words stay whole.
+- **Under it:** OnThisPage (the five sections).
+- Copy: `curriculum.hero`. No motion.
+
+### TeachingModel
+
+The 50-50 model (`src/components/curriculum/teaching-model.tsx`), on `dark`: the prospectus's শিক্ষা পদ্ধতি and its three stages.
+
+- **Top:** the H2 শিক্ষা পদ্ধতি with ৫০-৫০ মডেল on a second line in `bronze-light`; beside it the prospectus's three points (18px, `on-dark-body`), each after a `bronze` dot, divided by `line-dark` rules. The third is the 80-20 contrast.
+- **Stages:** an H3, then three `panel` cards (one column on phones, two on tablets with the third across the row, three from 1000px) (স্তর-১ প্রি-হিফজ, নন ডে-কেয়ার; স্তর-২ হিফজ, ডে-কেয়ার; স্তর-৩ আফটার হিফজ, দাখিলসহ, ষষ্ঠ থেকে মুতাওয়াসসিতা). Each card: a 64px row of split tiles (Quran `bronze`, Arabic or Arabic and Islam `clay`, general `cream`; widths are the percentages, `STAGE_SPLITS` in `src/lib/home/plan.ts`), a legend that carries the split as text (the tiles are hidden from screen readers), then classes (`bronze-light`) and hours with a clock icon; on a narrow card a value drops under its label, and the hours never break. Stage 3 adds: after Dakhil, Mutawassita here or college.
+- The prospectus's timetable (শ্রেণি বিন্যাস ও সময়সূচি) lives in these cards, so there is no separate table. No motion: the homepage's StageSplit animates; this page shows all three at once.
+
+### Strands
+
+The four strands (`src/components/curriculum/strands.tsx`), on `paper`: the prospectus's কারিকুলাম cards.
+
+- **Top:** the H2 and the prospectus line (NCTB with the school's own Islamic curriculum); beside it the chairman's words on why, from the detailed curriculum, as a quotation: Tiro Bangla (`text-quote-lg`, the danda in Anek via QuoteText) after a 4px `rust` rule, the source in `text-14` `ink-muted`. In English the quotation stays in sans and its source says (translated).
+- **Cards:** `surface` with a `line` border, `radius-card`. A 48px icon tile in the strand's colour (Quran `rust-deep`, Arabic `clay`, Islamic studies `sand-deep` with a `line-sand` edge, general `paper` with a `line-bronze` edge), the title (19px 700), the prospectus text, and the class range at the foot above a `line` rule.
+
+### Goals
+
+The prospectus's ten-year goals in Islamic studies (`src/components/curriculum/goals.tsx`), on `dark`: six `panel` cards, three across (two columns from 260px each down to one on phones).
+
+- Each: the title (19px 700) and the prospectus text (`on-dark-body`). The two goals with a figure (Quran ৯০%+, hadith ৩০০+) show it in `bronze` `text-figure-md` beside the title and carry the লক্ষ্য tag (`sand-deep` chip): targets, never results.
+
+### StudyPlanTable
+
+The prospectus's ten-year table, designed (`src/components/curriculum/study-plan-table.tsx`), on `cream`. ClassBooks follows it in the same section.
+
+- **Data:** `planRows()` in `src/lib/curriculum/plan.ts` (unit-tested): Nursery to Class 11 in the three stages; per class the Quran portion (to Class 5, labels `home.plan.segments`), the Arabic and Islamic studies level as the books are named (আরবি-N, আরবি-KG, আরবি-১ … ৮), and the general subjects (science from Class 5, BGS from Class 6). Classes 9 and 10 are a দাখিল block (`dark`); Class 11 is মুতাওয়াসসিতা, এখানেই (`panel`) "অথবা কলেজ".
+- **Look:** a `surface` frame (`radius-panel`, `line` border). One `tbody` per stage, headed by a `sand-pale` band (স্তর tag, name, day-care or not, hours). Subjects are chips in the map's colours: Quran `rust-deep`, Arabic `clay`, Islam `sand-deep`, general `paper` with a `line-bronze` edge. During hifz the general chips are only outlined, dashed: limited, on a special syllabus (the legend above the table says so).
+- **Below 768px:** the same rows stacked in one card per stage: the stage band, then each class with its age, its Quran, Arabic and Islamic studies chips, and its general subjects in one box (dashed during hifz), so nothing hides off-screen. From 768px the table; where its frame is narrower than the columns it scrolls, as a named, focusable region.
+- **Accessibility:** a real `table` with a caption, column headers, a row header per class and `rowgroup` headers for the stages.
+
+### ClassBooks
+
+Books and topics by class (`src/components/curriculum/class-books.tsx`, a client component), under StudyPlanTable on `cream`. From the detailed curriculum PDF: the prospectus has no book names.
+
+- **Tabs:** one pill per class, Nursery to Class 8, then ৯ম ও ১০ম and একাদশ (44px, `line-strong` border on `surface`; the chosen one `dark`). A real tablist: arrow keys, Home and End move between classes.
+- **Panel:** a `surface` card (`radius-panel`): the class (`text-h3`), its age and stage tag, then four lanes on `paper` with a 4px top edge in the subject colour: কুরআন (to Class 5 only), আরবি with its level, book and focus, ইসলাম শিক্ষা likewise, and সাধারণ with the subjects and a note (AQVI books for Nursery and KG, limited during hifz, else NCTB). Dakhil and Mutawassita show their board syllabus in one block.
+- **Server HTML:** every panel is rendered, the unselected ones `hidden`, so search engines and readers without JavaScript get all twelve. Copy: `curriculum.books`.
+- Beside the heading, a `rust` text link to the detailed curriculum PDF.
+
+### HigherEducation
+
+After Dakhil (`src/components/curriculum/higher-education.tsx`), on `dark`: the prospectus's স্কুল পরবর্তী উচ্চ শিক্ষা plus college.
+
+- Three `panel` cards (laid out like TeachingModel's): মুতাওয়াসসিতা (here, Class 11: the one-year Talimi board syllabus and exam), কাফিয়া জামাত (at a Qawmi madrasa) and কলেজ. Each has a small tag, the title (`text-h4`) and the text. The way at this school is marked: a `sand-deep` tag and a stronger `line-dark-strong` edge; the others have outlined tags.
+- Kafiya is named here because the prospectus names it. Alim and Sanawiya (detailed curriculum only) are not shown.
+
+### CurriculumClose
+
+The page's close (`src/components/curriculum/curriculum-close.tsx`): a `cream` card (`radius-panel`) on `paper`. Ages, admission steps and fees live on the Admissions page, so the card says so and links there (`outline` ভর্তি ও ফি). While the pre-admission form is open (`getPublishedIntake`) the rust আবেদন করুন comes first. No fees on this page.
+
 ## Do's and Don'ts
 
 ### Do:
@@ -473,6 +544,6 @@ The Admissions page's close (`src/components/admissions/admissions-close.tsx`): 
 
 - **Tokens:** `src/styles/tokens.css` (`@theme static`, imported by `globals.css`). The old `primary`/`secondary`/`accent` scales in `globals.css` stay until every page is redesigned. `cn()` (`src/lib/utils.ts`) knows the token names, so `text-18 text-surface` keeps both.
 - **Fonts:** `src/lib/fonts.ts` (next/font): Anek Latin, Anek Bangla (Bengali glyphs only) and Tiro Bangla (quotations, not preloaded), weight axis only.
-- **Content:** the CMS feeds the hero photos and statistics (Site Settings), the intake (Pre-admission form), the routes (Fees & Discounts → Transport), the routine, play-space photos and FAQ (Homepage) and the guardian reviews (Guardian reviews, consent only). Where the Homepage lists are empty the launch copy in `messages/*.json` (`home.*`) shows. The Admissions page reads the published Pre-admission form (status, classes and ages, the two intake fees, what to bring) and Fees & Discounts (fees, discounts, payment rules, routes); its own copy is `admissions.page`, and it reuses the pre-admission page's approved steps and questions (`preAdmission.intro`).
+- **Content:** the CMS feeds the hero photos and statistics (Site Settings), the intake (Pre-admission form), the routes (Fees & Discounts → Transport), the routine, play-space photos and FAQ (Homepage) and the guardian reviews (Guardian reviews, consent only). Where the Homepage lists are empty the launch copy in `messages/*.json` (`home.*`) shows. The Admissions page reads the published Pre-admission form (status, classes and ages, the two intake fees, what to bring) and Fees & Discounts (fees, discounts, payment rules, routes); its own copy is `admissions.page`, and it reuses the pre-admission page's approved steps and questions (`preAdmission.intro`). The Curriculum page's copy is `curriculum.*`; it reads only whether the pre-admission form is open.
 - **Motion:** named animations and scroll-driven utilities live in `tokens.css` (`animate-settle`, `animate-rise`, `animate-tile-in`, `animate-answer`, `draw-x`/`draw-y`, `route-stop`/`route-line`). Animate only transform, opacity and clip-path; `prefers-reduced-motion` turns everything off, and `globals.css` has a safety net.
 - **Search:** pages are server-rendered; the FAQ prints FAQPage JSON-LD from the same list it shows.

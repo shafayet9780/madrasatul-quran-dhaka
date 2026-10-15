@@ -1,9 +1,14 @@
 import { describe, expect, it } from 'vitest';
-import { STAGE_CLASSES, STAGE_SPLITS, STRANDS, STRAND_END, splitAtStages, tileGeometry } from './plan';
+import { BOARD_BLOCKS, STAGE_CLASSES, STAGE_SPLITS, STRANDS, STRAND_END, splitAtStages, tileGeometry } from './plan';
 
 describe('the plan data', () => {
-  it('has five stages that cover the 13 classes once, in order', () => {
+  it('has three stages that cover the 13 classes once, in order', () => {
     expect(STAGE_CLASSES.flatMap(([a, b]) => Array.from({ length: b - a }, (_, i) => a + i))).toEqual([...Array(13).keys()]);
+  });
+
+  it('has board blocks inside the last stage, after the lanes end', () => {
+    const [from, to] = STAGE_CLASSES.at(-1)!;
+    for (const [a, b] of BOARD_BLOCKS) expect(a >= Math.max(from, STRAND_END) && b <= to).toBe(true);
   });
 
   it('has strands that run from Nursery without gaps: the Quran to Class 5 (hifz), the others to Class 8', () => {

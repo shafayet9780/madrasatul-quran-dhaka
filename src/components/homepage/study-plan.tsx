@@ -2,7 +2,7 @@ import Link from 'next/link';
 import type { CSSProperties } from 'react';
 import { getTranslations } from 'next-intl/server';
 import type { Locale } from '@/lib/i18n';
-import { BOARD_STAGES, STAGE_CLASSES, STRANDS, STRAND_END, splitAtStages, type Strand } from '@/lib/home/plan';
+import { BOARD_BLOCKS, STAGE_CLASSES, STRANDS, STRAND_END, splitAtStages, type Strand } from '@/lib/home/plan';
 import { Icon } from '@/components/site/icon';
 import { cn } from '@/lib/utils';
 
@@ -13,7 +13,7 @@ const LOOK: Record<Strand, string> = {
   islam: 'bg-sand-deep text-ink shadow-[inset_0_0_0_1px_var(--color-line-sand)]',
   general: 'bg-paper text-ink-body shadow-[inset_0_0_0_1px_var(--color-line-bronze)]',
 };
-const BLOCK = ['bg-dark', 'bg-panel']; // Dakhil, Mutawassita
+const BLOCK = ['bg-dark', 'bg-panel']; // Dakhil, Mutawassita (BOARD_BLOCKS)
 
 const seg = 'flex min-w-0 items-center overflow-hidden rounded-cell py-1 font-strong leading-[1.25]';
 const band = 'rounded-cell bg-dark text-on-dark leading-[1.25]';
@@ -26,8 +26,7 @@ type Copy = {
   ages: string[];
   strands: Record<Strand, string>;
   segments: Record<string, string>;
-  board: string;
-  allSubjects: string;
+  blocks: { name: string; note: string }[];
 };
 
 /** Wide screens (1200px and up): classes left to right, one lane per strand. Each lane draws from Nursery onward as the map scrolls in. */
@@ -62,10 +61,10 @@ function MapWide({ c }: { c: Copy }) {
           </div>
         )),
       ])}
-      {BOARD_STAGES.map((k, b) => (
-        <div key={k} className={cn(block, BLOCK[b])} style={{ gridColumn: span(k), gridRow: '3 / 7' }}>
-          <strong className="text-16 font-heading leading-[1.15]">{c.board}</strong>
-          <span className="text-12 leading-[1.3] text-on-dark-muted">{c.allSubjects}</span>
+      {BOARD_BLOCKS.map(([a, b], n) => (
+        <div key={a} className={cn(block, BLOCK[n])} style={{ gridColumn: `${a + 2} / ${b + 2}`, gridRow: '3 / 7' }}>
+          <strong className="text-16 font-heading leading-[1.15]">{c.blocks[n].name}</strong>
+          <span className="text-12 leading-[1.3] text-on-dark-muted">{c.blocks[n].note}</span>
         </div>
       ))}
     </div>
@@ -115,20 +114,20 @@ function MapTall({ c }: { c: Copy }) {
               {p.label}
             </div>
           )),
-        ...(BOARD_STAGES.includes(k)
-          ? [
-              <div key={`block-${k}`} className={cn(block, BLOCK[BOARD_STAGES.indexOf(k)])} style={{ gridColumn: '2 / 6', gridRow: rows(a, b) }}>
-                <strong className="text-16 font-heading leading-[1.15]">{c.board}</strong>
-                <span className="text-12 leading-[1.3] text-on-dark-muted">{c.allSubjects}</span>
-              </div>,
-            ]
-          : []),
+        ...BOARD_BLOCKS.map(([from, to], n) =>
+          from >= a && to <= b ? (
+            <div key={`block-${from}`} className={cn(block, BLOCK[n])} style={{ gridColumn: '2 / 6', gridRow: rows(from, to) }}>
+              <strong className="text-16 font-heading leading-[1.15]">{c.blocks[n].name}</strong>
+              <span className="text-12 leading-[1.3] text-on-dark-muted">{c.blocks[n].note}</span>
+            </div>
+          ) : null,
+        ),
       ])}
     </div>
   );
 }
 
-/** Nursery to Class 11 in five stages: the ten-year map, where students can go after Dakhil, and a link to the full plan. */
+/** Nursery to Class 11 in three stages: the ten-year map, where students can go after Dakhil, and a link to the full plan. */
 export async function StudyPlan({ locale }: { locale: Locale }) {
   const t = await getTranslations({ locale, namespace: 'home.plan' });
   const c: Copy = {
@@ -137,8 +136,7 @@ export async function StudyPlan({ locale }: { locale: Locale }) {
     ages: t.raw('ages'),
     strands: t.raw('strands'),
     segments: t.raw('segments'),
-    board: t('board'),
-    allSubjects: t('allSubjects'),
+    blocks: t.raw('blocks'),
   };
   return (
     <section className="bg-dark text-on-dark">

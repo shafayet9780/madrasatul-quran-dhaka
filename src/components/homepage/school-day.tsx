@@ -116,7 +116,8 @@ export async function SchoolDay({ locale, routine, routes, transportPhone }: { l
             )}
           </div>
           <figure className="m-0 flex max-w-[420px] flex-[1_1_280px] flex-col gap-2">
-            <div className="relative aspect-[4/3] min-h-60 flex-1 overflow-hidden rounded-photo">
+            {/* The 240px floor fills the height beside the routes; on phones it would force a 4:3 frame wider than the screen. */}
+            <div className="relative aspect-[4/3] flex-1 overflow-hidden rounded-photo sm:min-h-60">
               <Image src="/images/home/school-van.jpg" alt={t('day.transport.vanAlt')} fill sizes="(min-width: 900px) 420px, 100vw" className="object-cover object-[50%_70%]" />
             </div>
             <figcaption className="text-14 text-ink-muted">{t('day.transport.vanCaption')}</figcaption>

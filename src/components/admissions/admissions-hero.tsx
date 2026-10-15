@@ -3,6 +3,7 @@ import type { Locale } from '@/lib/i18n';
 import type { IntakeState } from '@/lib/admissions/intake';
 import { ButtonLink } from '@/components/site/button';
 import { Icon } from '@/components/site/icon';
+import { OnThisPage } from '@/components/site/on-this-page';
 import { cn } from '@/lib/utils';
 
 export type IntakeFacts = { session: string; applicationFee: string; evaluationFee: string };
@@ -88,20 +89,7 @@ export async function AdmissionsHero({
             </div>
           )}
         </div>
-        <nav aria-labelledby="on-this-page" className="flex flex-wrap items-center gap-x-7 gap-y-1 border-t border-line pt-3">
-          <span id="on-this-page" className="text-14 font-strong text-ink-muted">
-            {t('onThisPage')}
-          </span>
-          {links.map((l) => (
-            <a
-              key={l.id}
-              href={`#${l.id}`}
-              className="inline-flex min-h-11 min-w-6 items-center justify-center text-16 font-strong text-ink underline decoration-line-sand underline-offset-[6px] hover:text-rust hover:decoration-rust focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
-            >
-              {l.label}
-            </a>
-          ))}
-        </nav>
+        <OnThisPage label={t('onThisPage')} links={links} />
       </div>
     </section>
   );

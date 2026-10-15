@@ -4,13 +4,14 @@
 export const STAGE_CLASSES: [number, number][] = [
   [0, 3], // Pre-Hifz: Nursery to Class 1
   [3, 7], // Hifz day-care: Classes 2 to 5
-  [7, 10], // After-Hifz: Classes 6 to 8
-  [10, 12], // Dakhil: Classes 9 and 10
-  [12, 13], // Mutawassita: Class 11
+  [7, 13], // After-Hifz: Class 6 to Mutawassita, Dakhil included
 ];
 
-/** Dakhil and Mutawassita follow the madrasa board in every subject, so the map shows them as one block each. */
-export const BOARD_STAGES = [3, 4];
+/** Inside After-Hifz, Dakhil (Classes 9 and 10) and Mutawassita (Class 11) follow a board in every subject, so the map shows them as one block each. */
+export const BOARD_BLOCKS: [number, number][] = [
+  [10, 12],
+  [12, 13],
+];
 
 export type Strand = 'quran' | 'arabic' | 'islam' | 'general';
 

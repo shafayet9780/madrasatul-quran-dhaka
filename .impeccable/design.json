@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-15T04:34:59+00:00",
+  "generatedAt": "2026-10-15T06:13:53+00:00",
   "title": "Design System: Madrasatul Quran, Dhaka",
   "extensions": {
     "colorMeta": {
@@ -644,7 +644,7 @@
     {
       "name": "StudyPlan",
       "kind": "section",
-      "description": "Nursery to Class 11 in five stages (`StudyPlan`, `src/components/homepage/study-plan.tsx`): a `dark` section with the H2 and lead, then the ten-year map on a `cream` panel, the exits after Dakhil, the AQVI note and a link to the full plan (`/curriculum`)."
+      "description": "Nursery to Class 11 in three stages (`StudyPlan`, `src/components/homepage/study-plan.tsx`): a `dark` section with the H2 and lead, then the ten-year map on a `cream` panel, the exits after Dakhil, the AQVI note and a link to the full plan (`/curriculum`)."
     },
     {
       "name": "SchoolDay",
@@ -720,6 +720,51 @@
       "name": "AdmissionsClose",
       "kind": "section",
       "description": "The Admissions page's close (`src/components/admissions/admissions-close.tsx`): a `dark` card (`radius-panel`) on `cream` straight after the questions (the shared `FaqSection`, here with the pre-admission page's four questions), like the homepage's pre-admission card but not rust: the rust block belongs to the homepage."
+    },
+    {
+      "name": "OnThisPage",
+      "kind": "section",
+      "description": "Links to each section of a page, under its opening (`OnThisPage`, `src/components/site/on-this-page.tsx`): used by the Admissions and Curriculum heroes."
+    },
+    {
+      "name": "CurriculumHero",
+      "kind": "section",
+      "description": "The Curriculum page's opening (`src/components/curriculum/curriculum-hero.tsx`), on `paper`, laid out like AdmissionsHero."
+    },
+    {
+      "name": "TeachingModel",
+      "kind": "section",
+      "description": "The 50-50 model (`src/components/curriculum/teaching-model.tsx`), on `dark`: the prospectus's শিক্ষা পদ্ধতি and its three stages."
+    },
+    {
+      "name": "Strands",
+      "kind": "section",
+      "description": "The four strands (`src/components/curriculum/strands.tsx`), on `paper`: the prospectus's কারিকুলাম cards."
+    },
+    {
+      "name": "Goals",
+      "kind": "section",
+      "description": "The prospectus's ten-year goals in Islamic studies (`src/components/curriculum/goals.tsx`), on `dark`: six `panel` cards, three across (two columns from 260px each down to one on phones)."
+    },
+    {
+      "name": "StudyPlanTable",
+      "kind": "section",
+      "description": "The prospectus's ten-year table, designed (`src/components/curriculum/study-plan-table.tsx`), on `cream`. ClassBooks follows it in the same section."
+    },
+    {
+      "name": "ClassBooks",
+      "kind": "section",
+      "description": "Books and topics by class (`src/components/curriculum/class-books.tsx`, a client component), under StudyPlanTable on `cream`. From the detailed curriculum PDF: the prospectus has no book names."
+    },
+    {
+      "name": "HigherEducation",
+      "kind": "section",
+      "description": "After Dakhil (`src/components/curriculum/higher-education.tsx`), on `dark`: the prospectus's স্কুল পরবর্তী উচ্চ শিক্ষা plus college."
+    },
+    {
+      "name": "CurriculumClose",
+      "kind": "section",
+      "description": "The page's close (`src/components/curriculum/curriculum-close.tsx`): a `cream` card (`radius-panel`) on `paper`. Ages, admission steps and fees live on the Admissions page, so the card says so and links there (`outline` ভর্তি ও ফি). While the pre-admission form is open (`getPublishedIntake`) the rust আবেদন করুন comes first. No fees on this page."
     }
   ],
   "narrative": {

@@ -116,7 +116,7 @@
       }
     },
     "plan": {
-      "title": "Nursery to Class 11, in five stages",
+      "title": "Nursery to Class 11, in three stages",
       "lede": "Our main aim is a strong foundation by secondary level, so a student is fully prepared to succeed at a madrasa or at college.",
       "mapTitle": "The 10-year study plan",
       "mapSub": "Class 1 to Dakhil, with full or partial hifz. Nursery, KG and Class 11 are shown too.",
@@ -140,18 +140,8 @@
         },
         {
           "name": "After-Hifz",
-          "classes": "Classes 6 to 8",
+          "classes": "Class 6 to Mutawassita",
           "hours": "8:00 am to 1:00 pm"
-        },
-        {
-          "name": "Dakhil",
-          "classes": "Classes 9 and 10",
-          "hours": "Board syllabus"
-        },
-        {
-          "name": "Mutawassita",
-          "classes": "Class 11",
-          "hours": "One year after Dakhil"
         }
       ],
       "classes": [
@@ -205,8 +195,16 @@
         "science": "+ Science",
         "bgs": "+ BGS"
       },
-      "board": "Madrasa Board",
-      "allSubjects": "All subjects"
+      "blocks": [
+        {
+          "name": "Dakhil",
+          "note": "Board syllabus"
+        },
+        {
+          "name": "Mutawassita",
+          "note": "One year after Dakhil"
+        }
+      ]
     },
     "day": {
       "title": "A day in hifz day-care",
@@ -411,7 +409,7 @@
         },
         {
           "q": "What comes after hifz?",
-          "a": "After Hifz covers Classes 6 to 8, then Dakhil in Classes 9 and 10. After Dakhil: Mutawassita here, or college."
+          "a": "After Hifz runs from Class 6 to Mutawassita, with Dakhil in Classes 9 and 10. After Dakhil: Mutawassita here, or college."
         },
         {
           "q": "Does the school run its own transport?",
@@ -546,6 +544,320 @@
       "whatsapp": "WhatsApp",
       "officeHours": "Office hours: {hours}",
       "whyMore": "See all"
+    }
+  },
+  "curriculum": {
+    "meta": {
+      "title": "Curriculum | Madrasatul Quran",
+      "description": "Bangla-medium NCTB (Dakhil) curriculum with our own Islamic studies curriculum: the 50-50 model, three stages, the ten-year study plan, books by class and higher education after Dakhil. Madrasatul Quran, Uttara, Dhaka."
+    },
+    "hero": {
+      "title": "Curriculum",
+      "lead": "Bangla-medium NCTB (Dakhil) curriculum with our own Islamic studies curriculum. Nursery to Mutawassita, in three stages.",
+      "curriculumPdf": "Detailed curriculum (PDF)",
+      "glanceTitle": "At a glance",
+      "glance": [
+        {
+          "label": "Classes",
+          "value": "Nursery to Mutawassita"
+        },
+        {
+          "label": "Hifz",
+          "value": "Classes 2 to 5, in day-care"
+        },
+        {
+          "label": "Arabic and Islamic studies",
+          "value": "By AQVI, Nursery to Class 8"
+        },
+        {
+          "label": "Islamic studies in Arabic",
+          "value": "From Class 6"
+        },
+        {
+          "label": "Board exam",
+          "value": "Dakhil"
+        }
+      ],
+      "nav": {
+        "model": "Teaching model",
+        "strands": "Four strands",
+        "goals": "Ten-year goals",
+        "plan": "Study plan",
+        "after": "Higher education"
+      }
+    },
+    "model": {
+      "title": "Teaching model",
+      "mark": "The 50-50 model",
+      "points": [
+        "An ideal blend of Islamic and general education, which we call the “50-50 model”.",
+        "A system in which the madrasa's curriculum, syllabus and routine give Islamic and general education equal weight.",
+        "Where most Islamic schools follow an “80-20 model”, our main aim is a strong foundation by secondary level, so a student is fully prepared to succeed at a madrasa or at college."
+      ],
+      "stagesTitle": "Quran, Arabic and general education at each stage",
+      "stageTag": "Stage {n}",
+      "classesLabel": "Classes",
+      "hoursLabel": "Hours",
+      "subjects": {
+        "quran": "Quran",
+        "arabic": "Arabic",
+        "arabicIslam": "Arabic and Islam",
+        "general": "General"
+      },
+      "stages": [
+        {
+          "name": "Pre-Hifz",
+          "care": "Non day-care",
+          "classes": "Nursery to Class 1",
+          "hours": "9:00 am to 1:00 pm"
+        },
+        {
+          "name": "Hifz",
+          "care": "Day-care",
+          "classes": "Classes 2 to 5",
+          "hours": "7:00 am to 8:30 pm"
+        },
+        {
+          "name": "After Hifz",
+          "care": "Dakhil included",
+          "classes": "Class 6 to Mutawassita",
+          "hours": "8:00 am to 1:00 pm",
+          "note": "After Dakhil, two ways: Mutawassita here, or college."
+        }
+      ]
+    },
+    "strands": {
+      "title": "Four strands, one plan",
+      "lead": "Bangla-medium NCTB (Dakhil) curriculum with our own Islamic studies curriculum.",
+      "quote": "Alongside our own Arabic, Islamic studies and hifz, we chose the NCTB (Bangla) curriculum. Arabic and Islamic studies are taught so that students can go on to a madrasa, and anyone who wishes can continue in general education.",
+      "quoteBy": "Chairman, Madrasatul Quran (translated)",
+      "cards": [
+        {
+          "title": "Quran",
+          "text": "Qaida, Ammapara, Nazera, and hifz (hifz up to Class 5).",
+          "range": "Nursery to Class 5"
+        },
+        {
+          "title": "Arabic",
+          "text": "Our own curriculum by AQVI, from Nursery to Class 8.",
+          "range": "Nursery to Class 8"
+        },
+        {
+          "title": "Islamic studies",
+          "text": "A curriculum by AQVI from Nursery to Class 8 that puts the madrasa board's Mutawassita syllabus first, so students can sit the Mutawassita exam the year after Dakhil.",
+          "range": "Nursery to Class 8, in Arabic from Class 6"
+        },
+        {
+          "title": "General education",
+          "text": "General education up to Dakhil (secondary) level.",
+          "range": "Nursery to Dakhil"
+        }
+      ]
+    },
+    "goals": {
+      "title": "Ten-year goals in Islamic studies",
+      "goalTag": "Goal",
+      "items": [
+        {
+          "title": "Quran",
+          "figure": "90%+",
+          "text": "Hifz as each student is able, and Quran translation: the ability to translate 90%+ of the Quran by Dakhil."
+        },
+        {
+          "title": "Arabic",
+          "text": "Speaking Arabic, understanding it by ear, reading Arabic texts (ibarat) and writing it."
+        },
+        {
+          "title": "Aqidah",
+          "text": "Matters of iman and aqidah, and Islamic values."
+        },
+        {
+          "title": "Fiqh",
+          "text": "Basic rulings (masail), adab and tarbiyah, and masnun duas."
+        },
+        {
+          "title": "Hadith",
+          "figure": "300+",
+          "text": "300+ hadith memorised, by topic, by Class 9."
+        },
+        {
+          "title": "History",
+          "text": "The history of the prophets, of the Quran, of the caliphs, and the history after them."
+        }
+      ]
+    },
+    "plan": {
+      "title": "The ten-year study plan",
+      "lead": "With full or partial hifz, Nursery to Dakhil. For each class: the Quran portion, the Arabic and Islamic studies level, and the general subjects.",
+      "caption": "The ten-year study plan, class by class",
+      "cols": {
+        "class": "Class",
+        "quran": "Quran",
+        "arabic": "Arabic",
+        "islam": "Islam",
+        "general": "General"
+      },
+      "arabicCode": "Arabic-{level}",
+      "islamCode": "Islam-{level}",
+      "age": "{age}+ yrs",
+      "subjects": {
+        "bangla": "Bangla",
+        "english": "English",
+        "maths": "Maths",
+        "science": "Science",
+        "bgs": "BGS"
+      },
+      "limited": "During hifz: limited, on a special syllabus",
+      "dakhil": "Dakhil",
+      "mutawassita": "Mutawassita, here",
+      "orCollege": "or college",
+      "note": "Arabic and Islamic studies books for every class, and the general books for Nursery and KG, are by AQVI."
+    },
+    "books": {
+      "title": "Books and topics by class",
+      "lead": "Choose a class.",
+      "pick": "Choose a class",
+      "classTitle": "{name}",
+      "dakhilTab": "Classes 9 and 10",
+      "dakhilTitle": "Classes 9 and 10",
+      "dakhilAge": "15+ and 16+ yrs",
+      "dakhilText": "Two years of preparation for the Dakhil exam, on the madrasa board's syllabus.",
+      "mutawassitaAge": "After Dakhil",
+      "mutawassitaText": "After the Dakhil exam, students study the Talimi board's Mutawassita syllabus here for one year, then sit the Mutawassita exam.",
+      "quran": "Quran",
+      "arabic": "Arabic",
+      "islam": "Islamic studies",
+      "general": "General",
+      "aqviBooks": "Books by AQVI",
+      "nctb": "NCTB",
+      "items": [
+        {
+          "arabic": [
+            "Rawdah 1",
+            "Writing Arabic letters and saying words"
+          ],
+          "islam": [
+            "Islamic studies, Nursery",
+            "Aqidah, fiqh, hadith, history"
+          ]
+        },
+        {
+          "arabic": [
+            "Rawdah 2",
+            "Writing Arabic words and sentences"
+          ],
+          "islam": [
+            "Islamic studies, KG",
+            "Aqidah, fiqh, hadith, history"
+          ]
+        },
+        {
+          "arabic": [
+            "Bidayah 1",
+            "Arabic conversation"
+          ],
+          "islam": [
+            "Islamic studies 1",
+            "Aqidah, fiqh, hadith, history"
+          ]
+        },
+        {
+          "arabic": [
+            "Bidayah 2",
+            "Arabic conversation and composition"
+          ],
+          "islam": [
+            "Islamic studies 2",
+            "Aqidah, fiqh, hadith, history"
+          ]
+        },
+        {
+          "arabic": [
+            "Bidayah 3",
+            "Basic grammar and composition"
+          ],
+          "islam": [
+            "Islamic studies 3",
+            "Aqidah, fiqh, hadith, history"
+          ]
+        },
+        {
+          "arabic": [
+            "Bidayah 4",
+            "Nahw and sarf, and composition"
+          ],
+          "islam": [
+            "Islamic studies 4, 50 hadith by topic",
+            "Aqidah, fiqh, hadith, history"
+          ]
+        },
+        {
+          "arabic": [
+            "Bidayah 5, Qasas an-Nabiyyin",
+            "Arabic conversation and composition"
+          ],
+          "islam": [
+            "Islamic studies 5, 50 hadith by topic",
+            "Aqidah, fiqh, hadith, history"
+          ]
+        },
+        {
+          "arabic": [
+            "Bidayah 6, Kalimatul Quran",
+            "Arabic composition and the words of the Quran"
+          ],
+          "islam": [
+            "Bidayatul Fiqh, 100 hadith by topic",
+            "Fiqh, hadith; in Arabic"
+          ]
+        },
+        {
+          "arabic": [
+            "Lughatul Quran, Quran translation",
+            "Nahw, sarf and balagha, and Quran translation"
+          ],
+          "islam": [
+            "Bulugh al-Maram, 100 hadith by topic",
+            "Hadith"
+          ]
+        },
+        {
+          "arabic": [
+            "Quran translation",
+            "Learning to translate the Quran"
+          ],
+          "islam": [
+            "Al-Fiqh al-Muyassar (part 1), Atyab al-Minah",
+            "Fiqh, hadith"
+          ]
+        }
+      ]
+    },
+    "after": {
+      "title": "Higher education after school",
+      "lead": "Three ways after the Dakhil exam.",
+      "items": [
+        {
+          "tag": "Here, Class 11",
+          "title": "Mutawassita",
+          "text": "After the Dakhil exam, students study the Talimi board's Mutawassita syllabus here for one year, then sit the Mutawassita exam."
+        },
+        {
+          "tag": "At a Qawmi madrasa",
+          "title": "Kafiya jamat",
+          "text": "Students who wish can also join the Kafiya jamat at a Qawmi madrasa after the Dakhil exam."
+        },
+        {
+          "tag": "In general education",
+          "title": "College",
+          "text": "Or, after Dakhil, students can go to college and continue in general education."
+        }
+      ]
+    },
+    "close": {
+      "title": "Ages, admission steps and fees",
+      "text": "Which class at which age, how to apply, fees and transport: all on the Admissions and fees page.",
+      "admissions": "Admissions and fees"
     }
   },
   "campus": {
@@ -945,23 +1257,6 @@
       "complete": "Complete",
       "incomplete": "Incomplete"
     }
-  },
-  "admissionsExperience": {
-    "navigation": "On this page",
-    "features": "School features",
-    "studyPlan": "Study plan",
-    "outcomes": "Learning outcomes",
-    "higherEducation": "Higher Education After School",
-    "alimPath": "Students aiming to become Alim after Class Eight will be prepared for the Ta’lim Board and will take Dakhil/SSC exams.",
-    "collegePath": "Students who wish to pursue college education will focus on general education and take SSC exams.",
-    "islamicSubjects": "Islamic studies",
-    "generalSubjects": "General subjects",
-    "age": "Age",
-    "period": "Period",
-    "periodGrid": "Study plan by class and period",
-    "swipePeriods": "Swipe horizontally to view all periods. The class column stays visible.",
-    "emptyPeriod": "No subject assigned",
-    "illustrativeImages": "Illustrative images of learning themes."
   },
   "admissionCta": {
     "title": "Pre-admission {session}",
