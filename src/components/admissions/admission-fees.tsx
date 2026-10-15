@@ -11,12 +11,12 @@ import { ButtonLink } from '@/components/site/button';
 import { Icon } from '@/components/site/icon';
 import { cn } from '@/lib/utils';
 
-const block = 'flex flex-col gap-3.5 rounded-card bg-panel p-[clamp(20px,2.4vw,28px)] shadow-[inset_0_0_0_1px_var(--color-line-dark)]';
+const block = 'flex flex-col gap-3.5 rounded-card bg-cream p-[clamp(20px,2.4vw,28px)]';
 
 /**
- * What it costs, on `dark`, all from Studio → Fees & Discounts: the fee table on a `paper` card (day-care and
- * non day-care side by side, so they compare at a glance), the discounts and the payment rules beside it, then the
- * school's van routes with their vehicle and monthly charge. Without usable fee settings it says to ask the office.
+ * What it costs, on `paper`, all from Studio → Fees & Discounts: the fee table on a `surface` card (day-care and
+ * non day-care side by side, so they compare at a glance), the discounts and the payment rules beside it on `cream`,
+ * then the school's van routes with their vehicle and monthly charge. Without usable fee settings it says to ask the office.
  */
 export async function AdmissionFees({ locale, settings, transportPhone }: { locale: Locale; settings: FeeSettings | null; transportPhone?: string }) {
   const t = await getTranslations({ locale, namespace: 'admissions.page' });
@@ -26,11 +26,11 @@ export async function AdmissionFees({ locale, settings, transportPhone }: { loca
 
   if (!usableFeeSettings(settings))
     return (
-      <section id="fees" className="bg-dark text-on-dark">
+      <section id="fees" className="bg-paper text-ink">
         <div className="page-wrap flex flex-col items-start gap-4 py-section">
           <h2 className="m-0 text-h2">{t('feesFallback')}</h2>
-          <p className="m-0 text-19 text-on-dark-body">{unavailable}</p>
-          <ButtonLink href={`/${locale}/contact`} variant="light">
+          <p className="m-0 text-19 text-ink-body">{unavailable}</p>
+          <ButtonLink href={`/${locale}/contact`} variant="outline">
             {t('contactAdmissions')}
             <Icon name="arrow-right" size={18} />
           </ButtonLink>
@@ -47,14 +47,14 @@ export async function AdmissionFees({ locale, settings, transportPhone }: { loca
   const desk = sitePhone(transportPhone, locale);
 
   return (
-    <div className="bg-dark text-on-dark">
+    <div className="bg-paper text-ink">
       <section id="fees" className="page-wrap flex flex-col gap-9 pt-section">
         <div className="flex max-w-[820px] flex-col gap-3">
           <h2 className="m-0 text-h2 text-balance">{txt(settings.heading, locale)}</h2>
-          {groups.length > 0 && <p className="m-0 text-19 text-on-dark-body">{txt(settings.introduction, locale)}</p>}
+          {groups.length > 0 && <p className="m-0 text-19 text-ink-body">{txt(settings.introduction, locale)}</p>}
         </div>
         <div className="flex flex-wrap items-start gap-x-8 gap-y-6">
-          <div className="min-w-0 flex-[3_1_520px] rounded-card bg-paper p-[clamp(16px,2.4vw,32px)] text-ink">
+          <div className="min-w-0 flex-[3_1_520px] rounded-card border border-line bg-surface p-[clamp(16px,2.4vw,32px)]">
             {groups.length > 0 ? (
               <>
                 <table className="w-full border-collapse text-left">
@@ -112,11 +112,11 @@ export async function AdmissionFees({ locale, settings, transportPhone }: { loca
                 {discounts.map((d) => {
                   const applies = applicableNames(d.appliesTo, settings, locale);
                   return (
-                    <div key={d._key} className="flex flex-col gap-1.5 border-t border-line-dark pt-3.5">
-                      <h4 className="m-0 text-18 font-bold text-bronze-light">{txt(d.title, locale)}</h4>
-                      <p className="m-0 text-16 text-on-dark-body">{txt(d.description, locale)}</p>
-                      {txt(d.conditions, locale) && <p className="m-0 text-16 text-on-dark-body">{txt(d.conditions, locale)}</p>}
-                      {applies.length > 0 && <p className="m-0 text-14 text-on-dark-muted">{t('appliesTo', { fees: applies.join(', ') })}</p>}
+                    <div key={d._key} className="flex flex-col gap-1.5 border-t border-line-strong pt-3.5">
+                      <h4 className="m-0 text-18 font-bold text-rust">{txt(d.title, locale)}</h4>
+                      <p className="m-0 text-16 text-ink-body">{txt(d.description, locale)}</p>
+                      {txt(d.conditions, locale) && <p className="m-0 text-16 text-ink-body">{txt(d.conditions, locale)}</p>}
+                      {applies.length > 0 && <p className="m-0 text-14 text-ink-muted">{t('appliesTo', { fees: applies.join(', ') })}</p>}
                     </div>
                   );
                 })}
@@ -124,9 +124,9 @@ export async function AdmissionFees({ locale, settings, transportPhone }: { loca
             )}
             <div id="payment" className={block}>
               <h3 className="m-0 text-h4">{txt(settings.paymentHeading, locale)}</h3>
-              <p className="m-0 text-16 text-on-dark-body">{txt(settings.paymentInstructions, locale)}</p>
+              <p className="m-0 text-16 text-ink-body">{txt(settings.paymentInstructions, locale)}</p>
               {policies.length > 0 && (
-                <ul className="m-0 flex list-disc flex-col gap-1.5 border-t border-line-dark pl-5 pt-3.5 text-16 leading-[1.55] text-on-dark-body marker:text-bronze">
+                <ul className="m-0 flex list-disc flex-col gap-1.5 border-t border-line-strong pl-5 pt-3.5 text-16 leading-[1.55] text-ink-body marker:text-rust">
                   {policies.map((p) => (
                     <li key={p}>{p}</li>
                   ))}
@@ -141,14 +141,14 @@ export async function AdmissionFees({ locale, settings, transportPhone }: { loca
         <section id="transport" className="page-wrap flex flex-col gap-8 pb-section pt-[clamp(3.5rem,7vw,6rem)]">
           <div className="flex max-w-[820px] flex-col gap-3">
             <h2 className="m-0 text-h2 text-balance">{txt(settings.transportHeading, locale)}</h2>
-            <p className="m-0 text-19 text-on-dark-body">{txt(settings.transportIntroduction, locale)}</p>
+            <p className="m-0 text-19 text-ink-body">{txt(settings.transportIntroduction, locale)}</p>
           </div>
           <ul className="m-0 grid list-none grid-cols-[repeat(auto-fill,minmax(min(100%,230px),1fr))] gap-3 p-0">
             {transport.routes.map((r) => {
               const vehicle = transport.vehicles.find((v) => v.key === r.vehicle);
               const route = { name: txt(r.name, locale), stops: r.stops.map((s) => txt(s.name, locale)) };
               return (
-                <li key={r.key} className="rounded-card bg-paper px-5 pb-6 pt-5 text-ink">
+                <li key={r.key} className="rounded-card border border-line bg-surface px-5 pb-6 pt-5">
                   <RouteLine route={route} school={home('hero.name')}>
                     <p className="-mt-1.5 mb-1 text-15 text-ink-muted">
                       {vehicle && `${txt(vehicle.name, locale)}, `}
@@ -166,12 +166,12 @@ export async function AdmissionFees({ locale, settings, transportPhone }: { loca
             })}
           </ul>
           <div className="flex flex-wrap items-center justify-between gap-x-8 gap-y-4">
-            <p className="m-0 flex items-start gap-2.5 text-16 text-on-dark-body">
-              <Icon name="info" size={20} className="mt-0.5 shrink-0 text-bronze-light" />
+            <p className="m-0 flex items-start gap-2.5 text-16 text-ink-body">
+              <Icon name="info" size={20} className="mt-0.5 shrink-0 text-rust" />
               {tr('seatNote')}
             </p>
             {desk && (
-              <ButtonLink href={desk.tel} variant="outline-dark" className="min-h-12 px-[22px]">
+              <ButtonLink href={desk.tel} variant="outline" className="min-h-12 border-rust px-[22px] text-rust-deep">
                 <Icon name="phone" size={18} />
                 {home('day.transport.desk', { number: desk.display })}
               </ButtonLink>

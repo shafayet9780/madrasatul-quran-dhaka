@@ -385,7 +385,7 @@ Phones only (below 640px): the pre-admission bar fixed to the foot of the screen
 
 ## Admissions page
 
-ভর্তি ও ফি (`src/app/[locale]/admissions/page.tsx`, components in `src/components/admissions`), top to bottom: AdmissionsHero (`paper`), AdmissionClasses (`dark`), AdmissionSteps (`paper`), AdmissionFees (`dark`: fees, then transport), AdmissionsWhy (`paper`), the homepage's Reviews on `dark` (only once there are consented reviews), the shared FaqSection (`cream`, see Faq) and AdmissionsClose (on the same `cream`). While no intake is open or announced, the classes, the steps and the questions are left out and the opening points to the contact page.
+ভর্তি ও ফি (`src/app/[locale]/admissions/page.tsx`, components in `src/components/admissions`), top to bottom: AdmissionsHero (`paper`), AdmissionClasses (`dark`), AdmissionSteps (`paper`), AdmissionsWhy (`dark`: the value before the price), AdmissionFees (`paper`: fees, then transport), the homepage's Reviews on `dark` (only once there are consented reviews), the shared FaqSection (`cream`, see Faq) and AdmissionsClose (on the same `cream`). While no intake is open or announced, the classes, the steps and the questions are left out and the opening points to the contact page.
 
 ### AdmissionsHero
 
@@ -420,20 +420,20 @@ How admission works (`src/components/admissions/admission-steps.tsx`), on `paper
 
 ### AdmissionFees
 
-What it costs (`src/components/admissions/admission-fees.tsx`): one `dark` band with two sections, fees then transport, all from Studio → Fees & Discounts. Fees belong here and in the prospectus, never on the homepage.
+What it costs (`src/components/admissions/admission-fees.tsx`): one `paper` band with two sections, between the reasons and the reviews (both `dark`), fees then transport, all from Studio → Fees & Discounts. Fees belong here and in the prospectus, never on the homepage.
 
-- **Fees (`#fees`):** the CMS heading and introduction, then the fee table on a `paper` card (`radius-card`): one real `table`, the same on phones (it fits at 320px). Columns: ফি, then the CMS's two column labels (নন ডে-কেয়ার, ডে-কেয়ার) right-aligned under a 2px `ink` rule. Rows grouped (মাসিক ফি; এককালীন ও বাৎসরিক ফি; অন্যান্য ফি) under 13px 650 `rust` group labels; each row the fee name (17px 650), its frequency when the group does not already say it, and its note; amounts in 750 with tabular figures (`৳১০,০০০`), and words (প্রযোজ্য নয়, অফিসে যোগাযোগ করুন) in 14px `ink-muted`. Under the table: সকল পরিমাণ বাংলাদেশি টাকায় and ডে-কেয়ার: ২য় থেকে ৫ম শ্রেণি.
-- **Beside it:** `panel` blocks for the visible discounts (`#discounts`: title in `bronze-light`, description, conditions, প্রযোজ্য ফি) and the payment rules (`#payment`: instructions and the policies as a list with `bronze` markers).
-- **Transport (`#transport`):** the CMS heading and introduction, then a `paper` card per visible route (`buildTransport`): the homepage's `RouteLine` (stops drawn down to মাদরাসাতুল কুরআন) with the vehicle and monthly charge under the route name. Under the cards, the approved seat note with an info icon, and the transport desk phone (`outline-dark`) when Site Settings has one.
-- **Without usable fee settings:** ফি সম্পর্কিত তথ্য, the CMS's unavailable message and a `light` button to the contact page.
+- **Fees (`#fees`):** the CMS heading and introduction, then the fee table on a `surface` card (`radius-card`, `line` border): one real `table`, the same on phones (it fits at 320px). Columns: ফি, then the CMS's two column labels (নন ডে-কেয়ার, ডে-কেয়ার) right-aligned under a 2px `ink` rule. Rows grouped (মাসিক ফি; এককালীন ও বাৎসরিক ফি; অন্যান্য ফি) under 13px 650 `rust` group labels; each row the fee name (17px 650), its frequency when the group does not already say it, and its note; amounts in 750 with tabular figures (`৳১০,০০০`), and words (প্রযোজ্য নয়, অফিসে যোগাযোগ করুন) in 14px `ink-muted`. Under the table: সকল পরিমাণ বাংলাদেশি টাকায় and ডে-কেয়ার: ২য় থেকে ৫ম শ্রেণি.
+- **Beside it:** `cream` blocks for the visible discounts (`#discounts`: title in `rust`, description, conditions, প্রযোজ্য ফি) and the payment rules (`#payment`: instructions and the policies as a list with `rust` markers).
+- **Transport (`#transport`):** the CMS heading and introduction, then a `surface` card (`line` border) per visible route (`buildTransport`): the homepage's `RouteLine` (stops drawn down to মাদরাসাতুল কুরআন) with the vehicle and monthly charge under the route name. Under the cards, the approved seat note with an info icon, and the transport desk phone (`outline` with a `rust` border) when Site Settings has one.
+- **Without usable fee settings:** ফি সম্পর্কিত তথ্য, the CMS's unavailable message and an `outline` button to the contact page.
 - **Motion:** only the route lines (`route-stop`/`route-line`, scroll-driven, as on the homepage), off with reduced motion.
 
 ### AdmissionsWhy
 
-Why Madrasatul Quran, short (`src/components/admissions/admissions-why.tsx`), on `paper` straight after the fees: where a parent weighs the cost, four of the homepage's reasons answer "is it worth it". Then the guardian reviews on `dark` (the homepage's Reviews, consented reviews only; with none, left out).
+Why Madrasatul Quran, short (`src/components/admissions/admissions-why.tsx`), on `dark` straight before the fees, so the value comes before the price: four of the homepage's reasons. After the fees come the guardian reviews, also on `dark` (the homepage's Reviews, consented reviews only; with none, left out).
 
-- The homepage H2 কেন মাদরাসাতুল কুরআন? with a `rust` link সব কারণ দেখুন (arrow) to the homepage's Why section (`/{locale}#why`), on the right on wide screens and under the H2 on phones.
-- The cards are the homepage's `ReasonCards` (`only` picks reasons 1, 2, 3 and 5: the blend, the four language skills, the hadith goal with its লক্ষ্য tag, the path after Class 8). On `paper` the light cards turn `surface` with a `line` border. Same approved copy (`home.why.reasons`), no new claims.
+- The homepage H2 কেন মাদরাসাতুল কুরআন? with a `bronze-light` link সব দেখুন (arrow) to the homepage's Why section (`/{locale}#why`), on the right on wide screens and under the H2 on phones.
+- The cards are the homepage's `ReasonCards` (`only` picks reasons 1, 2, 3 and 5: the blend, the four language skills, the hadith goal with its লক্ষ্য tag, the path after Class 8). On `dark` the dark card turns `panel` (inset `line-dark` ring) so it still shows. Same approved copy (`home.why.reasons`), no new claims.
 - No motion.
 
 ### AdmissionsClose

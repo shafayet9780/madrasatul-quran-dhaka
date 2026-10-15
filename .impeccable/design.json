@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-15T02:46:26+00:00",
+  "generatedAt": "2026-10-15T02:58:28+00:00",
   "title": "Design System: Madrasatul Quran, Dhaka",
   "extensions": {
     "colorMeta": {
@@ -709,12 +709,12 @@
     {
       "name": "AdmissionFees",
       "kind": "section",
-      "description": "What it costs (`src/components/admissions/admission-fees.tsx`): one `dark` band with two sections, fees then transport, all from Studio → Fees & Discounts. Fees belong here and in the prospectus, never on the homepage."
+      "description": "What it costs (`src/components/admissions/admission-fees.tsx`): one `paper` band with two sections, between the reasons and the reviews (both `dark`), fees then transport, all from Studio → Fees & Discounts. Fees belong here and in the prospectus, never on the homepage."
     },
     {
       "name": "AdmissionsWhy",
       "kind": "section",
-      "description": "Why Madrasatul Quran, short (`src/components/admissions/admissions-why.tsx`), on `paper` straight after the fees: where a parent weighs the cost, four of the homepage's reasons answer \"is it worth it\". Then the guardian reviews on `dark` (the homepage's Reviews, consented reviews only; with none, left out)."
+      "description": "Why Madrasatul Quran, short (`src/components/admissions/admissions-why.tsx`), on `dark` straight before the fees, so the value comes before the price: four of the homepage's reasons. After the fees come the guardian reviews, also on `dark` (the homepage's Reviews, consented reviews only; with none, left out)."
     },
     {
       "name": "AdmissionsClose",

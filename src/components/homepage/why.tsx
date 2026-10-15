@@ -9,6 +9,8 @@ const LOOK = {
   light: { card: 'bg-paper text-ink', sub: 'text-ink-body', accent: 'text-rust' },
   // A light card on a paper ground (the Admissions page).
   surface: { card: 'border border-line bg-surface text-ink', sub: 'text-ink-body', accent: 'text-rust' },
+  // A dark card on a dark ground (the Admissions page).
+  panel: { card: 'bg-panel text-on-dark shadow-[inset_0_0_0_1px_var(--color-line-dark)]', sub: 'text-on-dark-body', accent: 'text-bronze' },
   sand: { card: 'bg-sand text-ink', sub: 'text-ink-body', accent: 'text-rust-deep' },
   dark: { card: 'bg-dark text-on-dark', sub: 'text-on-dark-body', accent: 'text-bronze' },
 };
@@ -29,9 +31,10 @@ type Reason = { title: string; text: string; figure?: string; alt?: string };
 
 /**
  * The reasons as cards, in an auto-fill grid (four across on wide screens, two on phones). `only` picks some by their
- * place in home.why.reasons; on a `paper` ground the light cards turn `surface` with a border so they still show.
+ * place in home.why.reasons. On a `paper` ground the light cards turn `surface` with a border, and on a `dark` ground
+ * the dark cards turn `panel`, so every card still shows.
  */
-export async function ReasonCards({ locale, only, ground = 'cream' }: { locale: Locale; only?: number[]; ground?: 'cream' | 'paper' }) {
+export async function ReasonCards({ locale, only, ground = 'cream' }: { locale: Locale; only?: number[]; ground?: 'cream' | 'paper' | 'dark' }) {
   const t = await getTranslations({ locale, namespace: 'home.why' });
   const reasons = t.raw('reasons') as Reason[];
   const shown = REASONS.map((r, i) => ({ ...r, i })).filter(({ i }) => !only || only.includes(i));
@@ -39,7 +42,7 @@ export async function ReasonCards({ locale, only, ground = 'cream' }: { locale: 
     <ul className="m-0 grid list-none grid-cols-[repeat(auto-fill,minmax(max(150px,calc(25%-18px)),1fr))] gap-3.5 p-0">
       {shown.map(({ look, photo, icon, goal, i }) => {
         const r = reasons[i];
-        const l = LOOK[look === 'light' && ground === 'paper' ? 'surface' : look];
+        const l = LOOK[look === 'light' && ground === 'paper' ? 'surface' : look === 'dark' && ground === 'dark' ? 'panel' : look];
         return (
           <li key={r.title} className={cn('flex flex-col overflow-hidden rounded-card', l.card)}>
             {photo && (

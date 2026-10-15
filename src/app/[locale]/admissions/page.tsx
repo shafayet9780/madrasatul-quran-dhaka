@@ -33,9 +33,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 /**
- * Admissions and fees: the intake (Studio → Pre-admission form: status, fees, classes, what to bring), the fees,
- * discounts, payment rules and van routes (Studio → Fees & Discounts), why the school (four of the homepage's reasons),
- * guardian reviews (consented ones only; none, none shown), questions, and the admissions office.
+ * Admissions and fees: the intake (Studio → Pre-admission form: status, fees, classes, what to bring), why the school
+ * (four of the homepage's reasons, before the price), the fees, discounts, payment rules and van routes (Studio → Fees &
+ * Discounts), guardian reviews (consented ones only; with none, none shown), questions, and the admissions office.
  * While no intake is open or announced, the classes, the steps and the questions are left out and the page points to the office.
  */
 export default async function AdmissionsPage({ params }: Props) {
@@ -91,8 +91,8 @@ export default async function AdmissionsPage({ params }: Props) {
       <AdmissionsHero locale={locale} state={intake.state} status={intakeStatus(intake, locale, intro)} facts={fees} links={links} />
       {classes.length > 0 && <AdmissionClasses locale={locale} classes={classes} year={sessionStart(offer!.settings.session).slice(0, 4)} />}
       {steps.length > 0 && <AdmissionSteps locale={locale} title={intro('stepsTitle')} steps={steps} />}
-      <AdmissionFees locale={locale} settings={settings} transportPhone={transportPhone(contact)} />
       <AdmissionsWhy locale={locale} />
+      <AdmissionFees locale={locale} settings={settings} transportPhone={transportPhone(contact)} />
       <Reviews locale={locale} reviews={reviewsFor(testimonials, locale)} tone="dark" />
       {faq.length > 0 && (
         <FaqSection id="faq" locale={locale} title={intro('faqTitle')} lede={faqCopy('lede')} phone={sitePhone(getAdmissionsContact(contact).phone ?? undefined, locale)} items={faq} />
