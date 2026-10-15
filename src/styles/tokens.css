@@ -36,7 +36,10 @@
   --color-clay: #9e5420;
   --color-bronze: #c58a4b;
   --color-bronze-light: #e2a867;
-  --color-open: #5fc383; /* the open-status dot, nothing else is green */
+  --color-open: #5fc383; /* the open-status dot; besides it only WhatsApp's own logo and buttons are green */
+  /* WhatsApp's own green, on its logo and buttons on the public site only; ink text on it (9:1). Not `whatsapp`: shadcn.css owns that name for the pre-admission pages' teal. */
+  --color-whatsapp-brand: #25d366;
+  --color-whatsapp-brand-deep: #1da851;
 
   /* Lines */
   --color-line: #e4d5bc;

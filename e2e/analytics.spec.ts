@@ -80,9 +80,4 @@ test.describe('analytics', () => {
       await expect(page.locator('h1')).toContainText(/Cookie Policy|কুকি নীতি/);
     }
   });
-
-  test('contact form container is masked for Clarity', async ({ page }) => {
-    await page.goto('/bengali/contact');
-    await expect(page.locator('[data-clarity-mask="true"]').first()).toBeAttached({ timeout: 15_000 });
-  });
 });

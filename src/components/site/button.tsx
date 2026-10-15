@@ -9,6 +9,8 @@ const VARIANTS = {
   // On dark sections and bars.
   light: 'bg-cream text-dark hover:bg-surface focus-visible:outline-bronze-light',
   'outline-dark': 'border border-line-dark-strong text-on-dark hover:bg-panel focus-visible:outline-bronze-light',
+  // WhatsApp links only: its own green, so it reads as WhatsApp at a glance.
+  whatsapp: 'bg-whatsapp-brand text-ink hover:bg-whatsapp-brand-deep focus-visible:outline-ink',
   // The language switch.
   quiet: 'border border-line-strong text-rust-deep hover:bg-cream focus-visible:outline-ink',
 } as const;

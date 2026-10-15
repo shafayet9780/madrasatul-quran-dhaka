@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-15T06:13:53+00:00",
+  "generatedAt": "2026-10-15T08:39:38+00:00",
   "title": "Design System: Madrasatul Quran, Dhaka",
   "extensions": {
     "colorMeta": {
@@ -349,6 +349,36 @@
           "#DDF6E4"
         ]
       },
+      "whatsapp-brand": {
+        "role": "neutral",
+        "displayName": "Whatsapp Brand",
+        "canonical": "#25D366",
+        "tonalRamp": [
+          "#010F04",
+          "#102C17",
+          "#1E4D2A",
+          "#2C723F",
+          "#4F945F",
+          "#82B38B",
+          "#B2D3B8",
+          "#DEF6E2"
+        ]
+      },
+      "whatsapp-brand-deep": {
+        "role": "neutral",
+        "displayName": "Whatsapp Brand Deep",
+        "canonical": "#1DA851",
+        "tonalRamp": [
+          "#010F04",
+          "#102C17",
+          "#1E4D2A",
+          "#2C723F",
+          "#4F945F",
+          "#81B38B",
+          "#B2D3B8",
+          "#DEF6E2"
+        ]
+      },
       "line": {
         "role": "neutral",
         "displayName": "Line",
@@ -619,7 +649,7 @@
     {
       "name": "Button",
       "kind": "section",
-      "description": "Pill links (`ButtonLink`, `src/components/site/button.tsx`): `primary` (rust) is the apply action and nothing else; `outline` is the second action on light sections; `light` and `outline-dark` sit on dark sections and bars; `quiet` is the language switch."
+      "description": "Pill links (`ButtonLink`, `src/components/site/button.tsx`): `primary` (rust) is the apply action and nothing else; `outline` is the second action on light sections; `light` and `outline-dark` sit on dark sections and bars; `quiet` is the language switch; `whatsapp` (WhatsApp's green, `ink` text) is for WhatsApp links only."
     },
     {
       "name": "Hero",
@@ -765,6 +795,26 @@
       "name": "CurriculumClose",
       "kind": "section",
       "description": "The page's close (`src/components/curriculum/curriculum-close.tsx`): a `cream` card (`radius-panel`) on `paper`. Ages, admission steps and fees live on the Admissions page, so the card says so and links there (`outline` ভর্তি ও ফি). While the pre-admission form is open (`getPublishedIntake`) the rust আবেদন করুন comes first. No fees on this page."
+    },
+    {
+      "name": "ContactHero",
+      "kind": "section",
+      "description": "The Contact page's opening (`src/components/contact/contact-hero.tsx`), on `paper`, laid out like the other page heroes."
+    },
+    {
+      "name": "ContactReach",
+      "kind": "section",
+      "description": "Phone, WhatsApp and email (`src/components/contact/contact-reach.tsx`), still on `paper` under the hero. Everything comes from Site Settings → contact."
+    },
+    {
+      "name": "ContactFind",
+      "kind": "section",
+      "description": "How to get here (`src/components/contact/contact-find.tsx`, `#find`), on `dark`."
+    },
+    {
+      "name": "ContactMore",
+      "kind": "section",
+      "description": "The Contact page's close (`src/components/contact/contact-more.tsx`), on `paper` before the footer."
     }
   ],
   "narrative": {

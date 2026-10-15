@@ -25,6 +25,8 @@ colors:
   bronze: "#C58A4B"
   bronze-light: "#E2A867"
   open: "#5FC383"
+  whatsapp-brand: "#25D366"
+  whatsapp-brand-deep: "#1DA851"
   line: "#E4D5BC"
   line-strong: "#D9C3A0"
   line-sand: "#D9BE95"
@@ -146,7 +148,7 @@ spacing:
 
 # Design System: Madrasatul Quran, Dhaka
 
-Source of truth: `src/styles/tokens.css` (Tailwind v4 `@theme`) and the components in `src/components/homepage`, `src/components/admissions`, `src/components/curriculum`, `src/components/layout` and `src/components/site`, built from the owner-approved homepage canvas (October 2026) and carried to the Admissions and Curriculum pages. This file and the Claude design system ("Madrasatul Quran") are written from the repo; when they disagree, the repo wins. The frontmatter is generated from `tokens.css`.
+Source of truth: `src/styles/tokens.css` (Tailwind v4 `@theme`) and the components in `src/components/homepage`, `src/components/admissions`, `src/components/curriculum`, `src/components/contact`, `src/components/layout` and `src/components/site`, built from the owner-approved homepage canvas (October 2026) and carried to the Admissions and Curriculum pages. This file and the Claude design system ("Madrasatul Quran") are written from the repo; when they disagree, the repo wins. The frontmatter is generated from `tokens.css`.
 
 ## Overview
 
@@ -186,7 +188,7 @@ Example, the hero: **মাদরাসাতুল কুরআন** / ইস�
 - `rust` fills exactly one thing: the primary apply button (text `surface`, shadow `shadow-button`). It is never a chip or a section colour, so the apply action is always the one rust thing on screen. The rust pre-admission card near the page end is the single rust block, with `on-rust-soft` for its secondary text. The only other rust is a line, never a fill: the 4px slash in the ৫০/৫০ mark and text links such as "the full plan".
 - Subjects have fixed colours from one family. In the stage split's tiles: Quran `bronze`, Arabic (or Arabic and Islamic) `clay`, general `cream`. In the curriculum map's lanes: Quran `rust-deep`, Arabic `clay`, Islam `sand-deep` with a `line-sand` edge, general `paper` with a `line-bronze` edge.
 - `bronze` is decoration: rules and subject fills. It is never text on a light section.
-- Green appears once: the `open` dot that says the office is open now. No green buttons, bands or text.
+- Green appears in two places only: the `open` dot that says the office is open now, and WhatsApp's own green (`whatsapp-brand`) on WhatsApp's logo and buttons, so a guardian knows it at a glance. No other green buttons, and never a green band, card or text (owner, 2026-10-15: a whole green section looked wrong).
 
 **Type.** Anek for everything: Latin from Anek Latin, Bengali from Anek Bangla, through one stack (`sans`). Tiro Bangla (`quote`) is only for Bengali quotations; English quotations stay in sans. In a Tiro quotation, set the danda (।) in Anek. Weights: 400 text, 650 links, buttons and labels, 700 card titles, 750 headings, 800 figures. The fonts load without the width axis, so never use `font-stretch`. Headings, the lead and figures are fluid between phone and desktop; text steps (`text-11` to `text-19`) are fixed. Bengali running text keeps a line height of at least 1.5. Nothing is set below 11px.
 
@@ -245,7 +247,7 @@ The site-wide pre-admission strip above the header (`src/components/layout/admis
 
 ### Button
 
-Pill links (`ButtonLink`, `src/components/site/button.tsx`): `primary` (rust) is the apply action and nothing else; `outline` is the second action on light sections; `light` and `outline-dark` sit on dark sections and bars; `quiet` is the language switch.
+Pill links (`ButtonLink`, `src/components/site/button.tsx`): `primary` (rust) is the apply action and nothing else; `outline` is the second action on light sections; `light` and `outline-dark` sit on dark sections and bars; `quiet` is the language switch; `whatsapp` (WhatsApp's green, `ink` text) is for WhatsApp links only.
 
 - Props: `href` (pages go through next/link; `/api/…` files, downloads and other sites are plain links), `variant`, `size` (`lg` 56px / 18px, `md` 44px / 15px, `sm` 34px / 14px), children (text, an optional icon after for "go", before for "download").
 - One `primary` per view. Never a rust chip or a rust section beside it.
@@ -514,6 +516,45 @@ After Dakhil (`src/components/curriculum/higher-education.tsx`), on `dark`: the 
 ### CurriculumClose
 
 The page's close (`src/components/curriculum/curriculum-close.tsx`): a `cream` card (`radius-panel`) on `paper`. Ages, admission steps and fees live on the Admissions page, so the card says so and links there (`outline` ভর্তি ও ফি). While the pre-admission form is open (`getPublishedIntake`) the rust আবেদন করুন comes first. No fees on this page.
+
+## Contact page
+
+যোগাযোগ (`src/app/[locale]/contact/page.tsx`, components in `src/components/contact`, details from Site Settings via `src/lib/contact/details.ts`), top to bottom: ContactHero and ContactReach (`paper`), ContactFind (`dark`), ContactMore (`paper`). No message form: calls and WhatsApp reach the office directly. WhatsApp's own green marks only its logo and buttons.
+
+### ContactHero
+
+The Contact page's opening (`src/components/contact/contact-hero.tsx`), on `paper`, laid out like the other page heroes.
+
+- **Left:** the H1 যোগাযোগ (`text-hero`), what to get in touch about (`text-lead`), then the office's call button (`outline`, the admissions phone) and the WhatsApp button (`whatsapp` variant: WhatsApp's own green, `ink` text). Both count their clicks (`ContactLink`, `contact_hero`). No apply button: this page is for reaching the office.
+- **Right:** a `surface` card (`radius-card`, `line` border): a description list of the office hours and the address from Site Settings → contact: each a 15px `ink-muted` label with a 24px `rust` icon beside it (clock, map pin), the value lined up under the label, and "কীভাবে আসবেন" linking down to ContactFind.
+- Copy: `contact.hero`. No motion.
+
+### ContactReach
+
+Phone, WhatsApp and email (`src/components/contact/contact-reach.tsx`), still on `paper` under the hero. Everything comes from Site Settings → contact.
+
+- **WhatsApp:** a plain `surface` card (`radius-panel`, `line` border), like the call card below it. Only WhatsApp's own pieces are green (`whatsapp-brand`): the 64px round logo (white glyph) and the "চ্যাট শুরু করুন" button (`whatsapp` variant). Between them the H3 হোয়াটসঅ্যাপে লিখুন, what to ask about, and the number. The owner chose this over a chat-style mock and over a whole green band (2026-10-15).
+- **Calls:** an H3 with a `rust` phone icon, then each active desk in one `surface` card: side by side from about 230px a desk, rows on phones, divided by 1px `line`. The whole row is the call link (label 14px `ink-muted`, the number 20px 750, a 44px round outlined phone mark); its name is "কল করুন: desk, number". The office hours under it. No transport desk here.
+- **Email:** an H2, then each active address as a `surface` chip (`radius-cell`) with a `rust` envelope; long addresses break rather than overflow.
+- Every link counts its clicks (`ContactLink`, `src/components/site/contact-link.tsx`: call, WhatsApp, email). There is no message form: calls and WhatsApp reach the office directly.
+- Copy: `contact.reach`.
+
+### ContactFind
+
+How to get here (`src/components/contact/contact-find.tsx`, `#find`), on `dark`.
+
+- **Opening:** the homepage's "উত্তরা সেন্টার মেট্রো স্টেশন থেকে ৬০০ মিটার পূর্বে" as the H2 and the short address (`home.campus.where`).
+- **Left:** the homepage's walk sketch (`WalkSketch`, `src/components/site/walk-sketch.tsx`, shared with Campus) in a `panel` card, no wider than 560px; under it the landmarks from Site Settings → location, each a `line-dark` row with a `bronze-light` train icon, the name, and the distance in the page's language ("600m" → ৬০০ মি.).
+- **Right:** the map. Google's map loads only when asked for (`MapOnTap`): a `panel` box with "মানচিত্র দেখান" (`light` pill) and a note that tapping loads Google Maps; then the embed from Site Settings (only a `google.com/maps/embed` address), and focus moves to it. Under it "দিকনির্দেশনা" (`light`, Google directions to the school) and "গুগল ম্যাপে দেখুন" (`outline-dark`, Site Settings' map link), both in a new tab.
+- Copy: `contact.find`.
+
+### ContactMore
+
+The Contact page's close (`src/components/contact/contact-more.tsx`), on `paper` before the footer.
+
+- **Left:** আরও জানতে, three 56px rows between `line` rules, each 18px 650 `ink` with a `rust` icon at the end: ভর্তি ও ফি and কারিকুলাম (arrows, pages) and প্রসপেক্টাস ডাউনলোড (download icon, the PDF).
+- **Right:** স্কুলের খবর with one line and the school's active pages from Site Settings → social media as `quiet` pills with a `rust` logo, opening in a new tab. Shown only when Site Settings has any.
+- Copy: `contact.more`.
 
 ## Do's and Don'ts
 
