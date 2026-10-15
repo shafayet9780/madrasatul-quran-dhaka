@@ -24,10 +24,13 @@ for (const locale of ['english', 'bengali']) {
           )
         ).toBe(true);
       }
+      // Pages link within the language; files (/api/…) are the same in both.
       const links = await page
-        .locator('main a[href^="/"]')
+        .locator('main a[href^="/"]:not([href^="/api/"])')
         .evaluateAll(elements => elements.map(e => e.getAttribute('href')));
-      expect(links.every(href => href?.startsWith(`/${locale}/`))).toBe(true);
+      expect(
+        links.every(href => new RegExp(`^/${locale}([/#]|$)`).test(href ?? ''))
+      ).toBe(true);
       if (route === 'curriculum') {
         await page.setViewportSize({ width: 390, height: 844 });
         const grid = page.getByRole('region', {
@@ -62,11 +65,13 @@ for (const locale of ['english', 'bengali']) {
               .evaluate(image => (image as HTMLImageElement).naturalWidth)
           )
           .toBeGreaterThan(0);
-      } else {
-        const first = page.locator('#faq details').first();
-        await first.locator('summary').focus();
+      } else if (await page.locator('#faq').count()) {
+        // The questions show while an intake is open or announced. The first answer starts open; the keyboard opens the next.
+        await expect(page.locator('#faq details').first()).toHaveAttribute('open', '');
+        const second = page.locator('#faq details').nth(1);
+        await second.locator('summary').focus();
         await page.keyboard.press('Enter');
-        await expect(first).toHaveAttribute('open', '');
+        await expect(second).toHaveAttribute('open', '');
       }
     });
   }

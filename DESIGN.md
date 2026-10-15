@@ -146,7 +146,7 @@ spacing:
 
 # Design System: Madrasatul Quran, Dhaka
 
-Source of truth: `src/styles/tokens.css` (Tailwind v4 `@theme`) and the components in `src/components/homepage`, `src/components/layout` and `src/components/site`, built from the owner-approved homepage canvas (October 2026). This file and the Claude design system ("Madrasatul Quran") are written from the repo; when they disagree, the repo wins. The frontmatter is generated from `tokens.css`.
+Source of truth: `src/styles/tokens.css` (Tailwind v4 `@theme`) and the components in `src/components/homepage`, `src/components/admissions`, `src/components/layout` and `src/components/site`, built from the owner-approved homepage canvas (October 2026) and carried to the Admissions page. This file and the Claude design system ("Madrasatul Quran") are written from the repo; when they disagree, the repo wins. The frontmatter is generated from `tokens.css`.
 
 ## Overview
 
@@ -322,7 +322,7 @@ The campus (`Campus`, `src/components/homepage/campus.tsx`): a `dark` section af
 
 ### Why
 
-Why Madrasatul Quran (`Why`, `src/components/homepage/why.tsx`): a `cream` section after the campus. The H2, the founders' reason in their own words, then eight reasons as cards. Copy in `home.why`.
+Why Madrasatul Quran (`Why`, `src/components/homepage/why.tsx`): a `cream` section after the campus. The H2, the founders' reason in their own words, then eight reasons as cards. Copy in `home.why`. The cards are `ReasonCards` (same file), which the Admissions page reuses for four of them (AdmissionsWhy); the section carries `id="why"` so it can link here.
 
 - **The quote:** from the prospectus, verbatim, with its source under it (`text-14` `ink-muted`). `text-quote-lg` in `ink-body`, at most 40em. Bengali quotations are set in Tiro Bangla (`font-quote`), English in Anek Latin. Each danda is set in Anek Bangla (`QuoteText`, `src/components/site/quote-text.tsx`), as in every quotation on the site.
 - **The reasons:** an auto-fill grid, four columns on wide screens and two on phones (`max(150px, 25% - 18px)` minimum). Three looks: `paper` (accent `rust`), `sand` (accent `rust-deep`), `dark` (accent `bronze`), mixed so no two of a kind sit side by side. A card leads with a 16:10 photo, a 48px Phosphor icon in its accent, or a goal figure (`text-figure-md`); the title (`text-18` 700, an `h3`) and one sentence sit at the foot of the card.
@@ -341,7 +341,7 @@ The founder's letter (`Founder`, `src/components/homepage/founder.tsx`): a `dark
 
 ### Reviews
 
-What guardians say (`Reviews`, `src/components/homepage/reviews.tsx`): a `paper` section after the founder's letter. The H2 with a note on the right (`text-15` `ink-muted`): each review is shared with the guardian's permission, in their own words. Copy in `home.reviews`.
+What guardians say (`Reviews`, `src/components/homepage/reviews.tsx`): a `paper` section after the founder's letter. The H2 with a note on the right (`text-15` `ink-muted`): each review is shared with the guardian's permission, in their own words. Copy in `home.reviews`. On the Admissions page the same section sits on `dark` (`tone="dark"`: `on-dark` heading, `on-dark-muted` note), the cards staying `surface`.
 
 - **Cards:** `surface` with a `line` border, `radius-card`, in an auto-fit grid (300px minimum: three across on wide screens, one on phones). A 30px `bronze` quotes icon, the words (`text-quote`; Tiro Bangla for Bengali with `QuoteText`, Anek Latin for English), then over a `sand-pale` rule who said it (`text-15` 650) and their child's class and stage (`text-13` `ink-muted`).
 - **Rules:** quotes stay word for word, never edited or translated into the other language's card; only reviews whose consent is recorded may show; never invent one.
@@ -350,7 +350,7 @@ What guardians say (`Reviews`, `src/components/homepage/reviews.tsx`): a `paper`
 
 ### Faq
 
-Questions parents ask (`Faq`, `src/components/homepage/faq.tsx`): a `cream` section after the reviews, with no bottom padding: the pre-admission card follows on the same ground. Copy in `home.faq`.
+Questions parents ask (`Faq`, `src/components/homepage/faq.tsx`): a `cream` section after the reviews, with no bottom padding: the pre-admission card follows on the same ground. Copy in `home.faq`. The layout is the shared `FaqSection` (`src/components/site/faq-section.tsx`), which the Admissions page uses too.
 
 - **Left:** the H2 and a line inviting a call, ending in the office number as a `rust` underlined `tel:` link (the CMS admissions phone, printed the local way). Without a phone in the CMS the line is left out.
 - **Right:** native `details`/`summary`, so every answer is in the HTML and works without JavaScript; the first is open. Rows sit between `line-strong` rules, at least 88px tall; the question `clamp(17px, 1.5vw, 19px)` 700, a 22px `rust` plus (closed) or minus (open); the answer `text-16` at 1.7 in `ink-body`, at most 40em.
@@ -383,6 +383,67 @@ Phones only (below 640px): the pre-admission bar fixed to the foot of the screen
 - On a page with a hero (`data-hero`) it slides up (`translate-y`, `ease-out-expo`) once the hero has scrolled away; on other pages it is there from the start. Hidden and inert while it is down.
 - Shows only while the intake is open or announced: the session title (`text-16` 700), the status line (`text-13` `on-dark-muted`), a `light` button.
 
+## Admissions page
+
+ভর্তি ও ফি (`src/app/[locale]/admissions/page.tsx`, components in `src/components/admissions`), top to bottom: AdmissionsHero (`paper`), AdmissionClasses (`dark`), AdmissionSteps (`paper`), AdmissionFees (`dark`: fees, then transport), AdmissionsWhy (`paper`), the homepage's Reviews on `dark` (only once there are consented reviews), the shared FaqSection (`cream`, see Faq) and AdmissionsClose (on the same `cream`). While no intake is open or announced, the classes, the steps and the questions are left out and the opening points to the contact page.
+
+### AdmissionsHero
+
+The Admissions page's opening (`src/components/admissions/admissions-hero.tsx`), on `paper`.
+
+- **Left:** the intake's status line in a `surface` pill (green `open` dot while open, `ink-faint` otherwise), the H1 ভর্তি ও ফি (`text-hero`), a lead (`text-lead`) and the actions.
+- **Actions:** while the form is open, the rust আবেদন করুন (the page's apply action); while it is only announced, an `outline` বিস্তারিত দেখুন; with no intake, an `outline` ভর্তি বিষয়ে যোগাযোগ to the contact page. Beside it, the `outline` prospectus download.
+- **Right, while an intake is open or announced:** a `surface` card (`radius-card`, `line` border) titled প্রি-অ্যাডমিশন {session} (`text-h4`) with the application and assessment fees, each with its note, the amount at 26px 750.
+- **Under it:** "এই পৃষ্ঠায়", links to the page's sections (16px 650, `line-sand` underline turning `rust` on hover), only for the sections shown.
+- **Data:** the published Pre-admission form (`getPublishedIntake`, no database, so the page stays cacheable). Never a placeholder date or fee.
+- No motion.
+
+### AdmissionClasses
+
+The session's classes (`src/components/admissions/admission-classes.tsx`), on `dark`, while an intake is open or announced.
+
+- **Head:** the H2 যে শ্রেণিতে ভর্তি নেওয়া হচ্ছে and the age note বয়স ধরা হয় ১ জানুয়ারি {year} তারিখে। (`text-19`, `on-dark-body`).
+- **Tiles:** youngest first (`classTiles`, `src/lib/admissions/admissions-page.ts`), two to a row on phones, then as many 210px tiles as fit. Each is a `panel` tile (`radius-card`, inset `line-dark` ring): the class name (`text-h4`, as the form writes it) and the age in `bronze-light` (18px 650): "{n} বছর", or "{from} থেকে {to} বছর".
+- **By special consideration:** a `line-dark-strong` chip বিশেষ বিবেচনায়, then the form's requirements as a list with `bronze` markers (শুধু মেয়েদের জন্য …).
+- **Closed this session:** the tile keeps its place with a dashed `line-dark-strong` border and muted text, and the chip এ বছর ভর্তি বন্ধ.
+- **Data:** the published form's class question (ages counted on 1 January of the session, as the form counts them). A class added, closed or reordered in the Studio shows here.
+- No motion.
+
+### AdmissionSteps
+
+How admission works (`src/components/admissions/admission-steps.tsx`), on `paper`, while an intake is open or announced: the pre-admission page's six approved steps (`preAdmission.intro.step1` to `step6`).
+
+- An `ol` in columns of at least 300px (three on desktop, one on phones). Each step sits under a `line-strong` rule: a 40px `sand` circle with the number in `rust-deep` (750, the page's digits, hidden from screen readers since the list is ordered), the title (19px 700) and its note (`text-16`, `ink-body`).
+- **Step 5 (assessment)** lists what to bring from the CMS (Pre-admission form → Cycle settings → bring list, the assessment fee filled in), with `rust` markers; an item that applies only sometimes ends in (প্রযোজ্য হলে).
+- The fees in the notes come from the form (application fee, assessment fee).
+- No motion.
+
+### AdmissionFees
+
+What it costs (`src/components/admissions/admission-fees.tsx`): one `dark` band with two sections, fees then transport, all from Studio → Fees & Discounts. Fees belong here and in the prospectus, never on the homepage.
+
+- **Fees (`#fees`):** the CMS heading and introduction, then the fee table on a `paper` card (`radius-card`): one real `table`, the same on phones (it fits at 320px). Columns: ফি, then the CMS's two column labels (নন ডে-কেয়ার, ডে-কেয়ার) right-aligned under a 2px `ink` rule. Rows grouped (মাসিক ফি; এককালীন ও বাৎসরিক ফি; অন্যান্য ফি) under 13px 650 `rust` group labels; each row the fee name (17px 650), its frequency when the group does not already say it, and its note; amounts in 750 with tabular figures (`৳১০,০০০`), and words (প্রযোজ্য নয়, অফিসে যোগাযোগ করুন) in 14px `ink-muted`. Under the table: সকল পরিমাণ বাংলাদেশি টাকায় and ডে-কেয়ার: ২য় থেকে ৫ম শ্রেণি.
+- **Beside it:** `panel` blocks for the visible discounts (`#discounts`: title in `bronze-light`, description, conditions, প্রযোজ্য ফি) and the payment rules (`#payment`: instructions and the policies as a list with `bronze` markers).
+- **Transport (`#transport`):** the CMS heading and introduction, then a `paper` card per visible route (`buildTransport`): the homepage's `RouteLine` (stops drawn down to মাদরাসাতুল কুরআন) with the vehicle and monthly charge under the route name. Under the cards, the approved seat note with an info icon, and the transport desk phone (`outline-dark`) when Site Settings has one.
+- **Without usable fee settings:** ফি সম্পর্কিত তথ্য, the CMS's unavailable message and a `light` button to the contact page.
+- **Motion:** only the route lines (`route-stop`/`route-line`, scroll-driven, as on the homepage), off with reduced motion.
+
+### AdmissionsWhy
+
+Why Madrasatul Quran, short (`src/components/admissions/admissions-why.tsx`), on `paper` straight after the fees: where a parent weighs the cost, four of the homepage's reasons answer "is it worth it". Then the guardian reviews on `dark` (the homepage's Reviews, consented reviews only; with none, left out).
+
+- The homepage H2 কেন মাদরাসাতুল কুরআন? with a `rust` link সব কারণ দেখুন (arrow) to the homepage's Why section (`/{locale}#why`), on the right on wide screens and under the H2 on phones.
+- The cards are the homepage's `ReasonCards` (`only` picks reasons 1, 2, 3 and 5: the blend, the four language skills, the hadith goal with its লক্ষ্য tag, the path after Class 8). On `paper` the light cards turn `surface` with a `line` border. Same approved copy (`home.why.reasons`), no new claims.
+- No motion.
+
+### AdmissionsClose
+
+The Admissions page's close (`src/components/admissions/admissions-close.tsx`): a `dark` card (`radius-panel`) on `cream` straight after the questions (the shared `FaqSection`, here with the pre-admission page's four questions), like the homepage's pre-admission card but not rust: the rust block belongs to the homepage.
+
+- The H2 ভর্তি নিয়ে কথা বলুন (`text-h3`), the approved line ভর্তির সময়সূচি, ফি বা আপনার সন্তানের বিষয়ে জানতে অফিসে যোগাযোগ করুন। and the office hours from Site Settings with a `bronze-light` clock icon.
+- **Actions, in one row:** the rust আবেদন করুন while the form is open; a `light` ভর্তি অফিসে কল করুন (phone icon, the admissions phone); an `outline-dark` হোয়াটসঅ্যাপ. The call and WhatsApp clicks are counted (`admissions_contact`).
+- No motion.
+
 ## Do's and Don'ts
 
 ### Do:
@@ -412,6 +473,6 @@ Phones only (below 640px): the pre-admission bar fixed to the foot of the screen
 
 - **Tokens:** `src/styles/tokens.css` (`@theme static`, imported by `globals.css`). The old `primary`/`secondary`/`accent` scales in `globals.css` stay until every page is redesigned. `cn()` (`src/lib/utils.ts`) knows the token names, so `text-18 text-surface` keeps both.
 - **Fonts:** `src/lib/fonts.ts` (next/font): Anek Latin, Anek Bangla (Bengali glyphs only) and Tiro Bangla (quotations, not preloaded), weight axis only.
-- **Content:** the CMS feeds the hero photos and statistics (Site Settings), the intake (Pre-admission form), the routes (Fees & Discounts → Transport), the routine, play-space photos and FAQ (Homepage) and the guardian reviews (Guardian reviews, consent only). Where the Homepage lists are empty the launch copy in `messages/*.json` (`home.*`) shows.
+- **Content:** the CMS feeds the hero photos and statistics (Site Settings), the intake (Pre-admission form), the routes (Fees & Discounts → Transport), the routine, play-space photos and FAQ (Homepage) and the guardian reviews (Guardian reviews, consent only). Where the Homepage lists are empty the launch copy in `messages/*.json` (`home.*`) shows. The Admissions page reads the published Pre-admission form (status, classes and ages, the two intake fees, what to bring) and Fees & Discounts (fees, discounts, payment rules, routes); its own copy is `admissions.page`, and it reuses the pre-admission page's approved steps and questions (`preAdmission.intro`).
 - **Motion:** named animations and scroll-driven utilities live in `tokens.css` (`animate-settle`, `animate-rise`, `animate-tile-in`, `animate-answer`, `draw-x`/`draw-y`, `route-stop`/`route-line`). Animate only transform, opacity and clip-path; `prefers-reduced-motion` turns everything off, and `globals.css` has a safety net.
 - **Search:** pages are server-rendered; the FAQ prints FAQPage JSON-LD from the same list it shows.

@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import type { CSSProperties } from 'react';
+import type { CSSProperties, ReactNode } from 'react';
 import { getTranslations } from 'next-intl/server';
 import type { Locale } from '@/lib/i18n';
 import { AXIS_TICKS, STAGE_HOURS, axisPos, routineFor, type DayPart, type Route, type StepKind } from '@/lib/home/day';
@@ -23,13 +23,15 @@ const STEP: Record<StepKind, { icon: IconName; look: string }> = {
 /**
  * One van route, drawn down to the school as it scrolls in: each stop's dot pops, then the link to the next stop draws.
  * The stop names are plain text; the dots and links are decoration. A dot sits on the first line of its name.
+ * `children` go under the route name (the Admissions page puts the vehicle and charge there).
  */
-function RouteLine({ route, school }: { route: Route; school: string }) {
+export function RouteLine({ route, school, children }: { route: Route; school: string; children?: ReactNode }) {
   const stops = [...route.stops, school];
   const at = (i: number) => i / (stops.length - 1);
   return (
     <div className="flex min-w-0 flex-col gap-3 [view-timeline-name:--route]">
       <strong className="text-17 font-bold">{route.name}</strong>
+      {children}
       <ol className="m-0 flex list-none flex-col gap-2.5 p-0">
         {stops.map((stop, i) => {
           const last = i === stops.length - 1;

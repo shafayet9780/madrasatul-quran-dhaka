@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-15T00:31:12+00:00",
+  "generatedAt": "2026-10-15T02:46:26+00:00",
   "title": "Design System: Madrasatul Quran, Dhaka",
   "extensions": {
     "colorMeta": {
@@ -659,7 +659,7 @@
     {
       "name": "Why",
       "kind": "section",
-      "description": "Why Madrasatul Quran (`Why`, `src/components/homepage/why.tsx`): a `cream` section after the campus. The H2, the founders' reason in their own words, then eight reasons as cards. Copy in `home.why`."
+      "description": "Why Madrasatul Quran (`Why`, `src/components/homepage/why.tsx`): a `cream` section after the campus. The H2, the founders' reason in their own words, then eight reasons as cards. Copy in `home.why`. The cards are `ReasonCards` (same file), which the Admissions page reuses for four of them (AdmissionsWhy); the section carries `id=\"why\"` so it can link here."
     },
     {
       "name": "Founder",
@@ -669,12 +669,12 @@
     {
       "name": "Reviews",
       "kind": "section",
-      "description": "What guardians say (`Reviews`, `src/components/homepage/reviews.tsx`): a `paper` section after the founder's letter. The H2 with a note on the right (`text-15` `ink-muted`): each review is shared with the guardian's permission, in their own words. Copy in `home.reviews`."
+      "description": "What guardians say (`Reviews`, `src/components/homepage/reviews.tsx`): a `paper` section after the founder's letter. The H2 with a note on the right (`text-15` `ink-muted`): each review is shared with the guardian's permission, in their own words. Copy in `home.reviews`. On the Admissions page the same section sits on `dark` (`tone=\"dark\"`: `on-dark` heading, `on-dark-muted` note), the cards staying `surface`."
     },
     {
       "name": "Faq",
       "kind": "section",
-      "description": "Questions parents ask (`Faq`, `src/components/homepage/faq.tsx`): a `cream` section after the reviews, with no bottom padding: the pre-admission card follows on the same ground. Copy in `home.faq`."
+      "description": "Questions parents ask (`Faq`, `src/components/homepage/faq.tsx`): a `cream` section after the reviews, with no bottom padding: the pre-admission card follows on the same ground. Copy in `home.faq`. The layout is the shared `FaqSection` (`src/components/site/faq-section.tsx`), which the Admissions page uses too."
     },
     {
       "name": "PreAdmissionCard",
@@ -690,6 +690,36 @@
       "name": "ApplyBar",
       "kind": "section",
       "description": "Phones only (below 640px): the pre-admission bar fixed to the foot of the screen (`src/components/layout/apply-bar.tsx`), with a spacer of the same height after the footer so it never covers it."
+    },
+    {
+      "name": "AdmissionsHero",
+      "kind": "section",
+      "description": "The Admissions page's opening (`src/components/admissions/admissions-hero.tsx`), on `paper`."
+    },
+    {
+      "name": "AdmissionClasses",
+      "kind": "section",
+      "description": "The session's classes (`src/components/admissions/admission-classes.tsx`), on `dark`, while an intake is open or announced."
+    },
+    {
+      "name": "AdmissionSteps",
+      "kind": "section",
+      "description": "How admission works (`src/components/admissions/admission-steps.tsx`), on `paper`, while an intake is open or announced: the pre-admission page's six approved steps (`preAdmission.intro.step1` to `step6`)."
+    },
+    {
+      "name": "AdmissionFees",
+      "kind": "section",
+      "description": "What it costs (`src/components/admissions/admission-fees.tsx`): one `dark` band with two sections, fees then transport, all from Studio → Fees & Discounts. Fees belong here and in the prospectus, never on the homepage."
+    },
+    {
+      "name": "AdmissionsWhy",
+      "kind": "section",
+      "description": "Why Madrasatul Quran, short (`src/components/admissions/admissions-why.tsx`), on `paper` straight after the fees: where a parent weighs the cost, four of the homepage's reasons answer \"is it worth it\". Then the guardian reviews on `dark` (the homepage's Reviews, consented reviews only; with none, left out)."
+    },
+    {
+      "name": "AdmissionsClose",
+      "kind": "section",
+      "description": "The Admissions page's close (`src/components/admissions/admissions-close.tsx`): a `dark` card (`radius-panel`) on `cream` straight after the questions (the shared `FaqSection`, here with the pre-admission page's four questions), like the homepage's pre-admission card but not rust: the rust block belongs to the homepage."
     }
   ],
   "narrative": {

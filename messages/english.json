@@ -501,8 +501,8 @@
   },
   "admissions": {
     "meta": {
-      "title": "Admissions | Madrasatul Quran",
-      "description": "Admission steps, Pre-Hifz and Hifz fees, optional transport, discounts and payment policies at Madrasatul Quran in Uttara, Dhaka."
+      "title": "Admissions and fees | Madrasatul Quran",
+      "description": "Admission at Madrasatul Quran in Uttara, Dhaka: classes and ages, how to apply, tuition and fees, discounts and the school’s own transport."
     },
     "requirements": {
       "title": "Admission Requirements & Application Process",
@@ -641,107 +641,6 @@
         }
       }
     },
-    "importantDates": {
-      "title": "Important Dates & Inquiry System",
-      "subtitle": "Stay informed about admission deadlines and get your questions answered",
-      "contact": {
-        "cta": {
-          "title": "Want to know more?",
-          "subtitle": "Contact us for detailed information about Madrasatul Quran",
-          "button": "Contact Us",
-          "response": "We're ready to help you"
-        }
-      },
-      "calendar": {
-        "title": "Admission Calendar 2025",
-        "application": "Application",
-        "deadline": "Deadline",
-        "exam": "Examination",
-        "interview": "Interview",
-        "result": "Result",
-        "confirmation": "Confirmation"
-      },
-      "dates": {
-        "applicationOpen": "Application Period Opens",
-        "applicationOpenDesc": "Online and offline admission applications begin for all programs",
-        "applicationDeadline": "Application Deadline",
-        "applicationDeadlineDesc": "Last date to submit completed admission applications",
-        "entranceExam": "Entrance Examination",
-        "entranceExamDesc": "Written test covering academic subjects and Islamic knowledge",
-        "interview": "Student & Parent Interview",
-        "interviewDesc": "Personal interview with admission committee and school leadership",
-        "resultPublication": "Admission Results",
-        "resultPublicationDesc": "Publication of admission results and merit list",
-        "admissionConfirmation": "Admission Confirmation",
-        "admissionConfirmationDesc": "Final deadline for fee payment and admission confirmation"
-      },
-      "inquiry": {
-        "title": "Admission Inquiry Form",
-        "form": {
-          "name": "Parent/Guardian Name",
-          "namePlaceholder": "Enter your full name",
-          "email": "Email Address",
-          "emailPlaceholder": "your.email@example.com",
-          "phone": "Phone Number",
-          "phonePlaceholder": "+880 1XXX-XXXXXX",
-          "studentAge": "Student Age",
-          "studentAgePlaceholder": "Age in years",
-          "program": "Interested Program",
-          "programPlaceholder": "Select program level",
-          "programs": {
-            "primary": "Primary Level (Class I-V)",
-            "secondary": "Secondary Level (Class VI-X)",
-            "higher": "Higher Secondary (Class XI-XII)"
-          },
-          "subject": "Inquiry Subject",
-          "subjectPlaceholder": "Select inquiry topic",
-          "subjects": {
-            "admission": "Admission Process",
-            "curriculum": "Academic Programs",
-            "fees": "Fee Structure",
-            "facilities": "Campus Facilities",
-            "other": "Other Questions"
-          },
-          "message": "Your Message",
-          "messagePlaceholder": "Please describe your inquiry in detail...",
-          "note": "We will respond within 24 hours during business days",
-          "submit": "Send Inquiry",
-          "submitting": "Sending..."
-        },
-        "success": {
-          "title": "Inquiry Sent Successfully!",
-          "message": "Thank you for your interest in Madrasatul Quran. Our admission team will contact you within 24 hours.",
-          "newInquiry": "Send Another Inquiry"
-        }
-      },
-      "faq": {
-        "title": "Frequently Asked Questions",
-        "q1": {
-          "question": "What is the minimum age requirement for admission?",
-          "answer": "Students must be at least 5 years old for Class I admission. Age requirements vary by class level, and we follow the national education board guidelines for age-appropriate enrollment."
-        },
-        "q2": {
-          "question": "Is there an entrance examination for all classes?",
-          "answer": "Yes, all students must take an entrance examination covering basic academic subjects and Islamic knowledge appropriate to their applying class level. The exam helps us assess the student's readiness for our integrated curriculum."
-        },
-        "q3": {
-          "question": "What documents are required for the admission process?",
-          "answer": "Required documents include: completed application form, birth certificate, academic transcripts, transfer certificate (if applicable), medical certificate, and recent photographs. All documents must be original with photocopies."
-        },
-        "q4": {
-          "question": "Are scholarships available for deserving students?",
-          "answer": "Yes, we offer merit-based scholarships (up to 25% discount), need-based financial aid (up to 50% discount), sibling discounts (10% per additional child), and special support for orphaned students (up to 75% discount)."
-        },
-        "q5": {
-          "question": "Can I visit the campus before applying?",
-          "answer": "Absolutely! We encourage prospective families to visit our campus. Please contact our admission office to schedule a guided tour. Campus visits are available Saturday through Thursday from 9:00 AM to 4:00 PM."
-        },
-        "q6": {
-          "question": "What is the medium of instruction?",
-          "answer": "Our primary medium of instruction is Bengali, following the NCTB curriculum. English is taught as a subject, and Islamic studies are conducted in Arabic with Bengali explanations. We ensure students develop proficiency in all three languages."
-        }
-      }
-    },
     "contact": {
       "cta": {
         "title": "Want to know more?",
@@ -749,6 +648,49 @@
         "button": "Contact Us",
         "response": "We are ready to help you"
       }
+    },
+    "page": {
+      "title": "Admissions and fees",
+      "onThisPage": "On this page",
+      "nav": {
+        "classes": "Classes and ages",
+        "steps": "How admission works",
+        "fees": "Fees",
+        "transport": "Transport",
+        "faq": "Questions"
+      },
+      "contactAdmissions": "Contact admissions",
+      "classesTitle": "Classes open for admission",
+      "ageNote": "Age is counted on 1 January {year}.",
+      "ageOne": "Age {age}",
+      "ageRange": "Age {from} to {to}",
+      "closed": "Closed this session",
+      "special": "By special consideration",
+      "feesFallback": "Fee information",
+      "fee": "Fee",
+      "groups": {
+        "monthly": "Monthly fees",
+        "admission": "One-time and annual fees",
+        "custom": "Other fees"
+      },
+      "frequency": {
+        "monthly": "Monthly",
+        "oneTime": "One-time",
+        "annual": "Annual"
+      },
+      "price": {
+        "notApplicable": "Not applicable",
+        "contactOffice": "Contact the office",
+        "free": "Free"
+      },
+      "currency": "All amounts in Bangladeshi taka",
+      "dayCare": "Day-care: Class 2 to Class 5",
+      "appliesTo": "Applies to: {fees}",
+      "closeTitle": "Talk to the admissions office",
+      "call": "Call admissions",
+      "whatsapp": "WhatsApp",
+      "officeHours": "Office hours: {hours}",
+      "whyMore": "See all the reasons"
     }
   },
   "campus": {
@@ -1151,16 +1093,9 @@
   },
   "admissionsExperience": {
     "navigation": "On this page",
-    "stepsHeading": "How to apply",
-    "faq": "FAQ",
-    "contact": "Contact",
     "features": "School features",
     "studyPlan": "Study plan",
     "outcomes": "Learning outcomes",
-    "applyStep": "Submit the pre-admission form to begin your inquiry.",
-    "contactStep": "Contact the admissions office to discuss your child’s application.",
-    "guidanceStep": "Await guidance from the school about the next steps.",
-    "confirmationStep": "After selection, confirm admission and complete payment at the campus.",
     "higherEducation": "Higher Education After School",
     "alimPath": "Students aiming to become Alim after Class Eight will be prepared for the Ta’lim Board and will take Dakhil/SSC exams.",
     "collegePath": "Students who wish to pursue college education will focus on general education and take SSC exams.",

@@ -7,7 +7,7 @@ import { num, txt, type Locale } from './display';
 import type { Application } from './drafts';
 import { allFields, guardianSections, type FormSnapshot } from './form-config';
 import { PLEDGE_STEP, pledgeStatus } from './pledge';
-import { intakeFrom, intakeStatus, type AdmissionCta, type Intake } from './intake';
+import { intakeStatus, publishedIntake, type AdmissionCta, type Intake } from './intake';
 import { localOverrides } from './local';
 import { currentApplication } from './session';
 import type { FormDocument } from './snapshot';
@@ -29,14 +29,19 @@ export async function safeCurrentCycle(): Promise<CycleState | null> {
  * (no database, no test-pass cookie), so the pages that show it stay cacheable.
  */
 export async function getIntake(): Promise<Intake> {
+  return (await getPublishedIntake()).intake;
+}
+
+/** The intake with its published form, for the Admissions page. Same source as getIntake (no database). */
+export async function getPublishedIntake(): Promise<ReturnType<typeof publishedIntake>> {
   try {
     const local = localOverrides();
-    if (local) return intakeFrom(local.form);
+    if (local) return publishedIntake(local.form);
     const { sanityFetch } = await import('@/lib/sanity-fetch');
-    return intakeFrom(await sanityFetch<FormDocument | null>({ query: FORM_QUERY, tags: ['preAdmissionForm'] }));
+    return publishedIntake(await sanityFetch<FormDocument | null>({ query: FORM_QUERY, tags: ['preAdmissionForm'] }));
   } catch (e) {
     console.error('Admissions: could not load the intake', e);
-    return { state: 'off' };
+    return { intake: { state: 'off' } };
   }
 }
 
