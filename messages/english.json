@@ -20,22 +20,6 @@
     "advisors": "Advisors",
     "allAdvisors": "All Advisors"
   },
-  "advisors": {
-    "meta": {
-      "title": "Advisors | Madrasatul Quran",
-      "description": "Meet the advisors supporting Madrasatul Quran with their guidance, wisdom, and experience."
-    },
-    "title": "Our Advisors",
-    "subtitle": "Experienced guides supporting our mission with wisdom and counsel."
-  },
-  "directors": {
-    "meta": {
-      "title": "Directors | Madrasatul Quran",
-      "description": "Meet the directors guiding Madrasatul Quran — their vision, leadership, and dedication to Islamic and modern education."
-    },
-    "title": "Our Directors",
-    "subtitle": "The leadership steering our mission of excellence in Islamic and modern education."
-  },
   "teachers": {
     "meta": {
       "title": "Teachers | Madrasatul Quran",
@@ -462,33 +446,48 @@
   },
   "about": {
     "meta": {
-      "title": "About Us",
-      "description": "Learn about Madrasatul Quran's history, vision, leadership team, and educational philosophy."
+      "title": "About us | Madrasatul Quran",
+      "description": "The founder, board of directors and advisors of Madrasatul Quran Dhaka, an ideal blend of Islamic and general education."
     },
-    "history": {
-      "title": "Our History"
+    "hero": {
+      "title": "About us",
+      "lede": "An ideal blend of Islamic and general education"
     },
-    "vision": {
-      "title": "Our Vision & Mission",
-      "subtitle": "Vision"
+    "chairman": {
+      "role": "Founder and principal",
+      "more": "Full message and profile"
     },
-    "mission": {
-      "subtitle": "Mission"
+    "board": {
+      "title": "Board of directors",
+      "members": "Other members of the board"
     },
-    "leadership": {
-      "title": "Leadership Team",
-      "viewProfile": "View Profile",
-      "experience": "Years of Experience",
-      "qualifications": "Qualifications",
-      "specializations": "Specializations",
-      "education": "Educational Background",
-      "biography": "Biography"
+    "advisors": {
+      "title": "Advisors"
     },
-    "philosophy": {
-      "title": "Educational Philosophy & Accreditation",
-      "islamicIntegration": "Islamic Education Integration",
-      "nctbCurriculum": "NCTB Curriculum",
-      "accreditation": "Accreditation & Approvals"
+    "more": {
+      "title": "More",
+      "curriculum": "Curriculum",
+      "admissions": "Admissions and fees",
+      "contact": "Contact"
+    },
+    "profile": {
+      "back": "About us",
+      "board": "Board of directors",
+      "education": "Education",
+      "qualifications": "At a glance",
+      "links": "Links",
+      "message": "Message",
+      "bio": "Biography",
+      "all": "The whole board and advisors",
+      "home": "Home",
+      "platform": {
+        "facebook": "Facebook",
+        "website": "Website",
+        "linkedin": "LinkedIn",
+        "twitter": "X",
+        "email": "Email"
+      },
+      "title": "{name}, {role} | Madrasatul Quran"
     }
   },
   "programs": {
@@ -1481,21 +1480,11 @@
     "navLabel": "Main",
     "nav": {
       "about": "About us",
-      "ourStory": "Our story",
-      "campus": "Campus & facilities",
-      "news": "News & events",
       "curriculum": "Curriculum",
-      "people": "Our people",
-      "directors": "Directors",
-      "advisors": "Advisors",
-      "teachers": "Teachers",
       "admissions": "Admissions",
       "contact": "Contact",
       "books": "Our books",
-      "menu": "Menu",
-      "allDirectors": "All directors",
-      "allAdvisors": "All advisors",
-      "allTeachers": "All teachers"
+      "menu": "Menu"
     },
     "switchLang": "বাংলা",
     "switchLangLabel": "এই পেজটি বাংলায় পড়ুন",

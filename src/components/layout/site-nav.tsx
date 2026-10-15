@@ -1,6 +1,5 @@
 'use client';
 
-import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
@@ -8,16 +7,12 @@ import { Icon } from '@/components/site/icon';
 import { cn } from '@/lib/utils';
 
 export type NavEntry = { key: string; label: string; href: string; external?: boolean };
-export type NavPerson = { key: string; label: string; href?: string; photo?: string };
-/** A column of the wide Our people menu: featured people (photo and name) or links, then "All …". */
-export type NavColumn = { key: string; title: string; people?: NavPerson[]; links?: NavEntry[]; all: NavEntry };
-/** `items` is the menu on phones; `columns`, when given, is the wide menu on desktop. */
-export type NavGroup = { key: string; label: string; items: NavEntry[]; columns?: NavColumn[] };
+export type NavGroup = { key: string; label: string; items: NavEntry[] };
 
 const focusRing = 'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink';
 
 /**
- * The main menu. On wide screens a row of links where About us and Our people open on hover or click (Escape or a
+ * The main menu. On wide screens a row of links where a group opens on hover or click (Escape or a
  * click elsewhere closes them). On narrower screens a Menu button opens the same links, grouped, under the header.
  * The language switch sits beside the button, and moves to the top of the open menu on small phones (below 480px).
  */
@@ -81,30 +76,6 @@ export function SiteNav({
       </Link>
     );
 
-  // A featured person: photo (or a placeholder) and name, linking to their profile when they have one.
-  const personRow = (person: NavPerson) => {
-    const body = (
-      <>
-        {person.photo ? (
-          <Image src={person.photo} alt="" width={36} height={36} className="size-9 shrink-0 rounded-full bg-sand-pale object-cover" />
-        ) : (
-          <span className="grid size-9 shrink-0 place-items-center rounded-full bg-sand-pale text-ink-faint">
-            <Icon name="user" size={18} />
-          </span>
-        )}
-        <span className="min-w-0">{person.label}</span>
-      </>
-    );
-    const row = 'flex min-h-11 items-center gap-3 rounded-chip px-2 py-1 text-15 text-ink';
-    return person.href ? (
-      <Link href={person.href} aria-current={current(person.href) ? 'page' : undefined} onClick={close} className={cn(row, 'no-underline hover:bg-cream hover:text-rust', focusRing)}>
-        {body}
-      </Link>
-    ) : (
-      <div className={row}>{body}</div>
-    );
-  };
-
   return (
     <div ref={root} className="contents">
       <nav aria-label={label} className="hidden min-w-0 flex-1 min-[1180px]:block">
@@ -128,45 +99,15 @@ export function SiteNav({
                   {item.label}
                   <Icon name="caret-down" size={14} className={cn('motion-safe:transition-transform', openKey === item.key && 'rotate-180')} />
                 </button>
-                {item.columns ? (
-                  <div id={`${id}-${item.key}`} hidden={openKey !== item.key} className="absolute left-1/2 top-full z-30 -translate-x-1/2 pt-1">
-                    <div className="flex gap-6 rounded-card border border-line bg-surface p-5 shadow-photo">
-                      {item.columns.map((column) => (
-                        <div key={column.key} className="flex w-60 flex-col">
-                          <p className="m-0 pb-2 text-13 font-strong text-ink-muted">{column.title}</p>
-                          <ul className="m-0 mb-2 list-none p-0">
-                            {column.people?.map((person) => (
-                              <li key={person.key}>{personRow(person)}</li>
-                            ))}
-                            {column.links?.map((entry) => (
-                              <li key={entry.key}>
-                                {link(entry, cn('flex min-h-10 items-center rounded-chip px-2 text-15 text-ink no-underline hover:bg-cream hover:text-rust', focusRing))}
-                              </li>
-                            ))}
-                          </ul>
-                          <Link
-                            href={column.all.href}
-                            onClick={close}
-                            className={cn('mt-auto inline-flex min-h-11 items-center gap-1.5 self-start text-15 font-strong text-rust no-underline hover:text-rust-deep', focusRing)}
-                          >
-                            {column.all.label}
-                            <Icon name="arrow-right" size={16} />
-                          </Link>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ) : (
-                  <div id={`${id}-${item.key}`} hidden={openKey !== item.key} className="absolute left-0 top-full z-30 pt-1">
-                    <ul className="m-0 min-w-56 list-none rounded-card border border-line bg-surface p-2 shadow-photo">
-                      {item.items.map((entry) => (
-                        <li key={entry.key}>
-                          {link(entry, cn('flex min-h-11 items-center whitespace-nowrap rounded-chip px-3 text-ink no-underline hover:bg-cream hover:text-rust', focusRing))}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
+                <div id={`${id}-${item.key}`} hidden={openKey !== item.key} className="absolute left-0 top-full z-30 pt-1">
+                  <ul className="m-0 min-w-56 list-none rounded-card border border-line bg-surface p-2 shadow-photo">
+                    {item.items.map((entry) => (
+                      <li key={entry.key}>
+                        {link(entry, cn('flex min-h-11 items-center whitespace-nowrap rounded-chip px-3 text-ink no-underline hover:bg-cream hover:text-rust', focusRing))}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               </li>
             ) : (
               <li key={item.key}>{link(item, cn('inline-flex min-h-11 items-center whitespace-nowrap text-ink no-underline hover:text-rust', focusRing))}</li>

@@ -68,6 +68,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const showDirectors = isSectionVisible('directors', visibility);
   const showTeachers = isSectionVisible('teachers', visibility);
   const showAdvisors = isSectionVisible('advisors', visibility);
+  // About us holds the board and the advisors (the old /directors and /advisors redirect there).
+  const showAbout = isSectionVisible('people', visibility) && (showDirectors || showAdvisors);
 
   const staticPages: MetadataRoute.Sitemap = [
     ...bilingual('', 1.0, 'weekly'),
@@ -75,8 +77,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...bilingual('/curriculum', 0.9, 'monthly'),
     ...bilingual('/admissions', 0.9, 'monthly'),
     ...bilingual('/pre-admission', 0.8, 'monthly'),
-    ...(showDirectors ? bilingual('/directors', 0.8, 'monthly') : []),
-    ...(showAdvisors ? bilingual('/advisors', 0.7, 'monthly') : []),
+    ...(showAbout ? bilingual('/about', 0.8, 'monthly') : []),
     ...(showTeachers ? bilingual('/teachers', 0.8, 'monthly') : []),
   ];
 

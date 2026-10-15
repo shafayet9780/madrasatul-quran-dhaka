@@ -148,7 +148,7 @@ spacing:
 
 # Design System: Madrasatul Quran, Dhaka
 
-Source of truth: `src/styles/tokens.css` (Tailwind v4 `@theme`) and the components in `src/components/homepage`, `src/components/admissions`, `src/components/curriculum`, `src/components/contact`, `src/components/layout` and `src/components/site`, built from the owner-approved homepage canvas (October 2026) and carried to the Admissions and Curriculum pages. This file and the Claude design system ("Madrasatul Quran") are written from the repo; when they disagree, the repo wins. The frontmatter is generated from `tokens.css`.
+Source of truth: `src/styles/tokens.css` (Tailwind v4 `@theme`) and the components in `src/components/homepage`, `src/components/admissions`, `src/components/curriculum`, `src/components/contact`, `src/components/about`, `src/components/layout` and `src/components/site`, built from the owner-approved homepage canvas (October 2026) and carried to the Admissions and Curriculum pages. This file and the Claude design system ("Madrasatul Quran") are written from the repo; when they disagree, the repo wins. The frontmatter is generated from `tokens.css`.
 
 ## Overview
 
@@ -231,11 +231,10 @@ The homepage, top to bottom, then the site chrome. Each has a preview in the Cla
 The header on every public page (`src/components/layout/site-header.tsx`, a server component, with the menu in `site-nav.tsx`): the logo and name, the main menu, the language switch. It scrolls away with the page.
 
 - Logo: `siteSettings.logo` at 42px. Name `text-18` 700, place `text-13` `ink-muted`. The logo is the link home.
-- Menu, in the live site's order: আমাদের সম্পর্কে ▾ (আমাদের কথা, ক্যাম্পাস ও সুবিধা, সংবাদ ও ইভেন্ট), কারিকুলাম, আমাদের সদস্যবৃন্দ ▾ (পরিচালকবৃন্দ, উপদেষ্টাবৃন্দ, শিক্ষকমণ্ডলী), ভর্তি, যোগাযোগ, আমাদের বইসমূহ ↗ (opens alquranervasha.com in a new tab). Labels: `messages` `site.nav`.
-- Site Settings → Navigation decides what shows (`siteNav` in `src/lib/site/nav.ts`): a section's switch hides its whole menu, and a menu with nothing left is dropped. The footer's Pages list follows the same switches.
-- From 1180px: one row. A menu opens on hover or click (a click keeps it open), and Escape or a click elsewhere closes it. Its panel: `surface`, `line` border, `radius-card`, `shadow-photo`.
-- আমাদের সদস্যবৃন্দ opens wide, as on the live site: the featured directors and advisors (Studio → featured, in display order, up to six each) with a 36px round photo (or the gender placeholder from Site Settings) and their name, directors linking to their profile; the teacher departments when Teachers is shown; each column ends in সকল … → (`text-rust`). The photos load only when the menu opens. If the people query fails, plain links show instead.
-- Below 1180px: a মেনু / Menu pill (Phosphor list, ✕ while open) opens the same links under the header, grouped under their section names. Below 480px the language switch moves to the top of that menu, so the row fits a 360px phone.
+- Menu: আমাদের সম্পর্কে (the board and advisors; it replaced the আমাদের সদস্যবৃন্দ dropdown in October 2026), কারিকুলাম, ভর্তি, যোগাযোগ, আমাদের বইসমূহ ↗ (opens alquranervasha.com in a new tab). Labels: `messages` `site.nav`.
+- Site Settings → Navigation decides what shows (`siteNav` in `src/lib/site/nav.ts`): আমাদের সম্পর্কে follows Our people and shows while the directors or the advisors do. The footer's Pages list follows the same switches.
+- From 1180px: one row of links. The menu can still hold a dropdown group (none today): it opens on hover or click, Escape or a click elsewhere closes it; its panel is `surface`, `line` border, `radius-card`, `shadow-photo`.
+- Below 1180px: a মেনু / Menu pill (Phosphor list, ✕ while open) opens the same links under the header. Below 480px the language switch moves to the top of that menu, so the row fits a 360px phone.
 - The language switch (`quiet` pill) opens the same page in the other language.
 
 ### AdmissionBanner
@@ -555,6 +554,38 @@ The Contact page's close (`src/components/contact/contact-more.tsx`), on `paper`
 - **Left:** আরও জানতে, three 56px rows between `line` rules, each 18px 650 `ink` with a `rust` icon at the end: ভর্তি ও ফি and কারিকুলাম (arrows, pages) and প্রসপেক্টাস ডাউনলোড (download icon, the PDF).
 - **Right:** স্কুলের খবর with one line and the school's active pages from Site Settings → social media as `quiet` pills with a `rust` logo, opening in a new tab. Shown only when Site Settings has any.
 - Copy: `contact.more`.
+
+## About page
+
+আমাদের সম্পর্কে (`src/app/[locale]/about/page.tsx`, components in `src/components/about`, people from Studio → Directors and Advisors), top to bottom: the opening on `paper` (the H1 and the school's tagline), the chairman alone in a PersonBand (`dark`), the board (`#board`, `paper`: Portraits, then the members without a photo by name), the advisors (`#advisors`, `dark`: Portraits with their institutions), and a close on `paper` (আরও জানতে: Curriculum, Admissions and fees, Contact as `outline` pills). It replaced the Our people menu: the header has one link, আমাদের সম্পর্কে, shown while Site Settings shows Our people and the directors or the advisors; `/directors` and `/advisors` redirect to the two sections. Owner rejected (2026-10-15): a card grid, a structure diagram, an editorial timeline; the chairman beside the others.
+
+A director's profile (`src/app/[locale]/directors/[slug]/page.tsx`): a link back to About on `paper`, the person in a PersonBand (`dark`, the name as H1), their message as ProfileText on `cream` and their biography on `paper` when Studio has them, then the rest of the board's Portraits on `dark` with a button back to the whole board.
+
+### PersonBand
+
+One person alone on `dark` (`src/components/about/person-band.tsx`): the chairman on the About page (his own rule: alone at the top, never beside the others) and each director on their profile page.
+
+- **Left:** a 4:5 portrait from Studio (`radius-card`, `shadow-frame-dark`), no wider than 420px; it comes first on phones. Left out when there is no photo.
+- **Right:** a 15px `bronze-light` line (the role from Studio, then a second phrase: প্রতিষ্ঠাতা চেয়ারম্যান ও প্রিন্সিপাল on About, পরিচালনা পর্ষদ on a profile), the name (an H2 in `text-h2` on About, the page's H1 in `text-hero` on a profile), then what the page puts under it.
+- **On About:** the homepage founder quote (`home.founder.quote`, Tiro Bangla in Bengali only, dandas in Anek via `QuoteText`) and a `light` pill to his profile, "পূর্ণ বাণী ও পরিচিতি".
+- **On a profile:** the summary (`text-lead`, `on-dark-body`), then a description list over a `line-dark` rule: education (degree, institution, year in the page's numerals) and what they do (Studio's qualifications as `line-dark-strong` outlined chips); then their links from Studio (Facebook, website…) as `outline-dark` pills opening in a new tab.
+
+### Portraits
+
+People as 4:5 portraits in a row (`src/components/about/portraits.tsx`): the board on the About page (`paper`), the advisors (`dark`), and the rest of the board on a profile page (`dark`).
+
+- **Grid:** `repeat(auto-fit, minmax(min(100%, 130px), 1fr))`, so two to a row on phones from 320px; a row is never wider than 320px a person, so one or two people keep a sensible size.
+- **Tile:** the photo (`radius-card`; `sand-pale` behind it on light, `panel` and `shadow-frame-dark` on dark; a `user` icon when there is none), then the role (14px 650: `rust` on light, `bronze-light` on dark), the name (17 to 21px, Anek heading weight) and, for advisors, their institution (14px muted).
+- A director with a profile page (Studio → Show detail page) links there; the whole tile is the link. Advisors have no pages.
+- **Board order:** Studio's display order. The first director is the chairman, in PersonBand above; the others with a photo are portraits; those without are listed under "পর্ষদের অন্য সদস্য" as name and role (17px 650 and 14px `ink-muted`) over a `line` rule (`splitBoard`, `src/lib/about/people.ts`).
+
+### ProfileText
+
+A profile's message (বাণী, on `cream`) or biography (জীবনী, on `paper`) from Studio (`src/components/about/profile-text.tsx`): Portable Text in a 40em reading column of 18px `ink-body` at 1.75 line height. Each section is shown only when Studio has the text.
+
+- The section has its H2; the text's own headings become H3 (`text-h4`), lists keep their bullets or numbers, `strong` is `ink` 700, links are `rust` and underlined (new tab when external), a quotation is set off by a 3px `line-strong` rule on its left. Line breaks typed in Studio are kept.
+- The biography is tidied for reading (`tidyBio`, `src/lib/about/bio.ts`): blank lines dropped; a short line led by an emoji ("👤পরিচিতি") or ending in a colon ("পরিচয়:") becomes a heading without them; a heading typed on a paragraph's first line is split off.
+- `scripts/clean-director-bios.ts` applies the same tidy to Studio once (dry run by default) and removes the contact block some biographies ended with; the Contact page holds those numbers.
 
 ## Do's and Don'ts
 

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-15T08:39:38+00:00",
+  "generatedAt": "2026-10-15T11:25:26+00:00",
   "title": "Design System: Madrasatul Quran, Dhaka",
   "extensions": {
     "colorMeta": {
@@ -815,6 +815,21 @@
       "name": "ContactMore",
       "kind": "section",
       "description": "The Contact page's close (`src/components/contact/contact-more.tsx`), on `paper` before the footer."
+    },
+    {
+      "name": "PersonBand",
+      "kind": "section",
+      "description": "One person alone on `dark` (`src/components/about/person-band.tsx`): the chairman on the About page (his own rule: alone at the top, never beside the others) and each director on their profile page."
+    },
+    {
+      "name": "Portraits",
+      "kind": "section",
+      "description": "People as 4:5 portraits in a row (`src/components/about/portraits.tsx`): the board on the About page (`paper`), the advisors (`dark`), and the rest of the board on a profile page (`dark`)."
+    },
+    {
+      "name": "ProfileText",
+      "kind": "section",
+      "description": "A profile's message (বাণী, on `cream`) or biography (জীবনী, on `paper`) from Studio (`src/components/about/profile-text.tsx`): Portable Text in a 40em reading column of 18px `ink-body` at 1.75 line height. Each section is shown only when Studio has the text."
     }
   ],
   "narrative": {

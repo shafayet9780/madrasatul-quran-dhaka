@@ -1,55 +1,7 @@
 import { sanityFetch } from '@/lib/sanity-fetch';
 import type { AvatarPlaceholders } from '@/lib/profile-avatar';
 import type { NavigationVisibility } from '@/lib/nav-visibility';
-import type { MultilingualSlug, MultilingualText, SanityImage } from '@/types/sanity';
-
-export interface PeopleNavPerson {
-  _id: string;
-  name: MultilingualText;
-  slug?: MultilingualSlug;
-  gender: 'male' | 'female';
-  photo?: SanityImage;
-  showDetailPage?: boolean;
-}
-
-export interface PeopleNavDepartment {
-  _id: string;
-  name: MultilingualText;
-  slug: MultilingualSlug;
-}
-
-export interface PeopleNavData {
-  directors: PeopleNavPerson[];
-  advisors: PeopleNavPerson[];
-  departments: PeopleNavDepartment[];
-  placeholders: AvatarPlaceholders;
-}
-
-/** The "Our people" menu: featured directors and advisors (up to six each, as the Studio orders them), the teacher departments and the placeholder avatars. */
-export async function getPeopleNav(): Promise<PeopleNavData> {
-  const query = `{
-    "directors": *[_type == "director" && featured == true] | order(displayOrder asc)[0...6] {
-      _id, name, slug, gender, photo { ..., alt }, showDetailPage
-    },
-    "advisors": *[_type == "advisor" && featured == true] | order(displayOrder asc)[0...6] {
-      _id, name, gender, photo { ..., alt }
-    },
-    "departments": *[_type == "department"] | order(displayOrder asc) { _id, name, slug },
-    "settings": *[_type == "siteSettings"][0] { "male": defaultMaleAvatar, "female": defaultFemaleAvatar }
-  }`;
-  const result = await sanityFetch<{
-    directors?: PeopleNavPerson[];
-    advisors?: PeopleNavPerson[];
-    departments?: PeopleNavDepartment[];
-    settings?: { male?: SanityImage; female?: SanityImage } | null;
-  } | null>({ query, tags: ['director', 'advisor', 'department', 'siteSettings'] });
-  return {
-    directors: result?.directors ?? [],
-    advisors: result?.advisors ?? [],
-    departments: result?.departments ?? [],
-    placeholders: { male: result?.settings?.male ?? null, female: result?.settings?.female ?? null },
-  };
-}
+import type { SanityImage } from '@/types/sanity';
 
 /** Editor-controlled show/hide toggles for the "Our People" nav sections. */
 export async function getNavigationVisibility(): Promise<NavigationVisibility> {
