@@ -9,10 +9,10 @@ vi.mock('@/lib/queries/site', () => ({
   getNavigationVisibility: async () => ({}),
 }));
 afterEach(() => vi.unstubAllEnvs());
-it('includes Admissions, Curriculum and About us in both languages on the public origin', async () => {
+it('includes Admissions, Curriculum, About us and Campus in both languages on the public origin', async () => {
   vi.stubEnv('NEXT_PUBLIC_SITE_URL', 'http://localhost:3000');
   const entries = await sitemap();
-  for (const route of ['admissions', 'curriculum', 'about'])
+  for (const route of ['admissions', 'curriculum', 'about', 'campus'])
     for (const locale of ['bengali', 'english']) {
       expect(
         entries.find(

@@ -6,16 +6,19 @@ const keys = (items: ReturnType<typeof siteNav>) => items.map((i) => ('items' in
 describe('siteNav', () => {
   it('lists every section in order when nothing is switched off', () => {
     const items = siteNav('bengali', {});
-    expect(keys(items)).toEqual(['about', 'curriculum', 'admissions', 'contact', 'books']);
+    expect(keys(items)).toEqual(['about', 'curriculum', 'campus', 'admissions', 'contact', 'books']);
     expect(items[0]).toEqual({ key: 'about', href: '/bengali/about' });
-    expect(items[4]).toEqual({ key: 'books', href: BOOKS_URL, external: true });
+    expect(items[2]).toEqual({ key: 'campus', href: '/bengali/campus' });
+    expect(items[5]).toEqual({ key: 'books', href: BOOKS_URL, external: true });
   });
 
   it('follows the Site Settings switches', () => {
     // The live settings in October 2026: the old About us switch is off, but the About us page follows Our people.
     const live = { showAbout: false, showAcademics: true, showPrograms: false, showPeople: true, showDirectors: true, showAdvisors: true, showTeachers: false, showAdmissions: true, showContact: true, showBooks: true };
-    expect(keys(siteNav('english', live))).toEqual(['about', 'curriculum', 'admissions', 'contact', 'books']);
+    expect(keys(siteNav('english', live))).toEqual(['about', 'curriculum', 'campus', 'admissions', 'contact', 'books']);
     expect(keys(siteNav('english', { showAcademics: false }))).not.toContain('curriculum');
+    // Campus has its own switch; the old About us switch does not hide it.
+    expect(keys(siteNav('english', { ...live, showCampus: false }))).not.toContain('campus');
   });
 
   it('shows About us while the board or the advisors show', () => {
@@ -25,6 +28,6 @@ describe('siteNav', () => {
   });
 
   it('gives the footer the pages only, in menu order', () => {
-    expect(navPages(siteNav('english', {})).map((l) => l.href)).toEqual(['/english/about', '/english/curriculum', '/english/admissions', '/english/contact']);
+    expect(navPages(siteNav('english', {})).map((l) => l.href)).toEqual(['/english/about', '/english/curriculum', '/english/campus', '/english/admissions', '/english/contact']);
   });
 });

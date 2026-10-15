@@ -68,6 +68,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const showDirectors = isSectionVisible('directors', visibility);
   const showTeachers = isSectionVisible('teachers', visibility);
   const showAdvisors = isSectionVisible('advisors', visibility);
+  const showCampus = isSectionVisible('campus', visibility);
   // About us holds the board and the advisors (the old /directors and /advisors redirect there).
   const showAbout = isSectionVisible('people', visibility) && (showDirectors || showAdvisors);
 
@@ -78,6 +79,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...bilingual('/admissions', 0.9, 'monthly'),
     ...bilingual('/pre-admission', 0.8, 'monthly'),
     ...(showAbout ? bilingual('/about', 0.8, 'monthly') : []),
+    ...(showCampus ? bilingual('/campus', 0.8, 'monthly') : []),
     ...(showTeachers ? bilingual('/teachers', 0.8, 'monthly') : []),
   ];
 

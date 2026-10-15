@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-15T11:25:26+00:00",
+  "generatedAt": "2026-10-15T16:53:56+00:00",
   "title": "Design System: Madrasatul Quran, Dhaka",
   "extensions": {
     "colorMeta": {
@@ -830,6 +830,16 @@
       "name": "ProfileText",
       "kind": "section",
       "description": "A profile's message (বাণী, on `cream`) or biography (জীবনী, on `paper`) from Studio (`src/components/about/profile-text.tsx`): Portable Text in a 40em reading column of 18px `ink-body` at 1.75 line height. Each section is shown only when Studio has the text."
+    },
+    {
+      "name": "CampusTour",
+      "kind": "section",
+      "description": "The Campus page, ক্যাম্পাসে একটি দিন (`src/components/campus/`): one school day told as the reader scrolls, from the metro at dawn to home time at 8:30 at night. Each stop is a time and a place. The steps scroll as ordinary text; beside them (on top on phones) a pinned stage plays the day. Spec: `docs/campus-day.md`."
+    },
+    {
+      "name": "CampusClose",
+      "kind": "section",
+      "description": "The Campus page's close (`src/components/campus/campus-close.tsx`), a `dark` band before the footer: নিজে এসে দেখুন (`text-h2`), the office hours from Site Settings (`text-17` `on-dark-body`), and two `lg` pills: a `light` one with the navigation-arrow icon to Google Maps directions (new tab) and an `outline-dark` call to the office (counted as a call click, `campus_close`). The call is left out when Site Settings has no office phone. Copy in `campus.close`."
     }
   ],
   "narrative": {

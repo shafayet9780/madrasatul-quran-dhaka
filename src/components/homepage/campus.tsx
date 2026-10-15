@@ -83,8 +83,8 @@ function PlaySpaces({ layout, spaces, buildingAlt, className }: { layout: Collag
   );
 }
 
-/** The campus: where the students play, two photos of the school, and how to get there from the metro. */
-export async function Campus({ locale, mapUrl, playSpaces }: { locale: Locale; mapUrl?: string; playSpaces?: HomePage['playSpaces'] }) {
+/** The campus: where the students play, two photos of the school, and how to get there from the metro; the Campus page while Site Settings shows it. */
+export async function Campus({ locale, mapUrl, playSpaces, showVisit }: { locale: Locale; mapUrl?: string; playSpaces?: HomePage['playSpaces']; showVisit: boolean }) {
   const t = await getTranslations({ locale, namespace: 'home.campus' });
   const spaces: Record<'roof' | 'field', Space> = {
     roof: { ...t.raw('roof'), photo: spacePhoto(playSpaces?.roof, locale) },
@@ -130,9 +130,11 @@ export async function Campus({ locale, mapUrl, playSpaces }: { locale: Locale; m
                   {t('where.map')}
                 </ButtonLink>
               )}
-              <ButtonLink href={`/${locale}/campus`} variant="outline-dark" className="min-h-12 border-[1.5px] px-[22px] text-16">
-                {t('where.visit')}
-              </ButtonLink>
+              {showVisit && (
+                <ButtonLink href={`/${locale}/campus`} variant="outline-dark" className="min-h-12 border-[1.5px] px-[22px] text-16">
+                  {t('where.visit')}
+                </ButtonLink>
+              )}
             </div>
           </div>
         </div>

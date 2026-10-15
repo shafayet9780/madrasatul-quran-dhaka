@@ -1,6 +1,7 @@
 import type { FeeSettings } from '@/types/fees';
 import type { HomePage, Testimonial } from '@/types/home';
-import { feeSettingsQuery, homePageQuery, homeTestimonialsQuery } from './sanity-queries';
+import type { CampusStopIn } from '@/lib/campus/day';
+import { campusDayQuery, feeSettingsQuery, homePageQuery, homeTestimonialsQuery } from './sanity-queries';
 import { client, previewClient } from './sanity';
 import { sanityFetch } from './sanity-fetch';
 import type { SanityDocument } from '@sanity/client';
@@ -60,6 +61,17 @@ export class ContentService {
     } catch (error) {
       console.error('Error fetching the homepage content:', error);
       return null;
+    }
+  }
+
+  /** Studio → Campus: a day: the stops, in order (none while the list is empty). */
+  async getCampusDay(): Promise<CampusStopIn[]> {
+    try {
+      if (this.isPreview) return (await this.client.fetch(campusDayQuery)) ?? [];
+      return (await sanityFetch<CampusStopIn[] | null>({ query: campusDayQuery, tags: ['campusDay'] })) ?? [];
+    } catch (error) {
+      console.error('Error fetching the campus day:', error);
+      return [];
     }
   }
 

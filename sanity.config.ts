@@ -32,12 +32,12 @@ export default defineConfig({
 
   schema: {
     types: schemaTypes,
-    templates: (prev) => prev.filter(template => !['feeSettings', 'homePage'].includes(template.schemaType)),
+    templates: (prev) => prev.filter(template => !['feeSettings', 'homePage', 'campusDay'].includes(template.schemaType)),
   },
 
   document: {
     actions: (prev, context) =>
-      ['feeSettings', 'homePage'].includes(context.schemaType)
+      ['feeSettings', 'homePage', 'campusDay'].includes(context.schemaType)
         ? prev.filter(action => action.action !== 'duplicate')
         : ['downloadCategory', 'downloadable'].includes(context.schemaType)
         ? [...prev, ShareDownloadAction, RevokeDownloadLinksAction]

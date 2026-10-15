@@ -100,3 +100,25 @@ A `campusDay` singleton (or `campusPage`) with an ordered list of stops. Per sto
 5. Unit tests for the pure parts (stop normalisation, groups/lift per moment, sky per moment), e2e for the page
    (all stops' text present, no overflow at 320/390/1280, reduced-motion shows stills), axe, Lighthouse.
 6. Design system module (m14) + DESIGN.md Campus section; memory; full diff review before reporting.
+
+## Build notes (15 October 2026)
+
+Built on `design-revamp` from this spec; where the build differs from the prototype:
+
+- **Words hold still while their stop plays.** In the prototype each step's text sat in the middle of a tall box, so the
+  stage changed before the reader saw the new words. Now each step's text sits at the top of its step and is sticky
+  (30vh from the top on desktop, just under the stage on phones); the reading line is 60% of the screen (78% on
+  phones), so the stage changes as the new words come up. A step's height is how long its stop plays.
+- **Launch day.** While Studio → Campus: a day has no stops, the page shows the day in `src/lib/campus/launch-day.ts`
+  (this spec's stops and copy, English drafted). Only real photos: the floors, roof and field stay hidden until their
+  photos exist (the roof and field take Studio → Homepage → Play spaces once those are added). The lift needs two
+  floors, so it shows once the floor photos are in.
+- **Moments:** the midday stop has four (salat, shower, lunch, nap) to match its heading; 3:00 has three (আমুখতা,
+  তিলাওয়াত, নাজেরা). Icons: Phosphor shower and arrows-clockwise added.
+- **Motion polish:** the walker dot rides the drawn path; van wheels turn with the drive and its headlight shows at dawn;
+  the door's two leaves open before the photo comes through; windows light one by one; the clock rolls; the sun's
+  track turns solid behind it; moment tiles are joined by a filling line and ring once as they light. Photos further
+  on load as the day comes to them (only the stops beside the current one are laid out).
+- **No script:** like reduced motion, each step shows its own photos (a `<noscript>` style).
+- `showCampus` was unset in live Site Settings on 15 October (counts as shown): switch it off in Studio before this
+  branch deploys if the page should wait for the photos.

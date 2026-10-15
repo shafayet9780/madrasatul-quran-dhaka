@@ -1,5 +1,6 @@
 import { feeSettings } from './feeSettings'
 import { homePage } from './homePage'
+import { campusDay } from './campusDay'
 import { testimonial } from './testimonial'
 import { page } from './page'
 import { newsEvent } from './newsEvent'
@@ -27,6 +28,7 @@ import { admissionFormTypes } from './admissionForm'
 export const schemaTypes = [
   feeSettings,
   homePage,
+  campusDay,
   testimonial,
   page,
   newsEvent,
