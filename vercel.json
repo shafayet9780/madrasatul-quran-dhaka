@@ -4,7 +4,8 @@
     "deploymentEnabled": {
       "**": false,
       "dev": true,
-      "main": true
+      "main": true,
+      "design-revamp": true
     }
   },
   "crons": [
