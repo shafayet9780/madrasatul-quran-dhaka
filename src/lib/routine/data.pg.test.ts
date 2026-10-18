@@ -152,6 +152,7 @@ describe('routines', () => {
     ok(await activateRoutine(id('routine')));
     ok(await activateRoutine(other));
     const all = await listRoutines();
+    expect(all.find((r) => r.id === id('routine'))).toMatchObject({ periods: 2, assignments: 0 });
     expect(all.filter((r) => r.status === 'active').map((r) => r.id)).toEqual([other]);
     expect((await pickRoutine())?.id).toBe(other);
   });
@@ -179,5 +180,15 @@ describe('proxies', () => {
 
   it('has no classes on Friday', async () => {
     expect(await saveAbsence('2026-10-23', id('mueen'), null, '')).toMatchObject({ ok: false });
+  });
+});
+
+describe('local preview sample', () => {
+  it('loads without a clash', async () => {
+    const { loadRoutineFixtures } = await import('./testing/dev-fixtures');
+    expect(await loadRoutineFixtures()).toMatch(/sample routine loaded/);
+    const routine = await pickRoutine();
+    expect(routine?.status).toBe('active');
+    expect((await routineData(routine!)).assignments).toHaveLength(29);
   });
 });

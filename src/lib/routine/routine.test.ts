@@ -169,6 +169,8 @@ describe('free teachers and proxies', () => {
     // The need's own proxy doesn't hide its teacher.
     const own = [{ id: 'y', assignmentId: qaidaA.id, role: 'main' as const, periodId: 'p1', proxyTeacherId: 'nasreen' }];
     expect(rankCandidates(need, { ...base, proxies: own })[0].teacher.id).toBe('nasreen');
+    // …and its own proxy isn't counted against them for the month either.
+    expect(rankCandidates(need, { ...base, proxies: own, monthCounts: new Map([['nasreen', 1]]) })[0].month).toBe(0);
   });
 
   it('writes the day for WhatsApp', () => {

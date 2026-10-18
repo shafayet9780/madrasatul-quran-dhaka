@@ -5,6 +5,7 @@ export async function register() {
 
   const { createPgliteDb, pgliteDrizzle } = await import('@/lib/admissions/testing/pg');
   const surveySchema = await import('@/lib/survey/schema');
+  const routineSchema = await import('@/lib/routine/schema');
   const { liveFeeDocument, liveFormDocument } = await import('@/lib/admissions/testing/live-form');
   const { mockGateway } = await import('@/lib/admissions/testing/mock-gateway');
   const { sslConfigFromEnv } = await import('@/lib/admissions/sslcommerz');
@@ -13,6 +14,7 @@ export async function register() {
   setLocalOverrides({
     db,
     surveyDb: pgliteDrizzle(client, surveySchema) as never,
+    routineDb: pgliteDrizzle(client, routineSchema) as never,
     // ADMISSIONS_LOCAL_FORM: a form exported from the Studio (Inspect → Raw JSON) instead of the built-in one
     // (with the built-in transport routes unless the file has `fees`).
     form: process.env.ADMISSIONS_LOCAL_FORM
@@ -33,5 +35,8 @@ export async function register() {
   // The survey admin and forms get the sample survey data (pnpm survey:fixtures does the same in Neon).
   const { loadSurveyFixtures } = await import('@/lib/survey/testing/dev-fixtures');
   console.log(`Survey: ${await loadSurveyFixtures().catch((e) => `sample data failed to load: ${e instanceof Error ? e.message : e}`)}`);
+  // The class routine gets a sample routine.
+  const { loadRoutineFixtures } = await import('@/lib/routine/testing/dev-fixtures');
+  console.log(`Routine: ${await loadRoutineFixtures().catch((e) => `sample data failed to load: ${e instanceof Error ? e.message : e}`)}`);
   console.log(`Admissions: local preview (in-memory database, converted live form, ${sslConfigFromEnv() ? 'SSLCommerz sandbox' : 'stand-in payment gateway'}).`);
 }

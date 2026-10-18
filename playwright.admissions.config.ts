@@ -48,5 +48,7 @@ export default defineConfig({
     { name: 'desktop', use: { ...devices['Desktop Chrome'], viewport: { width: 1440, height: 900 } } },
     // They reload shared sample data, so one at a time.
     { name: 'survey', use: { ...devices['Desktop Chrome'] }, testMatch: SURVEY_SPECS, workers: 1 },
+    // The class routine on the preview's sample routine (src/lib/routine/testing/dev-fixtures.ts).
+    { name: 'routine', use: { ...devices['Desktop Chrome'], viewport: { width: 1440, height: 900 } }, testMatch: /admin-routine\.spec\.ts/, workers: 1 },
   ],
 });

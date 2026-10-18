@@ -19,7 +19,7 @@ import {
   routineTeachers,
   type ProxySnapshot,
 } from './schema';
-import type { Assignment, Group, Role, Room, RoutineData, RoutineInfo, Subject, Teacher } from './types';
+import type { Group, Role, Room, RoutineData, RoutineInfo, Subject, Teacher } from './types';
 
 // Reads and writes for the class routine admin (docs/class-routine.md). Every multi-statement write
 // is one db.batch (one transaction); routine_slots makes a clash fail the whole batch.
@@ -30,6 +30,12 @@ const fail = (error: string): Outcome => ({ ok: false, error });
 const pgCode = (e: unknown): string | undefined => (e as { code?: string }).code ?? (e as { cause?: { code?: string } }).cause?.code;
 const RACE = 'এর মধ্যে রুটিনে অন্য কোনো পরিবর্তন হয়েছে। পেজটি রিলোড করে আবার চেষ্টা করুন।';
 
+function omit<T extends object, K extends keyof T>(o: T, ...keys: K[]): Omit<T, K> {
+  const copy = { ...o };
+  for (const k of keys) delete copy[k];
+  return copy;
+}
+
 async function run(db: RoutineDb, statements: BatchItem<'pg'>[]) {
   if (statements.length) await db.batch(statements as [BatchItem<'pg'>, ...BatchItem<'pg'>[]]);
 }
@@ -39,18 +45,15 @@ async function run(db: RoutineDb, statements: BatchItem<'pg'>[]) {
 export type RoutineSummary = RoutineInfo & { periods: number; assignments: number };
 
 export async function listRoutines(): Promise<RoutineSummary[]> {
-  const rows = await getRoutineDb()
-    .select({
-      id: routineRoutines.id,
-      name: routineRoutines.name,
-      status: routineRoutines.status,
-      createdAt: routineRoutines.createdAt,
-      periods: sql<number>`(select count(*)::int from ${routinePeriods} where ${routinePeriods.routineId} = ${routineRoutines.id})`,
-      assignments: sql<number>`(select count(*)::int from ${routineAssignments} where ${routineAssignments.routineId} = ${routineRoutines.id})`,
-    })
-    .from(routineRoutines)
-    .orderBy(sql`${routineRoutines.createdAt} desc`);
-  return rows.map((r) => ({ ...r, createdAt: new Date(r.createdAt).toISOString() }));
+  const db = getRoutineDb();
+  const count = sql<number>`count(*)::int`;
+  const [rows, periods, assignments] = await Promise.all([
+    db.select().from(routineRoutines).orderBy(sql`${routineRoutines.createdAt} desc`),
+    db.select({ id: routinePeriods.routineId, n: count }).from(routinePeriods).groupBy(routinePeriods.routineId),
+    db.select({ id: routineAssignments.routineId, n: count }).from(routineAssignments).groupBy(routineAssignments.routineId),
+  ]);
+  const n = (list: { id: string; n: number }[], id: string) => list.find((x) => x.id === id)?.n ?? 0;
+  return rows.map((r) => ({ id: r.id, name: r.name, status: r.status, createdAt: r.createdAt.toISOString(), periods: n(periods, r.id), assignments: n(assignments, r.id) }));
 }
 
 /** The routine asked for, else the active one, else the newest draft. */
@@ -78,7 +81,7 @@ export async function listGroups(): Promise<Group[]> {
 export async function listTeachers(): Promise<Teacher[]> {
   const db = getRoutineDb();
   const [rows, links] = await Promise.all([db.select().from(routineTeachers).orderBy(asc(routineTeachers.shortName)), db.select().from(routineTeacherSubjects)]);
-  return rows.map(({ createdAt: _c, updatedAt: _u, ...t }) => ({ ...t, subjectIds: links.filter((l) => l.teacherId === t.id).map((l) => l.subjectId) }));
+  return rows.map((row) => omit(row, 'createdAt', 'updatedAt')).map((t) => ({ ...t, subjectIds: links.filter((l) => l.teacherId === t.id).map((l) => l.subjectId) }));
 }
 
 export async function routineData(routine: RoutineInfo): Promise<RoutineData> {
@@ -91,7 +94,7 @@ export async function routineData(routine: RoutineInfo): Promise<RoutineData> {
     listSubjects(),
     listRooms(),
   ]);
-  return { routine, periods, assignments: assignments.map(({ routineId: _r, ...a }) => a), groups, teachers, subjects, rooms };
+  return { routine, periods, assignments: assignments.map((a) => omit(a, 'routineId')), groups, teachers, subjects, rooms };
 }
 
 // ── Room slots (rebuilt whenever rooms or groups' default rooms change) ───────────────────────
@@ -178,7 +181,7 @@ export async function deleteRoom(id: string): Promise<Outcome> {
 export async function saveGroup(input: Omit<Group, 'id'> & { id?: string }): Promise<Outcome> {
   const db = getRoutineDb();
   const id = input.id ?? crypto.randomUUID();
-  const { id: _, ...values } = input;
+  const values = omit(input, 'id');
   const groups = (await listGroups()).filter((g) => g.id !== id).concat({ ...values, id });
   const rebuilt = await roomSlotStatements(db, await listRooms(), groups);
   if ('error' in rebuilt) return fail(rebuilt.error);
@@ -187,6 +190,7 @@ export async function saveGroup(input: Omit<Group, 'id'> & { id?: string }): Pro
     await run(db, [write, ...rebuilt.statements]);
   } catch (e) {
     if (pgCode(e) === '23505') return fail(groups.some((g) => g.id !== id && g.name === input.name) ? 'এই নামে গ্রুপ আগে থেকেই আছে।' : RACE);
+    if (pgCode(e) === '23503') return fail(RACE);
     throw e;
   }
   return { ok: true, id };
@@ -207,7 +211,8 @@ export type TeacherInput = Omit<Teacher, 'id'> & { id?: string };
 export async function saveTeacher(input: TeacherInput): Promise<Outcome> {
   const db = getRoutineDb();
   const id = input.id ?? crypto.randomUUID();
-  const { id: _, subjectIds, ...values } = input;
+  const { subjectIds } = input;
+  const values = omit(input, 'id', 'subjectIds');
   const write = input.id ? db.update(routineTeachers).set({ ...values, updatedAt: new Date() }).where(eq(routineTeachers.id, id)) : db.insert(routineTeachers).values({ ...values, id });
   try {
     await run(db, [
@@ -283,6 +288,7 @@ export async function renameRoutine(id: string, name: string): Promise<Outcome> 
 /** Makes this routine the active one; the previously active one becomes a draft. */
 export async function activateRoutine(id: string): Promise<Outcome> {
   const db = getRoutineDb();
+  if (!(await db.select({ id: routineRoutines.id }).from(routineRoutines).where(eq(routineRoutines.id, id))).length) return fail(RACE);
   await run(db, [
     db.update(routineRoutines).set({ status: 'draft' }).where(and(eq(routineRoutines.status, 'active'), sql`${routineRoutines.id} <> ${id}`)),
     db.update(routineRoutines).set({ status: 'active' }).where(eq(routineRoutines.id, id)),
@@ -307,8 +313,13 @@ export async function savePeriod(routineId: string, input: { id?: string; label:
   const overlap = overlappingPeriod(input, periods);
   if (overlap) return fail(`এই সময়টি ${periodText(overlap)} পিরিয়ডের সাথে মিলে যায়।`);
   const values = { label: input.label, startsAt: input.startsAt, endsAt: input.endsAt };
-  if (input.id) await db.update(routinePeriods).set(values).where(eq(routinePeriods.id, input.id));
-  else await db.insert(routinePeriods).values({ ...values, routineId });
+  try {
+    if (input.id) await db.update(routinePeriods).set(values).where(eq(routinePeriods.id, input.id));
+    else await db.insert(routinePeriods).values({ ...values, routineId });
+  } catch (e) {
+    if (pgCode(e) === '23503') return fail(RACE);
+    throw e;
+  }
   return { ok: true };
 }
 
@@ -423,10 +434,15 @@ export async function saveAbsence(date: string, teacherId: string, periodIds: st
   const db = getRoutineDb();
   if (dayOfDate(date) === null) return fail('শুক্রবার ক্লাস নেই।');
   const ids = periodIds?.length ? periodIds : null;
-  await db
-    .insert(routineAbsences)
-    .values({ date, teacherId, periodIds: ids, reason })
-    .onConflictDoUpdate({ target: [routineAbsences.date, routineAbsences.teacherId], set: { periodIds: ids, reason } });
+  try {
+    await db
+      .insert(routineAbsences)
+      .values({ date, teacherId, periodIds: ids, reason })
+      .onConflictDoUpdate({ target: [routineAbsences.date, routineAbsences.teacherId], set: { periodIds: ids, reason } });
+  } catch (e) {
+    if (pgCode(e) === '23503') return fail(RACE);
+    throw e;
+  }
   await pruneProxies(date);
   return { ok: true };
 }

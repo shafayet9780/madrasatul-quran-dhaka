@@ -39,7 +39,8 @@ export function rankCandidates<T extends Teacher>(
   const { assignment: a } = need;
   const busy = busyTeachers(ctx.assignments, ctx.day, a.periodId);
   // The need's own proxy does not count against anyone: it is the one being chosen.
-  const others = ctx.proxies.filter((p) => !(p.assignmentId === a.id && p.role === need.role));
+  const own = ctx.proxies.find((p) => p.assignmentId === a.id && p.role === need.role);
+  const others = ctx.proxies.filter((p) => p !== own);
   for (const p of others) if (p.periodId === a.periodId) busy.add(p.proxyTeacherId);
   const rule = ctx.group?.genderRule ?? 'any';
   return ctx.teachers
@@ -50,7 +51,7 @@ export function rankCandidates<T extends Teacher>(
       teacher,
       canTeach: teacher.subjectIds.includes(a.subjectId),
       today: periodsOnDay(ctx.assignments, teacher.id, ctx.day) + others.filter((p) => p.proxyTeacherId === teacher.id).length,
-      month: ctx.monthCounts.get(teacher.id) ?? 0,
+      month: (ctx.monthCounts.get(teacher.id) ?? 0) - (own?.proxyTeacherId === teacher.id ? 1 : 0),
     }))
     .sort((x, y) => Number(y.canTeach) - Number(x.canTeach) || x.today - y.today || x.month - y.month || x.teacher.shortName.localeCompare(y.teacher.shortName));
 }

@@ -1,6 +1,7 @@
 /**
  * Screenshots of every admin page from a running local preview, for checking design work:
- * desktop and phone, plus the print pages as A4 PDFs (and PNGs per page when pdftoppm exists).
+ * desktop and phone, plus the print pages as PDFs at their CSS page size (and PNGs per page when
+ * pdftoppm exists).
  *
  *   PORT=3300 ADMISSIONS_LOCAL=1 STUDIO_AUTH_ENABLED=true STUDIO_USERNAME=playwright-editor \
  *     STUDIO_PASSWORD=playwright-test-password pnpm start      # after pnpm build
@@ -56,7 +57,22 @@ const SHOTS: Shot[] = [
     },
   },
   { name: 'admissions-evaluation-day', path: '/admin/admissions/evaluation-day' },
+  { name: 'routine-grid', path: '/admin/routine', print: true },
+  { name: 'routine-group', path: (page) => firstHref(page, '/admin/routine', '.rt-grid tbody th a'), print: true },
+  { name: 'routine-teacher', path: (page) => firstHref(page, '/admin/routine/teachers', 'tbody td a'), print: true },
+  { name: 'routine-teacher-edit', path: async (page) => `${await firstHref(page, '/admin/routine/teachers', 'tbody td a')}/edit` },
+  { name: 'routine-teachers', path: '/admin/routine/teachers' },
+  { name: 'routine-free', path: '/admin/routine/free' },
+  { name: 'routine-proxy', path: '/admin/routine/proxy', print: true },
+  { name: 'routine-workload', path: '/admin/routine/workload' },
+  { name: 'routine-setup', path: '/admin/routine/setup' },
 ];
+
+/** The first link of a list page (the sample data's ids change on every start). */
+async function firstHref(page: Page, list: string, selector: string): Promise<string> {
+  await page.goto(list);
+  return (await page.locator(selector).first().getAttribute('href')) ?? list;
+}
 
 async function main() {
   mkdirSync(out, { recursive: true });

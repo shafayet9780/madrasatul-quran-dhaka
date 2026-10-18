@@ -72,4 +72,9 @@ export function timeInput(minutes: number): string {
   return `${String(Math.floor(minutes / 60)).padStart(2, '0')}:${String(minutes % 60).padStart(2, '0')}`;
 }
 
-export const sortPeriods = <P extends Pick<Period, 'startsAt'>>(periods: P[]) => [...periods].sort((a, b) => a.startsAt - b.startsAt);
+/** 930 → "১৫ ঘণ্টা ৩০ মিনিট" */
+export function durationText(minutes: number): string {
+  const h = Math.floor(minutes / 60);
+  const m = minutes % 60;
+  return [h && `${bn(h)} ঘণ্টা`, m && `${bn(m)} মিনিট`].filter(Boolean).join(' ') || '০ মিনিট';
+}

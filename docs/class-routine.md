@@ -1,6 +1,6 @@
 # Class Routine — Specification
 
-Status: **spec agreed 2026-10-18** (owner interview) on branch `class-routine`; not built yet. Next: phase 1.
+Status: **phase 1 built** (2026-10-18) on branch `class-routine`; spec agreed with the owner the same day. Build notes: §11. Next: owner review on the preview, then phase 2 (sheet import).
 
 The school's class routine is kept today in a Google Sheet ([`1. Class schedule for teachers 2027.xlsx`](https://docs.google.com/spreadsheets/d/1vJ4Yil_kTcJ2uXCMjsw0oXpk-Xsg7oLy/edit?gid=2014558857#gid=2014558857)). This module moves it into `/admin` as a third module, **রুটিন**, next to ভর্তি and জরিপ:
 
@@ -163,3 +163,12 @@ Tests: pure modules (clash detection, load math, free-teacher and proxy ranking,
 
 1. What does "3+1" / "1+3" in the sheet's "No of Classes" column mean? (Owner to confirm; affects only how targets are first filled in.)
 2. Target periods per week for each teacher: to be entered by the owner (the sheet has none per week).
+
+## 11. Build notes (phase 1, 2026-10-18)
+
+- **Code:** logic in `src/lib/routine/` (pure: `days`, `clash`, `load`, `free`, `proxy`; server-only: `data`, `db`); pages in `src/app/admin/routine/` (`page.tsx` + `RoutineGrid.tsx` is the school grid and cell editor; `groups/[id]`, `teachers/[id]`, `free`, `proxy`, `workload`, `teachers`, `setup`). Migration `drizzle/0008_routine_init.sql`.
+- **Clash guard:** `routine_slots` holds one row per assignment × day for its group, its teacher and TA, and its room unless shared; the primary key `(routine, period, day, kind, ref)` makes a double booking fail the whole `db.batch`. The editor checks the same rules first (`clash.ts`) to give a readable message. Room rows are rebuilt for every routine whenever a room's "shared" flag, a group's default room or a room's existence changes, and the change is refused if it would create a clash.
+- **Copy:** copying a routine copies its periods, assignments and slot rows with new ids.
+- **Proxies:** the register works on the active routine. Changing or removing an absence drops that date's proxies for classes nobody is away from any more. A saved proxy keeps a name snapshot; its assignment and period links go NULL if the routine changes.
+- **Local preview:** `ADMISSIONS_LOCAL=1` loads a sample routine with made-up names (`src/lib/routine/testing/dev-fixtures.ts`): class sections, Quran/Arabic/Hifz level groups, a shared hall, day-split cells, a TA, a vacancy, and one teacher away today.
+- **Tests:** `src/lib/routine/routine.test.ts` (pure logic), `data.pg.test.ts` (PGlite: clash guard, rooms, copy, proxies, the sample), `e2e/admin-routine.spec.ts` (`pnpm test:e2e:admissions`, project `routine`). `pnpm admin:screenshots [dir] routine` captures the pages and the A3/A4 prints.
