@@ -35,7 +35,7 @@ export function GuardianReceipt({ receipt }: { receipt: Receipt }) {
       {replacedBy && (
         <div className="sv-banner is-info sv-no-print" style={{ margin: '18px 16px 0' }}>
           <span>
-            এই রিভিউ পরে সংশোধন করা হয়েছে। <Link href={`/survey/receipt/${replacedBy}`}>নতুন রসিদ দেখুন</Link>
+            এই রিভিউ পরে বদলানো হয়েছে। <Link href={`/survey/receipt/${replacedBy}`}>নতুন রসিদ দেখুন</Link>
           </span>
         </div>
       )}
@@ -57,12 +57,12 @@ export function GuardianReceipt({ receipt }: { receipt: Receipt }) {
           <dd style={{ margin: 0, fontWeight: 600 }}>
             {row?.name} · {classLabel(round.snapshot, submission.classKey, submission.sectionKey)}
           </dd>
-          <dt className="sv-muted">প্রদানকারী</dt>
+          <dt className="sv-muted">জমা দিয়েছেন</dt>
           <dd style={{ margin: 0 }}>
             {submission.submitterName} ({submission.submitterRelation})
           </dd>
           <dt className="sv-muted">যাচাই</dt>
-          <dd style={{ margin: 0, fontWeight: 600, color: submission.verified ? 'var(--sv-ok)' : 'var(--sv-warn)' }}>{submission.verified ? 'যাচাইকৃত' : 'অযাচাইকৃত'}</dd>
+          <dd style={{ margin: 0, fontWeight: 600, color: submission.verified ? 'var(--sv-ok)' : 'var(--sv-warn)' }}>{submission.verified ? 'যাচাইকৃত' : 'যাচাই হয়নি'}</dd>
           <dt className="sv-muted">রেফারেন্স নং</dt>
           <dd className="sv-num" style={{ margin: 0, letterSpacing: 0.5 }}>
             {referenceNumber(submission.id)}
@@ -135,11 +135,11 @@ export function GuardianReceipt({ receipt }: { receipt: Receipt }) {
           অন্য সন্তানের জন্য রিভিউ দিন
         </Link>
         <div style={{ fontSize: 13, color: 'var(--sv-text-muted)', textAlign: 'center', lineHeight: 1.6 }}>
-          এই পাতার লিংকটি সংরক্ষণ করুন · iPhone: শেয়ার → প্রিন্ট → PDF
+          এই পেজের লিংকটি সেভ করে রাখুন · iPhone: শেয়ার → প্রিন্ট → PDF
           {canCorrect && (
             <>
               <br />
-              সংশোধন করতে {dayMonth.format(round.closesAt)} পর্যন্ত একই লিংকে আবার রিভিউ দিন।
+              উত্তর বদলাতে {dayMonth.format(round.closesAt)} পর্যন্ত একই লিংকে আবার রিভিউ দিন।
             </>
           )}
         </div>

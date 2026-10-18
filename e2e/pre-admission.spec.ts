@@ -106,7 +106,7 @@ test('a guardian fills in every chapter, takes the pledges, reviews, declares, p
       a11yChecked = true;
     }
     const before = page.url();
-    await page.getByRole('button', { name: /^(পরবর্তী|পর্যালোচনা)/ }).filter({ visible: true }).click();
+    await page.getByRole('button', { name: /^(পরবর্তী|যাচাই)/ }).filter({ visible: true }).click();
     await page.waitForURL((url) => url.toString() !== before);
   }
 
@@ -117,7 +117,7 @@ test('a guardian fills in every chapter, takes the pledges, reviews, declares, p
   await noSeriousA11yIssues(page);
   for (const box of await page.getByRole('checkbox').all()) await box.check();
   await expect(page.getByText('দুটিতেই সম্মতি দেওয়া হয়েছে').filter({ visible: true })).toBeVisible();
-  await page.getByRole('link', { name: /পর্যালোচনা/ }).filter({ visible: true }).first().click();
+  await page.getByRole('link', { name: /যাচাই/ }).filter({ visible: true }).first().click();
 
   await expect(page.getByRole('heading', { name: 'জমা দেওয়ার আগে দেখে নিন' })).toBeVisible();
   await expect(page.getByText('আব্দুল্লাহ আল-মাহমুদ').or(page.getByText('পরীক্ষামূলক উত্তর')).first()).toBeVisible();
@@ -211,7 +211,7 @@ test('next shows what is missing; answers survive a reload and the resume link',
 
   await page.locator('#f-student_name_bengali').fill('আব্দুল্লাহ');
   await page.locator('#f-student_name_bengali').blur();
-  await expect(page.getByRole('status').filter({ hasText: 'সংরক্ষিত' }).first()).toBeVisible();
+  await expect(page.getByRole('status').filter({ hasText: 'সেভ হয়েছে' }).first()).toBeVisible();
   await page.reload();
   await expect(page.locator('#f-student_name_bengali')).toHaveValue('আব্দুল্লাহ');
 

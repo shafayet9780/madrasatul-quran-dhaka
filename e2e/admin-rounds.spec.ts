@@ -47,7 +47,7 @@ test.describe('with login', () => {
     await expect(row.getByText('বন্ধ', { exact: true })).toBeVisible();
 
     await page.getByRole('button', { name: 'অক্টোবর ২০২৬ (নমুনা): মেয়াদ বাড়ান' }).click();
-    await page.getByRole('button', { name: 'সংরক্ষণ করুন' }).click();
+    await page.getByRole('button', { name: 'সেভ করুন' }).click();
     await expect(page.getByRole('status')).toContainText('মেয়াদ বাড়ানো হয়েছে');
     await expect(row.getByText('চলমান')).toBeVisible();
   });
@@ -57,7 +57,7 @@ test.describe('with login', () => {
     await page.getByRole('button', { name: 'অক্টোবর ২০২৬ (নমুনা): আরও কাজ' }).click();
     await page.getByRole('menuitem', { name: 'মেয়াদ বাড়ান' }).click();
     await page.getByRole('textbox', { name: 'নতুন বন্ধের সময়' }).fill('2020-01-01T10:00');
-    await page.getByRole('button', { name: 'সংরক্ষণ করুন' }).click();
+    await page.getByRole('button', { name: 'সেভ করুন' }).click();
     await expect(page.getByRole('status')).toContainText('নতুন বন্ধের সময় এখনকার পরে হতে হবে।');
   });
 });

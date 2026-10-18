@@ -104,7 +104,7 @@ export default function CoCurricularSection({ programs, locale }: CoCurricularSe
           <Trophy className="w-8 h-8 text-accent-600" />
         </div>
         <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-          {locale === 'bengali' ? 'সহ-পাঠক্রমিক কার্যক্রম' : 'Co-curricular Activities'}
+          {locale === 'bengali' ? 'সহশিক্ষা কার্যক্রম' : 'Co-curricular Activities'}
         </h2>
         <p className="text-lg text-gray-600 max-w-3xl mx-auto leading-relaxed">
           {locale === 'bengali' 

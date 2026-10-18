@@ -36,13 +36,13 @@ const EVENT_LABEL: Record<string, string> = {
   submitted: 'ফর্ম জমা',
   reopened: 'জমার পর তথ্য বদলানো হয়েছে',
   payment_started: 'পেমেন্ট শুরু',
-  payment_session_failed: 'পেমেন্ট পাতা খোলা যায়নি',
+  payment_session_failed: 'পেমেন্ট পেজ খোলা যায়নি',
   paid: 'ফি পরিশোধ নিশ্চিত',
   payment_held_risk: 'পেমেন্ট ঝুঁকিপূর্ণ, যাচাই দরকার',
   payment_mismatch: 'পেমেন্টের পরিমাণ মেলেনি, যাচাই দরকার',
   double_payment: 'দ্বিতীয়বার পরিশোধ, ফেরত দিতে হবে',
   payment_needs_attention: 'পেমেন্ট হয়েছে, আইডি দেওয়া যায়নি',
-  email_confirmation: 'নিশ্চিতকরণ ইমেইল পাঠানো',
+  email_confirmation: 'আবেদনের ইমেইল পাঠানো',
   email_failed: 'ইমেইল পাঠানো যায়নি',
   status: 'অবস্থা বদল',
   attended: 'উপস্থিত',
@@ -89,7 +89,7 @@ export function eventText(kind: string, label: string, detail: Record<string, un
     case 'eval_fee':
       return d.receiptNo ? `${eventLabel(kind)} (রসিদ ${String(d.receiptNo)})` : eventLabel(kind);
     case 'email_confirmation':
-      return `নিশ্চিতকরণ ইমেইল পাঠানো হয়েছে${d.pdf ? ', আবেদনপত্র সংযুক্ত' : ''}`;
+      return `আবেদনের ইমেইল পাঠানো হয়েছে${d.pdf ? ', সঙ্গে আবেদনপত্র' : ''}`;
     case 'payment_started':
     case 'double_payment':
     case 'payment_released':

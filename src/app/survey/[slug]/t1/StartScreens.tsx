@@ -68,7 +68,7 @@ export function IntroScreen({ config, onStart }: { config: T1Config; onStart: ()
       <div className="flex flex-col gap-4" style={{ marginTop: 'auto', padding: '24px 24px calc(30px + env(safe-area-inset-bottom))' }}>
         <div className="flex gap-2.5" style={{ fontSize: 14.5, lineHeight: 1.6, color: 'var(--sv-text-body)' }}>
           <span style={{ flex: 'none', marginTop: 3 }}>{Icon.cloud()}</span>
-          <span>প্রতিটি মার্ক সাথে সাথে সংরক্ষিত হয়; যেকোনো সময় থেমে পরে আবার শুরু করতে পারবেন।</span>
+          <span>প্রতিটি মার্ক সাথে সাথে সেভ হয়; যেকোনো সময় থেমে পরে আবার শুরু করতে পারবেন।</span>
         </div>
         <button type="button" className="sv-cta" onClick={onStart}>
           শুরু করুন {Icon.next()}
@@ -84,7 +84,7 @@ const LOOKUP_ERRORS: Record<Exclude<LookupResult, { ok: true }>['reason'], strin
   'not-found': 'এই আইডির কোনো শিক্ষক তালিকায় নেই। আইডি কার্ড দেখে আবার লিখুন।',
   'rate-limited': 'অনেকবার চেষ্টা হয়েছে। কয়েক মিনিট পরে আবার চেষ্টা করুন।',
   closed: 'এই রাউন্ড এখন বন্ধ।',
-  network: 'ইন্টারনেট সংযোগ নেই। সংযোগ দেখে আবার চেষ্টা করুন।',
+  network: 'ইন্টারনেট নেই। কানেকশন দেখে আবার চেষ্টা করুন।',
 };
 
 /** The teacher types the ERP ID from their ID card and confirms the name it belongs to. */
@@ -274,7 +274,7 @@ export function ClassScreen({
   const resume = overview?.find((o) => o.status === 'draft');
   const chosen = ready ? statusOf(subjectKey!) : undefined;
   const size = placeChosen ? config.classSizes[sizeKey(classKey!, section ?? '')] ?? 0 : 0;
-  const ctaLabel = chosen?.status === 'submitted' ? 'জমা দেওয়া রিভিউ সংশোধন করুন' : chosen?.status === 'draft' ? 'খসড়া চালিয়ে যান' : 'শুরু করুন';
+  const ctaLabel = chosen?.status === 'submitted' ? 'জমা দেওয়া রিভিউ বদলান' : chosen?.status === 'draft' ? 'খসড়া চালিয়ে যান' : 'শুরু করুন';
 
   return (
     <main className="sv-screen">

@@ -10,7 +10,7 @@ export function NoRounds() {
         <EmptyState>
           এখনো কোনো শিক্ষক রিভিউ রাউন্ড খোলা হয়নি।{' '}
           <Link href="/admin/rounds" className={LINK}>
-            রাউন্ড পাতায়
+            রাউন্ড পেজে
           </Link>{' '}
           গিয়ে একটি রাউন্ড খুলুন।
         </EmptyState>

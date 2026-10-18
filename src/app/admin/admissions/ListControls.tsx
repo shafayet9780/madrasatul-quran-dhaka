@@ -145,7 +145,7 @@ export function PaidTable({ rows }: { rows: PaidRow[] }) {
     <>
       <div className="flex flex-wrap items-center gap-2 rounded-lg border py-2 pl-3.5 pr-2">
         <span className="mr-auto text-sm" aria-live="polite">
-          {ids.length ? `${bn(ids.length)}টি নির্বাচিত` : 'সারি নির্বাচন করে অবস্থা বদলান বা আবেদনপত্র নিন'}
+          {ids.length ? `${bn(ids.length)}টি সিলেক্ট করা` : 'সারি সিলেক্ট করে অবস্থা বদলান বা আবেদনপত্র নিন'}
         </span>
         <select
           aria-label="নতুন অবস্থা"
@@ -162,7 +162,7 @@ export function PaidTable({ rows }: { rows: PaidRow[] }) {
           ))}
         </select>
         <Button className="h-9" disabled={!ids.length || !next || pending} onClick={apply}>
-          প্রয়োগ করুন
+          বদলান
         </Button>
         {ids.length > 0 && ids.length <= MAX_PDFS ? (
           <Button asChild variant="outline" className="h-9 bg-white shadow-none">
@@ -188,7 +188,7 @@ export function PaidTable({ rows }: { rows: PaidRow[] }) {
           <thead>
             <tr className="[&>th]:h-10 [&>th]:whitespace-nowrap [&>th]:border-b [&>th]:px-3 [&>th]:text-left [&>th]:text-[13px] [&>th]:font-medium [&>th]:text-muted-foreground">
               <th className="w-5">
-                <Checkbox aria-label="সব নির্বাচন" checked={all} onCheckedChange={(v) => setSelected(v ? new Set(rows.map((r) => r.id)) : new Set())} />
+                <Checkbox aria-label="সব সিলেক্ট" checked={all} onCheckedChange={(v) => setSelected(v ? new Set(rows.map((r) => r.id)) : new Set())} />
               </th>
               <th>আইডি</th>
               <th>শিক্ষার্থী</th>
@@ -203,7 +203,7 @@ export function PaidTable({ rows }: { rows: PaidRow[] }) {
             {rows.map((r) => (
               <tr key={r.id} className={cn('hover:bg-[#fafafa] [&>td]:border-b [&>td]:px-3 [&>td]:py-2.5 [&>td]:align-middle', selected.has(r.id) && 'bg-muted hover:bg-muted')}>
                 <td>
-                  <Checkbox aria-label={`${r.publicRef} নির্বাচন`} checked={selected.has(r.id)} onCheckedChange={(v) => toggle(r.id, v === true)} />
+                  <Checkbox aria-label={`${r.publicRef} সিলেক্ট`} checked={selected.has(r.id)} onCheckedChange={(v) => toggle(r.id, v === true)} />
                 </td>
                 <td className={cn(LAT, 'font-medium')}>
                   <Link href={`/admin/admissions/${r.id}`} className="text-foreground no-underline hover:underline">
@@ -251,7 +251,7 @@ export function DeleteUnpaid({ id, name, from }: { id: string; name: string; fro
           <DialogHeader>
             <DialogTitle>আবেদনটি মুছে ফেলবেন?</DialogTitle>
             <DialogDescription>
-              {name}: ফর্মের তথ্য ও আপলোড করা কাগজ দুটোই মুছে যাবে, ফেরত আনা যাবে না। কার্যক্রমের তালিকায় শুধু মুছে ফেলার রেকর্ড থাকবে।
+              {name}: ফর্মের তথ্য ও আপলোড করা কাগজ দুটোই মুছে যাবে, ফেরত আনা যাবে না। আবেদনের ইতিহাসে শুধু মুছে ফেলার রেকর্ড থাকবে।
             </DialogDescription>
           </DialogHeader>
           {error && <p className="m-0 text-sm text-destructive">{error}</p>}

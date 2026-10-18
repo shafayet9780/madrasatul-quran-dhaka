@@ -36,7 +36,7 @@ export async function GuardianTracker({ roundId, rounds, place, now }: { roundId
   const kpis = [
     { label: 'সাড়া', value: `${bn(done)}/${bn(total)}`, note: `${bn(percent)}% শিক্ষার্থীর অভিভাবক`, href: null },
     { label: 'যাচাইকৃত', value: bn(verified), note: 'মোবাইল ERP-র সাথে মিলেছে', href: null },
-    { label: 'অযাচাইকৃত', value: bn(unverified.length), note: 'গণ্য, তবে আলাদা দেখানো', href: '#unverified' },
+    { label: 'যাচাই হয়নি', value: bn(unverified.length), note: 'গণ্য, তবে আলাদা দেখানো', href: '#unverified' },
     { label: 'একাধিক জমা', value: bn(multiple.length), note: 'সর্বশেষটি গণ্য', href: '#multiple' },
   ];
   const noNumber = chosen ? chosen.pending.filter((c) => !c.fatherMobile && !c.motherMobile).length : 0;
@@ -91,7 +91,7 @@ export async function GuardianTracker({ roundId, rounds, place, now }: { roundId
                 </h2>
                 <p className="m-0 text-[13.5px] text-muted-foreground">
                   {closed
-                    ? 'রাউন্ড বন্ধ, তাই বার্তা পাঠানো যাবে না। আরও সময় দিতে রাউন্ড পাতায় মেয়াদ বাড়ান।'
+                    ? 'রাউন্ড বন্ধ, তাই বার্তা পাঠানো যাবে না। আরও সময় দিতে রাউন্ড পেজে মেয়াদ বাড়ান।'
                     : 'প্রত্যেক অভিভাবককে আলাদা বার্তা পাঠান। গ্রুপে নাম তালিকা পাঠাবেন না। বার্তায় শুধু এই রাউন্ডের লিংক থাকে।'}
                 </p>
               </div>
@@ -149,9 +149,9 @@ export async function GuardianTracker({ roundId, rounds, place, now }: { roundId
         <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-2">
           <section id="unverified" className="flex scroll-mt-20 flex-col gap-2.5 rounded-xl border bg-card p-5" aria-labelledby="unverified-title">
             <h2 id="unverified-title" className="m-0 text-[15px] font-semibold">
-              অযাচাইকৃত জমা ({bn(unverified.length)})
+              যাচাই হয়নি এমন জমা ({bn(unverified.length)})
             </h2>
-            <p className="m-0 text-[13.5px] text-muted-foreground">প্রদানকারীর মোবাইল ERP-র বাবা বা মায়ের নম্বরের সাথে মেলেনি। জমা গণ্য হয়েছে; রিপোর্টে “শুধু যাচাইকৃত” ফিল্টারে বাদ যায়।</p>
+            <p className="m-0 text-[13.5px] text-muted-foreground">যিনি জমা দিয়েছেন, তাঁর মোবাইল ERP-র বাবা বা মায়ের নম্বরের সাথে মেলেনি। জমা গণ্য হয়েছে; রিপোর্টে “শুধু যাচাইকৃত” ফিল্টারে বাদ যায়।</p>
             {unverified.length === 0 && <p className="m-0 text-sm text-muted-foreground">নেই।</p>}
             {unverified.map((f) => (
               <div key={f.submissionId} className="flex flex-col border-t pt-2.5">
@@ -182,7 +182,7 @@ export async function GuardianTracker({ roundId, rounds, place, now }: { roundId
                   <div key={f.submissionId} className="flex flex-wrap items-center gap-2 text-[13.5px]">
                     <span className={cn('inline-flex h-[22px] items-center rounded-md border px-2 text-xs font-medium', f.current ? 'text-success' : 'text-muted-foreground')}>{f.current ? 'গণ্য' : 'আগের'}</span>
                     <span>
-                      {f.who} ({f.relation}) · {displayMobile(f.mobile)} · {f.verified ? 'যাচাইকৃত' : 'অযাচাইকৃত'}
+                      {f.who} ({f.relation}) · {displayMobile(f.mobile)} · {f.verified ? 'যাচাইকৃত' : 'যাচাই হয়নি'}
                     </span>
                     <span className="text-muted-foreground">{formatDateTime(f.submittedAt)}</span>
                     {f.current && m.forms.some((o) => !o.current && o.mobile !== f.mobile) && (

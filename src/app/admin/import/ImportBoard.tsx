@@ -80,7 +80,7 @@ export function ImportBoard() {
           setStage('preview');
         } else setError(result.error);
       } catch {
-        setError('যাচাই করা যায়নি। ইন্টারনেট সংযোগ দেখে আবার চেষ্টা করুন।');
+        setError('যাচাই করা যায়নি। ইন্টারনেট কানেকশন দেখে আবার চেষ্টা করুন।');
       }
       requestAnimationFrame(() => resultRef.current?.focus());
     });
@@ -100,7 +100,7 @@ export function ImportBoard() {
           setStage('done');
         } else setError(result.error);
       } catch {
-        setError('ইমপোর্ট হয়নি। ইন্টারনেট সংযোগ দেখে আবার চেষ্টা করুন।');
+        setError('ইমপোর্ট হয়নি। ইন্টারনেট কানেকশন দেখে আবার চেষ্টা করুন।');
       }
       requestAnimationFrame(() => resultRef.current?.focus());
     });
@@ -119,7 +119,7 @@ export function ImportBoard() {
   const tiles = preview
     ? [
         ['নতুন', preview.counts.adds],
-        ['হালনাগাদ', preview.counts.updates],
+        ['আপডেট', preview.counts.updates],
         ['অপরিবর্তিত', preview.counts.unchanged],
         ['নিষ্ক্রিয় হবে', preview.counts.deactivations],
         ['সমস্যা', preview.counts.problems],
@@ -146,7 +146,7 @@ export function ImportBoard() {
           </h2>
           <p style={{ margin: 0, fontSize: 14, color: 'var(--sv-text-body)', lineHeight: 1.6 }}>
             ERP-র Student List থেকে CSV বা Excel (.xlsx) ডাউনলোড করে এখানে দিন। দরকারি কলাম: ID, Roll, Name, Class, Section, Father Name, Father Contact,
-            Mother Contact (Photo উপেক্ষা করা হয়)। আগে যাচাই হবে; নিশ্চিত না করা পর্যন্ত কিছুই বদলাবে না।
+            Mother Contact (Photo কলাম নেওয়া হয় না)। আগে যাচাই হবে; নিশ্চিত না করা পর্যন্ত কিছুই বদলাবে না।
           </p>
           <label className="flex flex-col gap-1.5" style={{ fontSize: 13, fontWeight: 600 }}>
             ফাইল
@@ -181,7 +181,7 @@ export function ImportBoard() {
               <div style={{ fontSize: 13, color: 'var(--sv-text-muted)' }}>
                 {preview.sheetName ? `শিট “${preview.sheetName}” · ` : ''}
                 {bn(preview.rowCount)}টি সারি · কলাম মিলেছে: {preview.columns.join(', ')}
-                {preview.ignoredColumns.length ? ` · ${preview.ignoredColumns.join(', ')} উপেক্ষিত` : ''}
+                {preview.ignoredColumns.length ? ` · ${preview.ignoredColumns.join(', ')} বাদ` : ''}
               </div>
             </div>
             {stage === 'preview' && (
@@ -281,7 +281,7 @@ export function ImportBoard() {
               <div style={{ fontSize: 14, lineHeight: 1.7, color: 'var(--sv-text-body)' }}>
                 <List names={preview.addNames} />
               </div>
-              <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--sv-info)' }}>হালনাগাদ ({bn(preview.counts.updates)})</div>
+              <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--sv-info)' }}>আপডেট ({bn(preview.counts.updates)})</div>
               <div style={{ fontSize: 14, lineHeight: 1.7, color: 'var(--sv-text-body)' }}>{preview.updateSummary ? `${preview.updateSummary} বদলেছে` : '—'}</div>
               <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--sv-text-body)' }}>নিষ্ক্রিয় হবে ({bn(preview.counts.deactivations)})</div>
               <div style={{ fontSize: 14, lineHeight: 1.7, color: 'var(--sv-text-body)' }}>

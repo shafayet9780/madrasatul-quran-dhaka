@@ -96,11 +96,11 @@ export default function NCTBCurriculumSection({ programs, locale }: NCTBCurricul
           <GraduationCap className="w-10 h-10 text-white" />
         </div>
         <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
-          {locale === 'bengali' ? 'এনসিটিবি পাঠ্যক্রম' : 'NCTB Curriculum'}
+          {locale === 'bengali' ? 'এনসিটিবি কারিকুলাম' : 'NCTB Curriculum'}
         </h2>
         <p className="text-lg text-gray-600 max-w-3xl mx-auto leading-relaxed">
           {locale === 'bengali' 
-            ? 'জাতীয় শিক্ষাক্রম ও পাঠ্যপুস্তক বোর্ডের অনুমোদিত পাঠ্যক্রম অনুসরণে আধুনিক শিক্ষা'
+            ? 'জাতীয় শিক্ষাক্রম ও পাঠ্যপুস্তক বোর্ডের অনুমোদিত কারিকুলাম অনুসরণে আধুনিক শিক্ষা'
             : 'Modern education following the National Curriculum and Textbook Board approved syllabus'
           }
         </p>
@@ -150,7 +150,7 @@ export default function NCTBCurriculumSection({ programs, locale }: NCTBCurricul
             </h3>
             <p className="text-gray-500">
               {locale === 'bengali' 
-                ? 'অনুসন্ধান বা ফিল্টার পরিবর্তন করে আবার চেষ্টা করুন'
+                ? 'অন্য কিছু লিখে বা ফিল্টার বদলে আবার চেষ্টা করুন'
                 : 'Try changing your search or filter criteria'
               }
             </p>
@@ -331,7 +331,7 @@ export default function NCTBCurriculumSection({ programs, locale }: NCTBCurricul
                         </h5>
                         <p className="text-gray-700 text-sm leading-relaxed">
                           {locale === 'bengali' 
-                            ? 'আমাদের শিক্ষা পদ্ধতিতে এনসিটিবি পাঠ্যক্রমের প্রতিটি বিষয় ইসলামী শিক্ষার সাথে সুন্দরভাবে সমন্বিত। এর ফলে শিক্ষার্থীরা আধুনিক জ্ঞান অর্জনের পাশাপাশি ইসলামী মূল্যবোধ ও নৈতিকতাও শিখে থাকে।'
+                            ? 'আমাদের শিক্ষা পদ্ধতিতে এনসিটিবি কারিকুলামের প্রতিটি বিষয় ইসলামী শিক্ষার সাথে সুন্দরভাবে সমন্বিত। এর ফলে শিক্ষার্থীরা আধুনিক জ্ঞান অর্জনের পাশাপাশি ইসলামী মূল্যবোধ ও নৈতিকতাও শিখে থাকে।'
                             : 'In our educational approach, every NCTB curriculum subject is beautifully integrated with Islamic education. This enables students to acquire modern knowledge while also learning Islamic values and ethics.'
                           }
                         </p>

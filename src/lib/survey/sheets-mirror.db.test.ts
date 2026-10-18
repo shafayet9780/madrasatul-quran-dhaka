@@ -129,11 +129,11 @@ describe('mirrorPending for a guardian round', () => {
     get.mockResolvedValue({ data: { sheets: [{ properties: { title: 'Sheet1' } }] } });
     append.mockResolvedValue({});
     expect(await mirrorPending({ roundId: gRoundId })).toEqual({ mirrored: 2, failed: 0 });
-    expect(update.mock.calls[0][0].requestBody.values[0].slice(8, 12)).toEqual(['প্রদানকারী', 'সম্পর্ক', 'মোবাইল', 'যাচাই']);
+    expect(update.mock.calls[0][0].requestBody.values[0].slice(8, 12)).toEqual(['জমা দিয়েছেন', 'সম্পর্ক', 'মোবাইল', 'যাচাই']);
     const rows = append.mock.calls.map((call) => call[0].requestBody.values[0]);
     expect(rows.map((r) => [r[2], r[10], r[11], r[13]])).toEqual([
       ['আগের', '+8801700000009', 'যাচাইকৃত', 'প্রযোজ্য নয় (ডে কেয়ার)'],
-      ['বর্তমান', '+8801855000001', 'অযাচাইকৃত', 'প্রযোজ্য নয় (ডে কেয়ার)'],
+      ['বর্তমান', '+8801855000001', 'যাচাই হয়নি', 'প্রযোজ্য নয় (ডে কেয়ার)'],
     ]);
   });
 });

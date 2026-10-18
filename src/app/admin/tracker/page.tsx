@@ -59,7 +59,7 @@ export default async function TrackerPage({ searchParams }: { searchParams: Prom
           <EmptyState>
             এখনো কোনো রাউন্ড খোলা হয়নি।{' '}
             <Link href="/admin/rounds" className={LINK}>
-              রাউন্ড পাতায়
+              রাউন্ড পেজে
             </Link>{' '}
             গিয়ে একটি রাউন্ড খুলুন।
           </EmptyState>
@@ -202,7 +202,7 @@ export default async function TrackerPage({ searchParams }: { searchParams: Prom
                 <li key={d.id} className="flex items-start justify-between gap-3 border-b py-2.5 last:border-b-0">
                   <span className="flex flex-col">
                     <span className="font-medium">{d.title}</span>
-                    <span className="text-[13px] text-muted-foreground">{[d.teacherName, `শেষ সম্পাদনা ${formatDateTime(d.updatedAt)}`, d.device].filter(Boolean).join(' · ')}</span>
+                    <span className="text-[13px] text-muted-foreground">{[d.teacherName, `শেষ এডিট ${formatDateTime(d.updatedAt)}`, d.device].filter(Boolean).join(' · ')}</span>
                   </span>
                   {/* A by-level draft with nobody marked yet has no count to show. */}
                   {d.total > 0 && (

@@ -119,7 +119,7 @@ export function G2QuestionScreen({
         {title}
       </div>
       <div style={{ padding: '18px 16px 12px' }}>{choices}</div>
-      <div style={{ padding: '0 20px', fontSize: 13, color: 'var(--sv-ok)', fontWeight: 600 }}>এই ফোনে সংরক্ষিত</div>
+      <div style={{ padding: '0 20px', fontSize: 13, color: 'var(--sv-ok)', fontWeight: 600 }}>এই ফোনে সেভ হয়েছে</div>
       <div className="sv-footer" style={{ display: 'grid', gridTemplateColumns: '116px minmax(0, 1fr)', gap: 10 }}>
         <button type="button" className="sv-secondary" onClick={goBack}>
           আগের
@@ -134,7 +134,7 @@ export function G2QuestionScreen({
 
 export const SUBMIT_ERRORS: Record<SubmitError, string> = {
   closed: 'এই রিভিউ এখন বন্ধ, তাই জমা দেওয়া যায়নি।',
-  network: 'ইন্টারনেট সংযোগ নেই। আপনার উত্তর এই ফোনে রাখা আছে; সংযোগ ফিরলে আবার জমা দিন।',
+  network: 'ইন্টারনেট নেই। আপনার উত্তর এই ফোনে রাখা আছে; ইন্টারনেট ফিরলে আবার জমা দিন।',
   failed: 'জমা দেওয়া যায়নি। আবার চেষ্টা করুন।',
   incomplete: 'কিছু প্রশ্নের উত্তর বাকি আছে।',
   'rate-limited': 'এই মুহূর্তে অনেক রিভিউ জমা হচ্ছে। কয়েক মিনিট পরে আবার জমা দিন; আপনার উত্তর এই ফোনে রাখা আছে।',
@@ -225,7 +225,7 @@ export function G2ReviewScreen({
         <button type="button" className="sv-cta" disabled={missing.length > 0 || busy} aria-busy={busy || undefined} onClick={() => void submit()}>
           {busy ? 'জমা হচ্ছে…' : 'জমা দিন'}
         </button>
-        <div style={{ textAlign: 'center', fontSize: 13, color: 'var(--sv-text-muted)' }}>{dayMonth.format(new Date(config.closesAt))} পর্যন্ত সংশোধন করা যাবে</div>
+        <div style={{ textAlign: 'center', fontSize: 13, color: 'var(--sv-text-muted)' }}>{dayMonth.format(new Date(config.closesAt))} পর্যন্ত উত্তর বদলানো যাবে</div>
       </div>
     </main>
   );

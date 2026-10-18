@@ -9,7 +9,7 @@ import type { ActionResult } from './types';
 
 const roundId = z.uuid();
 const sanityRoundId = z.string().min(1).refine((id) => !id.startsWith('drafts.'));
-const invalid: ActionResult = { ok: false, errors: ['অনুরোধটি সঠিক নয়; পাতাটি আবার লোড করুন।'] };
+const invalid: ActionResult = { ok: false, errors: ['কিছু একটা গোলমাল হয়েছে; পেজটি আবার লোড করুন।'] };
 
 function done(message: string): ActionResult {
   revalidatePath('/admin/rounds');
@@ -47,5 +47,5 @@ export async function refreshListsAction(id: string): Promise<ActionResult> {
   await assertAdmin();
   if (!roundId.safeParse(id).success) return invalid;
   const result = await refreshRoundLists(id);
-  return result.ok ? done('শ্রেণি, বিষয় ও শিক্ষক তালিকা হালনাগাদ হয়েছে।') : result;
+  return result.ok ? done('শ্রেণি, বিষয় ও শিক্ষক তালিকা আপডেট হয়েছে।') : result;
 }

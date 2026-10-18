@@ -7,7 +7,7 @@ for (const locale of ['english', 'bengali']) {
     }) => {
       await page.goto(`/${locale}/${route}`);
       const navigation = page.getByRole('navigation', {
-        name: locale === 'english' ? 'On this page' : 'এই পৃষ্ঠায়',
+        name: locale === 'english' ? 'On this page' : 'এই পেজে',
       });
       await expect(navigation).toBeVisible();
       const section = route === 'admissions' ? 'fees' : 'plan';

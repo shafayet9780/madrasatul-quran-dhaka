@@ -91,7 +91,7 @@ build → screenshots → push.
   A4 PDF is one page with the sample data's largest class.
 - **Internal print**: a new page `/admin/reports/student/[erpId]/print`, opened by the student page's
   print button:
-  - header with school, student, round, print date and "অভ্যন্তরীণ";
+  - header with school, student, round, print date and "শুধু অফিসের জন্য";
   - attention, comparison, the three answer sets in full, teachers' notes, history (unfolded);
   - A4 portrait. A teacher table too wide for the page is split into parts that repeat the question
     column, so nothing is cut off;

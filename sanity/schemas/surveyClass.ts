@@ -58,7 +58,7 @@ export const surveyClass = defineType({
               name: 'byLevel',
               title: 'Taught by level',
               description:
-                'Tick when several teachers share this class for this subject (e.g. Arabic by level): each teacher rates only their own students. Press "তালিকা হালনাগাদ" on an open round to apply.',
+                'Tick when several teachers share this class for this subject (e.g. Arabic by level): each teacher rates only their own students. Press "তালিকা আপডেট" on an open round to apply.',
               type: 'boolean',
               initialValue: false,
             }),

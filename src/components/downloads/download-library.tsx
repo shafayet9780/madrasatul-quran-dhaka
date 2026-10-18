@@ -35,7 +35,7 @@ export function DownloadLibrary({
             <Info aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0" />
             <p>
               {bengali
-                ? 'এই সংগ্রহটি একটি শেয়ার করা লিংকের মাধ্যমে পাওয়া যাচ্ছে।'
+                ? 'এই ফাইলগুলো একটি শেয়ার করা লিংক দিয়ে পাওয়া যাচ্ছে।'
                 : 'This library is available through a shared link.'}
             </p>
           </div>

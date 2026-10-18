@@ -46,7 +46,7 @@ export default function IslamicStudiesSection({ programs, locale }: IslamicStudi
           <BookOpen className="w-10 h-10 text-white" />
         </div>
         <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
-          {locale === 'bengali' ? 'ইসলামী শিক্ষা পাঠ্যক্রম' : 'Islamic Studies Curriculum'}
+          {locale === 'bengali' ? 'ইসলামী শিক্ষার কারিকুলাম' : 'Islamic Studies Curriculum'}
         </h2>
         <p className="text-lg text-gray-600 max-w-3xl mx-auto leading-relaxed">
           {locale === 'bengali' 
@@ -236,7 +236,7 @@ export default function IslamicStudiesSection({ programs, locale }: IslamicStudi
                         {program.prerequisites && (
                           <div className="bg-amber-50 p-4 rounded-lg border border-amber-200">
                             <h5 className="font-semibold text-amber-800 mb-2">
-                              {locale === 'bengali' ? 'পূর্বশর্ত' : 'Prerequisites'}
+                              {locale === 'bengali' ? 'আগে যা জানা দরকার' : 'Prerequisites'}
                             </h5>
                             <p className="text-amber-700 text-sm leading-relaxed">
                               {getLocalizedText(program.prerequisites)}
@@ -247,7 +247,7 @@ export default function IslamicStudiesSection({ programs, locale }: IslamicStudi
                         {program.outcomes && (
                           <div className="bg-green-50 p-4 rounded-lg border border-green-200">
                             <h5 className="font-semibold text-green-800 mb-2">
-                              {locale === 'bengali' ? 'শিক্ষার ফলাফল' : 'Learning Outcomes'}
+                              {locale === 'bengali' ? 'যা শিখবে' : 'Learning Outcomes'}
                             </h5>
                             <ul className="text-green-700 text-sm space-y-1">
                               {(locale === 'bengali' ? program.outcomes.bengali : program.outcomes.english).map((outcome, index) => (

@@ -23,7 +23,7 @@ function useAction() {
         if (result.ok) after?.();
         else failed?.();
       } catch {
-        setMessage({ ok: false, text: 'কাজটি করা যায়নি। পাতাটি আবার লোড করে চেষ্টা করুন।' });
+        setMessage({ ok: false, text: 'কাজটি করা যায়নি। পেজটি আবার লোড করে চেষ্টা করুন।' });
         failed?.();
       }
     });
@@ -49,7 +49,7 @@ export function StatusForm({ id, status }: { id: string; status: ApplicationStat
           ))}
         </select>
         <Button className="h-9" disabled={pending || value === status} onClick={() => run(() => changeStatusAction([id], value))}>
-          সংরক্ষণ
+          সেভ করুন
         </Button>
       </div>
       {line}
@@ -155,7 +155,7 @@ export function AcceptHeld({ id, paymentId }: { id: string; paymentId: string })
     <div className="mt-2 flex flex-col gap-2">
       <label className="flex items-start gap-2 text-[13px] leading-snug">
         <input type="checkbox" checked={sure} onChange={(e) => setSure(e.target.checked)} className="mt-0.5 accent-primary" />
-        SSLCommerz প্যানেলে লেনদেনটি দেখেছি, টাকা ঠিকমতো এসেছে।
+        SSLCommerz প্যানেলে ট্রানজেকশনটি দেখেছি, টাকা ঠিকমতো এসেছে।
       </label>
       <Button className="h-9 self-start" disabled={!sure || pending} onClick={() => run(() => acceptHeldAction(id, paymentId))}>
         পেমেন্ট গ্রহণ করে আইডি দিন

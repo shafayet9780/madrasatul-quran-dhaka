@@ -137,7 +137,7 @@ export function T1Flow({ config, initial }: { config: T1Config; initial: FlowSta
     try {
       const response = await api.post<BatchState>('batch', key);
       if (response.status !== 200) {
-        setOpenError(response.status === 403 ? 'এই রাউন্ড এখন বন্ধ।' : 'খোলা যায়নি। পাতাটি আবার লোড করুন।');
+        setOpenError(response.status === 403 ? 'এই রাউন্ড এখন বন্ধ।' : 'খোলা যায়নি। পেজটি আবার লোড করুন।');
         return;
       }
       const batch = response.data;
@@ -155,7 +155,7 @@ export function T1Flow({ config, initial }: { config: T1Config; initial: FlowSta
       if (batch.status === 'submitted' || (batch.status === 'draft' && firstGap === -1)) go({ ...base, step: 'review', q: 0 });
       else go({ ...base, step: 'rate', q: Math.max(0, firstGap) });
     } catch {
-      setOpenError('ইন্টারনেট সংযোগ নেই। সংযোগ দেখে আবার চেষ্টা করুন।');
+      setOpenError('ইন্টারনেট নেই। কানেকশন দেখে আবার চেষ্টা করুন।');
     } finally {
       setOpening(false);
     }
@@ -270,10 +270,10 @@ export function T1Flow({ config, initial }: { config: T1Config; initial: FlowSta
       <main className="sv-screen" style={{ padding: 20, gap: 16, justifyContent: 'center' }}>
         <div role="alert" className="sv-card is-attention">
           <div style={{ fontSize: 16, fontWeight: 600 }}>
-            {session.loadError === 'closed' ? 'এই রাউন্ড এখন বন্ধ' : session.loadError === 'network' ? 'ইন্টারনেট সংযোগ নেই' : 'এই ক্লাসটি খোলা যায়নি'}
+            {session.loadError === 'closed' ? 'এই রাউন্ড এখন বন্ধ' : session.loadError === 'network' ? 'ইন্টারনেট নেই' : 'এই ক্লাসটি খোলা যায়নি'}
           </div>
           <div style={{ fontSize: 14.5, color: 'var(--sv-text-muted)', lineHeight: 1.55 }}>
-            {session.loadError === 'network' ? 'আপনার আগের কাজ সংরক্ষিত আছে। সংযোগ ফিরলে আবার চেষ্টা করুন।' : 'ক্লাস বাছাইয়ে ফিরে আবার চেষ্টা করুন।'}
+            {session.loadError === 'network' ? 'আপনার আগের কাজ সেভ করা আছে। ইন্টারনেট ফিরলে আবার চেষ্টা করুন।' : 'ক্লাস বাছাইয়ে ফিরে আবার চেষ্টা করুন।'}
           </div>
           <button type="button" className="sv-cta" onClick={() => (session.loadError === 'network' ? void session.reload() : toClass())}>
             {session.loadError === 'network' ? 'আবার চেষ্টা করুন' : 'ক্লাস বাছাইয়ে ফিরুন'}

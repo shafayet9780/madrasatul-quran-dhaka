@@ -39,13 +39,13 @@ export default async function ProgramsPage({ params }: ProgramsPageProps) {
         title={locale === 'bengali' ? 'একাডেমিক প্রোগ্রাম' : 'Academic Programs'}
         subtitle={
           locale === 'bengali'
-            ? 'ইসলামী শিক্ষা ও আধুনিক পাঠ্যক্রমের সমন্বয়ে সামগ্রিক শিক্ষা'
+            ? 'ইসলামী শিক্ষা ও আধুনিক কারিকুলামের সমন্বয়ে পূর্ণাঙ্গ শিক্ষা'
             : 'Comprehensive Education Combining Islamic Studies and Modern Curriculum'
         }
         chips={[
           { icon: <BookOpen className="h-4 w-4" />, label: locale === 'bengali' ? 'ইসলামী শিক্ষা' : 'Islamic Studies' },
-          { icon: <GraduationCap className="h-4 w-4" />, label: locale === 'bengali' ? 'এনসিটিবি পাঠ্যক্রম' : 'NCTB Curriculum' },
-          { icon: <Users className="h-4 w-4" />, label: locale === 'bengali' ? 'সহ-পাঠক্রমিক' : 'Co-curricular' },
+          { icon: <GraduationCap className="h-4 w-4" />, label: locale === 'bengali' ? 'এনসিটিবি কারিকুলাম' : 'NCTB Curriculum' },
+          { icon: <Users className="h-4 w-4" />, label: locale === 'bengali' ? 'সহশিক্ষা' : 'Co-curricular' },
         ]}
       />
 

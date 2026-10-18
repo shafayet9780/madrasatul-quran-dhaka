@@ -324,7 +324,7 @@ export function FormLine({ form, label }: { form: { who: string | null; relation
     <p className={MUTED}>
       {label} · {form.who}
       {form.relation ? ` (${form.relation})` : ''}
-      {form.submittedAt ? ` · ${formatDateTime(form.submittedAt)}` : ''} · <b className={cn('font-semibold', form.verified ? 'text-success' : 'text-warning')}>{form.verified ? 'যাচাইকৃত' : 'অযাচাইকৃত'}</b>
+      {form.submittedAt ? ` · ${formatDateTime(form.submittedAt)}` : ''} · <b className={cn('font-semibold', form.verified ? 'text-success' : 'text-warning')}>{form.verified ? 'যাচাইকৃত' : 'যাচাই হয়নি'}</b>
     </p>
   );
 }
@@ -354,7 +354,7 @@ export function History({ data }: { data: StudentPage }) {
     ...guardian.log.map((entry) => ({
       kind: KIND_LABEL[entry.kind as keyof typeof KIND_LABEL],
       who: submittedBy(entry),
-      when: `${entry.roundLabel}${entry.submittedAt ? ` · ${formatDateTime(entry.submittedAt)}` : ''} · ${entry.verified ? 'যাচাইকৃত' : 'অযাচাইকৃত'}`,
+      when: `${entry.roundLabel}${entry.submittedAt ? ` · ${formatDateTime(entry.submittedAt)}` : ''} · ${entry.verified ? 'যাচাইকৃত' : 'যাচাই হয়নি'}`,
       status: (entry.supersededBy ? 'superseded' : 'current') as keyof typeof STATUS,
     })),
     ...report.log.map((entry) => ({

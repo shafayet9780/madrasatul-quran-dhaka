@@ -41,7 +41,7 @@ test.describe('analytics', () => {
       await acceptButton.click();
     } else {
       await page.getByRole('button', { name: /Cookie preferences|কুকি পছন্দ/i }).click();
-      await page.getByRole('button', { name: /Save preferences|পছন্দ সংরক্ষণ/i }).click();
+      await page.getByRole('button', { name: /Save preferences|সেভ করুন/i }).click();
     }
 
     await page.waitForFunction(() => {

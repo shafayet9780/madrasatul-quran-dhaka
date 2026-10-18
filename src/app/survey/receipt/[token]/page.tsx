@@ -51,7 +51,7 @@ export default async function ReceiptPage({ params }: { params: Promise<{ token:
       {replacedBy && (
         <div className="sv-banner is-info sv-no-print" style={{ margin: '18px 16px 0' }}>
           <span>
-            এই রিভিউ পরে সংশোধন করা হয়েছে। <Link href={`/survey/receipt/${replacedBy}`}>নতুন রসিদ দেখুন</Link>
+            এই রিভিউ পরে বদলানো হয়েছে। <Link href={`/survey/receipt/${replacedBy}`}>নতুন রসিদ দেখুন</Link>
           </span>
         </div>
       )}
@@ -150,13 +150,13 @@ export default async function ReceiptPage({ params }: { params: Promise<{ token:
 
       <div className="flex flex-col gap-2.5 sv-no-print" style={{ padding: '18px 16px 0' }}>
         <div style={{ fontSize: 13.5, color: 'var(--sv-text-muted)', textAlign: 'center', lineHeight: 1.6 }}>
-          এই পাতার লিংকটি সংরক্ষণ করুন। পরে রসিদ দেখতে বা সংশোধন করতে এটি লাগবে।
+          এই পেজের লিংকটি সেভ করে রাখুন। পরে রসিদ দেখতে বা উত্তর বদলাতে এটি লাগবে।
         </div>
         <PrintButton />
-        <div style={{ fontSize: 13, color: 'var(--sv-text-muted)', textAlign: 'center' }}>iPhone: শেয়ার বাটন → প্রিন্ট → PDF হিসেবে সংরক্ষণ</div>
+        <div style={{ fontSize: 13, color: 'var(--sv-text-muted)', textAlign: 'center' }}>iPhone: শেয়ার বাটন → প্রিন্ট → PDF হিসেবে সেভ</div>
         {canEdit && (
           <Link className="sv-secondary" href={editHref}>
-            সংশোধন করুন ({dayMonth.format(round.closesAt)} পর্যন্ত)
+            উত্তর বদলান ({dayMonth.format(round.closesAt)} পর্যন্ত)
           </Link>
         )}
         {canEdit && (

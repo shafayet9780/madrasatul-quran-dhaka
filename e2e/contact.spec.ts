@@ -16,7 +16,7 @@ for (const locale of ['english', 'bengali']) {
     expect(await main.locator('a[href^="mailto:"]').count()).toBeGreaterThanOrEqual(1);
     // Google's map loads only when asked for.
     await expect(main.locator('iframe')).toHaveCount(0);
-    await main.getByRole('button', { name: locale === 'english' ? 'Show the map' : 'মানচিত্র দেখান' }).click();
+    await main.getByRole('button', { name: locale === 'english' ? 'Show the map' : 'ম্যাপ দেখুন' }).click();
     await expect(main.locator('iframe[src^="https://www.google.com/maps/embed"]')).toBeVisible();
     for (const width of [320, 390, 1280]) {
       await page.setViewportSize({ width, height: 900 });

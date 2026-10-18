@@ -25,7 +25,7 @@ export function GuardianDeskHeader({ config, child, submitter, verified }: { con
           <span style={{ fontWeight: 600 }}>{child}</span>
           <span style={{ color: 'var(--sv-text-muted)' }}>{submitter}</span>
           {verified && <span className="sv-chip is-ok">যাচাইকৃত</span>}
-          <span style={{ fontSize: 13, color: 'var(--sv-ok)', fontWeight: 600 }}>এই ডিভাইসে সংরক্ষিত</span>
+          <span style={{ fontSize: 13, color: 'var(--sv-ok)', fontWeight: 600 }}>এই ডিভাইসে সেভ হয়েছে</span>
         </div>
       </div>
     </header>

@@ -35,7 +35,7 @@ At the bottom of the overview. **এই ডিভাইসে ফর্ম খ�
 - All answers, grouped as in the form, with the documents. Documents are private: they open only from the admin.
   - A document the guardian ticked "don't have it now" for (birth certificate, result card) shows **জমা দেওয়া হয়নি, সঙ্গে আনবেন**: collect it on assessment day.
   - Transport shows the stop, the route, the vehicle and the monthly charge the guardian saw when applying, or the area they typed if their area is not on any route.
-- **অবস্থা**: change and **সংরক্ষণ**.
+- **অবস্থা**: change and **সেভ করুন**.
 - **অ্যাসেসমেন্টের দিন**: switch on **উপস্থিত** when the child arrives, and **অ্যাসেসমেন্ট ফি গৃহীত** when the ৳500 cash fee is paid (type the receipt number first, if there is one). Both can be switched off again if pressed by mistake; every change is logged.
 - **পেমেন্ট**: every attempt with its SSLCommerz transaction IDs. *যাচাই দরকার* means SSLCommerz flagged the payment as risky or the amount did not match: check the transaction in the SSLCommerz merchant panel, then tick the box and press **পেমেন্ট গ্রহণ করে আইডি দিন**. If the payment was not genuine, refund it from the SSLCommerz panel and leave the application unpaid.
 - **ইমেইল আবার পাঠান**: sends the confirmation email with the PDF again (e.g. the guardian deleted it).

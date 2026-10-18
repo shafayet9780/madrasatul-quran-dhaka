@@ -545,7 +545,7 @@ How to get here (`src/components/contact/contact-find.tsx`, `#find`), on `dark`.
 
 - **Opening:** the homepage's "উত্তরা সেন্টার মেট্রো স্টেশন থেকে ৬০০ মিটার পূর্বে" as the H2 and the short address (`home.campus.where`).
 - **Left:** the homepage's walk sketch (`WalkSketch`, `src/components/site/walk-sketch.tsx`, shared with Campus) in a `panel` card, no wider than 560px; under it the landmarks from Site Settings → location, each a `line-dark` row with a `bronze-light` train icon, the name, and the distance in the page's language ("600m" → ৬০০ মি.).
-- **Right:** the map. Google's map loads only when asked for (`MapOnTap`): a `panel` box with "মানচিত্র দেখান" (`light` pill) and a note that tapping loads Google Maps; then the embed from Site Settings (only a `google.com/maps/embed` address), and focus moves to it. Under it "দিকনির্দেশনা" (`light`, Google directions to the school) and "গুগল ম্যাপে দেখুন" (`outline-dark`, Site Settings' map link), both in a new tab.
+- **Right:** the map. Google's map loads only when asked for (`MapOnTap`): a `panel` box with "ম্যাপ দেখুন" (`light` pill) and a note that tapping loads Google Maps; then the embed from Site Settings (only a `google.com/maps/embed` address), and focus moves to it. Under it "দিকনির্দেশনা" (`light`, Google directions to the school) and "গুগল ম্যাপে দেখুন" (`outline-dark`, Site Settings' map link), both in a new tab.
 - Copy: `contact.find`.
 
 ### ContactMore

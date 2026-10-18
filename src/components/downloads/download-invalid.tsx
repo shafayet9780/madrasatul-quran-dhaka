@@ -10,11 +10,11 @@ export function DownloadInvalid({ locale }: { locale: string }) {
             <Link2Off aria-hidden="true" className="h-7 w-7" />
           </span>
           <h1 className="mt-6 text-2xl font-bold text-gray-900 md:text-3xl">
-            {bengali ? 'লিংকটি অবৈধ অথবা মেয়াদ শেষ' : 'Link invalid or expired'}
+            {bengali ? 'লিংকটি কাজ করছে না বা মেয়াদ শেষ' : 'Link invalid or expired'}
           </h1>
           <p className="mt-4 leading-7 text-gray-600">
             {bengali
-              ? 'এই ডাউনলোড সংগ্রহটি দেখতে একটি সক্রিয় শেয়ার করা লিংক প্রয়োজন। নতুন লিংকের জন্য যিনি এটি শেয়ার করেছেন তার সাথে যোগাযোগ করুন।'
+              ? 'এই ফাইলগুলো দেখতে চালু থাকা একটি লিংক লাগবে। যিনি লিংকটি পাঠিয়েছেন, তাঁর কাছে নতুন লিংক চেয়ে নিন।'
               : 'An active shared link is required to view this downloads library. Ask the person who shared it for a new link.'}
           </p>
         </div>
