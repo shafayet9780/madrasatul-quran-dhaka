@@ -37,6 +37,19 @@ for (const path of ['/english/programs', '/bengali/news']) {
   });
 }
 
+// An unknown address, or a missing profile or article, gets the site's 404 page inside the header and footer.
+for (const [path, heading] of [
+  ['/bengali/no-such-page', 'পেজটি পাওয়া যায়নি'],
+  ['/english/teachers/no-such-teacher', "This page isn't here"],
+]) {
+  test(`${path} shows the 404 page`, async ({ page }) => {
+    const res = await page.goto(path);
+    expect(res?.status()).toBe(404);
+    await expect(page.locator('h1')).toHaveText(heading);
+    await expect(page.getByRole('link', { name: /হোম পেজে যান|Go to the home page/ })).toBeVisible();
+  });
+}
+
 test('studio route loads without an application error', async ({ page }) => {
   const res = await page.goto('/studio');
   expect(res?.status()).toBeLessThan(400);

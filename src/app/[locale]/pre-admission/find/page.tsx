@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { getTranslations } from 'next-intl/server';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { CircleAlert } from 'lucide-react';
 import { FindForm } from '@/components/pre-admission/find-form';
 import { FlowShell } from '@/components/pre-admission/flow-shell';
@@ -15,6 +15,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function FindPage({ params, searchParams }: Props) {
   const locale = asLocale((await params).locale);
+  setRequestLocale(locale);
   const { link } = await searchParams;
   const t = await getTranslations({ locale, namespace: 'preAdmission' });
   const cycle = await safeCurrentCycle();

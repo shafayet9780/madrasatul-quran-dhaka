@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { getTranslations } from 'next-intl/server';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import type { Locale } from '@/lib/i18n';
 import { generatePageMetadata } from '@/lib/page-metadata';
 import { getDirectors } from '@/lib/queries/directors';
@@ -32,6 +32,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
  */
 export default async function AboutPage({ params }: Props) {
   const { locale } = await params;
+  setRequestLocale(locale);
   const [directors, advisors, { visibility }] = await Promise.all([getDirectors(), getAdvisors(), getPeoplePageData()]);
   const showBoard = isSectionVisible('directors', visibility);
   const showAdvisors = isSectionVisible('advisors', visibility);

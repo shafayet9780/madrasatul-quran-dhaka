@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { getTranslations } from 'next-intl/server';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import type { Locale } from '@/lib/i18n';
 import { generatePageMetadata } from '@/lib/page-metadata';
 import { getContentService } from '@/lib/content-service';
@@ -24,6 +24,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
  */
 export default async function ContactPage({ params }: Props) {
   const { locale } = await params;
+  setRequestLocale(locale);
   const settings = await getContentService(false).getSiteSettings();
   const details = contactDetails(settings, locale);
   const social = (settings?.socialMedia ?? []).filter((s) => s.isActive).sort((a, b) => (a.order ?? 0) - (b.order ?? 0));

@@ -13,8 +13,8 @@ test.describe('Studio document language', () => {
     expect(response.status()).toBe(200);
     expect(await response.text()).toMatch(/<html[^>]*lang="en"/);
     await page.goto('/studio/structure');
+    // Studio has its own root layout (src/app/studio/layout.tsx), without the public site's fonts.
     await expect(page.locator('html')).toHaveAttribute('lang', 'en');
-    await expect(page.locator('body')).toHaveClass(/font-english/);
   });
 });
 

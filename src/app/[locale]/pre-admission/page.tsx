@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { getTranslations } from 'next-intl/server';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { ArrowRight, Camera, ChevronDown, Clock, FileText, Smartphone } from 'lucide-react';
 import { Button } from '@/components/shadcn/button';
 import { getContentService } from '@/lib/content-service';
@@ -34,6 +34,7 @@ function statusLine(cycle: CycleState | null, locale: Locale, t: Awaited<ReturnT
 
 export default async function PreAdmissionIntro({ params }: Props) {
   const locale = asLocale((await params).locale);
+  setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: 'preAdmission.intro' });
   const [cycle, current, facilities] = await Promise.all([
     safeCurrentCycle(),

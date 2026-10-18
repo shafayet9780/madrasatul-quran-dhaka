@@ -20,6 +20,48 @@
         ],
         "createdAt": "2026-10-18T02:38:21.370Z",
         "reason": "Owner approved the FinalAlbum canvas board (2026-10-18): the teacher's quote has a 4px bronze rule on the left; it marks a blockquote, not a card"
+      },
+      {
+        "rule": "design-system-font",
+        "value": "noto sans arabic",
+        "createdAt": "2026-10-18T04:21:00.167Z",
+        "reason": "Pre-existing old-design style in globals.css (.font-arabic); CLAUDE.md keeps the old globals until every page is redesigned. Flagged only because this change added an @import line to the file."
+      },
+      {
+        "rule": "design-system-font",
+        "value": "mq anek bangla",
+        "files": [
+          "src/styles/fonts.css"
+        ],
+        "createdAt": "2026-10-18T09:00:00.000Z",
+        "reason": "Claude: the self-hosted Anek Bangla and Tiro Bangla (DESIGN.md typography) under the site's own family names, so they never mix with the admin's next/font Anek Bangla"
+      },
+      {
+        "rule": "design-system-font",
+        "value": "mq tiro bangla",
+        "files": [
+          "src/styles/fonts.css"
+        ],
+        "createdAt": "2026-10-18T09:00:00.000Z",
+        "reason": "Claude: the self-hosted Anek Bangla and Tiro Bangla (DESIGN.md typography) under the site's own family names, so they never mix with the admin's next/font Anek Bangla"
+      },
+      {
+        "rule": "design-system-font",
+        "value": "mq anek bangla fallback",
+        "files": [
+          "src/styles/fonts.css"
+        ],
+        "createdAt": "2026-10-18T09:00:00.000Z",
+        "reason": "Claude: the self-hosted Anek Bangla and Tiro Bangla (DESIGN.md typography) under the site's own family names, so they never mix with the admin's next/font Anek Bangla"
+      },
+      {
+        "rule": "design-system-font",
+        "value": "mq tiro bangla fallback",
+        "files": [
+          "src/styles/fonts.css"
+        ],
+        "createdAt": "2026-10-18T09:00:00.000Z",
+        "reason": "Claude: the self-hosted Anek Bangla and Tiro Bangla (DESIGN.md typography) under the site's own family names, so they never mix with the admin's next/font Anek Bangla"
       }
     ]
   }

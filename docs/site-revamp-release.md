@@ -29,11 +29,11 @@ curl -sI https://madrasatulquranbd.com/bengali | grep -i "^HTTP\|location"      
 
 ## 2. Performance work left for the redesign
 
-Found in the same audit. Each touches every page, so it goes with the page redesigns:
+Found in the same audit; all three done on 2026-10-18 (results in section 3):
 
-- **Cached pages.** Every `[locale]` route renders on each request (`Cache-Control: no-store`, rendered in Singapore, about 0.35 s to the first byte). Static pages refreshed every 60 s need `setRequestLocale` and `generateStaticParams` in each layout and page. (`cacheComponents` stays off; see CLAUDE.md.)
-- **Only the page's own text in the browser.** `src/app/[locale]/layout.tsx` sends all of `messages/{locale}.json` to the client (about 20 KB compressed, a fifth of the homepage HTML). Send the shared namespaces (`site`, `admissionCta`, `analytics`) from the layout and each page's own namespaces from the page.
-- **A lighter Bengali font.** Anek Bangla is 153 KB. Trim it to the characters and weights the site uses.
+- **Cached pages.** Every `[locale]` route rendered on each request (`Cache-Control: no-store`, rendered in Singapore, about 0.35 s to the first byte). Now the pages are built ahead of time and refreshed every 60 s (`setRequestLocale` in each layout and page; `[locale]/layout.tsx` is the root layout; the visitor's country comes from a cookie). Pre-admission and downloads still render on each visit. (`cacheComponents` stays off; see CLAUDE.md.)
+- **Only the page's own text in the browser.** The layout sent all of `messages/{locale}.json` to the client (about 20 KB compressed, a fifth of the homepage HTML). Now it sends the shared namespaces (`admissionCta`, `analytics.consent`, `preview`), and pre-admission, teachers and news add their own (`src/lib/i18n-messages.ts`).
+- **A lighter Bengali font.** Anek Bangla was 153 KB. Trimming it to the characters the site uses isn't possible, since the CMS text can use any of them. It is now self-hosted at weights 400 to 800 (138 KB) and preloaded on Bengali pages only, so an English page no longer downloads it. Tiro Bangla is one 54 KB file with its own spaces and punctuation, replacing Google's file plus a 20 KB Latin one.
 
 ## 3. Audit of 2026-10-18 (design-revamp, local production build)
 
@@ -45,8 +45,8 @@ Lighthouse on eight pages (phone and desktop) and a crawl of the sitemap and eve
   - Page titles end with the school's name in the page's language (`[locale]/layout.tsx`); the English homepage title is under 60 characters.
   - The privacy and cookie pages have canonical links and hreflang.
   - The old News and Programs pages are `noindex` until they are redesigned, and Programs follows its Site Settings switch.
-- **Still to do, with section 2:**
-  - Fonts are the heaviest part of a page (about 270 KB on the homepage: Anek Bangla 153 KB, Anek Latin 44 KB, Tiro Bangla 54 KB plus a 20 KB Latin file for the spaces in quotations).
+- **After section 2 (same day, same eight pages):** phone scores 84 to 93 (from 79 to 89), LCP 3.2 to 4.5 s (from 3.7 to 5.2 s); desktop 99 to 100. Server response under 40 ms on the cached pages (it was up to 200 ms). The HTML is 18 to 20 KB smaller on every page. Fonts on a Bengali page are 182 to 237 KB (from 197 to 270), and on an English page 44 KB (from 197); the English homepage now sends 397 KB in all (from 582). The JavaScript grew by about 5 KB with the new 404 page's boundary.
+- **Still to do:**
   - Pre-admission asks the database for the intake status on every visit (200 to 600 ms), so its metadata sometimes arrives after the head.
   - Turn on Vercel Speed Insights (commented out in `src/app/[locale]/layout.tsx`) to see what parents' phones actually get.
   - Longer descriptions on the director pages (36 to 88 characters) and pre-admission (70).

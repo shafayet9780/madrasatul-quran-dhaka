@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { getTranslations } from 'next-intl/server';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import type { Locale } from '@/lib/i18n';
 import { generatePageMetadata } from '@/lib/page-metadata';
 import { getContentService } from '@/lib/content-service';
@@ -14,9 +14,15 @@ import { albumIn, albumsIn, galleryWords, shareImage } from '@/components/galler
 import { AlbumPhotos } from '@/components/gallery/album-photos';
 import { ShareAlbum } from '@/components/gallery/share-album';
 import { Icon } from '@/components/site/icon';
+import { QuoteText } from '@/components/site/quote-text';
 import { cn } from '@/lib/utils';
 
 type Props = { params: Promise<{ locale: Locale; slug: string }> };
+
+// Built on its first visit, then cached and refreshed from the CMS like the other pages.
+export function generateStaticParams() {
+  return [];
+}
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale, slug } = await params;
@@ -41,6 +47,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
  */
 export default async function AlbumPage({ params }: Props) {
   const { locale, slug } = await params;
+  setRequestLocale(locale);
   const content = getContentService(false);
   const [settings, raw, list] = await Promise.all([content.getSiteSettings(), content.getAlbum(slug), content.getAlbums()]);
   if (!isSectionVisible('gallery', settings?.navigationVisibility) || !raw) notFound();
@@ -113,7 +120,9 @@ export default async function AlbumPage({ params }: Props) {
           {album.quote && (
             <figure className="mx-auto mt-11 flex max-w-[820px] flex-col gap-[18px] border-l-4 border-bronze pl-[18px] md:mt-16 md:pl-7">
               <blockquote className="m-0">
-                <p className="m-0 font-quote text-quote text-ink">{album.quote.text}</p>
+                <p className={cn('m-0 text-quote text-ink', locale === 'bengali' && 'font-quote')}>
+                  <QuoteText text={album.quote.text} />
+                </p>
               </blockquote>
               {album.quote.by && <figcaption className="text-15 font-strong text-ink-muted">{album.quote.by}</figcaption>}
             </figure>

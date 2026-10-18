@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import createMiddleware from 'next-intl/middleware'
+import { COUNTRY_COOKIE } from '@/lib/analytics/country'
 import {
   isValidStudioAuthorization,
   studioAuthConfigured,
@@ -61,20 +62,26 @@ export function proxy(request: NextRequest) {
     return withLocale(request, 'bengali')
   }
 
-  // Handle internationalization for all other routes
-  return intlMiddleware(request)
+  // Handle internationalization for all other routes. The visitor's country goes into a cookie for the consent
+  // defaults, read in the browser, so the pages themselves stay cacheable.
+  const response = intlMiddleware(request)
+  const country = request.headers.get('x-vercel-ip-country')
+  if (country && request.cookies.get(COUNTRY_COOKIE)?.value !== country) {
+    response.cookies.set(COUNTRY_COOKIE, country, { path: '/', sameSite: 'lax', maxAge: 60 * 60 * 24 * 30 })
+  }
+  return response
 }
 
 export const config = {
   matcher: [
     // Match all pathnames except for
     // - api routes
-    // - images/ (public image assets)
+    // - images/ and fonts/ (public assets)
     // - _next/static (static files)
     // - _next/image (image optimization files)
     // - favicon.ico (favicon file)
     // - sitemap.xml (SEO sitemap)
     // - robots.txt (SEO robots)
-    '/((?!api|images/|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt).*)',
+    '/((?!api|images/|fonts/|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt).*)',
   ],
 }

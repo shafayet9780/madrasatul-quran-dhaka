@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { getTranslations } from 'next-intl/server';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { ChevronDown, CircleAlert } from 'lucide-react';
 import { FlowShell } from '@/components/pre-admission/flow-shell';
 import { ReviewSubmit } from '@/components/pre-admission/review-submit';
@@ -24,6 +24,7 @@ const SHOWN = 4;
 
 export default async function ReviewPage({ params }: Props) {
   const locale = asLocale((await params).locale);
+  setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: 'preAdmission' });
   const { app, snapshot } = await requireDraft(locale);
   const { settings } = snapshot;

@@ -2,12 +2,18 @@ import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getNewsEventBySlug } from '@/lib/queries/news-events';
 import { NewsArticlePage } from '@/components/news-events/news-article-page';
+import { setRequestLocale } from 'next-intl/server';
 
 interface Props {
   params: Promise<{
     locale: string;
     slug: string;
   }>;
+}
+
+// Built on its first visit, then cached and refreshed from the CMS like the other pages.
+export function generateStaticParams() {
+  return [];
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -32,6 +38,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function NewsArticle({ params }: Props) {
   const { locale, slug } = await params;
+  setRequestLocale(locale);
   const language = locale as 'bengali' | 'english';
   
   const newsEvent = await getNewsEventBySlug(slug, language);

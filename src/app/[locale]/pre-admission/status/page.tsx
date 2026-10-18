@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import { getTranslations } from 'next-intl/server';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { CircleAlert, CircleCheck, Clock, ShieldCheck, Square } from 'lucide-react';
 import { ConfirmationTasks, CopyId } from '@/components/pre-admission/confirmation-tasks';
 import { FlowShell } from '@/components/pre-admission/flow-shell';
@@ -36,6 +36,7 @@ const methodName = (cardType: string | null) => (cardType ? (cardType.split('-')
 
 export default async function StatusPage({ params, searchParams }: Props) {
   const locale = asLocale((await params).locale);
+  setRequestLocale(locale);
   const { payment: notice } = await searchParams;
   const t = await getTranslations({ locale, namespace: 'preAdmission' });
   const current = await currentApplication().catch(() => null);

@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { getTranslations } from 'next-intl/server';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { FlowShell } from '@/components/pre-admission/flow-shell';
 import { StartForm } from '@/components/pre-admission/start-form';
 import { Button } from '@/components/shadcn/button';
@@ -17,6 +17,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function StartPage({ params }: Props) {
   const locale = asLocale((await params).locale);
+  setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: 'preAdmission' });
   const [cycle, current] = await Promise.all([safeCurrentCycle(), currentApplication().catch(() => null)]);
   const open = !!cycle && cycle.enabled && cycle.window === 'open';

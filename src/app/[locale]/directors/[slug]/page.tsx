@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { getTranslations } from 'next-intl/server';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import type { Locale } from '@/lib/i18n';
 import { urlFor } from '@/lib/sanity';
 import { getDirectorBySlug, getDirectors } from '@/lib/queries/directors';
@@ -19,6 +19,11 @@ import { ButtonLink } from '@/components/site/button';
 import { Icon } from '@/components/site/icon';
 
 type Props = { params: Promise<{ locale: Locale; slug: string }> };
+
+// Built on its first visit, then cached and refreshed from the CMS like the other pages.
+export function generateStaticParams() {
+  return [];
+}
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale, slug } = await params;
@@ -40,6 +45,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
  */
 export default async function DirectorProfile({ params }: Props) {
   const { locale, slug } = await params;
+  setRequestLocale(locale);
   const [director, directors, { visibility }] = await Promise.all([getDirectorBySlug(slug, locale), getDirectors(), getPeoplePageData()]);
   if (!director || director.showDetailPage === false || !isSectionVisible('directors', visibility)) notFound();
 

@@ -56,6 +56,11 @@ const nextConfig: NextConfig = {
           { key: 'Cache-Control', value: 'private, no-store' },
         ],
       })),
+      // The self-hosted fonts (src/styles/fonts.css): a new file gets a new name, so they keep for a year.
+      {
+        source: '/fonts/:path*',
+        headers: [{ key: 'Cache-Control', value: 'public, max-age=31536000, immutable' }],
+      },
       {
         source: '/:locale(bengali|english)/downloads/:path*',
         headers: [

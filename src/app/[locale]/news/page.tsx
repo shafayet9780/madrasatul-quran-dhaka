@@ -1,5 +1,5 @@
 import { Metadata } from 'next';
-import { getTranslations } from 'next-intl/server';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { NewsEventsPage } from '@/components/news-events';
 
 export async function generateMetadata({
@@ -19,6 +19,7 @@ export async function generateMetadata({
   };
 }
 
-export default function NewsPage() {
+export default async function NewsPage({ params }: { params: Promise<{ locale: string }> }) {
+  setRequestLocale((await params).locale);
   return <NewsEventsPage />;
 }

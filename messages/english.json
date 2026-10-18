@@ -1455,6 +1455,12 @@
   },
   "site": {
     "skip": "Skip to the content",
+    "notFound": {
+      "title": "This page isn't here",
+      "lead": "The link may be old, or the address may have a typo. The home page has everything on the site.",
+      "home": "Go to the home page",
+      "contact": "Contact us"
+    },
     "schoolName": "Madrasatul Quran",
     "place": "Uttara, Dhaka",
     "navLabel": "Main",

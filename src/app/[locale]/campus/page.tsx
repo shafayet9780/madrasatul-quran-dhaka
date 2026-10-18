@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { getTranslations } from 'next-intl/server';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import type { Locale } from '@/lib/i18n';
 import { generatePageMetadata } from '@/lib/page-metadata';
 import { getContentService } from '@/lib/content-service';
@@ -27,6 +27,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
  */
 export default async function CampusPage({ params }: Props) {
   const { locale } = await params;
+  setRequestLocale(locale);
   const content = getContentService(false);
   const [settings, studio, home] = await Promise.all([content.getSiteSettings(), content.getCampusDay(), content.getHomePage()]);
   if (!isSectionVisible('campus', settings?.navigationVisibility)) notFound();

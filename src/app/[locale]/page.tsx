@@ -2,7 +2,7 @@ import { generatePageMetadata } from '@/lib/page-metadata';
 import type { Locale } from '@/lib/i18n';
 import { Metadata } from 'next';
 import { draftMode } from 'next/headers';
-import { getTranslations } from 'next-intl/server';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { Hero, NumbersBand, EducationModel, StudyPlan, SchoolDay, Campus, Why, Founder, Reviews, Faq, PreAdmissionCard } from '@/components/homepage';
 import { transportPhone, visibleRoutes } from '@/lib/home/day';
 import { getAdmissionsContact } from '@/lib/admissions-contact';
@@ -26,6 +26,7 @@ export async function generateMetadata({params}: {params:Promise<{locale:Locale}
 
 export default async function Home({ params }: { params: Promise<{ locale: Locale }> }) {
   const { locale } = await params;
+  setRequestLocale(locale);
   const draft = await draftMode();
   const isPreview = draft.isEnabled;
   const contentService = getContentService(isPreview);

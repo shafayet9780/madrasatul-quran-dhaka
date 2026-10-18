@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { getTranslations } from 'next-intl/server';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import type { Locale } from '@/lib/i18n';
 import { generatePageMetadata } from '@/lib/page-metadata';
 import { getPublishedIntake } from '@/lib/admissions/pages';
@@ -26,6 +26,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
  */
 export default async function CurriculumPage({ params }: Props) {
   const { locale } = await params;
+  setRequestLocale(locale);
   const { intake } = await getPublishedIntake();
   return (
     <>

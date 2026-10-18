@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { getTranslations } from 'next-intl/server';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { getNavigationVisibility } from '@/lib/queries/site';
 import { isSectionVisible } from '@/lib/nav-visibility';
 import { type Locale } from '@/lib/i18n';
@@ -32,6 +32,7 @@ export async function generateMetadata({ params }: ProgramsPageProps): Promise<M
 /** The old Academic Programs page, open only while Site Settings shows Academics and Academic Programs. */
 export default async function ProgramsPage({ params }: ProgramsPageProps) {
   const { locale } = await params;
+  setRequestLocale(locale);
   const visibility = await getNavigationVisibility();
   if (!isSectionVisible('academics', visibility) || !isSectionVisible('programs', visibility)) notFound();
   const programs = await sanityFetch<AcademicProgram[]>({

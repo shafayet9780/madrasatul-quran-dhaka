@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { getTranslations } from 'next-intl/server';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { ChevronRight, Circle, CircleCheck, Contrast, Lock } from 'lucide-react';
 import { CopyLink } from '@/components/pre-admission/copy-link';
 import { FlowShell } from '@/components/pre-admission/flow-shell';
@@ -21,6 +21,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function HubPage({ params }: Props) {
   const locale = asLocale((await params).locale);
+  setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: 'preAdmission' });
   const { app, snapshot } = await requireDraft(locale);
   const token = (await currentAccess())?.token;

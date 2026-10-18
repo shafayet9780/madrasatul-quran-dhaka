@@ -52,7 +52,7 @@
   /* Type: Latin from Anek Latin, Bengali from Anek Bangla; Tiro Bangla for Bengali quotations only.
      Weights only, never font-stretch (the fonts load without the width axis). */
   --font-sans: var(--font-anek-latin), var(--font-anek-bangla), system-ui, sans-serif;
-  --font-quote: var(--font-tiro-bangla), var(--font-anek-bangla), serif;
+  --font-quote: var(--font-tiro-bangla), var(--font-anek-latin), var(--font-anek-bangla), serif; /* Tiro: Bengali + punctuation only */
 
   --font-weight-strong: 650; /* links, buttons, labels */
   --font-weight-heading: 750;
