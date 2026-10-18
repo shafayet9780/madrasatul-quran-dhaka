@@ -1,0 +1,165 @@
+# Class Routine — Specification
+
+Status: **spec agreed 2026-10-18** (owner interview) on branch `class-routine`; not built yet. Next: phase 1.
+
+The school's class routine is kept today in a Google Sheet ([`1. Class schedule for teachers 2027.xlsx`](https://docs.google.com/spreadsheets/d/1vJ4Yil_kTcJ2uXCMjsw0oXpk-Xsg7oLy/edit?gid=2014558857#gid=2014558857)). This module moves it into `/admin` as a third module, **রুটিন**, next to ভর্তি and জরিপ:
+
+1. Enter teachers (profile, subjects they can teach, salary, weekly target).
+2. Assign each group's periods: subject + main teacher + optional TA.
+3. See the routine, and for any day + period which teachers are free and what they can teach, to arrange a proxy fast.
+4. See each teacher's weekly load, flagged under- or over-utilized.
+
+## 1. What the current sheet tells us
+
+| Sheet | Contents | What it means for the model |
+|---|---|---|
+| Class schedule 26 | Grid: groups × periods; free-teacher lists typed by hand; "No of Classes" + salary per teacher | The core of this module; the free-teacher block is what we compute |
+| Sheet1 | Arabic level → book → which students | Level groups are a fixed list, independent of class |
+| Room | Rooms used by Quran/Arabic groups at 9:00 and 10:00 | Rooms matter per period, not only per class |
+| Profile all | Full Bengali name, age, qualification, experience, designation, department, phone, salary | Teacher profile fields |
+| Ramadan 2026 | A separate timetable for Ramadan | Same assignments, other timings (phase 3) |
+
+Findings the design rests on:
+
+- **Days split inside a period.** One cell often holds two subjects: `RA-1 (sun, mon, tue) / Islam (wed, thu)`, `Math (sat–mon)`. An assignment is a period **plus a set of days**. The week is **Saturday–Thursday**.
+- **Students regroup by level** in the Quran (9:00, Qaida-A…E, Ammapara-1…4, Hifz & Nazera M/F) and Arabic (10:00, L-1…L-9) periods. A *group* is either a class section or a level group.
+- **Co-teaching is common** (`Farhana / Fariza`, `Rakib + Hyder Ali`), sometimes only on some days (`farhana/nasreen (sun–tue)`).
+- **Period lengths differ**: Hifz 7:00–8:15 (75 min), afternoon Hifz 3:00–8:00 (300 min), the rest 45 min.
+- **Placeholder teachers** (`Science-1…4`, `Arts-1…4`, `Hafiz-1/2`, `Arbi-1/2`, `Hafeza-1`) stand for posts not yet filled.
+- **Short names in the grid** (`Mueen`, `Taman afz`) vs full Bengali names in the profile.
+- Five (M) and Five (F) both sit in the **hall** at the same time: some rooms are shared.
+
+## 2. Decisions (owner, 2026-10-18)
+
+| Topic | Decision |
+|---|---|
+| Storage | Neon Postgres via Drizzle (not Sanity): salary stays private, edits are interactive, clashes are checked on the server |
+| Load unit | **Periods** (each slot = 1, whatever its length) drive the status; **minutes/week** shown alongside |
+| TA load | Main and TA periods shown separately; status uses **main + ½ × TA** |
+| Thresholds | **Under < 80 %** of target, **over > 100 %**, OK in between |
+| Salary | Visible to anyone with the admin login (as in the sheet today); never in prints or exports |
+| Afternoon Hifz | In the routine, as one period of 300 min (counts as 1 period) |
+| Gender rule | **Per group**: any / male only / female only (default any). Assignments and proxy suggestions respect it |
+| Teacher identity | Own table in Postgres, **separate** from the website's `teacher` and the survey's `surveyTeacher`; optional **ERP ID** links to the survey teacher for later reports |
+| Clashes | **Blocked**: a teacher (main or TA), a group, or a room used twice at the same day + period. Exception: a room marked **shared** (hall) |
+| Vacancies | A teacher record flagged **vacancy** (e.g. "Science-1"); assignable, never suggested as proxy, listed under "posts to fill"; filled by editing it into the hired person |
+| Versions | Each routine has a name (e.g. "২০২৭"); **one active**, others drafts; **copy** starts a new one |
+| Proxy | **Daily register with suggestions**; saved history, monthly proxy count per teacher, print + WhatsApp copy |
+| Prints | **School grid on A3** landscape; one class's / one teacher's week on **A4** |
+| Import | One-time script: sheet → **draft** routine + list of cells it couldn't read (phase 2) |
+| "3+1" in the sheet's "No of Classes" | **Open**: meaning to be confirmed by the owner; the new load is computed from assignments either way |
+
+## 3. Data (Postgres, Drizzle — `src/lib/routine/schema.ts`, added to `drizzle.config.ts`)
+
+All tables are prefixed `routine_`.
+
+**`routine_subjects`**: `id`, `name` (as the school writes it, e.g. "Math", "বাংলা", "Qaida"), `order`, `active`.
+
+**`routine_teachers`**
+
+| Field | Notes |
+|---|---|
+| `full_name` | Bengali, as in the profile sheet; required |
+| `short_name` | Shown in the grid (e.g. "Mueen"); required, unique among active teachers |
+| `gender` | male / female; required (drives the gender rule) |
+| `designation`, `department` | Free text (অধ্যক্ষ, সিনিয়র শিক্ষক… / কুরআন, আরবী, জেনারেল, হিফয) |
+| `qualification` | Free text |
+| `experience_years` | Number, optional |
+| `phone` | Optional |
+| `salary` | Monthly taka, optional |
+| `target_periods` | Expected periods per week; optional (no target → status "লক্ষ্য দেওয়া নেই") |
+| `bio` | Short biography / notes |
+| `erp_id` | Optional; matches `surveyTeacher.key` |
+| `is_vacancy` | Placeholder for an unfilled post |
+| `active` | Inactive teachers can't be assigned and are hidden from free/proxy lists |
+
+**`routine_teacher_subjects`**: teacher ↔ subject (the "can teach" checkboxes).
+
+**`routine_rooms`**: `name` (e.g. "501", "Hall"), `shared` (true → never a clash).
+
+**`routine_groups`**: `name` (Nursery-A, Two (M), Qaida-A, Arabic L-3), `kind` (class section / level group), `section` (heading the grid sorts under: e.g. জেনারেল, কুরআন, আরবি, হিফয), `order`, `default_room_id`, `gender_rule` (any / male / female), `active`.
+
+**`routine_routines`**: `name`, `status` (draft / active; at most one active), `created_at`, `copied_from_id`.
+
+**`routine_periods`** (per routine): `label` (optional, e.g. "হিফয"), `starts_at`, `ends_at` (minutes = difference), `order`. Periods in one routine may not overlap.
+
+**`routine_assignments`**: `routine_id`, `group_id`, `period_id`, `days` (set of sat…thu, at least one), `subject_id`, `teacher_id` (main, required), `ta_id` (optional, ≠ main), `room_id` (optional; falls back to the group's default room), `note`.
+
+A cell that changes by day is several rows with disjoint `days`. Example, `farhana/nasreen (sun–tue)` in an English period: row 1 sat, wed, thu → Farhana; row 2 sun–tue → Farhana + TA Nasreen.
+
+**`routine_absences`**: `date`, `teacher_id`, `periods` (all day, or chosen period ids), `reason` (optional).
+**`routine_proxies`**: `date`, `assignment_id`, `proxy_teacher_id`, plus a **snapshot** of group / period / subject / absent-teacher names so history stays readable after the routine changes. One proxy per assignment per date.
+
+**Clash rule** (server action, inside one transaction that locks the routine row): for the same routine, same period and an overlapping day, refuse if the main teacher or TA is already main or TA elsewhere, if the group already has an assignment, or if the effective room is in use and not shared. The error names what clashes ("মুঈন ৯:০০ রবি–মঙ্গল Qaida-C-তে আছেন"). Subject not in the teacher's list and gender rule broken → **warning**, saved after confirming.
+
+## 4. Load math (pure module, unit-tested)
+
+- `main` = Σ over the teacher's main assignments of the number of days; `ta` likewise for TA rows.
+- `weighted = main + ½ × ta`; `percent = weighted ÷ target_periods`.
+- Status: **কম** (< 80 %), **ঠিক আছে** (80–100 %), **বেশি** (> 100 %), or **লক্ষ্য দেওয়া নেই**.
+- `minutes/week` = Σ of period length × days (main and TA shown separately).
+- `salary per period` ≈ salary ÷ (weighted × 52 ÷ 12), shown on the workload page only.
+- Busiest day: the most periods on any one day (a teacher with 6 on Sunday and 1 on Thursday stands out).
+
+The **active** routine feeds the workload page; a draft shows its own workload while it's being edited.
+
+## 5. Admin screens (`/admin/routine/…`, module **রুটিন**)
+
+Follows the shared admin design (`docs/admin-redesign-plan.md`, pieces in `src/app/admin/ui.tsx`). Bengali UI with everyday words (সেভ, এডিট, পেজ). Mutations are server actions that call `assertAdmin()`.
+
+| Nav | Page | Contents |
+|---|---|---|
+| রুটিন | `/admin/routine` | School grid for the chosen routine (active by default). Rows = groups under their section heading; columns = periods; a section shows only the periods it uses (Quran groups → 9:00 only). Day filter: **সব দিন** (cells show day chips) or one day (only that day's subject + teacher). Click a cell → assign / edit / delete. Clashes are refused in the dialog. **A3 print**. |
+| ক্লাসের রুটিন | `/admin/routine/group/[id]` | One group's week: days × periods. **A4 print**. |
+| শিক্ষকের রুটিন | `/admin/routine/teacher/[id]` | One teacher's week (main and TA marked), load summary. **A4 print** (no salary or phone). |
+| ফ্রি শিক্ষক | `/admin/routine/free` | Day × period grid; each cell lists free teachers (active, not vacancies) with the subjects they can teach. Subject filter highlights who can take it. |
+| প্রক্সি | `/admin/routine/proxy` | Daily register (§6). |
+| ওয়ার্কলোড | `/admin/routine/workload` | Every teacher: main, TA, weighted, target, %, status badge, minutes/week, busiest day, proxies this month, salary, salary per period. Sort by status. Also **শূন্য পদ** (posts to fill): vacancy teachers with their subjects and weekly load. |
+| শিক্ষক | `/admin/routine/teachers` | List + form (fields of §3, subjects as checkboxes). |
+| সেটআপ | `/admin/routine/setup` | Routines (create, copy, make active, rename, delete draft), periods of a routine, subjects, rooms, groups. |
+
+Making a routine active asks for confirmation. Saved proxies of past dates keep their snapshot.
+
+## 6. Proxy register
+
+1. Pick a date (default today; Fridays have no classes).
+2. Mark absent teachers: whole day or chosen periods.
+3. The page lists every assignment they hold as **main** teacher that day (a TA's absence is shown, with an optional cover).
+4. For each, candidates are ranked:
+   - must be active, not a vacancy, not absent, free in that period on that day (no assignment as main or TA, no proxy already that date + period), and meet the group's gender rule;
+   - first those who can teach the subject, then the rest under "বিষয়ের শিক্ষক নন";
+   - within each, fewest periods that day (proxies included), then fewest proxies this month.
+5. Pick one per class → **সেভ**. The day's sheet prints on A4 and copies as WhatsApp text (date, period, class, subject, absent teacher → proxy).
+
+Proxy counts per teacher for the month show on the proxy page and the workload page.
+
+## 7. Import from the sheet (phase 2)
+
+A one-time `tsx` script reads the sheet's CSV export and the profile tab into a **draft** routine:
+
+- Teachers: from "Profile all" (full name, qualification, experience, designation, department, phone, salary), matched to the grid's short names by a mapping table in the script that the owner checks. Placeholders (`Science-1`…) become vacancy teachers.
+- Groups, periods, rooms: from the grid headers and the Room tab.
+- Cells: parse `Subject (days)` / `Teacher / Teacher` patterns. Anything it can't read goes to a **fix list** (sheet cell → raw text) for entry in the editor.
+
+Nothing is written to the active routine; the owner reviews the draft and makes it active.
+
+## 8. Security & privacy
+
+- `/admin/routine` sits behind the existing admin Basic Auth (`src/proxy.ts`); no public pages.
+- Salary and phone are shown on admin pages only; never in prints, the WhatsApp text, or exports.
+- No routine data in Sanity.
+
+## 9. Build phases
+
+| Phase | Scope |
+|---|---|
+| **1** | Schema + migration; subjects, rooms, groups, periods, routines (draft / active / copy); teachers (incl. vacancy flag, ERP ID); routine editor with clash checks; school / group / teacher views; free teachers; workload + posts to fill; **proxy register**; **prints** (A3 school grid, A4 group / teacher / proxy day). Local preview fixtures (`ADMISSIONS_LOCAL=1`) with sample routine. |
+| **2** | Sheet import script (draft + fix list). |
+| **3** | Ramadan timings (a second set of period times reusing the same assignments); subject coverage per group (periods/week needed vs assigned); use ERP ID to join routine with survey reports. |
+
+Tests: pure modules (clash detection, load math, free-teacher and proxy ranking, day-split helpers) unit-tested; clash enforcement and proxy save as `*.db.test.ts`; Playwright smoke for the routine pages in the local preview.
+
+## 10. Open questions
+
+1. What does "3+1" / "1+3" in the sheet's "No of Classes" column mean? (Owner to confirm; affects only how targets are first filled in.)
+2. Target periods per week for each teacher: to be entered by the owner (the sheet has none per week).
