@@ -1,10 +1,11 @@
 import 'server-only';
-import { and, asc, eq, gte, inArray, lt, sql } from 'drizzle-orm';
+import { and, asc, eq, gte, inArray, lt, ne, sql } from 'drizzle-orm';
 import type { BatchItem } from 'drizzle-orm/batch';
 import { assignmentWarnings, clashText, effectiveRoomId, findClashes, lookup, occupancy, overlappingPeriod, type Draft } from './clash';
-import { dayOfDate, daysText, periodText } from './days';
+import { dayOfDate, daysText, dhakaToday, periodText } from './days';
+import { busyTeachers } from './free';
 import { getRoutineDb, type RoutineDb } from './db';
-import { needsFor, rankCandidates, type Absence, type ProxyRecord } from './proxy';
+import { absentIn, needsFor, rankCandidates, type Absence, type ProxyRecord } from './proxy';
 import {
   routineAbsences,
   routineAssignments,
@@ -38,6 +39,13 @@ function omit<T extends object, K extends keyof T>(o: T, ...keys: K[]): Omit<T, 
 
 async function run(db: RoutineDb, statements: BatchItem<'pg'>[]) {
   if (statements.length) await db.batch(statements as [BatchItem<'pg'>, ...BatchItem<'pg'>[]]);
+}
+
+/** Slot rows in inserts of 1,000 (6 parameters a row stays under Postgres's 65,535). */
+function insertSlots(db: RoutineDb, rows: (typeof routineSlots.$inferInsert)[]): BatchItem<'pg'>[] {
+  const out: BatchItem<'pg'>[] = [];
+  for (let i = 0; i < rows.length; i += 1000) out.push(db.insert(routineSlots).values(rows.slice(i, i + 1000)));
+  return out;
 }
 
 // ── Reads ──────────────────────────────────────────────────────────────────────────────────────
@@ -126,7 +134,7 @@ async function roomSlotStatements(db: RoutineDb, rooms: Room[], groups: Group[],
       rows.push({ routineId: a.routineId, periodId: a.periodId, day, kind: 'room', refId: room, assignmentId: a.id });
     }
   }
-  return { statements: [db.delete(routineSlots).where(eq(routineSlots.kind, 'room')), ...(rows.length ? [db.insert(routineSlots).values(rows)] : [])] };
+  return { statements: [db.delete(routineSlots).where(eq(routineSlots.kind, 'room')), ...insertSlots(db, rows)] };
 }
 
 // ── Subjects, rooms, groups ────────────────────────────────────────────────────────────────────
@@ -262,9 +270,7 @@ export async function createRoutine(name: string, copyFromId?: string | null): P
     if (assignments.length) {
       statements.push(db.insert(routineAssignments).values(assignments.map((a) => ({ ...a, id: assignmentIds.get(a.id)!, routineId: id, periodId: periodIds.get(a.periodId)! }))));
     }
-    if (slots.length) {
-      statements.push(db.insert(routineSlots).values(slots.map((s) => ({ ...s, routineId: id, periodId: periodIds.get(s.periodId)!, assignmentId: assignmentIds.get(s.assignmentId)! }))));
-    }
+    statements.push(...insertSlots(db, slots.map((s) => ({ ...s, routineId: id, periodId: periodIds.get(s.periodId)!, assignmentId: assignmentIds.get(s.assignmentId)! }))));
   }
   try {
     await run(db, statements);
@@ -292,6 +298,8 @@ export async function activateRoutine(id: string): Promise<Outcome> {
   await run(db, [
     db.update(routineRoutines).set({ status: 'draft' }).where(and(eq(routineRoutines.status, 'active'), sql`${routineRoutines.id} <> ${id}`)),
     db.update(routineRoutines).set({ status: 'active' }).where(eq(routineRoutines.id, id)),
+    // Today's and later proxies were made for the old routine's classes; past ones stay as history.
+    db.delete(routineProxies).where(and(gte(routineProxies.date, dhakaToday()), inArray(routineProxies.assignmentId, db.select({ id: routineAssignments.id }).from(routineAssignments).where(ne(routineAssignments.routineId, id))))),
   ]);
   return { ok: true };
 }
@@ -326,6 +334,7 @@ export async function savePeriod(routineId: string, input: { id?: string; label:
 /** Deletes the period and its classes. */
 export async function deletePeriod(id: string): Promise<Outcome> {
   await getRoutineDb().delete(routinePeriods).where(eq(routinePeriods.id, id));
+  await pruneUpcomingProxies();
   return { ok: true };
 }
 
@@ -374,11 +383,13 @@ export async function saveAssignment(routineId: string, input: Draft, confirm: b
     if (pgCode(e) === '23505' || pgCode(e) === '23503') return fail(RACE);
     throw e;
   }
+  await pruneUpcomingProxies();
   return { ok: true, id };
 }
 
 export async function deleteAssignment(id: string): Promise<Outcome> {
   await getRoutineDb().delete(routineAssignments).where(eq(routineAssignments.id, id));
+  await pruneUpcomingProxies();
   return { ok: true };
 }
 
@@ -421,13 +432,33 @@ export async function proxyDay(date: string): Promise<ProxyDay> {
   return { data, absences, proxies, monthCounts };
 }
 
-/** Removes the date's proxies for classes nobody is away from any more. */
+/**
+ * Removes the date's proxies that no longer hold: the class needs no cover any more, or the proxy
+ * teacher is away or has a class in that period. From today on, a proxy whose class was deleted
+ * goes too; on past dates it stays as history (its snapshot keeps the names).
+ */
 async function pruneProxies(date: string) {
   const day = dayOfDate(date);
   const { data, absences, proxies } = await proxyDay(date);
-  const needed = new Set(day === null || !data ? [] : needsFor(day, absences, data.assignments).map((n) => `${n.assignment.id}:${n.role}`));
-  const stale = proxies.filter((p) => p.assignmentId && !needed.has(`${p.assignmentId}:${p.role}`)).map((p) => p.id);
+  const needs = day === null || !data ? [] : needsFor(day, absences, data.assignments);
+  const needed = new Set(needs.map((n) => `${n.assignment.id}:${n.role}`));
+  const upcoming = date >= dhakaToday();
+  const stale = proxies
+    .filter((p) => {
+      if (!p.assignmentId) return upcoming;
+      if (!needed.has(`${p.assignmentId}:${p.role}`)) return true;
+      const periodId = p.periodId;
+      if (!periodId || day === null || !data) return false;
+      return absences.some((x) => x.teacherId === p.proxyTeacherId && absentIn(x, periodId)) || busyTeachers(data.assignments, day, periodId).has(p.proxyTeacherId);
+    })
+    .map((p) => p.id);
   if (stale.length) await getRoutineDb().delete(routineProxies).where(inArray(routineProxies.id, stale));
+}
+
+/** After the routine changes: re-checks every proxy from today on. */
+async function pruneUpcomingProxies() {
+  const dates = await getRoutineDb().selectDistinct({ date: routineProxies.date }).from(routineProxies).where(gte(routineProxies.date, dhakaToday()));
+  for (const { date } of dates) await pruneProxies(date);
 }
 
 export async function saveAbsence(date: string, teacherId: string, periodIds: string[] | null, reason: string): Promise<Outcome> {

@@ -41,7 +41,7 @@ test('the proxy register lists an absent teacher\'s classes and records a cover'
 
   const picker = page.getByLabel('প্রক্সি শিক্ষক').first();
   // Nobody free teaches Math then: the free teachers come under "বিষয়ের শিক্ষক নন".
-  await expect(picker.locator('optgroup[label="বিষয়ের শিক্ষক নন"] option').first()).toHaveText(/ — আজ .*টি ক্লাস/);
+  await expect(picker.locator('optgroup[label="বিষয়ের শিক্ষক নন"] option').first()).toHaveText(/ — এ দিনে .*টি ক্লাস/);
   const lubna = await picker.locator('option', { hasText: 'Lubna' }).getAttribute('value');
   await picker.selectOption(lubna!);
   await expect(page.getByText('১/২ ঠিক হয়েছে')).toBeVisible();

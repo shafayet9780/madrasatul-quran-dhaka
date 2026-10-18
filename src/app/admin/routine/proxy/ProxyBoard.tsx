@@ -112,7 +112,7 @@ function ProxyPicker({ date, need, day, weekday, names, monthCounts, current }: 
   const [value, setValue] = useState(current);
   useEffect(() => setValue(current), [current]);
   const candidates = rankCandidates(need, { teachers: day.data.teachers, assignments: day.data.assignments, day: weekday, absences: day.absences, proxies: day.proxies, monthCounts, group: names.groups.get(need.assignment.groupId) });
-  const label = (c: (typeof candidates)[number]) => `${c.teacher.shortName} — আজ ${bn(c.today)}টি ক্লাস, এ মাসে ${bn(c.month)}টি প্রক্সি`;
+  const label = (c: (typeof candidates)[number]) => `${c.teacher.shortName} — এ দিনে ${bn(c.today)}টি ক্লাস, এ মাসে ${bn(c.month)}টি প্রক্সি`;
   const can = candidates.filter((c) => c.canTeach);
   const other = candidates.filter((c) => !c.canTeach);
   // A saved proxy who is no longer a candidate (their own routine changed) still shows.
@@ -127,7 +127,12 @@ function ProxyPicker({ date, need, day, weekday, names, monthCounts, current }: 
         onChange={(e) => {
           const next = e.target.value;
           setValue(next);
-          run(() => setProxyAction(date, need.assignment.id, need.role, next || null), undefined);
+          run(async () => {
+            const result = await setProxyAction(date, need.assignment.id, need.role, next || null);
+            // A refused choice goes back to the saved one.
+            if (!result.ok) setValue(current);
+            return result;
+          });
         }}
       >
         <option value="">{candidates.length ? 'বাছাই করুন' : 'কেউ ফ্রি নেই'}</option>

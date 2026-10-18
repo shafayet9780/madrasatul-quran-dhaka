@@ -7,6 +7,7 @@ import {
   activateRoutine,
   createRoutine,
   deleteAbsence,
+  deleteAssignment,
   deleteRoom,
   deleteTeacher,
   listRoutines,
@@ -176,6 +177,42 @@ describe('proxies', () => {
     ok(await deleteAbsence(day.absences[0].id));
     day = await proxyDay(sunday);
     expect(day.proxies).toEqual([]);
+  });
+
+  // From today on, proxies are checked again whenever the routine or the absences change.
+  const later = '2030-01-06'; // a Sunday
+  const past = '2025-01-05'; // a Sunday
+
+  it('drops a proxy whose teacher is now away or now has a class then', async () => {
+    ok(await activateRoutine(id('routine')));
+    const { id: qaida } = ok(await assign());
+    ok(await saveAbsence(later, id('mueen'), null, ''));
+    ok(await setProxy(later, qaida, 'main', id('nasreen')));
+    ok(await saveAbsence(later, id('nasreen'), [id('p1')], ''));
+    expect((await proxyDay(later)).proxies).toEqual([]);
+
+    ok(await saveAbsence(later, id('nasreen'), [id('p2')], ''));
+    ok(await setProxy(later, qaida, 'main', id('nasreen')));
+    ok(await assign({ groupId: id('fiveM'), teacherId: id('nasreen'), subjectId: id('Math'), days: [1] }));
+    expect((await proxyDay(later)).proxies).toEqual([]);
+  });
+
+  it('drops upcoming proxies of a deleted class or an old routine, and keeps past ones', async () => {
+    ok(await activateRoutine(id('routine')));
+    const { id: qaida } = ok(await assign());
+    for (const date of [past, later]) {
+      ok(await saveAbsence(date, id('mueen'), null, ''));
+      ok(await setProxy(date, qaida, 'main', id('nasreen')));
+    }
+    const copy = ok(await createRoutine('২০২৮', id('routine'))).id;
+    ok(await activateRoutine(copy));
+    expect((await proxyDay(later)).proxies).toEqual([]);
+    expect((await db.select().from(schema.routineProxies)).map((p) => p.date)).toEqual([past]);
+
+    ok(await activateRoutine(id('routine')));
+    ok(await setProxy(later, qaida, 'main', id('nasreen')));
+    ok(await deleteAssignment(qaida));
+    expect((await db.select().from(schema.routineProxies)).map((p) => [p.date, p.assignmentId, p.snapshot.absent])).toEqual([[past, null, 'Mueen']]);
   });
 
   it('has no classes on Friday', async () => {
