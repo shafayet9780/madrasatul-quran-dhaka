@@ -201,6 +201,7 @@ export const siteSettingsQuery = groq`
       showAdmissions,
       showContact,
       showGallery,
+      showNotices,
       showBooks
     }
   }
@@ -738,6 +739,11 @@ const albumFields = `_id, "slug": slug.current, title, evergreen, date, topic, v
 const albumPhotoFields = `_key, asset, hotspot, alt, caption, "ratio": asset->metadata.dimensions.aspectRatio`;
 export const galleryAlbumsQuery = groq`*[_type == "album" && show != false && defined(slug.current)] | order(select(evergreen == true => "", date) desc, _createdAt asc){ ${albumFields}, "photoCount": count(photos), "photos": photos[0...3]{ ${albumPhotoFields} } }`;
 export const albumBySlugQuery = groq`*[_type == "album" && show != false && slug.current == $slug][0]{ ${albumFields}, summary, story, quote, photos[]{ ${albumPhotoFields} } }`;
+
+// The notice board: every notice shown, newest first, with its attachments (a PDF's address and size); one by its number.
+const noticeFields = `_id, number, title, date, type, body, pinnedUntil, attachments[]{ _type, _key, asset, name, alt, "url": asset->url, "size": asset->size, "ratio": asset->metadata.dimensions.aspectRatio }`;
+export const noticesQuery = groq`*[_type == "notice" && show != false && defined(number.serial)] | order(date desc, number.serial desc){ ${noticeFields} }`;
+export const noticeByNumberQuery = groq`*[_type == "notice" && show != false && number.year == $year && number.serial == $serial][0]{ ${noticeFields} }`;
 
 // Only reviews whose consent is recorded; the homepage shows the first three.
 export const homeTestimonialsQuery = groq`*[_type == "testimonial" && consent == true && show != false] | order(coalesce(order, 1000) asc, _createdAt asc)[0...3]{ _id, originalLanguage, quote, who, classLine, consent, show }`;

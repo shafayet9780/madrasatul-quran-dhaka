@@ -12,8 +12,8 @@ export function copyLink(url: string, label: string, done: () => void) {
 
 const pill = 'inline-flex min-h-11 items-center gap-2 rounded-full px-4 text-15 font-strong no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink';
 
-/** Send the album on WhatsApp (in its own green), or copy its link. */
-export function ShareAlbum({ title, url, labels }: { title: string; url: string; labels: { share: string; copy: string; copied: string } }) {
+/** Send a page on WhatsApp (in its own green), or copy its link: an album, a notice. */
+export function ShareLinks({ title, url, labels }: { title: string; url: string; labels: { share: string; copy: string; copied: string } }) {
   const [copied, setCopied] = useState(false);
   return (
     <div className="flex flex-wrap gap-2.5 lg:justify-end">

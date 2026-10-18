@@ -918,5 +918,12 @@ slamic geometric pattern background */
       font-size: 12pt;
       line-height: 1.4;
     }
+
+    /* A notice prints as its sheet alone: no banner, header, footer, apply bar or cookie notice. */
+    body:has([data-print-sheet]) div:has(> #main) > :not(#main),
+    body:has([data-print-sheet]) :has(> div > #main) > :not(:has(#main)),
+    body:has([data-print-sheet]) > :not(:has(#main)) {
+      display: none !important;
+    }
   }
 }

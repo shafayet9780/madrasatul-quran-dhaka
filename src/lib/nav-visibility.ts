@@ -1,8 +1,8 @@
 /**
  * Editor-controlled visibility for navbar links. Toggles live on Site Settings
  * (`navigationVisibility`). Missing/undefined is treated as visible (fail-open)
- * so an unconfigured site shows everything. The gallery is the exception: it shows
- * only once it is switched on, so the menu never links to an empty page.
+ * so an unconfigured site shows everything. The gallery and the notice board are the exceptions:
+ * they show only once switched on, so the menu never links to an empty page.
  *
  * Keys correspond to NAV_ITEMS keys in the header. Keys not in the map below
  * (home, and the `about`/`academics`/`people` dropdown parents) are always
@@ -29,6 +29,7 @@ export interface NavigationVisibility {
   showAdmissions?: boolean;
   showContact?: boolean;
   showGallery?: boolean;
+  showNotices?: boolean;
   showBooks?: boolean;
 }
 
@@ -55,6 +56,7 @@ export function isSectionVisible(
   visibility?: NavigationVisibility | null
 ): boolean {
   if (key === 'gallery') return visibility?.showGallery === true;
+  if (key === 'notices') return visibility?.showNotices === true;
   if (!visibility) return true;
   const flag = TOGGLE_KEY[key];
   if (!flag) return true;

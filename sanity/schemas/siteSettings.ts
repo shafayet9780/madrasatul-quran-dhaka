@@ -664,6 +664,7 @@ export const siteSettings = defineType({
         { name: 'showPrograms', title: 'Academic Programs', type: 'boolean', initialValue: true, fieldset: 'academics' },
         { name: 'showAdmissions', title: 'Admissions', type: 'boolean', initialValue: true, fieldset: 'other' },
         { name: 'showContact', title: 'Contact', type: 'boolean', initialValue: true, fieldset: 'other' },
+        { name: 'showNotices', title: 'Notice board (off at first: turn it on once the first notices are in; the old News page then leads to it)', type: 'boolean', initialValue: false, fieldset: 'other' },
         { name: 'showGallery', title: 'Gallery (off at first: turn it on once the first albums are in)', type: 'boolean', initialValue: false, fieldset: 'other' },
         { name: 'showBooks', title: 'Our Books (external)', type: 'boolean', initialValue: true, fieldset: 'other' },
       ],

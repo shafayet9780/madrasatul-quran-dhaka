@@ -10,6 +10,7 @@ import { getAdmissionCta } from '@/lib/admissions/pages';
 import { reviewsFor } from '@/lib/home/reviews';
 import { getContentService } from '@/lib/content-service';
 import { isSectionVisible } from '@/lib/nav-visibility';
+import { HomeNotices } from '@/components/notices/home-notices';
 import { getPreviewContext } from '@/lib/preview';
 import { PreviewBanner } from '@/components/preview/preview-banner';
 import { generateSchoolStructuredData, serializeJsonLd } from '@/lib/seo';
@@ -33,12 +34,13 @@ export default async function Home({ params }: { params: Promise<{ locale: Local
   const previewContext = await getPreviewContext();
 
   // Fetch dynamic content
-  const [siteSettings, feeSettings, homePage, testimonials, admissionCta] = await Promise.all([
+  const [siteSettings, feeSettings, homePage, testimonials, admissionCta, notices] = await Promise.all([
     contentService.getSiteSettings(),
     contentService.getFeeSettings(),
     contentService.getHomePage(),
     contentService.getHomeTestimonials(),
     getAdmissionCta(locale),
+    contentService.getNotices(),
   ]);
 
   const contact = siteSettings?.contactInfo;
@@ -67,6 +69,7 @@ export default async function Home({ params }: { params: Promise<{ locale: Local
       <Why locale={locale} />
       <Founder locale={locale} />
       <Reviews locale={locale} reviews={reviewsFor(testimonials, locale)} />
+      {isSectionVisible('notices', siteSettings?.navigationVisibility) && <HomeNotices locale={locale} raw={notices} />}
       <Faq locale={locale} questions={homePage?.faq} officePhone={getAdmissionsContact(siteSettings?.contactInfo).phone ?? undefined} />
       <PreAdmissionCard locale={locale} cta={admissionCta} />
     </>

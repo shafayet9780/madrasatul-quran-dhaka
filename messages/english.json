@@ -1471,6 +1471,7 @@
       "campus": "Campus",
       "gallery": "Gallery",
       "admissions": "Admissions",
+      "notices": "Notices",
       "contact": "Contact",
       "books": "Our books",
       "menu": "Menu"
@@ -1575,6 +1576,63 @@
       "swipe": "Swipe left or right",
       "thumbs": "All photos",
       "open": "See it larger: {alt}"
+    }
+  },
+  "notices": {
+    "meta": {
+      "title": "Notice board | Madrasatul Quran",
+      "description": "Madrasatul Quran’s official notices: admissions, holidays, exams, results and events, each with its number and date.",
+      "notice": "Notice {number}: {title} | Madrasatul Quran",
+      "noticeDescription": "{date}: {text}"
+    },
+    "board": {
+      "title": "Notice board",
+      "lead": "The school’s official notices: admissions, holidays, exams and events. Each notice has a number and its own link, to send on WhatsApp.",
+      "pinned": "Important",
+      "pinnedTitle": "Important notices",
+      "types": "Type of notice",
+      "all": "All",
+      "year": "Year",
+      "yearNotices": "Notices of {year}",
+      "more": "Earlier notices ({month})",
+      "none": "No notices of this type this year.",
+      "empty": "No notices yet.",
+      "ask": "Questions about a notice? Call the office:"
+    },
+    "number": "No. {number}",
+    "new": "New",
+    "pdf": "PDF",
+    "picture": "Picture",
+    "types": {
+      "admission": "Admission",
+      "holiday": "Holidays and closures",
+      "exam": "Exams and results",
+      "general": "Events and general"
+    },
+    "notice": {
+      "back": "Notice board",
+      "print": "Print",
+      "numberLabel": "Notice no.",
+      "attachments": "Attachments",
+      "view": "View",
+      "download": "Download",
+      "zoom": "See it larger",
+      "tapHint": "Tap the picture to see it larger.",
+      "pictureAlt": "Picture of the notice",
+      "share": "Send to a parents’ group",
+      "whatsapp": "Send on WhatsApp",
+      "copy": "Copy the link",
+      "copied": "Link copied",
+      "older": "Earlier notice",
+      "newer": "Later notice",
+      "neighbours": "Earlier and later notices",
+      "onlyBengali": "This notice is in Bengali only.",
+      "onlyBengaliCall": "This notice is in Bengali only. For help with it, call the office on {phone}."
+    },
+    "home": {
+      "title": "Notice board",
+      "lead": "The school’s latest official notices: admissions, holidays, exams and events.",
+      "all": "See all notices"
     }
   }
 }

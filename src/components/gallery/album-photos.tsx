@@ -6,7 +6,7 @@ import type { Photo, Video } from '@/lib/gallery/albums';
 import { Icon } from '@/components/site/icon';
 import { cn } from '@/lib/utils';
 import { VideoTile, type VideoLabels } from './video-tile';
-import { copyLink } from './share-album';
+import { copyLink } from '@/components/site/share-links';
 
 export type ViewerLabels = {
   label: string;

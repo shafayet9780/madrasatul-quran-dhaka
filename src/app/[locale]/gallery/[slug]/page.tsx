@@ -12,7 +12,7 @@ import { generateBreadcrumbStructuredData, serializeJsonLd } from '@/lib/seo';
 import { albumJsonLd, neighbours, num, type Album } from '@/lib/gallery/albums';
 import { albumIn, albumsIn, galleryWords, shareImage } from '@/components/gallery/gallery-data';
 import { AlbumPhotos } from '@/components/gallery/album-photos';
-import { ShareAlbum } from '@/components/gallery/share-album';
+import { ShareLinks } from '@/components/site/share-links';
 import { Icon } from '@/components/site/icon';
 import { QuoteText } from '@/components/site/quote-text';
 import { cn } from '@/lib/utils';
@@ -97,7 +97,7 @@ export default async function AlbumPage({ params }: Props) {
               </p>
               {album.summary && <p className="m-0 max-w-[40em] text-lead text-ink-body">{album.summary}</p>}
             </div>
-            <ShareAlbum title={album.title} url={url} labels={{ share: t('album.share'), copy: t('album.copy'), copied: t('album.copied') }} />
+            <ShareLinks title={album.title} url={url} labels={{ share: t('album.share'), copy: t('album.copy'), copied: t('album.copied') }} />
           </div>
 
           {lead && (

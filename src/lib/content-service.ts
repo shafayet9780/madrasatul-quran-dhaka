@@ -3,8 +3,10 @@ import type { HomePage, Testimonial } from '@/types/home';
 import type { CampusStopIn } from '@/lib/campus/day';
 import type { AlbumIn } from '@/lib/gallery/albums';
 import { SAMPLE_ALBUMS } from '@/lib/gallery/testing/sample-albums';
+import type { NoticeIn } from '@/lib/notices/notices';
+import { SAMPLE_NOTICES } from '@/lib/notices/testing/sample-notices';
 import { localOverrides } from '@/lib/admissions/local';
-import { albumBySlugQuery, campusDayQuery, galleryAlbumsQuery, feeSettingsQuery, homePageQuery, homeTestimonialsQuery } from './sanity-queries';
+import { albumBySlugQuery, campusDayQuery, galleryAlbumsQuery, feeSettingsQuery, homePageQuery, homeTestimonialsQuery, noticeByNumberQuery, noticesQuery } from './sanity-queries';
 import { client, previewClient } from './sanity';
 import { sanityFetch } from './sanity-fetch';
 import type { SanityDocument } from '@sanity/client';
@@ -102,6 +104,30 @@ export class ContentService {
     }
   }
 
+  /** Studio → Notices: every notice shown, newest first. The local preview has samples. */
+  async getNotices(): Promise<NoticeIn[]> {
+    if (localOverrides()) return SAMPLE_NOTICES;
+    try {
+      if (this.isPreview) return (await this.client.fetch(noticesQuery)) ?? [];
+      return (await sanityFetch<NoticeIn[] | null>({ query: noticesQuery, tags: ['notice'] })) ?? [];
+    } catch (error) {
+      console.error('Error fetching the notices:', error);
+      return [];
+    }
+  }
+
+  /** One notice, by its number (its link). */
+  async getNotice(year: number, serial: number): Promise<NoticeIn | null> {
+    if (localOverrides()) return SAMPLE_NOTICES.find((n) => n.number?.year === year && n.number?.serial === serial) ?? null;
+    try {
+      if (this.isPreview) return await this.client.fetch(noticeByNumberQuery, { year, serial });
+      return await sanityFetch<NoticeIn | null>({ query: noticeByNumberQuery, params: { year, serial }, tags: ['notice'] });
+    } catch (error) {
+      console.error('Error fetching the notice:', error);
+      return null;
+    }
+  }
+
   /** Studio → Guardian reviews: the first three with recorded consent. */
   async getHomeTestimonials(): Promise<Testimonial[]> {
     try {
@@ -117,8 +143,8 @@ export class ContentService {
    * Site Settings
    */
   async getSiteSettings(): Promise<SiteSettings | null> {
-    // The local preview has no Sanity; its sample gallery is switched on.
-    if (localOverrides()) return { navigationVisibility: { showGallery: true } } as SiteSettings;
+    // The local preview has no Sanity; its sample gallery and notice board are switched on.
+    if (localOverrides()) return { navigationVisibility: { showGallery: true, showNotices: true } } as SiteSettings;
     try {
       if (this.isPreview) {
         return await this.client.fetch(siteSettingsQuery);

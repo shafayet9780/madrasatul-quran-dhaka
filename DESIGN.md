@@ -232,7 +232,7 @@ The header on every public page (`src/components/layout/site-header.tsx`, a serv
 
 - Logo: `siteSettings.logo` at 42px. Name `text-18` 700, place `text-13` `ink-muted`. The logo is the link home.
 - Menu: আমাদের সম্পর্কে (the board and advisors; it replaced the আমাদের সদস্যবৃন্দ dropdown in October 2026), কারিকুলাম, ক্যাম্পাস, গ্যালারি, ভর্তি, যোগাযোগ, আমাদের বইসমূহ ↗ (opens alquranervasha.com in a new tab). Labels: `messages` `site.nav`.
-- Site Settings → Navigation decides what shows (`siteNav` in `src/lib/site/nav.ts`): আমাদের সম্পর্কে follows Our people and shows while the directors or the advisors do; ক্যাম্পাস follows Campus (`showCampus`); গ্যালারি shows only once Gallery (`showGallery`) is switched on, so the menu never links to an empty gallery. The footer's Pages list follows the same switches.
+- Site Settings → Navigation decides what shows (`siteNav` in `src/lib/site/nav.ts`): আমাদের সম্পর্কে follows Our people and shows while the directors or the advisors do; ক্যাম্পাস follows Campus (`showCampus`); গ্যালারি shows only once Gallery (`showGallery`) is switched on, so the menu never links to an empty gallery; নোটিশ (before যোগাযোগ) likewise once the notice board (`showNotices`) is. The footer's Pages list follows the same switches.
 - From 1180px: one row of links. The menu can still hold a dropdown group (none today): it opens on hover or click, Escape or a click elsewhere closes it; its panel is `surface`, `line` border, `radius-card`, `shadow-photo`.
 - Below 1180px: a মেনু / Menu pill (Phosphor list, ✕ while open) opens the same links under the header. Below 480px the language switch moves to the top of that menu, so the row fits a 360px phone.
 - The page you are on (`aria-current="page"`, also its subpages): `rust` with a 2px underline 10px below in the row; `rust` 650 in the phone menu; `cream` behind it in a dropdown.
@@ -350,6 +350,10 @@ What guardians say (`Reviews`, `src/components/site/reviews.tsx`, shared with th
 - **Rules:** quotes stay word for word, never edited or translated into the other language's card; only reviews whose consent is recorded may show; never invent one.
 - **Source:** Studio → Guardian reviews (`reviewsFor`, `src/lib/home/reviews.ts`): only reviews with consent ticked and how it was given recorded, not hidden, the first three by order. A translation shows with (অনুবাদ) / (translated) after the class; without one, the guardian's own words show, set in their language. With no such review the section is left out, so the page never shows an empty or invented review.
 - No motion.
+
+### HomeNotices
+
+The latest notices (`src/components/notices/home-notices.tsx`), once the notice board is on: a `paper` section after the reviews, with a `line` rule above. Two columns from 768px (5:7): the H2 নোটিশ বোর্ড, a line (`text-17` `ink-muted`) and সব নোটিশ দেখুন with an arrow; then the three latest notices, pinned ones first, as the board's rows without their first line. Left out when there are no notices. Copy in `notices.home`.
 
 ### Faq
 
@@ -647,12 +651,27 @@ Top to bottom: the hero (`paper`), the filter bar and the month rows (`cream`), 
 
 `gallery/[slug]/page.tsx`, `paper`:
 
-- **Head:** the breadcrumb (গ্যালারি / the year or সব সময়ের অ্যালবাম / the topic), the H1 (`text-hero`), the day and counts, the album's two lines when it has them (`text-lead`); on the right, হোয়াটসঅ্যাপে পাঠান (WhatsApp green) and লিংক কপি করুন (`share-album.tsx`).
+- **Head:** the breadcrumb (গ্যালারি / the year or সব সময়ের অ্যালবাম / the topic), the H1 (`text-hero`), the day and counts, the album's two lines when it has them (`text-lead`); on the right, হোয়াটসঅ্যাপে পাঠান (WhatsApp green) and লিংক কপি করুন (`ShareLinks`, `src/components/site/share-links.tsx`, shared with the notices).
 - **With text** (Studio → Text, or a teacher's words) it opens as a short story: the first photo large (620px, 300px on phones, `shadow-photo`) with its caption, the text (`text-19`, at most 680px wide), the teacher's words (`text-quote`, Tiro Bangla in Bengali, Anek Latin in English, a 4px `bronze` rule on the left) with their name, then এই অ্যালবামের সব ছবি with ছবিতে চাপ দিলে বড় হয়. Without text the photos follow the head directly.
 - **Photos** (`album-photos.tsx`, client): justified rows, each photo keeping its shape and a row sharing one height (290px, 150px on phones), 12px corners; the videos come after the third photo. On hover a `surface` corner button shows it opens, and the caption sits on a dark gradient at the foot.
 - **Viewer:** a full-screen `dark` window: the album's name and the count (২ / ১৮), এই ছবিটি পাঠান (WhatsApp, the photo's own link), লিংক কপি and close; the photo whole (`object-contain`); previous and next (round `panel` buttons, 56px; on the photo on phones); the caption and the day; a strip of all the photos with the current one ringed in `bronze-light`. Arrow keys and a swipe move through the photos, Escape closes. The address follows the photo (`#photo-3`), so a shared link opens that photo.
 - **Close:** on `cream`, the older and the newer album as `surface` cards (cover, আগের অ্যালবাম / পরের অ্যালবাম, the name, the day and count), then গ্যালারিতে ফিরুন.
 - Link previews show the album's cover (1200 × 630, cropped on its hotspot). Structured data: an `ImageGallery` of the photos and videos (`VideoObject`), and the breadcrumb.
+
+## Notice board
+
+নোটিশ বোর্ড (`src/app/[locale]/notices/page.tsx` and `notices/[slug]/page.tsx`, components in `src/components/notices`, logic in `src/lib/notices/notices.ts`, spec `docs/notices.md`). Notices come from Studio → Notices (`notice`). Shown only once Site Settings switches the notice board on (`showNotices`); the menu, the footer, the sitemap, the homepage block and the old News pages (which then lead to the board) follow the same switch. The owner approved the design on the notices canvas (https://claude.ai/artifact/N9bfjbtWWnPZHjmk5MA4PQ, the Blend boards) in October 2026.
+
+A notice is formal: paper, ink and rules, the type as plain words. No coloured tags, chips or photos in the lists; rust only for hover and links.
+
+- **Head** (`paper`): the H1 (`text-hero`) and the lead. Pinned notices (জরুরি) follow as `surface` cards, two across from 768px, with a 3px `ink` rule along the top and a `line-strong` ring: জরুরি with the push-pin, the number and type, the title (`text-h4`), two lines of the text, then over a `line` rule the date and weekday and the PDF / ছবি marks. A pinned notice also keeps its place in the list.
+- **Board** (`notice-board.tsx`, client): text tabs for the type (সব and the four types, 46px, the chosen one `ink` with a 2px `ink` underline) over a `line-strong` rule, and a year select on the right once notices span two years. Then month by month (`text-h4` with a `line-strong` rule running to the edge): rows in a `surface` box with a `line-strong` border, `radius-photo`. The first three months show; আগের মাসের নোটিশ (month) adds three more.
+- **Row** (`notice-row.tsx`): the day large (34px 800, 28px on phones) with the weekday below, behind a `line` rule; then the number (নং ২০২৬/১৭, 650 `ink`), · the type (`ink-muted`), জরুরি when pinned, and নতুন in an `ink` outline for its first seven days; the title (`text-19` 700, `rust` on hover) and the first line of the text; on the right the PDF / ছবি marks and a caret. The whole row is one link.
+- **Notice page** (`cream`): back to the board and প্রিন্ট above an `article` on a `surface` sheet (`radius-card`, at most 860px). A slim letterhead over a 1.5px `ink` rule: the school and its place on the left, নোটিশ নং and the date with weekday on the right. Then the type (and জরুরি), the title (`text-h2`) and the text (`text-19` at 1.75). সংযুক্তি: each PDF a `paper` row with its name, size, দেখুন (new tab) and ডাউনলোড; each picture at most 620px wide, opening the full picture in a new tab to zoom. Then অভিভাবকদের গ্রুপে পাঠান with WhatsApp and copy link (`ShareLinks`). Below the sheet, the earlier and later notices under `ink` rules. No issuer line.
+- **English pages:** a notice with no English shows in Bengali, marked `lang="bn"`, and its page opens with a `surface` note that it is in Bengali only (with the office phone when Site Settings has one).
+- **Print:** the sheet alone (`data-print-sheet`; globals.css hides the banner, header, footer, apply bar and cookie notice), without the buttons.
+- Link previews: the title with its number; a notice with a picture shows its top (1200 × 630).
+- No motion.
 
 ## Do's and Don'ts
 

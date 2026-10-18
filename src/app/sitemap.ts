@@ -5,6 +5,7 @@ import { getTeacherSlugs } from '@/lib/queries/teachers';
 import { getNavigationVisibility } from '@/lib/queries/site';
 import { getContentService } from '@/lib/content-service';
 import { toAlbum } from '@/lib/gallery/albums';
+import { dhakaToday, toNotice } from '@/lib/notices/notices';
 import {
   isSectionVisible,
   type NavigationVisibility,
@@ -72,6 +73,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const showAdvisors = isSectionVisible('advisors', visibility);
   const showCampus = isSectionVisible('campus', visibility);
   const showGallery = isSectionVisible('gallery', visibility);
+  const showNotices = isSectionVisible('notices', visibility);
   // About us holds the board and the advisors (the old /directors and /advisors redirect there).
   const showAbout = isSectionVisible('people', visibility) && (showDirectors || showAdvisors);
 
@@ -84,16 +86,21 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...(showAbout ? bilingual('/about', 0.8, 'monthly') : []),
     ...(showCampus ? bilingual('/campus', 0.8, 'monthly') : []),
     ...(showGallery ? bilingual('/gallery', 0.7, 'weekly') : []),
+    ...(showNotices ? bilingual('/notices', 0.8, 'daily') : []),
     ...(showTeachers ? bilingual('/teachers', 0.8, 'monthly') : []),
   ];
 
   let profilePages: MetadataRoute.Sitemap = [];
   try {
-    const [directorSlugs, teacherSlugs, albums] = await Promise.all([
+    const [directorSlugs, teacherSlugs, albums, notices] = await Promise.all([
       getDirectorSlugs(),
       getTeacherSlugs(),
       showGallery ? getContentService(false).getAlbums() : [],
+      showNotices ? getContentService(false).getNotices() : [],
     ]);
+    // Every notice page there is: one in Bengali only shows in Bengali on the English page too.
+    const today = dhakaToday();
+    const noticeSlugs = notices.flatMap(n => toNotice(n, 'bengali', today)?.slug ?? []);
     // An album is listed in each language it can be shown in.
     const shown = (a: (typeof albums)[number], locale: 'bengali' | 'english') =>
       toAlbum(a, locale, p => p.asset?._ref) ? a.slug : undefined;
@@ -111,6 +118,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       ...albums.flatMap(a =>
         bilingualSlug('/gallery', shown(a, 'bengali'), shown(a, 'english'), 0.5)
       ),
+      ...noticeSlugs.flatMap(s => bilingualSlug('/notices', s, s, 0.5)),
     ];
   } catch (error) {
     console.error('Error building dynamic sitemap entries:', error);

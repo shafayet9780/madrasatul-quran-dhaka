@@ -41,6 +41,12 @@ describe('isSectionVisible', () => {
     expect(isSectionVisible('gallery', { showGallery: true })).toBe(true);
   });
 
+  it('shows the notice board only once it is switched on', () => {
+    expect(isSectionVisible('notices', undefined)).toBe(false);
+    expect(isSectionVisible('notices', { showNotices: false })).toBe(false);
+    expect(isSectionVisible('notices', { showNotices: true })).toBe(true);
+  });
+
   it('supports whole-section masters (people/about/academics)', () => {
     expect(isSectionVisible('about', { showAbout: false })).toBe(false);
     expect(isSectionVisible('academics', { showAcademics: false })).toBe(false);

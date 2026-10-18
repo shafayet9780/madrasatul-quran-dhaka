@@ -427,6 +427,7 @@ export interface SiteSettings {
     showAdmissions?: boolean
     showContact?: boolean
     showGallery?: boolean
+    showNotices?: boolean
     showBooks?: boolean
   }
 }
