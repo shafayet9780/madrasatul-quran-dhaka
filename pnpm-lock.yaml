@@ -115,9 +115,6 @@ importers:
       groq:
         specifier: ^5.31.2
         version: 5.31.2
-      gsap:
-        specifier: ^3.15.0
-        version: 3.15.0
       lucide-react:
         specifier: ^0.544.0
         version: 0.544.0(react@19.3.1)
@@ -5991,9 +5988,6 @@ packages:
   groq@6.19.0:
     resolution: {integrity: sha512-lI4IYuH0S2BD9X+TNn+QLMcOueqAJr/O/gmn1CbtmWZ8WjBIbTflXudOsMb1Dh/AaPBYTxcGWjQosEHqfTeSkA==}
     engines: {node: '>=22.12'}
-
-  gsap@3.15.0:
-    resolution: {integrity: sha512-dMW4CWBTUK1AEEDeZc1g4xpPGIrSf9fJF960qbTZmN/QwZIWY5wgliS6JWl9/25fpTGJrMRtSjGtOmPnfjZB+A==}
 
   gtoken@7.1.0:
     resolution: {integrity: sha512-pCcEwRi+TKpMlxAQObHDQ56KawURgyAf6jtIY046fJ5tIv3zDe/LEIubckAO8fj6JnAxLdmWkUfNyulQ2iKdEw==}
@@ -15011,8 +15005,6 @@ snapshots:
   groq@5.31.2: {}
 
   groq@6.19.0: {}
-
-  gsap@3.15.0: {}
 
   gtoken@7.1.0:
     dependencies:
