@@ -149,6 +149,7 @@ Nothing is written to the active routine; the owner reviews the draft and makes 
 - `/admin/routine` sits behind the existing admin Basic Auth (`src/proxy.ts`); no public pages.
 - Salary and phone are shown on admin pages only; never in prints, the WhatsApp text, or exports.
 - No routine data in Sanity.
+- Nightly backup: the daily cron (`/api/cron/survey-daily`) writes every routine table to `routine-backups/YYYY-MM-DD.json` in the survey's private Blob store (`PG_BACKUP_BLOB_READ_WRITE_TOKEN`) and keeps 30 days (`src/lib/routine/backup.ts`).
 
 ## 9. Build phases
 

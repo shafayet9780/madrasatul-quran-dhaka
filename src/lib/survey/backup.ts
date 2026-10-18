@@ -23,9 +23,9 @@ export async function backupSurveyTables(now = new Date()) {
     db.select().from(answerItems),
     db.select().from(importRuns),
   ]);
-  const body = JSON.stringify({
-    takenAt: now.toISOString(),
-    tables: {
+  return saveDailyBackup(
+    PREFIX,
+    {
       students: studentRows,
       survey_rounds: roundRows,
       submissions: submissionRows,
@@ -33,11 +33,18 @@ export async function backupSurveyTables(now = new Date()) {
       answer_items: itemRows,
       import_runs: importRows,
     },
-  });
-  const pathname = `${PREFIX}${now.toISOString().slice(0, 10)}.json`;
+    now,
+    token,
+  );
+}
+
+/** Writes `<prefix>YYYY-MM-DD.json` to the private store and keeps the latest 30 of that prefix. */
+export async function saveDailyBackup(prefix: string, tables: Record<string, unknown[]>, now: Date, token: string) {
+  const body = JSON.stringify({ takenAt: now.toISOString(), tables });
+  const pathname = `${prefix}${now.toISOString().slice(0, 10)}.json`;
   await put(pathname, body, { access: 'private', contentType: 'application/json', addRandomSuffix: false, allowOverwrite: true, token });
 
-  const { blobs } = await list({ prefix: PREFIX, limit: 1000, token });
+  const { blobs } = await list({ prefix, limit: 1000, token });
   const old = blobs
     .sort((a, b) => b.pathname.localeCompare(a.pathname))
     .slice(KEEP)
