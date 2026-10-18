@@ -61,7 +61,7 @@ export default async function Home({ params }: { params: Promise<{ locale: Local
       <EducationModel locale={locale} />
       <StudyPlan locale={locale} />
       <SchoolDay locale={locale} routine={homePage?.routine} routes={visibleRoutes(feeSettings?.transportRoutes, locale)} transportPhone={transportPhone(siteSettings?.contactInfo)} />
-      <Campus locale={locale} mapUrl={siteSettings?.locationInfo?.googleMapsUrl} playSpaces={homePage?.playSpaces} showVisit={isSectionVisible('campus', siteSettings?.navigationVisibility)} />
+      <Campus locale={locale} mapUrl={siteSettings?.locationInfo?.googleMapsUrl} playSpaces={homePage?.playSpaces} showVisit={isSectionVisible('campus', siteSettings?.navigationVisibility)} showGallery={isSectionVisible('gallery', siteSettings?.navigationVisibility)} />
       <Why locale={locale} />
       <Founder locale={locale} />
       <Reviews locale={locale} reviews={reviewsFor(testimonials, locale)} />

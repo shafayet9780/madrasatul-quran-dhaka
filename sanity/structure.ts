@@ -6,6 +6,7 @@ export const structure: StructureResolver = (S) =>
     .items([
       S.listItem().title('Homepage').id('homePage').child(S.document().schemaType('homePage').documentId('homePage')),
       S.listItem().title('Campus: a day').id('campusDay').child(S.document().schemaType('campusDay').documentId('campusDay')),
+      S.listItem().title('Gallery').schemaType('album').child(S.documentTypeList('album').title('Gallery: albums').defaultOrdering([{ field: 'date', direction: 'desc' }])),
       S.listItem().title('Guardian reviews').schemaType('testimonial').child(S.documentTypeList('testimonial').title('Guardian reviews')),
       S.listItem().title('Fees & Discounts').id('feeSettings').child(S.document().schemaType('feeSettings').documentId('feeSettings')),
       // Site Settings (Singleton)

@@ -317,7 +317,8 @@
         "landmarks": "2.5 km from Mirpur DOHS.",
         "map": "Open in Google Maps",
         "visit": "Visit the campus"
-      }
+      },
+      "gallery": "More photos and videos in the gallery"
     },
     "why": {
       "title": "Why Madrasatul Quran?",
@@ -885,7 +886,8 @@
       "title": "Come and see for yourself",
       "hours": "Office hours: {hours}",
       "directions": "Directions",
-      "call": "Call"
+      "call": "Call",
+      "gallery": "See photos and videos"
     }
   },
   "news": {
@@ -1460,6 +1462,7 @@
       "about": "About us",
       "curriculum": "Curriculum",
       "campus": "Campus",
+      "gallery": "Gallery",
       "admissions": "Admissions",
       "contact": "Contact",
       "books": "Our books",
@@ -1482,6 +1485,89 @@
       "books": "Our books",
       "privacy": "Privacy policy",
       "cookies": "Cookie policy"
+    }
+  },
+  "gallery": {
+    "meta": {
+      "title": "Gallery: photos and videos | Madrasatul Quran",
+      "description": "Photos and videos of classes, events and days on campus at Madrasatul Quran, kept album by album."
+    },
+    "hero": {
+      "eyebrow": "Gallery · Photos and videos",
+      "title": "Our school diary",
+      "lead": "From the morning lesson to the home-time bell. Classes, events and days on campus, kept album by album.",
+      "facebook": "Facebook page",
+      "youtube": "YouTube channel",
+      "latest": "Latest album",
+      "open": "See the album"
+    },
+    "topics": {
+      "all": "All",
+      "quran": "Quran and Hifz",
+      "classes": "Classes",
+      "events": "Events",
+      "sports": "Sports and trips",
+      "campus": "Campus",
+      "video": "Videos"
+    },
+    "filter": {
+      "label": "Choose albums",
+      "year": "Year",
+      "topic": "Topic"
+    },
+    "rows": {
+      "title": "Albums from {year}",
+      "empty": "No albums on this topic this year.",
+      "showAll": "See all albums"
+    },
+    "count": {
+      "photos": "{count, plural, one {{shown} photo} other {{shown} photos}}",
+      "videos": "{count, plural, one {{shown} video} other {{shown} videos}}"
+    },
+    "watch": {
+      "title": "Watch",
+      "lead": "Events, classes and days on campus, on video.",
+      "shorts": "Short videos",
+      "video": "Video",
+      "play": "Play the video: {title}",
+      "close": "Close",
+      "onYoutube": "Watch on YouTube"
+    },
+    "ever": {
+      "title": "All-time albums",
+      "lead": "Photos that belong to no single day: the campus, the Quran classes and the play spaces. New photos are added here."
+    },
+    "close": {
+      "title": "Seen the photos? Come and see for yourself",
+      "lead": "Office hours and the address are on the contact page.",
+      "visit": "Visit the campus",
+      "apply": "Apply"
+    },
+    "album": {
+      "meta": "{title}: photos and videos | Madrasatul Quran",
+      "crumbs": "You are here",
+      "share": "Send on WhatsApp",
+      "copy": "Copy the link",
+      "copied": "Link copied",
+      "all": "All the photos in this album",
+      "tapHint": "Tap a photo to see it larger",
+      "older": "Earlier album",
+      "newer": "Later album",
+      "back": "Back to the gallery",
+      "ever": "All-time album"
+    },
+    "viewer": {
+      "label": "Photo viewer",
+      "counter": "{at} of {total}",
+      "prev": "Previous photo",
+      "next": "Next photo",
+      "close": "Close",
+      "send": "Send this photo",
+      "copy": "Copy link",
+      "copied": "Copied",
+      "swipe": "Swipe left or right",
+      "thumbs": "All photos",
+      "open": "See it larger: {alt}"
     }
   }
 }

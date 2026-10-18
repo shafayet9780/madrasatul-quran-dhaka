@@ -200,7 +200,7 @@ Example, the hero: **মাদরাসাতুল কুরআন** / ইস�
 
 **Texture.** One texture, on the footer only: a faint dot grid (`texture-dots`, cream dots at 10% every 24px on `dark`). It marks the end of the page, so no other section uses it.
 
-**Imagery.** Photographs of the school itself, in `radius-photo` frames. The hero photos and the play spaces come from the CMS; the campus, van, reason and founder photos are files in `public/images/home`, and the Campus page's launch-day rooms in `public/images/campus`; the Campus page's stops and photos come from Studio once it has them. The photo shoot comes after launch; until then an empty photo slot shows a placeholder (`sand-pale` on light, `panel` on dark) that names the photo to come in brackets.
+**Imagery.** Photographs of the school itself, in `radius-photo` frames. The hero photos and the play spaces come from the CMS; the campus, van, reason and founder photos are files in `public/images/home`, and the Campus page's launch-day rooms in `public/images/campus`; the Campus page's stops and photos come from Studio once it has them, and the gallery's albums from Studio → Gallery (videos stay on YouTube). The photo shoot comes after launch; until then an empty photo slot shows a placeholder (`sand-pale` on light, `panel` on dark) that names the photo to come in brackets.
 
 **Motion.** Motion only where it explains something: numbers count up once in view; the split tiles glide between stages (`ease-out-expo`, 700ms); the curriculum map and the van routes draw with scroll; buttons and FAQ answers move a little (`ease-standard`). In the hero, one photo tile at a time cross-fades about every five seconds, and it can be paused. The Campus page plays one school day beside its text (CampusTour): the sky, the clock, the chips and the lift follow the stop in view, and each stop's own motion follows the scroll. Animate only transform, opacity and clip-path. The H1, the buttons and the first photo never fade in, reading text never animates, and nothing loops except the hero photos. `prefers-reduced-motion` turns all of it off, and every element must look complete without its animation.
 
@@ -231,8 +231,8 @@ The homepage, top to bottom, then the site chrome. Each has a preview in the Cla
 The header on every public page (`src/components/layout/site-header.tsx`, a server component, with the menu in `site-nav.tsx`): the logo and name, the main menu, the language switch. It scrolls away with the page.
 
 - Logo: `siteSettings.logo` at 42px. Name `text-18` 700, place `text-13` `ink-muted`. The logo is the link home.
-- Menu: আমাদের সম্পর্কে (the board and advisors; it replaced the আমাদের সদস্যবৃন্দ dropdown in October 2026), কারিকুলাম, ক্যাম্পাস, ভর্তি, যোগাযোগ, আমাদের বইসমূহ ↗ (opens alquranervasha.com in a new tab). Labels: `messages` `site.nav`.
-- Site Settings → Navigation decides what shows (`siteNav` in `src/lib/site/nav.ts`): আমাদের সম্পর্কে follows Our people and shows while the directors or the advisors do; ক্যাম্পাস follows Campus (`showCampus`). The footer's Pages list follows the same switches.
+- Menu: আমাদের সম্পর্কে (the board and advisors; it replaced the আমাদের সদস্যবৃন্দ dropdown in October 2026), কারিকুলাম, ক্যাম্পাস, গ্যালারি, ভর্তি, যোগাযোগ, আমাদের বইসমূহ ↗ (opens alquranervasha.com in a new tab). Labels: `messages` `site.nav`.
+- Site Settings → Navigation decides what shows (`siteNav` in `src/lib/site/nav.ts`): আমাদের সম্পর্কে follows Our people and shows while the directors or the advisors do; ক্যাম্পাস follows Campus (`showCampus`); গ্যালারি shows only once Gallery (`showGallery`) is switched on, so the menu never links to an empty gallery. The footer's Pages list follows the same switches.
 - From 1180px: one row of links. The menu can still hold a dropdown group (none today): it opens on hover or click, Escape or a click elsewhere closes it; its panel is `surface`, `line` border, `radius-card`, `shadow-photo`.
 - Below 1180px: a মেনু / Menu pill (Phosphor list, ✕ while open) opens the same links under the header. Below 480px the language switch moves to the top of that menu, so the row fits a 360px phone.
 - The page you are on (`aria-current="page"`, also its subpages): `rust` with a 2px underline 10px below in the row; `rust` 650 in the phone menu; `cream` behind it in a dropdown.
@@ -319,7 +319,7 @@ The campus (`Campus`, `src/components/homepage/campus.tsx`): a `dark` section af
 - **Room to play:** the building photo in the middle, the girls' rooftop garden and the boys' field beside it, each joined to its place on the building by a dashed `bronze-light` line (over a 5px dark halo, so it reads on the photo) ending in a `bronze-light` dot. Lines and dots are `aria-hidden`.
   - Two fixed layouts in % of the collage box: wide from 760px (1160:470, the spaces left and right), tall below (358:700, the spaces above and below, at most 440px wide). Never squeeze one into the other.
   - Each space: a `panel` frame (`radius-photo`, `shadow-frame-dark`) and its title (girls or boys first, then the place) with a quieter line on where it is. The photos come from Studio → Homepage → Play spaces, framed on their hotspot; until one is added its frame shows a bracketed placeholder.
-- **Photos:** the entrance at dusk and a winter morning in class, 16:10, `radius-photo`, side by side from about 640px; captions `text-14` `on-dark-muted`. They are files in `public/images/home`, like the building and van photos.
+- **Photos:** the entrance at dusk and a winter morning in class, 16:10, `radius-photo`, side by side from about 640px; captions `text-14` `on-dark-muted`. They are files in `public/images/home`, like the building and van photos. Below them, once the gallery is on, a `bronze-light` text link with an arrow to it (`home.campus.gallery`).
 - **Getting here:** a `panel` card (`radius-panel`). Left, a sketch (not to scale, `role="img"` with the route in its label): the metro line in `rust`, the station in `cream`, the 600 m walk dashed in `bronze`, the school in `rust`. Its labels are set larger below 480px so they stay readable when the sketch is small; it is never wider than 560px. Right, the H3 (the distance from the metro), the address, a landmark, a `light` button to the CMS Google Maps link (hidden without one) and an `outline-dark` button to the Campus page (CampusTour), shown while Site Settings shows Campus.
 - No motion: nothing here explains anything by moving.
 
@@ -605,7 +605,54 @@ The Campus page, ক্যাম্পাসে একটি দিন (`src/com
 
 ### CampusClose
 
-The Campus page's close (`src/components/campus/campus-close.tsx`), a `dark` band before the footer: নিজে এসে দেখুন (`text-h2`), the office hours from Site Settings (`text-17` `on-dark-body`), and two `lg` pills: a `light` one with the navigation-arrow icon to Google Maps directions (new tab) and an `outline-dark` call to the office (counted as a call click, `campus_close`). The call is left out when Site Settings has no office phone. Copy in `campus.close`.
+The Campus page's close (`src/components/campus/campus-close.tsx`), a `dark` band before the footer: নিজে এসে দেখুন (`text-h2`), the office hours from Site Settings (`text-17` `on-dark-body`), and two `lg` pills: a `light` one with the navigation-arrow icon to Google Maps directions (new tab) and an `outline-dark` call to the office (counted as a call click, `campus_close`). The call is left out when Site Settings has no office phone. Once the gallery is on, a third `outline-dark` pill with the image icon leads to it. Copy in `campus.close`.
+
+## Gallery page
+
+আমাদের দিনলিপি (`src/app/[locale]/gallery/page.tsx` and `gallery/[slug]/page.tsx`, components in `src/components/gallery`, spec `docs/gallery.md`). Albums come from Studio → Gallery (`album`); photos live in Sanity, videos on the school's YouTube channel. Shown only once Site Settings switches the gallery on (`showGallery`); the menu link গ্যালারি after ক্যাম্পাস, the footer, the sitemap and the links from the homepage and the Campus page follow the same switch. The owner approved the design on the gallery canvas (https://claude.ai/artifact/FsAEecyvkzfaBn7fRHkEL5, the Final boards) in October 2026.
+
+Top to bottom: the hero (`paper`), the filter bar and the month rows (`cream`), the videos (`dark`), the all-time albums (`paper`), the close (`cream`).
+
+### GalleryHero
+
+`gallery-hero.tsx`: two columns from 1024px (5:7). Left, the eyebrow গ্যালারি · ছবি ও ভিডিও (`text-14` 650 `ink-muted`), the H1 আমাদের দিনলিপি (`text-hero`), the lead, and text links to the Facebook page and the YouTube channel (Site Settings → social media, active ones only, with their Phosphor logos). Right, the latest dated album as one link: a collage of its first three photos (the first large, spanning two rows, with `shadow-photo`; 470px tall from 640px), a `dark` সবশেষ অ্যালবাম badge on it, then its name (`text-h3`), the day and counts, and অ্যালবাম দেখুন with an arrow. Copy in `gallery.hero`.
+
+### AlbumBrowser
+
+`album-browser.tsx` (client): the dated albums, month by month, with their wide videos in the same rows.
+
+- **Filter bar:** sticks to the top of the screen (`cream` at 95% with a blur, `line` above and below). A year switch (a `surface` pill holding one pill per year, the chosen one `dark`) shows only once albums span two years, then a `line-strong` divider. Topic chips (40px pills, `line-strong` ring, the chosen one `dark`) for সব and each topic that has albums (কুরআন ও হিফজ, ক্লাস, অনুষ্ঠান, খেলাধুলা ও সফর, ক্যাম্পাস), then ভিডিও (videos only). Chips scroll sideways on a phone. A choice made while the bar is stuck takes the reader back to the top of the albums.
+- **Rows:** the H2 (২০২৬ সালের অ্যালবাম, `text-h3`), then one row per month: the month (`text-h4`, sticky beside its cards from 768px) and its cards, three across from 1024px and two on phones. Rows are divided by `line`.
+- **Album card** (`album-card.tsx`): a 4:3 cover in `radius-photo` with two sheets behind it (`sand-deep`, `line-strong`) so it reads as a set, a `surface` badge with the image icon and the number of photos, then the name (`text-19` 700, `text-17` on phones) and the day and topic (`text-14` `ink-muted`).
+- **Video card:** the same frame with the YouTube cover, a play button and the length; ভিডিও and the day below.
+- When a year and a topic leave nothing, a line says so with a সব অ্যালবাম দেখুন chip.
+
+### VideoTile
+
+`video-tile.tsx` (client): a video's cover (`i.ytimg.com`, `hqdefault`) with a round `dark` play button and the length in a `dark` tag. Nothing else from YouTube loads until it is tapped; then a window opens over a `dark` backdrop with the name, ইউটিউবে দেখুন and a close button, and the player (`youtube-nocookie.com`, upright videos 9:16). Without JavaScript the cover links to the video on YouTube. A cover YouTube cannot serve stays the frame's plain colour.
+
+### GalleryWatch
+
+`gallery-watch.tsx`, `dark`: দেখুন (`text-h2`), its lead and the YouTube channel link; the newest wide video large (16:9, `shadow-frame-dark`) with the next three listed beside it (16:10 covers with the length only); then ছোট ভিডিও, up to six upright videos in a row (9:16, a sideways strip on phones). Hidden when there are no videos.
+
+### GalleryEver
+
+`gallery-ever.tsx`, `paper`: সব সময়ের অ্যালবাম and its lead, then the all-time albums (no date: the campus, the Quran classes, the play spaces) as 340px tiles (220px on phones) in `radius-panel`, the name and the number of photos on a dark gradient at the foot of the photo.
+
+### GalleryClose
+
+`gallery-close.tsx`, `cream`: ছবিতে যা দেখলেন, নিজে এসে দেখুন (`text-h3`) and a line pointing to the contact page, then an `outline` pill ক্যাম্পাস দেখতে আসুন (the contact page) and the `primary` আবেদন করুন. Copy in `gallery.close`.
+
+### Album page
+
+`gallery/[slug]/page.tsx`, `paper`:
+
+- **Head:** the breadcrumb (গ্যালারি / the year or সব সময়ের অ্যালবাম / the topic), the H1 (`text-hero`), the day and counts, the album's two lines when it has them (`text-lead`); on the right, হোয়াটসঅ্যাপে পাঠান (WhatsApp green) and লিংক কপি করুন (`share-album.tsx`).
+- **With text** (Studio → Text, or a teacher's words) it opens as a short story: the first photo large (620px, 300px on phones, `shadow-photo`) with its caption, the text (`text-19`, at most 680px wide), the teacher's words in Tiro Bangla (`text-quote`, a 4px `bronze` rule on the left) with their name, then এই অ্যালবামের সব ছবি with ছবিতে চাপ দিলে বড় হয়. Without text the photos follow the head directly.
+- **Photos** (`album-photos.tsx`, client): justified rows, each photo keeping its shape and a row sharing one height (290px, 150px on phones), 12px corners; the videos come after the third photo. On hover a `surface` corner button shows it opens, and the caption sits on a dark gradient at the foot.
+- **Viewer:** a full-screen `dark` window: the album's name and the count (২ / ১৮), এই ছবিটি পাঠান (WhatsApp, the photo's own link), লিংক কপি and close; the photo whole (`object-contain`); previous and next (round `panel` buttons, 56px; on the photo on phones); the caption and the day; a strip of all the photos with the current one ringed in `bronze-light`. Arrow keys and a swipe move through the photos, Escape closes. The address follows the photo (`#photo-3`), so a shared link opens that photo.
+- **Close:** on `cream`, the older and the newer album as `surface` cards (cover, আগের অ্যালবাম / পরের অ্যালবাম, the name, the day and count), then গ্যালারিতে ফিরুন.
+- Link previews show the album's cover (1200 × 630, cropped on its hotspot). Structured data: an `ImageGallery` of the photos and videos (`VideoObject`), and the breadcrumb.
 
 ## Do's and Don'ts
 
@@ -636,6 +683,6 @@ The Campus page's close (`src/components/campus/campus-close.tsx`), a `dark` ban
 
 - **Tokens:** `src/styles/tokens.css` (`@theme static`, imported by `globals.css`). The old `primary`/`secondary`/`accent` scales in `globals.css` stay until every page is redesigned. `cn()` (`src/lib/utils.ts`) knows the token names, so `text-18 text-surface` keeps both.
 - **Fonts:** `src/lib/fonts.ts` (next/font): Anek Latin, Anek Bangla (Bengali glyphs only) and Tiro Bangla (quotations, not preloaded), weight axis only.
-- **Content:** the CMS feeds the hero photos and statistics (Site Settings), the intake (Pre-admission form), the routes (Fees & Discounts → Transport), the routine, play-space photos and FAQ (Homepage) and the guardian reviews (Guardian reviews, consent only). Where the Homepage lists are empty the launch copy in `messages/*.json` (`home.*`) shows. The Admissions page reads the published Pre-admission form (status, classes and ages, the two intake fees, what to bring) and Fees & Discounts (fees, discounts, payment rules, routes); its own copy is `admissions.page`, and it reuses the pre-admission page's approved steps and questions (`preAdmission.intro`). The Curriculum page's copy is `curriculum.*`; it reads only whether the pre-admission form is open.
+- **Content:** the CMS feeds the hero photos and statistics (Site Settings), the intake (Pre-admission form), the routes (Fees & Discounts → Transport), the routine, play-space photos and FAQ (Homepage) and the guardian reviews (Guardian reviews, consent only). Where the Homepage lists are empty the launch copy in `messages/*.json` (`home.*`) shows. The Admissions page reads the published Pre-admission form (status, classes and ages, the two intake fees, what to bring) and Fees & Discounts (fees, discounts, payment rules, routes); its own copy is `admissions.page`, and it reuses the pre-admission page's approved steps and questions (`preAdmission.intro`). The Curriculum page's copy is `curriculum.*`; it reads only whether the pre-admission form is open. The gallery reads Studio → Gallery (`album`); its copy is `gallery.*`.
 - **Motion:** named animations and scroll-driven utilities live in `tokens.css` (`animate-settle`, `animate-rise`, `animate-tile-in`, `animate-answer`, `draw-x`/`draw-y`, `route-stop`/`route-line`). Animate only transform, opacity and clip-path; `prefers-reduced-motion` turns everything off, and `globals.css` has a safety net.
 - **Search:** pages are server-rendered; the FAQ prints FAQPage JSON-LD from the same list it shows.

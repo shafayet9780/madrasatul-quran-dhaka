@@ -21,6 +21,13 @@ describe('siteNav', () => {
     expect(keys(siteNav('english', { ...live, showCampus: false }))).not.toContain('campus');
   });
 
+  it('shows the gallery after Campus once its switch is on', () => {
+    expect(keys(siteNav('english', {}))).not.toContain('gallery');
+    const items = siteNav('bengali', { showGallery: true });
+    expect(keys(items)).toEqual(['about', 'curriculum', 'campus', 'gallery', 'admissions', 'contact', 'books']);
+    expect(items[3]).toEqual({ key: 'gallery', href: '/bengali/gallery' });
+  });
+
   it('shows About us while the board or the advisors show', () => {
     expect(keys(siteNav('english', { showDirectors: false }))).toContain('about');
     expect(keys(siteNav('english', { showDirectors: false, showAdvisors: false }))).not.toContain('about');

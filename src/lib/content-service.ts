@@ -1,7 +1,10 @@
 import type { FeeSettings } from '@/types/fees';
 import type { HomePage, Testimonial } from '@/types/home';
 import type { CampusStopIn } from '@/lib/campus/day';
-import { campusDayQuery, feeSettingsQuery, homePageQuery, homeTestimonialsQuery } from './sanity-queries';
+import type { AlbumIn } from '@/lib/gallery/albums';
+import { SAMPLE_ALBUMS } from '@/lib/gallery/testing/sample-albums';
+import { localOverrides } from '@/lib/admissions/local';
+import { albumBySlugQuery, campusDayQuery, galleryAlbumsQuery, feeSettingsQuery, homePageQuery, homeTestimonialsQuery } from './sanity-queries';
 import { client, previewClient } from './sanity';
 import { sanityFetch } from './sanity-fetch';
 import type { SanityDocument } from '@sanity/client';
@@ -75,6 +78,30 @@ export class ContentService {
     }
   }
 
+  /** Studio → Gallery: every album shown, newest first, with its first three photos. The local preview has samples. */
+  async getAlbums(): Promise<AlbumIn[]> {
+    if (localOverrides()) return SAMPLE_ALBUMS.map((a) => ({ ...a, photos: a.photos?.slice(0, 3) }));
+    try {
+      if (this.isPreview) return (await this.client.fetch(galleryAlbumsQuery)) ?? [];
+      return (await sanityFetch<AlbumIn[] | null>({ query: galleryAlbumsQuery, tags: ['album'] })) ?? [];
+    } catch (error) {
+      console.error('Error fetching the gallery:', error);
+      return [];
+    }
+  }
+
+  /** One album, with all its photos. */
+  async getAlbum(slug: string): Promise<AlbumIn | null> {
+    if (localOverrides()) return SAMPLE_ALBUMS.find((a) => a.slug === slug) ?? null;
+    try {
+      if (this.isPreview) return await this.client.fetch(albumBySlugQuery, { slug });
+      return await sanityFetch<AlbumIn | null>({ query: albumBySlugQuery, params: { slug }, tags: ['album'] });
+    } catch (error) {
+      console.error('Error fetching the album:', error);
+      return null;
+    }
+  }
+
   /** Studio → Guardian reviews: the first three with recorded consent. */
   async getHomeTestimonials(): Promise<Testimonial[]> {
     try {
@@ -90,6 +117,8 @@ export class ContentService {
    * Site Settings
    */
   async getSiteSettings(): Promise<SiteSettings | null> {
+    // The local preview has no Sanity; its sample gallery is switched on.
+    if (localOverrides()) return { navigationVisibility: { showGallery: true } } as SiteSettings;
     try {
       if (this.isPreview) {
         return await this.client.fetch(siteSettingsQuery);

@@ -37,7 +37,7 @@ export default async function CampusPage({ params }: Props) {
   return (
     <>
       <CampusTour stops={stops} locale={locale} />
-      <CampusClose locale={locale} details={contactDetails(settings, locale)} />
+      <CampusClose locale={locale} details={contactDetails(settings, locale)} showGallery={isSectionVisible('gallery', settings?.navigationVisibility)} />
     </>
   );
 }

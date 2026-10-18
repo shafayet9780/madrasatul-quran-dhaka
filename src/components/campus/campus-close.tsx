@@ -5,8 +5,8 @@ import { ButtonLink } from '@/components/site/button';
 import { ContactLink } from '@/components/site/contact-link';
 import { Icon } from '@/components/site/icon';
 
-/** The close, on dark: come and see, the office hours (Site Settings), directions and a call to the office. */
-export async function CampusClose({ locale, details }: { locale: Locale; details: ReturnType<typeof contactDetails> }) {
+/** The close, on dark: come and see, the office hours (Site Settings), directions, a call to the office and the gallery (once it is on). */
+export async function CampusClose({ locale, details, showGallery }: { locale: Locale; details: ReturnType<typeof contactDetails>; showGallery: boolean }) {
   const t = await getTranslations({ locale, namespace: 'campus.close' });
   return (
     <section className="bg-dark text-on-dark">
@@ -25,6 +25,12 @@ export async function CampusClose({ locale, details }: { locale: Locale; details
               <Icon name="phone" />
               {t('call')}
             </ContactLink>
+          )}
+          {showGallery && (
+            <ButtonLink href={`/${locale}/gallery`} variant="outline-dark" size="lg">
+              <Icon name="image" />
+              {t('gallery')}
+            </ButtonLink>
           )}
         </div>
       </div>

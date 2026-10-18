@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import Link from 'next/link';
 import type { CSSProperties } from 'react';
 import { getTranslations } from 'next-intl/server';
 import type { Locale } from '@/lib/i18n';
@@ -83,8 +84,11 @@ function PlaySpaces({ layout, spaces, buildingAlt, className }: { layout: Collag
   );
 }
 
-/** The campus: where the students play, two photos of the school, and how to get there from the metro; the Campus page while Site Settings shows it. */
-export async function Campus({ locale, mapUrl, playSpaces, showVisit }: { locale: Locale; mapUrl?: string; playSpaces?: HomePage['playSpaces']; showVisit: boolean }) {
+/**
+ * The campus: where the students play, two photos of the school (and the gallery, once it is on), and how to get there
+ * from the metro; the Campus page while Site Settings shows it.
+ */
+export async function Campus({ locale, mapUrl, playSpaces, showVisit, showGallery }: { locale: Locale; mapUrl?: string; playSpaces?: HomePage['playSpaces']; showVisit: boolean; showGallery: boolean }) {
   const t = await getTranslations({ locale, namespace: 'home.campus' });
   const spaces: Record<'roof' | 'field', Space> = {
     roof: { ...t.raw('roof'), photo: spacePhoto(playSpaces?.roof, locale) },
@@ -115,6 +119,15 @@ export async function Campus({ locale, mapUrl, playSpaces, showVisit }: { locale
             </figure>
           ))}
         </div>
+        {showGallery && (
+          <Link
+            href={`/${locale}/gallery`}
+            className="-mt-4 inline-flex min-h-11 items-center gap-2 self-start text-16 font-strong text-bronze-light no-underline hover:text-on-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-bronze-light"
+          >
+            {t('gallery')}
+            <Icon name="arrow-right" size={18} />
+          </Link>
+        )}
 
         <div className="flex flex-wrap items-center gap-x-12 gap-y-7 rounded-panel bg-panel p-[clamp(18px,3vw,36px)]">
           <div className="min-w-0 max-w-[560px] flex-[1_1_320px]">

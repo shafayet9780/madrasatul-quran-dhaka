@@ -200,6 +200,7 @@ export const siteSettingsQuery = groq`
       showPrograms,
       showAdmissions,
       showContact,
+      showGallery,
       showBooks
     }
   }
@@ -731,6 +732,12 @@ export const feeSettingsQuery = groq`*[_type == "feeSettings" && _id == "feeSett
 export const homePageQuery = groq`*[_type == "homePage" && _id == "homePage"][0]{ routine, playSpaces, faq }`;
 
 export const campusDayQuery = groq`*[_type == "campusDay" && _id == "campusDay"][0].stops`;
+
+// The gallery: every album shown, with its first photos (the cards and the hero), the count and the videos; one album whole.
+const albumFields = `_id, "slug": slug.current, title, evergreen, date, topic, videos[]{ _key, url, title, upright, length }`;
+const albumPhotoFields = `_key, asset, hotspot, alt, caption, "ratio": asset->metadata.dimensions.aspectRatio`;
+export const galleryAlbumsQuery = groq`*[_type == "album" && show != false && defined(slug.current)] | order(select(evergreen == true => "", date) desc, _createdAt asc){ ${albumFields}, "photoCount": count(photos), "photos": photos[0...3]{ ${albumPhotoFields} } }`;
+export const albumBySlugQuery = groq`*[_type == "album" && show != false && slug.current == $slug][0]{ ${albumFields}, summary, story, quote, photos[]{ ${albumPhotoFields} } }`;
 
 // Only reviews whose consent is recorded; the homepage shows the first three.
 export const homeTestimonialsQuery = groq`*[_type == "testimonial" && consent == true && show != false] | order(coalesce(order, 1000) asc, _createdAt asc)[0...3]{ _id, originalLanguage, quote, who, classLine, consent, show }`;

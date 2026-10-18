@@ -9,15 +9,18 @@ export function generatePageMetadata({
   description,
   locale,
   path = '',
+  share,
 }: {
   title: string;
   description: string;
   locale: Locale;
   path?: string;
+  /** The picture link previews show (an album's cover); the school building when there is none. */
+  share?: { url: string; alt: string };
 }): Metadata {
   const origin = getSiteUrl();
   const url = `${origin}/${locale}${path}`;
-  const image = `${origin}${SOCIAL_IMAGE}`;
+  const image = share?.url ?? `${origin}${SOCIAL_IMAGE}`;
   return {
     title: { absolute: title },
     description,
@@ -43,9 +46,10 @@ export function generatePageMetadata({
           width: 1200,
           height: 630,
           alt:
-            locale === 'bengali'
+            share?.alt ??
+            (locale === 'bengali'
               ? 'মাদরাসাতুল কুরআনের ভবন'
-              : 'Madrasatul Quran school building',
+              : 'Madrasatul Quran school building'),
         },
       ],
     },

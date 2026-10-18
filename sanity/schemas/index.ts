@@ -1,6 +1,7 @@
 import { feeSettings } from './feeSettings'
 import { homePage } from './homePage'
 import { campusDay } from './campusDay'
+import { album } from './album'
 import { testimonial } from './testimonial'
 import { page } from './page'
 import { newsEvent } from './newsEvent'
@@ -29,6 +30,7 @@ export const schemaTypes = [
   feeSettings,
   homePage,
   campusDay,
+  album,
   testimonial,
   page,
   newsEvent,

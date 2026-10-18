@@ -34,6 +34,13 @@ describe('isSectionVisible', () => {
     expect(isSectionVisible('unknownKey', visibility)).toBe(true);
   });
 
+  it('shows the gallery only once it is switched on', () => {
+    expect(isSectionVisible('gallery', undefined)).toBe(false);
+    expect(isSectionVisible('gallery', {})).toBe(false);
+    expect(isSectionVisible('gallery', { showGallery: false })).toBe(false);
+    expect(isSectionVisible('gallery', { showGallery: true })).toBe(true);
+  });
+
   it('supports whole-section masters (people/about/academics)', () => {
     expect(isSectionVisible('about', { showAbout: false })).toBe(false);
     expect(isSectionVisible('academics', { showAcademics: false })).toBe(false);

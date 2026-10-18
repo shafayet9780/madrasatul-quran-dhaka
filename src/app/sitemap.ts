@@ -3,6 +3,8 @@ import { MetadataRoute } from 'next';
 import { getDirectorSlugs } from '@/lib/queries/directors';
 import { getTeacherSlugs } from '@/lib/queries/teachers';
 import { getNavigationVisibility } from '@/lib/queries/site';
+import { getContentService } from '@/lib/content-service';
+import { toAlbum } from '@/lib/gallery/albums';
 import {
   isSectionVisible,
   type NavigationVisibility,
@@ -69,6 +71,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const showTeachers = isSectionVisible('teachers', visibility);
   const showAdvisors = isSectionVisible('advisors', visibility);
   const showCampus = isSectionVisible('campus', visibility);
+  const showGallery = isSectionVisible('gallery', visibility);
   // About us holds the board and the advisors (the old /directors and /advisors redirect there).
   const showAbout = isSectionVisible('people', visibility) && (showDirectors || showAdvisors);
 
@@ -80,15 +83,20 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...bilingual('/pre-admission', 0.8, 'monthly'),
     ...(showAbout ? bilingual('/about', 0.8, 'monthly') : []),
     ...(showCampus ? bilingual('/campus', 0.8, 'monthly') : []),
+    ...(showGallery ? bilingual('/gallery', 0.7, 'weekly') : []),
     ...(showTeachers ? bilingual('/teachers', 0.8, 'monthly') : []),
   ];
 
   let profilePages: MetadataRoute.Sitemap = [];
   try {
-    const [directorSlugs, teacherSlugs] = await Promise.all([
+    const [directorSlugs, teacherSlugs, albums] = await Promise.all([
       getDirectorSlugs(),
       getTeacherSlugs(),
+      showGallery ? getContentService(false).getAlbums() : [],
     ]);
+    // An album is listed in each language it can be shown in.
+    const shown = (a: (typeof albums)[number], locale: 'bengali' | 'english') =>
+      toAlbum(a, locale, p => p.asset?._ref) ? a.slug : undefined;
     profilePages = [
       ...(showDirectors
         ? directorSlugs.flatMap(s =>
@@ -100,6 +108,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
             bilingualSlug('/teachers', s.bengali, s.english, 0.6)
           )
         : []),
+      ...albums.flatMap(a =>
+        bilingualSlug('/gallery', shown(a, 'bengali'), shown(a, 'english'), 0.5)
+      ),
     ];
   } catch (error) {
     console.error('Error building dynamic sitemap entries:', error);
