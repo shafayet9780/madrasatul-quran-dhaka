@@ -126,7 +126,7 @@ export function TeacherForm({ teacher, subjects }: { teacher: Teacher | null; su
 
       <Card title="কাজ ও বেতন">
         <div className="grid gap-4 md:grid-cols-2">
-          <Field label="সপ্তাহে যত পিরিয়ড নেওয়ার কথা" hint="এর ৮০%-এর কম হলে ‘কম’, বেশি হলে ‘বেশি’। সহকারী হিসেবে একটি পিরিয়ড অর্ধেক ধরা হয়।">
+          <Field label="সপ্তাহে যত পিরিয়ড নেওয়ার কথা" hint="সহকারী হিসেবে একটি পিরিয়ড অর্ধেক ধরা হয়: দিনে ৩+১ (মূল+সহকারী) হলে সপ্তাহে (৩ + ½) × ৬ = ২১। এর ৮০%-এর কম হলে ‘কম’, বেশি হলে ‘বেশি’।">
             <input className={INPUT} value={d.targetPeriods} onChange={(e) => set({ targetPeriods: e.target.value })} inputMode="numeric" />
           </Field>
           <Field label="মাসিক বেতন (টাকা)" hint="শুধু অ্যাডমিন পেজে দেখায়; প্রিন্টে নয়।">

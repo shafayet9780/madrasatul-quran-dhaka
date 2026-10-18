@@ -98,6 +98,7 @@ A cell that changes by day is several rows with disjoint `days`. Example, `farha
 - `weighted = main + ½ × ta`; `percent = weighted ÷ target_periods`.
 - Status: **কম** (< 80 %), **ঠিক আছে** (80–100 %), **বেশি** (> 100 %), or **লক্ষ্য দেওয়া নেই**.
 - `minutes/week` = Σ of period length × days (main and TA shown separately).
+- `a day` = main ÷ 6 + TA ÷ 6, shown as the sheet writes it ("৩+১"). The target stays one weekly number (owner, 2026-10-18): 3+1 a day is (3 + ½) × 6 = 21.
 - `salary per period` ≈ salary ÷ (weighted × 52 ÷ 12), shown on the workload page only.
 - Busiest day: the most periods on any one day (a teacher with 6 on Sunday and 1 on Thursday stands out).
 

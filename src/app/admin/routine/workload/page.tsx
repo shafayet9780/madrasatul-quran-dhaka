@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { listRoutines, monthProxyCounts, pickRoutine, routineData } from '@/lib/routine/data';
-import { DAY_SHORT, dhakaToday, durationText } from '@/lib/routine/days';
+import { DAY_SHORT, DAYS, dhakaToday, durationText } from '@/lib/routine/days';
 import { busiestDay, salaryPerPeriod, teacherLoads, type LoadStatus } from '@/lib/routine/load';
 import { toBengaliDigits as bn } from '@/lib/survey/normalise';
 import { cn } from '@/lib/utils';
@@ -18,6 +18,8 @@ const TH = 'px-3 py-2.5 text-left text-[12.5px] font-medium text-muted-foregroun
 const TD = 'px-3 py-2.5 align-top whitespace-nowrap';
 const money = (n: number | null) => (n == null ? '—' : `৳${bn(n.toLocaleString('en-IN'))}`);
 const num = (n: number) => bn(Number.isInteger(n) ? n : n.toFixed(1));
+/** Average periods a school day as the sheet writes it, main + TA: "৩+১". */
+const perDay = (main: number, ta: number) => `${num(main / DAYS.length)}+${num(ta / DAYS.length)}`;
 
 export default async function WorkloadPage({ searchParams }: { searchParams: Promise<{ r?: string }> }) {
   const { r } = await searchParams;
@@ -62,12 +64,13 @@ export default async function WorkloadPage({ searchParams }: { searchParams: Pro
           <EmptyState>কোনো সক্রিয় শিক্ষক নেই।</EmptyState>
         ) : (
           <div className="overflow-x-auto rounded-xl border bg-card">
-            <table className="w-full min-w-[980px] text-sm">
+            <table className="w-full min-w-[1080px] text-sm">
               <thead>
                 <tr className="border-b">
                   <th className={TH}>শিক্ষক</th>
                   <th className={TH}>মূল</th>
                   <th className={TH}>সহকারী</th>
+                  <th className={TH}>দিনে গড় (মূল+সহকারী)</th>
                   <th className={TH}>মোট / লক্ষ্য</th>
                   <th className={TH}>অবস্থা</th>
                   <th className={TH}>সপ্তাহে সময়</th>
@@ -90,6 +93,7 @@ export default async function WorkloadPage({ searchParams }: { searchParams: Pro
                       </td>
                       <td className={cn(TD, 'tabular-nums')}>{bn(l.main)}</td>
                       <td className={cn(TD, 'tabular-nums')}>{bn(l.ta)}</td>
+                      <td className={cn(TD, 'tabular-nums')}>{perDay(l.main, l.ta)}</td>
                       <td className={cn(TD, 'tabular-nums')}>
                         {num(l.weighted)}
                         {l.target != null && <span className="text-muted-foreground"> / {bn(l.target)}</span>}
