@@ -34,3 +34,20 @@ Found in the same audit. Each touches every page, so it goes with the page redes
 - **Cached pages.** Every `[locale]` route renders on each request (`Cache-Control: no-store`, rendered in Singapore, about 0.35 s to the first byte). Static pages refreshed every 60 s need `setRequestLocale` and `generateStaticParams` in each layout and page. (`cacheComponents` stays off; see CLAUDE.md.)
 - **Only the page's own text in the browser.** `src/app/[locale]/layout.tsx` sends all of `messages/{locale}.json` to the client (about 20 KB compressed, a fifth of the homepage HTML). Send the shared namespaces (`site`, `admissionCta`, `analytics`) from the layout and each page's own namespaces from the page.
 - **A lighter Bengali font.** Anek Bangla is 153 KB. Trim it to the characters and weights the site uses.
+
+## 3. Audit of 2026-10-18 (design-revamp, local production build)
+
+Lighthouse on eight pages (phone and desktop) and a crawl of the sitemap and every internal link.
+
+- **Scores:** desktop 99 to 100 everywhere. On a phone (Lighthouse's slow 4G and slow phone), 79 to 89, LCP 3.7 to 5.2 s; no layout shift and little blocking time. What holds the phone back is how much each page sends before it can draw: fonts, the page's HTML (with every message of the language) and JavaScript.
+- **Fixed the same day:**
+  - The homepage no longer loads GSAP (an unused old section was still exported from `src/components/homepage/index.ts`), so its JavaScript fell from about 232 to 187 KB compressed.
+  - Page titles end with the school's name in the page's language (`[locale]/layout.tsx`); the English homepage title is under 60 characters.
+  - The privacy and cookie pages have canonical links and hreflang.
+  - The old News and Programs pages are `noindex` until they are redesigned, and Programs follows its Site Settings switch.
+- **Still to do, with section 2:**
+  - Fonts are the heaviest part of a page (about 270 KB on the homepage: Anek Bangla 153 KB, Anek Latin 44 KB, Tiro Bangla 54 KB plus a 20 KB Latin file for the spaces in quotations).
+  - Pre-admission asks the database for the intake status on every visit (200 to 600 ms), so its metadata sometimes arrives after the head.
+  - Turn on Vercel Speed Insights (commented out in `src/app/[locale]/layout.tsx`) to see what parents' phones actually get.
+  - Longer descriptions on the director pages (36 to 88 characters) and pre-admission (70).
+  - The homepage's School data could add coordinates and office hours, and a photo of the school as its image.
