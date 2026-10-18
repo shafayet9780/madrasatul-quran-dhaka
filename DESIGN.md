@@ -670,7 +670,7 @@ Top to bottom: the hero (`paper`), the filter bar and the month rows (`cream`), 
 
 ### Don't:
 - **Don't** use em dashes or en dashes in copy; use a comma, colon, full stop or "to" / "থেকে".
-- **Don't** overlay text on photographs or put a photo carousel behind a slogan.
+- **Don't** overlay text on photographs or put a photo carousel behind a slogan. The gallery is the one exception (approved by the owner, October 2026): a photo's caption on a dark gradient at its foot in an album, and an all-time album's name on its tile.
 - **Don't** use green for anything but the open-status dot.
 - **Don't** return to white surfaces with 4px radii (the rejected signage system).
 - **Don't** add ornamental Islamic patterns, arches or decorative borders.

@@ -35,7 +35,8 @@ The owner approved the design in October 2026.
   - videos as YouTube links
   - text (optional) and a teacher's words (optional)
   - a show switch
-- **Photos:** in Sanity. **Videos:** on the school's YouTube channel; only the link comes to Studio. Originals stay in Drive.
+- **Photos:** in Sanity. **Videos:** on the school's YouTube channel (https://www.youtube.com/@madrasatulqurandhaka); only the link comes to Studio. Originals stay in Drive. The owner confirmed this on 18 October 2026.
+  - The hero and the video band link to the channel and the Facebook page from Site Settings → Social Media Links (active ones).
   - A link with /shorts/ is upright, and so is any video marked upright. Upright videos go in the row of short videos; wide ones go in the month rows and the video band.
 - **Switch:** Site Settings → Navigation Visibility → Gallery (`showGallery`).
   - Unlike the other switches it is off until someone turns it on, so the menu never links to an empty gallery.
@@ -55,6 +56,5 @@ The owner approved the design in October 2026.
 
 ## Open with the owner
 
-- Confirm the storage: photos in Sanity, videos on the school's YouTube channel, originals in Drive. Does the school have a YouTube channel?
-- May adult women (mothers) appear in photos?
+- May adult women (mothers) appear in photos? The owner will decide; until then, leave them out.
 - The news link on the album page (এই অনুষ্ঠানের খবর পড়ুন) is left out until the news pages are redesigned. The live news items are samples without photos.
