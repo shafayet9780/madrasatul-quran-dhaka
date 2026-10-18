@@ -235,6 +235,7 @@ The header on every public page (`src/components/layout/site-header.tsx`, a serv
 - Site Settings → Navigation decides what shows (`siteNav` in `src/lib/site/nav.ts`): আমাদের সম্পর্কে follows Our people and shows while the directors or the advisors do; ক্যাম্পাস follows Campus (`showCampus`). The footer's Pages list follows the same switches.
 - From 1180px: one row of links. The menu can still hold a dropdown group (none today): it opens on hover or click, Escape or a click elsewhere closes it; its panel is `surface`, `line` border, `radius-card`, `shadow-photo`.
 - Below 1180px: a মেনু / Menu pill (Phosphor list, ✕ while open) opens the same links under the header. Below 480px the language switch moves to the top of that menu, so the row fits a 360px phone.
+- The page you are on (`aria-current="page"`, also its subpages): `rust` with a 2px underline 10px below in the row; `rust` 650 in the phone menu; `cream` behind it in a dropdown.
 - The language switch (`quiet` pill) opens the same page in the other language.
 
 ### AdmissionBanner

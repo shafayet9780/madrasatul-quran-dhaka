@@ -10,6 +10,9 @@ export type NavEntry = { key: string; label: string; href: string; external?: bo
 export type NavGroup = { key: string; label: string; items: NavEntry[] };
 
 const focusRing = 'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink';
+// The page you are on: rust, underlined in the row, bold in the phone menu.
+const hereRow = 'aria-[current=page]:text-rust aria-[current=page]:underline aria-[current=page]:decoration-2 aria-[current=page]:underline-offset-[10px]';
+const hereList = 'aria-[current=page]:font-semibold aria-[current=page]:text-rust';
 
 /**
  * The main menu. On wide screens a row of links where a group opens on hover or click (Escape or a
@@ -103,14 +106,14 @@ export function SiteNav({
                   <ul className="m-0 min-w-56 list-none rounded-card border border-line bg-surface p-2 shadow-photo">
                     {item.items.map((entry) => (
                       <li key={entry.key}>
-                        {link(entry, cn('flex min-h-11 items-center whitespace-nowrap rounded-chip px-3 text-ink no-underline hover:bg-cream hover:text-rust', focusRing))}
+                        {link(entry, cn('flex min-h-11 items-center whitespace-nowrap rounded-chip px-3 text-ink no-underline hover:bg-cream hover:text-rust aria-[current=page]:bg-cream', hereList, focusRing))}
                       </li>
                     ))}
                   </ul>
                 </div>
               </li>
             ) : (
-              <li key={item.key}>{link(item, cn('inline-flex min-h-11 items-center whitespace-nowrap text-ink no-underline hover:text-rust', focusRing))}</li>
+              <li key={item.key}>{link(item, cn('inline-flex min-h-11 items-center whitespace-nowrap text-ink no-underline hover:text-rust', hereRow, focusRing))}</li>
             ),
           )}
         </ul>
@@ -140,12 +143,12 @@ export function SiteNav({
                     <p className="m-0 pt-2 text-13 font-strong text-ink-muted">{item.label}</p>
                     <ul className="m-0 list-none p-0">
                       {item.items.map((entry) => (
-                        <li key={entry.key}>{link(entry, cn('flex min-h-11 items-center text-17 text-ink no-underline', focusRing))}</li>
+                        <li key={entry.key}>{link(entry, cn('flex min-h-11 items-center text-17 text-ink no-underline', hereList, focusRing))}</li>
                       ))}
                     </ul>
                   </>
                 ) : (
-                  link(item, cn('flex min-h-12 items-center text-17 text-ink no-underline', focusRing))
+                  link(item, cn('flex min-h-12 items-center text-17 text-ink no-underline', hereList, focusRing))
                 )}
               </li>
             ))}
