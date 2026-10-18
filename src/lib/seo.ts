@@ -1,4 +1,5 @@
 import { getSiteUrl } from './site-url';
+import { SOCIAL_IMAGE } from './page-metadata';
 import { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 
@@ -110,14 +111,41 @@ export async function generateMetadata(
   };
 }
 
+// The school's pin on Google Maps (Site Settings → Location → Google Maps Link).
+const SCHOOL_GEO = { '@type': 'GeoCoordinates', latitude: 23.8563215, longitude: 90.3682335 } as const;
+
+const DAYS = ['Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+
 /**
- * The school for search engines (schema.org School), built only from Site Settings: the name, logo, address, the
- * admissions phone, the active emails, the map and the social pages. Anything missing is left out.
+ * Office hours written like "Sat - Thu: 8:00 AM - 5:00 PM" (Site Settings, English) as schema.org opening hours;
+ * undefined for anything else, so a differently written text is left out rather than misread.
+ */
+export function openingHoursFrom(text?: string) {
+  const m = text?.trim().match(/^(\w{3})\w*\s*[-–]\s*(\w{3})\w*\s*:\s*(\d{1,2})(?::(\d{2}))?\s*([AP]M)\s*[-–]\s*(\d{1,2})(?::(\d{2}))?\s*([AP]M)$/i);
+  if (!m) return undefined;
+  const day = (d: string) => DAYS.findIndex((name) => name.slice(0, 3).toLowerCase() === d.toLowerCase());
+  const [from, to] = [day(m[1]), day(m[2])];
+  if (from < 0 || to < 0 || [m[3], m[6]].some((h) => Number(h) < 1 || Number(h) > 12) || [m[4], m[7]].some((min) => Number(min ?? 0) > 59)) return undefined;
+  const time = (h: string, min: string | undefined, half: string) =>
+    `${String((Number(h) % 12) + (half.toUpperCase() === 'PM' ? 12 : 0)).padStart(2, '0')}:${min ?? '00'}`;
+  return {
+    '@type': 'OpeningHoursSpecification',
+    dayOfWeek: Array.from({ length: ((to - from + 7) % 7) + 1 }, (_, i) => DAYS[(from + i) % 7]),
+    opens: time(m[3], m[4], m[5]),
+    closes: time(m[6], m[7], m[8]),
+  };
+}
+
+/**
+ * The school for search engines (schema.org School): from Site Settings the name, logo, address, office hours, the
+ * admissions phone, the active emails, the map and the social pages (anything missing is left out), with the photo
+ * of the school's front (the share image) and its place on the map.
  */
 export function generateSchoolStructuredData({
   locale,
   logo,
   address,
+  hours,
   telephone,
   emails,
   mapUrl,
@@ -126,12 +154,15 @@ export function generateSchoolStructuredData({
   locale: 'bengali' | 'english';
   logo?: string;
   address?: string;
+  /** Office hours, English (openingHoursFrom). */
+  hours?: string;
   telephone?: string;
   emails: string[];
   mapUrl?: string;
   sameAs: string[];
 }) {
   const origin = getSiteUrl();
+  const openingHours = openingHoursFrom(hours);
   const [name, alternateName] = locale === 'bengali' ? ['মাদরাসাতুল কুরআন', 'Madrasatul Quran'] : ['Madrasatul Quran', 'মাদরাসাতুল কুরআন'];
   return {
     '@context': 'https://schema.org',
@@ -140,8 +171,11 @@ export function generateSchoolStructuredData({
     name,
     alternateName,
     url: `${origin}/${locale}`,
-    ...(logo && { logo, image: logo }),
+    image: `${origin}${SOCIAL_IMAGE}`,
+    ...(logo && { logo }),
     ...(address && { address: { '@type': 'PostalAddress', streetAddress: address, addressLocality: 'Dhaka', addressCountry: 'BD' } }),
+    geo: SCHOOL_GEO,
+    ...(openingHours && { openingHoursSpecification: openingHours }),
     ...(telephone && { telephone }),
     ...(emails.length > 0 && { email: emails.length === 1 ? emails[0] : emails }),
     ...(mapUrl && { hasMap: mapUrl }),

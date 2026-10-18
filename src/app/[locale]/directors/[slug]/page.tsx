@@ -30,9 +30,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const director = await getDirectorBySlug(slug, locale);
   if (!director || director.showDetailPage === false) return {};
   const t = await getTranslations({ locale, namespace: 'about.profile' });
+  const who = { name: txt(director.name, locale), role: txt(director.designation, locale) };
   return generatePageMetadata({
-    title: t('title', { name: txt(director.name, locale), role: txt(director.designation, locale) }),
-    description: txt(director.summary, locale) || txt(director.designation, locale),
+    title: t('title', who),
+    // Who they are at the school, then their Studio summary (too short alone for a search result).
+    description: [t('description', who), txt(director.summary, locale)].filter(Boolean).join(' '),
     locale,
     path: `/directors/${slug}`,
   });

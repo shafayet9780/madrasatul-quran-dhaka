@@ -35,6 +35,14 @@ Found in the same audit; all three done on 2026-10-18 (results in section 3):
 - **Only the page's own text in the browser.** The layout sent all of `messages/{locale}.json` to the client (about 20 KB compressed, a fifth of the homepage HTML). Now it sends the shared namespaces (`admissionCta`, `analytics.consent`, `preview`), and pre-admission, teachers and news add their own (`src/lib/i18n-messages.ts`).
 - **A lighter Bengali font.** Anek Bangla was 153 KB. Trimming it to the characters the site uses isn't possible, since the CMS text can use any of them. It is now self-hosted at weights 400 to 800 (138 KB) and preloaded on Bengali pages only, so an English page no longer downloads it. Tiro Bangla is one 54 KB file with its own spaces and punctuation, replacing Google's file plus a 20 KB Latin one.
 
+**Check at launch:** the cache was confirmed on the preview (`x-vercel-cache: HIT`), but only with a Vercel login cookie, so a first visit (no cookies, when the proxy sets the country cookie) could not be tried there. curl sends no cookies, so every run is a first visit. On the live site, run this twice. Both runs should set `mq-country`, and the second should say `HIT` (or `STALE`):
+
+```bash
+curl -sI https://www.madrasatulquranbd.com/bengali | grep -i "x-vercel-cache\|set-cookie"
+```
+
+If it stays `MISS`, the cookie is stopping Vercel from caching first visits (`src/proxy.ts`); fix that before relying on the cache.
+
 ## 3. Audit of 2026-10-18 (design-revamp, local production build)
 
 Lighthouse on eight pages (phone and desktop) and a crawl of the sitemap and every internal link.
@@ -46,8 +54,9 @@ Lighthouse on eight pages (phone and desktop) and a crawl of the sitemap and eve
   - The privacy and cookie pages have canonical links and hreflang.
   - The old News and Programs pages are `noindex` until they are redesigned, and Programs follows its Site Settings switch.
 - **After section 2 (same day, same eight pages):** phone scores 84 to 93 (from 79 to 89), LCP 3.2 to 4.5 s (from 3.7 to 5.2 s); desktop 99 to 100. Server response under 40 ms on the cached pages (it was up to 200 ms). The HTML is 18 to 20 KB smaller on every page. Fonts on a Bengali page are 182 to 237 KB (from 197 to 270), and on an English page 44 KB (from 197); the English homepage now sends 397 KB in all (from 582). The JavaScript grew by about 5 KB with the new 404 page's boundary.
+- **Done later the same day:**
+  - Pre-admission reads the intake from the published form in season, like the Admissions page, so a new visitor's page needs no database (it asked it twice, 200 to 600 ms). The database's cycle is still used for a test pass, a draft preview, and a form switched off or not building (`getLandingIntake`).
+  - Longer descriptions: a director's page says who they are at the school, then their summary (115 to 153 characters on the four profiles); pre-admission's is about 150.
+  - The homepage's School data has the photo of the school's front, its place on the map, and the office hours from Site Settings (when written like "Sat - Thu: 8:00 AM - 5:00 PM").
 - **Still to do:**
-  - Pre-admission asks the database for the intake status on every visit (200 to 600 ms), so its metadata sometimes arrives after the head.
   - Turn on Vercel Speed Insights (commented out in `src/app/[locale]/layout.tsx`) to see what parents' phones actually get.
-  - Longer descriptions on the director pages (36 to 88 characters) and pre-admission (70).
-  - The homepage's School data could add coordinates and office hours, and a photo of the school as its image.

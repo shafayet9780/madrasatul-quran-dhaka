@@ -45,7 +45,8 @@ export async function getDirectors(): Promise<Director[]> {
       ${directorListProjection}
     }
   `;
-  return await sanityFetch<Director[]>({ query, tags: ['director'] });
+  // The local preview reads no Sanity (null): an empty list there.
+  return (await sanityFetch<Director[] | null>({ query, tags: ['director'] })) ?? [];
 }
 
 export async function getDirectorBySlug(

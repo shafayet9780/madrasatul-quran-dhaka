@@ -18,5 +18,6 @@ export async function getAdvisors(): Promise<Advisor[]> {
       ${advisorProjection}
     }
   `;
-  return await sanityFetch<Advisor[]>({ query, tags: ['advisor'] });
+  // The local preview reads no Sanity (null): an empty list there.
+  return (await sanityFetch<Advisor[] | null>({ query, tags: ['advisor'] })) ?? [];
 }

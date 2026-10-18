@@ -46,6 +46,7 @@ export default async function Home({ params }: { params: Promise<{ locale: Local
     locale,
     logo: siteSettings?.logo?.asset ? urlFor(siteSettings.logo).width(512).url() : undefined,
     address: txt(contact?.address, locale).trim() || undefined,
+    hours: contact?.officeHours?.english,
     telephone: sitePhone(getAdmissionsContact(contact).phone ?? undefined, locale)?.e164,
     emails: (contact?.email ?? []).filter((e) => e.isActive).map((e) => e.address),
     mapUrl: siteSettings?.locationInfo?.googleMapsUrl,

@@ -7,46 +7,39 @@ import { getContentService } from '@/lib/content-service';
 import { generatePageMetadata } from '@/lib/page-metadata';
 import { urlFor } from '@/lib/sanity';
 import { fieldWithRole } from '@/lib/admissions/form-config';
-import { asLocale, num, taka, txt, type Locale } from '@/lib/admissions/display';
+import { asLocale, num, taka, txt } from '@/lib/admissions/display';
 import { intakeStatus } from '@/lib/admissions/intake';
-import { flowPath, safeCurrentCycle } from '@/lib/admissions/pages';
+import { flowPath, getLandingIntake } from '@/lib/admissions/pages';
 import { allBringItems } from '@/lib/admissions/bring-list';
 import { currentApplication } from '@/lib/admissions/session';
-import type { CycleState } from '@/lib/admissions/cycle';
 
 type Props = { params: Promise<{ locale: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const locale = asLocale((await params).locale);
   const t = await getTranslations({ locale, namespace: 'preAdmission.intro' });
-  const cycle = await safeCurrentCycle();
-  const session = num(cycle?.session ?? '2027', locale);
+  const { intake } = await getLandingIntake();
+  const session = num(intake.session ?? '2027', locale);
   const title = t('metaTitle', { session });
   // The shared helper adds the canonical link and hreflang; the title keeps the site's ending (the school's name).
   return { ...generatePageMetadata({ title, description: t('metaDescription', { session }), locale, path: '/pre-admission' }), title };
-}
-
-function statusLine(cycle: CycleState | null, locale: Locale, t: Awaited<ReturnType<typeof getTranslations>>): { text: string; open: boolean } {
-  const settings = cycle?.snapshot.settings;
-  const state = !cycle || !cycle.enabled ? 'off' : cycle.window;
-  return { text: intakeStatus({ state, opensAt: settings?.opensAt, closesAt: settings?.closesAt }, locale, t), open: state === 'open' };
 }
 
 export default async function PreAdmissionIntro({ params }: Props) {
   const locale = asLocale((await params).locale);
   setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: 'preAdmission.intro' });
-  const [cycle, current, facilities] = await Promise.all([
-    safeCurrentCycle(),
+  const [{ intake, snapshot }, current, facilities] = await Promise.all([
+    getLandingIntake(),
     currentApplication().catch(() => null),
     getContentService(false).getFeaturedFacilities().catch(() => []),
   ]);
-  const status = statusLine(cycle, locale, t);
-  const settings = cycle?.snapshot.settings;
-  const session = num(cycle?.session ?? '2027', locale);
+  const status = { text: intakeStatus(intake, locale, t), open: intake.state === 'open' };
+  const settings = snapshot?.settings;
+  const session = num(intake.session ?? '2027', locale);
   const fee = settings ? taka(settings.applicationFee, locale) : '';
   const evalFee = settings ? taka(settings.evaluationFee, locale) : '';
-  const classes = cycle ? (fieldWithRole(cycle.snapshot, 'classApplied')?.options ?? []) : [];
+  const classes = snapshot ? (fieldWithRole(snapshot, 'classApplied')?.options ?? []) : [];
   // A class with requirements shows them beside it: "৭ম শ্রেণী (শুধু মেয়েদের জন্য; …)".
   const name = (o: (typeof classes)[number]) => (o.requires?.length ? `${txt(o.label, locale)} (${o.requires.map((r) => txt(r.message, locale)).join('; ')})` : txt(o.label, locale));
   const regular = classes.filter((o) => !o.special).map(name);
@@ -56,7 +49,7 @@ export default async function PreAdmissionIntro({ params }: Props) {
 
   // Step 5 lists what to bring (Sanity → Cycle settings) when the form has the list.
   const tc = await getTranslations({ locale, namespace: 'preAdmission.chapter' });
-  const bring = cycle ? allBringItems(cycle.snapshot, locale).map((i) => (i.conditional ? `${i.text} ${tc('ifApplicable')}` : i.text)) : [];
+  const bring = snapshot ? allBringItems(snapshot, locale).map((i) => (i.conditional ? `${i.text} ${tc('ifApplicable')}` : i.text)) : [];
   const steps = [1, 2, 3, 4, 5, 6].map((n) => ({
     n: num(n, locale),
     title: t(`step${n}`),

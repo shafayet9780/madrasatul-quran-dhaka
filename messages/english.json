@@ -488,7 +488,8 @@
         "twitter": "X",
         "email": "Email"
       },
-      "title": "{name}, {role} | Madrasatul Quran"
+      "title": "{name}, {role} | Madrasatul Quran",
+      "description": "{name}, {role} of Madrasatul Quran in Uttara, Dhaka."
     }
   },
   "programs": {
@@ -1149,7 +1150,7 @@
     "closed": "Applications have closed, so this form can no longer be submitted. Please contact the office if you need help.",
     "intro": {
       "metaTitle": "Pre-admission application {session}",
-      "metaDescription": "Apply online for pre-admission to Madrasatul Quran for the {session} session.",
+      "metaDescription": "Apply online for the {session} pre-admission at Madrasatul Quran, Uttara, Dhaka: the form takes about 15 minutes, and the fee is paid by bKash, Nagad or card.",
       "statusOpen": "Applications open until {deadline}",
       "statusOpenNoDeadline": "Applications are open",
       "statusClosingSoon": "{days} days left, closes {deadline}",

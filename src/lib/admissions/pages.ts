@@ -1,8 +1,9 @@
 import 'server-only';
+import { cache } from 'react';
 import { redirect } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
 import { chapterStatus, type ChapterStatus } from './answers';
-import { FORM_QUERY, getCurrentCycle, type CycleState } from './cycle';
+import { FORM_QUERY, getCurrentCycle, previewDraftMode, type CycleState } from './cycle';
 import { num, txt, type Locale } from './display';
 import type { Application } from './drafts';
 import { allFields, guardianSections, type FormSnapshot } from './form-config';
@@ -10,6 +11,7 @@ import { PLEDGE_STEP, pledgeStatus } from './pledge';
 import { intakeStatus, publishedIntake, type AdmissionCta, type Intake } from './intake';
 import { localOverrides } from './local';
 import { currentApplication } from './session';
+import { hasTestPass } from './test-pass';
 import type { FormDocument } from './snapshot';
 
 // Shared loading for the guardian pages.
@@ -44,6 +46,23 @@ export async function getPublishedIntake(): Promise<ReturnType<typeof publishedI
     return { intake: { state: 'off' } };
   }
 }
+
+/**
+ * The intake and its form for the pre-admission page. In season (open, announced, closed) it is the published form,
+ * like the Admissions page, so a visitor's page needs no database. The database's cycle stays the source when the two
+ * can differ: a test pass, a draft preview, and a form switched off or not building (the cycle keeps its last good
+ * version, and its fees still show). Once per request: the title reads it too.
+ */
+export const getLandingIntake = cache(async (): Promise<{ intake: Intake; snapshot?: FormSnapshot }> => {
+  if (!previewDraftMode() && !(await hasTestPass())) {
+    const published = await getPublishedIntake();
+    if (published.intake.state !== 'off') return published;
+  }
+  const cycle = await safeCurrentCycle();
+  if (!cycle) return { intake: { state: 'off' } };
+  const { opensAt, closesAt } = cycle.snapshot.settings;
+  return { intake: { state: cycle.enabled ? cycle.window : 'off', session: cycle.session, opensAt, closesAt }, snapshot: cycle.snapshot };
+});
 
 /** Null unless the form is open or announced with an opening date. */
 export async function getAdmissionCta(locale: Locale): Promise<AdmissionCta | null> {
