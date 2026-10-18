@@ -139,6 +139,7 @@ Spec `docs/survey-system.md`, plan `docs/survey-implementation-plan.md`, admin g
 Spec + build notes `docs/class-routine.md`. `/admin/routine/…` (module রুটিন in the admin shell): teachers, routine grid, free teachers, proxy register, workload, setup.
 - Data: Neon Postgres via Drizzle (`src/lib/routine/schema.ts`, same migrations folder), nothing in Sanity (salary is private). `routine_slots` is the clash guard: one row per assignment × day for group, teacher/TA and unshared room, primary key refuses double bookings; writes go through `src/lib/routine/data.ts` in one `db.batch`.
 - Pure logic in `src/lib/routine/{days,clash,load,free,proxy}.ts` (unit-tested); local preview loads a sample routine (`src/lib/routine/testing/dev-fixtures.ts`).
+- Sheet import: `pnpm routine:import <xlsx> [--apply]` writes a draft routine from the school's sheet (docs/class-routine.md §7). Its names.json / reports live next to the xlsx, never in this public repo; `--apply` writes to `DATABASE_URL`.
 
 ## Env
 Required vars live in `.env.local` (see `.env.local.example`): `NEXT_PUBLIC_SANITY_PROJECT_ID`, `NEXT_PUBLIC_SANITY_DATASET`, `SANITY_API_TOKEN` (preview/writes), Google service-account keys, analytics IDs, optional studio auth vars. Surveys add `DATABASE_URL` (pooled) / `DATABASE_URL_UNPOOLED` (migrations), `SURVEY_SHEET_ID`, `PG_BACKUP_BLOB_READ_WRITE_TOKEN`, `CRON_SECRET`.

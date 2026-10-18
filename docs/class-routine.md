@@ -136,13 +136,29 @@ Proxy counts per teacher for the month show on the proxy page and the workload p
 
 ## 7. Import from the sheet (phase 2)
 
-A one-time `tsx` script reads the sheet's CSV export and the profile tab into a **draft** routine:
+A one-time script reads the sheet's Excel download into a **draft** routine (built 2026-10-18):
 
-- Teachers: from "Profile all" (full name, qualification, experience, designation, department, phone, salary), matched to the grid's short names by a mapping table in the script that the owner checks. Placeholders (`Science-1`…) become vacancy teachers.
-- Groups, periods, rooms: from the grid headers and the Room tab.
-- Cells: parse `Subject (days)` / `Teacher / Teacher` patterns. Anything it can't read goes to a **fix list** (sheet cell → raw text) for entry in the editor.
+```bash
+pnpm routine:import "<path>/Class schedule.xlsx"          # dry run: drafts names.json, writes report.md
+pnpm routine:import "<path>/Class schedule.xlsx" --apply  # writes a draft routine to DATABASE_URL (.env.local)
+# options: --name "<routine name>" (default "শিট থেকে (date)"), --dir <folder>
+```
 
-Nothing is written to the active routine; the owner reviews the draft and makes it active.
+- Its files go to `routine-import/` next to the `.xlsx`, never into this public repo:
+  - `names.json` maps each short name to a "Profile all" name, a gender and other spellings (aliases). The first run drafts it from "Free Teachers" plus any names the grid uses; the owner fills in the rest. `--apply` refuses while a gender is missing or a Profile name doesn't match.
+  - `report.md` lists what would be created, the fix list, the classes with days left empty, and every class it read.
+  - `applied.md` (after `--apply`) lists the classes that could not be placed.
+- Reading the grid (`src/lib/routine/sheet-import.ts`, pure, unit-tested):
+  - Periods and blocks come from the time row and the block-name row above it. Times have no am/pm, so 1–6 are read as afternoon.
+  - Bands of rows sit between empty rows. In a band: a Hifz group (merged over its periods), a Quran group (name, then teacher), an Arabic level (`LEVEL-n` merged down its letters → `L-n A`, band `LEVEL-n`; RA/BA book lines → subject Arabic, the book in the note), and a class (name, room, one cell per general period).
+  - Cell lines are subjects (`Subject`, `Subject (days)`, `Subject: Teacher (days)`, `(ex tue)`), then teacher lines.
+    - A subject without days gets the days the other lines leave.
+    - "A / B" or "A + B" makes A main and B TA. Days after them are the TA's days.
+    - With as many teachers as subjects, they pair in order.
+  - Everything else goes on the fix list, never guessed: two subjects in one line, a missing teacher, overlapping days, unknown names, a class with its own times (Six (F)), rooms given to two classes (marked shared).
+- Writing (`sheet-import-apply.ts`): subjects, rooms, groups and teachers with the same name are reused untouched; new ones are created (groups ending (M)/(F) get that gender rule; new teachers get the subjects the sheet gives them; no weekly targets). Every class goes through `saveAssignment`, so clashes are refused as in the editor. When only the TA clashes, the class is kept without the TA and noted.
+
+Nothing is written to the active routine. The owner reviews the draft, fixes the list in the editor and makes it active. A failed run leaves a partial draft: delete it in setup and run again.
 
 ## 8. Security & privacy
 
@@ -156,7 +172,7 @@ Nothing is written to the active routine; the owner reviews the draft and makes 
 | Phase | Scope |
 |---|---|
 | **1** | Schema + migration; subjects, rooms, groups, periods, routines (draft / active / copy); teachers (incl. vacancy flag, ERP ID); routine editor with clash checks; school / group / teacher views; free teachers; workload + posts to fill; **proxy register**; **prints** (A3 school grid, A4 group / teacher / proxy day). Local preview fixtures (`ADMISSIONS_LOCAL=1`) with sample routine. |
-| **2** | Sheet import script (draft + fix list). |
+| **2** | Sheet import script (draft + fix list). Built 2026-10-18 (§7). |
 | **3** | Ramadan timings (a second set of period times reusing the same assignments); subject coverage per group (periods/week needed vs assigned); use ERP ID to join routine with survey reports. |
 
 Tests: pure modules (clash detection, load math, free-teacher and proxy ranking, day-split helpers) unit-tested; clash enforcement and proxy save as `*.db.test.ts`; Playwright smoke for the routine pages in the local preview.
