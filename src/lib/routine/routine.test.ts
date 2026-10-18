@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { assignmentWarnings, clashText, findClashes, lookup, occupancy, overlappingPeriod } from './clash';
 import { dayOfDate, daysText, parseTime, periodText, timeText } from './days';
 import { freeTeachers } from './free';
+import { bandSpans, sheetBlocks } from './layout';
 import { busiestDay, loadStatus, salaryPerPeriod, teacherLoads } from './load';
 import { needsFor, proxyDayText, rankCandidates } from './proxy';
 import { assignment, group, period, room, subject, teacher } from './testing/sample';
@@ -177,5 +178,40 @@ describe('free teachers and proxies', () => {
     expect(proxyDayText('2026-10-18', [{ period: '৯:০০–৯:৪৫', group: 'Qaida-A', subject: 'Quran', absent: 'Mueen', proxy: 'Nasreen', role: 'main' }])).toBe(
       'প্রক্সি — ১৮ অক্টোবর, ২০২৬, রবিবার\n\n৯:০০–৯:৪৫ · Qaida-A (Quran): Mueen → Nasreen',
     );
+  });
+});
+
+describe('sheet-style layout', () => {
+  const groups = [
+    group('hifz-m', { section: 'হিফয' }),
+    group('qaida-a', { section: 'কুরআন' }),
+    group('l1-a', { section: 'আরবি', band: 'LEVEL-1' }),
+    group('l1-b', { section: 'আরবি', band: 'LEVEL-1' }),
+    group('l2', { section: 'আরবি', band: 'LEVEL-2' }),
+    group('nursery-a'),
+    group('nursery-b'),
+  ];
+  const periods = [period('h1', 420, 495), period('h2', 495, 540), period('q', 540, 585), period('a', 600, 645), period('g1', 645, 690), period('empty', 690, 735), period('g2', 735, 780), period('pm', 900, 1200)];
+  const at = (groupId: string, periodId: string) => assignment({ groupId, periodId, teacherId: 't' });
+  const assignments = [
+    at('hifz-m', 'h1'), at('hifz-m', 'h2'), at('hifz-m', 'pm'),
+    at('qaida-a', 'q'),
+    at('l1-a', 'a'), at('l1-b', 'a'), at('l2', 'a'),
+    at('nursery-a', 'g1'), at('nursery-b', 'g2'),
+  ];
+
+  it('cuts the day into blocks by heading, in time order, skipping empty periods', () => {
+    const blocks = sheetBlocks(periods, assignments, groups);
+    expect(blocks.map((b) => [b.headings.join(), b.periods.map((p) => p.id).join(), b.groups.map((g) => g.id).join(), b.banded])).toEqual([
+      ['হিফয', 'h1,h2', 'hifz-m', false],
+      ['কুরআন', 'q', 'qaida-a', false],
+      ['আরবি', 'a', 'l1-a,l1-b,l2', true],
+      ['জেনারেল', 'g1,g2', 'nursery-a,nursery-b', false],
+      ['হিফয', 'pm', 'hifz-m', false],
+    ]);
+  });
+
+  it('spans each run of one band', () => {
+    expect(bandSpans([{ band: 'LEVEL-1' }, { band: 'LEVEL-1' }, { band: '' }, { band: 'LEVEL-2' }, { band: 'LEVEL-1' }])).toEqual([2, 0, 1, 1, 1]);
   });
 });

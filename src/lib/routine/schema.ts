@@ -72,6 +72,8 @@ export const routineGroups = pgTable('routine_groups', {
   kind: routineGroupKind('kind').notNull().default('section'),
   // The heading the grid sorts the group under (জেনারেল, কুরআন, আরবি, হিফয).
   section: text('section').notNull().default(''),
+  // Groups that share a band ("LEVEL-1" for L-1 A, B, C) sit under one label, as in the sheet.
+  band: text('band').notNull().default(''),
   sort: integer('sort').notNull().default(0),
   defaultRoomId: uuid('default_room_id').references(() => routineRooms.id, { onDelete: 'set null' }),
   genderRule: routineGenderRule('gender_rule').notNull().default('any'),

@@ -1,41 +1,85 @@
 'use client';
 
 import Link from 'next/link';
-import { useMemo, useState } from 'react';
+import { Fragment, useMemo, useState, type ReactNode } from 'react';
 import { Dialog, DialogDescription, DialogHeader, DialogTitle } from '@/components/shadcn/dialog';
 import { Button } from '@/components/shadcn/button';
 import { clashText, effectiveRoomId, findClashes, lookup, type Draft, type Lookup } from '@/lib/routine/clash';
-import { DAY_SHORT, DAYS, daysText, periodText, periodTime } from '@/lib/routine/days';
+import { DAY_SHORT, DAYS, daysText, durationText, minutesOf, periodText, periodTime } from '@/lib/routine/days';
+import { bandSpans, sheetBlocks } from '@/lib/routine/layout';
+import { teacherLoads } from '@/lib/routine/load';
 import type { Assignment, Group, Period, RoutineData } from '@/lib/routine/types';
+import { toBengaliDigits as bn } from '@/lib/survey/normalise';
 import { cn } from '@/lib/utils';
 import { ReportTools } from '../reports/ReportTools';
 import { deleteAssignmentAction, saveAssignmentAction } from './actions';
 import { ConfirmButton, INPUT, OUTLINE, RoutineDialog, SELECT, StatusLine, useAction } from './controls';
+import { LoadBadge } from './ui';
 
-// The school grid (docs/class-routine.md §5): one table per heading (জেনারেল, কুরআন, …), groups
-// down, periods across. A heading shows only the periods its groups use, unless "সব পিরিয়ড" is on.
+// The school routine (docs/class-routine.md §5) in three views: like the school's sheet (the day
+// left to right in blocks), by heading (one table per জেনারেল, কুরআন, …) and by teacher. A cell of
+// the first two opens the editor; names are coloured main teacher / TA as in the sheet.
 
 type Day = 'all' | number;
+type View = 'sheet' | 'heading' | 'teacher';
+
+const VIEWS: [View, string][] = [
+  ['sheet', 'শিটের মতো'],
+  ['heading', 'শিরোনাম অনুযায়ী'],
+  ['teacher', 'শিক্ষক অনুযায়ী'],
+];
+
+const MAIN = 'text-primary';
+const TA = 'text-[#1d4ed8]';
 
 const byDays = (a: Assignment, b: Assignment) => Math.min(...a.days) - Math.min(...b.days);
 
+function Segmented<T extends string | number>({ label, value, options, onChange }: { label: string; value: T; options: [T, string][]; onChange: (v: T) => void }) {
+  return (
+    <div role="radiogroup" aria-label={label} className="inline-flex flex-wrap gap-0.5 rounded-lg bg-muted p-[3px]">
+      {options.map(([v, text]) => (
+        <button
+          key={v}
+          type="button"
+          role="radio"
+          aria-checked={value === v}
+          onClick={() => onChange(v)}
+          className={cn('h-[30px] rounded-md px-3 text-sm font-medium', value === v ? 'bg-white text-foreground shadow-[0_1px_2px_rgba(23,23,23,0.08)]' : 'text-muted-foreground hover:text-foreground')}
+        >
+          {text}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 export function RoutineGrid({ data }: { data: RoutineData }) {
+  const [view, setView] = useState<View>('sheet');
   const [day, setDay] = useState<Day>('all');
   const [showAll, setShowAll] = useState(false);
   const [open, setOpen] = useState<{ groupId: string; periodId: string } | null>(null);
   const names = useMemo(() => lookup(data), [data]);
+  const groupHref = (id: string) => `/admin/routine/groups/${id}${data.routine.status === 'active' ? '' : `?r=${data.routine.id}`}`;
+  const shown = (groupId: string, periodId: string) =>
+    data.assignments.filter((a) => a.groupId === groupId && a.periodId === periodId && (day === 'all' || a.days.includes(day))).sort(byDays);
 
-  const sections = useMemo(() => {
-    const used = new Set(data.assignments.map((a) => a.groupId));
-    const groups = data.groups.filter((g) => g.active || used.has(g.id));
-    const headings = [...new Set(groups.map((g) => g.section))];
-    return headings.map((heading) => {
-      const rows = groups.filter((g) => g.section === heading);
-      const ids = new Set(rows.map((g) => g.id));
-      const usedPeriods = data.periods.filter((p) => data.assignments.some((a) => a.periodId === p.id && ids.has(a.groupId)));
-      return { heading, rows, periods: showAll || !usedPeriods.length ? data.periods : usedPeriods };
-    });
-  }, [data, showAll]);
+  /** A group × period cell: its classes, and a button that opens the editor. */
+  const cell = (g: Group, p: Period) => {
+    const list = shown(g.id, p.id);
+    return (
+      <button type="button" className="rt-cell" onClick={() => setOpen({ groupId: g.id, periodId: p.id })} aria-label={`${g.name}, ${periodText(p)}: ${list.length ? 'এডিট' : 'ক্লাস যোগ করুন'}`}>
+        {list.length ? list.map((a) => <Entry key={a.id} a={a} names={names} group={g} showDays={day === 'all'} />) : <span className="rt-add">+</span>}
+      </button>
+    );
+  };
+  const groupName = (g: Group) => (
+    <>
+      <Link href={groupHref(g.id)} className="no-underline hover:underline">
+        {g.name}
+      </Link>
+      {g.defaultRoomId && <div className="text-[11.5px] font-normal text-muted-foreground">রুম {names.rooms.get(g.defaultRoomId)?.name}</div>}
+    </>
+  );
 
   const openGroup = open && names.groups.get(open.groupId);
   const openPeriod = open && data.periods.find((p) => p.id === open.periodId);
@@ -43,79 +87,251 @@ export function RoutineGrid({ data }: { data: RoutineData }) {
   return (
     <>
       <div className="flex flex-wrap items-center justify-between gap-3 sv-no-print">
-        <div role="radiogroup" aria-label="দিন" className="inline-flex flex-wrap gap-0.5 rounded-lg bg-muted p-[3px]">
-          {(['all', ...DAYS] as Day[]).map((d) => (
-            <button
-              key={d}
-              type="button"
-              role="radio"
-              aria-checked={day === d}
-              onClick={() => setDay(d)}
-              className={cn('h-[30px] rounded-md px-3 text-sm font-medium', day === d ? 'bg-white text-foreground shadow-[0_1px_2px_rgba(23,23,23,0.08)]' : 'text-muted-foreground hover:text-foreground')}
-            >
-              {d === 'all' ? 'সব দিন' : DAY_SHORT[d]}
-            </button>
-          ))}
-        </div>
-        <div className="flex flex-wrap items-center gap-3">
-          <label className="flex items-center gap-2 text-sm">
-            <input type="checkbox" className="size-4 accent-primary" checked={showAll} onChange={(e) => setShowAll(e.target.checked)} />
-            সব পিরিয়ড দেখান
-          </label>
-          <ReportTools printLabel="প্রিন্ট (A3)" />
+        <Segmented label="ভিউ" value={view} options={VIEWS} onChange={setView} />
+        <ReportTools printLabel="প্রিন্ট (A3)" />
+      </div>
+      <div className="flex flex-wrap items-center justify-between gap-3 sv-no-print">
+        <Segmented label="দিন" value={day} options={[['all', 'সব দিন'], ...DAYS.map((d): [Day, string] => [d, DAY_SHORT[d]])]} onChange={setDay} />
+        <div className="flex flex-wrap items-center gap-4 text-[13px]">
+          <span className="flex items-center gap-3 text-muted-foreground">
+            নামের রং: <span className={cn('font-medium', MAIN)}>মূল শিক্ষক</span>
+            <span className={cn('font-medium', TA)}>সহকারী</span>
+          </span>
+          {view === 'heading' && (
+            <label className="flex items-center gap-2 text-sm">
+              <input type="checkbox" className="size-4 accent-primary" checked={showAll} onChange={(e) => setShowAll(e.target.checked)} />
+              সব পিরিয়ড দেখান
+            </label>
+          )}
         </div>
       </div>
-      <p className="sv-print-only m-0 text-sm">{day === 'all' ? 'সব দিন' : DAY_SHORT[day]}</p>
+      <p className="sv-print-only m-0 text-sm">
+        {VIEWS.find(([v]) => v === view)?.[1]} · {day === 'all' ? 'সব দিন' : DAY_SHORT[day]}
+      </p>
 
-      {sections.map((s) => (
-        <section key={s.heading} className="flex flex-col gap-2">
-          {s.heading && <h2 className="m-0 text-[15px] font-semibold">{s.heading}</h2>}
-          <div className="rt-scroll overflow-x-auto rounded-xl border bg-card">
-            <table className="rt-grid w-full">
-              <thead>
-                <tr>
-                  <th scope="col" className="text-left">
-                    গ্রুপ
-                  </th>
-                  {s.periods.map((p) => (
-                    <th key={p.id} scope="col" className="text-left">
-                      {periodTime(p)}
-                      {p.label && <div className="text-[11.5px] font-normal text-muted-foreground">{p.label}</div>}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {s.rows.map((g) => (
-                  <tr key={g.id}>
-                    <th scope="row">
-                      <Link href={`/admin/routine/groups/${g.id}${data.routine.status === 'active' ? '' : `?r=${data.routine.id}`}`} className="no-underline hover:underline">
-                        {g.name}
-                      </Link>
-                      {g.defaultRoomId && <div className="text-[11.5px] font-normal text-muted-foreground">রুম {names.rooms.get(g.defaultRoomId)?.name}</div>}
-                    </th>
-                    {s.periods.map((p) => {
-                      const cell = data.assignments.filter((a) => a.groupId === g.id && a.periodId === p.id && (day === 'all' || a.days.includes(day))).sort(byDays);
-                      return (
-                        <td key={p.id}>
-                          <button type="button" className="rt-cell" onClick={() => setOpen({ groupId: g.id, periodId: p.id })} aria-label={`${g.name}, ${periodText(p)}: ${cell.length ? 'এডিট' : 'ক্লাস যোগ করুন'}`}>
-                            {cell.length ? cell.map((a) => <Entry key={a.id} a={a} names={names} group={g} showDays={day === 'all'} />) : <span className="rt-add">+</span>}
-                          </button>
-                        </td>
-                      );
-                    })}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </section>
-      ))}
+      {view === 'sheet' && <SheetView data={data} cell={cell} groupName={groupName} />}
+      {view === 'heading' && <HeadingView data={data} showAll={showAll} cell={cell} groupName={groupName} />}
+      {view === 'teacher' && <TeacherView data={data} names={names} day={day} groupHref={groupHref} />}
 
       <Dialog open={!!open} onOpenChange={(o) => !o && setOpen(null)}>
         {openGroup && openPeriod && <CellEditor key={`${openGroup.id}:${openPeriod.id}`} data={data} names={names} group={openGroup} period={openPeriod} />}
       </Dialog>
     </>
+  );
+}
+
+type CellFn = (g: Group, p: Period) => ReactNode;
+
+/** Time and length under a period, and its name when it adds something. */
+function PeriodHead({ p, hide }: { p: Period; hide?: string }) {
+  return (
+    <>
+      {periodTime(p)}
+      <div className="text-[11.5px] font-normal text-muted-foreground">
+        {durationText(minutesOf(p))}
+        {p.label && p.label !== hide && ` · ${p.label}`}
+      </div>
+    </>
+  );
+}
+
+/** The band label beside a run of groups (LEVEL-1 beside L-1 A, B, C). */
+function BandCell({ band, span, className }: { band: string; span: number; className?: string }) {
+  return (
+    <th scope="rowgroup" rowSpan={span} className={cn('rt-band', className)}>
+      {band && <span>{band}</span>}
+    </th>
+  );
+}
+
+/**
+ * Like the school's sheet: the day left to right in blocks (HIFZ | QURAN | ARABIC | GENERAL | …),
+ * each with its own groups down the side; row n of the table holds the n-th group of every block.
+ */
+function SheetView({ data, cell, groupName }: { data: RoutineData; cell: CellFn; groupName: (g: Group) => ReactNode }) {
+  const blocks = useMemo(() => sheetBlocks(data.periods, data.assignments, data.groups), [data]);
+  if (!blocks.length) {
+    return <p className="m-0 rounded-xl border border-dashed px-6 py-10 text-center text-sm text-muted-foreground">এখনো কোনো ক্লাস নেই। &quot;শিরোনাম অনুযায়ী&quot; ভিউতে ক্লাস যোগ করুন।</p>;
+  }
+  const spans = blocks.map((b) => bandSpans(b.groups));
+  const rows = Math.max(...blocks.map((b) => b.groups.length));
+  const width = (b: (typeof blocks)[number]) => (b.banded ? 2 : 1) + b.periods.length;
+  return (
+    <>
+      <div className="rt-scroll overflow-x-auto rounded-xl border bg-card">
+        <table className="rt-grid rt-sheet w-full">
+          <thead>
+            <tr>
+              {blocks.map((b, i) => (
+                <th key={i} scope="colgroup" colSpan={width(b)} className="rt-block-start rt-block-name">
+                  {b.headings.filter(Boolean).join(' · ') || '—'}
+                </th>
+              ))}
+            </tr>
+            <tr>
+              {blocks.map((b, i) => (
+                <Fragment key={i}>
+                  <th scope="col" colSpan={b.banded ? 2 : 1} className="rt-block-start text-left">
+                    গ্রুপ
+                  </th>
+                  {b.periods.map((p) => (
+                    <th key={p.id} scope="col" className="text-left">
+                      <PeriodHead p={p} hide={b.headings[0]} />
+                    </th>
+                  ))}
+                </Fragment>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {Array.from({ length: rows }, (_, r) => (
+              <tr key={r}>
+                {blocks.map((b, i) => {
+                  const g = b.groups[r];
+                  if (!g) return <td key={i} colSpan={width(b)} className="rt-block-start rt-empty" />;
+                  return (
+                    <Fragment key={i}>
+                      {b.banded && spans[i][r] > 0 && <BandCell band={g.band} span={spans[i][r]} className="rt-block-start" />}
+                      <th scope="row" className={cn(!b.banded && 'rt-block-start')}>
+                        {groupName(g)}
+                      </th>
+                      {b.periods.map((p) => (
+                        <td key={p.id}>{cell(g, p)}</td>
+                      ))}
+                    </Fragment>
+                  );
+                })}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p className="m-0 text-[12.5px] text-muted-foreground sv-no-print">এখানে শুধু যে পিরিয়ডে ক্লাস আছে সেগুলো দেখায়। নতুন পিরিয়ড বা নতুন গ্রুপে ক্লাস যোগ করতে &quot;শিরোনাম অনুযায়ী&quot; ভিউ ব্যবহার করুন।</p>
+    </>
+  );
+}
+
+/** One table per heading, stacked; a heading shows only the periods its groups use, unless "সব পিরিয়ড" is on. */
+function HeadingView({ data, showAll, cell, groupName }: { data: RoutineData; showAll: boolean; cell: CellFn; groupName: (g: Group) => ReactNode }) {
+  const sections = useMemo(() => {
+    const used = new Set(data.assignments.map((a) => a.groupId));
+    const groups = data.groups.filter((g) => g.active || used.has(g.id));
+    return [...new Set(groups.map((g) => g.section))].map((heading) => {
+      const rows = groups.filter((g) => g.section === heading);
+      const ids = new Set(rows.map((g) => g.id));
+      const usedPeriods = data.periods.filter((p) => data.assignments.some((a) => a.periodId === p.id && ids.has(a.groupId)));
+      return { heading, rows, spans: bandSpans(rows), banded: rows.some((g) => g.band), periods: showAll || !usedPeriods.length ? data.periods : usedPeriods };
+    });
+  }, [data, showAll]);
+  return sections.map((s) => (
+    <section key={s.heading} className="flex flex-col gap-2">
+      {s.heading && <h2 className="m-0 text-[15px] font-semibold">{s.heading}</h2>}
+      <div className="rt-scroll overflow-x-auto rounded-xl border bg-card">
+        <table className={cn('rt-grid w-full', s.banded && 'rt-banded')}>
+          <thead>
+            <tr>
+              <th scope="col" colSpan={s.banded ? 2 : 1} className="text-left">
+                গ্রুপ
+              </th>
+              {s.periods.map((p) => (
+                <th key={p.id} scope="col" className="text-left">
+                  <PeriodHead p={p} hide={s.heading} />
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {s.rows.map((g, r) => (
+              <tr key={g.id}>
+                {s.banded && s.spans[r] > 0 && <BandCell band={g.band} span={s.spans[r]} />}
+                <th scope="row">{groupName(g)}</th>
+                {s.periods.map((p) => (
+                  <td key={p.id}>{cell(g, p)}</td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  ));
+}
+
+/** One row per teacher, periods across: where each teacher is, an empty cell is a free period. */
+function TeacherView({ data, names, day, groupHref }: { data: RoutineData; names: Lookup; day: Day; groupHref: (id: string) => string }) {
+  const used = new Set(data.assignments.flatMap((a) => [a.teacherId, a.taId]));
+  const teachers = data.teachers.filter((t) => t.active || used.has(t.id));
+  const loads = useMemo(() => teacherLoads(data.teachers, data.assignments, data.periods), [data]);
+  const q = data.routine.status === 'active' ? '' : `?r=${data.routine.id}`;
+  return (
+    <div className="rt-scroll overflow-x-auto rounded-xl border bg-card">
+      <table className="rt-grid w-full">
+        <thead>
+          <tr>
+            <th scope="col" className="text-left">
+              শিক্ষক
+            </th>
+            {data.periods.map((p) => (
+              <th key={p.id} scope="col" className="text-left">
+                <PeriodHead p={p} />
+              </th>
+            ))}
+            <th scope="col" className="text-left">
+              সপ্তাহে
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {teachers.map((t) => {
+            const load = loads.get(t.id)!;
+            return (
+              <tr key={t.id}>
+                <th scope="row">
+                  <Link href={`/admin/routine/teachers/${t.id}${q}`} className="no-underline hover:underline">
+                    {t.shortName}
+                  </Link>
+                  {t.isVacancy && <div className="text-[11.5px] font-normal text-muted-foreground">শূন্য পদ</div>}
+                </th>
+                {data.periods.map((p) => {
+                  const list = data.assignments
+                    .filter((a) => a.periodId === p.id && (a.teacherId === t.id || a.taId === t.id) && (day === 'all' || a.days.includes(day)))
+                    .sort(byDays);
+                  return (
+                    <td key={p.id}>
+                      <div className="rt-cell">
+                        {list.map((a) => (
+                          <span key={a.id} className="rt-entry">
+                            {day === 'all' && a.days.length < DAYS.length && <span className="rt-days">{daysText(a.days)}</span>}
+                            <Link href={groupHref(a.groupId)} className={cn('font-medium no-underline hover:underline', a.taId === t.id ? TA : MAIN)}>
+                              {names.groups.get(a.groupId)?.name}
+                            </Link>
+                            <span>
+                              {names.subjects.get(a.subjectId)?.name}
+                              {a.taId === t.id && <span className={TA}> · সহকারী</span>}
+                            </span>
+                          </span>
+                        ))}
+                      </div>
+                    </td>
+                  );
+                })}
+                <td>
+                  <div className="rt-cell">
+                    <span className="tabular-nums">
+                      {bn(load.weighted)}
+                      {load.target != null && ` / ${bn(load.target)}`}
+                    </span>
+                    <span>
+                      <LoadBadge status={load.status} />
+                    </span>
+                  </div>
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
   );
 }
 
@@ -126,8 +342,13 @@ function Entry({ a, names, group, showDays }: { a: Assignment; names: Lookup; gr
       {showDays && a.days.length < DAYS.length && <span className="rt-days">{daysText(a.days)}</span>}
       <span className="font-medium">{names.subjects.get(a.subjectId)?.name}</span>
       <span>
-        {names.teachers.get(a.teacherId)?.shortName}
-        {a.taId && ` + ${names.teachers.get(a.taId)?.shortName}`}
+        <span className={MAIN}>{names.teachers.get(a.teacherId)?.shortName}</span>
+        {a.taId && (
+          <>
+            {' + '}
+            <span className={TA}>{names.teachers.get(a.taId)?.shortName}</span>
+          </>
+        )}
       </span>
       {room && room !== group.defaultRoomId && <span className="rt-days">রুম {names.rooms.get(room)?.name}</span>}
       {a.note && <span className="rt-days">{a.note}</span>}

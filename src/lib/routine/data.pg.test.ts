@@ -76,7 +76,7 @@ beforeEach(async () => {
   ids.r402 = ok(await saveRoom({ name: '402', shared: false })).id;
   ids.hall = ok(await saveRoom({ name: 'Hall', shared: true })).id;
   for (const [key, room] of [['nursery', 'r402'], ['kg', 'r402'], ['fiveM', 'hall'], ['fiveF', 'hall']]) {
-    ids[key] = ok(await saveGroup({ name: key, kind: 'section', section: 'জেনারেল', sort: 0, defaultRoomId: id(room), genderRule: 'any', active: true })).id;
+    ids[key] = ok(await saveGroup({ name: key, kind: 'section', section: 'জেনারেল', band: '', sort: 0, defaultRoomId: id(room), genderRule: 'any', active: true })).id;
   }
   ids.mueen = ok(await saveTeacher(teacherInput('Mueen', { gender: 'male', subjectIds: [id('Quran')] }))).id;
   ids.nasreen = ok(await saveTeacher(teacherInput('Nasreen', { subjectIds: [id('Quran'), id('Math')] }))).id;
@@ -125,7 +125,7 @@ describe('assignments', () => {
     ok(await assign({ groupId: id('kg'), teacherId: id('dolon'), subjectId: id('Math'), periodId: id('p2') }));
     expect(await deleteRoom(r501)).toMatchObject({ ok: false });
     // Taking kg out of 402 makes the delete possible.
-    ok(await saveGroup({ name: 'kg', kind: 'section', section: 'জেনারেল', sort: 0, defaultRoomId: null, genderRule: 'any', active: true, id: id('kg') }));
+    ok(await saveGroup({ name: 'kg', kind: 'section', section: 'জেনারেল', band: '', sort: 0, defaultRoomId: null, genderRule: 'any', active: true, id: id('kg') }));
     ok(await deleteRoom(r501));
     const slots = await db.select().from(schema.routineSlots).where(sql`kind = 'room'`);
     expect(slots).toHaveLength(6);

@@ -121,6 +121,7 @@ const group = z.object({
   name,
   kind: z.enum(['section', 'level']),
   section: text(60),
+  band: text(40),
   sort: z.number().int().min(-9999).max(9999),
   defaultRoomId: optionalId,
   genderRule: z.enum(['any', 'male', 'female']),

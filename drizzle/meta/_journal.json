@@ -64,6 +64,13 @@
       "when": 1792336088073,
       "tag": "0008_routine_init",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1792341539084,
+      "tag": "0009_routine_group_band",
+      "breakpoints": true
     }
   ]
 }

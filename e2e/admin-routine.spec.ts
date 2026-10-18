@@ -8,6 +8,9 @@ test.describe.configure({ mode: 'serial' });
 test('the grid blocks a clash, asks before an unlisted subject, and saves', async ({ page }) => {
   await page.goto('/admin/routine');
   await expect(page.getByRole('heading', { name: 'ক্লাস রুটিন', level: 1 })).toBeVisible();
+  // Sheet-style by default: the day in blocks, Arabic levels under their band.
+  await expect(page.getByRole('columnheader', { name: 'আরবি' })).toBeVisible();
+  await expect(page.getByRole('rowheader', { name: 'LEVEL-1' })).toBeVisible();
   // A cell that changes by day shows each part with its days.
   await expect(page.getByRole('button', { name: /^One-A, ১০:৪৫/ })).toContainText('শনি–সোম');
 
@@ -49,6 +52,15 @@ test('the proxy register lists an absent teacher\'s classes and records a cover'
   await page.getByRole('button', { name: 'সরান' }).click();
   await page.getByRole('button', { name: 'তালিকা থেকে সরান' }).click();
   await expect(page.getByText('উপরে অনুপস্থিত শিক্ষক যোগ করলে')).toBeVisible();
+});
+
+test('the by-teacher view shows where each teacher is, with their load', async ({ page }) => {
+  await page.goto('/admin/routine');
+  await page.getByRole('radio', { name: 'শিক্ষক অনুযায়ী' }).click();
+  const bilal = page.getByRole('row', { name: /^Bilal/ });
+  await expect(bilal.getByRole('link', { name: 'Ammapara-1' })).toBeVisible();
+  await expect(bilal.getByText('সহকারী')).toBeVisible();
+  await expect(bilal.getByText('ঠিক আছে')).toBeVisible();
 });
 
 test('workload, free teachers, a teacher\'s week and setup open', async ({ page }) => {

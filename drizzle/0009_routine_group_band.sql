@@ -1,0 +1,1 @@
+ALTER TABLE "routine_groups" ADD COLUMN "band" text DEFAULT '' NOT NULL;

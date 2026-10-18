@@ -13,8 +13,8 @@ import { getRoutineDb } from '../db';
 const SUBJECTS = ['Bangla', 'English', 'Math', 'Science', 'Islam', 'Arabic', 'Quran', 'Hifz', 'Arts'];
 const ROOMS: [string, boolean][] = [['201', false], ['202', false], ['203', false], ['402', false], ['403', false], ['501', false], ['502', false], ['Hall', true]];
 
-// name, section, room, gender rule, kind
-const GROUPS: [string, string, string | null, 'any' | 'male' | 'female', 'section' | 'level'][] = [
+// name, section, room, gender rule, kind, band
+const GROUPS: [string, string, string | null, 'any' | 'male' | 'female', 'section' | 'level', string?][] = [
   ['Nursery-A', 'জেনারেল', '402', 'any', 'section'],
   ['Nursery-B', 'জেনারেল', '403', 'any', 'section'],
   ['KG-A', 'জেনারেল', '201', 'any', 'section'],
@@ -28,9 +28,9 @@ const GROUPS: [string, string, string | null, 'any' | 'male' | 'female', 'sectio
   ['Ammapara-1', 'কুরআন', '201', 'any', 'level'],
   ['Hifz (M)', 'হিফয', '203', 'male', 'level'],
   ['Hifz (F)', 'হিফয', '502', 'female', 'level'],
-  ['Arabic L-1', 'আরবি', '402', 'any', 'level'],
-  ['Arabic L-2', 'আরবি', '201', 'any', 'level'],
-  ['Arabic L-3', 'আরবি', '501', 'any', 'level'],
+  ['L-1 A', 'আরবি', '402', 'any', 'level', 'LEVEL-1'],
+  ['L-1 B', 'আরবি', '201', 'any', 'level', 'LEVEL-1'],
+  ['L-2', 'আরবি', '501', 'any', 'level', 'LEVEL-2'],
 ];
 
 // short name, full name, gender, subjects, target, salary, vacancy
@@ -59,10 +59,10 @@ const ASSIGN: [string, number, number[], string, string, string?][] = [
   ['Qaida-A', 2, ALL, 'Quran', 'Lubna'],
   ['Qaida-B', 2, ALL, 'Quran', 'Hasan'],
   ['Ammapara-1', 2, ALL, 'Quran', 'Bilal'],
-  ['Arabic L-1', 3, [1, 2, 3], 'Arabic', 'Maryam'],
-  ['Arabic L-1', 3, [4, 5], 'Islam', 'Lubna'],
-  ['Arabic L-2', 3, ALL, 'Arabic', 'Hasan'],
-  ['Arabic L-3', 3, ALL, 'Arabic', 'Bilal'],
+  ['L-1 A', 3, [1, 2, 3], 'Arabic', 'Maryam'],
+  ['L-1 A', 3, [4, 5], 'Islam', 'Lubna'],
+  ['L-1 B', 3, ALL, 'Arabic', 'Hasan'],
+  ['L-2', 3, ALL, 'Arabic', 'Bilal'],
   ['Nursery-A', 4, ALL, 'Math', 'Jamila'],
   ['Nursery-A', 5, ALL, 'English', 'Amina'],
   ['Nursery-A', 6, ALL, 'Bangla', 'Farzana'],
@@ -106,8 +106,8 @@ export async function loadRoutineFixtures(): Promise<string> {
   for (const [i, name] of SUBJECTS.entries()) must(name, await saveSubject({ name, sort: i * 10, active: true }));
   const rooms = new Map<string, string>();
   for (const [name, shared] of ROOMS) rooms.set(name, must(name, await saveRoom({ name, shared })).id);
-  for (const [i, [name, section, room, genderRule, kind]] of GROUPS.entries()) {
-    must(name, await saveGroup({ name, section, kind, sort: i * 10, defaultRoomId: room ? rooms.get(room)! : null, genderRule, active: true }));
+  for (const [i, [name, section, room, genderRule, kind, band = '']] of GROUPS.entries()) {
+    must(name, await saveGroup({ name, section, kind, band, sort: i * 10, defaultRoomId: room ? rooms.get(room)! : null, genderRule, active: true }));
   }
   const subjects = new Map((await listSubjects()).map((s) => [s.name, s.id]));
   for (const [shortName, fullName, gender, subs, targetPeriods, salary, isVacancy] of TEACHERS) {

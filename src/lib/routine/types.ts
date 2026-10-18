@@ -14,6 +14,7 @@ export type Group = {
   name: string;
   kind: GroupKind;
   section: string;
+  band: string;
   sort: number;
   defaultRoomId: string | null;
   genderRule: GenderRule;

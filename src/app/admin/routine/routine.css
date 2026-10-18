@@ -69,6 +69,36 @@ button.rt-cell:focus-visible {
   font-size: 11.5px;
   color: var(--muted-foreground);
 }
+.rt-band {
+  width: 1%;
+  background: #fafafa !important;
+  vertical-align: middle !important;
+  text-align: center !important;
+}
+.rt-band span {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+}
+/* Only a plain table keeps its group column in view while scrolling; with band labels or several
+   blocks side by side, sticky name columns would slide over each other. */
+.rt-sheet tbody th,
+.rt-banded tbody th {
+  position: static;
+}
+/* Sheet-style view: a heavier line between the blocks (HIFZ | QURAN | …), a name over each. */
+.rt-sheet .rt-block-start {
+  border-left: 2px solid #a3a3a3;
+}
+.rt-sheet .rt-block-name {
+  text-align: center;
+  letter-spacing: 0.02em;
+  background: #ededed;
+}
+.rt-sheet .rt-empty {
+  background: #fafafa;
+}
 .rt-add {
   color: #a3a3a3;
   font-size: 18px;
@@ -102,7 +132,37 @@ button.rt-cell:focus-visible {
     min-height: 0;
     padding: 4px 5px;
   }
-  .rt-add {
+  .rt-band {
+  width: 1%;
+  background: #fafafa !important;
+  vertical-align: middle !important;
+  text-align: center !important;
+}
+.rt-band span {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+}
+/* Only a plain table keeps its group column in view while scrolling; with band labels or several
+   blocks side by side, sticky name columns would slide over each other. */
+.rt-sheet tbody th,
+.rt-banded tbody th {
+  position: static;
+}
+/* Sheet-style view: a heavier line between the blocks (HIFZ | QURAN | …), a name over each. */
+.rt-sheet .rt-block-start {
+  border-left: 2px solid #a3a3a3;
+}
+.rt-sheet .rt-block-name {
+  text-align: center;
+  letter-spacing: 0.02em;
+  background: #ededed;
+}
+.rt-sheet .rt-empty {
+  background: #fafafa;
+}
+.rt-add {
     visibility: hidden;
   }
   .rt-scroll {

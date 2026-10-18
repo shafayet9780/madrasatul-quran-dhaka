@@ -247,23 +247,30 @@ const RULE_LABEL = { any: 'যেকোনো শিক্ষক', male: 'শু
 
 function Groups({ groups, rooms }: { groups: Group[]; rooms: Room[] }) {
   const sections = [...new Set(groups.map((g) => g.section).filter(Boolean))];
+  const bands = [...new Set(groups.map((g) => g.band).filter(Boolean))];
   return (
     <Card title="গ্রুপ">
       <p className="m-0 mb-3 text-[13px] text-muted-foreground">
-        ক্লাস সেকশন (Nursery-A, Two (M)) আর লেভেলভিত্তিক গ্রুপ (Qaida-A, Arabic L-3)। &quot;শিরোনাম&quot; অনুযায়ী রুটিনে গ্রুপগুলো আলাদা টেবিলে দেখায়; ক্রম ছোট থেকে বড়।
+        ক্লাস সেকশন (Nursery-A, Two (M)) আর লেভেলভিত্তিক গ্রুপ (Qaida-A, L-1 A)। &quot;শিরোনাম&quot; অনুযায়ী রুটিনে গ্রুপগুলো আলাদা হয়; একই &quot;ব্যান্ড&quot;-এর গ্রুপ (যেমন LEVEL-1-এর L-1 A, B, C) রুটিনে এক লেবেলের নিচে বসে। ক্রম ছোট থেকে বড়।
       </p>
       <datalist id="rt-sections">
         {sections.map((s) => (
           <option key={s} value={s} />
         ))}
       </datalist>
+      <datalist id="rt-bands">
+        {bands.map((b) => (
+          <option key={b} value={b} />
+        ))}
+      </datalist>
       <div className="overflow-x-auto">
-        <table className="w-full min-w-[900px] text-sm">
+        <table className="w-full min-w-[1020px] text-sm">
           <thead>
             <tr className="border-b">
               <th className={TH}>নাম</th>
               <th className={TH}>ধরন</th>
               <th className={TH}>শিরোনাম</th>
+              <th className={TH}>ব্যান্ড</th>
               <th className={TH}>ক্রম</th>
               <th className={TH}>রুম</th>
               <th className={TH}>শিক্ষক</th>
@@ -288,6 +295,7 @@ function GroupRow({ group, rooms, nextSort = 0 }: { group?: Group; rooms: Room[]
     name: group?.name ?? '',
     kind: group?.kind ?? 'section',
     section: group?.section ?? '',
+    band: group?.band ?? '',
     sort: group?.sort ?? nextSort,
     defaultRoomId: group?.defaultRoomId ?? null,
     genderRule: group?.genderRule ?? 'any',
@@ -312,6 +320,9 @@ function GroupRow({ group, rooms, nextSort = 0 }: { group?: Group; rooms: Room[]
       </td>
       <td className={TD}>
         <input className={cn(INPUT, 'w-28')} list="rt-sections" value={draft.section} onChange={(e) => set({ section: e.target.value })} placeholder="জেনারেল" maxLength={60} aria-label={`${label}: শিরোনাম`} />
+      </td>
+      <td className={TD}>
+        <input className={cn(INPUT, 'w-24')} list="rt-bands" value={draft.band} onChange={(e) => set({ band: e.target.value })} placeholder="ঐচ্ছিক" maxLength={40} aria-label={`${label}: ব্যান্ড`} />
       </td>
       <td className={TD}>
         <input type="number" className={cn(INPUT, 'w-20')} value={draft.sort} onChange={(e) => set({ sort: Number(e.target.value) || 0 })} aria-label={`${label}: ক্রম`} />

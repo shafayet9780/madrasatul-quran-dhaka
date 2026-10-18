@@ -10,6 +10,7 @@ export const group = (id: string, extra: Partial<Group> = {}): Group => ({
   name: id,
   kind: 'section',
   section: 'জেনারেল',
+  band: '',
   sort: 0,
   defaultRoomId: null,
   genderRule: 'any',

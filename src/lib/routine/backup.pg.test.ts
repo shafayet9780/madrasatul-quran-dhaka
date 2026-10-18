@@ -39,7 +39,10 @@ describe('routine backup', () => {
     const [pathname, body, options] = put.mock.calls[0] as unknown as [string, string, { access: string }];
     expect(pathname).toBe('routine-backups/2026-10-18.json');
     expect(options.access).toBe('private');
-    const tables = Object.values(schema).filter((v): v is PgTable => v instanceof PgTable).map(getTableName).sort();
+    const tables = Object.values(schema)
+      .filter((v) => v instanceof PgTable)
+      .map((t) => getTableName(t as PgTable))
+      .sort();
     const saved = JSON.parse(body).tables;
     expect(Object.keys(saved).sort()).toEqual(tables);
     expect(saved.routine_teachers.length).toBeGreaterThan(0);

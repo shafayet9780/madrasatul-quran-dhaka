@@ -77,7 +77,7 @@ All tables are prefixed `routine_`.
 
 **`routine_rooms`**: `name` (e.g. "501", "Hall"), `shared` (true → never a clash).
 
-**`routine_groups`**: `name` (Nursery-A, Two (M), Qaida-A, Arabic L-3), `kind` (class section / level group), `section` (heading the grid sorts under: e.g. জেনারেল, কুরআন, আরবি, হিফয), `order`, `default_room_id`, `gender_rule` (any / male / female), `active`.
+**`routine_groups`**: `name` (Nursery-A, Two (M), Qaida-A, L-1 A), `kind` (class section / level group), `section` (heading the grid sorts under: e.g. জেনারেল, কুরআন, আরবি, হিফয), `band` (optional label shared by a run of groups, e.g. LEVEL-1 for L-1 A, B, C), `order`, `default_room_id`, `gender_rule` (any / male / female), `active`.
 
 **`routine_routines`**: `name`, `status` (draft / active; at most one active), `created_at`, `copied_from_id`.
 
@@ -110,7 +110,7 @@ Follows the shared admin design (`docs/admin-redesign-plan.md`, pieces in `src/a
 
 | Nav | Page | Contents |
 |---|---|---|
-| রুটিন | `/admin/routine` | School grid for the chosen routine (active by default). Rows = groups under their section heading; columns = periods; a section shows only the periods it uses (Quran groups → 9:00 only). Day filter: **সব দিন** (cells show day chips) or one day (only that day's subject + teacher). Click a cell → assign / edit / delete. Clashes are refused in the dialog. **A3 print**. |
+| রুটিন | `/admin/routine` | The chosen routine (active by default) in three views (owner, 2026-10-18), all with a day filter (**সব দিন** shows day chips; one day shows only that day) and an **A3 print**: **শিটের মতো** (default) — like the sheet, the day left to right in blocks (a run of periods whose classes share headings: হিফয · কুরআন · আরবি · জেনারেল · হিফয), each with its name, times and lengths on top and its groups down the side, groups of one band (LEVEL-1) under one label; **শিরোনাম অনুযায়ী** — one table per heading, only the periods it uses (or all, to add classes in a new period); **শিক্ষক অনুযায়ী** — a row per teacher, periods across, empty = free, weekly load at the end. Main teacher names in brown, TA in blue. In the first two, a cell opens the editor (assign / edit / delete; clashes refused). |
 | ক্লাসের রুটিন | `/admin/routine/group/[id]` | One group's week: days × periods. **A4 print**. |
 | শিক্ষকের রুটিন | `/admin/routine/teacher/[id]` | One teacher's week (main and TA marked), load summary. **A4 print** (no salary or phone). |
 | ফ্রি শিক্ষক | `/admin/routine/free` | Day × period grid; each cell lists free teachers (active, not vacancies) with the subjects they can teach. Subject filter highlights who can take it. |
