@@ -47,7 +47,7 @@ Findings the design rests on:
 | Proxy | **Daily register with suggestions**; saved history, monthly proxy count per teacher, print + WhatsApp copy |
 | Prints | **School grid on A3** landscape; one class's / one teacher's week on **A4** |
 | Import | One-time script: sheet → **draft** routine + list of cells it couldn't read (phase 2) |
-| "3+1" in the sheet's "No of Classes" | **Open**: meaning to be confirmed by the owner; the new load is computed from assignments either way |
+| "3+1" in the sheet's "No of Classes" | **Main + TA** (owner, 2026-10-18): periods a day as main teacher + as TA. The new load is computed from assignments and shows main and TA apart the same way |
 
 ## 3. Data (Postgres, Drizzle — `src/lib/routine/schema.ts`, added to `drizzle.config.ts`)
 
@@ -161,7 +161,7 @@ Tests: pure modules (clash detection, load math, free-teacher and proxy ranking,
 
 ## 10. Open questions
 
-1. What does "3+1" / "1+3" in the sheet's "No of Classes" column mean? (Owner to confirm; affects only how targets are first filled in.)
+1. ~~What does "3+1" mean?~~ Main + TA periods a day (owner, 2026-10-18).
 2. Target periods per week for each teacher: to be entered by the owner (the sheet has none per week).
 
 ## 11. Build notes (phase 1, 2026-10-18)
