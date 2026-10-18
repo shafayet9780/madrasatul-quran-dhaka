@@ -57,6 +57,13 @@
       "when": 1791685314954,
       "tag": "0007_pledges",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1792336088073,
+      "tag": "0008_routine_init",
+      "breakpoints": true
     }
   ]
 }
