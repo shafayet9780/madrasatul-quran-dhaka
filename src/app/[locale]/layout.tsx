@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages, getTranslations } from 'next-intl/server';
 import { notFound } from 'next/navigation';
@@ -13,6 +14,17 @@ import { asLocale } from '@/lib/admissions/display';
 
 export function generateStaticParams() {
   return locales.map(locale => ({ locale }));
+}
+
+/**
+ * Page titles end with the school's name in the page's language (a page can still set its whole title). A page that
+ * sets none (a not-found page) is titled with the name alone; `absolute`, or the root's English ending would follow it.
+ */
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  if (!locales.includes(locale as (typeof locales)[number])) return {};
+  const t = await getTranslations({ locale, namespace: 'site' });
+  return { title: { template: `%s | ${t('schoolName')}`, absolute: t('schoolName') } };
 }
 
 export default async function LocaleLayout({

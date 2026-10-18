@@ -22,7 +22,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const cycle = await safeCurrentCycle();
   const session = num(cycle?.session ?? '2027', locale);
   const title = t('metaTitle', { session });
-  // The shared helper adds the canonical link and hreflang; the title keeps the site's "| Madrasatul Quran" suffix.
+  // The shared helper adds the canonical link and hreflang; the title keeps the site's ending (the school's name).
   return { ...generatePageMetadata({ title, description: t('metaDescription', { session }), locale, path: '/pre-admission' }), title };
 }
 

@@ -25,6 +25,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: newsEvent.title[language],
     description: newsEvent.excerpt?.[language] || newsEvent.title[language],
+    // The old design, with sample news: kept out of search until the page is redesigned.
+    robots: { index: false, follow: true },
   };
 }
 

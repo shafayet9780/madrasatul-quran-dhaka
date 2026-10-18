@@ -1,5 +1,7 @@
 import { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
+import type { Locale } from '@/lib/i18n';
+import { generatePageMetadata } from '@/lib/page-metadata';
 
 export async function generateMetadata({
   params,
@@ -9,10 +11,9 @@ export async function generateMetadata({
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'analytics.policy' });
 
-  return {
-    title: t('privacyTitle'),
-    description: t('privacyIntro'),
-  };
+  const title = t('privacyTitle');
+  // The shared helper adds the canonical link and hreflang; the title keeps the site's ending (the school's name).
+  return { ...generatePageMetadata({ title, description: t('privacyIntro'), locale: locale as Locale, path: '/privacy-policy' }), title };
 }
 
 export default async function PrivacyPolicyPage({

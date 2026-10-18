@@ -1,5 +1,8 @@
 import { Metadata } from 'next';
+import { notFound } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
+import { getNavigationVisibility } from '@/lib/queries/site';
+import { isSectionVisible } from '@/lib/nav-visibility';
 import { type Locale } from '@/lib/i18n';
 import { sanityFetch } from '@/lib/sanity-fetch';
 import { allAcademicProgramsQuery } from '@/lib/sanity-queries';
@@ -21,11 +24,16 @@ export async function generateMetadata({ params }: ProgramsPageProps): Promise<M
   return {
     title: t('title'),
     description: t('description'),
+    // The old design: kept out of search until the page is redesigned.
+    robots: { index: false, follow: true },
   };
 }
 
+/** The old Academic Programs page, open only while Site Settings shows Academics and Academic Programs. */
 export default async function ProgramsPage({ params }: ProgramsPageProps) {
   const { locale } = await params;
+  const visibility = await getNavigationVisibility();
+  if (!isSectionVisible('academics', visibility) || !isSectionVisible('programs', visibility)) notFound();
   const programs = await sanityFetch<AcademicProgram[]>({
     query: allAcademicProgramsQuery,
     tags: ['academicProgram'],

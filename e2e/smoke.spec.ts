@@ -27,11 +27,15 @@ test('language toggle: both locale homes are reachable and differ in URL', async
   await expect(page).toHaveURL(/\/english(\/|$)/);
 });
 
-test('a content detail route renders (programs)', async ({ page }) => {
-  const res = await page.goto('/english/programs');
-  expect(res?.status()).toBeLessThan(400);
-  await expect(page.locator('body')).not.toBeEmpty();
-});
+// The old-design pages stay out of search until they are redesigned. Programs also follows its Site Settings switch.
+for (const path of ['/english/programs', '/bengali/news']) {
+  test(`${path} is kept out of search`, async ({ page }) => {
+    const res = await page.request.get(path);
+    if (path.endsWith('/programs') && res.status() === 404) return;
+    expect(res.status()).toBe(200);
+    expect(await res.text()).toMatch(/<meta name="robots" content="noindex/);
+  });
+}
 
 test('studio route loads without an application error', async ({ page }) => {
   const res = await page.goto('/studio');

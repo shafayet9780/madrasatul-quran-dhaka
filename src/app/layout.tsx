@@ -18,7 +18,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(getSiteUrl()),
   title: {
     template: '%s | Madrasatul Quran',
-    default: 'Madrasatul Quran, Uttara | An ideal combination of Islamic and general education',
+    default: 'Madrasatul Quran, Uttara | Islamic and general education',
   },
   description: 'At Madrasatul Quran in Uttara, Dhaka, Islamic and general education are given equal weight in one ten-year plan. Day-care hifz with general study alongside. Nursery to Class 11.',
   keywords: ['Islamic education', 'Madrasah', 'Quran', 'Hadith', 'Dhaka', 'Bangladesh', 'Educational institution'],
@@ -40,7 +40,7 @@ export const metadata: Metadata = {
     locale: 'en_US',
     url: getSiteUrl(),
     siteName: 'Madrasatul Quran',
-    title: 'Madrasatul Quran, Uttara | An ideal combination of Islamic and general education',
+    title: 'Madrasatul Quran, Uttara | Islamic and general education',
     description: 'At Madrasatul Quran in Uttara, Dhaka, Islamic and general education are given equal weight in one ten-year plan. Day-care hifz with general study alongside. Nursery to Class 11.',
     images: [
       {
@@ -55,7 +55,7 @@ export const metadata: Metadata = {
   // Twitter
   twitter: {
     card: 'summary_large_image',
-    title: 'Madrasatul Quran, Uttara | An ideal combination of Islamic and general education',
+    title: 'Madrasatul Quran, Uttara | Islamic and general education',
     description: 'At Madrasatul Quran in Uttara, Dhaka, Islamic and general education are given equal weight in one ten-year plan. Day-care hifz with general study alongside. Nursery to Class 11.',
     images: [SOCIAL_IMAGE],
   },
