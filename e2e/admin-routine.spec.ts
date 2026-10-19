@@ -16,7 +16,7 @@ test('the grid blocks a clash, asks before an unlisted subject, and saves', asyn
 
   await page.getByRole('button', { name: /^Five \(M\), ১০:৪৫.*ক্লাস যোগ করুন$/ }).click();
   const dialog = page.getByRole('dialog');
-  await dialog.getByRole('radio', { name: 'Math' }).click();
+  await dialog.getByRole('group', { name: 'সাবজেক্ট' }).getByRole('button', { name: 'Math' }).click();
   // Busy teachers are red and can't be picked, with where they are.
   await dialog.getByText(/^ফ্রি নেই/).click();
   const jamila = dialog.getByRole('button', { name: /^Jamila/ });

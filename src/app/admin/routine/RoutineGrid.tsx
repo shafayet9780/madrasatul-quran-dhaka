@@ -540,13 +540,12 @@ function CellEditor({ data, names, group, period }: { data: RoutineData; names: 
 
           <div className="flex flex-col gap-2">
             <p className={STEP}>১. সাবজেক্ট</p>
-            <div role="radiogroup" aria-label="সাবজেক্ট" className="flex flex-wrap gap-1.5">
+            <div role="group" aria-label="সাবজেক্ট" className="flex flex-wrap gap-1.5">
               {subjects.map((s) => (
                 <button
                   key={s.id}
                   type="button"
-                  role="radio"
-                  aria-checked={form.subjectId === s.id}
+                  aria-pressed={form.subjectId === s.id}
                   onClick={() => set({ subjectId: s.id })}
                   className={cn('h-9 rounded-md border px-3 text-sm', form.subjectId === s.id ? 'border-primary bg-primary text-primary-foreground' : 'bg-white hover:border-input')}
                 >

@@ -67,7 +67,7 @@ All tables are prefixed `routine_`.
 | `experience_years` | Number, optional |
 | `phone` | Optional |
 | `salary` | Monthly taka, optional |
-| `target_periods` | Expected periods per week; optional (no target → status "লক্ষ্য দেওয়া নেই") |
+| `target_periods` | Expected periods per week; optional (no target → status "টার্গেট নেই") |
 | `bio` | Short biography / notes |
 | `erp_id` | Optional; matches `surveyTeacher.key` |
 | `is_vacancy` | Placeholder for an unfilled post |
@@ -96,7 +96,7 @@ A cell that changes by day is several rows with disjoint `days`. Example, `farha
 
 - `main` = Σ over the teacher's main assignments of the number of days; `ta` likewise for TA rows.
 - `weighted = main + ½ × ta`; `percent = weighted ÷ target_periods`.
-- Status: **কম** (< 80 %), **ঠিক আছে** (80–100 %), **বেশি** (> 100 %), or **লক্ষ্য দেওয়া নেই**.
+- Status: **কম** (< 80 %), **ঠিক আছে** (80–100 %), **বেশি** (> 100 %), or **টার্গেট নেই**.
 - `minutes/week` = Σ of period length × days (main and TA shown separately).
 - `a day` = main ÷ 6 + TA ÷ 6, shown as the sheet writes it ("৩+১"). The target stays one weekly number (owner, 2026-10-18): 3+1 a day is (3 + ½) × 6 = 21.
 - `salary per period` ≈ salary ÷ (weighted × 52 ÷ 12), shown on the workload page only.
@@ -111,12 +111,12 @@ Follows the shared admin design (`docs/admin-redesign-plan.md`, pieces in `src/a
 | Nav | Page | Contents |
 |---|---|---|
 | রুটিন | `/admin/routine` | The chosen routine (active by default) in three views (owner, 2026-10-18), all with a day filter (**সব দিন** shows day chips; one day shows only that day) and an **A3 print**: **শিট ভিউ** (default) — like the sheet, the day left to right in blocks (a run of periods whose classes share headings: হিফয · কুরআন · আরবি · জেনারেল · হিফয), each with its name, times and lengths on top and its groups down the side (a block is named by the heading most of its classes are under; a group on its own timetable, like Six (F), is an extra row of each block it has classes in, as at the bottom of the sheet), groups of one band (LEVEL-1) under one label; **সেকশন অনুযায়ী** — one table per heading, only the periods it uses (or all, to add classes in a new period); **টিচার অনুযায়ী** — a row per teacher, periods across, empty = free, weekly load at the end. Main teacher names in brown, TA in blue. In the first two, a cell opens the editor: tap a subject, then a teacher from the **teacher picker** (free teachers green, those who teach the subject first, the lightest week first; busy ones red with where they are, folded away); the TA, a split by days (**দিন ভাগ করুন**), the room and a note only when needed; clashes refused; a cell whose days are all taken shows only its rows. A group's gender rule stays a note on a green chip and asks on save. On a school day the **running period's column is tinted and marked এখন** in all three views (refreshed every minute). The view and day stay in the address (`?view=`, `?day=`); without one, a phone opens on সেকশন অনুযায়ী (review, 2026-10-19). |
-| ক্লাসের রুটিন | `/admin/routine/group/[id]` | One group's week: days × periods. **A4 print**. |
-| শিক্ষকের রুটিন | `/admin/routine/teacher/[id]` | One teacher's week (main and TA marked), load summary. **A4 print** (no salary or phone). |
+| ক্লাসের রুটিন | `/admin/routine/groups/[id]` | One group's week: days × periods. **A4 print**. |
+| টিচারের রুটিন | `/admin/routine/teachers/[id]` | One teacher's week (main and TA marked), load summary. **A4 print** (no salary or phone). |
 | ফ্রি টিচার | `/admin/routine/free` | One **date** (default today; ‹ › step a school day): a card per period listing free teachers (active, not vacancies, not absent, not on a proxy then) with how many classes they have that day and the subjects they teach. Today, the **running period comes first (এখন চলছে)**, then the ones to come; earlier periods fold away. The subject filter splits each card into who teaches it and the rest. Teachers with no class that day in the period's **sitting** (periods at most 30 minutes apart: the morning school day; the evening Hifz is another) are folded away as likely not at school. That day's absentees are named with a link to the proxy page. |
 | প্রক্সি | `/admin/routine/proxy` | Daily register (§6). |
-| ওয়ার্কলোড | `/admin/routine/workload` | Every teacher: main, TA, weighted, target, %, status badge, minutes/week, busiest day (all of them when tied), proxies this month, salary, salary per period. The **target is typed in the table** (saved on Enter or leaving the box), so rows sort by name and stay put. Also **শূন্য পদ** (posts to fill): vacancy teachers with their subjects and weekly load. |
-| শিক্ষক | `/admin/routine/teachers` | List + form (fields of §3, subjects as checkboxes). |
+| ওয়ার্কলোড | `/admin/routine/workload` | Every teacher: main, TA, weighted, target, %, status badge, minutes/week, busiest day (all of them when tied), proxies this month, salary, salary per period. The **target is typed in the table** (saved on Enter or leaving the box), so rows sort by name and stay put. Also **খালি পোস্ট** (posts to fill): vacancy teachers with their subjects and weekly load. |
+| টিচার | `/admin/routine/teachers` | List + form (fields of §3, subjects as checkboxes). |
 | সেটআপ | `/admin/routine/setup` | Routines (create, copy, make active, rename, delete draft), periods of a routine, subjects, rooms, groups. |
 
 Making a routine active asks for confirmation. Saved proxies of past dates keep their snapshot.
