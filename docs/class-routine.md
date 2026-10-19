@@ -145,7 +145,7 @@ pnpm routine:import "<path>/Class schedule.xlsx" --apply  # writes a draft routi
 ```
 
 - Its files go to `routine-import/` next to the `.xlsx`, never into this public repo:
-  - `names.json` maps each short name to a "Profile all" name, a gender and other spellings (aliases). The first run drafts it from "Free Teachers" plus any names the grid uses; the owner fills in the rest. `--apply` refuses while a gender is missing or a Profile name doesn't match.
+  - `names.json` maps each short name to its full name and ERP ID (from the ERP teacher list), a gender, a "Profile all" row (qualification, phone, salary) and other spellings (aliases). The first run drafts it from "Free Teachers" plus any names the grid uses; the owner fills in the rest. `--apply` refuses while a gender is missing or a Profile name doesn't match.
   - `report.md` lists what would be created, the fix list, the classes with days left empty, and every class it read.
   - `applied.md` (after `--apply`) lists the classes that could not be placed.
 - Reading the grid (`src/lib/routine/sheet-import.ts`, pure, unit-tested):

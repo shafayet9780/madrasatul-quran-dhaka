@@ -20,7 +20,9 @@ import type { TeacherSeed } from '../src/lib/routine/sheet-import-apply';
 
 config({ path: '.env.local' });
 
-type NameEntry = { profile: string | null; gender: '' | 'male' | 'female'; vacancy: boolean; aliases: string[] };
+// fullName and erpId come from the school's ERP teacher list; profile names a row in "Profile all"
+// (qualification, phone, salary; also the full name when fullName is empty).
+type NameEntry = { profile: string | null; fullName?: string; erpId?: string | null; gender: '' | 'male' | 'female'; vacancy: boolean; aliases: string[] };
 export type Names = { teachers: Record<string, NameEntry> };
 type Profile = { fullName: string; qualification: string; experienceYears: number | null; designation: string; department: string; phone: string; salary: number | null };
 
@@ -99,8 +101,8 @@ function nameProblems(names: Names, profiles: Map<string, Profile>) {
     ...(e.profile && !profiles.has(nameKey(e.profile)) ? [`${short}: "${e.profile}" নামটি Profile all-এ নেই`] : []),
   ]);
   const notes = Object.entries(names.teachers)
-    .filter(([, e]) => !e.profile && !e.vacancy)
-    .map(([short]) => `${short}: Profile all-এর নাম দেওয়া নেই (পূর্ণ নাম হিসেবে ছোট নামই যাবে)`);
+    .filter(([, e]) => !e.profile && !e.fullName && !e.vacancy)
+    .map(([short]) => `${short}: পূর্ণ নাম দেওয়া নেই (ছোট নামই পূর্ণ নাম হিসেবে যাবে)`);
   return { blocking, notes };
 }
 
@@ -108,7 +110,7 @@ export function teacherSeeds(names: Names, profiles: Map<string, Profile>): Teac
   return Object.entries(names.teachers).map(([shortName, e]) => {
     const p = e.profile ? profiles.get(nameKey(e.profile)) : undefined;
     return {
-      fullName: p?.fullName ?? shortName,
+      fullName: e.fullName || p?.fullName || shortName,
       shortName,
       gender: e.gender as 'male' | 'female',
       designation: p?.designation ?? '',
@@ -119,7 +121,7 @@ export function teacherSeeds(names: Names, profiles: Map<string, Profile>): Teac
       salary: p?.salary ?? null,
       targetPeriods: null,
       bio: '',
-      erpId: null,
+      erpId: e.erpId || null,
       isVacancy: e.vacancy,
       active: true,
     };
