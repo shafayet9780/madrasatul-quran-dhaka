@@ -3,6 +3,7 @@ import { isAuthorizedCleanupRequest } from '@/lib/downloads/cleanup';
 import { retryConfirmationEmails } from '@/lib/admissions/mail';
 import { reconcilePending } from '@/lib/admissions/payments';
 import { copyPendingToSheet } from '@/lib/admissions/sheet-copy';
+import { backupRoutineTables } from '@/lib/routine/backup';
 import { getSiteUrl } from '@/lib/site-url';
 import { backupSurveyTables } from '@/lib/survey/backup';
 import { pruneDryRuns } from '@/lib/survey/erp-import-server';
@@ -14,7 +15,7 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
 
-// Daily (vercel.json): retry Sheet copies that failed, back up the survey tables to Blob,
+// Daily (vercel.json): retry Sheet copies that failed, back up the survey and class routine tables to Blob,
 // settle admission fee payments whose browser never came back, retry confirmation emails, and drop import dry runs and
 // rate-limit windows older than a day. (Hobby allows two cron jobs, so admissions share this one.)
 export async function GET(request: NextRequest) {
@@ -36,6 +37,13 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     ok = false;
     result.backup = { error: error instanceof Error ? error.message : 'failed' };
+  }
+  try {
+    result.routineBackup = await backupRoutineTables();
+    if (production && 'skipped' in (result.routineBackup as object)) ok = false;
+  } catch (error) {
+    ok = false;
+    result.routineBackup = { error: error instanceof Error ? error.message : 'failed' };
   }
   try {
     result.sheet = await mirrorPending({ budgetMs: 15_000 });
