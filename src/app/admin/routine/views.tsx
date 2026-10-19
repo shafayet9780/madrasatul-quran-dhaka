@@ -3,11 +3,11 @@
 import Link from 'next/link';
 import { Fragment, useContext, useMemo, useState } from 'react';
 import { periodText, periodTime, timeText } from '@/lib/routine/days';
-import { bandRuns, sheetBlocks, sheetLayout, type Lane } from '@/lib/routine/layout';
+import { bandRuns, groupPeriods, sheetBlocks, sheetLayout, type Lane } from '@/lib/routine/layout';
 import type { Assignment, Group, Period, RoutineData } from '@/lib/routine/types';
 import { toBengaliDigits as bn } from '@/lib/survey/normalise';
 import { cn } from '@/lib/utils';
-import { Entry, involves, NowContext, PeriodHead, Tile, type CellCtx } from './cells';
+import { Entry, NowContext, PeriodHead, Tile, type CellCtx } from './cells';
 import { ScrollToNow, SELECT } from './controls';
 
 // The routine's views (docs/class-routine.md §5): শিট (a column per block of the day, as the
@@ -83,7 +83,7 @@ export function SheetView({ data, ctx, shown, open, groupHref }: ViewProps) {
         {nowId && <ScrollToNow id="rt-lanes" />}
       </div>
       {strips.map((g) => {
-        const own = data.periods.filter((p) => shown(g.id, p.id).length);
+        const own = groupPeriods(data.periods, data.assignments, data.groups, g);
         return (
           <section key={g.id} aria-label={g.name} className={cn(CARD, 'flex flex-col gap-2.5 p-3.5')}>
             <div className="flex flex-wrap items-baseline gap-x-3">
@@ -120,9 +120,9 @@ function LaneCards({ lane, data, groupHref, tile }: { lane: Lane; data: RoutineD
         <div key={i} className="flex flex-col gap-1.5">
           {run.band && <div className={cn(SUBHEAD, 'px-1 pt-1')}>{run.band}</div>}
           {run.groups.map((g) => (
-            <div key={g.id} className="flex flex-col gap-1 rounded-[10px] border border-[#efedea] bg-[#fbfaf9] p-2">
+            <div key={g.id} className="flex flex-col gap-1 rounded-[10px] border border-[#efedea] bg-[#fbfaf9] p-2 has-[[data-faded]]:opacity-30 has-[[data-found]]:border-2 has-[[data-found]]:border-foreground has-[[data-found]]:bg-white">
               <GroupName g={g} data={data} groupHref={groupHref} inline />
-              {tile(g, lane.periods[0], 'min-h-0 border-0 bg-transparent p-0 hover:border-0')}
+              {tile(g, lane.periods[0], 'min-h-0 border-0 bg-transparent p-0 opacity-100 hover:border-0')}
             </div>
           ))}
         </div>
@@ -225,7 +225,9 @@ export function TimelineView({ data, ctx, shown, open, groupHref }: ViewProps) {
                         {inSession || list.length ? (
                           <Tile list={list} group={g} ctx={ctx} onOpen={() => open(g.id, p.id)} label={`${g.name}, ${periodText(p)}`} />
                         ) : (
-                          <button type="button" aria-label={`${g.name}, ${periodText(p)}: ক্লাস যোগ করুন`} onClick={() => open(g.id, p.id)} className="block min-h-[52px] w-full rounded-[10px]" />
+                          <button type="button" aria-label={`${g.name}, ${periodText(p)}: ক্লাস যোগ করুন`} onClick={() => open(g.id, p.id)} className="block min-h-[52px] w-full rounded-[10px] text-transparent hover:text-[#a8a29e] focus-visible:text-[#a8a29e]">
+                            +
+                          </button>
                         )}
                       </td>
                     );
@@ -243,9 +245,10 @@ export function TimelineView({ data, ctx, shown, open, groupHref }: ViewProps) {
 /** On a phone: one group's day (or one teacher's) as a list, the running period outlined. */
 export function PhoneDay({ data, ctx, shown, open, groupHref }: ViewProps) {
   const nowId = useContext(NowContext);
+  // In the sheet's order, then any group not on it yet.
   const groups = useMemo(() => {
     const { lanes, strips } = sheetLayout(data.periods, data.assignments, data.groups);
-    return [...new Set([...lanes.flatMap((l) => l.groups), ...strips])];
+    return [...new Set([...lanes.flatMap((l) => l.groups), ...strips, ...data.groups.filter((g) => g.active)])];
   }, [data]);
   const [mode, setMode] = useState<'group' | 'teacher'>('group');
   const [groupId, setGroupId] = useState(groups[0]?.id ?? '');
@@ -261,7 +264,9 @@ export function PhoneDay({ data, ctx, shown, open, groupHref }: ViewProps) {
   );
   const rows =
     mode === 'group'
-      ? data.periods.filter((p) => group && shown(group.id, p.id).length)
+      ? group
+        ? groupPeriods(data.periods, data.assignments, data.groups, group)
+        : []
       : data.periods.filter((p) => data.assignments.some((a) => a.periodId === p.id && (a.teacherId === teacherId || a.taId === teacherId) && shown(a.groupId, p.id).includes(a)));
   return (
     <div className="flex flex-col gap-3">
@@ -314,7 +319,7 @@ export function PhoneDay({ data, ctx, shown, open, groupHref }: ViewProps) {
                     .map((a) => {
                       const g = data.groups.find((x) => x.id === a.groupId)!;
                       return (
-                        <button key={a.id} type="button" onClick={() => open(g.id, p.id)} className={cn('flex w-full flex-col items-start gap-0.5 rounded-[10px] border border-[#efedea] bg-[#fbfaf9] px-2.5 py-2 text-left text-[12.5px]', involves(a, ctx) && 'border-foreground')}>
+                        <button key={a.id} type="button" onClick={() => open(g.id, p.id)} className="flex w-full flex-col items-start gap-0.5 rounded-[10px] border border-[#efedea] bg-[#fbfaf9] px-2.5 py-2 text-left text-[12.5px]">
                           <span className="text-[13.5px] font-bold">{g.name}</span>
                           <Entry a={a} group={g} ctx={ctx} />
                         </button>

@@ -111,6 +111,8 @@ export function Tile({ list, group, ctx, onOpen, label, className }: { list: Ass
       type="button"
       onClick={onOpen}
       aria-label={`${label}: ${list.length ? 'বদলান' : 'ক্লাস যোগ করুন'}`}
+      data-found={mine || undefined}
+      data-faded={(ctx.teacherId && !mine) || undefined}
       style={tint && !mine ? { background: tint, borderColor: 'transparent' } : undefined}
       className={cn(
         'flex min-h-[52px] w-full flex-col gap-1.5 rounded-[10px] border px-2.5 py-2 text-left text-[12.5px]',

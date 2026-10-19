@@ -67,11 +67,21 @@ export function sheetLayout(periods: Period[], assignments: Assignment[], groups
     const sign = (g: Group, p: Period) =>
       assignments
         .filter((a) => a.groupId === g.id && a.periodId === p.id)
-        .map((a) => [a.subjectId, a.teacherId, a.taId, a.days.join(), a.note].join('|'))
+        .map((a) => [a.subjectId, a.teacherId, a.taId, a.roomId, a.days.join(), a.note].join('|'))
         .sort()
         .join('\n');
     const same = rows.every((g) => b.periods.every((p) => sign(g, p) === sign(g, b.periods[0])));
     return { ...b, groups: rows, banded: rows.some((g) => g.band), cards: b.periods.length === 1 || same };
   });
   return { lanes: lanes.filter((l) => l.groups.length), strips };
+}
+
+/**
+ * The periods a group's day is made of, for one group's list (a strip, the phone): its heading's
+ * blocks and any period it has a class in; with neither, every period.
+ */
+export function groupPeriods(periods: Period[], assignments: Assignment[], groups: Group[], group: Group): Period[] {
+  const home = new Set(sheetBlocks(periods, assignments, groups).filter((b) => b.headings[0] === group.section).flatMap((b) => b.periods.map((p) => p.id)));
+  const own = periods.filter((p) => home.has(p.id) || assignments.some((a) => a.groupId === group.id && a.periodId === p.id));
+  return own.length ? own : periods;
 }

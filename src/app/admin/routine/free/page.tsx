@@ -186,7 +186,7 @@ export default async function FreePage({ searchParams }: { searchParams: Promise
                   <caption className="sr-only">কোন পিরিয়ডে কোন টিচার ফ্রি</caption>
                   <thead>
                     <tr>
-                      <th scope="col" className="sticky left-0 z-[2] border-b border-r bg-muted px-3 py-2.5 text-left font-semibold">
+                      <th scope="col" data-pin className="sticky left-0 z-[2] border-b border-r bg-muted px-3 py-2.5 text-left font-semibold">
                         টিচার
                       </th>
                       {board.periods.map(({ period: p, free }) => (
