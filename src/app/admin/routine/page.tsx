@@ -23,7 +23,7 @@ export default async function RoutinePage({ searchParams }: { searchParams: Prom
               data && (
                 <>
                   {routineSub(data.routine)}
-                  <span className="sv-no-print"> · ঘরে চাপ দিয়ে ক্লাস যোগ বা এডিট করুন</span>
+                  <span className="sv-no-print"> · যেকোনো ঘরে চাপ দিয়ে ক্লাস যোগ করুন বা বদলান</span>
                 </>
               )
             }

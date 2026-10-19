@@ -31,7 +31,7 @@ import { assertAdmin } from '@/lib/survey/admin-auth';
 // Class routine admin changes. Every action checks the admin login first (the proxy also gates /admin).
 
 export type Result = Outcome;
-const BAD_REQUEST: Result = { ok: false, error: 'অনুরোধটি সঠিক নয়; পেজটি আবার লোড করুন।' };
+const BAD_REQUEST: Result = { ok: false, error: 'কিছু একটা ঠিক নেই। পেজটা রিলোড করে আবার চেষ্টা করুন।' };
 
 const id = z.uuid();
 const optionalId = id.nullable();

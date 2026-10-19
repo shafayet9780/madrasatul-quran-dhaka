@@ -74,10 +74,10 @@ export function assignmentWarnings(a: Draft, names: Lookup): string[] {
   const group = names.groups.get(a.groupId);
   const subject = names.subjects.get(a.subjectId);
   const main = names.teachers.get(a.teacherId);
-  if (main && subject && !main.subjectIds.includes(subject.id)) warnings.push(`${main.shortName}-এর বিষয়ের তালিকায় ${subject.name} নেই।`);
+  if (main && subject && !main.subjectIds.includes(subject.id)) warnings.push(`${main.shortName}-এর সাবজেক্টের লিস্টে ${subject.name} নেই।`);
   for (const t of [main, a.taId ? names.teachers.get(a.taId) : undefined]) {
     if (t?.gender && group && group.genderRule !== 'any' && group.genderRule !== t.gender) {
-      warnings.push(`${group.name}-এ শুধু ${group.genderRule === 'male' ? 'পুরুষ' : 'মহিলা'} শিক্ষক পড়ান; ${t.shortName} ${t.gender === 'male' ? 'পুরুষ' : 'মহিলা'}।`);
+      warnings.push(`${group.name}-এ শুধু ${group.genderRule === 'male' ? 'পুরুষ' : 'মহিলা'} টিচার পড়ান, কিন্তু ${t.shortName} ${t.gender === 'male' ? 'পুরুষ' : 'মহিলা'}।`);
     }
   }
   return warnings;

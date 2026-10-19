@@ -64,7 +64,7 @@ const ROUTINE_SECTIONS: { heading: string; links: NavLink[] }[] = [
     heading: 'ক্লাস রুটিন',
     links: [
       { label: 'রুটিন', href: '/admin/routine', icon: 'calendar' },
-      { label: 'ফ্রি শিক্ষক', href: '/admin/routine/free', icon: 'free' },
+      { label: 'ফ্রি টিচার', href: '/admin/routine/free', icon: 'free' },
       { label: 'প্রক্সি', href: '/admin/routine/proxy', icon: 'swap' },
       { label: 'ওয়ার্কলোড', href: '/admin/routine/workload', icon: 'gauge' },
     ],
@@ -72,7 +72,7 @@ const ROUTINE_SECTIONS: { heading: string; links: NavLink[] }[] = [
   {
     heading: 'সেটআপ',
     links: [
-      { label: 'শিক্ষক', href: '/admin/routine/teachers', icon: 'people' },
+      { label: 'টিচার', href: '/admin/routine/teachers', icon: 'people' },
       { label: 'পিরিয়ড, গ্রুপ, রুম', href: '/admin/routine/setup', icon: 'sliders' },
     ],
   },

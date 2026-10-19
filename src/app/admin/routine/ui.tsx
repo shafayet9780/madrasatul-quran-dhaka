@@ -15,9 +15,9 @@ export function LoadBadge({ status }: { status: LoadStatus }) {
 export function NoRoutine({ children }: { children?: ReactNode }) {
   return (
     <EmptyState>
-      {children ?? 'এখনো কোনো রুটিন তৈরি হয়নি।'}{' '}
+      {children ?? 'এখনো কোনো রুটিন বানানো হয়নি।'}{' '}
       <Link href="/admin/routine/setup" className="text-foreground underline underline-offset-4">
-        সেটআপে গিয়ে রুটিন, পিরিয়ড ও গ্রুপ যোগ করুন।
+        সেটআপে গিয়ে রুটিন, পিরিয়ড আর গ্রুপ যোগ করুন।
       </Link>
     </EmptyState>
   );
@@ -25,5 +25,5 @@ export function NoRoutine({ children }: { children?: ReactNode }) {
 
 /** "রুটিন ২০২৭ · খসড়া" under a page title. */
 export function routineSub(routine: { name: string; status: string }, extra?: string) {
-  return [`রুটিন ${routine.name}${routine.status === 'draft' ? ' (খসড়া)' : ''}`, extra].filter(Boolean).join(' · ');
+  return [`রুটিন ${routine.name}${routine.status === 'draft' ? ' (ড্রাফট)' : ''}`, extra].filter(Boolean).join(' · ');
 }

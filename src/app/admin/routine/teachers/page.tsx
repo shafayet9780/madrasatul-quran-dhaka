@@ -10,7 +10,7 @@ import { PageTop } from '../../AdminShell';
 import { EmptyState, LINK, PageBody, PageTitle } from '../../ui';
 import { LoadBadge } from '../ui';
 
-export const metadata: Metadata = { title: 'শিক্ষক' };
+export const metadata: Metadata = { title: 'টিচার' };
 export const dynamic = 'force-dynamic';
 
 const TH = 'px-3 py-2.5 text-left text-[12.5px] font-medium text-muted-foreground';
@@ -27,30 +27,30 @@ export default async function TeachersPage({ searchParams }: { searchParams: Pro
   return (
     <>
       <PageTop
-        crumbs={[{ label: 'রুটিন', href: '/admin/routine' }, { label: 'শিক্ষক' }]}
+        crumbs={[{ label: 'রুটিন', href: '/admin/routine' }, { label: 'টিচার' }]}
         round={false}
         actions={
           <Button asChild className="adm h-9">
             <Link href="/admin/routine/teachers/new">
               <Plus aria-hidden />
-              নতুন শিক্ষক
+              নতুন টিচার
             </Link>
           </Button>
         }
       />
       <PageBody>
-        <PageTitle sub={`${bn(teachers.filter((t) => t.active && !t.isVacancy).length)} জন সক্রিয় শিক্ষক${teachers.some((t) => t.isVacancy && t.active) ? ` · ${bn(teachers.filter((t) => t.isVacancy && t.active).length)}টি শূন্য পদ` : ''}`}>শিক্ষক</PageTitle>
+        <PageTitle sub={`${bn(teachers.filter((t) => t.active && !t.isVacancy).length)} জন টিচার${teachers.some((t) => t.isVacancy && t.active) ? ` · ${bn(teachers.filter((t) => t.isVacancy && t.active).length)}টা খালি পোস্ট` : ''}`}>টিচার</PageTitle>
         {shown.length === 0 ? (
-          <EmptyState>এখনো কোনো শিক্ষক যোগ করা হয়নি। উপরের &quot;নতুন শিক্ষক&quot; বাটনে চাপুন।</EmptyState>
+          <EmptyState>এখনো কোনো টিচার যোগ করা হয়নি। উপরে &quot;নতুন টিচার&quot; বাটনে চাপুন।</EmptyState>
         ) : (
           <div className="overflow-x-auto rounded-xl border bg-card">
             <table className="w-full min-w-[760px] text-sm">
               <thead>
                 <tr className="border-b">
                   <th className={TH}>নাম</th>
-                  <th className={TH}>পদবী · বিভাগ</th>
-                  <th className={TH}>যে বিষয় পড়ান</th>
-                  <th className={TH}>সপ্তাহে লক্ষ্য</th>
+                  <th className={TH}>পদবি · ডিপার্টমেন্ট</th>
+                  <th className={TH}>যে সাবজেক্ট পড়ান</th>
+                  <th className={TH}>সপ্তাহে টার্গেট</th>
                   <th className={TH}>ওয়ার্কলোড</th>
                 </tr>
               </thead>
@@ -65,8 +65,8 @@ export default async function TeachersPage({ searchParams }: { searchParams: Pro
                         </Link>
                         <div className="text-[12.5px] text-muted-foreground">
                           {t.fullName}
-                          {t.isVacancy && ' · শূন্য পদ'}
-                          {!t.active && ' · নিষ্ক্রিয়'}
+                          {t.isVacancy && ' · খালি পোস্ট'}
+                          {!t.active && ' · বন্ধ'}
                         </div>
                       </td>
                       <td className={TD}>{[t.designation, t.department].filter(Boolean).join(' · ') || '—'}</td>
@@ -91,7 +91,7 @@ export default async function TeachersPage({ searchParams }: { searchParams: Pro
         )}
         {(hidden > 0 || all) && (
           <Link href={all ? '/admin/routine/teachers' : '/admin/routine/teachers?show=all'} className={cn(LINK, 'self-start text-sm')}>
-            {all ? 'শুধু সক্রিয় শিক্ষক দেখুন' : `নিষ্ক্রিয় ${bn(hidden)} জনকেও দেখুন`}
+            {all ? 'শুধু চালু টিচারদের দেখুন' : `বন্ধ থাকা ${bn(hidden)} জনকেও দেখুন`}
           </Link>
         )}
       </PageBody>

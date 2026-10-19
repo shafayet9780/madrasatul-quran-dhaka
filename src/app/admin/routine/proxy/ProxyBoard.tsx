@@ -1,54 +1,52 @@
 'use client';
 
-import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
-import { Copy } from 'lucide-react';
+import { Copy, MessageCircle } from 'lucide-react';
 import { Button } from '@/components/shadcn/button';
+import { proxyChoices } from '@/lib/routine/availability';
 import { lookup } from '@/lib/routine/clash';
 import type { ProxyDay } from '@/lib/routine/data';
-import { dayOfDate, periodText } from '@/lib/routine/days';
-import { needsFor, proxyDayText, rankCandidates, type Need } from '@/lib/routine/proxy';
+import { dateText, dayOfDate, dhakaToday, periodText, periodTime } from '@/lib/routine/days';
+import { needsFor, proxyDayText, type Need } from '@/lib/routine/proxy';
 import type { RoutineData } from '@/lib/routine/types';
-import { toBengaliDigits as bn } from '@/lib/survey/normalise';
+import { normaliseMobile, toBengaliDigits as bn } from '@/lib/survey/normalise';
 import { cn } from '@/lib/utils';
 import { ReportTools } from '../../reports/ReportTools';
-import { Card, EmptyState, LINK } from '../../ui';
+import { Card, EmptyState } from '../../ui';
 import { deleteAbsenceAction, saveAbsenceAction, setProxyAction } from '../actions';
-import { ConfirmButton, INPUT, OUTLINE, SELECT, useAction, useParam } from '../controls';
+import { ConfirmButton, DatePicker, INPUT, OUTLINE, SELECT, useAction, useUndo } from '../controls';
+import { TeacherPicker } from '../TeacherPicker';
+
+// The proxy screen (docs/class-routine.md §6): pick who is absent, their classes that day come up,
+// tap a class and pick a proxy from the free teachers (green; the rest red with the reason).
 
 type Day = ProxyDay & { data: RoutineData };
+type Chosen = (n: Need) => { proxyTeacherId: string } | undefined;
 
 export function ProxyBoard({ date, day }: { date: string; day: Day }) {
-  const set = useParam();
   const { data, absences, proxies } = day;
   const names = useMemo(() => lookup(data), [data]);
   const weekday = dayOfDate(date);
-  const monthCounts = useMemo(() => new Map(Object.entries(day.monthCounts)), [day.monthCounts]);
   const periodOrder = new Map(data.periods.map((p, i) => [p.id, i]));
-  const needs = weekday === null ? [] : needsFor(weekday, absences, data.assignments).sort(
-    (a, b) => periodOrder.get(a.assignment.periodId)! - periodOrder.get(b.assignment.periodId)! || (names.groups.get(a.assignment.groupId)?.sort ?? 0) - (names.groups.get(b.assignment.groupId)?.sort ?? 0),
-  );
-  const chosen = (n: Need) => proxies.find((p) => p.assignmentId === n.assignment.id && p.role === n.role);
+  const needs = weekday === null ? [] : needsFor(weekday, absences, data.assignments).sort((a, b) => periodOrder.get(a.assignment.periodId)! - periodOrder.get(b.assignment.periodId)!);
+  const chosen: Chosen = (n) => proxies.find((p) => p.assignmentId === n.assignment.id && p.role === n.role);
   const lines = needs.map((n) => ({
     period: periodText(data.periods.find((p) => p.id === n.assignment.periodId)!),
     group: names.groups.get(n.assignment.groupId)?.name ?? '',
     subject: names.subjects.get(n.assignment.subjectId)?.name ?? '',
     absent: names.teachers.get(n.absentId)?.shortName ?? '',
-    proxy: (() => {
-      const c = chosen(n);
-      return c ? (names.teachers.get(c.proxyTeacherId)?.shortName ?? null) : null;
-    })(),
+    proxy: names.teachers.get(chosen(n)?.proxyTeacherId ?? '')?.shortName ?? null,
     role: n.role,
   }));
-  const covered = lines.filter((l) => l.proxy).length;
+  const [selected, setSelected] = useState<string | null>(null);
+  // The teacher on screen: the one picked, else the first absent teacher with a class still uncovered.
+  const absentIds = absences.map((a) => a.teacherId);
+  const current = selected && absentIds.includes(selected) ? selected : (needs.find((n) => !chosen(n))?.absentId ?? absentIds[0] ?? null);
 
   return (
     <>
       <div className="flex flex-wrap items-end justify-between gap-3 sv-no-print">
-        <label className="flex flex-col gap-1 text-[13px] text-muted-foreground">
-          তারিখ
-          <input type="date" className={INPUT} value={date} onChange={(e) => e.target.value && set('date', e.target.value)} />
-        </label>
+        <DatePicker date={date} />
         {needs.length > 0 && (
           <div className="flex flex-wrap gap-2">
             <CopyText text={proxyDayText(date, lines)} />
@@ -61,42 +59,30 @@ export function ProxyBoard({ date, day }: { date: string; day: Day }) {
         <EmptyState>শুক্রবার ক্লাস নেই।</EmptyState>
       ) : (
         <>
-          <Card title="অনুপস্থিত শিক্ষক" className="sv-no-print">
-            <Absences date={date} day={day} />
+          <Card title="কে আসেননি?" className="sv-no-print">
+            <AbsentList date={date} day={day} needs={needs} chosen={chosen} current={current} onSelect={setSelected} />
           </Card>
 
-          <Card title={needs.length ? `যে ক্লাসগুলোতে প্রক্সি লাগবে · ${bn(covered)}/${bn(needs.length)} ঠিক হয়েছে` : 'যে ক্লাসগুলোতে প্রক্সি লাগবে'}>
-            {needs.length === 0 ? (
-              <p className="m-0 text-sm text-muted-foreground">{absences.length ? 'অনুপস্থিত শিক্ষকদের এই দিনে কোনো ক্লাস নেই।' : 'উপরে অনুপস্থিত শিক্ষক যোগ করলে তাঁদের ক্লাসগুলো এখানে আসবে।'}</p>
+          {current && <TeacherDay key={`${date}:${current}`} date={date} day={day} weekday={weekday} teacherId={current} needs={needs.filter((n) => n.absentId === current)} chosen={chosen} names={names} />}
+
+          <Card title={`এ দিনের প্রক্সি · ${bn(lines.filter((l) => l.proxy).length)}/${bn(lines.length)} ঠিক হয়েছে`}>
+            {lines.length === 0 ? (
+              <p className="m-0 text-sm text-muted-foreground">এখনো কোনো প্রক্সি লাগবে না।</p>
             ) : (
-              // A table on wide screens and paper; stacked rows on phones, so the picker stays in view.
-              <div className="text-sm">
-                <div className="hidden grid-cols-[150px_1fr_130px_minmax(240px,340px)] gap-3 border-b px-2 py-2 text-[12.5px] text-muted-foreground md:grid print:grid print:grid-cols-[120px_1fr_120px_120px]">
-                  <span>পিরিয়ড</span>
-                  <span>গ্রুপ · বিষয়</span>
-                  <span>অনুপস্থিত</span>
-                  <span>প্রক্সি</span>
-                </div>
-                <ul className="m-0 list-none p-0">
-                  {needs.map((n, i) => (
-                    <li key={`${n.assignment.id}:${n.role}`} className="grid gap-1 border-b px-2 py-2.5 last:border-0 md:grid-cols-[150px_1fr_130px_minmax(240px,340px)] md:gap-3 print:grid-cols-[120px_1fr_120px_120px] print:gap-3">
-                      <span className="whitespace-nowrap text-muted-foreground md:text-foreground print:text-foreground">{lines[i].period}</span>
-                      <span>
-                        <span className="font-medium">{lines[i].group}</span> · {lines[i].subject}
-                      </span>
-                      <span>
-                        <span className="text-muted-foreground md:hidden print:hidden">অনুপস্থিত: </span>
-                        {lines[i].absent}
-                        {n.role === 'ta' && <span className="text-muted-foreground"> (সহকারী)</span>}
-                      </span>
-                      <span>
-                        <span className="sv-print-only">{lines[i].proxy ?? '—'}</span>
-                        <ProxyPicker date={date} need={n} day={day} weekday={weekday} names={names} monthCounts={monthCounts} current={chosen(n)?.proxyTeacherId ?? ''} />
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+              <ul className="m-0 flex list-none flex-col divide-y p-0 text-sm">
+                {lines.map((l, i) => (
+                  <li key={i} className="grid gap-1 py-2 sm:grid-cols-[150px_1fr_1fr] sm:gap-3 print:grid-cols-[150px_1fr_1fr] print:gap-3">
+                    <span className="text-muted-foreground">{l.period}</span>
+                    <span>
+                      <span className="font-medium">{l.group}</span> · {l.subject}
+                      {l.role === 'ta' && <span className="text-muted-foreground"> (টিএ)</span>}
+                    </span>
+                    <span>
+                      {l.absent} → {l.proxy ? <span className="font-medium text-success">{l.proxy}</span> : <span className="text-warning">এখনো কেউ নেই</span>}
+                    </span>
+                  </li>
+                ))}
+              </ul>
             )}
           </Card>
 
@@ -107,152 +93,220 @@ export function ProxyBoard({ date, day }: { date: string; day: Day }) {
   );
 }
 
-function ProxyPicker({ date, need, day, weekday, names, monthCounts, current }: { date: string; need: Need; day: Day; weekday: number; names: ReturnType<typeof lookup>; monthCounts: Map<string, number>; current: string }) {
+/** The absent teachers as chips (with what is still uncovered), and adding one. */
+function AbsentList({ date, day, needs, chosen, current, onSelect }: { date: string; day: Day; needs: Need[]; chosen: Chosen; current: string | null; onSelect: (id: string) => void }) {
   const { pending, run, line } = useAction();
-  const [value, setValue] = useState(current);
-  useEffect(() => setValue(current), [current]);
-  const candidates = rankCandidates(need, { teachers: day.data.teachers, assignments: day.data.assignments, periods: day.data.periods, day: weekday, absences: day.absences, proxies: day.proxies, monthCounts, group: names.groups.get(need.assignment.groupId) });
-  const label = (c: (typeof candidates)[number]) => `${c.teacher.shortName} — এ দিনে ${bn(c.today)}টি ক্লাস, এ মাসে ${bn(c.month)}টি প্রক্সি${c.atSchool ? '' : ' · এ বেলায় ক্লাস নেই'}`;
-  const can = candidates.filter((c) => c.canTeach);
-  const other = candidates.filter((c) => !c.canTeach);
-  // A saved proxy who is no longer a candidate (their own routine changed) still shows.
-  const stale = current && !candidates.some((c) => c.teacher.id === current) ? names.teachers.get(current) : undefined;
+  const { data, absences } = day;
+  const away = new Set(absences.map((a) => a.teacherId));
+  const choices = data.teachers.filter((t) => t.active && !t.isVacancy && !away.has(t.id));
   return (
-    <div className="flex flex-col gap-1 sv-no-print">
-      <select
-        className={cn(SELECT, 'w-full', !value && 'text-muted-foreground')}
-        value={value}
-        disabled={pending}
-        aria-label="প্রক্সি শিক্ষক"
-        onChange={(e) => {
-          const next = e.target.value;
-          setValue(next);
-          run(async () => {
-            const result = await setProxyAction(date, need.assignment.id, need.role, next || null);
-            // A refused choice goes back to the saved one.
-            if (!result.ok) setValue(current);
-            return result;
-          });
-        }}
-      >
-        <option value="">{candidates.length ? 'বাছাই করুন' : 'কেউ ফ্রি নেই'}</option>
-        {stale && <option value={stale.id}>{stale.shortName}</option>}
-        {can.length > 0 && (
-          <optgroup label="এই বিষয় পড়ান">
-            {can.map((c) => (
-              <option key={c.teacher.id} value={c.teacher.id}>
-                {label(c)}
-              </option>
-            ))}
-          </optgroup>
-        )}
-        {other.length > 0 && (
-          <optgroup label="বিষয়ের শিক্ষক নন">
-            {other.map((c) => (
-              <option key={c.teacher.id} value={c.teacher.id}>
-                {label(c)}
-              </option>
-            ))}
-          </optgroup>
-        )}
-      </select>
+    <div className="flex flex-col gap-3">
+      {absences.length > 0 && (
+        <ul className="m-0 flex list-none flex-wrap gap-2 p-0">
+          {absences.map((a) => {
+            const mine = needs.filter((n) => n.absentId === a.teacherId);
+            const left = mine.filter((n) => !chosen(n)).length;
+            const on = a.teacherId === current;
+            return (
+              <li key={a.id}>
+                <button
+                  type="button"
+                  aria-pressed={on}
+                  onClick={() => onSelect(a.teacherId)}
+                  className={cn('flex min-h-11 flex-col items-start rounded-lg border bg-white px-3 py-1.5 text-left', on ? 'border-primary ring-2 ring-primary/25' : 'hover:border-input')}
+                >
+                  <span className="text-sm font-medium">{data.teachers.find((t) => t.id === a.teacherId)?.shortName}</span>
+                  <span className={cn('text-[12px]', left ? 'text-warning' : 'text-success')}>
+                    {!mine.length ? 'এ দিন কোনো ক্লাস নেই' : left ? `${bn(left)}টা ক্লাসে প্রক্সি লাগবে` : 'সব ক্লাসে প্রক্সি আছে'}
+                  </span>
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+      <label className="flex flex-col gap-1 text-[13px] text-muted-foreground">
+        {absences.length ? 'আর কেউ আসেননি?' : 'যিনি আসেননি তাঁকে সিলেক্ট করুন'}
+        <select
+          className={cn(SELECT, 'h-11 max-w-xs')}
+          value=""
+          disabled={pending}
+          onChange={(e) => {
+            const id = e.target.value;
+            if (id) run(() => saveAbsenceAction(date, id, null, ''), () => onSelect(id));
+          }}
+        >
+          <option value="">টিচার সিলেক্ট করুন</option>
+          {choices.map((t) => (
+            <option key={t.id} value={t.id}>
+              {t.shortName}
+            </option>
+          ))}
+        </select>
+      </label>
       {line}
     </div>
   );
 }
 
-function Absences({ date, day }: { date: string; day: Day }) {
+/** One absent teacher's classes that day: each opens the picker; a period they are in can be given back. */
+function TeacherDay({ date, day, weekday, teacherId, needs, chosen, names }: { date: string; day: Day; weekday: number; teacherId: string; needs: Need[]; chosen: Chosen; names: ReturnType<typeof lookup> }) {
   const { data, absences } = day;
+  const absence = absences.find((a) => a.teacherId === teacherId)!;
+  const teacher = names.teachers.get(teacherId);
   const { pending, run, line } = useAction();
-  const [teacherId, setTeacherId] = useState('');
-  const [wholeDay, setWholeDay] = useState(true);
-  const [periodIds, setPeriodIds] = useState<string[]>([]);
-  const [reason, setReason] = useState('');
-  const teacher = (id: string) => data.teachers.find((t) => t.id === id);
-  const away = new Set(absences.map((a) => a.teacherId));
-  const choices = data.teachers.filter((t) => t.active && !t.isVacancy && !away.has(t.id));
+  const undo = useUndo();
+  const [reason, setReason] = useState(absence.reason);
+  useEffect(() => setReason(absence.reason), [absence.reason]);
+  // Their classes that day, absent or not (a partial absence leaves some in).
+  const order = (periodId: string) => data.periods.findIndex((p) => p.id === periodId);
+  const theirs = data.assignments.filter((a) => a.days.includes(weekday) && (a.teacherId === teacherId || a.taId === teacherId)).sort((a, b) => order(a.periodId) - order(b.periodId));
+  const keyOf = (n: Need) => `${n.assignment.id}:${n.role}`;
+  const [open, setOpen] = useState<string | null>(() => {
+    const first = needs.find((n) => !chosen(n));
+    return first ? keyOf(first) : null;
+  });
+  const saveAbsence = (ids: string[] | null) => run(() => saveAbsenceAction(date, teacherId, ids && [...new Set(ids)], reason));
+
+  // In for one period after all: the absence keeps the other periods (none left: no absence).
+  const present = (periodId: string) => {
+    const rest = (absence.periodIds ?? theirs.map((x) => x.periodId)).filter((p) => p !== periodId);
+    if (rest.length) saveAbsence(rest);
+    else run(() => deleteAbsenceAction(absence.id));
+  };
+
+  const assign = (n: Need, next: string | null) => {
+    const before = chosen(n)?.proxyTeacherId ?? null;
+    run(
+      () => setProxyAction(date, n.assignment.id, n.role, next),
+      () => {
+        undo.show(next ? `${names.teachers.get(next)?.shortName} প্রক্সি নেবেন` : 'প্রক্সি সরানো হয়েছে', () => run(() => setProxyAction(date, n.assignment.id, n.role, before)));
+        // On to the next class that still needs someone.
+        const rest = needs.filter((x) => keyOf(x) !== keyOf(n) && !chosen(x));
+        setOpen(next ? (rest[0] ? keyOf(rest[0]) : null) : keyOf(n));
+      },
+    );
+  };
+
   return (
-    <div className="flex flex-col gap-4">
-      {absences.length > 0 && (
-        <ul className="m-0 flex list-none flex-col divide-y rounded-lg border p-0 text-sm">
-          {absences.map((a) => (
-            <li key={a.id} className="flex flex-wrap items-center justify-between gap-2 px-3 py-2">
-              <span>
-                <Link href={`/admin/routine/teachers/${a.teacherId}`} className={cn(LINK, 'font-medium')}>
-                  {teacher(a.teacherId)?.shortName}
-                </Link>
-                <span className="text-muted-foreground">
-                  {' · '}
-                  {a.periodIds
-                    ? data.periods
-                        .filter((p) => a.periodIds!.includes(p.id))
-                        .map(periodText)
-                        .join(', ')
-                    : 'সারা দিন'}
-                  {a.reason && ` · ${a.reason}`}
+    <Card
+      title={`${teacher?.shortName ?? ''} ${date === dhakaToday() ? 'আজ' : 'এ দিন'} আসেননি`}
+      className="sv-no-print"
+      action={
+        <ConfirmButton confirm="হ্যাঁ, তিনি এসেছেন" disabled={pending} onConfirm={() => run(() => deleteAbsenceAction(absence.id))}>
+          অ্যাবসেন্ট বাতিল
+        </ConfirmButton>
+      }
+    >
+      <div className="flex flex-col gap-4">
+        <label className="flex max-w-sm flex-col gap-1 text-[13px] text-muted-foreground">
+          কারণ (না দিলেও চলবে)
+          <input className={INPUT} value={reason} maxLength={200} placeholder="যেমন ছুটি, অসুস্থ" onChange={(e) => setReason(e.target.value)} onBlur={() => reason !== absence.reason && saveAbsence(absence.periodIds)} />
+        </label>
+
+        {theirs.length === 0 ? (
+          <p className="m-0 text-sm text-muted-foreground">এ দিন তাঁর কোনো ক্লাস নেই, প্রক্সি লাগবে না।</p>
+        ) : (
+          <ul className="m-0 flex list-none flex-col gap-2 p-0">
+            {theirs.map((a) => {
+              const role = a.teacherId === teacherId ? ('main' as const) : ('ta' as const);
+              const n = needs.find((x) => x.assignment.id === a.id && x.role === role);
+              const period = data.periods.find((p) => p.id === a.periodId)!;
+              const group = names.groups.get(a.groupId)?.name ?? '';
+              const subject = names.subjects.get(a.subjectId)?.name ?? '';
+              const head = (
+                <span className="flex flex-col">
+                  <span className="text-[12.5px] text-muted-foreground">{periodText(period)}</span>
+                  <span className="text-[15px]">
+                    <span className="font-semibold">{group}</span> · {subject}
+                    {role === 'ta' && <span className="text-muted-foreground"> (টিএ হিসেবে)</span>}
+                  </span>
                 </span>
-              </span>
-              <ConfirmButton confirm="তালিকা থেকে সরান" disabled={pending} onConfirm={() => run(() => deleteAbsenceAction(a.id))}>
-                সরান
-              </ConfirmButton>
-            </li>
-          ))}
-        </ul>
-      )}
-      <form
-        className="flex flex-col gap-3"
-        onSubmit={(e) => {
-          e.preventDefault();
-          run(
-            () => saveAbsenceAction(date, teacherId, wholeDay ? null : periodIds, reason),
-            () => {
-              setTeacherId('');
-              setPeriodIds([]);
-              setReason('');
-              setWholeDay(true);
-            },
-          );
-        }}
-      >
-        <div className="flex flex-wrap items-end gap-2">
-          <label className="flex flex-col gap-1 text-[13px] text-muted-foreground">
-            শিক্ষক
-            <select className={SELECT} value={teacherId} onChange={(e) => setTeacherId(e.target.value)} required>
-              <option value="">বাছাই করুন</option>
-              {choices.map((t) => (
-                <option key={t.id} value={t.id}>
-                  {t.shortName}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label className="flex flex-col gap-1 text-[13px] text-muted-foreground">
-            কারণ (ঐচ্ছিক)
-            <input className={INPUT} value={reason} onChange={(e) => setReason(e.target.value)} maxLength={200} placeholder="যেমন ছুটি" />
-          </label>
-          <label className="flex h-9 items-center gap-2 text-sm">
-            <input type="checkbox" className="size-4 accent-primary" checked={wholeDay} onChange={(e) => setWholeDay(e.target.checked)} />
-            সারা দিন
-          </label>
-          <Button type="submit" className="h-9" disabled={pending || !teacherId || (!wholeDay && !periodIds.length)}>
-            যোগ করুন
-          </Button>
-        </div>
-        {!wholeDay && (
-          <fieldset className="m-0 flex flex-wrap gap-1.5 border-0 p-0">
-            <legend className="mb-1.5 text-[13px] text-muted-foreground">যে পিরিয়ডগুলোতে থাকবেন না</legend>
-            {data.periods.map((p) => (
-              <label key={p.id} className={cn('flex h-8 cursor-pointer items-center gap-1.5 rounded-md border px-2.5 text-sm', periodIds.includes(p.id) ? 'border-primary bg-primary/5' : 'bg-white')}>
-                <input type="checkbox" className="size-3.5 accent-primary" checked={periodIds.includes(p.id)} onChange={(e) => setPeriodIds(e.target.checked ? [...periodIds, p.id] : periodIds.filter((x) => x !== p.id))} />
-                {periodText(p)}
-              </label>
-            ))}
-          </fieldset>
+              );
+              if (!n) {
+                // A period of a partial absence that they are in.
+                return (
+                  <li key={a.id} className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-dashed bg-white px-4 py-3">
+                    {head}
+                    <span className="flex items-center gap-3 text-[13px] text-muted-foreground">
+                      এ পিরিয়ডে আছেন
+                      <button type="button" disabled={pending} className="font-medium text-foreground underline underline-offset-4" onClick={() => saveAbsence([...(absence.periodIds ?? []), a.periodId])}>
+                        এ পিরিয়ডেও নেই
+                      </button>
+                    </span>
+                  </li>
+                );
+              }
+              const proxy = names.teachers.get(chosen(n)?.proxyTeacherId ?? '');
+              const isOpen = open === keyOf(n);
+              return (
+                <li key={a.id} className={cn('rounded-xl border bg-white', isOpen ? 'border-primary/40 shadow-sm' : proxy ? 'border-success/35' : 'border-warning/40')}>
+                  <button type="button" aria-expanded={isOpen} onClick={() => setOpen(isOpen ? null : keyOf(n))} className="flex min-h-14 w-full flex-wrap items-center justify-between gap-2 px-4 py-3 text-left">
+                    {head}
+                    {proxy ? (
+                      <span className="rounded-full bg-success/10 px-3 py-1 text-sm font-medium text-success">প্রক্সি: {proxy.shortName}</span>
+                    ) : (
+                      <span className="rounded-full bg-warning/10 px-3 py-1 text-sm font-medium text-warning">প্রক্সি লাগবে</span>
+                    )}
+                  </button>
+                  {isOpen && (
+                    <div className="flex flex-col gap-3 border-t px-4 py-3">
+                      <TeacherPicker
+                        choices={proxyChoices(n, {
+                          teachers: data.teachers,
+                          assignments: data.assignments,
+                          periods: data.periods,
+                          day: weekday,
+                          absences: day.absences,
+                          proxies: day.proxies,
+                          monthCounts: new Map(Object.entries(day.monthCounts)),
+                          groups: names.groups,
+                          today: date === dhakaToday(),
+                        })}
+                        subjectName={subject}
+                        selected={proxy?.id}
+                        disabled={pending}
+                        onPick={(id) => assign(n, id === proxy?.id ? null : id)}
+                      />
+                      <div className="flex flex-wrap items-center gap-4 text-[13px]">
+                        {proxy ? (
+                          <>
+                            <a href={whatsApp(proxy.phone, proxyMessage(date, period, group, subject, teacher?.shortName ?? ''))} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 font-medium text-success underline-offset-4 hover:underline">
+                              <MessageCircle aria-hidden className="size-4" />
+                              {proxy.shortName}-কে WhatsApp করুন
+                            </a>
+                            <button type="button" disabled={pending} className="text-destructive underline-offset-4 hover:underline" onClick={() => assign(n, null)}>
+                              প্রক্সি সরান
+                            </button>
+                          </>
+                        ) : (
+                          <button type="button" disabled={pending} className="text-muted-foreground underline-offset-4 hover:underline" onClick={() => present(a.periodId)}>
+                            এ পিরিয়ডে আছেন (প্রক্সি লাগবে না)
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
         )}
         {line}
-      </form>
-    </div>
+      </div>
+      {undo.node}
+    </Card>
   );
+}
+
+/** A WhatsApp link: to the teacher's number when there is one, else WhatsApp asks whom to send it to. */
+function whatsApp(phone: string, text: string) {
+  return `https://wa.me/${normaliseMobile(phone) ?? ''}?text=${encodeURIComponent(text)}`;
+}
+
+function proxyMessage(date: string, period: RoutineData['periods'][number], group: string, subject: string, absent: string) {
+  const when = date === dhakaToday() ? 'আজ' : dateText(date);
+  return `আসসালামু আলাইকুম। ${when} ${periodTime(period)} ${group}-এ ${absent}-এর ${subject} ক্লাসটা আপনি নেবেন, ইনশাআল্লাহ। জাযাকাল্লাহু খাইরান।`;
 }
 
 function MonthCounts({ day }: { day: Day }) {
@@ -261,9 +315,9 @@ function MonthCounts({ day }: { day: Day }) {
     .filter((r) => r.teacher)
     .sort((a, b) => b.n - a.n || a.teacher!.shortName.localeCompare(b.teacher!.shortName));
   return (
-    <Card title="এ মাসের প্রক্সি" className="sv-no-print">
+    <Card title="এ মাসে কে কয়টা প্রক্সি নিয়েছেন" className="sv-no-print">
       {rows.length === 0 ? (
-        <p className="m-0 text-sm text-muted-foreground">এ মাসে এখনো কোনো প্রক্সি নেই।</p>
+        <p className="m-0 text-sm text-muted-foreground">এ মাসে এখনো কোনো প্রক্সি হয়নি।</p>
       ) : (
         <ul className="m-0 flex list-none flex-wrap gap-2 p-0 text-sm">
           {rows.map((r) => (
@@ -287,7 +341,7 @@ function CopyText({ text }: { text: string }) {
   return (
     <Button type="button" variant="outline" className={OUTLINE} onClick={() => navigator.clipboard.writeText(text).then(() => setCopied(true))}>
       <Copy aria-hidden />
-      {copied ? 'কপি হয়েছে ✓' : 'WhatsApp-এর জন্য কপি'}
+      {copied ? 'কপি হয়েছে ✓' : 'পুরো লিস্ট WhatsApp-এর জন্য কপি'}
     </Button>
   );
 }
