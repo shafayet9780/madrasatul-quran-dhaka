@@ -31,6 +31,17 @@ export function dhakaToday(now = new Date()): string {
   return new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Dhaka' }).format(now);
 }
 
+/** Minutes after midnight in Dhaka now. */
+export function dhakaMinutes(now = new Date()): number {
+  const [h, m] = new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Dhaka', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).format(now).split(':').map(Number);
+  return h * 60 + m;
+}
+
+/** The period running at this time, else null. */
+export function periodAt<P extends Pick<Period, 'startsAt' | 'endsAt'>>(periods: P[], minutes: number): P | null {
+  return periods.find((p) => minutes >= p.startsAt && minutes < p.endsAt) ?? null;
+}
+
 export function isDate(value: unknown): value is string {
   return typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value) && !Number.isNaN(Date.parse(`${value}T00:00:00Z`));
 }

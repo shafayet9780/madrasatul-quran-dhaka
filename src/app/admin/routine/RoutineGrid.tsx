@@ -1,12 +1,13 @@
 'use client';
 
 import Link from 'next/link';
-import { Fragment, useEffect, useMemo, useState, type KeyboardEvent, type ReactNode } from 'react';
+import { createContext, Fragment, useContext, useEffect, useMemo, useState, type KeyboardEvent, type ReactNode } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Dialog, DialogDescription, DialogHeader, DialogTitle } from '@/components/shadcn/dialog';
 import { Button } from '@/components/shadcn/button';
+import { editorChoices } from '@/lib/routine/availability';
 import { clashText, effectiveRoomId, findClashes, lookup, type Draft, type Lookup } from '@/lib/routine/clash';
-import { DAY_SHORT, DAYS, daysText, durationText, minutesOf, periodText, periodTime } from '@/lib/routine/days';
+import { DAY_SHORT, DAYS, dayOfDate, daysText, dhakaMinutes, dhakaToday, durationText, minutesOf, periodAt, periodText, periodTime } from '@/lib/routine/days';
 import { bandSpans, sheetBlocks } from '@/lib/routine/layout';
 import { teacherLoads } from '@/lib/routine/load';
 import type { Assignment, Group, Period, RoutineData } from '@/lib/routine/types';
@@ -15,6 +16,7 @@ import { cn } from '@/lib/utils';
 import { ReportTools } from '../reports/ReportTools';
 import { deleteAssignmentAction, saveAssignmentAction } from './actions';
 import { ConfirmButton, INPUT, OUTLINE, RoutineDialog, SELECT, useAction } from './controls';
+import { TeacherPicker } from './TeacherPicker';
 import { LoadBadge } from './ui';
 
 // The school routine (docs/class-routine.md §5) in three views: like the school's sheet (the day
@@ -25,9 +27,9 @@ type Day = 'all' | number;
 type View = 'sheet' | 'heading' | 'teacher';
 
 const VIEWS: [View, string][] = [
-  ['sheet', 'শিটের মতো'],
-  ['heading', 'শিরোনাম অনুযায়ী'],
-  ['teacher', 'শিক্ষক অনুযায়ী'],
+  ['sheet', 'শিট ভিউ'],
+  ['heading', 'সেকশন অনুযায়ী'],
+  ['teacher', 'টিচার অনুযায়ী'],
 ];
 
 const MAIN = 'text-primary';
@@ -86,6 +88,18 @@ export function RoutineGrid({ data }: { data: RoutineData }) {
   useEffect(() => {
     if (!isView(asked) && window.matchMedia('(max-width: 767px)').matches) setViewState('heading');
   }, [asked]);
+  // The period running now (on a school day, when that day is shown), refreshed every minute; known
+  // only in the browser, so the server render never disagrees.
+  const [nowId, setNowId] = useState<string | null>(null);
+  useEffect(() => {
+    const tick = () => {
+      const today = dayOfDate(dhakaToday());
+      setNowId(today !== null && (day === 'all' || day === today) ? (periodAt(data.periods, dhakaMinutes())?.id ?? null) : null);
+    };
+    tick();
+    const timer = setInterval(tick, 60_000);
+    return () => clearInterval(timer);
+  }, [data.periods, day]);
   const setView = (v: View) => {
     setViewState(v);
     remember('view', v);
@@ -105,7 +119,7 @@ export function RoutineGrid({ data }: { data: RoutineData }) {
   const cell = (g: Group, p: Period) => {
     const list = shown(g.id, p.id);
     return (
-      <button type="button" className="rt-cell" onClick={() => setOpen({ groupId: g.id, periodId: p.id })} aria-label={`${g.name}, ${periodText(p)}: ${list.length ? 'এডিট' : 'ক্লাস যোগ করুন'}`}>
+      <button type="button" className="rt-cell" onClick={() => setOpen({ groupId: g.id, periodId: p.id })} aria-label={`${g.name}, ${periodText(p)}: ${list.length ? 'বদলান' : 'ক্লাস যোগ করুন'}`}>
         {list.length ? list.map((a) => <Entry key={a.id} a={a} names={names} group={g} showDays={day === 'all'} />) : <span className="rt-add">+</span>}
       </button>
     );
@@ -132,8 +146,8 @@ export function RoutineGrid({ data }: { data: RoutineData }) {
         <Segmented label="দিন" value={day} options={[['all', 'সব দিন'], ...DAYS.map((d): [Day, string] => [d, DAY_SHORT[d]])]} onChange={setDay} />
         <div className="flex flex-wrap items-center gap-4 text-[13px]">
           <span className="flex items-center gap-3 text-muted-foreground">
-            নামের রং: <span className={cn('font-medium', MAIN)}>মূল শিক্ষক</span>
-            <span className={cn('font-medium', TA)}>সহকারী</span>
+            নামের রং: <span className={cn('font-medium', MAIN)}>মেইন টিচার</span>
+            <span className={cn('font-medium', TA)}>টিএ</span>
           </span>
           {view === 'heading' && (
             <label className="flex items-center gap-2 text-sm">
@@ -147,9 +161,11 @@ export function RoutineGrid({ data }: { data: RoutineData }) {
         {VIEWS.find(([v]) => v === view)?.[1]} · {day === 'all' ? 'সব দিন' : DAY_SHORT[day]}
       </p>
 
-      {view === 'sheet' && <SheetView data={data} cell={cell} groupName={groupName} />}
-      {view === 'heading' && <HeadingView data={data} showAll={showAll} cell={cell} groupName={groupName} />}
-      {view === 'teacher' && <TeacherView data={data} names={names} day={day} groupHref={groupHref} />}
+      <NowContext.Provider value={nowId}>
+        {view === 'sheet' && <SheetView data={data} cell={cell} groupName={groupName} />}
+        {view === 'heading' && <HeadingView data={data} showAll={showAll} cell={cell} groupName={groupName} />}
+        {view === 'teacher' && <TeacherView data={data} names={names} day={day} groupHref={groupHref} />}
+      </NowContext.Provider>
 
       <Dialog open={!!open} onOpenChange={(o) => !o && setOpen(null)}>
         {openGroup && openPeriod && <CellEditor key={`${openGroup.id}:${openPeriod.id}`} data={data} names={names} group={openGroup} period={openPeriod} />}
@@ -160,11 +176,24 @@ export function RoutineGrid({ data }: { data: RoutineData }) {
 
 type CellFn = (g: Group, p: Period) => ReactNode;
 
+const NowContext = createContext<string | null>(null);
+
+/** A period's column head; the running period is tinted and marked "এখন". */
+function PeriodTh({ p, hide }: { p: Period; hide?: string }) {
+  const now = useContext(NowContext) === p.id;
+  return (
+    <th scope="col" className={cn('text-left', now && 'rt-now')}>
+      <PeriodHead p={p} hide={hide} now={now} />
+    </th>
+  );
+}
+
 /** Time and length under a period, and its name when it adds something. */
-function PeriodHead({ p, hide }: { p: Period; hide?: string }) {
+function PeriodHead({ p, hide, now }: { p: Period; hide?: string; now?: boolean }) {
   return (
     <>
       {periodTime(p)}
+      {now && <span className="ml-1.5 rounded-full bg-primary px-1.5 py-px text-[11px] font-medium text-primary-foreground sv-no-print">এখন</span>}
       <div className="text-[11.5px] font-normal text-muted-foreground">
         {durationText(minutesOf(p))}
         {p.label && p.label !== hide && ` · ${p.label}`}
@@ -189,7 +218,7 @@ function BandCell({ band, span, className }: { band: string; span: number; class
 function SheetView({ data, cell, groupName }: { data: RoutineData; cell: CellFn; groupName: (g: Group) => ReactNode }) {
   const blocks = useMemo(() => sheetBlocks(data.periods, data.assignments, data.groups), [data]);
   if (!blocks.length) {
-    return <p className="m-0 rounded-xl border border-dashed px-6 py-10 text-center text-sm text-muted-foreground">এখনো কোনো ক্লাস নেই। &quot;শিরোনাম অনুযায়ী&quot; ভিউতে ক্লাস যোগ করুন।</p>;
+    return <p className="m-0 rounded-xl border border-dashed px-6 py-10 text-center text-sm text-muted-foreground">এখনো কোনো ক্লাস নেই। &quot;সেকশন অনুযায়ী&quot; ভিউতে গিয়ে ক্লাস যোগ করুন।</p>;
   }
   const spans = blocks.map((b) => bandSpans(b.groups));
   const rows = Math.max(...blocks.map((b) => b.groups.length));
@@ -213,9 +242,7 @@ function SheetView({ data, cell, groupName }: { data: RoutineData; cell: CellFn;
                     গ্রুপ
                   </th>
                   {b.periods.map((p) => (
-                    <th key={p.id} scope="col" className="text-left">
-                      <PeriodHead p={p} hide={b.headings[0]} />
-                    </th>
+                    <PeriodTh key={p.id} p={p} hide={b.headings[0]} />
                   ))}
                 </Fragment>
               ))}
@@ -244,7 +271,7 @@ function SheetView({ data, cell, groupName }: { data: RoutineData; cell: CellFn;
           </tbody>
         </table>
       </div>
-      <p className="m-0 text-[12.5px] text-muted-foreground sv-no-print">এখানে শুধু যে পিরিয়ডে ক্লাস আছে সেগুলো দেখায়। নতুন পিরিয়ড বা নতুন গ্রুপে ক্লাস যোগ করতে &quot;শিরোনাম অনুযায়ী&quot; ভিউ ব্যবহার করুন।</p>
+      <p className="m-0 text-[12.5px] text-muted-foreground sv-no-print">শিট ভিউতে শুধু যেসব পিরিয়ডে ক্লাস আছে সেগুলো আসে। নতুন পিরিয়ডে বা নতুন গ্রুপে ক্লাস দিতে &quot;সেকশন অনুযায়ী&quot; ভিউতে যান।</p>
     </>
   );
 }
@@ -272,9 +299,7 @@ function HeadingView({ data, showAll, cell, groupName }: { data: RoutineData; sh
                 গ্রুপ
               </th>
               {s.periods.map((p) => (
-                <th key={p.id} scope="col" className="text-left">
-                  <PeriodHead p={p} hide={s.heading} />
-                </th>
+                <PeriodTh key={p.id} p={p} hide={s.heading} />
               ))}
             </tr>
           </thead>
@@ -307,12 +332,10 @@ function TeacherView({ data, names, day, groupHref }: { data: RoutineData; names
         <thead>
           <tr>
             <th scope="col" className="text-left">
-              শিক্ষক
+              টিচার
             </th>
             {data.periods.map((p) => (
-              <th key={p.id} scope="col" className="text-left">
-                <PeriodHead p={p} />
-              </th>
+              <PeriodTh key={p.id} p={p} />
             ))}
             <th scope="col" className="text-left">
               সপ্তাহে
@@ -328,7 +351,7 @@ function TeacherView({ data, names, day, groupHref }: { data: RoutineData; names
                   <Link href={`/admin/routine/teachers/${t.id}${q}`} className="no-underline hover:underline">
                     {t.shortName}
                   </Link>
-                  {t.isVacancy && <div className="text-[11.5px] font-normal text-muted-foreground">শূন্য পদ</div>}
+                  {t.isVacancy && <div className="text-[11.5px] font-normal text-muted-foreground">খালি পোস্ট</div>}
                 </th>
                 {data.periods.map((p) => {
                   const list = data.assignments
@@ -345,7 +368,7 @@ function TeacherView({ data, names, day, groupHref }: { data: RoutineData; names
                             </Link>
                             <span>
                               {names.subjects.get(a.subjectId)?.name}
-                              {a.taId === t.id && <span className={TA}> · সহকারী</span>}
+                              {a.taId === t.id && <span className={TA}> · টিএ</span>}
                             </span>
                           </span>
                         ))}
@@ -396,80 +419,81 @@ function Entry({ a, names, group, showDays }: { a: Assignment; names: Lookup; gr
 
 type Form = { id?: string; days: number[]; subjectId: string; teacherId: string; taId: string; roomId: string; note: string };
 
-/** One cell: its classes (a cell may change by day) and the add / edit form. */
+/**
+ * One cell: its classes (a cell may change by day) and adding or changing one. Tap a subject, then
+ * a teacher from the picker (green free, red busy); the TA, a split by days, the room and a note
+ * are there when needed.
+ */
 function CellEditor({ data, names, group, period }: { data: RoutineData; names: Lookup; group: Group; period: Period }) {
   const cell = data.assignments.filter((a) => a.groupId === group.id && a.periodId === period.id).sort(byDays);
   const freeDays = () => DAYS.filter((d) => !cell.some((a) => a.days.includes(d)));
   const blank = (): Form => ({ days: freeDays(), subjectId: '', teacherId: '', taId: '', roomId: '', note: '' });
   const [form, setForm] = useState<Form>(blank);
   const set = (patch: Partial<Form>) => setForm((f) => ({ ...f, ...patch }));
+  // Days show when the class already varies by day, or when asked for.
+  const [split, setSplit] = useState(() => cell.length > 0);
+  const [taOpen, setTaOpen] = useState(false);
   const { pending, run, line, warnings, clear } = useAction();
   const editing = form.id ? cell.find((a) => a.id === form.id) : undefined;
-  // Every day already has a class: nothing to add, only rows to edit or delete.
+  // Every day already has a class: nothing to add, only rows to change or delete.
   const full = !form.id && freeDays().length === 0;
 
   const draft: Draft = { id: form.id, groupId: group.id, periodId: period.id, days: form.days, subjectId: form.subjectId, teacherId: form.teacherId, taId: form.taId || null, roomId: form.roomId || null, note: form.note };
   const clashes = form.teacherId && form.days.length ? findClashes(draft, data.assignments, names.groups, names.rooms) : [];
-
-  /** Days (of those chosen) a teacher already has something in this period. */
-  const busyDays = (teacherId: string) =>
-    form.days.filter((d) => data.assignments.some((a) => a.id !== form.id && a.periodId === period.id && a.days.includes(d) && (a.teacherId === teacherId || a.taId === teacherId)));
-  const usable = data.teachers.filter((t) => t.active || t.id === editing?.teacherId || t.id === editing?.taId);
-  const teaches = usable.filter((t) => t.subjectIds.includes(form.subjectId));
-  const others = usable.filter((t) => !t.subjectIds.includes(form.subjectId));
-  const option = (t: (typeof usable)[number]) => {
-    const busy = busyDays(t.id);
-    return (
-      <option key={t.id} value={t.id}>
-        {t.shortName}
-        {t.isVacancy ? ' (শূন্য পদ)' : ''}
-        {busy.length ? ` — ব্যস্ত: ${daysText(busy)}` : ''}
-      </option>
-    );
-  };
+  const choices = editorChoices({ teachers: data.teachers, assignments: data.assignments, groups: names.groups, groupId: group.id, periodId: period.id, days: form.days, subjectId: form.subjectId, exceptId: form.id, keep: [editing?.teacherId ?? '', editing?.taId ?? ''] });
   const subjects = data.subjects.filter((s) => s.active || s.id === editing?.subjectId);
+  const subjectName = names.subjects.get(form.subjectId)?.name ?? '';
   const defaultRoom = group.defaultRoomId ? names.rooms.get(group.defaultRoomId)?.name : null;
+  const ta = names.teachers.get(form.taId);
 
+  const edit = (a: Assignment) => {
+    clear();
+    setSplit(true);
+    setTaOpen(false);
+    setForm({ id: a.id, days: a.days, subjectId: a.subjectId, teacherId: a.teacherId, taId: a.taId ?? '', roomId: a.roomId ?? '', note: a.note });
+  };
   const save = (confirm: boolean) =>
     run(
       () => saveAssignmentAction(data.routine.id, { ...draft, id: form.id }, confirm),
-      () => setForm({ days: DAYS.filter((d) => !cell.some((a) => a.id !== form.id && a.days.includes(d)) && !form.days.includes(d)), subjectId: '', teacherId: '', taId: '', roomId: '', note: '' }),
+      () => {
+        setTaOpen(false);
+        setForm({ days: DAYS.filter((d) => !cell.some((a) => a.id !== form.id && a.days.includes(d)) && !form.days.includes(d)), subjectId: '', teacherId: '', taId: '', roomId: '', note: '' });
+      },
       'সেভ হয়েছে।',
     );
 
+  const STEP = 'm-0 text-[13px] font-medium text-muted-foreground';
   return (
     <RoutineDialog>
       <DialogHeader>
         <DialogTitle className="text-lg">
           {group.name} · {periodText(period)}
         </DialogTitle>
-        <DialogDescription>দিন অনুযায়ী বিষয় বা শিক্ষক বদলালে প্রতিটির জন্য আলাদা সারি যোগ করুন (যেমন রবি–মঙ্গল RA-1, বুধ–বৃহঃ Islam)।</DialogDescription>
+        <DialogDescription>সাবজেক্ট আর টিচার সিলেক্ট করে সেভ করুন। সবুজ নাম ফ্রি, লাল নাম এ সময় অন্য ক্লাসে।</DialogDescription>
       </DialogHeader>
 
       {cell.length > 0 && (
         <ul className="m-0 flex list-none flex-col divide-y rounded-lg border p-0">
           {cell.map((a) => (
-            <li key={a.id} className={cn('flex flex-wrap items-center justify-between gap-2 px-3 py-2', a.id === form.id && 'bg-muted/60')}>
+            <li key={a.id} className={cn('flex flex-wrap items-center justify-between gap-2 px-3 py-2.5', a.id === form.id && 'bg-muted/60')}>
               <span className="flex flex-col">
                 <span className="text-[12.5px] text-muted-foreground">{daysText(a.days)}</span>
                 <span>
-                  <span className="font-medium">{names.subjects.get(a.subjectId)?.name}</span> · {names.teachers.get(a.teacherId)?.shortName}
-                  {a.taId && ` + ${names.teachers.get(a.taId)?.shortName} (সহকারী)`}
+                  <span className="font-medium">{names.subjects.get(a.subjectId)?.name}</span> · <span className={MAIN}>{names.teachers.get(a.teacherId)?.shortName}</span>
+                  {a.taId && (
+                    <>
+                      {' + '}
+                      <span className={TA}>{names.teachers.get(a.taId)?.shortName}</span> <span className="text-muted-foreground">(টিএ)</span>
+                    </>
+                  )}
                 </span>
               </span>
-              <span className="inline-flex items-center gap-3">
-                <button
-                  type="button"
-                  className="text-[13px] underline-offset-4 hover:underline"
-                  onClick={() => {
-                    clear();
-                    setForm({ id: a.id, days: a.days, subjectId: a.subjectId, teacherId: a.teacherId, taId: a.taId ?? '', roomId: a.roomId ?? '', note: a.note });
-                  }}
-                >
-                  এডিট
+              <span className="inline-flex items-center gap-4">
+                <button type="button" className="text-[13px] font-medium underline-offset-4 hover:underline" onClick={() => edit(a)}>
+                  বদলান
                 </button>
-                <ConfirmButton confirm="মুছুন" disabled={pending} onConfirm={() => run(() => deleteAssignmentAction(a.id), () => a.id === form.id && setForm(blank()))}>
-                  মুছুন
+                <ConfirmButton confirm="হ্যাঁ, ডিলিট করুন" disabled={pending} onConfirm={() => run(() => deleteAssignmentAction(a.id), () => a.id === form.id && setForm(blank()))}>
+                  ডিলিট
                 </ConfirmButton>
               </span>
             </li>
@@ -479,79 +503,122 @@ function CellEditor({ data, names, group, period }: { data: RoutineData; names: 
 
       {full ? (
         <div className="flex flex-col gap-2 rounded-lg border border-dashed px-3 py-3 text-[13px] text-muted-foreground">
-          <p className="m-0">এই ঘরের সব দিনে ক্লাস আছে। বদলাতে উপরের সারিতে &quot;এডিট&quot; চাপুন, অথবা একটি সারি মুছুন।</p>
+          <p className="m-0">এই ঘরের সব দিনে ক্লাস আছে। বদলাতে উপরে &quot;বদলান&quot; চাপুন, বা একটা ক্লাস ডিলিট করুন।</p>
           {line}
         </div>
       ) : (
         <form
-          className="flex flex-col gap-3"
+          className="flex flex-col gap-4"
           onSubmit={(e) => {
             e.preventDefault();
             save(false);
           }}
         >
-          <h3 className="m-0 text-[15px] font-semibold">{form.id ? 'সারি এডিট' : cell.length ? 'আরেকটি সারি যোগ করুন' : 'ক্লাস যোগ করুন'}</h3>
-          <fieldset className="m-0 flex flex-wrap gap-1.5 border-0 p-0">
-            <legend className="mb-1.5 text-[13px] text-muted-foreground">দিন</legend>
-            {DAYS.map((d) => (
-              <label key={d} className={cn('flex h-8 cursor-pointer items-center gap-1.5 rounded-md border px-2.5 text-sm', form.days.includes(d) ? 'border-primary bg-primary/5' : 'bg-white')}>
-                <input type="checkbox" className="size-3.5 accent-primary" checked={form.days.includes(d)} onChange={(e) => set({ days: e.target.checked ? [...form.days, d].sort() : form.days.filter((x) => x !== d) })} />
-                {DAY_SHORT[d]}
-              </label>
-            ))}
-          </fieldset>
-          <div className="grid gap-3 sm:grid-cols-2">
-            <label className="flex flex-col gap-1 text-[13px] text-muted-foreground">
-              বিষয়
-              <select className={SELECT} value={form.subjectId} onChange={(e) => set({ subjectId: e.target.value })} required>
-                <option value="">বাছাই করুন</option>
-                {subjects.map((s) => (
-                  <option key={s.id} value={s.id}>
-                    {s.name}
-                  </option>
+          <h3 className="m-0 text-[15px] font-semibold">{form.id ? 'ক্লাসটা বদলান' : cell.length ? 'আরেকটা ক্লাস যোগ করুন' : 'ক্লাস যোগ করুন'}</h3>
+
+          <div className="flex flex-col gap-2">
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+              <p className={STEP}>দিন: {form.days.length ? daysText(form.days) : 'কোনো দিন নেই'}</p>
+              {!split && (
+                <button type="button" className="text-[13px] underline underline-offset-4" onClick={() => setSplit(true)}>
+                  দিন ভাগ করুন
+                </button>
+              )}
+            </div>
+            {split && (
+              <fieldset className="m-0 flex flex-wrap gap-1.5 border-0 p-0">
+                <legend className="sr-only">দিন</legend>
+                {DAYS.map((d) => (
+                  <label key={d} className={cn('flex h-9 cursor-pointer items-center gap-1.5 rounded-md border px-2.5 text-sm', form.days.includes(d) ? 'border-primary bg-primary/5' : 'bg-white')}>
+                    <input type="checkbox" className="size-3.5 accent-primary" checked={form.days.includes(d)} onChange={(e) => set({ days: e.target.checked ? [...form.days, d].sort() : form.days.filter((x) => x !== d) })} />
+                    {DAY_SHORT[d]}
+                  </label>
                 ))}
-              </select>
-            </label>
-            <label className="flex flex-col gap-1 text-[13px] text-muted-foreground">
-              শিক্ষক
-              <select className={SELECT} value={form.teacherId} onChange={(e) => set({ teacherId: e.target.value })} required>
-                <option value="">বাছাই করুন</option>
-                {form.subjectId ? (
-                  <>
-                    <optgroup label="এই বিষয় পড়ান">{teaches.map(option)}</optgroup>
-                    <optgroup label="অন্যরা">{others.map(option)}</optgroup>
-                  </>
-                ) : (
-                  usable.map(option)
-                )}
-              </select>
-            </label>
-            <label className="flex flex-col gap-1 text-[13px] text-muted-foreground">
-              সহকারী (ঐচ্ছিক)
-              <select className={SELECT} value={form.taId} onChange={(e) => set({ taId: e.target.value })}>
-                <option value="">নেই</option>
-                {usable.filter((t) => t.id !== form.teacherId).map(option)}
-              </select>
-            </label>
-            <label className="flex flex-col gap-1 text-[13px] text-muted-foreground">
-              রুম
-              <select className={SELECT} value={form.roomId} onChange={(e) => set({ roomId: e.target.value })}>
-                <option value="">{defaultRoom ? `গ্রুপের রুম (${defaultRoom})` : 'রুম নেই'}</option>
-                {data.rooms
-                  .filter((r) => r.id !== group.defaultRoomId)
-                  .map((r) => (
-                    <option key={r.id} value={r.id}>
-                      {r.name}
-                      {r.shared ? ' (শেয়ার করা)' : ''}
-                    </option>
-                  ))}
-              </select>
-            </label>
-            <label className="flex flex-col gap-1 text-[13px] text-muted-foreground sm:col-span-2">
-              নোট (ঐচ্ছিক)
-              <input className={INPUT} value={form.note} onChange={(e) => set({ note: e.target.value })} maxLength={200} placeholder="যেমন Extra support" />
-            </label>
+              </fieldset>
+            )}
           </div>
+
+          <div className="flex flex-col gap-2">
+            <p className={STEP}>১. সাবজেক্ট</p>
+            <div role="group" aria-label="সাবজেক্ট" className="flex flex-wrap gap-1.5">
+              {subjects.map((s) => (
+                <button
+                  key={s.id}
+                  type="button"
+                  aria-pressed={form.subjectId === s.id}
+                  onClick={() => set({ subjectId: s.id })}
+                  className={cn('h-9 rounded-md border px-3 text-sm', form.subjectId === s.id ? 'border-primary bg-primary text-primary-foreground' : 'bg-white hover:border-input')}
+                >
+                  {s.name}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {form.subjectId && (
+            <div className="flex flex-col gap-2">
+              <p className={STEP}>২. টিচার</p>
+              <TeacherPicker choices={choices} subjectName={subjectName} selected={form.teacherId} onPick={(id) => set({ teacherId: id === form.teacherId ? '' : id, taId: form.taId === id ? '' : form.taId })} foldBusy />
+            </div>
+          )}
+
+          {form.teacherId && (
+            <div className="flex flex-col gap-2">
+              {ta && !taOpen ? (
+                <p className="m-0 text-sm">
+                  টিএ: <span className={cn('font-medium', TA)}>{ta.shortName}</span>{' '}
+                  <button type="button" className="ml-2 text-[13px] underline underline-offset-4" onClick={() => setTaOpen(true)}>
+                    বদলান
+                  </button>
+                  <button type="button" className="ml-3 text-[13px] text-destructive underline-offset-4 hover:underline" onClick={() => set({ taId: '' })}>
+                    টিএ বাদ দিন
+                  </button>
+                </p>
+              ) : taOpen ? (
+                <>
+                  <p className={STEP}>টিএ (না থাকলে বাদ দিন)</p>
+                  <TeacherPicker
+                    choices={choices.filter((c) => c.teacher.id !== form.teacherId)}
+                    subjectName={subjectName}
+                    selected={form.taId}
+                    onPick={(id) => {
+                      set({ taId: id === form.taId ? '' : id });
+                      setTaOpen(false);
+                    }}
+                    foldBusy
+                  />
+                </>
+              ) : (
+                <button type="button" className="self-start text-[13px] underline underline-offset-4" onClick={() => setTaOpen(true)}>
+                  + টিএ যোগ করুন
+                </button>
+              )}
+
+              <details className="text-[13px]" open={!!(form.roomId || form.note)}>
+                <summary className="cursor-pointer text-muted-foreground">আরও: রুম, নোট</summary>
+                <div className="mt-2 grid gap-3 sm:grid-cols-2">
+                  <label className="flex flex-col gap-1 text-muted-foreground">
+                    রুম
+                    <select className={SELECT} value={form.roomId} onChange={(e) => set({ roomId: e.target.value })}>
+                      <option value="">{defaultRoom ? `গ্রুপের রুম (${defaultRoom})` : 'রুম নেই'}</option>
+                      {data.rooms
+                        .filter((r) => r.id !== group.defaultRoomId)
+                        .map((r) => (
+                          <option key={r.id} value={r.id}>
+                            {r.name}
+                            {r.shared ? ' (একসাথে কয়েকটা ক্লাস বসে)' : ''}
+                          </option>
+                        ))}
+                    </select>
+                  </label>
+                  <label className="flex flex-col gap-1 text-muted-foreground">
+                    নোট
+                    <input className={INPUT} value={form.note} onChange={(e) => set({ note: e.target.value })} maxLength={200} placeholder="যেমন RA-1, Extra support" />
+                  </label>
+                </div>
+              </details>
+            </div>
+          )}
 
           {clashes.length > 0 && (
             <ul className="m-0 flex list-none flex-col gap-1 rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-[13px] text-destructive">
@@ -568,13 +635,13 @@ function CellEditor({ data, names, group, period }: { data: RoutineData; names: 
                 </p>
               ))}
               <Button type="button" variant="outline" className={cn(OUTLINE, 'self-start text-foreground')} disabled={pending} onClick={() => save(true)}>
-                তবুও সেভ করুন
+                তাও সেভ করুন
               </Button>
             </div>
           )}
 
           <div className="flex flex-wrap items-center gap-3">
-            <Button type="submit" className="h-9" disabled={pending || clashes.length > 0 || !form.days.length || !form.subjectId || !form.teacherId}>
+            <Button type="submit" className="h-10 px-5" disabled={pending || clashes.length > 0 || !form.days.length || !form.subjectId || !form.teacherId}>
               {form.id ? 'সেভ করুন' : 'যোগ করুন'}
             </Button>
             {form.id && (
@@ -587,7 +654,7 @@ function CellEditor({ data, names, group, period }: { data: RoutineData; names: 
                   setForm(blank());
                 }}
               >
-                নতুন সারি
+                বাতিল
               </Button>
             )}
             {line}

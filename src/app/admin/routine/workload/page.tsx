@@ -51,35 +51,35 @@ export default async function WorkloadPage({ searchParams }: { searchParams: Pro
       <PageTop crumbs={crumbs} round={false} />
       <PageBody>
         <div className="flex flex-wrap items-end justify-between gap-3">
-          <PageTitle sub={routineSub(data.routine, 'সপ্তাহে পিরিয়ড = মূল + সহকারীর অর্ধেক; লক্ষ্যের ৮০%-এর কম ‘কম’, ১০০%-এর বেশি ‘বেশি’। লক্ষ্য এখানেই লিখুন (Enter চাপলে সেভ)।')}>ওয়ার্কলোড</PageTitle>
+          <PageTitle sub={routineSub(data.routine, 'সপ্তাহের পিরিয়ড = মেইন + টিএ-র অর্ধেক। টার্গেটের ৮০%-এর কম হলে ‘কম’, ১০০%-এর বেশি হলে ‘বেশি’। টার্গেট এখানেই লিখুন, Enter দিলে সেভ হবে।')}>ওয়ার্কলোড</PageTitle>
           <RoutinePicker routines={routines} current={data.routine.id} />
         </div>
         <StatTiles>
           <StatTile label="বেশি" value={bn(count('over'))} unit="জন" />
           <StatTile label="কম" value={bn(count('under'))} unit="জন" />
           <StatTile label="ঠিক আছে" value={bn(count('ok'))} unit="জন" />
-          <StatTile label="লক্ষ্য দেওয়া নেই" value={bn(count('none'))} unit="জন" muted />
+          <StatTile label="টার্গেট দেওয়া নেই" value={bn(count('none'))} unit="জন" muted />
         </StatTiles>
 
         {staff.length === 0 ? (
-          <EmptyState>কোনো সক্রিয় শিক্ষক নেই।</EmptyState>
+          <EmptyState>কোনো চালু টিচার নেই।</EmptyState>
         ) : (
           <div className="overflow-x-auto rounded-xl border bg-card">
             <table className="w-full min-w-[1080px] text-sm">
               <thead>
                 <tr className="border-b">
-                  <th className={TH}>শিক্ষক</th>
-                  <th className={TH}>মূল</th>
-                  <th className={TH}>সহকারী</th>
-                  <th className={TH}>দিনে গড় (মূল+সহকারী)</th>
+                  <th className={TH}>টিচার</th>
+                  <th className={TH}>মেইন</th>
+                  <th className={TH}>টিএ</th>
+                  <th className={TH}>দিনে (মেইন+টিএ)</th>
                   <th className={TH}>সপ্তাহে মোট</th>
-                  <th className={TH}>লক্ষ্য</th>
-                  <th className={TH}>অবস্থা</th>
+                  <th className={TH}>টার্গেট</th>
+                  <th className={TH}>স্ট্যাটাস</th>
                   <th className={TH}>সপ্তাহে সময়</th>
-                  <th className={TH}>ব্যস্ততম দিন</th>
+                  <th className={TH}>সবচেয়ে বেশি ক্লাস</th>
                   <th className={TH}>এ মাসে প্রক্সি</th>
                   <th className={TH}>বেতন</th>
-                  <th className={TH}>পিরিয়ডপ্রতি</th>
+                  <th className={TH}>প্রতি পিরিয়ডে</th>
                 </tr>
               </thead>
               <tbody>
@@ -119,9 +119,9 @@ export default async function WorkloadPage({ searchParams }: { searchParams: Pro
           </div>
         )}
 
-        <Card title="শূন্য পদ">
+        <Card title="খালি পোস্ট">
           {vacancies.length === 0 ? (
-            <p className="m-0 text-sm text-muted-foreground">কোনো শূন্য পদ নেই। নিয়োগ বাকি এমন পদ শিক্ষক পেজে &quot;শূন্য পদ&quot; হিসেবে যোগ করে রুটিনে বসানো যায়।</p>
+            <p className="m-0 text-sm text-muted-foreground">কোনো খালি পোস্ট নেই। যে পোস্টে এখনো টিচার নেওয়া হয়নি, সেটা টিচার পেজে &quot;খালি পোস্ট&quot; হিসেবে যোগ করে রুটিনে বসানো যায়।</p>
           ) : (
             <ul className="m-0 flex list-none flex-col divide-y p-0 text-sm">
               {vacancies.map((t) => {
@@ -132,7 +132,7 @@ export default async function WorkloadPage({ searchParams }: { searchParams: Pro
                       <Link href={`/admin/routine/teachers/${t.id}${q}`} className={cn(LINK, 'font-medium')}>
                         {t.shortName}
                       </Link>
-                      <span className="text-muted-foreground"> · {t.subjectIds.map((id) => subjectName.get(id)).filter(Boolean).join(', ') || 'বিষয় দেওয়া নেই'}</span>
+                      <span className="text-muted-foreground"> · {t.subjectIds.map((id) => subjectName.get(id)).filter(Boolean).join(', ') || 'সাবজেক্ট দেওয়া নেই'}</span>
                     </span>
                     <span className="tabular-nums">সপ্তাহে {num(l.weighted)} পিরিয়ড</span>
                   </li>

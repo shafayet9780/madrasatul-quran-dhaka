@@ -81,6 +81,10 @@ button.rt-cell:focus-visible {
   font-size: 12px;
   letter-spacing: 0.04em;
 }
+/* The period running now (a school day, that day shown). */
+.rt-grid thead th.rt-now {
+  background: color-mix(in srgb, var(--primary) 12%, #f5f5f5);
+}
 /* Only a plain table keeps its group column in view while scrolling; with band labels or several
    blocks side by side, sticky name columns would slide over each other. */
 .rt-sheet tbody th,
@@ -153,5 +157,8 @@ button.rt-cell:focus-visible {
   }
   .rt-grid tr {
     break-inside: avoid;
+  }
+  .rt-grid thead th.rt-now {
+    background: #f5f5f5;
   }
 }

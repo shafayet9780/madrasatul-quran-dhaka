@@ -13,7 +13,7 @@ import { WeekTable } from '../../WeekTable';
 export const metadata: Metadata = { title: 'ক্লাসের রুটিন' };
 export const dynamic = 'force-dynamic';
 
-const RULE = { any: '', male: 'শুধু পুরুষ শিক্ষক', female: 'শুধু মহিলা শিক্ষক' };
+const RULE = { any: '', male: 'শুধু পুরুষ টিচার', female: 'শুধু মহিলা টিচার' };
 
 export default async function GroupPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ r?: string }> }) {
   const [{ id }, { r }] = await Promise.all([params, searchParams]);

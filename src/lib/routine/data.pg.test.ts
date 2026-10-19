@@ -107,7 +107,7 @@ describe('assignments', () => {
 
   it('asks before saving a subject the teacher is not listed for', async () => {
     const first = await assign({ teacherId: id('dolon') });
-    expect(first).toMatchObject({ ok: false, warnings: ['Dolon-এর বিষয়ের তালিকায় Quran নেই।'] });
+    expect(first).toMatchObject({ ok: false, warnings: ['Dolon-এর সাবজেক্টের লিস্টে Quran নেই।'] });
     ok(await assign({ teacherId: id('dolon') }, true));
   });
 

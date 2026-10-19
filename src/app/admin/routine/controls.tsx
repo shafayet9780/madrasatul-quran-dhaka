@@ -1,8 +1,10 @@
 'use client';
 
-import { useState, useTransition, type ComponentProps, type ReactNode } from 'react';
+import { useEffect, useState, useTransition, type ComponentProps, type ReactNode } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { DialogContent } from '@/components/shadcn/dialog';
+import { dayOfDate, dhakaToday } from '@/lib/routine/days';
 import { cn } from '@/lib/utils';
 import type { Result } from './actions';
 
@@ -34,11 +36,40 @@ export function useAction() {
           setMessage({ ok: false, text: result.error });
         }
       } catch {
-        setMessage({ ok: false, text: 'কাজটি করা যায়নি। পেজটি আবার লোড করে চেষ্টা করুন।' });
+        setMessage({ ok: false, text: 'কাজটা হয়নি। পেজটা রিলোড করে আবার চেষ্টা করুন।' });
       }
     });
   const line = message && <StatusLine message={message} />;
   return { pending, run, line, warnings, clear: () => (setMessage(null), setWarnings([])) };
+}
+
+/** A short note at the bottom of the screen after a change, with "আনডু" for a few seconds. */
+export function useUndo() {
+  const [toast, setToast] = useState<{ key: number; text: string; undo?: () => void } | null>(null);
+  useEffect(() => {
+    if (!toast) return;
+    const timer = setTimeout(() => setToast(null), 6000);
+    return () => clearTimeout(timer);
+  }, [toast]);
+  const show = (text: string, undo?: () => void) => setToast({ key: Date.now(), text, undo });
+  const node = toast && (
+    <div role="status" className="fixed inset-x-4 bottom-20 z-50 mx-auto flex max-w-md items-center justify-between gap-3 rounded-xl bg-foreground px-4 py-3 text-sm text-background shadow-lg sv-no-print md:bottom-6">
+      <span>{toast.text}</span>
+      {toast.undo && (
+        <button
+          type="button"
+          className="shrink-0 font-semibold underline-offset-4 hover:underline"
+          onClick={() => {
+            toast.undo!();
+            setToast(null);
+          }}
+        >
+          আনডু
+        </button>
+      )}
+    </div>
+  );
+  return { show, node };
 }
 
 export function StatusLine({ message }: { message: NonNullable<Message> }) {
@@ -67,6 +98,38 @@ export function useParam() {
   };
 }
 
+/** The school day before or after a date, skipping Friday. */
+function stepDate(date: string, step: 1 | -1): string {
+  const d = new Date(`${date}T00:00:00Z`);
+  do d.setUTCDate(d.getUTCDate() + step);
+  while (dayOfDate(d.toISOString().slice(0, 10)) === null);
+  return d.toISOString().slice(0, 10);
+}
+
+/** A date in ?date= (empty = today), with the previous and next school day one tap away. */
+export function DatePicker({ date }: { date: string }) {
+  const set = useParam();
+  const today = dhakaToday();
+  const go = (next: string) => set('date', next === today ? null : next);
+  const ARROW = 'inline-flex size-9 items-center justify-center rounded-lg border bg-white hover:bg-muted';
+  return (
+    <div className="flex flex-wrap items-center gap-2">
+      <button type="button" className={ARROW} onClick={() => go(stepDate(date, -1))} aria-label="আগের দিন">
+        <ChevronLeft aria-hidden className="size-4" />
+      </button>
+      <input type="date" className={INPUT} value={date} onChange={(e) => e.target.value && go(e.target.value)} aria-label="তারিখ" />
+      <button type="button" className={ARROW} onClick={() => go(stepDate(date, 1))} aria-label="পরের দিন">
+        <ChevronRight aria-hidden className="size-4" />
+      </button>
+      {date !== today && (
+        <button type="button" className={cn(INPUT, 'font-medium hover:bg-muted')} onClick={() => go(today)}>
+          আজ
+        </button>
+      )}
+    </div>
+  );
+}
+
 /** Which routine a page shows (?r=): the active one unless a draft is chosen. */
 export function RoutinePicker({ routines, current }: { routines: { id: string; name: string; status: string }[]; current: string }) {
   const set = useParam();
@@ -78,7 +141,7 @@ export function RoutinePicker({ routines, current }: { routines: { id: string; n
         {routines.map((r) => (
           <option key={r.id} value={r.id}>
             {r.name}
-            {r.status === 'active' ? ' (চালু)' : ' (খসড়া)'}
+            {r.status === 'active' ? ' (চালু)' : ' (ড্রাফট)'}
           </option>
         ))}
       </select>
