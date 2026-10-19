@@ -110,12 +110,12 @@ Follows the shared admin design (`docs/admin-redesign-plan.md`, pieces in `src/a
 
 | Nav | Page | Contents |
 |---|---|---|
-| রুটিন | `/admin/routine` | The chosen routine (active by default) in three views (owner, 2026-10-18), all with a day filter (**সব দিন** shows day chips; one day shows only that day) and an **A3 print**: **শিটের মতো** (default) — like the sheet, the day left to right in blocks (a run of periods whose classes share headings: হিফয · কুরআন · আরবি · জেনারেল · হিফয), each with its name, times and lengths on top and its groups down the side (a block is named by the heading most of its classes are under; a group on its own timetable, like Six (F), is an extra row of each block it has classes in, as at the bottom of the sheet), groups of one band (LEVEL-1) under one label; **শিরোনাম অনুযায়ী** — one table per heading, only the periods it uses (or all, to add classes in a new period); **শিক্ষক অনুযায়ী** — a row per teacher, periods across, empty = free, weekly load at the end. Main teacher names in brown, TA in blue. In the first two, a cell opens the editor (assign / edit / delete; clashes refused). |
+| রুটিন | `/admin/routine` | The chosen routine (active by default) in three views (owner, 2026-10-18), all with a day filter (**সব দিন** shows day chips; one day shows only that day) and an **A3 print**: **শিটের মতো** (default) — like the sheet, the day left to right in blocks (a run of periods whose classes share headings: হিফয · কুরআন · আরবি · জেনারেল · হিফয), each with its name, times and lengths on top and its groups down the side (a block is named by the heading most of its classes are under; a group on its own timetable, like Six (F), is an extra row of each block it has classes in, as at the bottom of the sheet), groups of one band (LEVEL-1) under one label; **শিরোনাম অনুযায়ী** — one table per heading, only the periods it uses (or all, to add classes in a new period); **শিক্ষক অনুযায়ী** — a row per teacher, periods across, empty = free, weekly load at the end. Main teacher names in brown, TA in blue. In the first two, a cell opens the editor (assign / edit / delete; clashes refused; a cell whose days are all taken shows only its rows). The view and day stay in the address (`?view=`, `?day=`); without one, a phone opens on শিরোনাম অনুযায়ী (review, 2026-10-19). |
 | ক্লাসের রুটিন | `/admin/routine/group/[id]` | One group's week: days × periods. **A4 print**. |
 | শিক্ষকের রুটিন | `/admin/routine/teacher/[id]` | One teacher's week (main and TA marked), load summary. **A4 print** (no salary or phone). |
-| ফ্রি শিক্ষক | `/admin/routine/free` | Day × period grid; each cell lists free teachers (active, not vacancies) with the subjects they can teach. Subject filter highlights who can take it. |
+| ফ্রি শিক্ষক | `/admin/routine/free` | Day × period grid; each cell lists free teachers (active, not vacancies) with the subjects they can teach. Subject filter highlights who can take it. Teachers with no class that day in the period's **sitting** (periods at most 30 minutes apart: the morning school day; the evening Hifz is another) are folded away as likely not at school. |
 | প্রক্সি | `/admin/routine/proxy` | Daily register (§6). |
-| ওয়ার্কলোড | `/admin/routine/workload` | Every teacher: main, TA, weighted, target, %, status badge, minutes/week, busiest day, proxies this month, salary, salary per period. Sort by status. Also **শূন্য পদ** (posts to fill): vacancy teachers with their subjects and weekly load. |
+| ওয়ার্কলোড | `/admin/routine/workload` | Every teacher: main, TA, weighted, target, %, status badge, minutes/week, busiest day (all of them when tied), proxies this month, salary, salary per period. The **target is typed in the table** (saved on Enter or leaving the box), so rows sort by name and stay put. Also **শূন্য পদ** (posts to fill): vacancy teachers with their subjects and weekly load. |
 | শিক্ষক | `/admin/routine/teachers` | List + form (fields of §3, subjects as checkboxes). |
 | সেটআপ | `/admin/routine/setup` | Routines (create, copy, make active, rename, delete draft), periods of a routine, subjects, rooms, groups. |
 
@@ -129,8 +129,10 @@ Making a routine active asks for confirmation. Saved proxies of past dates keep 
 4. For each, candidates are ranked:
    - must be active, not a vacancy, not absent, free in that period on that day (no assignment as main or TA, no proxy already that date + period), and meet the group's gender rule;
    - first those who can teach the subject, then the rest under "বিষয়ের শিক্ষক নন";
-   - within each, fewest periods that day (proxies included), then fewest proxies this month.
-5. Pick one per class → **সেভ**. The day's sheet prints on A4 and copies as WhatsApp text (date, period, class, subject, absent teacher → proxy).
+   - within each, those at school then (a class in the same sitting that day, see ফ্রি শিক্ষক) before the rest, marked "এ বেলায় ক্লাস নেই";
+   - then fewest periods that day (proxies included), then fewest proxies this month.
+6. Making another routine active moves upcoming absences for chosen periods to its periods at the same times; with none at that time the absence becomes the whole day (never silently nothing).
+5. Pick one per class (saved at once). The day's sheet prints on A4 and copies as WhatsApp text (date, period, class, subject, absent teacher → proxy).
 
 Proxy counts per teacher for the month show on the proxy page and the workload page.
 
@@ -156,7 +158,7 @@ pnpm routine:import "<path>/Class schedule.xlsx" --apply  # writes a draft routi
     - "A / B" or "A + B" makes A main and B TA. Days after them are the TA's days.
     - With as many teachers as subjects, they pair in order.
   - Everything else goes on the fix list, never guessed: two subjects in one line, a missing teacher, overlapping days, unknown names, a class with its own times (Six (F)), rooms given to two classes (marked shared).
-- Writing (`sheet-import-apply.ts`): subjects, rooms, groups and teachers with the same name are reused untouched; new ones are created (groups ending (M)/(F) get that gender rule; new teachers get the subjects the sheet gives them; no weekly targets). Every class goes through `saveAssignment`, so clashes are refused as in the editor. When only the TA clashes, the class is kept without the TA and noted.
+- Writing (`sheet-import-apply.ts`): subjects, rooms, groups and teachers with the same name are reused untouched; new ones are created (groups get no gender rule, since "(M)"/"(F)" in the sheet is the students' section and women teach boys' sections; new teachers get the subjects the sheet gives them; no weekly targets). Every class goes through `saveAssignment`, so clashes are refused as in the editor. When only the TA clashes, the class is kept without the TA and noted.
 
 Nothing is written to the active routine. The owner reviews the draft, fixes the list in the editor and makes it active. A failed run leaves a partial draft: delete it in setup and run again.
 

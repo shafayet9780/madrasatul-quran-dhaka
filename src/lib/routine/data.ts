@@ -1,5 +1,5 @@
 import 'server-only';
-import { and, asc, eq, gte, inArray, lt, ne, sql } from 'drizzle-orm';
+import { and, asc, eq, gte, inArray, isNotNull, lt, ne, sql } from 'drizzle-orm';
 import type { BatchItem } from 'drizzle-orm/batch';
 import { assignmentWarnings, clashText, effectiveRoomId, findClashes, lookup, occupancy, overlappingPeriod, type Draft } from './clash';
 import { dayOfDate, daysText, dhakaToday, periodText } from './days';
@@ -237,6 +237,12 @@ export async function saveTeacher(input: TeacherInput): Promise<Outcome> {
   return { ok: true, id };
 }
 
+/** Sets only the weekly target (the workload table edits it in place). */
+export async function setTeacherTarget(id: string, target: number | null): Promise<Outcome> {
+  const rows = await getRoutineDb().update(routineTeachers).set({ targetPeriods: target, updatedAt: new Date() }).where(eq(routineTeachers.id, id)).returning({ id: routineTeachers.id });
+  return rows.length ? { ok: true } : fail(RACE);
+}
+
 export async function deleteTeacher(id: string): Promise<Outcome> {
   const db = getRoutineDb();
   const [used] = await db
@@ -296,7 +302,22 @@ export async function renameRoutine(id: string, name: string): Promise<Outcome> 
 export async function activateRoutine(id: string): Promise<Outcome> {
   const db = getRoutineDb();
   if (!(await db.select({ id: routineRoutines.id }).from(routineRoutines).where(eq(routineRoutines.id, id))).length) return fail(RACE);
+  // Upcoming absences for chosen periods name the old routine's periods: they move to the new
+  // routine's periods at the same time. With none at that time the absence becomes the whole day,
+  // so a cover isn't silently lost.
+  const [partial, periods] = await Promise.all([
+    db.select({ id: routineAbsences.id, periodIds: routineAbsences.periodIds }).from(routineAbsences).where(and(gte(routineAbsences.date, dhakaToday()), isNotNull(routineAbsences.periodIds))),
+    db.select().from(routinePeriods),
+  ]);
+  const byId = new Map(periods.map((p) => [p.id, p]));
+  const moved = partial.flatMap((a) => {
+    const old = a.periodIds!.flatMap((pid) => byId.get(pid) ?? []);
+    const next = periods.filter((p) => p.routineId === id && old.some((o) => o.startsAt < p.endsAt && p.startsAt < o.endsAt)).map((p) => p.id);
+    const periodIds = next.length ? next : null;
+    return JSON.stringify(periodIds) === JSON.stringify(a.periodIds) ? [] : [db.update(routineAbsences).set({ periodIds }).where(eq(routineAbsences.id, a.id))];
+  });
   await run(db, [
+    ...moved,
     db.update(routineRoutines).set({ status: 'draft' }).where(and(eq(routineRoutines.status, 'active'), sql`${routineRoutines.id} <> ${id}`)),
     db.update(routineRoutines).set({ status: 'active' }).where(eq(routineRoutines.id, id)),
     // Today's and later proxies were made for the old routine's classes; past ones stay as history.
@@ -499,7 +520,7 @@ export async function setProxy(date: string, assignmentId: string, role: Role, t
   const need = data ? needsFor(day, absences, data.assignments).find((n) => n.assignment.id === assignmentId && n.role === role) : undefined;
   if (!data || !need) return fail(RACE);
   const names = lookup(data);
-  const candidates = rankCandidates(need, { teachers: data.teachers, assignments: data.assignments, day, absences, proxies, monthCounts: new Map(Object.entries(monthCounts)), group: names.groups.get(need.assignment.groupId) });
+  const candidates = rankCandidates(need, { teachers: data.teachers, assignments: data.assignments, periods: data.periods, day, absences, proxies, monthCounts: new Map(Object.entries(monthCounts)), group: names.groups.get(need.assignment.groupId) });
   if (!candidates.some((c) => c.teacher.id === teacherId)) return fail('এই পিরিয়ডে তিনি আর ফ্রি নেই। পেজটি রিলোড করুন।');
   const period = data.periods.find((p) => p.id === need.assignment.periodId)!;
   const snapshot: ProxySnapshot = {

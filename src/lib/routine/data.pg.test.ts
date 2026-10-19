@@ -22,6 +22,7 @@ import {
   saveSubject,
   saveTeacher,
   setProxy,
+  setTeacherTarget,
   type TeacherInput,
 } from './data';
 import { setRoutineDbForTests, type RoutineDb } from './db';
@@ -108,6 +109,13 @@ describe('assignments', () => {
     const first = await assign({ teacherId: id('dolon') });
     expect(first).toMatchObject({ ok: false, warnings: ['Dolon-এর বিষয়ের তালিকায় Quran নেই।'] });
     ok(await assign({ teacherId: id('dolon') }, true));
+  });
+
+  it('sets a weekly target on its own', async () => {
+    ok(await setTeacherTarget(id('dolon'), 21));
+    expect((await db.select().from(schema.routineTeachers)).find((t) => t.id === id('dolon'))).toMatchObject({ targetPeriods: 21, shortName: 'Dolon' });
+    ok(await setTeacherTarget(id('dolon'), null));
+    expect(await setTeacherTarget(crypto.randomUUID(), 5)).toMatchObject({ ok: false });
   });
 
   it('leaves the gender empty only for an open post', async () => {
@@ -219,6 +227,23 @@ describe('proxies', () => {
     ok(await setProxy(later, qaida, 'main', id('nasreen')));
     ok(await deleteAssignment(qaida));
     expect((await db.select().from(schema.routineProxies)).map((p) => [p.date, p.assignmentId, p.snapshot.absent])).toEqual([[past, null, 'Mueen']]);
+  });
+
+  it('moves upcoming absences for chosen periods to the new routine, matching times', async () => {
+    ok(await activateRoutine(id('routine')));
+    ok(await saveAbsence(later, id('nasreen'), [id('p2')], ''));
+    ok(await saveAbsence(past, id('nasreen'), [id('p2')], ''));
+    const copy = ok(await createRoutine('২০২৮', id('routine'))).id;
+    ok(await activateRoutine(copy));
+    const copyP2 = (await routineData((await pickRoutine(copy))!)).periods[1].id;
+    expect((await proxyDay(later)).absences.map((a) => a.periodIds)).toEqual([[copyP2]]);
+    // Past days keep their record as it was.
+    expect((await proxyDay(past)).absences.map((a) => a.periodIds)).toEqual([[id('p2')]]);
+    // A routine with nothing at that time: the whole day, not nothing.
+    const other = ok(await createRoutine('অন্য সময়')).id;
+    ok(await savePeriod(other, { label: '', startsAt: 900, endsAt: 960 }));
+    ok(await activateRoutine(other));
+    expect((await proxyDay(later)).absences.map((a) => a.periodIds)).toEqual([null]);
   });
 
   it('has no classes on Friday', async () => {

@@ -1,25 +1,25 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { listRoutines, monthProxyCounts, pickRoutine, routineData } from '@/lib/routine/data';
-import { DAY_SHORT, DAYS, dhakaToday, durationText } from '@/lib/routine/days';
-import { busiestDay, salaryPerPeriod, teacherLoads, type LoadStatus } from '@/lib/routine/load';
+import { DAYS, daysText, dhakaToday, durationText } from '@/lib/routine/days';
+import { busiestDays, salaryPerPeriod, teacherLoads, type LoadStatus } from '@/lib/routine/load';
 import { toBengaliDigits as bn } from '@/lib/survey/normalise';
 import { cn } from '@/lib/utils';
 import { PageTop } from '../../AdminShell';
 import { Card, EmptyState, LINK, PageBody, PageTitle, StatTile, StatTiles } from '../../ui';
 import { RoutinePicker } from '../controls';
 import { LoadBadge, NoRoutine, routineSub } from '../ui';
+import { TargetInput } from './TargetInput';
 
 export const metadata: Metadata = { title: 'ওয়ার্কলোড' };
 export const dynamic = 'force-dynamic';
 
-const ORDER: Record<LoadStatus, number> = { over: 0, under: 1, none: 2, ok: 3 };
 const TH = 'px-3 py-2.5 text-left text-[12.5px] font-medium text-muted-foreground whitespace-nowrap';
 const TD = 'px-3 py-2.5 align-top whitespace-nowrap';
 const money = (n: number | null) => (n == null ? '—' : `৳${bn(n.toLocaleString('en-IN'))}`);
 const num = (n: number) => bn(Number.isInteger(n) ? n : n.toFixed(1));
-/** Average periods a school day as the sheet writes it, main + TA: "৩+১". */
-const perDay = (main: number, ta: number) => `${num(main / DAYS.length)}+${num(ta / DAYS.length)}`;
+/** Periods a school day as the sheet writes it, main + TA, to the nearest whole: "৩+১". */
+const perDay = (main: number, ta: number) => `${bn(Math.round(main / DAYS.length))}+${bn(Math.round(ta / DAYS.length))}`;
 
 export default async function WorkloadPage({ searchParams }: { searchParams: Promise<{ r?: string }> }) {
   const { r } = await searchParams;
@@ -40,7 +40,8 @@ export default async function WorkloadPage({ searchParams }: { searchParams: Pro
   const active = data.teachers.filter((t) => t.active);
   const loads = teacherLoads(active, data.assignments, data.periods);
   const subjectName = new Map(data.subjects.map((s) => [s.id, s.name]));
-  const staff = active.filter((t) => !t.isVacancy).sort((a, b) => ORDER[loads.get(a.id)!.status] - ORDER[loads.get(b.id)!.status] || a.shortName.localeCompare(b.shortName));
+  // By name, so a row stays put when its target is typed in and its status changes.
+  const staff = active.filter((t) => !t.isVacancy);
   const vacancies = active.filter((t) => t.isVacancy);
   const count = (s: LoadStatus) => staff.filter((t) => loads.get(t.id)!.status === s).length;
   const q = routine?.status === 'active' ? '' : `?r=${routine!.id}`;
@@ -50,7 +51,7 @@ export default async function WorkloadPage({ searchParams }: { searchParams: Pro
       <PageTop crumbs={crumbs} round={false} />
       <PageBody>
         <div className="flex flex-wrap items-end justify-between gap-3">
-          <PageTitle sub={routineSub(data.routine, 'সপ্তাহে পিরিয়ড = মূল + সহকারীর অর্ধেক; লক্ষ্যের ৮০%-এর কম ‘কম’, ১০০%-এর বেশি ‘বেশি’')}>ওয়ার্কলোড</PageTitle>
+          <PageTitle sub={routineSub(data.routine, 'সপ্তাহে পিরিয়ড = মূল + সহকারীর অর্ধেক; লক্ষ্যের ৮০%-এর কম ‘কম’, ১০০%-এর বেশি ‘বেশি’। লক্ষ্য এখানেই লিখুন (Enter চাপলে সেভ)।')}>ওয়ার্কলোড</PageTitle>
           <RoutinePicker routines={routines} current={data.routine.id} />
         </div>
         <StatTiles>
@@ -71,7 +72,8 @@ export default async function WorkloadPage({ searchParams }: { searchParams: Pro
                   <th className={TH}>মূল</th>
                   <th className={TH}>সহকারী</th>
                   <th className={TH}>দিনে গড় (মূল+সহকারী)</th>
-                  <th className={TH}>মোট / লক্ষ্য</th>
+                  <th className={TH}>সপ্তাহে মোট</th>
+                  <th className={TH}>লক্ষ্য</th>
                   <th className={TH}>অবস্থা</th>
                   <th className={TH}>সপ্তাহে সময়</th>
                   <th className={TH}>ব্যস্ততম দিন</th>
@@ -83,7 +85,7 @@ export default async function WorkloadPage({ searchParams }: { searchParams: Pro
               <tbody>
                 {staff.map((t) => {
                   const l = loads.get(t.id)!;
-                  const busy = busiestDay(l);
+                  const busy = busiestDays(l);
                   return (
                     <tr key={t.id} className="border-b last:border-0">
                       <td className={TD}>
@@ -94,16 +96,18 @@ export default async function WorkloadPage({ searchParams }: { searchParams: Pro
                       <td className={cn(TD, 'tabular-nums')}>{bn(l.main)}</td>
                       <td className={cn(TD, 'tabular-nums')}>{bn(l.ta)}</td>
                       <td className={cn(TD, 'tabular-nums')}>{perDay(l.main, l.ta)}</td>
-                      <td className={cn(TD, 'tabular-nums')}>
-                        {num(l.weighted)}
-                        {l.target != null && <span className="text-muted-foreground"> / {bn(l.target)}</span>}
-                        {l.percent != null && <span className="text-muted-foreground"> ({bn(Math.round(l.percent * 100))}%)</span>}
+                      <td className={cn(TD, 'tabular-nums')}>{num(l.weighted)}</td>
+                      <td className={cn(TD, 'py-1.5')}>
+                        <TargetInput teacherId={t.id} name={t.shortName} target={t.targetPeriods} />
                       </td>
                       <td className={TD}>
-                        <LoadBadge status={l.status} />
+                        <span className="inline-flex items-center gap-1.5">
+                          <LoadBadge status={l.status} />
+                          {l.percent != null && <span className="tabular-nums text-muted-foreground">{bn(Math.round(l.percent * 100))}%</span>}
+                        </span>
                       </td>
                       <td className={TD}>{durationText(l.minutesMain + l.minutesTa)}</td>
-                      <td className={TD}>{busy ? `${DAY_SHORT[busy.day]} (${bn(busy.count)})` : '—'}</td>
+                      <td className={TD}>{busy ? `${daysText(busy.days)} (${bn(busy.count)})` : '—'}</td>
                       <td className={cn(TD, 'tabular-nums')}>{bn(month[t.id] ?? 0)}</td>
                       <td className={cn(TD, 'tabular-nums')}>{money(t.salary)}</td>
                       <td className={cn(TD, 'tabular-nums')}>{money(salaryPerPeriod(t.salary, l.weighted))}</td>

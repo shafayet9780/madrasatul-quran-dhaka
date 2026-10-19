@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { activeRoutine, routineData } from '@/lib/routine/data';
 import { DAY_NAMES, DAY_SHORT, DAYS, dayOfDate, dhakaToday, periodText } from '@/lib/routine/days';
-import { freeTeachers, periodsOnDay } from '@/lib/routine/free';
+import { atSchool, freeTeachers, periodsOnDay, sessionOf } from '@/lib/routine/free';
 import type { Teacher } from '@/lib/routine/types';
 import { toBengaliDigits as bn } from '@/lib/survey/normalise';
 import { cn } from '@/lib/utils';
@@ -66,25 +66,41 @@ export default async function FreePage({ searchParams }: { searchParams: Promise
             <div className="flex flex-col gap-3">
               {data.periods.map((p) => {
                 const free = freeTeachers(data.teachers, data.assignments, day, p.id);
-                const can = subject ? free.filter((t) => t.subjectIds.includes(subject.id)) : free;
-                const rest = subject ? free.filter((t) => !t.subjectIds.includes(subject.id)) : [];
+                // Free but with no class in this sitting that day (e.g. the evening Hifz): likely not at school.
+                const session = sessionOf(data.periods, p.id);
+                const here = free.filter((t) => atSchool(data.assignments, session, t.id, day));
+                const away = free.filter((t) => !here.includes(t));
+                const can = subject ? here.filter((t) => t.subjectIds.includes(subject.id)) : here;
+                const rest = subject ? here.filter((t) => !t.subjectIds.includes(subject.id)) : [];
                 return (
                   <section key={p.id} className="rounded-xl border bg-card p-4">
                     <h2 className="m-0 mb-3 flex flex-wrap items-baseline gap-2 text-[15px] font-semibold">
                       {periodText(p)}
-                      <span className="text-[13px] font-normal text-muted-foreground">{bn(free.length)} জন ফ্রি</span>
+                      <span className="text-[13px] font-normal text-muted-foreground">
+                        {bn(here.length)} জন ফ্রি{away.length > 0 && ` · আরও ${bn(away.length)} জনের এ বেলায় ক্লাস নেই`}
+                      </span>
                     </h2>
                     {free.length === 0 ? (
                       <p className="m-0 text-sm text-muted-foreground">এই পিরিয়ডে কেউ ফ্রি নেই।</p>
                     ) : (
                       <div className="flex flex-col gap-2">
-                        {subject && <p className="m-0 text-[13px] text-muted-foreground">{can.length ? `${subject.name} পড়াতে পারেন` : `${subject.name} পড়ান এমন কেউ ফ্রি নেই`}</p>}
+                        {subject ? (
+                          <p className="m-0 text-[13px] text-muted-foreground">{can.length ? `${subject.name} পড়াতে পারেন` : `${subject.name} পড়ান এমন কেউ ফ্রি নেই`}</p>
+                        ) : (
+                          here.length === 0 && <p className="m-0 text-sm text-muted-foreground">এ বেলায় ক্লাস আছে এমন কেউ ফ্রি নেই।</p>
+                        )}
                         {can.length > 0 && <ul className="m-0 flex list-none flex-wrap gap-2 p-0">{can.map((t) => chip(t, true))}</ul>}
                         {rest.length > 0 && (
                           <>
                             <p className="m-0 text-[13px] text-muted-foreground">অন্যরা</p>
                             <ul className="m-0 flex list-none flex-wrap gap-2 p-0">{rest.map((t) => chip(t, false))}</ul>
                           </>
+                        )}
+                        {away.length > 0 && (
+                          <details className="text-[13px] text-muted-foreground">
+                            <summary className="cursor-pointer">এ বেলায় যাঁদের কোনো ক্লাস নেই (স্কুলে না-ও থাকতে পারেন)</summary>
+                            <ul className="m-0 mt-2 flex list-none flex-wrap gap-2 p-0">{away.map((t) => chip(t, false))}</ul>
+                          </details>
                         )}
                       </div>
                     )}

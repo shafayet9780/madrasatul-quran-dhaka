@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { assignmentWarnings, clashText, findClashes, lookup, occupancy, overlappingPeriod } from './clash';
 import { dayOfDate, daysText, parseTime, periodText, timeText } from './days';
-import { freeTeachers } from './free';
+import { atSchool, freeTeachers, sessionOf } from './free';
 import { bandSpans, sheetBlocks } from './layout';
-import { busiestDay, loadStatus, salaryPerPeriod, teacherLoads } from './load';
+import { busiestDays, loadStatus, salaryPerPeriod, teacherLoads } from './load';
 import { needsFor, proxyDayText, rankCandidates } from './proxy';
 import { assignment, group, period, room, subject, teacher } from './testing/sample';
 
@@ -114,7 +114,10 @@ describe('load', () => {
     expect(t.minutesTa).toBe(2 * 75);
     expect(t.status).toBe('ok');
     expect(t.perDay).toEqual([2, 3, 2, 1, 1, 0]);
-    expect(busiestDay(t)).toEqual({ day: 1, count: 3 });
+    expect(busiestDays(t)).toEqual({ days: [1], count: 3 });
+    // A tie names every busiest day, not just the first.
+    expect(busiestDays({ ...t, perDay: [2, 2, 2, 2, 2, 2] })).toEqual({ days: [0, 1, 2, 3, 4, 5], count: 2 });
+    expect(busiestDays({ ...t, perDay: [0, 0, 0, 0, 0, 0] })).toBeNull();
   });
 
   it('puts the limits at under 80 % and over 100 %', () => {
@@ -151,6 +154,16 @@ describe('free teachers and proxies', () => {
     expect(freeTeachers(teachers, all, 0, 'p1').map((t) => t.id)).toEqual(['dolon', 'mueen', 'nasreen']);
   });
 
+  it('splits the day into sittings and knows who is at school in one', () => {
+    const periods = [period('a', 420, 495), period('b', 495, 540), period('c', 645, 690), period('eve', 900, 1200)];
+    expect([...sessionOf(periods, 'b')]).toEqual(['a', 'b']);
+    expect([...sessionOf(periods, 'eve')]).toEqual(['eve']);
+    // 9:00–9:45 to 10:00 is a 15-minute gap: the same sitting.
+    expect([...sessionOf([period('p1', 540, 585), period('p2', 600, 645)], 'p2')]).toEqual(['p1', 'p2']);
+    expect(atSchool(all, new Set(['p1', 'p2']), 'nasreen', 1)).toBe(true);
+    expect(atSchool(all, new Set(['p1', 'p2']), 'dolon', 1)).toBe(false);
+  });
+
   it('turns absences into the classes to cover', () => {
     expect(needsFor(1, [{ teacherId: 'mueen', periodIds: null }], all).map((n) => n.assignment.id)).toEqual([qaidaA.id]);
     expect(needsFor(0, [{ teacherId: 'mueen', periodIds: null }], all)).toEqual([]);
@@ -159,7 +172,7 @@ describe('free teachers and proxies', () => {
 
   it('ranks subject teachers first, then the lightest day, then fewest proxies this month', () => {
     const need = { assignment: qaidaA, role: 'main' as const, absentId: 'mueen' };
-    const base = { teachers, assignments: all, day: 1, absences: [{ teacherId: 'mueen', periodIds: null }], proxies: [], monthCounts: new Map<string, number>(), group: group('qaida-a') };
+    const base = { teachers, assignments: all, periods: [period('p1', 540, 585), period('p2', 600, 645)], day: 1, absences: [{ teacherId: 'mueen', periodIds: null }], proxies: [], monthCounts: new Map<string, number>(), group: group('qaida-a') };
     // Nasreen teaches Quran but has a class that day; Dolon has none and doesn't teach Quran.
     expect(rankCandidates(need, base).map((c) => [c.teacher.id, c.canTeach, c.today])).toEqual([
       ['nasreen', true, 1],
@@ -172,6 +185,14 @@ describe('free teachers and proxies', () => {
     // The need's own proxy doesn't hide its teacher.
     const own = [{ id: 'y', assignmentId: qaidaA.id, role: 'main' as const, periodId: 'p1', proxyTeacherId: 'nasreen' }];
     expect(rankCandidates(need, { ...base, proxies: own })[0].teacher.id).toBe('nasreen');
+    // Someone at school that sitting comes before someone with no class then, even with a busier day.
+    const kamal = teacher('kamal', { subjectIds: ['english'] });
+    const english = assignment({ groupId: 'one-a', periodId: 'p2', teacherId: 'kamal', subjectId: 'english' });
+    expect(rankCandidates(need, { ...base, teachers: [...teachers, kamal], assignments: [...all, english] }).map((c) => [c.teacher.id, c.atSchool])).toEqual([
+      ['nasreen', true],
+      ['kamal', true],
+      ['dolon', false],
+    ]);
     // …and its own proxy isn't counted against them for the month either.
     expect(rankCandidates(need, { ...base, proxies: own, monthCounts: new Map([['nasreen', 1]]) })[0].month).toBe(0);
   });

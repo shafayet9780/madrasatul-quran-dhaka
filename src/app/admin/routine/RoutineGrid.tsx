@@ -1,7 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { Fragment, useMemo, useState, type ReactNode } from 'react';
+import { Fragment, useEffect, useMemo, useState, type KeyboardEvent, type ReactNode } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { Dialog, DialogDescription, DialogHeader, DialogTitle } from '@/components/shadcn/dialog';
 import { Button } from '@/components/shadcn/button';
 import { clashText, effectiveRoomId, findClashes, lookup, type Draft, type Lookup } from '@/lib/routine/clash';
@@ -13,7 +14,7 @@ import { toBengaliDigits as bn } from '@/lib/survey/normalise';
 import { cn } from '@/lib/utils';
 import { ReportTools } from '../reports/ReportTools';
 import { deleteAssignmentAction, saveAssignmentAction } from './actions';
-import { ConfirmButton, INPUT, OUTLINE, RoutineDialog, SELECT, StatusLine, useAction } from './controls';
+import { ConfirmButton, INPUT, OUTLINE, RoutineDialog, SELECT, useAction } from './controls';
 import { LoadBadge } from './ui';
 
 // The school routine (docs/class-routine.md §5) in three views: like the school's sheet (the day
@@ -34,15 +35,26 @@ const TA = 'text-[#1d4ed8]';
 
 const byDays = (a: Assignment, b: Assignment) => Math.min(...a.days) - Math.min(...b.days);
 
+/** A radio group of buttons: one tab stop, arrow keys move the choice (as native radios do). */
 function Segmented<T extends string | number>({ label, value, options, onChange }: { label: string; value: T; options: [T, string][]; onChange: (v: T) => void }) {
+  const move = (e: KeyboardEvent<HTMLDivElement>) => {
+    const step = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 }[e.key];
+    if (!step) return;
+    e.preventDefault();
+    const i = options.findIndex(([v]) => v === value);
+    const next = (i + step + options.length) % options.length;
+    onChange(options[next][0]);
+    (e.currentTarget.children[next] as HTMLElement | undefined)?.focus();
+  };
   return (
-    <div role="radiogroup" aria-label={label} className="inline-flex flex-wrap gap-0.5 rounded-lg bg-muted p-[3px]">
+    <div role="radiogroup" aria-label={label} onKeyDown={move} className="inline-flex flex-wrap gap-0.5 rounded-lg bg-muted p-[3px]">
       {options.map(([v, text]) => (
         <button
           key={v}
           type="button"
           role="radio"
           aria-checked={value === v}
+          tabIndex={value === v ? 0 : -1}
           onClick={() => onChange(v)}
           className={cn('h-[30px] rounded-md px-3 text-sm font-medium', value === v ? 'bg-white text-foreground shadow-[0_1px_2px_rgba(23,23,23,0.08)]' : 'text-muted-foreground hover:text-foreground')}
         >
@@ -53,9 +65,35 @@ function Segmented<T extends string | number>({ label, value, options, onChange 
   );
 }
 
+const isView = (v: string | null): v is View => VIEWS.some(([x]) => x === v);
+const dayParam = (v: string | null): Day => (v !== null && (DAYS as readonly number[]).includes(Number(v)) ? Number(v) : 'all');
+
+/** Keeps a choice in the address without a reload, so back, reload and a shared link keep it. */
+function remember(key: string, value: string | null) {
+  const url = new URL(window.location.href);
+  if (value === null) url.searchParams.delete(key);
+  else url.searchParams.set(key, value);
+  window.history.replaceState(null, '', url);
+}
+
 export function RoutineGrid({ data }: { data: RoutineData }) {
-  const [view, setView] = useState<View>('sheet');
-  const [day, setDay] = useState<Day>('all');
+  const params = useSearchParams();
+  const asked = params.get('view');
+  const [view, setViewState] = useState<View>(isView(asked) ? asked : 'sheet');
+  const [day, setDayState] = useState<Day>(dayParam(params.get('day')));
+  // Phones start on the by-heading tables: the whole-day sheet is too wide to work in there (the
+  // screen width is only known after hydration).
+  useEffect(() => {
+    if (!isView(asked) && window.matchMedia('(max-width: 767px)').matches) setViewState('heading');
+  }, [asked]);
+  const setView = (v: View) => {
+    setViewState(v);
+    remember('view', v);
+  };
+  const setDay = (d: Day) => {
+    setDayState(d);
+    remember('day', d === 'all' ? null : String(d));
+  };
   const [showAll, setShowAll] = useState(false);
   const [open, setOpen] = useState<{ groupId: string; periodId: string } | null>(null);
   const names = useMemo(() => lookup(data), [data]);
@@ -367,6 +405,8 @@ function CellEditor({ data, names, group, period }: { data: RoutineData; names: 
   const set = (patch: Partial<Form>) => setForm((f) => ({ ...f, ...patch }));
   const { pending, run, line, warnings, clear } = useAction();
   const editing = form.id ? cell.find((a) => a.id === form.id) : undefined;
+  // Every day already has a class: nothing to add, only rows to edit or delete.
+  const full = !form.id && freeDays().length === 0;
 
   const draft: Draft = { id: form.id, groupId: group.id, periodId: period.id, days: form.days, subjectId: form.subjectId, teacherId: form.teacherId, taId: form.taId || null, roomId: form.roomId || null, note: form.note };
   const clashes = form.teacherId && form.days.length ? findClashes(draft, data.assignments, names.groups, names.rooms) : [];
@@ -437,117 +477,123 @@ function CellEditor({ data, names, group, period }: { data: RoutineData; names: 
         </ul>
       )}
 
-      <form
-        className="flex flex-col gap-3"
-        onSubmit={(e) => {
-          e.preventDefault();
-          save(false);
-        }}
-      >
-        <h3 className="m-0 text-[15px] font-semibold">{form.id ? 'সারি এডিট' : cell.length ? 'আরেকটি সারি যোগ করুন' : 'ক্লাস যোগ করুন'}</h3>
-        <fieldset className="m-0 flex flex-wrap gap-1.5 border-0 p-0">
-          <legend className="mb-1.5 text-[13px] text-muted-foreground">দিন</legend>
-          {DAYS.map((d) => (
-            <label key={d} className={cn('flex h-8 cursor-pointer items-center gap-1.5 rounded-md border px-2.5 text-sm', form.days.includes(d) ? 'border-primary bg-primary/5' : 'bg-white')}>
-              <input type="checkbox" className="size-3.5 accent-primary" checked={form.days.includes(d)} onChange={(e) => set({ days: e.target.checked ? [...form.days, d].sort() : form.days.filter((x) => x !== d) })} />
-              {DAY_SHORT[d]}
-            </label>
-          ))}
-        </fieldset>
-        <div className="grid gap-3 sm:grid-cols-2">
-          <label className="flex flex-col gap-1 text-[13px] text-muted-foreground">
-            বিষয়
-            <select className={SELECT} value={form.subjectId} onChange={(e) => set({ subjectId: e.target.value })} required>
-              <option value="">বাছাই করুন</option>
-              {subjects.map((s) => (
-                <option key={s.id} value={s.id}>
-                  {s.name}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label className="flex flex-col gap-1 text-[13px] text-muted-foreground">
-            শিক্ষক
-            <select className={SELECT} value={form.teacherId} onChange={(e) => set({ teacherId: e.target.value })} required>
-              <option value="">বাছাই করুন</option>
-              {form.subjectId ? (
-                <>
-                  <optgroup label="এই বিষয় পড়ান">{teaches.map(option)}</optgroup>
-                  <optgroup label="অন্যরা">{others.map(option)}</optgroup>
-                </>
-              ) : (
-                usable.map(option)
-              )}
-            </select>
-          </label>
-          <label className="flex flex-col gap-1 text-[13px] text-muted-foreground">
-            সহকারী (ঐচ্ছিক)
-            <select className={SELECT} value={form.taId} onChange={(e) => set({ taId: e.target.value })}>
-              <option value="">নেই</option>
-              {usable.filter((t) => t.id !== form.teacherId).map(option)}
-            </select>
-          </label>
-          <label className="flex flex-col gap-1 text-[13px] text-muted-foreground">
-            রুম
-            <select className={SELECT} value={form.roomId} onChange={(e) => set({ roomId: e.target.value })}>
-              <option value="">{defaultRoom ? `গ্রুপের রুম (${defaultRoom})` : 'রুম নেই'}</option>
-              {data.rooms
-                .filter((r) => r.id !== group.defaultRoomId)
-                .map((r) => (
-                  <option key={r.id} value={r.id}>
-                    {r.name}
-                    {r.shared ? ' (শেয়ার করা)' : ''}
+      {full ? (
+        <div className="flex flex-col gap-2 rounded-lg border border-dashed px-3 py-3 text-[13px] text-muted-foreground">
+          <p className="m-0">এই ঘরের সব দিনে ক্লাস আছে। বদলাতে উপরের সারিতে &quot;এডিট&quot; চাপুন, অথবা একটি সারি মুছুন।</p>
+          {line}
+        </div>
+      ) : (
+        <form
+          className="flex flex-col gap-3"
+          onSubmit={(e) => {
+            e.preventDefault();
+            save(false);
+          }}
+        >
+          <h3 className="m-0 text-[15px] font-semibold">{form.id ? 'সারি এডিট' : cell.length ? 'আরেকটি সারি যোগ করুন' : 'ক্লাস যোগ করুন'}</h3>
+          <fieldset className="m-0 flex flex-wrap gap-1.5 border-0 p-0">
+            <legend className="mb-1.5 text-[13px] text-muted-foreground">দিন</legend>
+            {DAYS.map((d) => (
+              <label key={d} className={cn('flex h-8 cursor-pointer items-center gap-1.5 rounded-md border px-2.5 text-sm', form.days.includes(d) ? 'border-primary bg-primary/5' : 'bg-white')}>
+                <input type="checkbox" className="size-3.5 accent-primary" checked={form.days.includes(d)} onChange={(e) => set({ days: e.target.checked ? [...form.days, d].sort() : form.days.filter((x) => x !== d) })} />
+                {DAY_SHORT[d]}
+              </label>
+            ))}
+          </fieldset>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <label className="flex flex-col gap-1 text-[13px] text-muted-foreground">
+              বিষয়
+              <select className={SELECT} value={form.subjectId} onChange={(e) => set({ subjectId: e.target.value })} required>
+                <option value="">বাছাই করুন</option>
+                {subjects.map((s) => (
+                  <option key={s.id} value={s.id}>
+                    {s.name}
                   </option>
                 ))}
-            </select>
-          </label>
-          <label className="flex flex-col gap-1 text-[13px] text-muted-foreground sm:col-span-2">
-            নোট (ঐচ্ছিক)
-            <input className={INPUT} value={form.note} onChange={(e) => set({ note: e.target.value })} maxLength={200} placeholder="যেমন Extra support" />
-          </label>
-        </div>
-
-        {clashes.length > 0 && (
-          <ul className="m-0 flex list-none flex-col gap-1 rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-[13px] text-destructive">
-            {clashes.map((c, i) => (
-              <li key={i}>{clashText(c, names)}</li>
-            ))}
-          </ul>
-        )}
-        {warnings.length > 0 && (
-          <div className="flex flex-col gap-2 rounded-lg border border-warning/30 bg-warning/5 p-3 text-[13px] text-warning">
-            {warnings.map((w, i) => (
-              <p key={i} className="m-0">
-                {w}
-              </p>
-            ))}
-            <Button type="button" variant="outline" className={cn(OUTLINE, 'self-start text-foreground')} disabled={pending} onClick={() => save(true)}>
-              তবুও সেভ করুন
-            </Button>
+              </select>
+            </label>
+            <label className="flex flex-col gap-1 text-[13px] text-muted-foreground">
+              শিক্ষক
+              <select className={SELECT} value={form.teacherId} onChange={(e) => set({ teacherId: e.target.value })} required>
+                <option value="">বাছাই করুন</option>
+                {form.subjectId ? (
+                  <>
+                    <optgroup label="এই বিষয় পড়ান">{teaches.map(option)}</optgroup>
+                    <optgroup label="অন্যরা">{others.map(option)}</optgroup>
+                  </>
+                ) : (
+                  usable.map(option)
+                )}
+              </select>
+            </label>
+            <label className="flex flex-col gap-1 text-[13px] text-muted-foreground">
+              সহকারী (ঐচ্ছিক)
+              <select className={SELECT} value={form.taId} onChange={(e) => set({ taId: e.target.value })}>
+                <option value="">নেই</option>
+                {usable.filter((t) => t.id !== form.teacherId).map(option)}
+              </select>
+            </label>
+            <label className="flex flex-col gap-1 text-[13px] text-muted-foreground">
+              রুম
+              <select className={SELECT} value={form.roomId} onChange={(e) => set({ roomId: e.target.value })}>
+                <option value="">{defaultRoom ? `গ্রুপের রুম (${defaultRoom})` : 'রুম নেই'}</option>
+                {data.rooms
+                  .filter((r) => r.id !== group.defaultRoomId)
+                  .map((r) => (
+                    <option key={r.id} value={r.id}>
+                      {r.name}
+                      {r.shared ? ' (শেয়ার করা)' : ''}
+                    </option>
+                  ))}
+              </select>
+            </label>
+            <label className="flex flex-col gap-1 text-[13px] text-muted-foreground sm:col-span-2">
+              নোট (ঐচ্ছিক)
+              <input className={INPUT} value={form.note} onChange={(e) => set({ note: e.target.value })} maxLength={200} placeholder="যেমন Extra support" />
+            </label>
           </div>
-        )}
 
-        <div className="flex flex-wrap items-center gap-3">
-          <Button type="submit" className="h-9" disabled={pending || clashes.length > 0 || !form.days.length || !form.subjectId || !form.teacherId}>
-            {form.id ? 'সেভ করুন' : 'যোগ করুন'}
-          </Button>
-          {form.id && (
-            <Button
-              type="button"
-              variant="outline"
-              className={OUTLINE}
-              onClick={() => {
-                clear();
-                setForm(blank());
-              }}
-            >
-              নতুন সারি
-            </Button>
+          {clashes.length > 0 && (
+            <ul className="m-0 flex list-none flex-col gap-1 rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-[13px] text-destructive">
+              {clashes.map((c, i) => (
+                <li key={i}>{clashText(c, names)}</li>
+              ))}
+            </ul>
           )}
-          {line}
-          {!line && form.days.length === 0 && !form.id && <StatusLine message={{ ok: true, text: 'এই ঘরের সব দিন ভরা।' }} />}
-        </div>
-      </form>
+          {warnings.length > 0 && (
+            <div className="flex flex-col gap-2 rounded-lg border border-warning/30 bg-warning/5 p-3 text-[13px] text-warning">
+              {warnings.map((w, i) => (
+                <p key={i} className="m-0">
+                  {w}
+                </p>
+              ))}
+              <Button type="button" variant="outline" className={cn(OUTLINE, 'self-start text-foreground')} disabled={pending} onClick={() => save(true)}>
+                তবুও সেভ করুন
+              </Button>
+            </div>
+          )}
+
+          <div className="flex flex-wrap items-center gap-3">
+            <Button type="submit" className="h-9" disabled={pending || clashes.length > 0 || !form.days.length || !form.subjectId || !form.teacherId}>
+              {form.id ? 'সেভ করুন' : 'যোগ করুন'}
+            </Button>
+            {form.id && (
+              <Button
+                type="button"
+                variant="outline"
+                className={OUTLINE}
+                onClick={() => {
+                  clear();
+                  setForm(blank());
+                }}
+              >
+                নতুন সারি
+              </Button>
+            )}
+            {line}
+          </div>
+        </form>
+      )}
     </RoutineDialog>
   );
 }

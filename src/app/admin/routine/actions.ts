@@ -22,6 +22,7 @@ import {
   saveSubject,
   saveTeacher,
   setProxy,
+  setTeacherTarget,
   type Outcome,
 } from '@/lib/routine/data';
 import { isDate, parseTime } from '@/lib/routine/days';
@@ -92,6 +93,10 @@ const teacher = z.object({
 
 export async function saveTeacherAction(input: z.input<typeof teacher>): Promise<Result> {
   return act(teacher, input, saveTeacher);
+}
+
+export async function setTargetAction(teacherId: string, target: number | null): Promise<Result> {
+  return act(z.object({ teacherId: id, target: z.number().int().min(0).max(80).nullable() }), { teacherId, target }, (v) => setTeacherTarget(v.teacherId, v.target));
 }
 
 export async function deleteTeacherAction(teacherId: string): Promise<Result> {

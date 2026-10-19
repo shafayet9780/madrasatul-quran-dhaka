@@ -4,8 +4,8 @@ import { notFound } from 'next/navigation';
 import { Pencil } from 'lucide-react';
 import { Button } from '@/components/shadcn/button';
 import { listRoutines, monthProxyCounts, pickRoutine, routineData, teacherProxies } from '@/lib/routine/data';
-import { DAY_NAMES, dateText, dhakaToday, durationText } from '@/lib/routine/days';
-import { busiestDay, salaryPerPeriod, teacherLoads } from '@/lib/routine/load';
+import { DAY_NAMES, dateText, daysText, dhakaToday, durationText } from '@/lib/routine/days';
+import { busiestDays, salaryPerPeriod, teacherLoads } from '@/lib/routine/load';
 import { toBengaliDigits as bn } from '@/lib/survey/normalise';
 import { PageTop } from '../../../AdminShell';
 import { ReportTools } from '../../../reports/ReportTools';
@@ -36,7 +36,7 @@ export default async function TeacherPage({ params, searchParams }: { params: Pr
   }
   const [proxies, month] = await Promise.all([teacherProxies(id), monthProxyCounts(dhakaToday())]);
   const load = teacherLoads([teacher], data.assignments, data.periods).get(teacher.id)!;
-  const busiest = busiestDay(load);
+  const busiest = busiestDays(load);
   const perPeriod = salaryPerPeriod(teacher.salary, load.weighted);
   const groups = new Map(data.groups.map((g) => [g.id, g]));
   const subjects = new Map(data.subjects.map((s) => [s.id, s.name]));
@@ -74,7 +74,7 @@ export default async function TeacherPage({ params, searchParams }: { params: Pr
           <StatTiles>
             <StatTile label="সপ্তাহে পিরিয়ড" value={bn(load.weighted)} unit={load.target ? `/ ${bn(load.target)}` : undefined} sub={`মূল ${bn(load.main)} · সহকারী ${bn(load.ta)} (অর্ধেক ধরে)`} note={<LoadBadge status={load.status} />} />
             <StatTile label="সপ্তাহে সময়" value={durationText(load.minutesMain + load.minutesTa)} sub={load.minutesTa ? `সহকারী হিসেবে ${durationText(load.minutesTa)}` : undefined} />
-            <StatTile label="সবচেয়ে ব্যস্ত দিন" value={busiest ? DAY_NAMES[busiest.day] : '—'} sub={busiest ? `${bn(busiest.count)}টি পিরিয়ড` : undefined} />
+            <StatTile label="সবচেয়ে ব্যস্ত দিন" value={busiest ? (busiest.days.length === 1 ? DAY_NAMES[busiest.days[0]] : daysText(busiest.days)) : '—'} sub={busiest ? `${bn(busiest.count)}টি পিরিয়ড${busiest.days.length > 1 ? ' করে' : ''}` : undefined} />
             <StatTile label="এ মাসে প্রক্সি" value={bn(month[id] ?? 0)} unit="টি" sub={perPeriod ? `পিরিয়ডপ্রতি বেতন প্রায় ৳${bn(perPeriod)}` : undefined} />
           </StatTiles>
         </div>

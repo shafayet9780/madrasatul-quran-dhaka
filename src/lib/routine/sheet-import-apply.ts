@@ -1,17 +1,17 @@
 import 'server-only';
 import { createRoutine, listGroups, listRooms, listRoutines, listSubjects, listTeachers, routineData, saveAssignment, saveGroup, savePeriod, saveRoom, saveSubject, saveTeacher, type TeacherInput } from './data';
 import type { Issue, Plan } from './sheet-import';
-import type { GenderRule } from './types';
 
 // Writes a plan read from the sheet (./sheet-import.ts) as a new DRAFT routine. Subjects, rooms,
 // groups and teachers that already exist (same name) are reused and left as they are; every class
 // goes through saveAssignment, so a clash is refused exactly as in the admin and lands in `refused`.
+// Groups get no gender rule: in the sheet "(M)"/"(F)" is the students' section, and women teach
+// boys' sections (and men girls'), so a rule is the owner's choice in setup.
 
 export type TeacherSeed = Omit<TeacherInput, 'id' | 'subjectIds'>;
 export type ApplyResult = { routineId: string; created: Record<'subjects' | 'rooms' | 'groups' | 'teachers' | 'classes', number>; refused: Issue[] };
 
 const key = (s: string) => s.trim().toLowerCase();
-const genderRule = (name: string): GenderRule => (/\(m\)\s*$/i.test(name) ? 'male' : /\(f\)\s*$/i.test(name) ? 'female' : 'any');
 
 export async function applyPlan(plan: Plan, teachers: TeacherSeed[], routineName: string): Promise<ApplyResult> {
   if ((await listRoutines()).some((r) => key(r.name) === key(routineName))) throw new Error(`A routine named "${routineName}" already exists.`);
@@ -40,7 +40,7 @@ export async function applyPlan(plan: Plan, teachers: TeacherSeed[], routineName
   let groups = await listGroups();
   for (const g of plan.groups.filter((x) => !groups.some((y) => key(y.name) === key(x.name)))) {
     const defaultRoomId = g.room ? rooms.find((r) => key(r.name) === key(g.room))!.id : null;
-    await must(saveGroup({ name: g.name, kind: g.kind, section: g.section, band: g.band, sort: g.sort, defaultRoomId, genderRule: genderRule(g.name), active: true }), `Group ${g.name}`);
+    await must(saveGroup({ name: g.name, kind: g.kind, section: g.section, band: g.band, sort: g.sort, defaultRoomId, genderRule: 'any', active: true }), `Group ${g.name}`);
     created.groups++;
   }
   groups = await listGroups();

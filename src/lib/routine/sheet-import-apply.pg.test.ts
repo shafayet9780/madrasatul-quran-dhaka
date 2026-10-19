@@ -59,7 +59,8 @@ describe('applyPlan', () => {
 
     const groups = await listGroups();
     const rooms = await listRooms();
-    expect(groups.find((g) => g.name === 'hifz (m)')).toMatchObject({ genderRule: 'male', section: 'হিফয' });
+    // "(m)" names the students' section, not the teachers': no rule is guessed.
+    expect(groups.find((g) => g.name === 'hifz (m)')).toMatchObject({ genderRule: 'any', section: 'হিফয' });
     expect(groups.find((g) => g.name === 'L-1 B')).toMatchObject({ band: 'LEVEL-1', kind: 'level' });
     expect(groups.find((g) => g.name === 'Nursery-A')).toMatchObject({ genderRule: 'any', defaultRoomId: rooms[0].id });
     expect(rooms).toEqual([expect.objectContaining({ name: '402', shared: true })]);

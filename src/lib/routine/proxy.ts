@@ -1,6 +1,6 @@
 import { dateText } from './days';
-import { busyTeachers, periodsOnDay } from './free';
-import type { Assignment, Group, Role, Teacher } from './types';
+import { atSchool, busyTeachers, periodsOnDay, sessionOf } from './free';
+import type { Assignment, Group, Period, Role, Teacher } from './types';
 
 // The daily proxy register (docs/class-routine.md §6): the classes absent teachers leave on a date,
 // and who can cover each one, best first.
@@ -25,16 +25,17 @@ export function needsFor(day: number, absences: Absence[], assignments: Assignme
   return needs;
 }
 
-export type Candidate<T> = { teacher: T; canTeach: boolean; today: number; month: number };
+export type Candidate<T> = { teacher: T; canTeach: boolean; atSchool: boolean; today: number; month: number };
 
 /**
  * Who can cover a need: active, not a vacancy, not away, free in that period (no class, no other
- * proxy) and allowed by the group's gender rule. Those who teach the subject first; then fewest
- * periods that day (proxies included), then fewest proxies this month.
+ * proxy) and allowed by the group's gender rule. Those who teach the subject first; then those at
+ * school then (a class in the same sitting that day); then fewest periods that day (proxies
+ * included), then fewest proxies this month.
  */
 export function rankCandidates<T extends Teacher>(
   need: Need,
-  ctx: { teachers: T[]; assignments: Assignment[]; day: number; absences: Absence[]; proxies: ProxyRecord[]; monthCounts: Map<string, number>; group: Group | undefined },
+  ctx: { teachers: T[]; assignments: Assignment[]; periods: Period[]; day: number; absences: Absence[]; proxies: ProxyRecord[]; monthCounts: Map<string, number>; group: Group | undefined },
 ): Candidate<T>[] {
   const { assignment: a } = need;
   const busy = busyTeachers(ctx.assignments, ctx.day, a.periodId);
@@ -43,6 +44,7 @@ export function rankCandidates<T extends Teacher>(
   const others = ctx.proxies.filter((p) => p !== own);
   for (const p of others) if (p.periodId === a.periodId) busy.add(p.proxyTeacherId);
   const rule = ctx.group?.genderRule ?? 'any';
+  const session = sessionOf(ctx.periods, a.periodId);
   return ctx.teachers
     .filter((t) => t.active && !t.isVacancy && !busy.has(t.id))
     .filter((t) => !ctx.absences.some((x) => x.teacherId === t.id && absentIn(x, a.periodId)))
@@ -50,10 +52,11 @@ export function rankCandidates<T extends Teacher>(
     .map((teacher) => ({
       teacher,
       canTeach: teacher.subjectIds.includes(a.subjectId),
+      atSchool: atSchool(ctx.assignments, session, teacher.id, ctx.day),
       today: periodsOnDay(ctx.assignments, teacher.id, ctx.day) + others.filter((p) => p.proxyTeacherId === teacher.id).length,
       month: (ctx.monthCounts.get(teacher.id) ?? 0) - (own?.proxyTeacherId === teacher.id ? 1 : 0),
     }))
-    .sort((x, y) => Number(y.canTeach) - Number(x.canTeach) || x.today - y.today || x.month - y.month || x.teacher.shortName.localeCompare(y.teacher.shortName));
+    .sort((x, y) => Number(y.canTeach) - Number(x.canTeach) || Number(y.atSchool) - Number(x.atSchool) || x.today - y.today || x.month - y.month || x.teacher.shortName.localeCompare(y.teacher.shortName));
 }
 
 export type ProxyLine = { period: string; group: string; subject: string; absent: string; proxy: string | null; role: Role };

@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useEffect, useId, useState } from 'react';
 import { Button } from '@/components/shadcn/button';
 import type { RoutineSummary } from '@/lib/routine/data';
 import { periodTime, timeInput } from '@/lib/routine/days';
@@ -28,6 +28,14 @@ import { ConfirmButton, INPUT, OUTLINE, SELECT, useAction, useParam } from '../c
 type Props = { routines: RoutineSummary[]; routine: RoutineInfo | null; periods: Period[]; subjects: Subject[]; rooms: Room[]; groups: Group[] };
 
 export function SetupBoard({ routines, routine, periods, subjects, rooms, groups }: Props) {
+  // Closing or reloading with an unsaved row asks first (the browser's own prompt).
+  useEffect(() => {
+    const warn = (e: BeforeUnloadEvent) => {
+      if (unsaved.size) e.preventDefault();
+    };
+    window.addEventListener('beforeunload', warn);
+    return () => window.removeEventListener('beforeunload', warn);
+  }, []);
   return (
     <div className="flex flex-col gap-4 md:gap-5">
       <Routines routines={routines} current={routine} />
@@ -41,6 +49,9 @@ export function SetupBoard({ routines, routine, periods, subjects, rooms, groups
   );
 }
 
+/** Rows with unsaved edits, so leaving the page can ask first. */
+const unsaved = new Set<string>();
+
 /** Local copy of a row that resets when the saved row changes. */
 function useDraft<T>(saved: T) {
   const [draft, setDraft] = useState(saved);
@@ -48,11 +59,22 @@ function useDraft<T>(saved: T) {
   // eslint-disable-next-line react-hooks/exhaustive-deps -- reset only when the saved values change
   useEffect(() => setDraft(saved), [key]);
   const dirty = JSON.stringify(draft) !== key;
+  const row = useId();
+  useEffect(() => {
+    if (dirty) unsaved.add(row);
+    else unsaved.delete(row);
+    return () => void unsaved.delete(row);
+  }, [dirty, row]);
   return { draft, set: (patch: Partial<T>) => setDraft((d) => ({ ...d, ...patch })), dirty, reset: () => setDraft(saved) };
 }
 
 const TH = 'px-2 py-2 text-left text-[12.5px] font-medium text-muted-foreground';
 const TD = 'px-2 py-1.5 align-middle';
+// A row with unsaved edits is tinted and its save button filled; its buttons stay in view when a
+// wide table scrolls sideways on a phone.
+const ROW = 'border-b bg-white last:border-0';
+const ROW_DIRTY = 'bg-amber-50';
+const ACTIONS = 'sticky right-0 whitespace-nowrap bg-inherit text-right';
 
 // ── Routines ──
 
@@ -75,7 +97,7 @@ function Routines({ routines, current }: { routines: RoutineSummary[]; current: 
                 <th className={TH}>অবস্থা</th>
                 <th className={TH}>পিরিয়ড</th>
                 <th className={TH}>ক্লাস</th>
-                <th className={TH} />
+                <th className={cn(TH, 'sticky right-0 bg-white')} />
               </tr>
             </thead>
             <tbody>
@@ -193,7 +215,7 @@ function Periods({ routine, periods }: { routine: RoutineInfo; periods: Period[]
               <th className={TH}>শুরু</th>
               <th className={TH}>শেষ</th>
               <th className={TH}>নাম (ঐচ্ছিক)</th>
-              <th className={TH} />
+              <th className={cn(TH, 'sticky right-0 bg-white')} />
             </tr>
           </thead>
           <tbody>
@@ -213,7 +235,7 @@ function PeriodRow({ routineId, period }: { routineId: string; period?: Period }
   const { pending, run, line } = useAction();
   const save = () => run(() => savePeriodAction(routineId, { id: period?.id, ...draft }));
   return (
-    <tr className="border-b last:border-0">
+    <tr className={cn(ROW, dirty && ROW_DIRTY)}>
       <td className={TD}>
         <input type="time" className={INPUT} value={draft.startsAt} onChange={(e) => set({ startsAt: e.target.value })} aria-label={period ? `${periodTime(period)}: শুরু` : 'নতুন পিরিয়ডের শুরু'} />
       </td>
@@ -224,9 +246,9 @@ function PeriodRow({ routineId, period }: { routineId: string; period?: Period }
         <input className={cn(INPUT, 'w-full')} value={draft.label} onChange={(e) => set({ label: e.target.value })} placeholder="যেমন কুরআন, হিফয" maxLength={40} aria-label="পিরিয়ডের নাম" />
         {line}
       </td>
-      <td className={cn(TD, 'whitespace-nowrap text-right')}>
+      <td className={cn(TD, ACTIONS)}>
         <span className="inline-flex items-center gap-3">
-          <Button type="button" variant={period ? 'outline' : 'default'} className={period ? OUTLINE : 'h-9'} disabled={pending || !dirty || !draft.startsAt || !draft.endsAt} onClick={save}>
+          <Button type="button" variant={period && !dirty ? 'outline' : 'default'} className={period && !dirty ? OUTLINE : 'h-9'} disabled={pending || !dirty || !draft.startsAt || !draft.endsAt} onClick={save}>
             {period ? 'সেভ' : 'যোগ করুন'}
           </Button>
           {period && (
@@ -275,7 +297,7 @@ function Groups({ groups, rooms }: { groups: Group[]; rooms: Room[] }) {
               <th className={TH}>রুম</th>
               <th className={TH}>শিক্ষক</th>
               <th className={TH}>চালু</th>
-              <th className={TH} />
+              <th className={cn(TH, 'sticky right-0 bg-white')} />
             </tr>
           </thead>
           <tbody>
@@ -304,7 +326,7 @@ function GroupRow({ group, rooms, nextSort = 0 }: { group?: Group; rooms: Room[]
   const { pending, run, line } = useAction();
   const label = group?.name ?? 'নতুন গ্রুপ';
   return (
-    <tr className="border-b last:border-0">
+    <tr className={cn(ROW, dirty && ROW_DIRTY)}>
       <td className={TD}>
         <input className={cn(INPUT, 'w-36')} value={draft.name} onChange={(e) => set({ name: e.target.value })} placeholder="যেমন Nursery-A" maxLength={120} aria-label={`${label}: নাম`} />
         {line}
@@ -349,9 +371,9 @@ function GroupRow({ group, rooms, nextSort = 0 }: { group?: Group; rooms: Room[]
       <td className={TD}>
         <input type="checkbox" className="size-4 accent-primary" checked={draft.active} onChange={(e) => set({ active: e.target.checked })} aria-label={`${label}: চালু`} />
       </td>
-      <td className={cn(TD, 'whitespace-nowrap text-right')}>
+      <td className={cn(TD, ACTIONS)}>
         <span className="inline-flex items-center gap-3">
-          <Button type="button" variant={group ? 'outline' : 'default'} className={group ? OUTLINE : 'h-9'} disabled={pending || !dirty || !draft.name.trim()} onClick={() => run(() => saveGroupAction({ id: group?.id, ...draft }))}>
+          <Button type="button" variant={group && !dirty ? 'outline' : 'default'} className={group && !dirty ? OUTLINE : 'h-9'} disabled={pending || !dirty || !draft.name.trim()} onClick={() => run(() => saveGroupAction({ id: group?.id, ...draft }))}>
             {group ? 'সেভ' : 'যোগ করুন'}
           </Button>
           {group && (
@@ -376,7 +398,7 @@ function Subjects({ subjects }: { subjects: Subject[] }) {
             <th className={TH}>নাম</th>
             <th className={TH}>ক্রম</th>
             <th className={TH}>চালু</th>
-            <th className={TH} />
+            <th className={cn(TH, 'sticky right-0 bg-white')} />
           </tr>
         </thead>
         <tbody>
@@ -395,7 +417,7 @@ function SubjectRow({ subject, nextSort = 0 }: { subject?: Subject; nextSort?: n
   const { pending, run, line } = useAction();
   const label = subject?.name ?? 'নতুন বিষয়';
   return (
-    <tr className="border-b last:border-0">
+    <tr className={cn(ROW, dirty && ROW_DIRTY)}>
       <td className={TD}>
         <input className={cn(INPUT, 'w-full')} value={draft.name} onChange={(e) => set({ name: e.target.value })} placeholder="যেমন Math" maxLength={120} aria-label={`${label}: নাম`} />
         {line}
@@ -406,9 +428,9 @@ function SubjectRow({ subject, nextSort = 0 }: { subject?: Subject; nextSort?: n
       <td className={TD}>
         <input type="checkbox" className="size-4 accent-primary" checked={draft.active} onChange={(e) => set({ active: e.target.checked })} aria-label={`${label}: চালু`} />
       </td>
-      <td className={cn(TD, 'whitespace-nowrap text-right')}>
+      <td className={cn(TD, ACTIONS)}>
         <span className="inline-flex items-center gap-3">
-          <Button type="button" variant={subject ? 'outline' : 'default'} className={subject ? OUTLINE : 'h-9'} disabled={pending || !dirty || !draft.name.trim()} onClick={() => run(() => saveSubjectAction({ id: subject?.id, ...draft }))}>
+          <Button type="button" variant={subject && !dirty ? 'outline' : 'default'} className={subject && !dirty ? OUTLINE : 'h-9'} disabled={pending || !dirty || !draft.name.trim()} onClick={() => run(() => saveSubjectAction({ id: subject?.id, ...draft }))}>
             {subject ? 'সেভ' : 'যোগ'}
           </Button>
           {subject && (
@@ -433,7 +455,7 @@ function Rooms({ rooms }: { rooms: Room[] }) {
           <tr className="border-b">
             <th className={TH}>নাম</th>
             <th className={TH}>শেয়ার করা</th>
-            <th className={TH} />
+            <th className={cn(TH, 'sticky right-0 bg-white')} />
           </tr>
         </thead>
         <tbody>
@@ -452,7 +474,7 @@ function RoomRow({ room }: { room?: Room }) {
   const { pending, run, line } = useAction();
   const label = room?.name ?? 'নতুন রুম';
   return (
-    <tr className="border-b last:border-0">
+    <tr className={cn(ROW, dirty && ROW_DIRTY)}>
       <td className={TD}>
         <input className={cn(INPUT, 'w-full')} value={draft.name} onChange={(e) => set({ name: e.target.value })} placeholder="যেমন 501, Hall" maxLength={120} aria-label={`${label}: নাম`} />
         {line}
@@ -460,9 +482,9 @@ function RoomRow({ room }: { room?: Room }) {
       <td className={TD}>
         <input type="checkbox" className="size-4 accent-primary" checked={draft.shared} onChange={(e) => set({ shared: e.target.checked })} aria-label={`${label}: শেয়ার করা`} />
       </td>
-      <td className={cn(TD, 'whitespace-nowrap text-right')}>
+      <td className={cn(TD, ACTIONS)}>
         <span className="inline-flex items-center gap-3">
-          <Button type="button" variant={room ? 'outline' : 'default'} className={room ? OUTLINE : 'h-9'} disabled={pending || !dirty || !draft.name.trim()} onClick={() => run(() => saveRoomAction({ id: room?.id, ...draft }))}>
+          <Button type="button" variant={room && !dirty ? 'outline' : 'default'} className={room && !dirty ? OUTLINE : 'h-9'} disabled={pending || !dirty || !draft.name.trim()} onClick={() => run(() => saveRoomAction({ id: room?.id, ...draft }))}>
             {room ? 'সেভ' : 'যোগ'}
           </Button>
           {room && (

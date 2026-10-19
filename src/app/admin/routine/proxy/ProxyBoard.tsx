@@ -111,8 +111,8 @@ function ProxyPicker({ date, need, day, weekday, names, monthCounts, current }: 
   const { pending, run, line } = useAction();
   const [value, setValue] = useState(current);
   useEffect(() => setValue(current), [current]);
-  const candidates = rankCandidates(need, { teachers: day.data.teachers, assignments: day.data.assignments, day: weekday, absences: day.absences, proxies: day.proxies, monthCounts, group: names.groups.get(need.assignment.groupId) });
-  const label = (c: (typeof candidates)[number]) => `${c.teacher.shortName} — এ দিনে ${bn(c.today)}টি ক্লাস, এ মাসে ${bn(c.month)}টি প্রক্সি`;
+  const candidates = rankCandidates(need, { teachers: day.data.teachers, assignments: day.data.assignments, periods: day.data.periods, day: weekday, absences: day.absences, proxies: day.proxies, monthCounts, group: names.groups.get(need.assignment.groupId) });
+  const label = (c: (typeof candidates)[number]) => `${c.teacher.shortName} — এ দিনে ${bn(c.today)}টি ক্লাস, এ মাসে ${bn(c.month)}টি প্রক্সি${c.atSchool ? '' : ' · এ বেলায় ক্লাস নেই'}`;
   const can = candidates.filter((c) => c.canTeach);
   const other = candidates.filter((c) => !c.canTeach);
   // A saved proxy who is no longer a candidate (their own routine changed) still shows.

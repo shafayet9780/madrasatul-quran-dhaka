@@ -61,10 +61,10 @@ export function teacherLoads(teachers: Pick<Teacher, 'id' | 'targetPeriods'>[], 
   return loads;
 }
 
-/** The day with the most periods, or null when the teacher has none. */
-export function busiestDay(load: Load): { day: number; count: number } | null {
+/** The days with the most periods (all of them when tied), or null when the teacher has none. */
+export function busiestDays(load: Load): { days: number[]; count: number } | null {
   const count = Math.max(...load.perDay);
-  return count > 0 ? { day: load.perDay.indexOf(count), count } : null;
+  return count > 0 ? { days: load.perDay.flatMap((n, d) => (n === count ? [d] : [])), count } : null;
 }
 
 /** Monthly salary per period taught: salary ÷ (weighted periods a week × 52 ÷ 12). */
