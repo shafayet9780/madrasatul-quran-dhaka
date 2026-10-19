@@ -2,7 +2,8 @@ import type { Assignment, Group, Period } from './types';
 
 // Layout of the sheet-style view (docs/class-routine.md §5): the day left to right, cut into blocks
 // as the school's sheet is (HIFZ | QURAN | ARABIC | GENERAL | HIFZ). A block is a run of periods
-// with classes whose groups belong to the same headings; it lists the groups taught in it.
+// whose classes are mostly under the same heading; it lists every group taught in it, so a group on
+// its own timetable (Six (F) at 8:15) is a row of that block, as at the bottom of the sheet.
 
 export type Block = { headings: string[]; periods: Period[]; groups: Group[]; banded: boolean };
 
@@ -12,9 +13,14 @@ export function sheetBlocks(periods: Period[], assignments: Assignment[], groups
   for (const period of periods) {
     const ids = new Set(assignments.filter((a) => a.periodId === period.id).map((a) => a.groupId));
     if (!ids.size) continue;
-    const headings = [...new Set(groups.filter((g) => ids.has(g.id)).map((g) => g.section))];
-    const key = [...headings].sort().join('\u0000');
+    const count = new Map<string, number>();
+    for (const g of groups.filter((x) => ids.has(x.id))) count.set(g.section, (count.get(g.section) ?? 0) + 1);
+    const top = Math.max(...count.values());
+    const leading = [...count].filter(([, n]) => n === top).map(([section]) => section);
     const last = blocks[blocks.length - 1];
+    // A tie keeps the block going (one Hifz group and Six (F) at 8:15 stay in the Hifz block).
+    const key = last && leading.includes(last.key) ? last.key : leading[0];
+    const headings = [key];
     if (last?.key === key) {
       last.periods.push(period);
       for (const id of ids) last.ids.add(id);

@@ -213,6 +213,18 @@ describe('sheet-style layout', () => {
     ]);
   });
 
+  it('puts a group on its own timetable into the block of the heading most classes are under', () => {
+    const six = group('six-f');
+    const blocks = sheetBlocks(periods, [...assignments, at('six-f', 'h2'), at('six-f', 'a')], [...groups, six]);
+    expect(blocks.map((b) => [b.headings.join(), b.periods.map((p) => p.id).join(), b.groups.map((g) => g.id).join()])).toEqual([
+      ['হিফয', 'h1,h2', 'hifz-m,six-f'],
+      ['কুরআন', 'q', 'qaida-a'],
+      ['আরবি', 'a', 'l1-a,l1-b,l2,six-f'],
+      ['জেনারেল', 'g1,g2', 'nursery-a,nursery-b'],
+      ['হিফয', 'pm', 'hifz-m'],
+    ]);
+  });
+
   it('spans each run of one band', () => {
     expect(bandSpans([{ band: 'LEVEL-1' }, { band: 'LEVEL-1' }, { band: '' }, { band: 'LEVEL-2' }, { band: 'LEVEL-1' }])).toEqual([2, 0, 1, 1, 1]);
   });
