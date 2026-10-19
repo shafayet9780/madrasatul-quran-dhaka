@@ -78,11 +78,13 @@ describe('clashes', () => {
     const w = lookup({
       groups: [group('two-m', { genderRule: 'male' })],
       rooms: [],
-      teachers: [teacher('fariza', { subjectIds: ['english'] }), teacher('nayeem', { gender: 'male', subjectIds: ['math'] })],
+      teachers: [teacher('fariza', { subjectIds: ['english'] }), teacher('nayeem', { gender: 'male', subjectIds: ['math'] }), teacher('science-1', { gender: null, isVacancy: true, subjectIds: ['math'] })],
       subjects: [subject('math', 'Math'), subject('english')],
     });
     expect(assignmentWarnings(assignment({ groupId: 'two-m', periodId: 'p', teacherId: 'nayeem', taId: 'fariza' }), w)).toEqual(['two-m-এ শুধু পুরুষ শিক্ষক পড়ান; fariza মহিলা।']);
     expect(assignmentWarnings(assignment({ groupId: 'two-m', periodId: 'p', teacherId: 'fariza' }), w)).toHaveLength(2);
+    // An open post without a gender yet: no gender warning.
+    expect(assignmentWarnings(assignment({ groupId: 'two-m', periodId: 'p', teacherId: 'science-1' }), w)).toEqual([]);
   });
 
   it('finds overlapping periods', () => {

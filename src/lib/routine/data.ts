@@ -218,6 +218,7 @@ export type TeacherInput = Omit<Teacher, 'id'> & { id?: string };
 
 export async function saveTeacher(input: TeacherInput): Promise<Outcome> {
   const db = getRoutineDb();
+  if (!input.gender && !input.isVacancy) return fail('লিঙ্গ বাছাই করুন (শুধু শূন্য পদে খালি রাখা যায়)।');
   const id = input.id ?? crypto.randomUUID();
   const { subjectIds } = input;
   const values = omit(input, 'id', 'subjectIds');

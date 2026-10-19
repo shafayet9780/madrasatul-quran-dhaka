@@ -25,7 +25,8 @@ export type Teacher = {
   id: string;
   fullName: string;
   shortName: string;
-  gender: Gender;
+  /** null only for a vacancy whose hire isn't known yet. */
+  gender: Gender | null;
   designation: string;
   department: string;
   qualification: string;

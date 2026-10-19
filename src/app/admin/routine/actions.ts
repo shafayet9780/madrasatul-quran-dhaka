@@ -75,7 +75,7 @@ const teacher = z.object({
   id: id.optional(),
   fullName: name,
   shortName: text(40).min(1),
-  gender: z.enum(['male', 'female']),
+  gender: z.enum(['male', 'female']).nullable(),
   designation: text(80),
   department: text(80),
   qualification: text(300),

@@ -75,7 +75,8 @@ export function TeacherForm({ teacher, subjects }: { teacher: Teacher | null; su
             <input className={INPUT} value={d.shortName} onChange={(e) => set({ shortName: e.target.value })} required maxLength={40} />
           </Field>
           <Field label="লিঙ্গ" hint="ছেলে/মেয়েদের গ্রুপের নিয়মের জন্য।">
-            <select className={SELECT} value={d.gender} onChange={(e) => set({ gender: e.target.value as Draft['gender'] })}>
+            <select className={SELECT} value={d.gender ?? ''} onChange={(e) => set({ gender: (e.target.value || null) as Draft['gender'] })}>
+              {(d.isVacancy || !d.gender) && <option value="">জানা নেই (শূন্য পদ)</option>}
               <option value="female">মহিলা</option>
               <option value="male">পুরুষ</option>
             </select>

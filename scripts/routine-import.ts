@@ -97,7 +97,7 @@ function lookupFrom(names: Names) {
 /** Problems in names.json; the first kind blocks --apply, the second is only a note. */
 function nameProblems(names: Names, profiles: Map<string, Profile>) {
   const blocking = Object.entries(names.teachers).flatMap(([short, e]) => [
-    ...(e.gender !== 'male' && e.gender !== 'female' ? [`${short}: gender দেওয়া নেই ("male" বা "female")`] : []),
+    ...(e.gender !== 'male' && e.gender !== 'female' && !e.vacancy ? [`${short}: gender দেওয়া নেই ("male" বা "female")`] : []),
     ...(e.profile && !profiles.has(nameKey(e.profile)) ? [`${short}: "${e.profile}" নামটি Profile all-এ নেই`] : []),
   ]);
   const notes = Object.entries(names.teachers)
@@ -112,7 +112,7 @@ export function teacherSeeds(names: Names, profiles: Map<string, Profile>): Teac
     return {
       fullName: e.fullName || p?.fullName || shortName,
       shortName,
-      gender: e.gender as 'male' | 'female',
+      gender: e.gender || null,
       designation: p?.designation ?? '',
       department: p?.department ?? '',
       qualification: p?.qualification ?? '',

@@ -110,6 +110,12 @@ describe('assignments', () => {
     ok(await assign({ teacherId: id('dolon') }, true));
   });
 
+  it('leaves the gender empty only for an open post', async () => {
+    expect(await saveTeacher(teacherInput('Nobody', { gender: null }))).toMatchObject({ ok: false });
+    ok(await saveTeacher(teacherInput('Science-9', { gender: null, isVacancy: true })));
+    await expect(db.insert(schema.routineTeachers).values({ fullName: 'X', shortName: 'X', gender: null })).rejects.toThrow();
+  });
+
   it('keeps the database guard: a second booking of a slot fails', async () => {
     const { id: a } = ok(await assign({ days: [0] }));
     await expect(db.insert(schema.routineSlots).values({ routineId: id('routine'), periodId: id('p1'), day: 0, kind: 'teacher', refId: id('mueen'), assignmentId: a })).rejects.toThrow();

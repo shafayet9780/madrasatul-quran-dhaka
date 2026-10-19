@@ -33,7 +33,8 @@ export const routineTeachers = pgTable(
     id: uuid('id').primaryKey().defaultRandom(),
     fullName: text('full_name').notNull(),
     shortName: text('short_name').notNull(),
-    gender: routineGender('gender').notNull(),
+    // Empty only for an open post (a vacancy) whose hire isn't known yet.
+    gender: routineGender('gender'),
     designation: text('designation').notNull().default(''),
     department: text('department').notNull().default(''),
     qualification: text('qualification').notNull().default(''),
@@ -49,7 +50,10 @@ export const routineTeachers = pgTable(
     createdAt: ts('created_at').notNull().defaultNow(),
     updatedAt: ts('updated_at').notNull().defaultNow(),
   },
-  (t) => [uniqueIndex('routine_teachers_short_name_uq').on(sql`lower(${t.shortName})`).where(sql`${t.active}`)],
+  (t) => [
+    uniqueIndex('routine_teachers_short_name_uq').on(sql`lower(${t.shortName})`).where(sql`${t.active}`),
+    check('routine_teachers_gender_ck', sql`${t.gender} IS NOT NULL OR ${t.isVacancy}`),
+  ],
 );
 
 export const routineTeacherSubjects = pgTable(
