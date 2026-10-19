@@ -1,0 +1,2 @@
+ALTER TABLE "routine_teachers" ALTER COLUMN "gender" DROP NOT NULL;--> statement-breakpoint
+ALTER TABLE "routine_teachers" ADD CONSTRAINT "routine_teachers_gender_ck" CHECK ("routine_teachers"."gender" IS NOT NULL OR "routine_teachers"."is_vacancy");
