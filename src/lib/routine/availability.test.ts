@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { editorChoices, freeOnDate, proxyChoices } from './availability';
+import { dayBoard, editorChoices, proxyChoices } from './availability';
 import { dhakaMinutes, periodAt } from './days';
 import { assignment, group, period, teacher } from './testing/sample';
 
@@ -67,15 +67,23 @@ describe('editor choices', () => {
   });
 });
 
-describe('free on a date', () => {
-  it('leaves out the absent and those on a proxy, and splits who is at school', () => {
-    const proxies = [{ id: 'x', assignmentId: qaidaA.id, role: 'main' as const, periodId: 'p1', proxyTeacherId: 'dolon' }];
-    const ctx = { teachers, assignments: all, periods, day: 1, absences: [{ teacherId: 'mueen', periodIds: null }], proxies };
-    const p1 = freeOnDate({ ...ctx, periodId: 'p1' });
-    expect([p1.here.map((t) => t.id), p1.away.map((t) => t.id)]).toEqual([['nasreen'], ['lubna']]);
-    // At 10:00 Dolon is at school (she has the 9:00 proxy); in the evening nobody is.
-    expect(freeOnDate({ ...ctx, periodId: 'p2' }).here.map((t) => t.id)).toEqual(['dolon', 'kamal']);
-    expect(freeOnDate({ ...ctx, periodId: 'eve' }).here).toEqual([]);
+describe('day board', () => {
+  const proxies = [{ id: 'x', assignmentId: qaidaA.id, role: 'main' as const, periodId: 'p1', proxyTeacherId: 'dolon' }];
+  const ctx = { teachers, assignments: all, periods, day: 1, absences: [{ teacherId: 'mueen', periodIds: null }], proxies };
+  const kinds = (b: ReturnType<typeof dayBoard>, i: number) => Object.fromEntries([...b.periods[i].cells].map(([id, c]) => [id, c.kind === 'free' ? (c.fits ? 'fits' : 'free') : c.kind]));
+
+  it('gives every teacher a state in every period, and fits by the subjects taught then', () => {
+    const b = dayBoard(ctx);
+    expect(b.teachers.map((t) => t.id)).not.toContain('science-1');
+    expect(kinds(b, 0)).toEqual({ mueen: 'absent', nasreen: 'fits', dolon: 'proxy', kamal: 'class', lubna: 'away' });
+    // At 10:00 Dolon is at school (she has the 9:00 proxy) and Islam is taught then; Kamal teaches English.
+    expect(kinds(b, 1)).toEqual({ mueen: 'absent', nasreen: 'class', dolon: 'fits', kamal: 'free', lubna: 'away' });
+    expect(b.periods.map((p) => p.free)).toEqual([1, 2, 0]);
+    expect(b.classes.get('dolon')).toBe(1);
+  });
+
+  it('fits by the chosen subject when one is chosen', () => {
+    expect(kinds(dayBoard({ ...ctx, subjectId: 'english' }), 1)).toMatchObject({ dolon: 'free', kamal: 'fits' });
   });
 });
 

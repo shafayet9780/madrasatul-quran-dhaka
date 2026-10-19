@@ -34,16 +34,54 @@ export function sheetBlocks(periods: Period[], assignments: Assignment[], groups
   });
 }
 
-/** Row spans of the band labels: each run of equal bands starts with its length, the rest are 0. */
-export function bandSpans(groups: Pick<Group, 'band'>[]): number[] {
-  const spans = groups.map(() => 1);
-  for (let i = 0; i < groups.length; i++) {
-    if (!groups[i].band) continue;
-    let j = i;
-    while (j + 1 < groups.length && groups[j + 1].band === groups[i].band) j++;
-    spans[i] = j - i + 1;
-    for (let k = i + 1; k <= j; k++) spans[k] = 0;
-    i = j;
+/** Runs of groups under one band (LEVEL-1: L-1 A, B, C); a group without a band is a run of its own. */
+export function bandRuns<G extends Pick<Group, 'band'>>(groups: G[]): { band: string; groups: G[] }[] {
+  const runs: { band: string; groups: G[] }[] = [];
+  for (const g of groups) {
+    const last = runs[runs.length - 1];
+    if (last && g.band && last.band === g.band) last.groups.push(g);
+    else runs.push({ band: g.band, groups: [g] });
   }
-  return spans;
+  return runs;
+}
+
+export type Lane = Block & {
+  /** One period, or every group has the same classes in each: shown as cards, not a table. */
+  cards: boolean;
+};
+
+/**
+ * The sheet view as columns (one per block) plus strips. A group with classes in two or more blocks
+ * of other headings runs on its own times (Six (F)) and gets a strip instead; a group with no class
+ * yet sits in the column of its heading, so it can be filled in.
+ */
+export function sheetLayout(periods: Period[], assignments: Assignment[], groups: Group[]): { lanes: Lane[]; strips: Group[] } {
+  const blocks = sheetBlocks(periods, assignments, groups);
+  const strips = groups.filter((g) => blocks.filter((b) => b.headings[0] !== g.section && b.groups.includes(g)).length >= 2);
+  const used = new Set(assignments.map((a) => a.groupId));
+  const lanes = blocks.map((b) => {
+    const home = groups.filter((g) => g.active && !used.has(g.id) && g.section === b.headings[0] && blocks.find((x) => x.headings[0] === g.section) === b);
+    const members = new Set([...b.groups.filter((g) => !strips.includes(g)), ...home]);
+    const rows = groups.filter((g) => members.has(g));
+    // The same classes in every period: a group's classes per period, as one comparable text.
+    const sign = (g: Group, p: Period) =>
+      assignments
+        .filter((a) => a.groupId === g.id && a.periodId === p.id)
+        .map((a) => [a.subjectId, a.teacherId, a.taId, a.roomId, a.days.join(), a.note].join('|'))
+        .sort()
+        .join('\n');
+    const same = rows.every((g) => b.periods.every((p) => sign(g, p) === sign(g, b.periods[0])));
+    return { ...b, groups: rows, banded: rows.some((g) => g.band), cards: b.periods.length === 1 || same };
+  });
+  return { lanes: lanes.filter((l) => l.groups.length), strips };
+}
+
+/**
+ * The periods a group's day is made of, for one group's list (a strip, the phone): its heading's
+ * blocks and any period it has a class in; with neither, every period.
+ */
+export function groupPeriods(periods: Period[], assignments: Assignment[], groups: Group[], group: Group): Period[] {
+  const home = new Set(sheetBlocks(periods, assignments, groups).filter((b) => b.headings[0] === group.section).flatMap((b) => b.periods.map((p) => p.id)));
+  const own = periods.filter((p) => home.has(p.id) || assignments.some((a) => a.groupId === group.id && a.periodId === p.id));
+  return own.length ? own : periods;
 }

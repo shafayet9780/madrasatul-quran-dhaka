@@ -8,9 +8,10 @@ test.describe.configure({ mode: 'serial' });
 test('the grid blocks a clash, asks before an unlisted subject, and saves', async ({ page }) => {
   await page.goto('/admin/routine');
   await expect(page.getByRole('heading', { name: 'ক্লাস রুটিন', level: 1 })).toBeVisible();
-  // Sheet-style by default: the day in blocks, Arabic levels under their band.
-  await expect(page.getByRole('columnheader', { name: 'আরবি' })).toBeVisible();
-  await expect(page.getByRole('rowheader', { name: 'LEVEL-1' })).toBeVisible();
+  // The sheet by default: a column per block of the day, Arabic levels under their band.
+  const arabic = page.getByRole('region', { name: 'আরবি' });
+  await expect(arabic).toBeVisible();
+  await expect(arabic.getByText('LEVEL-1', { exact: true })).toBeVisible();
   // A cell that changes by day shows each part with its days.
   await expect(page.getByRole('button', { name: /^One-A, ১০:৪৫/ })).toContainText('শনি–সোম');
 
@@ -60,6 +61,15 @@ test('the proxy screen: an absent teacher, their classes, a proxy from the green
   await expect(page.getByText('এখনো কোনো প্রক্সি লাগবে না।')).toBeVisible();
 });
 
+test('the timeline puts every group on one time axis, and teacher search marks a teacher\'s classes', async ({ page }) => {
+  await page.goto('/admin/routine');
+  await page.getByRole('radio', { name: 'টাইমলাইন' }).click();
+  await expect(page.getByRole('columnheader', { name: /^আরবি · / })).toBeVisible();
+  await page.getByLabel('টিচার খুঁজুন').selectOption({ label: 'Bilal' });
+  await expect(page.getByText(/^\S+টা ক্লাস \(সপ্তাহে\)$/)).toBeVisible();
+  await expect(page.getByRole('button', { name: /^Ammapara-1, / }).filter({ hasText: 'Bilal' })).toHaveClass(/border-foreground/);
+});
+
 test('the by-teacher view shows where each teacher is, with their load', async ({ page }) => {
   await page.goto('/admin/routine');
   await page.getByRole('radio', { name: 'টিচার অনুযায়ী' }).click();
@@ -74,7 +84,9 @@ test('workload, free teachers, a teacher\'s week and setup open', async ({ page 
   await expect(page.getByRole('row', { name: /Hasan/ }).getByText('বেশি')).toBeVisible();
   await page.goto('/admin/routine/free?date=2026-10-25');
   await expect(page.getByRole('heading', { name: /^ফ্রি টিচার · .*রবিবার$/ })).toBeVisible();
-  await expect(page.getByRole('heading', { name: /^৭:০০/ }).first()).toBeVisible();
+  await expect(page.getByRole('region', { name: /^৭:০০/ }).first()).toBeVisible();
+  await page.getByRole('link', { name: 'টেবিল' }).click();
+  await expect(page.getByRole('table', { name: 'কোন পিরিয়ডে কোন টিচার ফ্রি' })).toBeVisible();
   await page.goto('/admin/routine/teachers');
   await page.getByRole('link', { name: 'Bilal' }).click();
   await expect(page.getByRole('table', { name: 'Bilal-এর সাপ্তাহিক রুটিন' })).toContainText('Ammapara-1');

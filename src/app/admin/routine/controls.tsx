@@ -130,6 +130,20 @@ export function DatePicker({ date }: { date: string }) {
   );
 }
 
+/**
+ * Scrolls the running period (data-now inside the box) into view where the box scrolls sideways,
+ * just past a sticky first column (data-pin) when there is one.
+ */
+export function ScrollToNow({ id }: { id: string }) {
+  useEffect(() => {
+    const box = document.getElementById(id);
+    const now = box?.querySelector<HTMLElement>('[data-now]');
+    const pin = box?.querySelector<HTMLElement>('[data-pin]')?.offsetWidth ?? 0;
+    if (box && now) box.scrollLeft = now.offsetLeft - pin - 16;
+  }, [id]);
+  return null;
+}
+
 /** Which routine a page shows (?r=): the active one unless a draft is chosen. */
 export function RoutinePicker({ routines, current }: { routines: { id: string; name: string; status: string }[]; current: string }) {
   const set = useParam();
