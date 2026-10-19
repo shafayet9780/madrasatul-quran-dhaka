@@ -440,18 +440,22 @@ export async function monthProxyCounts(date: string): Promise<Record<string, num
 export type ProxyDay = { data: RoutineData | null; absences: AbsenceRow[]; proxies: ProxyRow[]; monthCounts: Record<string, number> };
 
 export async function proxyDay(date: string): Promise<ProxyDay> {
-  const db = getRoutineDb();
   const routine = await activeRoutine();
-  const [data, absences, proxies, monthCounts] = await Promise.all([
-    routine ? routineData(routine) : null,
+  const [data, { absences, proxies }, monthCounts] = await Promise.all([routine ? routineData(routine) : null, dayRecords(date), monthProxyCounts(date)]);
+  return { data, absences, proxies, monthCounts };
+}
+
+/** A date's absences and proxies (the routine page shows today's). */
+export async function dayRecords(date: string) {
+  const db = getRoutineDb();
+  const [absences, proxies] = await Promise.all([
     db.select({ id: routineAbsences.id, teacherId: routineAbsences.teacherId, periodIds: routineAbsences.periodIds, reason: routineAbsences.reason }).from(routineAbsences).where(eq(routineAbsences.date, date)),
     db
       .select({ id: routineProxies.id, assignmentId: routineProxies.assignmentId, role: routineProxies.role, periodId: routineProxies.periodId, proxyTeacherId: routineProxies.proxyTeacherId, snapshot: routineProxies.snapshot })
       .from(routineProxies)
       .where(eq(routineProxies.date, date)),
-    monthProxyCounts(date),
   ]);
-  return { data, absences, proxies, monthCounts };
+  return { absences, proxies };
 }
 
 /**

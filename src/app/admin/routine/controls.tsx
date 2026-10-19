@@ -130,6 +130,16 @@ export function DatePicker({ date }: { date: string }) {
   );
 }
 
+/** Scrolls the running period (data-now inside the box) into view where the box scrolls sideways. */
+export function ScrollToNow({ id }: { id: string }) {
+  useEffect(() => {
+    const box = document.getElementById(id);
+    const now = box?.querySelector<HTMLElement>('[data-now]');
+    if (box && now) box.scrollLeft = now.offsetLeft - 16;
+  }, [id]);
+  return null;
+}
+
 /** Which routine a page shows (?r=): the active one unless a draft is chosen. */
 export function RoutinePicker({ routines, current }: { routines: { id: string; name: string; status: string }[]; current: string }) {
   const set = useParam();

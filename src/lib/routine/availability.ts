@@ -1,7 +1,7 @@
 import { daysText } from './days';
-import { atSchool, busyTeachers, sessionOf } from './free';
+import { atSchool, periodsOnDay, sessionOf } from './free';
 import { absentIn, rankCandidates, type Absence, type Need, type ProxyRecord } from './proxy';
-import type { Assignment, Group, Period, Teacher } from './types';
+import type { Assignment, Group, Period, Role, Teacher } from './types';
 
 // Who can take a class, for the teacher picker (docs/class-routine.md §5–6): every teacher is a
 // choice, free (green, those who teach the subject first) or not (red, with the reason). The proxy
@@ -106,14 +106,44 @@ export function editorChoices<T extends Teacher>(ctx: {
   return choices.sort((a, b) => Number(b.free) - Number(a.free) || (a.free ? (week.get(a.teacher.id) ?? 0) - (week.get(b.teacher.id) ?? 0) : 0) || a.teacher.shortName.localeCompare(b.teacher.shortName));
 }
 
-/** Free teachers in one period of a date, split into those at school then and the rest. */
-export function freeOnDate<T extends Teacher>(ctx: { teachers: T[]; assignments: Assignment[]; periods: Period[]; day: number; periodId: string; absences: Absence[]; proxies: ProxyRecord[] }): { here: T[]; away: T[] } {
-  const busy = busyTeachers(ctx.assignments, ctx.day, ctx.periodId);
-  for (const p of ctx.proxies) if (p.periodId === ctx.periodId) busy.add(p.proxyTeacherId);
-  const session = sessionOf(ctx.periods, ctx.periodId);
-  const free = ctx.teachers
-    .filter((t) => t.active && !t.isVacancy && !busy.has(t.id) && !ctx.absences.some((x) => x.teacherId === t.id && absentIn(x, ctx.periodId)))
-    .sort((a, b) => a.shortName.localeCompare(b.shortName));
-  const here = free.filter((t) => atSchool(ctx.assignments, session, t.id, ctx.day) || ctx.proxies.some((p) => p.proxyTeacherId === t.id && session.has(p.periodId ?? '')));
-  return { here, away: free.filter((t) => !here.includes(t)) };
+export type BoardCell =
+  | { kind: 'free'; fits: boolean }
+  | { kind: 'away' | 'absent' }
+  | { kind: 'class' | 'proxy'; assignment: Assignment | undefined; role: Role };
+
+export type BoardPeriod = { period: Period; cells: Map<string, BoardCell>; free: number };
+
+/**
+ * Every teacher's state in every period of a date, for the free-teacher page: absent, in a class
+ * (main or TA), on a proxy, free, or away (free, but not at school in that sitting). A free teacher
+ * fits when they teach the chosen subject, else a subject taught in that period that day.
+ */
+export function dayBoard<T extends Teacher>(ctx: { teachers: T[]; assignments: Assignment[]; periods: Period[]; day: number; absences: Absence[]; proxies: ProxyRecord[]; subjectId?: string }) {
+  const teachers = ctx.teachers.filter((t) => t.active && !t.isVacancy);
+  const classes = new Map(teachers.map((t) => [t.id, periodsOnDay(ctx.assignments, t.id, ctx.day) + ctx.proxies.filter((p) => p.proxyTeacherId === t.id).length]));
+  const periods: BoardPeriod[] = ctx.periods.map((period) => {
+    const running = ctx.assignments.filter((a) => a.periodId === period.id && a.days.includes(ctx.day));
+    const subjects = new Set(running.map((a) => a.subjectId));
+    const session = sessionOf(ctx.periods, period.id);
+    const cells = new Map<string, BoardCell>();
+    for (const t of teachers) {
+      const own = running.find((a) => a.teacherId === t.id || a.taId === t.id);
+      const proxy = ctx.proxies.find((p) => p.periodId === period.id && p.proxyTeacherId === t.id);
+      const here = atSchool(ctx.assignments, session, t.id, ctx.day) || ctx.proxies.some((p) => p.proxyTeacherId === t.id && session.has(p.periodId ?? ''));
+      cells.set(
+        t.id,
+        ctx.absences.some((x) => x.teacherId === t.id && absentIn(x, period.id))
+          ? { kind: 'absent' }
+          : own
+            ? { kind: 'class', assignment: own, role: own.teacherId === t.id ? 'main' : 'ta' }
+            : proxy
+              ? { kind: 'proxy', assignment: ctx.assignments.find((a) => a.id === proxy.assignmentId), role: proxy.role }
+              : !here
+                ? { kind: 'away' }
+                : { kind: 'free', fits: ctx.subjectId ? t.subjectIds.includes(ctx.subjectId) : t.subjectIds.some((s) => subjects.has(s)) },
+      );
+    }
+    return { period, cells, free: [...cells.values()].filter((c) => c.kind === 'free').length };
+  });
+  return { teachers, periods, classes };
 }

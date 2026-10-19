@@ -1,41 +1,44 @@
 'use client';
 
 import Link from 'next/link';
-import { createContext, Fragment, useContext, useEffect, useMemo, useState, type KeyboardEvent, type ReactNode } from 'react';
+import { useEffect, useMemo, useState, type KeyboardEvent } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Dialog, DialogDescription, DialogHeader, DialogTitle } from '@/components/shadcn/dialog';
 import { Button } from '@/components/shadcn/button';
 import { editorChoices } from '@/lib/routine/availability';
-import { clashText, effectiveRoomId, findClashes, lookup, type Draft, type Lookup } from '@/lib/routine/clash';
-import { DAY_SHORT, DAYS, dayOfDate, daysText, dhakaMinutes, dhakaToday, durationText, minutesOf, periodAt, periodText, periodTime } from '@/lib/routine/days';
-import { bandSpans, sheetBlocks } from '@/lib/routine/layout';
+import { clashText, findClashes, lookup, type Draft, type Lookup } from '@/lib/routine/clash';
+import { DAY_SHORT, DAYS, dayOfDate, daysText, dhakaMinutes, dhakaToday, periodAt, periodText } from '@/lib/routine/days';
 import { teacherLoads } from '@/lib/routine/load';
+import { absentIn, type Absence, type ProxyRecord } from '@/lib/routine/proxy';
 import type { Assignment, Group, Period, RoutineData } from '@/lib/routine/types';
 import { toBengaliDigits as bn } from '@/lib/survey/normalise';
 import { cn } from '@/lib/utils';
 import { ReportTools } from '../reports/ReportTools';
 import { deleteAssignmentAction, saveAssignmentAction } from './actions';
+import { byDays, involves, MAIN, NowContext, PeriodTh, TA, type CellCtx, type Changes } from './cells';
 import { ConfirmButton, INPUT, OUTLINE, RoutineDialog, SELECT, useAction } from './controls';
 import { TeacherPicker } from './TeacherPicker';
 import { LoadBadge } from './ui';
+import { PhoneDay, SheetView, TimelineView } from './views';
 
-// The school routine (docs/class-routine.md §5) in three views: like the school's sheet (the day
-// left to right in blocks), by heading (one table per জেনারেল, কুরআন, …) and by teacher. A cell of
-// the first two opens the editor; names are coloured main teacher / TA as in the sheet.
+// The school routine (docs/class-routine.md §5) in three views: শিট (a column per block of the day,
+// as on the school's sheet), টাইমলাইন (every group on one time axis) and by teacher; on a phone, one
+// group's or one teacher's day. A cell opens the editor; names are coloured main teacher / TA.
 
 type Day = 'all' | number;
-type View = 'sheet' | 'heading' | 'teacher';
+type View = 'sheet' | 'timeline' | 'teacher';
 
 const VIEWS: [View, string][] = [
-  ['sheet', 'শিট ভিউ'],
-  ['heading', 'সেকশন অনুযায়ী'],
+  ['sheet', 'শিট'],
+  ['timeline', 'টাইমলাইন'],
   ['teacher', 'টিচার অনুযায়ী'],
 ];
 
-const MAIN = 'text-primary';
-const TA = 'text-[#1d4ed8]';
+/** One colour per subject for the timeline (a soft tint of it behind the class). */
+const PALETTE = ['#a47a3f', '#6f5fb0', '#c0507a', '#3f74b8', '#c88a12', '#23897e', '#7f8436', '#a3529f', '#7a5a3c', '#4f8a3a'];
 
-const byDays = (a: Assignment, b: Assignment) => Math.min(...a.days) - Math.min(...b.days);
+/** Today's absences and proxies: the routine shows them when today's day is on screen. */
+export type Today = { day: number; absences: Absence[]; proxies: ProxyRecord[] };
 
 /** A radio group of buttons: one tab stop, arrow keys move the choice (as native radios do). */
 function Segmented<T extends string | number>({ label, value, options, onChange }: { label: string; value: T; options: [T, string][]; onChange: (v: T) => void }) {
@@ -49,7 +52,7 @@ function Segmented<T extends string | number>({ label, value, options, onChange 
     (e.currentTarget.children[next] as HTMLElement | undefined)?.focus();
   };
   return (
-    <div role="radiogroup" aria-label={label} onKeyDown={move} className="inline-flex flex-wrap gap-0.5 rounded-lg bg-muted p-[3px]">
+    <div role="radiogroup" aria-label={label} onKeyDown={move} className="inline-flex shrink-0 gap-0.5 rounded-lg bg-muted p-[3px]">
       {options.map(([v, text]) => (
         <button
           key={v}
@@ -58,7 +61,7 @@ function Segmented<T extends string | number>({ label, value, options, onChange 
           aria-checked={value === v}
           tabIndex={value === v ? 0 : -1}
           onClick={() => onChange(v)}
-          className={cn('h-[30px] rounded-md px-3 text-sm font-medium', value === v ? 'bg-white text-foreground shadow-[0_1px_2px_rgba(23,23,23,0.08)]' : 'text-muted-foreground hover:text-foreground')}
+          className={cn('h-[30px] whitespace-nowrap rounded-md px-3 text-sm font-medium', value === v ? 'bg-white text-foreground shadow-[0_1px_2px_rgba(23,23,23,0.08)]' : 'text-muted-foreground hover:text-foreground')}
         >
           {text}
         </button>
@@ -78,23 +81,24 @@ function remember(key: string, value: string | null) {
   window.history.replaceState(null, '', url);
 }
 
-export function RoutineGrid({ data }: { data: RoutineData }) {
+export function RoutineGrid({ data, today }: { data: RoutineData; today: Today | null }) {
   const params = useSearchParams();
   const asked = params.get('view');
+  const askedDay = params.get('day');
   const [view, setViewState] = useState<View>(isView(asked) ? asked : 'sheet');
-  const [day, setDayState] = useState<Day>(dayParam(params.get('day')));
-  // Phones start on the by-heading tables: the whole-day sheet is too wide to work in there (the
-  // screen width is only known after hydration).
+  const [day, setDayState] = useState<Day>(dayParam(askedDay));
+  // A phone shows one group's day: today's, unless a day is asked for (the width is only known
+  // after hydration).
   useEffect(() => {
-    if (!isView(asked) && window.matchMedia('(max-width: 767px)').matches) setViewState('heading');
-  }, [asked]);
+    if (askedDay === null && today && window.matchMedia('(max-width: 767px)').matches) setDayState(today.day);
+  }, [askedDay, today]);
   // The period running now (on a school day, when that day is shown), refreshed every minute; known
   // only in the browser, so the server render never disagrees.
   const [nowId, setNowId] = useState<string | null>(null);
   useEffect(() => {
     const tick = () => {
-      const today = dayOfDate(dhakaToday());
-      setNowId(today !== null && (day === 'all' || day === today) ? (periodAt(data.periods, dhakaMinutes())?.id ?? null) : null);
+      const weekday = dayOfDate(dhakaToday());
+      setNowId(weekday !== null && (day === 'all' || day === weekday) ? (periodAt(data.periods, dhakaMinutes())?.id ?? null) : null);
     };
     tick();
     const timer = setInterval(tick, 60_000);
@@ -108,63 +112,98 @@ export function RoutineGrid({ data }: { data: RoutineData }) {
     setDayState(d);
     remember('day', d === 'all' ? null : String(d));
   };
-  const [showAll, setShowAll] = useState(false);
+  const [teacherId, setTeacherId] = useState('');
+  const [colors, setColors] = useState(true);
   const [open, setOpen] = useState<{ groupId: string; periodId: string } | null>(null);
   const names = useMemo(() => lookup(data), [data]);
   const groupHref = (id: string) => `/admin/routine/groups/${id}${data.routine.status === 'active' ? '' : `?r=${data.routine.id}`}`;
   const shown = (groupId: string, periodId: string) =>
     data.assignments.filter((a) => a.groupId === groupId && a.periodId === periodId && (day === 'all' || a.days.includes(day))).sort(byDays);
-
-  /** A group × period cell: its classes, and a button that opens the editor. */
-  const cell = (g: Group, p: Period) => {
-    const list = shown(g.id, p.id);
-    return (
-      <button type="button" className="rt-cell" onClick={() => setOpen({ groupId: g.id, periodId: p.id })} aria-label={`${g.name}, ${periodText(p)}: ${list.length ? 'বদলান' : 'ক্লাস যোগ করুন'}`}>
-        {list.length ? list.map((a) => <Entry key={a.id} a={a} names={names} group={g} showDays={day === 'all'} />) : <span className="rt-add">+</span>}
-      </button>
-    );
-  };
-  const groupName = (g: Group) => (
-    <>
-      <Link href={groupHref(g.id)} className="no-underline hover:underline">
-        {g.name}
-      </Link>
-      {g.defaultRoomId && <div className="text-[11.5px] font-normal text-muted-foreground">রুম {names.rooms.get(g.defaultRoomId)?.name}</div>}
-    </>
-  );
+  const changes: Changes | null =
+    today && day === today.day
+      ? {
+          absent: (id, periodId) => today.absences.some((x) => x.teacherId === id && absentIn(x, periodId)),
+          proxy: (assignmentId, role) => {
+            const p = today.proxies.find((x) => x.assignmentId === assignmentId && x.role === role);
+            return p ? { id: p.proxyTeacherId, name: names.teachers.get(p.proxyTeacherId)?.shortName ?? '' } : null;
+          },
+        }
+      : null;
+  const palette = useMemo(() => new Map([...data.subjects].sort((a, b) => a.sort - b.sort || a.name.localeCompare(b.name)).map((s, i) => [s.id, `${PALETTE[i % PALETTE.length]}1f`])), [data.subjects]);
+  const ctx: CellCtx = { names, day, teacherId, changes, colors: view === 'timeline' && colors ? palette : null };
+  const used = new Set(data.assignments.flatMap((a) => [a.teacherId, a.taId]));
+  const searchable = data.teachers.filter((t) => used.has(t.id)).sort((a, b) => a.shortName.localeCompare(b.shortName));
+  // Classes a week (a row on three days is three), or that day's.
+  const found = teacherId ? data.assignments.filter((a) => (day === 'all' || a.days.includes(day)) && involves(a, ctx)).reduce((n, a) => n + (day === 'all' ? a.days.length : 1), 0) : 0;
+  const props = { data, ctx, shown, open: (groupId: string, periodId: string) => setOpen({ groupId, periodId }), groupHref };
 
   const openGroup = open && names.groups.get(open.groupId);
   const openPeriod = open && data.periods.find((p) => p.id === open.periodId);
 
   return (
     <>
-      <div className="flex flex-wrap items-center justify-between gap-3 sv-no-print">
+      <div className="hidden flex-wrap items-center justify-between gap-3 md:flex sv-no-print">
         <Segmented label="ভিউ" value={view} options={VIEWS} onChange={setView} />
         <ReportTools printLabel="প্রিন্ট (A3)" />
       </div>
-      <div className="flex flex-wrap items-center justify-between gap-3 sv-no-print">
-        <Segmented label="দিন" value={day} options={[['all', 'সব দিন'], ...DAYS.map((d): [Day, string] => [d, DAY_SHORT[d]])]} onChange={setDay} />
-        <div className="flex flex-wrap items-center gap-4 text-[13px]">
-          <span className="flex items-center gap-3 text-muted-foreground">
-            নামের রং: <span className={cn('font-medium', MAIN)}>মেইন টিচার</span>
-            <span className={cn('font-medium', TA)}>টিএ</span>
-          </span>
-          {view === 'heading' && (
-            <label className="flex items-center gap-2 text-sm">
-              <input type="checkbox" className="size-4 accent-primary" checked={showAll} onChange={(e) => setShowAll(e.target.checked)} />
-              সব পিরিয়ড দেখান
-            </label>
-          )}
+      <div className="flex flex-wrap items-center gap-x-5 gap-y-3 sv-no-print">
+        <div className="-mx-4 max-w-[100vw] overflow-x-auto px-4 md:mx-0 md:px-0">
+          <Segmented label="দিন" value={day} options={[['all', 'সব দিন'], ...DAYS.map((d): [Day, string] => [d, today?.day === d ? `${DAY_SHORT[d]} · আজ` : DAY_SHORT[d]])]} onChange={setDay} />
         </div>
+        {view !== 'teacher' && (
+          <label className="hidden items-center gap-2 text-sm text-muted-foreground md:flex">
+            টিচার খুঁজুন
+            <select className={cn(SELECT, 'min-w-36')} value={teacherId} onChange={(e) => setTeacherId(e.target.value)}>
+              <option value="">কেউ না</option>
+              {searchable.map((t) => (
+                <option key={t.id} value={t.id}>
+                  {t.shortName}
+                </option>
+              ))}
+            </select>
+            {teacherId && (
+              <span className="font-semibold text-foreground">
+                {bn(found)}টা ক্লাস{day === 'all' ? ' (সপ্তাহে)' : ''}
+              </span>
+            )}
+          </label>
+        )}
+        {view === 'timeline' && (
+          <label className="hidden items-center gap-2 text-sm md:flex">
+            <input type="checkbox" className="size-4 accent-primary" checked={colors} onChange={(e) => setColors(e.target.checked)} />
+            সাবজেক্টের রং
+          </label>
+        )}
+        <span className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[12.5px] text-muted-foreground md:ml-auto">
+          <span>
+            <span className={cn('font-semibold', MAIN)}>নাম</span> মেইন
+          </span>
+          <span>
+            <span className={cn('font-semibold', TA)}>+ নাম</span> টিএ
+          </span>
+          <span>
+            <span className="rounded border border-dashed border-[#a8a29e] px-1">নাম</span> খালি পোস্ট
+          </span>
+          {changes && (
+            <span>
+              <span className="line-through">নাম</span> <span className="font-semibold text-[#9a4a06]">→ প্রক্সি</span> আজ অ্যাবসেন্ট
+            </span>
+          )}
+        </span>
       </div>
       <p className="sv-print-only m-0 text-sm">
         {VIEWS.find(([v]) => v === view)?.[1]} · {day === 'all' ? 'সব দিন' : DAY_SHORT[day]}
       </p>
 
       <NowContext.Provider value={nowId}>
-        {view === 'sheet' && <SheetView data={data} cell={cell} groupName={groupName} />}
-        {view === 'heading' && <HeadingView data={data} showAll={showAll} cell={cell} groupName={groupName} />}
-        {view === 'teacher' && <TeacherView data={data} names={names} day={day} groupHref={groupHref} />}
+        <div className="hidden md:block print:block">
+          {view === 'sheet' && <SheetView {...props} />}
+          {view === 'timeline' && <TimelineView {...props} />}
+          {view === 'teacher' && <TeacherView data={data} names={names} day={day} groupHref={groupHref} />}
+        </div>
+        <div className="md:hidden print:hidden">
+          <PhoneDay {...props} />
+        </div>
       </NowContext.Provider>
 
       <Dialog open={!!open} onOpenChange={(o) => !o && setOpen(null)}>
@@ -172,152 +211,6 @@ export function RoutineGrid({ data }: { data: RoutineData }) {
       </Dialog>
     </>
   );
-}
-
-type CellFn = (g: Group, p: Period) => ReactNode;
-
-const NowContext = createContext<string | null>(null);
-
-/** A period's column head; the running period is tinted and marked "এখন". */
-function PeriodTh({ p, hide }: { p: Period; hide?: string }) {
-  const now = useContext(NowContext) === p.id;
-  return (
-    <th scope="col" className={cn('text-left', now && 'rt-now')}>
-      <PeriodHead p={p} hide={hide} now={now} />
-    </th>
-  );
-}
-
-/** Time and length under a period, and its name when it adds something. */
-function PeriodHead({ p, hide, now }: { p: Period; hide?: string; now?: boolean }) {
-  return (
-    <>
-      {periodTime(p)}
-      {now && <span className="ml-1.5 rounded-full bg-primary px-1.5 py-px text-[11px] font-medium text-primary-foreground sv-no-print">এখন</span>}
-      <div className="text-[11.5px] font-normal text-muted-foreground">
-        {durationText(minutesOf(p))}
-        {p.label && p.label !== hide && ` · ${p.label}`}
-      </div>
-    </>
-  );
-}
-
-/** The band label beside a run of groups (LEVEL-1 beside L-1 A, B, C). */
-function BandCell({ band, span, className }: { band: string; span: number; className?: string }) {
-  return (
-    <th scope="rowgroup" rowSpan={span} className={cn('rt-band', className)}>
-      {band && <span>{band}</span>}
-    </th>
-  );
-}
-
-/**
- * Like the school's sheet: the day left to right in blocks (HIFZ | QURAN | ARABIC | GENERAL | …),
- * each with its own groups down the side; row n of the table holds the n-th group of every block.
- */
-function SheetView({ data, cell, groupName }: { data: RoutineData; cell: CellFn; groupName: (g: Group) => ReactNode }) {
-  const blocks = useMemo(() => sheetBlocks(data.periods, data.assignments, data.groups), [data]);
-  if (!blocks.length) {
-    return <p className="m-0 rounded-xl border border-dashed px-6 py-10 text-center text-sm text-muted-foreground">এখনো কোনো ক্লাস নেই। &quot;সেকশন অনুযায়ী&quot; ভিউতে গিয়ে ক্লাস যোগ করুন।</p>;
-  }
-  const spans = blocks.map((b) => bandSpans(b.groups));
-  const rows = Math.max(...blocks.map((b) => b.groups.length));
-  const width = (b: (typeof blocks)[number]) => (b.banded ? 2 : 1) + b.periods.length;
-  return (
-    <>
-      <div className="rt-scroll overflow-x-auto rounded-xl border bg-card">
-        <table className="rt-grid rt-sheet w-full">
-          <thead>
-            <tr>
-              {blocks.map((b, i) => (
-                <th key={i} scope="colgroup" colSpan={width(b)} className="rt-block-start rt-block-name">
-                  {b.headings.filter(Boolean).join(' · ') || '—'}
-                </th>
-              ))}
-            </tr>
-            <tr>
-              {blocks.map((b, i) => (
-                <Fragment key={i}>
-                  <th scope="col" colSpan={b.banded ? 2 : 1} className="rt-block-start text-left">
-                    গ্রুপ
-                  </th>
-                  {b.periods.map((p) => (
-                    <PeriodTh key={p.id} p={p} hide={b.headings[0]} />
-                  ))}
-                </Fragment>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {Array.from({ length: rows }, (_, r) => (
-              <tr key={r}>
-                {blocks.map((b, i) => {
-                  const g = b.groups[r];
-                  if (!g) return <td key={i} colSpan={width(b)} className="rt-block-start rt-empty" />;
-                  return (
-                    <Fragment key={i}>
-                      {b.banded && spans[i][r] > 0 && <BandCell band={g.band} span={spans[i][r]} className="rt-block-start" />}
-                      <th scope="row" className={cn(!b.banded && 'rt-block-start')}>
-                        {groupName(g)}
-                      </th>
-                      {b.periods.map((p) => (
-                        <td key={p.id}>{cell(g, p)}</td>
-                      ))}
-                    </Fragment>
-                  );
-                })}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-      <p className="m-0 text-[12.5px] text-muted-foreground sv-no-print">শিট ভিউতে শুধু যেসব পিরিয়ডে ক্লাস আছে সেগুলো আসে। নতুন পিরিয়ডে বা নতুন গ্রুপে ক্লাস দিতে &quot;সেকশন অনুযায়ী&quot; ভিউতে যান।</p>
-    </>
-  );
-}
-
-/** One table per heading, stacked; a heading shows only the periods its groups use, unless "সব পিরিয়ড" is on. */
-function HeadingView({ data, showAll, cell, groupName }: { data: RoutineData; showAll: boolean; cell: CellFn; groupName: (g: Group) => ReactNode }) {
-  const sections = useMemo(() => {
-    const used = new Set(data.assignments.map((a) => a.groupId));
-    const groups = data.groups.filter((g) => g.active || used.has(g.id));
-    return [...new Set(groups.map((g) => g.section))].map((heading) => {
-      const rows = groups.filter((g) => g.section === heading);
-      const ids = new Set(rows.map((g) => g.id));
-      const usedPeriods = data.periods.filter((p) => data.assignments.some((a) => a.periodId === p.id && ids.has(a.groupId)));
-      return { heading, rows, spans: bandSpans(rows), banded: rows.some((g) => g.band), periods: showAll || !usedPeriods.length ? data.periods : usedPeriods };
-    });
-  }, [data, showAll]);
-  return sections.map((s) => (
-    <section key={s.heading} className="flex flex-col gap-2">
-      {s.heading && <h2 className="m-0 text-[15px] font-semibold">{s.heading}</h2>}
-      <div className="rt-scroll overflow-x-auto rounded-xl border bg-card">
-        <table className={cn('rt-grid w-full', s.banded && 'rt-banded')}>
-          <thead>
-            <tr>
-              <th scope="col" colSpan={s.banded ? 2 : 1} className="text-left">
-                গ্রুপ
-              </th>
-              {s.periods.map((p) => (
-                <PeriodTh key={p.id} p={p} hide={s.heading} />
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {s.rows.map((g, r) => (
-              <tr key={g.id}>
-                {s.banded && s.spans[r] > 0 && <BandCell band={g.band} span={s.spans[r]} />}
-                <th scope="row">{groupName(g)}</th>
-                {s.periods.map((p) => (
-                  <td key={p.id}>{cell(g, p)}</td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </section>
-  ));
 }
 
 /** One row per teacher, periods across: where each teacher is, an empty cell is a free period. */
@@ -393,27 +286,6 @@ function TeacherView({ data, names, day, groupHref }: { data: RoutineData; names
         </tbody>
       </table>
     </div>
-  );
-}
-
-function Entry({ a, names, group, showDays }: { a: Assignment; names: Lookup; group: Group; showDays: boolean }) {
-  const room = effectiveRoomId(a, names.groups);
-  return (
-    <span className="rt-entry">
-      {showDays && a.days.length < DAYS.length && <span className="rt-days">{daysText(a.days)}</span>}
-      <span className="font-medium">{names.subjects.get(a.subjectId)?.name}</span>
-      <span>
-        <span className={MAIN}>{names.teachers.get(a.teacherId)?.shortName}</span>
-        {a.taId && (
-          <>
-            {' + '}
-            <span className={TA}>{names.teachers.get(a.taId)?.shortName}</span>
-          </>
-        )}
-      </span>
-      {room && room !== group.defaultRoomId && <span className="rt-days">রুম {names.rooms.get(room)?.name}</span>}
-      {a.note && <span className="rt-days">{a.note}</span>}
-    </span>
   );
 }
 
