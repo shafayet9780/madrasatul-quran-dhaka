@@ -86,7 +86,7 @@ function Routines({ routines, current }: { routines: RoutineSummary[]; current: 
   return (
     <Card title="রুটিন">
       <p className="m-0 mb-3 text-[13px] text-muted-foreground">
-        একটি রুটিন চালু থাকে: ফ্রি শিক্ষক, প্রক্সি আর ওয়ার্কলোড সেটি থেকে হিসাব হয়। নতুন বছরের রুটিন বানাতে চালু রুটিনটি কপি করে খসড়া হিসেবে সাজান, তারপর চালু করুন।
+        একবারে একটা রুটিন চালু থাকে; ফ্রি টিচার, প্রক্সি আর ওয়ার্কলোড সেটা দেখেই হিসাব হয়। নতুন বছরের রুটিন বানাতে চালু রুটিনটা কপি করুন, ড্রাফটে ঠিকঠাক করুন, তারপর চালু করুন।
       </p>
       {routines.length > 0 && (
         <div className="overflow-x-auto">
@@ -94,7 +94,7 @@ function Routines({ routines, current }: { routines: RoutineSummary[]; current: 
             <thead>
               <tr className="border-b">
                 <th className={TH}>নাম</th>
-                <th className={TH}>অবস্থা</th>
+                <th className={TH}>স্ট্যাটাস</th>
                 <th className={TH}>পিরিয়ড</th>
                 <th className={TH}>ক্লাস</th>
                 <th className={cn(TH, 'sticky right-0 bg-white')} />
@@ -128,7 +128,7 @@ function Routines({ routines, current }: { routines: RoutineSummary[]; current: 
         <label className="flex flex-col gap-1 text-[13px] text-muted-foreground">
           শুরু
           <select className={SELECT} value={copyFrom} onChange={(e) => setCopyFrom(e.target.value)}>
-            <option value="">খালি রুটিন</option>
+            <option value="">নতুন খালি রুটিন</option>
             {routines.map((r) => (
               <option key={r.id} value={r.id}>
                 {r.name} কপি করে
@@ -137,7 +137,7 @@ function Routines({ routines, current }: { routines: RoutineSummary[]; current: 
           </select>
         </label>
         <Button type="submit" className="h-9" disabled={pending || !name.trim()}>
-          রুটিন তৈরি করুন
+          রুটিন বানান
         </Button>
       </form>
       <div className="mt-2">{line}</div>
@@ -173,7 +173,7 @@ function RoutineRow({ routine, selected, onSelect }: { routine: RoutineSummary; 
         )}
         {line}
       </td>
-      <td className={cn(TD, active ? 'text-success' : 'text-muted-foreground')}>{active ? 'চালু' : 'খসড়া'}</td>
+      <td className={cn(TD, active ? 'text-success' : 'text-muted-foreground')}>{active ? 'চালু' : 'ড্রাফট'}</td>
       <td className={TD}>{bn(routine.periods)}</td>
       <td className={TD}>{bn(routine.assignments)}</td>
       <td className={cn(TD, 'text-right')}>
@@ -192,8 +192,8 @@ function RoutineRow({ routine, selected, onSelect }: { routine: RoutineSummary; 
             </ConfirmButton>
           )}
           {!active && (
-            <ConfirmButton confirm="রুটিন মুছুন" disabled={pending} onConfirm={() => run(() => deleteRoutineAction(routine.id))}>
-              মুছুন
+            <ConfirmButton confirm="হ্যাঁ, রুটিন ডিলিট করুন" disabled={pending} onConfirm={() => run(() => deleteRoutineAction(routine.id))}>
+              ডিলিট
             </ConfirmButton>
           )}
         </span>
@@ -207,14 +207,14 @@ function RoutineRow({ routine, selected, onSelect }: { routine: RoutineSummary; 
 function Periods({ routine, periods }: { routine: RoutineInfo; periods: Period[] }) {
   return (
     <Card title={`পিরিয়ড · রুটিন ${routine.name}`}>
-      <p className="m-0 mb-3 text-[13px] text-muted-foreground">সময়গুলো একটি আরেকটির সাথে মিলতে পারবে না। লম্বা পিরিয়ডও (যেমন বিকেলের হিফয) একটি পিরিয়ড হিসেবে গোনা হয়।</p>
+      <p className="m-0 mb-3 text-[13px] text-muted-foreground">দুটো পিরিয়ডের সময় একটার ভেতরে আরেকটা পড়তে পারবে না। বিকেলের হিফযের মতো লম্বা পিরিয়ডও একটা পিরিয়ড ধরা হয়।</p>
       <div className="overflow-x-auto">
         <table className="w-full min-w-[560px] text-sm">
           <thead>
             <tr className="border-b">
               <th className={TH}>শুরু</th>
               <th className={TH}>শেষ</th>
-              <th className={TH}>নাম (ঐচ্ছিক)</th>
+              <th className={TH}>নাম (না দিলেও চলবে)</th>
               <th className={cn(TH, 'sticky right-0 bg-white')} />
             </tr>
           </thead>
@@ -252,8 +252,8 @@ function PeriodRow({ routineId, period }: { routineId: string; period?: Period }
             {period ? 'সেভ' : 'যোগ করুন'}
           </Button>
           {period && (
-            <ConfirmButton confirm="পিরিয়ড ও এর সব ক্লাস মুছুন" disabled={pending} onConfirm={() => run(() => deletePeriodAction(period.id))}>
-              মুছুন
+            <ConfirmButton confirm="হ্যাঁ, পিরিয়ড আর এর সব ক্লাস ডিলিট করুন" disabled={pending} onConfirm={() => run(() => deletePeriodAction(period.id))}>
+              ডিলিট
             </ConfirmButton>
           )}
         </span>
@@ -265,7 +265,7 @@ function PeriodRow({ routineId, period }: { routineId: string; period?: Period }
 // ── Groups ──
 
 const KIND_LABEL = { section: 'ক্লাস সেকশন', level: 'লেভেল গ্রুপ' };
-const RULE_LABEL = { any: 'যেকোনো শিক্ষক', male: 'শুধু পুরুষ', female: 'শুধু মহিলা' };
+const RULE_LABEL = { any: 'যেকোনো টিচার', male: 'শুধু পুরুষ টিচার', female: 'শুধু মহিলা টিচার' };
 
 function Groups({ groups, rooms }: { groups: Group[]; rooms: Room[] }) {
   const sections = [...new Set(groups.map((g) => g.section).filter(Boolean))];
@@ -290,12 +290,12 @@ function Groups({ groups, rooms }: { groups: Group[]; rooms: Room[] }) {
           <thead>
             <tr className="border-b">
               <th className={TH}>নাম</th>
-              <th className={TH}>ধরন</th>
-              <th className={TH}>শিরোনাম</th>
+              <th className={TH}>টাইপ</th>
+              <th className={TH}>সেকশন</th>
               <th className={TH}>ব্যান্ড</th>
-              <th className={TH}>ক্রম</th>
+              <th className={TH}>সিরিয়াল</th>
               <th className={TH}>রুম</th>
-              <th className={TH}>শিক্ষক</th>
+              <th className={TH}>টিচার</th>
               <th className={TH}>চালু</th>
               <th className={cn(TH, 'sticky right-0 bg-white')} />
             </tr>
@@ -332,7 +332,7 @@ function GroupRow({ group, rooms, nextSort = 0 }: { group?: Group; rooms: Room[]
         {line}
       </td>
       <td className={TD}>
-        <select className={SELECT} value={draft.kind} onChange={(e) => set({ kind: e.target.value as Group['kind'] })} aria-label={`${label}: ধরন`}>
+        <select className={SELECT} value={draft.kind} onChange={(e) => set({ kind: e.target.value as Group['kind'] })} aria-label={`${label}: টাইপ`}>
           {Object.entries(KIND_LABEL).map(([v, l]) => (
             <option key={v} value={v}>
               {l}
@@ -341,10 +341,10 @@ function GroupRow({ group, rooms, nextSort = 0 }: { group?: Group; rooms: Room[]
         </select>
       </td>
       <td className={TD}>
-        <input className={cn(INPUT, 'w-28')} list="rt-sections" value={draft.section} onChange={(e) => set({ section: e.target.value })} placeholder="জেনারেল" maxLength={60} aria-label={`${label}: শিরোনাম`} />
+        <input className={cn(INPUT, 'w-28')} list="rt-sections" value={draft.section} onChange={(e) => set({ section: e.target.value })} placeholder="জেনারেল" maxLength={60} aria-label={`${label}: সেকশন`} />
       </td>
       <td className={TD}>
-        <input className={cn(INPUT, 'w-24')} list="rt-bands" value={draft.band} onChange={(e) => set({ band: e.target.value })} placeholder="ঐচ্ছিক" maxLength={40} aria-label={`${label}: ব্যান্ড`} />
+        <input className={cn(INPUT, 'w-24')} list="rt-bands" value={draft.band} onChange={(e) => set({ band: e.target.value })} placeholder="যেমন LEVEL-1" maxLength={40} aria-label={`${label}: ব্যান্ড`} />
       </td>
       <td className={TD}>
         <input type="number" className={cn(INPUT, 'w-20')} value={draft.sort} onChange={(e) => set({ sort: Number(e.target.value) || 0 })} aria-label={`${label}: ক্রম`} />
@@ -360,7 +360,7 @@ function GroupRow({ group, rooms, nextSort = 0 }: { group?: Group; rooms: Room[]
         </select>
       </td>
       <td className={TD}>
-        <select className={SELECT} value={draft.genderRule} onChange={(e) => set({ genderRule: e.target.value as Group['genderRule'] })} aria-label={`${label}: শিক্ষক`}>
+        <select className={SELECT} value={draft.genderRule} onChange={(e) => set({ genderRule: e.target.value as Group['genderRule'] })} aria-label={`${label}: টিচার`}>
           {Object.entries(RULE_LABEL).map(([v, l]) => (
             <option key={v} value={v}>
               {l}
@@ -377,8 +377,8 @@ function GroupRow({ group, rooms, nextSort = 0 }: { group?: Group; rooms: Room[]
             {group ? 'সেভ' : 'যোগ করুন'}
           </Button>
           {group && (
-            <ConfirmButton confirm="গ্রুপ মুছুন" disabled={pending} onConfirm={() => run(() => deleteGroupAction(group.id))}>
-              মুছুন
+            <ConfirmButton confirm="হ্যাঁ, গ্রুপ ডিলিট করুন" disabled={pending} onConfirm={() => run(() => deleteGroupAction(group.id))}>
+              ডিলিট
             </ConfirmButton>
           )}
         </span>
@@ -391,12 +391,12 @@ function GroupRow({ group, rooms, nextSort = 0 }: { group?: Group; rooms: Room[]
 
 function Subjects({ subjects }: { subjects: Subject[] }) {
   return (
-    <Card title="বিষয়">
+    <Card title="সাবজেক্ট">
       <table className="w-full text-sm">
         <thead>
           <tr className="border-b">
             <th className={TH}>নাম</th>
-            <th className={TH}>ক্রম</th>
+            <th className={TH}>সিরিয়াল</th>
             <th className={TH}>চালু</th>
             <th className={cn(TH, 'sticky right-0 bg-white')} />
           </tr>
@@ -415,7 +415,7 @@ function Subjects({ subjects }: { subjects: Subject[] }) {
 function SubjectRow({ subject, nextSort = 0 }: { subject?: Subject; nextSort?: number }) {
   const { draft, set, dirty } = useDraft({ name: subject?.name ?? '', sort: subject?.sort ?? nextSort, active: subject?.active ?? true });
   const { pending, run, line } = useAction();
-  const label = subject?.name ?? 'নতুন বিষয়';
+  const label = subject?.name ?? 'নতুন সাবজেক্ট';
   return (
     <tr className={cn(ROW, dirty && ROW_DIRTY)}>
       <td className={TD}>
@@ -434,8 +434,8 @@ function SubjectRow({ subject, nextSort = 0 }: { subject?: Subject; nextSort?: n
             {subject ? 'সেভ' : 'যোগ'}
           </Button>
           {subject && (
-            <ConfirmButton confirm="মুছুন" disabled={pending} onConfirm={() => run(() => deleteSubjectAction(subject.id))}>
-              মুছুন
+            <ConfirmButton confirm="হ্যাঁ, ডিলিট করুন" disabled={pending} onConfirm={() => run(() => deleteSubjectAction(subject.id))}>
+              ডিলিট
             </ConfirmButton>
           )}
         </span>
@@ -449,12 +449,12 @@ function SubjectRow({ subject, nextSort = 0 }: { subject?: Subject; nextSort?: n
 function Rooms({ rooms }: { rooms: Room[] }) {
   return (
     <Card title="রুম">
-      <p className="m-0 mb-3 text-[13px] text-muted-foreground">&quot;শেয়ার করা&quot; রুমে (যেমন হল) একই সময়ে একাধিক গ্রুপ বসতে পারে; অন্য রুমে একটি।</p>
+      <p className="m-0 mb-3 text-[13px] text-muted-foreground">&quot;শেয়ার্ড&quot; রুমে (যেমন হল) একই সময়ে কয়েকটা ক্লাস বসতে পারে; বাকি রুমে একবারে একটা।</p>
       <table className="w-full text-sm">
         <thead>
           <tr className="border-b">
             <th className={TH}>নাম</th>
-            <th className={TH}>শেয়ার করা</th>
+            <th className={TH}>শেয়ার্ড</th>
             <th className={cn(TH, 'sticky right-0 bg-white')} />
           </tr>
         </thead>
@@ -480,7 +480,7 @@ function RoomRow({ room }: { room?: Room }) {
         {line}
       </td>
       <td className={TD}>
-        <input type="checkbox" className="size-4 accent-primary" checked={draft.shared} onChange={(e) => set({ shared: e.target.checked })} aria-label={`${label}: শেয়ার করা`} />
+        <input type="checkbox" className="size-4 accent-primary" checked={draft.shared} onChange={(e) => set({ shared: e.target.checked })} aria-label={`${label}: শেয়ার্ড`} />
       </td>
       <td className={cn(TD, ACTIONS)}>
         <span className="inline-flex items-center gap-3">
@@ -488,8 +488,8 @@ function RoomRow({ room }: { room?: Room }) {
             {room ? 'সেভ' : 'যোগ'}
           </Button>
           {room && (
-            <ConfirmButton confirm="মুছুন" disabled={pending} onConfirm={() => run(() => deleteRoomAction(room.id))}>
-              মুছুন
+            <ConfirmButton confirm="হ্যাঁ, ডিলিট করুন" disabled={pending} onConfirm={() => run(() => deleteRoomAction(room.id))}>
+              ডিলিট
             </ConfirmButton>
           )}
         </span>

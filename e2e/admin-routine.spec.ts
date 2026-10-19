@@ -8,66 +8,85 @@ test.describe.configure({ mode: 'serial' });
 test('the grid blocks a clash, asks before an unlisted subject, and saves', async ({ page }) => {
   await page.goto('/admin/routine');
   await expect(page.getByRole('heading', { name: 'ক্লাস রুটিন', level: 1 })).toBeVisible();
-  // Sheet-style by default: the day in blocks, Arabic levels under their band.
-  await expect(page.getByRole('columnheader', { name: 'আরবি' })).toBeVisible();
-  await expect(page.getByRole('rowheader', { name: 'LEVEL-1' })).toBeVisible();
+  // The sheet by default: a column per block of the day, Arabic levels under their band.
+  const arabic = page.getByRole('region', { name: 'আরবি' });
+  await expect(arabic).toBeVisible();
+  await expect(arabic.getByText('LEVEL-1', { exact: true })).toBeVisible();
   // A cell that changes by day shows each part with its days.
   await expect(page.getByRole('button', { name: /^One-A, ১০:৪৫/ })).toContainText('শনি–সোম');
 
   await page.getByRole('button', { name: /^Five \(M\), ১০:৪৫.*ক্লাস যোগ করুন$/ }).click();
   const dialog = page.getByRole('dialog');
-  await dialog.getByLabel('বিষয়').selectOption({ label: 'Math' });
-  await dialog.getByRole('combobox', { name: /^শিক্ষক/ }).selectOption({ label: 'Jamila — ব্যস্ত: প্রতিদিন' });
-  await expect(dialog.getByText('Jamila প্রতিদিন এই পিরিয়ডে Nursery-A-তে আছেন।')).toBeVisible();
-  await expect(dialog.getByRole('button', { name: 'যোগ করুন' })).toBeDisabled();
+  await dialog.getByRole('group', { name: 'সাবজেক্ট' }).getByRole('button', { name: 'Math' }).click();
+  // Busy teachers are red and can't be picked, with where they are.
+  await dialog.getByText(/^ফ্রি নেই/).click();
+  const jamila = dialog.getByRole('button', { name: /^Jamila/ });
+  await expect(jamila).toBeDisabled();
+  await expect(jamila).toContainText('Nursery-A-এ ক্লাস');
 
-  await dialog.getByRole('combobox', { name: /^শিক্ষক/ }).selectOption({ label: 'Hasan' });
-  await dialog.getByRole('button', { name: 'যোগ করুন' }).click();
-  await expect(dialog.getByText('Hasan-এর বিষয়ের তালিকায় Math নেই।')).toBeVisible();
-  await dialog.getByRole('button', { name: 'তবুও সেভ করুন' }).click();
+  await dialog.getByRole('button', { name: /^Hasan/ }).click();
+  await dialog.getByRole('button', { name: 'যোগ করুন', exact: true }).click();
+  await expect(dialog.getByText('Hasan-এর সাবজেক্টের লিস্টে Math নেই।')).toBeVisible();
+  await dialog.getByRole('button', { name: 'তাও সেভ করুন' }).click();
   await expect(dialog.getByText('সেভ হয়েছে।')).toBeVisible();
   await expect(dialog.getByText('Math · Hasan')).toBeVisible();
 
-  await dialog.getByRole('button', { name: 'মুছুন' }).click();
-  await dialog.getByRole('button', { name: 'মুছুন' }).click();
+  await dialog.getByRole('button', { name: 'ডিলিট', exact: true }).click();
+  await dialog.getByRole('button', { name: 'হ্যাঁ, ডিলিট করুন' }).click();
   await expect(dialog.getByText('Math · Hasan')).toBeHidden();
   await page.keyboard.press('Escape');
   await expect(page.getByRole('button', { name: /^Five \(M\), ১০:৪৫.*ক্লাস যোগ করুন$/ })).toBeVisible();
 });
 
-test('the proxy register lists an absent teacher\'s classes and records a cover', async ({ page }) => {
+test('the proxy screen: an absent teacher, their classes, a proxy from the green list', async ({ page }) => {
   // A Sunday with no sample absence.
   await page.goto('/admin/routine/proxy?date=2026-10-25');
-  await page.getByRole('combobox', { name: /^শিক্ষক/ }).selectOption({ label: 'Jamila' });
-  await page.getByRole('button', { name: 'যোগ করুন' }).click();
+  await page.getByLabel('যিনি আসেননি তাঁকে সিলেক্ট করুন').selectOption({ label: 'Jamila' });
+  await expect(page.getByText('Jamila এ দিন আসেননি')).toBeVisible();
   await expect(page.getByText('০/২ ঠিক হয়েছে')).toBeVisible();
 
-  const picker = page.getByLabel('প্রক্সি শিক্ষক').first();
-  // Nobody free teaches Math then: the free teachers come under "বিষয়ের শিক্ষক নন".
-  await expect(picker.locator('optgroup[label="বিষয়ের শিক্ষক নন"] option').first()).toHaveText(/ — এ দিনে .*টি ক্লাস/);
-  const lubna = await picker.locator('option', { hasText: 'Lubna' }).getAttribute('value');
-  await picker.selectOption(lubna!);
+  // The first class is open: nobody free teaches Math then, so the free teachers are "অন্য সাবজেক্টের টিচার".
+  await expect(page.getByText(/^অন্য সাবজেক্টের টিচার/)).toBeVisible();
+  await page.getByRole('button', { name: /^Lubna/ }).click();
   await expect(page.getByText('১/২ ঠিক হয়েছে')).toBeVisible();
+  await expect(page.getByRole('status').getByText('Lubna প্রক্সি নেবেন')).toBeVisible();
 
-  await page.getByRole('button', { name: 'সরান' }).click();
-  await page.getByRole('button', { name: 'তালিকা থেকে সরান' }).click();
-  await expect(page.getByText('উপরে অনুপস্থিত শিক্ষক যোগ করলে')).toBeVisible();
+  await page.getByRole('button', { name: /প্রক্সি: Lubna/ }).click();
+  await expect(page.getByRole('link', { name: 'Lubna-কে WhatsApp করুন' })).toHaveAttribute('href', /^https:\/\/wa\.me\/\d*\?text=/);
+  await page.getByRole('button', { name: 'প্রক্সি সরান' }).click();
+  await expect(page.getByText('০/২ ঠিক হয়েছে')).toBeVisible();
+
+  await page.getByRole('button', { name: 'অ্যাবসেন্ট বাতিল' }).click();
+  await page.getByRole('button', { name: 'হ্যাঁ, তিনি এসেছেন' }).click();
+  await expect(page.getByText('এখনো কোনো প্রক্সি লাগবে না।')).toBeVisible();
+});
+
+test('the timeline puts every group on one time axis, and teacher search marks a teacher\'s classes', async ({ page }) => {
+  await page.goto('/admin/routine');
+  await page.getByRole('radio', { name: 'টাইমলাইন' }).click();
+  await expect(page.getByRole('columnheader', { name: /^আরবি · / })).toBeVisible();
+  await page.getByLabel('টিচার খুঁজুন').selectOption({ label: 'Bilal' });
+  await expect(page.getByText(/^\S+টা ক্লাস \(সপ্তাহে\)$/)).toBeVisible();
+  await expect(page.getByRole('button', { name: /^Ammapara-1, / }).filter({ hasText: 'Bilal' })).toHaveClass(/border-foreground/);
 });
 
 test('the by-teacher view shows where each teacher is, with their load', async ({ page }) => {
   await page.goto('/admin/routine');
-  await page.getByRole('radio', { name: 'শিক্ষক অনুযায়ী' }).click();
+  await page.getByRole('radio', { name: 'টিচার অনুযায়ী' }).click();
   const bilal = page.getByRole('row', { name: /^Bilal/ });
   await expect(bilal.getByRole('link', { name: 'Ammapara-1' })).toBeVisible();
-  await expect(bilal.getByText('সহকারী')).toBeVisible();
+  await expect(bilal.getByText('টিএ')).toBeVisible();
   await expect(bilal.getByText('ঠিক আছে')).toBeVisible();
 });
 
 test('workload, free teachers, a teacher\'s week and setup open', async ({ page }) => {
   await page.goto('/admin/routine/workload');
   await expect(page.getByRole('row', { name: /Hasan/ }).getByText('বেশি')).toBeVisible();
-  await page.goto('/admin/routine/free?day=1');
-  await expect(page.getByRole('heading', { name: 'ফ্রি শিক্ষক · রবিবার' })).toBeVisible();
+  await page.goto('/admin/routine/free?date=2026-10-25');
+  await expect(page.getByRole('heading', { name: /^ফ্রি টিচার · .*রবিবার$/ })).toBeVisible();
+  await expect(page.getByRole('region', { name: /^৭:০০/ }).first()).toBeVisible();
+  await page.getByRole('link', { name: 'টেবিল' }).click();
+  await expect(page.getByRole('table', { name: 'কোন পিরিয়ডে কোন টিচার ফ্রি' })).toBeVisible();
   await page.goto('/admin/routine/teachers');
   await page.getByRole('link', { name: 'Bilal' }).click();
   await expect(page.getByRole('table', { name: 'Bilal-এর সাপ্তাহিক রুটিন' })).toContainText('Ammapara-1');

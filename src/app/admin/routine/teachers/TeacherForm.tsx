@@ -68,15 +68,15 @@ export function TeacherForm({ teacher, subjects }: { teacher: Teacher | null; su
     >
       <Card title="পরিচয়">
         <div className="grid gap-4 md:grid-cols-2">
-          <Field label="পূর্ণ নাম" hint="প্রোফাইলের মতো, বাংলায়।">
+          <Field label="পুরো নাম" hint="ERP বা প্রোফাইলে যেমন আছে।">
             <input className={INPUT} value={d.fullName} onChange={(e) => set({ fullName: e.target.value })} required maxLength={120} />
           </Field>
-          <Field label="ছোট নাম" hint={'রুটিনে এই নাম দেখায়, যেমন "Mueen"।'}>
+          <Field label="ছোট নাম" hint={'রুটিনে এই নামটা দেখায়, যেমন "Mueen"।'}>
             <input className={INPUT} value={d.shortName} onChange={(e) => set({ shortName: e.target.value })} required maxLength={40} />
           </Field>
-          <Field label="লিঙ্গ" hint="ছেলে/মেয়েদের গ্রুপের নিয়মের জন্য।">
+          <Field label="জেন্ডার" hint="যে গ্রুপে শুধু পুরুষ বা শুধু মহিলা টিচার পড়ান, তার জন্য।">
             <select className={SELECT} value={d.gender ?? ''} onChange={(e) => set({ gender: (e.target.value || null) as Draft['gender'] })}>
-              {(d.isVacancy || !d.gender) && <option value="">জানা নেই (শূন্য পদ)</option>}
+              {(d.isVacancy || !d.gender) && <option value="">এখনো জানা নেই (খালি পোস্ট)</option>}
               <option value="female">মহিলা</option>
               <option value="male">পুরুষ</option>
             </select>
@@ -84,10 +84,10 @@ export function TeacherForm({ teacher, subjects }: { teacher: Teacher | null; su
           <Field label="মোবাইল">
             <input className={INPUT} value={d.phone} onChange={(e) => set({ phone: e.target.value })} maxLength={40} inputMode="tel" />
           </Field>
-          <Field label="পদবী" hint="যেমন সহকারী শিক্ষক">
+          <Field label="পদবি" hint="যেমন সহকারী শিক্ষক, সিনিয়র টিচার">
             <input className={INPUT} value={d.designation} onChange={(e) => set({ designation: e.target.value })} maxLength={80} />
           </Field>
-          <Field label="বিভাগ" hint="যেমন কুরআন, আরবী, জেনারেল">
+          <Field label="ডিপার্টমেন্ট" hint="যেমন কুরআন, আরবি, জেনারেল">
             <input className={INPUT} value={d.department} onChange={(e) => set({ department: e.target.value })} maxLength={80} />
           </Field>
           <Field label="শিক্ষাগত যোগ্যতা" className="md:col-span-2">
@@ -96,18 +96,18 @@ export function TeacherForm({ teacher, subjects }: { teacher: Teacher | null; su
           <Field label="অভিজ্ঞতা (বছর)">
             <input className={INPUT} value={d.experienceYears} onChange={(e) => set({ experienceYears: e.target.value })} inputMode="decimal" />
           </Field>
-          <Field label="ERP আইডি" hint="ঐচ্ছিক; জরিপের শিক্ষকের সাথে মেলাতে।">
+          <Field label="ERP আইডি" hint="না দিলেও চলবে; জরিপের রিপোর্টের সাথে মেলাতে কাজে লাগে।">
             <input className={INPUT} value={d.erpId} onChange={(e) => set({ erpId: e.target.value })} maxLength={40} />
           </Field>
-          <Field label="সংক্ষিপ্ত পরিচিতি" className="md:col-span-2">
+          <Field label="ছোট পরিচিতি" className="md:col-span-2">
             <textarea className={cn(INPUT, 'h-auto min-h-[88px] py-2')} value={d.bio} onChange={(e) => set({ bio: e.target.value })} maxLength={2000} />
           </Field>
         </div>
       </Card>
 
-      <Card title="যে বিষয়গুলো পড়াতে পারেন">
+      <Card title="যে সাবজেক্টগুলো পড়াতে পারেন">
         {shownSubjects.length === 0 ? (
-          <p className="m-0 text-sm text-muted-foreground">আগে সেটআপ পেজে বিষয় যোগ করুন।</p>
+          <p className="m-0 text-sm text-muted-foreground">আগে সেটআপ পেজে সাবজেক্ট যোগ করুন।</p>
         ) : (
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
             {shownSubjects.map((s) => (
@@ -127,24 +127,24 @@ export function TeacherForm({ teacher, subjects }: { teacher: Teacher | null; su
 
       <Card title="কাজ ও বেতন">
         <div className="grid gap-4 md:grid-cols-2">
-          <Field label="সপ্তাহে যত পিরিয়ড নেওয়ার কথা" hint="সহকারী হিসেবে একটি পিরিয়ড অর্ধেক ধরা হয়: দিনে ৩+১ (মূল+সহকারী) হলে সপ্তাহে (৩ + ½) × ৬ = ২১। এর ৮০%-এর কম হলে ‘কম’, বেশি হলে ‘বেশি’।">
+          <Field label="সপ্তাহে কয়টা পিরিয়ড নেওয়ার কথা (টার্গেট)" hint="টিএ-র পিরিয়ড অর্ধেক ধরা হয়। দিনে ৩+১ (মেইন+টিএ) হলে সপ্তাহে (৩ + ½) × ৬ = ২১। টার্গেটের ৮০%-এর কম হলে ‘কম’, ১০০%-এর বেশি হলে ‘বেশি’।">
             <input className={INPUT} value={d.targetPeriods} onChange={(e) => set({ targetPeriods: e.target.value })} inputMode="numeric" />
           </Field>
-          <Field label="মাসিক বেতন (টাকা)" hint="শুধু অ্যাডমিন পেজে দেখায়; প্রিন্টে নয়।">
+          <Field label="মাসিক বেতন (টাকা)" hint="শুধু অ্যাডমিন পেজে দেখায়, প্রিন্টে আসে না।">
             <input className={INPUT} value={d.salary} onChange={(e) => set({ salary: e.target.value })} inputMode="numeric" />
           </Field>
           <label className="flex items-start gap-2 text-sm">
             <input type="checkbox" className="mt-0.5 size-4 accent-primary" checked={d.isVacancy} onChange={(e) => set({ isVacancy: e.target.checked })} />
             <span>
-              <span className="font-medium">শূন্য পদ</span>
-              <span className="block text-[12.5px] text-muted-foreground">এখনো নিয়োগ হয়নি (যেমন &quot;Science-1&quot;)। রুটিনে বসানো যায়, প্রক্সিতে আসে না। নিয়োগ হলে নাম বদলে এটি তুলে দিন।</span>
+              <span className="font-medium">খালি পোস্ট</span>
+              <span className="block text-[12.5px] text-muted-foreground">এখনো কাউকে নেওয়া হয়নি (যেমন &quot;Science-1&quot;)। রুটিনে বসানো যায়, প্রক্সিতে আসে না। নতুন টিচার এলে নাম বদলে এই টিক তুলে দিন।</span>
             </span>
           </label>
           <label className="flex items-start gap-2 text-sm">
             <input type="checkbox" className="mt-0.5 size-4 accent-primary" checked={d.active} onChange={(e) => set({ active: e.target.checked })} />
             <span>
-              <span className="font-medium">সক্রিয়</span>
-              <span className="block text-[12.5px] text-muted-foreground">নিষ্ক্রিয় শিক্ষককে নতুন ক্লাস বা প্রক্সি দেওয়া যায় না।</span>
+              <span className="font-medium">চালু</span>
+              <span className="block text-[12.5px] text-muted-foreground">বন্ধ থাকলে নতুন ক্লাস বা প্রক্সি দেওয়া যায় না (যেমন কেউ চলে গেলে)।</span>
             </span>
           </label>
         </div>
@@ -157,12 +157,12 @@ export function TeacherForm({ teacher, subjects }: { teacher: Teacher | null; su
         <Button type="button" variant="outline" className="h-9 bg-white shadow-none" onClick={() => router.back()}>
           বাতিল
         </Button>
-        {badNumber && <span className="text-[13px] text-destructive">সংখ্যার ঘরে শুধু সংখ্যা লিখুন।</span>}
+        {badNumber && <span className="text-[13px] text-destructive">সংখ্যার ঘরে শুধু সংখ্যা দিন।</span>}
         {line}
         {teacher && (
           <span className="ml-auto">
-            <ConfirmButton confirm="শিক্ষক মুছে ফেলুন" disabled={pending} onConfirm={() => run(() => deleteTeacherAction(teacher.id), () => router.push('/admin/routine/teachers'))}>
-              মুছে ফেলুন
+            <ConfirmButton confirm="হ্যাঁ, টিচার ডিলিট করুন" disabled={pending} onConfirm={() => run(() => deleteTeacherAction(teacher.id), () => router.push('/admin/routine/teachers'))}>
+              ডিলিট
             </ConfirmButton>
           </span>
         )}

@@ -29,7 +29,7 @@ export type Outcome = { ok: true; id?: string } | { ok: false; error: string; wa
 
 const fail = (error: string): Outcome => ({ ok: false, error });
 const pgCode = (e: unknown): string | undefined => (e as { code?: string }).code ?? (e as { cause?: { code?: string } }).cause?.code;
-const RACE = 'এর মধ্যে রুটিনে অন্য কোনো পরিবর্তন হয়েছে। পেজটি রিলোড করে আবার চেষ্টা করুন।';
+const RACE = 'এর মধ্যে রুটিনে অন্য কিছু বদলেছে। পেজটা রিলোড করে আবার চেষ্টা করুন।';
 
 function omit<T extends object, K extends keyof T>(o: T, ...keys: K[]): Omit<T, K> {
   const copy = { ...o };
@@ -127,7 +127,7 @@ async function roomSlotStatements(db: RoutineDb, rooms: Room[], groups: Group[],
       if (other) {
         const routine = routines.find((r) => r.id === a.routineId)?.name ?? '';
         return {
-          error: `রুম ${roomMap.get(room)?.name}-এ ${daysText([day])} একই পিরিয়ডে ${groupMap.get(other.groupId)?.name} ও ${groupMap.get(a.groupId)?.name}-এর ক্লাস পড়ে যাবে (${routine} রুটিন)। আগে রুটিনে রুম বদলান, অথবা রুমটি "শেয়ার করা" করুন।`,
+          error: `রুম ${roomMap.get(room)?.name}-এ ${daysText([day])} একই পিরিয়ডে ${groupMap.get(other.groupId)?.name} আর ${groupMap.get(a.groupId)?.name}-এর ক্লাস পড়ে যাবে (${routine} রুটিন)। আগে রুটিনে রুম বদলান, নয়তো রুমটা "শেয়ার্ড" করে দিন।`,
         };
       }
       seen.set(key, a);
@@ -145,7 +145,7 @@ export async function saveSubject(input: Omit<Subject, 'id'> & { id?: string }):
     if (input.id) await db.update(routineSubjects).set({ name: input.name, sort: input.sort, active: input.active }).where(eq(routineSubjects.id, input.id));
     else await db.insert(routineSubjects).values({ name: input.name, sort: input.sort, active: input.active });
   } catch (e) {
-    if (pgCode(e) === '23505') return fail('এই নামে বিষয় আগে থেকেই আছে।');
+    if (pgCode(e) === '23505') return fail('এই নামে সাবজেক্ট আগে থেকেই আছে।');
     throw e;
   }
   return { ok: true };
@@ -154,7 +154,7 @@ export async function saveSubject(input: Omit<Subject, 'id'> & { id?: string }):
 export async function deleteSubject(id: string): Promise<Outcome> {
   const db = getRoutineDb();
   const [used] = await db.select({ n: sql<number>`count(*)::int` }).from(routineAssignments).where(eq(routineAssignments.subjectId, id));
-  if (used.n) return fail('বিষয়টি রুটিনে আছে, তাই মুছে ফেলা যাবে না। বন্ধ করে রাখুন।');
+  if (used.n) return fail('সাবজেক্টটা রুটিনে আছে, তাই ডিলিট করা যাবে না। "চালু" টিক তুলে দিন।');
   await db.delete(routineSubjects).where(eq(routineSubjects.id, id));
   return { ok: true };
 }
@@ -207,7 +207,7 @@ export async function saveGroup(input: Omit<Group, 'id'> & { id?: string }): Pro
 export async function deleteGroup(id: string): Promise<Outcome> {
   const db = getRoutineDb();
   const [used] = await db.select({ n: sql<number>`count(*)::int` }).from(routineAssignments).where(eq(routineAssignments.groupId, id));
-  if (used.n) return fail('গ্রুপটির রুটিনে ক্লাস আছে, তাই মুছে ফেলা যাবে না। বন্ধ করে রাখুন।');
+  if (used.n) return fail('গ্রুপটার রুটিনে ক্লাস আছে, তাই ডিলিট করা যাবে না। "চালু" টিক তুলে দিন।');
   await db.delete(routineGroups).where(eq(routineGroups.id, id));
   return { ok: true };
 }
@@ -218,7 +218,7 @@ export type TeacherInput = Omit<Teacher, 'id'> & { id?: string };
 
 export async function saveTeacher(input: TeacherInput): Promise<Outcome> {
   const db = getRoutineDb();
-  if (!input.gender && !input.isVacancy) return fail('লিঙ্গ বাছাই করুন (শুধু শূন্য পদে খালি রাখা যায়)।');
+  if (!input.gender && !input.isVacancy) return fail('জেন্ডার সিলেক্ট করুন (শুধু খালি পোস্টে বাদ রাখা যায়)।');
   const id = input.id ?? crypto.randomUUID();
   const { subjectIds } = input;
   const values = omit(input, 'id', 'subjectIds');
@@ -230,7 +230,7 @@ export async function saveTeacher(input: TeacherInput): Promise<Outcome> {
       ...(subjectIds.length ? [db.insert(routineTeacherSubjects).values(subjectIds.map((subjectId) => ({ teacherId: id, subjectId })))] : []),
     ]);
   } catch (e) {
-    if (pgCode(e) === '23505') return fail('এই ছোট নামে আরেকজন সক্রিয় শিক্ষক আছেন। নামটি একটু বদলে দিন (যেমন "Taman Afz")।');
+    if (pgCode(e) === '23505') return fail('এই ছোট নামে আরেকজন টিচার আছেন। নামটা একটু বদলে দিন (যেমন "Taman Afz")।');
     if (pgCode(e) === '23503') return fail(RACE);
     throw e;
   }
@@ -252,7 +252,7 @@ export async function deleteTeacher(id: string): Promise<Outcome> {
         + (select count(*)::int from ${routineProxies} where ${routineProxies.proxyTeacherId} = ${id})`,
     })
     .from(sql`(select 1) as one`);
-  if (used.n) return fail('শিক্ষক রুটিনে বা প্রক্সির খাতায় আছেন, তাই মুছে ফেলা যাবে না। "সক্রিয়" বন্ধ করে রাখুন।');
+  if (used.n) return fail('টিচার রুটিনে বা প্রক্সির হিসাবে আছেন, তাই ডিলিট করা যাবে না। "চালু" টিক তুলে দিন।');
   await db.delete(routineTeachers).where(eq(routineTeachers.id, id));
   return { ok: true };
 }
@@ -270,7 +270,7 @@ export async function createRoutine(name: string, copyFromId?: string | null): P
       db.select().from(routineAssignments).where(eq(routineAssignments.routineId, copyFromId)),
       db.select().from(routineSlots).where(eq(routineSlots.routineId, copyFromId)),
     ]);
-    if (!periods.length && !(await db.select({ id: routineRoutines.id }).from(routineRoutines).where(eq(routineRoutines.id, copyFromId))).length) return fail('যে রুটিন থেকে কপি করবেন সেটি পাওয়া যায়নি।');
+    if (!periods.length && !(await db.select({ id: routineRoutines.id }).from(routineRoutines).where(eq(routineRoutines.id, copyFromId))).length) return fail('যে রুটিন কপি করবেন সেটা পাওয়া যায়নি।');
     const periodIds = new Map(periods.map((p) => [p.id, crypto.randomUUID()]));
     const assignmentIds = new Map(assignments.map((a) => [a.id, crypto.randomUUID()]));
     if (periods.length) statements.push(db.insert(routinePeriods).values(periods.map((p) => ({ ...p, id: periodIds.get(p.id)!, routineId: id }))));
@@ -332,16 +332,16 @@ export async function deleteRoutine(id: string): Promise<Outcome> {
     .delete(routineRoutines)
     .where(and(eq(routineRoutines.id, id), eq(routineRoutines.status, 'draft')))
     .returning({ id: routineRoutines.id });
-  return deleted.length ? { ok: true } : fail('চালু রুটিন মুছে ফেলা যায় না। আগে অন্য একটি রুটিন চালু করুন।');
+  return deleted.length ? { ok: true } : fail('চালু রুটিন ডিলিট করা যায় না। আগে অন্য একটা রুটিন চালু করুন।');
 }
 
 export async function savePeriod(routineId: string, input: { id?: string; label: string; startsAt: number; endsAt: number }): Promise<Outcome> {
   const db = getRoutineDb();
-  if (input.endsAt <= input.startsAt) return fail('শেষের সময় শুরুর পরে হতে হবে।');
+  if (input.endsAt <= input.startsAt) return fail('শেষের সময় শুরুর পরে দিন।');
   const periods = await db.select().from(routinePeriods).where(eq(routinePeriods.routineId, routineId));
   if (input.id && !periods.some((p) => p.id === input.id)) return fail(RACE);
   const overlap = overlappingPeriod(input, periods);
-  if (overlap) return fail(`এই সময়টি ${periodText(overlap)} পিরিয়ডের সাথে মিলে যায়।`);
+  if (overlap) return fail(`এই সময়টা ${periodText(overlap)} পিরিয়ডের সাথে মিলে যাচ্ছে।`);
   const values = { label: input.label, startsAt: input.startsAt, endsAt: input.endsAt };
   try {
     if (input.id) await db.update(routinePeriods).set(values).where(eq(routinePeriods.id, input.id));
@@ -375,16 +375,16 @@ export async function saveAssignment(routineId: string, input: Draft, confirm: b
   const existing = input.id ? data.assignments.find((a) => a.id === input.id) : undefined;
   if (input.id && !existing) return fail(RACE);
   const days = [...new Set(input.days)].sort();
-  if (!days.length) return fail('অন্তত একটি দিন বাছাই করুন।');
+  if (!days.length) return fail('অন্তত একটা দিন সিলেক্ট করুন।');
   if (!data.periods.some((p) => p.id === input.periodId) || !names.groups.has(input.groupId) || !names.subjects.has(input.subjectId)) return fail(RACE);
   if (input.roomId && !names.rooms.has(input.roomId)) return fail(RACE);
   const usable = (id: string, current?: string | null) => {
     const t = names.teachers.get(id);
     return !!t && (t.active || id === current);
   };
-  if (!usable(input.teacherId, existing?.teacherId)) return fail('শিক্ষক সক্রিয় নেই।');
-  if (input.taId && !usable(input.taId, existing?.taId)) return fail('সহকারী শিক্ষক সক্রিয় নেই।');
-  if (input.taId === input.teacherId) return fail('একই শিক্ষক মূল ও সহকারী দুটোই হতে পারেন না।');
+  if (!usable(input.teacherId, existing?.teacherId)) return fail('এই টিচার এখন চালু নেই।');
+  if (input.taId && !usable(input.taId, existing?.taId)) return fail('এই টিএ এখন চালু নেই।');
+  if (input.taId === input.teacherId) return fail('একই জন মেইন টিচার আর টিএ দুটোই হতে পারেন না।');
 
   const draft: Draft = { ...input, days };
   const clashes = findClashes(draft, data.assignments, names.groups, names.rooms);
@@ -440,18 +440,22 @@ export async function monthProxyCounts(date: string): Promise<Record<string, num
 export type ProxyDay = { data: RoutineData | null; absences: AbsenceRow[]; proxies: ProxyRow[]; monthCounts: Record<string, number> };
 
 export async function proxyDay(date: string): Promise<ProxyDay> {
-  const db = getRoutineDb();
   const routine = await activeRoutine();
-  const [data, absences, proxies, monthCounts] = await Promise.all([
-    routine ? routineData(routine) : null,
+  const [data, { absences, proxies }, monthCounts] = await Promise.all([routine ? routineData(routine) : null, dayRecords(date), monthProxyCounts(date)]);
+  return { data, absences, proxies, monthCounts };
+}
+
+/** A date's absences and proxies (the routine page shows today's). */
+export async function dayRecords(date: string) {
+  const db = getRoutineDb();
+  const [absences, proxies] = await Promise.all([
     db.select({ id: routineAbsences.id, teacherId: routineAbsences.teacherId, periodIds: routineAbsences.periodIds, reason: routineAbsences.reason }).from(routineAbsences).where(eq(routineAbsences.date, date)),
     db
       .select({ id: routineProxies.id, assignmentId: routineProxies.assignmentId, role: routineProxies.role, periodId: routineProxies.periodId, proxyTeacherId: routineProxies.proxyTeacherId, snapshot: routineProxies.snapshot })
       .from(routineProxies)
       .where(eq(routineProxies.date, date)),
-    monthProxyCounts(date),
   ]);
-  return { data, absences, proxies, monthCounts };
+  return { absences, proxies };
 }
 
 /**
@@ -521,7 +525,7 @@ export async function setProxy(date: string, assignmentId: string, role: Role, t
   if (!data || !need) return fail(RACE);
   const names = lookup(data);
   const candidates = rankCandidates(need, { teachers: data.teachers, assignments: data.assignments, periods: data.periods, day, absences, proxies, monthCounts: new Map(Object.entries(monthCounts)), group: names.groups.get(need.assignment.groupId) });
-  if (!candidates.some((c) => c.teacher.id === teacherId)) return fail('এই পিরিয়ডে তিনি আর ফ্রি নেই। পেজটি রিলোড করুন।');
+  if (!candidates.some((c) => c.teacher.id === teacherId)) return fail('এই পিরিয়ডে তিনি আর ফ্রি নেই। পেজটা রিলোড করুন।');
   const period = data.periods.find((p) => p.id === need.assignment.periodId)!;
   const snapshot: ProxySnapshot = {
     group: names.groups.get(need.assignment.groupId)?.name ?? '',
@@ -535,7 +539,7 @@ export async function setProxy(date: string, assignmentId: string, role: Role, t
       .values({ date, assignmentId, role, periodId: period.id, proxyTeacherId: teacherId, snapshot })
       .onConflictDoUpdate({ target: [routineProxies.date, routineProxies.assignmentId, routineProxies.role], set: { proxyTeacherId: teacherId, periodId: period.id, snapshot } });
   } catch (e) {
-    if (pgCode(e) === '23505') return fail('এই পিরিয়ডে তিনি আরেকটি প্রক্সিতে আছেন।');
+    if (pgCode(e) === '23505') return fail('এই পিরিয়ডে তিনি আরেকটা প্রক্সিতে আছেন।');
     throw e;
   }
   return { ok: true };

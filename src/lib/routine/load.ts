@@ -23,7 +23,7 @@ export type Load = {
   perDay: number[];
 };
 
-export const STATUS_LABEL: Record<LoadStatus, string> = { under: 'কম', ok: 'ঠিক আছে', over: 'বেশি', none: 'লক্ষ্য দেওয়া নেই' };
+export const STATUS_LABEL: Record<LoadStatus, string> = { under: 'কম', ok: 'ঠিক আছে', over: 'বেশি', none: 'টার্গেট নেই' };
 
 export function loadStatus(weighted: number, target: number | null): { percent: number | null; status: LoadStatus } {
   if (!target || target <= 0) return { percent: null, status: 'none' };

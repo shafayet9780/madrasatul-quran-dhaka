@@ -15,7 +15,7 @@ export default async function SetupPage({ searchParams }: { searchParams: Promis
     <>
       <PageTop crumbs={[{ label: 'রুটিন', href: '/admin/routine' }, { label: 'সেটআপ' }]} round={false} />
       <PageBody>
-        <PageTitle sub="রুটিনের নাম ও পিরিয়ড, বিষয়, রুম আর ক্লাস/লেভেল গ্রুপ। শিক্ষক যোগ করুন শিক্ষক পেজে।">পিরিয়ড, গ্রুপ, রুম</PageTitle>
+        <PageTitle sub="রুটিন, পিরিয়ড, গ্রুপ, সাবজেক্ট আর রুম এখানে। টিচার যোগ করতে টিচার পেজে যান।">পিরিয়ড, গ্রুপ, রুম</PageTitle>
         <SetupBoard routines={routines} routine={routine} periods={periods} subjects={subjects} rooms={rooms} groups={groups} />
       </PageBody>
     </>

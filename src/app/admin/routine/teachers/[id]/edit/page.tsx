@@ -5,7 +5,7 @@ import { PageTop } from '../../../../AdminShell';
 import { PageBody, PageTitle } from '../../../../ui';
 import { TeacherForm } from '../../TeacherForm';
 
-export const metadata: Metadata = { title: 'শিক্ষকের তথ্য এডিট' };
+export const metadata: Metadata = { title: 'টিচারের তথ্য এডিট' };
 export const dynamic = 'force-dynamic';
 
 export default async function EditTeacherPage({ params }: { params: Promise<{ id: string }> }) {
@@ -16,7 +16,7 @@ export default async function EditTeacherPage({ params }: { params: Promise<{ id
   return (
     <>
       <PageTop
-        crumbs={[{ label: 'রুটিন', href: '/admin/routine' }, { label: 'শিক্ষক', href: '/admin/routine/teachers' }, { label: teacher.shortName, href: `/admin/routine/teachers/${id}` }, { label: 'এডিট' }]}
+        crumbs={[{ label: 'রুটিন', href: '/admin/routine' }, { label: 'টিচার', href: '/admin/routine/teachers' }, { label: teacher.shortName, href: `/admin/routine/teachers/${id}` }, { label: 'এডিট' }]}
         round={false}
       />
       <PageBody>

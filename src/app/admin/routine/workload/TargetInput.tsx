@@ -30,7 +30,7 @@ export function TargetInput({ teacherId, name, target }: { teacherId: string; na
         value={value}
         placeholder="—"
         disabled={pending}
-        aria-label={`${name}: সপ্তাহে লক্ষ্য (পিরিয়ড)`}
+        aria-label={`${name}: সপ্তাহে টার্গেট (পিরিয়ড)`}
         onChange={(e) => setValue(e.target.value)}
         onBlur={save}
         onKeyDown={(e) => {

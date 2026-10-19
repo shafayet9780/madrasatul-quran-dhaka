@@ -63,6 +63,6 @@ export type ProxyLine = { period: string; group: string; subject: string; absent
 
 /** The day's register as text for WhatsApp. */
 export function proxyDayText(date: string, lines: ProxyLine[]): string {
-  const body = lines.map((l) => `${l.period} · ${l.group} (${l.subject}${l.role === 'ta' ? ', সহকারী' : ''}): ${l.absent} → ${l.proxy ?? 'ঠিক হয়নি'}`);
+  const body = lines.map((l) => `${l.period} · ${l.group} (${l.subject}${l.role === 'ta' ? ', টিএ' : ''}): ${l.absent} → ${l.proxy ?? 'এখনো কেউ নেই'}`);
   return [`প্রক্সি — ${dateText(date)}`, '', ...body].join('\n');
 }

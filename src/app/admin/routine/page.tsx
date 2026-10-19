@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
-import { listRoutines, pickRoutine, routineData } from '@/lib/routine/data';
+import { dayRecords, listRoutines, pickRoutine, routineData } from '@/lib/routine/data';
+import { dayOfDate, dhakaToday } from '@/lib/routine/days';
 import { PageTop } from '../AdminShell';
 import { PageBody, PageTitle } from '../ui';
 import { RoutinePicker } from './controls';
@@ -12,7 +13,11 @@ export const dynamic = 'force-dynamic';
 export default async function RoutinePage({ searchParams }: { searchParams: Promise<{ r?: string }> }) {
   const { r } = await searchParams;
   const [routines, routine] = await Promise.all([listRoutines(), pickRoutine(r)]);
-  const data = routine ? await routineData(routine) : null;
+  const date = dhakaToday();
+  const weekday = dayOfDate(date);
+  // Today's absences and proxies show in the active routine when today is on screen.
+  const [data, records] = await Promise.all([routine ? routineData(routine) : null, routine?.status === 'active' && weekday !== null ? dayRecords(date) : null]);
+  const today = records && weekday !== null ? { day: weekday, ...records } : null;
   return (
     <>
       <PageTop crumbs={[{ label: 'রুটিন' }]} round={false} />
@@ -23,7 +28,7 @@ export default async function RoutinePage({ searchParams }: { searchParams: Prom
               data && (
                 <>
                   {routineSub(data.routine)}
-                  <span className="sv-no-print"> · ঘরে চাপ দিয়ে ক্লাস যোগ বা এডিট করুন</span>
+                  <span className="sv-no-print"> · যেকোনো ঘরে চাপ দিয়ে ক্লাস যোগ করুন বা বদলান</span>
                 </>
               )
             }
@@ -37,7 +42,7 @@ export default async function RoutinePage({ searchParams }: { searchParams: Prom
         ) : !data.periods.length || !data.groups.length ? (
           <NoRoutine>এই রুটিনে এখনো {data.periods.length ? 'কোনো গ্রুপ' : 'কোনো পিরিয়ড'} নেই।</NoRoutine>
         ) : (
-          <RoutineGrid data={data} />
+          <RoutineGrid data={data} today={today} />
         )}
       </PageBody>
     </>

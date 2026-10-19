@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { assignmentWarnings, clashText, findClashes, lookup, occupancy, overlappingPeriod } from './clash';
 import { dayOfDate, daysText, parseTime, periodText, timeText } from './days';
 import { atSchool, freeTeachers, sessionOf } from './free';
-import { bandSpans, sheetBlocks } from './layout';
+import { bandRuns, groupPeriods, sheetBlocks, sheetLayout } from './layout';
 import { busiestDays, loadStatus, salaryPerPeriod, teacherLoads } from './load';
 import { needsFor, proxyDayText, rankCandidates } from './proxy';
 import { assignment, group, period, room, subject, teacher } from './testing/sample';
@@ -81,7 +81,7 @@ describe('clashes', () => {
       teachers: [teacher('fariza', { subjectIds: ['english'] }), teacher('nayeem', { gender: 'male', subjectIds: ['math'] }), teacher('science-1', { gender: null, isVacancy: true, subjectIds: ['math'] })],
       subjects: [subject('math', 'Math'), subject('english')],
     });
-    expect(assignmentWarnings(assignment({ groupId: 'two-m', periodId: 'p', teacherId: 'nayeem', taId: 'fariza' }), w)).toEqual(['two-m-এ শুধু পুরুষ শিক্ষক পড়ান; fariza মহিলা।']);
+    expect(assignmentWarnings(assignment({ groupId: 'two-m', periodId: 'p', teacherId: 'nayeem', taId: 'fariza' }), w)).toEqual(['two-m-এ শুধু পুরুষ টিচার পড়ান, কিন্তু fariza মহিলা।']);
     expect(assignmentWarnings(assignment({ groupId: 'two-m', periodId: 'p', teacherId: 'fariza' }), w)).toHaveLength(2);
     // An open post without a gender yet: no gender warning.
     expect(assignmentWarnings(assignment({ groupId: 'two-m', periodId: 'p', teacherId: 'science-1' }), w)).toEqual([]);
@@ -246,7 +246,42 @@ describe('sheet-style layout', () => {
     ]);
   });
 
-  it('spans each run of one band', () => {
-    expect(bandSpans([{ band: 'LEVEL-1' }, { band: 'LEVEL-1' }, { band: '' }, { band: 'LEVEL-2' }, { band: 'LEVEL-1' }])).toEqual([2, 0, 1, 1, 1]);
+  it('gives one group\'s day: its heading\'s periods and its own, else all', () => {
+    const ids = (g: ReturnType<typeof group>, list = assignments) => groupPeriods(periods, list, groups, g).map((p) => p.id).join();
+    expect(ids(groups[0])).toBe('h1,h2,pm');
+    // Nursery-A has a class only at g1, but its heading's other period is there to fill.
+    expect(ids(groups[5])).toBe('g1,g2');
+    expect(ids(group('nursery-c'))).toBe('g1,g2');
+    // A group on its own times keeps its classes in other headings' blocks.
+    expect(ids(groups[5], [...assignments, at('nursery-a', 'a')])).toBe('a,g1,g2');
+    expect(ids(group('new', { section: 'নতুন' }))).toBe(periods.map((p) => p.id).join());
+  });
+
+  it('groups each run of one band', () => {
+    const runs = bandRuns([{ band: 'LEVEL-1' }, { band: 'LEVEL-1' }, { band: '' }, { band: '' }, { band: 'LEVEL-2' }, { band: 'LEVEL-1' }]);
+    expect(runs.map((r) => [r.band, r.groups.length])).toEqual([['LEVEL-1', 2], ['', 1], ['', 1], ['LEVEL-2', 1], ['LEVEL-1', 1]]);
+  });
+
+  it('lays the sheet out as columns: cards where the classes are the same in each period, a table otherwise', () => {
+    const { lanes, strips } = sheetLayout(periods, assignments, groups);
+    expect(lanes.map((l) => [l.headings[0], l.cards])).toEqual([['হিফয', true], ['কুরআন', true], ['আরবি', true], ['জেনারেল', false], ['হিফয', true]]);
+    expect(strips).toEqual([]);
+    // Hifz changes in its second period: a table from then on.
+    const changed = assignments.map((a) => (a.groupId === 'hifz-m' && a.periodId === 'h2' ? { ...a, subjectId: 'quran' } : a));
+    expect(sheetLayout(periods, changed, groups).lanes[0].cards).toBe(false);
+    // …and so does a room of its own in one period.
+    const moved = assignments.map((a) => (a.groupId === 'hifz-m' && a.periodId === 'h2' ? { ...a, roomId: 'hall' } : a));
+    expect(sheetLayout(periods, moved, groups).lanes[0].cards).toBe(false);
+  });
+
+  it('gives a group on its own times a strip, and puts a group with no class yet in its heading', () => {
+    const six = group('six-f');
+    const play = group('play');
+    const { lanes, strips } = sheetLayout(periods, [...assignments, at('six-f', 'h2'), at('six-f', 'a'), at('six-f', 'g1')], [...groups, six, play]);
+    expect(strips.map((g) => g.id)).toEqual(['six-f']);
+    expect(lanes.map((l) => l.groups.map((g) => g.id).join())).toEqual(['hifz-m', 'qaida-a', 'l1-a,l1-b,l2', 'nursery-a,nursery-b,play', 'hifz-m']);
+    // A group in just one other block (Play at 10:00) stays in that column.
+    const one = sheetLayout(periods, [...assignments, at('play', 'a')], [...groups, play]);
+    expect([one.strips, one.lanes[2].groups.map((g) => g.id)]).toEqual([[], ['l1-a', 'l1-b', 'l2', 'play']]);
   });
 });
