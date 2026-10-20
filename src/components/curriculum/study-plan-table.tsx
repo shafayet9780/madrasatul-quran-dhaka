@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import { getTranslations } from 'next-intl/server';
 import type { Locale } from '@/lib/i18n';
 import { num } from '@/lib/admissions/display';
-import { planRows, quranOf, generalOf, level, stageOf, type PlanRow, type Subject } from '@/lib/curriculum/plan';
+import type { Plan, PlanClass, Subject } from '@/lib/curriculum/plan';
 import { Icon } from '@/components/site/icon';
 import { cn } from '@/lib/utils';
 import { ClassBooks, type ClassPanel } from './class-books';
@@ -19,51 +19,67 @@ const LOOK = {
 const cell = 'border-t border-line px-2.5 py-2.5 align-middle';
 const block = 'inline-flex min-h-8 items-center self-start whitespace-nowrap rounded-cell px-3.5 text-15 font-strong text-on-dark';
 
-type Books = { arabic: [string, string]; islam: [string, string] };
-type Stage = { name: string; care: string; classes: string; hours: string };
+/** A class in the table, by its place in the Studio's list. */
+type Row = PlanClass & { i: number };
 
 /**
  * The prospectus's ten-year table on `cream`, designed: one row group per stage (its hours in the band), a chip per
  * subject in the map's colours, and Dakhil and Mutawassita as board blocks. From 768px it is a table; below that the
- * same rows stack, each class over its chips. Under it, the books and topics of each class.
+ * same rows stack, each class over its chips. Under it, the books and topics of each class. All from Studio → Curriculum.
  */
-export async function StudyPlanTable({ locale }: { locale: Locale }) {
+export async function StudyPlanTable({ locale, plan }: { locale: Locale; plan: Plan }) {
   const t = await getTranslations({ locale, namespace: 'curriculum.plan' });
   const b = await getTranslations({ locale, namespace: 'curriculum.books' });
   const model = await getTranslations({ locale, namespace: 'curriculum.model' });
   const hero = await getTranslations({ locale, namespace: 'curriculum.hero' });
   const home = await getTranslations({ locale, namespace: 'home.plan' });
-  const classes = home.raw('classes') as string[];
   const blocks = home.raw('blocks') as { name: string; note: string }[];
-  const segments = home.raw('segments') as Record<string, string>;
-  const stages = model.raw('stages') as Stage[];
+  const { stages, classes } = plan;
   const subjects = t.raw('subjects') as Record<Subject, string>;
   const cols = t.raw('cols') as Record<'class' | 'quran' | 'arabic' | 'islam' | 'general', string>;
-  const code = (key: 'arabicCode' | 'islamCode', i: number) => t(key, { level: num(level(i), locale) });
-  const age = (i: number) => t('age', { age: num(i + 5, locale) });
+  const code = (key: 'arabicCode' | 'islamCode', r: PlanClass) => (r.level ? t(key, { level: num(r.level, locale) }) : '');
+  const age = (r: PlanClass) => (r.age == null ? '' : t('age', { age: num(r.age, locale) }));
   const stageTag = (k: number) => model('stageTag', { n: num(k + 1, locale) });
-  const rowsByStage = planRows();
+  const rowsByStage: Row[][] = stages.map((s) => classes.slice(s.from, s.to).map((c, n) => ({ ...c, i: s.from + n })));
 
-  // The class picker: Nursery to Class 8 one by one, then Dakhil (Classes 9 and 10) and Mutawassita.
-  const books = b.raw('items') as Books[];
-  const stageOfClass = (i: number) => `${stageTag(stageOf(i))} · ${stages[stageOf(i)].name}`;
+  // The class picker: each class one by one, then Dakhil (its years together) and Mutawassita. A class named by its
+  // number ("১ম") is titled "১ম শ্রেণি"; Nursery and KG keep their names.
+  const stageOfClass = (r: PlanClass) => `${stageTag(r.stage)} · ${stages[r.stage].name}`;
+  const book = (key: 'arabicCode' | 'islamCode', r: PlanClass, x?: { book: string; focus: string }) => ({ code: code(key, r), book: x?.book ?? '', focus: x?.focus ?? '' });
+  const dakhil = classes.filter((c) => c.board === 'dakhil');
+  const mutawassita = classes.find((c) => c.board === 'mutawassita');
+  const dakhilAges = dakhil.map((c) => c.age).filter((a): a is number => a != null);
   const panels: ClassPanel[] = [
-    ...books.map((x, i) => {
-      const quran = quranOf(i);
-      return {
-        key: String(i),
-        tab: classes[i],
-        title: i < 2 ? classes[i] : b('classTitle', { name: classes[i] }),
-        age: age(i),
-        stage: stageOfClass(i),
-        quran: quran && segments[quran],
-        arabic: { code: code('arabicCode', i), book: x.arabic[0], focus: x.arabic[1] },
-        islam: { code: code('islamCode', i), book: x.islam[0], focus: x.islam[1] },
-        general: { subjects: generalOf(i).map((s) => subjects[s]).join(', '), note: i < 2 ? b('aqviBooks') : stageOf(i) === 1 ? t('limited') : b('nctb') },
-      };
-    }),
-    { key: 'dakhil', tab: b('dakhilTab'), title: b('dakhilTitle'), age: b('dakhilAge'), stage: stageOfClass(10), board: { title: t('dakhil'), text: b('dakhilText') } },
-    { key: 'mutawassita', tab: classes[12], title: classes[12], age: b('mutawassitaAge'), stage: stageOfClass(12), board: { title: blocks[1].name, text: b('mutawassitaText') } },
+    ...classes.flatMap((r, i) =>
+      r.board
+        ? []
+        : [
+            {
+              key: String(i),
+              tab: r.name,
+              title: /^[0-9০-৯]/.test(r.name) ? b('classTitle', { name: r.name }) : r.name,
+              age: age(r),
+              stage: stageOfClass(r),
+              quran: r.quran,
+              arabic: book('arabicCode', r, r.arabic),
+              islam: book('islamCode', r, r.islam),
+              general: { subjects: r.general.map((s) => subjects[s]).join(', '), note: r.generalBooks === 'aqvi' ? b('aqviBooks') : r.limited ? t('limited') : b('nctb') },
+            },
+          ],
+    ),
+    ...(dakhil.length
+      ? [
+          {
+            key: 'dakhil',
+            tab: b('dakhilTab'),
+            title: b('dakhilTitle'),
+            age: dakhilAges.length === 2 ? b('dakhilAge', { from: num(dakhilAges[0], locale), to: num(dakhilAges[1], locale) }) : '',
+            stage: stageOfClass(dakhil[0]),
+            board: { title: t('dakhil'), text: b('dakhilText') },
+          },
+        ]
+      : []),
+    ...(mutawassita ? [{ key: 'mutawassita', tab: mutawassita.name, title: mutawassita.name, age: b('mutawassitaAge'), stage: stageOfClass(mutawassita), board: { title: blocks[1].name, text: b('mutawassitaText') } }] : []),
   ];
 
   // A stage's band: its tag and name, then day-care or not and the hours, each kept whole so phones wrap between them.
@@ -78,20 +94,20 @@ export async function StudyPlanTable({ locale }: { locale: Locale }) {
       </span>
     </span>
   );
-  const classCell = (r: PlanRow) => (
+  const classCell = (r: Row) => (
     <span className="flex flex-col leading-[1.25]">
-      <span className="text-16 font-bold">{classes[r.i]}</span>
-      {r.kind !== 'mutawassita' && <span className="text-13 font-normal text-ink-muted">{age(r.i)}</span>}
+      <span className="text-16 font-bold">{r.name}</span>
+      {age(r) && <span className="text-13 font-normal text-ink-muted">{age(r)}</span>}
     </span>
   );
-  const general = (r: Extract<PlanRow, { kind: 'class' }>) =>
+  const general = (r: Row) =>
     r.general.map((s) => (
       <span key={s} className={cn(chip, r.limited ? LOOK.limited : LOOK.general)}>
         {subjects[s]}
       </span>
     ));
-  const board = (r: PlanRow): ReactNode =>
-    r.kind === 'dakhil' ? (
+  const board = (r: Row): ReactNode =>
+    r.board === 'dakhil' ? (
       <span className={cn(block, 'bg-dark')}>{t('dakhil')}</span>
     ) : (
       <span className="flex flex-wrap items-center gap-x-3 gap-y-2">
@@ -128,20 +144,20 @@ export async function StudyPlanTable({ locale }: { locale: Locale }) {
                 {rows.map((r) => (
                   <li key={r.i} className="flex flex-col gap-2 border-t border-line px-4 py-3">
                     <span className="flex items-baseline justify-between gap-3">
-                      <span className="text-16 font-bold">{classes[r.i]}</span>
-                      {r.kind !== 'mutawassita' && <span className="text-13 text-ink-muted">{age(r.i)}</span>}
+                      <span className="text-16 font-bold">{r.name}</span>
+                      {age(r) && <span className="text-13 text-ink-muted">{age(r)}</span>}
                     </span>
-                    {r.kind === 'class' ? (
+                    {!r.board ? (
                       <>
                         <span className="flex flex-wrap gap-1.5">
                           {r.quran && (
                             <span className={cn(chip, LOOK.quran)}>
                               <span className="sr-only">{cols.quran}: </span>
-                              {segments[r.quran]}
+                              {r.quran}
                             </span>
                           )}
-                          <span className={cn(chip, LOOK.arabic)}>{code('arabicCode', r.i)}</span>
-                          <span className={cn(chip, LOOK.islam)}>{code('islamCode', r.i)}</span>
+                          {r.level && <span className={cn(chip, LOOK.arabic)}>{code('arabicCode', r)}</span>}
+                          {r.level && <span className={cn(chip, LOOK.islam)}>{code('islamCode', r)}</span>}
                         </span>
                         {/* The general subjects in one box, so a row never breaks into a heap of chips. */}
                         <span className={cn('self-start rounded-chip px-2.5 py-1 text-14 font-strong leading-snug', r.limited ? LOOK.limited : LOOK.general)}>
@@ -184,15 +200,11 @@ export async function StudyPlanTable({ locale }: { locale: Locale }) {
                     <th scope="row" className={cn(cell, 'whitespace-nowrap pl-5 text-left')}>
                       {classCell(r)}
                     </th>
-                    {r.kind === 'class' ? (
+                    {!r.board ? (
                       <>
-                        <td className={cell}>{r.quran && <span className={cn(chip, LOOK.quran)}>{segments[r.quran]}</span>}</td>
-                        <td className={cell}>
-                          <span className={cn(chip, LOOK.arabic)}>{code('arabicCode', r.i)}</span>
-                        </td>
-                        <td className={cell}>
-                          <span className={cn(chip, LOOK.islam)}>{code('islamCode', r.i)}</span>
-                        </td>
+                        <td className={cell}>{r.quran && <span className={cn(chip, LOOK.quran)}>{r.quran}</span>}</td>
+                        <td className={cell}>{r.level && <span className={cn(chip, LOOK.arabic)}>{code('arabicCode', r)}</span>}</td>
+                        <td className={cell}>{r.level && <span className={cn(chip, LOOK.islam)}>{code('islamCode', r)}</span>}</td>
                         <td className={cell}>
                           <span className="flex flex-wrap gap-1.5">{general(r)}</span>
                         </td>

@@ -37,8 +37,6 @@ export const viewport: Viewport = {
   themeColor: '#fbf7ef',
 };
 
-const TITLE = 'Madrasatul Quran, Uttara | Islamic and general education';
-
 /**
  * The site's defaults; each page sets its own title, description and links. Page titles end with the school's name in
  * the page's language; a page that sets none (a not-found page) is titled with the name alone. The description and the
@@ -47,7 +45,8 @@ const TITLE = 'Madrasatul Quran, Uttara | Islamic and general education';
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
   if (!hasLocale(locales, locale)) return {};
-  const [t, seo] = await Promise.all([getTranslations({ locale, namespace: 'site' }), getContentService(false).getSeoSettings()]);
+  const [t, home, seo] = await Promise.all([getTranslations({ locale, namespace: 'site' }), getTranslations({ locale, namespace: 'home.meta' }), getContentService(false).getSeoSettings()]);
+  const title = seo?.pages?.home?.title?.[locale]?.trim() || home('title');
   const description = seo?.description?.[locale]?.trim() || SITE_DESCRIPTION;
   const share = sharePicture(seo, locale) ?? { url: SOCIAL_IMAGE, alt: 'Madrasatul Quran school building' };
   return {
@@ -66,14 +65,14 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     },
     openGraph: {
       type: 'website',
-      locale: 'en_US',
+      locale: locale === 'bengali' ? 'bn_BD' : 'en_US',
       url: getSiteUrl(),
-      siteName: 'Madrasatul Quran',
-      title: TITLE,
+      siteName: t('schoolName'),
+      title,
       description,
       images: [{ url: share.url, width: 1200, height: 630, alt: share.alt }],
     },
-    twitter: { card: 'summary_large_image', title: TITLE, description, images: [share.url] },
+    twitter: { card: 'summary_large_image', title, description, images: [share.url] },
     // Optional Search Console verification; omit unconfigured tokens.
     verification: { google: process.env.GOOGLE_SITE_VERIFICATION || undefined },
     robots: {

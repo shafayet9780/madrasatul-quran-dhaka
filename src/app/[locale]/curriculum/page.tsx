@@ -10,6 +10,7 @@ import { Goals } from '@/components/curriculum/goals';
 import { StudyPlanTable } from '@/components/curriculum/study-plan-table';
 import { HigherEducation } from '@/components/curriculum/higher-education';
 import { CurriculumClose } from '@/components/curriculum/curriculum-close';
+import { loadPlan } from '@/lib/curriculum/load';
 
 type Props = { params: Promise<{ locale: Locale }> };
 
@@ -27,14 +28,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function CurriculumPage({ params }: Props) {
   const { locale } = await params;
   setRequestLocale(locale);
-  const { intake } = await getPublishedIntake();
+  const [{ intake }, plan] = await Promise.all([getPublishedIntake(), loadPlan(locale)]);
   return (
     <>
-      <CurriculumHero locale={locale} />
-      <TeachingModel locale={locale} />
-      <Strands locale={locale} />
-      <Goals locale={locale} />
-      <StudyPlanTable locale={locale} />
+      <CurriculumHero locale={locale} glance={plan?.glance ?? []} sections={[...(plan?.goals.length ? (['goals'] as const) : []), ...(plan ? (['plan'] as const) : [])]} />
+      <TeachingModel locale={locale} stages={plan?.stages ?? []} />
+      <Strands locale={locale} plan={plan} />
+      {plan && plan.goals.length > 0 && <Goals locale={locale} goals={plan.goals} />}
+      {plan && <StudyPlanTable locale={locale} plan={plan} />}
       <HigherEducation locale={locale} />
       <CurriculumClose locale={locale} open={intake.state === 'open'} />
     </>

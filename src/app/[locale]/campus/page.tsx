@@ -35,10 +35,11 @@ export default async function CampusPage({ params }: Props) {
   const stops = campusStops(studio.length ? studio : launchDay(home?.playSpaces), locale, (p) => (p.asset?._ref ? urlFor(p).width(1600).url() : undefined));
   if (!stops.length) notFound();
 
+  const details = contactDetails(settings, locale);
   return (
     <>
-      <CampusTour stops={stops} locale={locale} />
-      <CampusClose locale={locale} details={contactDetails(settings, locale)} showGallery={isSectionVisible('gallery', settings?.navigationVisibility)} />
+      <CampusTour stops={stops} locale={locale} metro={details.metro} gettingHere={details.gettingHere} />
+      <CampusClose locale={locale} details={details} showGallery={isSectionVisible('gallery', settings?.navigationVisibility)} />
     </>
   );
 }

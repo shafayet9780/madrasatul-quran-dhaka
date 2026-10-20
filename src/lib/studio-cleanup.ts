@@ -52,7 +52,7 @@ export function schoolDetails(site: Doc, footer?: Doc): Doc {
   }
   const location = site.locationInfo ?? {};
   return {
-    ...pick(site, ['_id', '_type', 'logo', 'favicon', 'defaultMaleAvatar', 'defaultFemaleAvatar', 'socialMedia']),
+    ...pick(site, ['_id', '_type', 'logo', 'favicon', 'defaultMaleAvatar', 'defaultFemaleAvatar', 'socialMedia', 'links']),
     ...(site.tagline ?? footer?.subtitle ? { tagline: site.tagline ?? footer!.subtitle } : {}),
     ...(site.mission ?? footer?.description ? { mission: site.mission ?? footer!.description } : {}),
     contactInfo: {
@@ -61,7 +61,7 @@ export function schoolDetails(site: Doc, footer?: Doc): Doc {
       email: (contact.email ?? []).map((e: Doc) => ({ ...pick(e, ['_key', 'address']), isActive: e.isActive !== false })),
     },
     locationInfo: {
-      ...pick(location, ['googleMapsUrl', 'mapEmbedUrl']),
+      ...pick(location, ['gettingHere', 'metroStation', 'metroWalk', 'googleMapsUrl', 'mapEmbedUrl']),
       landmarks: (location.landmarks ?? []).map((l: Doc) => pick(l, ['_key', 'name', 'distance'])),
     },
   };
@@ -69,9 +69,9 @@ export function schoolDetails(site: Doc, footer?: Doc): Doc {
 
 /** The top-level and contact fields School details no longer has (for the dry run's report). */
 export function droppedFields(site: Doc): string[] {
-  const kept = new Set(['_id', '_type', '_rev', '_createdAt', '_updatedAt', '_system', 'logo', 'favicon', 'defaultMaleAvatar', 'defaultFemaleAvatar', 'socialMedia', 'tagline', 'mission', 'contactInfo', 'locationInfo']);
+  const kept = new Set(['_id', '_type', '_rev', '_createdAt', '_updatedAt', '_system', 'logo', 'favicon', 'defaultMaleAvatar', 'defaultFemaleAvatar', 'socialMedia', 'links', 'tagline', 'mission', 'contactInfo', 'locationInfo']);
   const contactKept = new Set(['whatsappNumber', 'address', 'officeHours', 'phone', 'email']);
-  const locationKept = new Set(['googleMapsUrl', 'mapEmbedUrl', 'landmarks']);
+  const locationKept = new Set(['gettingHere', 'metroStation', 'metroWalk', 'googleMapsUrl', 'mapEmbedUrl', 'landmarks']);
   return [
     ...Object.keys(site).filter((k) => !kept.has(k)),
     ...Object.keys(site.contactInfo ?? {}).filter((k) => !contactKept.has(k)).map((k) => `contactInfo.${k}`),

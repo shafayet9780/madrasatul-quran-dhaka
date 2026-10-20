@@ -62,7 +62,11 @@ export const siteSettingsQuery = groq`
       isActive,
       order
     },
+    links,
     locationInfo {
+      gettingHere,
+      metroStation,
+      metroWalk,
       mapEmbedUrl,
       googleMapsUrl,
       landmarks[] {
@@ -83,11 +87,15 @@ export const feeSettingsQuery = groq`*[_type == "feeSettings" && _id == "feeSett
 // The old School details fields stand in until the clean-up script has moved them (docs/studio-cleanup.md).
 const oldSite = `*[_id == "siteSettings"][0]`;
 export const homePageQuery = groq`{
-  "home": *[_type == "homePage" && _id == "homePage"][0]{ routine, playSpaces, faq, heroImages, statistics },
+  "home": *[_type == "homePage" && _id == "homePage"][0]{ hero, routine, photos, playSpaces, faq, heroImages, statistics },
   "old": ${oldSite}{ heroImages, statistics }
 }{ ...home, "heroImages": coalesce(home.heroImages, old.heroImages)[]{ image{ ${imageFields} }, alt, title }, "statistics": coalesce(home.statistics, old.statistics) }`;
 
 export const seoSettingsQuery = groq`*[_id == "seoSettings"][0]{ description, shareImage, pages }`;
+
+export const curriculumQuery = groq`*[_id == "curriculum"][0]{ stages, classes, goals, glance }`;
+
+export const policiesQuery = groq`*[_id == "policies"][0]{ updatedAt, privacy, cookies }`;
 
 export const campusDayQuery = groq`*[_type == "campusDay" && _id == "campusDay"][0].stops`;
 

@@ -3,9 +3,10 @@ import type { Locale } from '@/lib/i18n';
 import { ReasonCards } from '@/components/site/reason-cards';
 import { QuoteText } from '@/components/site/quote-text';
 import { cn } from '@/lib/utils';
+import type { HomePage } from '@/types/home';
 
 /** Why Madrasatul Quran: the founders' reason in their words (from the prospectus), then eight reasons as cards. */
-export async function Why({ locale }: { locale: Locale }) {
+export async function Why({ locale, home }: { locale: Locale; home: HomePage | null }) {
   const t = await getTranslations({ locale, namespace: 'home.why' });
   return (
     <section id="why" className="bg-cream text-ink">
@@ -20,7 +21,7 @@ export async function Why({ locale }: { locale: Locale }) {
           </figure>
         </div>
 
-        <ReasonCards locale={locale} />
+        <ReasonCards locale={locale} home={home} />
       </div>
     </section>
   );

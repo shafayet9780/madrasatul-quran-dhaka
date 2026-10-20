@@ -41,11 +41,12 @@ export default async function AdmissionsPage({ params }: Props) {
   const { locale } = await params;
   setRequestLocale(locale);
   const service = getContentService(false);
-  const [{ intake, snapshot }, settings, site, testimonials] = await Promise.all([
+  const [{ intake, snapshot }, settings, site, testimonials, home] = await Promise.all([
     getPublishedIntake(),
     service.getFeeSettings(),
     service.getSiteSettings(),
     service.getHomeTestimonials(),
+    service.getHomePage(),
   ]);
   const t = await getTranslations({ locale, namespace: 'admissions.page' });
   const intro = await getTranslations({ locale, namespace: 'preAdmission.intro' });
@@ -92,7 +93,7 @@ export default async function AdmissionsPage({ params }: Props) {
       <AdmissionsHero locale={locale} state={intake.state} status={intakeStatus(intake, locale, intro)} facts={fees} links={links} />
       {classes.length > 0 && <AdmissionClasses locale={locale} classes={classes} year={year} />}
       {steps.length > 0 && <AdmissionSteps locale={locale} title={intro('stepsTitle')} steps={steps} />}
-      <AdmissionsWhy locale={locale} />
+      <AdmissionsWhy locale={locale} home={home} />
       <AdmissionFees locale={locale} settings={settings} />
       <Reviews locale={locale} reviews={reviewsFor(testimonials, locale)} tone="dark" />
       {faq.length > 0 && (

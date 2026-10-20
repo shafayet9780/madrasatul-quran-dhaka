@@ -8,7 +8,12 @@ export type HomeRoutinePart = { part?: DayPart; name?: Bilingual; steps?: { kind
 export type HomePhoto = Omit<SanityImage, 'alt'> & { alt?: Bilingual };
 export type HomeFaqItem = { question?: Bilingual; answer?: Bilingual };
 
+export type HomeChip = { figure?: string; title?: Bilingual; note?: Bilingual };
+export type FixedPhoto = 'building' | 'entrance' | 'classroom' | 'van' | 'whyBooks' | 'whyTeachers';
+
 export interface HomePage {
+  hero?: { line?: Bilingual; chip1?: HomeChip; chip2?: HomeChip; chip3?: HomeChip };
+  photos?: Partial<Record<FixedPhoto, HomePhoto>>;
   heroImages?: { image: SanityImage; alt: string; title?: Bilingual }[];
   statistics?: SchoolStatistics;
   routine?: HomeRoutinePart[];

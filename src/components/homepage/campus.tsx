@@ -5,10 +5,12 @@ import { getTranslations } from 'next-intl/server';
 import type { Locale } from '@/lib/i18n';
 import { ButtonLink } from '@/components/site/button';
 import { Icon } from '@/components/site/icon';
-import { WalkSketch } from '@/components/site/walk-sketch';
+import { WalkSketch, sketchCopy } from '@/components/site/walk-sketch';
+import type { contactDetails } from '@/lib/contact/details';
 import { cn } from '@/lib/utils';
 import { urlFor } from '@/lib/sanity';
 import type { HomePage, HomePhoto } from '@/types/home';
+import { homePhoto } from '@/lib/home/photos';
 
 type Spot = { line: string; dot: [number, number]; box: CSSProperties; tag: CSSProperties };
 type Collage = { ratio: string; photo: CSSProperties; roof: Spot; field: Spot };
@@ -27,7 +29,7 @@ const TALL: Collage = {
   field: { line: '70,84 70,77 72,71', dot: [72, 71], box: { right: 0, bottom: 0, width: '60%', height: '15%' }, tag: { left: 0, bottom: '2%', width: '37%' } },
 };
 
-const PHOTOS = ['/images/home/campus-entrance.jpg', '/images/home/campus-classroom.jpg']; // in the order of home.campus.photos
+const PHOTOS = ['entrance', 'classroom'] as const; // in the order of home.campus.photos
 
 type Space = { title: string; sub: string; placeholder: string; photo?: { src: string; alt: string; position: string } };
 
@@ -39,11 +41,11 @@ function spacePhoto(photo: HomePhoto | undefined, locale: Locale): Space['photo'
 }
 
 /** The building photo with the girls' rooftop garden and the boys' field beside it. The lines and dots are decoration. */
-function PlaySpaces({ layout, spaces, buildingAlt, className }: { layout: Collage; spaces: Record<'roof' | 'field', Space>; buildingAlt: string; className: string }) {
+function PlaySpaces({ layout, spaces, building, className }: { layout: Collage; spaces: Record<'roof' | 'field', Space>; building: ReturnType<typeof homePhoto>; className: string }) {
   return (
     <div className={cn('relative', className)} style={{ aspectRatio: layout.ratio }}>
       <div className="absolute overflow-hidden rounded-photo" style={layout.photo}>
-        <Image src="/images/home/campus-building.jpg" alt={buildingAlt} fill sizes="(min-width: 760px) 470px, 380px" className="object-cover object-top" />
+        <Image src={building.src} alt={building.alt} fill sizes="(min-width: 760px) 470px, 380px" className="object-cover" style={{ objectPosition: building.position }} />
       </div>
       <svg aria-hidden="true" viewBox="0 0 100 100" preserveAspectRatio="none" className="absolute inset-0 size-full overflow-visible">
         {(['roof', 'field'] as const).map((k) => (
@@ -88,13 +90,16 @@ function PlaySpaces({ layout, spaces, buildingAlt, className }: { layout: Collag
  * The campus: where the students play, two photos of the school (and the gallery, once it is on), and how to get there
  * from the metro; the Campus page while Pages on/off shows it.
  */
-export async function Campus({ locale, mapUrl, playSpaces, showVisit, showGallery }: { locale: Locale; mapUrl?: string; playSpaces?: HomePage['playSpaces']; showVisit: boolean; showGallery: boolean }) {
+export async function Campus({ locale, where, home, showVisit, showGallery }: { locale: Locale; where: ReturnType<typeof contactDetails>; home: HomePage | null; showVisit: boolean; showGallery: boolean }) {
+  const playSpaces = home?.playSpaces;
+  const { gettingHere, address, metro, landmarks, mapUrl } = where;
   const t = await getTranslations({ locale, namespace: 'home.campus' });
   const spaces: Record<'roof' | 'field', Space> = {
     roof: { ...t.raw('roof'), photo: spacePhoto(playSpaces?.roof, locale) },
     field: { ...t.raw('field'), photo: spacePhoto(playSpaces?.field, locale) },
   };
-  const photos = t.raw('photos') as { caption: string; alt: string }[];
+  const photos = (t.raw('photos') as { caption: string; alt: string }[]).map((p, i) => ({ ...p, ...homePhoto(home, PHOTOS[i], locale, 1200, p.alt) }));
+  const building = homePhoto(home, 'building', locale, 900, t('buildingAlt'));
   return (
     <section className="bg-dark text-on-dark">
       <div className="page-wrap flex flex-col gap-9 py-section">
@@ -105,15 +110,15 @@ export async function Campus({ locale, mapUrl, playSpaces, showVisit, showGaller
 
         <div className="flex flex-col gap-5">
           <h3 className="m-0 text-h3">{t('playTitle')}</h3>
-          <PlaySpaces layout={WIDE} spaces={spaces} buildingAlt={t('buildingAlt')} className="hidden min-[760px]:block" />
-          <PlaySpaces layout={TALL} spaces={spaces} buildingAlt={t('buildingAlt')} className="max-w-[440px] min-[760px]:hidden" />
+          <PlaySpaces layout={WIDE} spaces={spaces} building={building} className="hidden min-[760px]:block" />
+          <PlaySpaces layout={TALL} spaces={spaces} building={building} className="max-w-[440px] min-[760px]:hidden" />
         </div>
 
         <div className="flex flex-wrap gap-4">
-          {photos.map((p, i) => (
-            <figure key={p.alt} className="m-0 flex min-w-0 flex-[1_1_300px] flex-col gap-2">
+          {photos.map((p) => (
+            <figure key={p.src} className="m-0 flex min-w-0 flex-[1_1_300px] flex-col gap-2">
               <div className="relative aspect-[16/10] overflow-hidden rounded-photo">
-                <Image src={PHOTOS[i]} alt={p.alt} fill sizes="(min-width: 700px) 50vw, 100vw" className="object-cover" />
+                <Image src={p.src} alt={p.alt} fill sizes="(min-width: 700px) 50vw, 100vw" className="object-cover" style={{ objectPosition: p.position }} />
               </div>
               <figcaption className="text-14 text-on-dark-muted">{p.caption}</figcaption>
             </figure>
@@ -130,13 +135,19 @@ export async function Campus({ locale, mapUrl, playSpaces, showVisit, showGaller
         )}
 
         <div className="flex flex-wrap items-center gap-x-12 gap-y-7 rounded-panel bg-panel p-[clamp(18px,3vw,36px)]">
-          <div className="min-w-0 max-w-[560px] flex-[1_1_320px]">
-            <WalkSketch c={t.raw('sketch')} />
-          </div>
+          {metro && (
+            <div className="min-w-0 max-w-[560px] flex-[1_1_320px]">
+              <WalkSketch c={sketchCopy(t.raw('sketch'), metro)} />
+            </div>
+          )}
           <div className="flex min-w-0 flex-[1_1_320px] flex-col gap-3">
-            <h3 className="m-0 text-h3">{t('where.title')}</h3>
-            <p className="m-0 text-17 text-on-dark-body">{t('where.address')}</p>
-            <p className="m-0 text-15 text-on-dark-muted">{t('where.landmarks')}</p>
+            <h3 className="m-0 text-h3">{gettingHere || t('where.title')}</h3>
+            {address && <p className="m-0 text-17 text-on-dark-body">{address}</p>}
+            {landmarks.length > 0 && (
+              <p className="m-0 text-15 text-on-dark-muted">
+                {landmarks.map((l) => (l.distance ? t('where.landmark', { name: l.name, distance: l.distance }) : l.name)).join(' · ')}
+              </p>
+            )}
             <div className="mt-1.5 flex flex-wrap gap-2.5">
               {mapUrl && (
                 <ButtonLink href={mapUrl} variant="light" className="min-h-12 px-[22px] text-16">

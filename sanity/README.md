@@ -9,15 +9,17 @@ The Studio is served by the site at `/studio` (`sanity.config.ts`). The sidebar 
 | Notices | `notice` | The notice board (`docs/notices.md`) |
 | Gallery | `album` | Photo and video albums (`docs/gallery.md`) |
 | Guardian reviews | `testimonial` | Reviews shown with consent; drag to order, the first three show on the homepage |
-| Homepage | `homePage` | Hero photos, the numbers band, the routine, play-space photos, the FAQ |
+| Homepage | `homePage` | Hero text and photos, the numbers band, the routine, the section photos (an empty slot keeps the launch photo), play-space photos, the FAQ |
 | Campus: a day | `campusDay` | The campus tour (`docs/campus-day.md`) |
+| Curriculum | `curriculum` | Stages (hours, subject split), one row per class (age, Quran portion, books, subjects), goals, at a glance: the homepage's model, map and day bars and the curriculum page are drawn from it (`docs/cms-coverage.md`) |
 | Admissions → Pre-admission form | `preAdmissionForm` | The form, its cycle and the "Form open" switch (`docs/pre-admission-admin-guide.md`) |
 | Admissions → Fees, discounts & transport | `feeSettings` | Fees, discounts, vehicles and van routes (`docs/fees-and-admissions.md`) |
 | People | `director`, `advisor`, `teacher`, `department` | Profiles; drag to order |
 | Downloads | `downloadable`, `downloadCategory`, `publicDownloadSettings` | The library and the public PDFs (`docs/downloads-library.md`) |
-| School details | `siteSettings` | Logo, tagline, mission, phones (each with what it is used for), emails, WhatsApp, hours, address, map, social links |
+| School details | `siteSettings` | Logo, tagline, mission, phones (each with what it is used for), emails, WhatsApp, hours, address, how to get here and the walk from the metro, map, landmarks, social and outside links |
 | Pages on/off | `pagesOnOff` | Which pages exist and which menu links show |
 | Search & sharing | `seoSettings` | Default description, share picture, and each main page's title and description |
+| Privacy & cookie policies | `policies` | The two policy pages and their last-updated date |
 | Surveys | `survey*` | Rounds, templates, classes, teachers and areas (`docs/survey-admin-guide.md`) |
 
 The one-off documents (`SINGLETONS` in `structure.ts`) have their type as their id, and cannot be created from "+", duplicated or deleted.

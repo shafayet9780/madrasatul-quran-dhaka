@@ -1,0 +1,783 @@
+{
+  "_about": "Today's content for the Studio fields of docs/cms-coverage.md, written by scripts/cms-coverage-seed.ts (only where a field is empty). The local preview reads the curriculum from here.",
+  "policies": {
+    "updatedAt": "2026-10-20",
+    "privacy": {
+      "title": {
+        "bengali": "গোপনীয়তা নীতি",
+        "english": "Privacy Policy"
+      },
+      "intro": {
+        "bengali": "মাদরাসাতুল কুরআন আপনার গোপনীয়তাকে সম্মান করে। আমরা কী তথ্য নিই, সাইটের ব্যবহার বুঝতে কোন টুল ব্যবহার করি, আর গোপনীয়তা নিয়ে কিছু জানতে বা চাইতে কীভাবে যোগাযোগ করবেন, তা এখানে লেখা আছে।",
+        "english": "Madrasatul Quran respects your privacy. This policy explains what information we collect, how we use analytics tools, and how to contact us about privacy requests."
+      },
+      "sections": [
+        {
+          "heading": {
+            "bengali": "আমরা যে তথ্য সংগ্রহ করি",
+            "english": "Information we collect"
+          },
+          "body": {
+            "bengali": "আপনি নিজে যে ফর্ম পূরণ করে জমা দেন (যেমন প্রি-অ্যাডমিশন), তার তথ্য; ওয়েবসাইট চালাতে যে সাধারণ টেকনিক্যাল তথ্য লাগে; আর সাইট ব্যবহারের সামগ্রিক হিসাব, যাতে নাম, ইমেইল, ফোন বা বার্তার লেখা থাকে না।",
+            "english": "We collect information you voluntarily submit through forms (such as pre-admission inquiries), basic technical data needed to operate the website, and aggregated analytics events that do not include names, email addresses, phone numbers, or message content."
+          },
+          "_key": "privacy1"
+        },
+        {
+          "heading": {
+            "bengali": "অ্যানালিটিক্স ও বিজ্ঞাপনের টুল",
+            "english": "Analytics and advertising tools"
+          },
+          "body": {
+            "bengali": "Google Tag Manager দিয়ে আমরা Google Analytics 4, Meta Pixel ও Microsoft Clarity চালাই। এগুলো দিয়ে বুঝি সাইট কীভাবে ব্যবহার হচ্ছে আর বিজ্ঞাপন কতটা কাজ করছে। এসব টুলে এমন কোনো তথ্য পাঠানো হয় না, যা দিয়ে কাউকে চেনা যায়।",
+            "english": "We use Google Tag Manager to load analytics and advertising tags, including Google Analytics 4, Meta Pixel, and Microsoft Clarity. These tools help us understand site usage and measure campaigns. We do not send personally identifiable information in analytics payloads."
+          },
+          "_key": "privacy2"
+        },
+        {
+          "heading": {
+            "bengali": "শিশুদের তথ্য",
+            "english": "Children's data"
+          },
+          "body": {
+            "bengali": "অভিভাবকরা শিক্ষার্থীর হয়ে তথ্য জমা দিতে পারেন। ফর্মের তথ্য আমরা নিরাপদে রাখি, আর অ্যানালিটিক্সে এমন কিছু যায় না যা দিয়ে কাউকে চেনা যায়। জমা দেওয়া তথ্য দেখতে বা মুছে ফেলতে চাইলে যোগাযোগ করুন।",
+            "english": "Our website may be used by parents and guardians submitting information on behalf of students. We handle student-related form data securely and limit analytics to non-identifying events. Contact us to request access or deletion of submitted data."
+          },
+          "_key": "privacy3"
+        },
+        {
+          "heading": {
+            "bengali": "গোপনীয়তা নিয়ে যোগাযোগ",
+            "english": "Privacy requests"
+          },
+          "body": {
+            "bengali": "গোপনীয়তা নিয়ে প্রশ্ন বা অনুরোধ থাকলে {email}-এ লিখুন, অথবা ওয়েবসাইটের যোগাযোগ পেজ থেকে যোগাযোগ করুন।",
+            "english": "For privacy questions or requests, contact us at {email} or through the contact page on this website."
+          },
+          "_key": "privacy4"
+        }
+      ]
+    },
+    "cookies": {
+      "title": {
+        "bengali": "কুকি নীতি",
+        "english": "Cookie Policy"
+      },
+      "intro": {
+        "bengali": "মাদরাসাতুল কুরআন সাইটের ব্যবহার বুঝতে, বিজ্ঞাপনের জন্য আর সাইট ভালো করতে কীভাবে কুকি ব্যবহার করে, তা এখানে লেখা আছে।",
+        "english": "This policy explains how Madrasatul Quran uses cookies and similar technologies for analytics, advertising, and site improvement."
+      },
+      "sections": [
+        {
+          "heading": {
+            "bengali": "আমরা যে টুল ব্যবহার করি",
+            "english": "Tools we use"
+          },
+          "body": {
+            "bengali": "আপনি সম্মতি দিলে Google Tag Manager, Google Analytics 4, Meta Pixel ও Microsoft Clarity কুকি বা এ ধরনের স্টোরেজ ব্যবহার করতে পারে। এগুলোর সেটিং Google Tag Manager-এ ঠিক করা থাকে।",
+            "english": "Google Tag Manager, Google Analytics 4, Meta Pixel, and Microsoft Clarity may set cookies or use similar storage when you consent. Configuration is managed in Google Tag Manager."
+          },
+          "_key": "cookies1"
+        },
+        {
+          "heading": {
+            "bengali": "কতদিন রাখা হয়",
+            "english": "Retention"
+          },
+          "body": {
+            "bengali": "কুকি ও অ্যানালিটিক্সের তথ্য কতদিন থাকবে, তা প্রতিটি টুলে আর Google Tag Manager-এ ঠিক করা থাকে। সম্মতি থাকলে কোন বিজ্ঞাপন বা লিংক থেকে এসেছেন, সেই তথ্য শুধু ব্রাউজার খোলা থাকা পর্যন্ত থাকে।",
+            "english": "Cookie and analytics retention periods are configured in each vendor platform and Google Tag Manager. Session attribution data is stored in your browser session only when consent allows."
+          },
+          "_key": "cookies2"
+        },
+        {
+          "heading": {
+            "bengali": "পছন্দ বদলানো",
+            "english": "Changing your preferences"
+          },
+          "body": {
+            "bengali": "ওয়েবসাইটের ফুটার থেকে কুকির পছন্দ আবার খুলে যেকোনো সময় অ্যানালিটিক্স ও বিজ্ঞাপনের কুকি চালু বা বন্ধ করতে পারেন।",
+            "english": "You can reopen cookie preferences from the website footer at any time to accept or reject non-essential analytics and advertising cookies."
+          },
+          "_key": "cookies3"
+        }
+      ]
+    }
+  },
+  "siteSettings": {
+    "gettingHere": {
+      "bengali": "উত্তরা সেন্টার মেট্রো স্টেশন থেকে ৬০০ মিটার পূর্বে",
+      "english": "600 metres east of Uttara Center metro"
+    },
+    "metroStation": {
+      "bengali": "উত্তরা সেন্টার",
+      "english": "Uttara Center"
+    },
+    "metroWalk": "600m",
+    "links": {
+      "books": "https://alquranervasha.com/downloads",
+      "parentLogin": "https://www.eximusedu.com/go/mqd",
+      "googlePlay": "https://play.google.com/store/apps/details?id=com.eximusedu.app",
+      "appStore": "https://apps.apple.com/us/app/eximusedu/id1459487310"
+    },
+    "address": {
+      "bengali": "বাসা ৩৭, রোড ২/এ, ব্লক-আই, সেক্টর-১৭, উত্তরা, ঢাকা",
+      "english": "House 37, Road 2/A, Block-I, Sector 17, Uttara, Dhaka"
+    },
+    "addressWas": {
+      "bengali": "বাসা ৩৭, রোড ২/এ, ব্লক-আই, সেক্টর-১৭ (উত্তরা সেন্টার মেট্রো স্টেশন এর পাশে), উত্তরা, ঢাকা। ",
+      "english": "House 37, Road 2/A, Block-i, Sector-17 (beside uttara center metro station), Uttara, Dhaka."
+    },
+    "landmark": {
+      "_key": "mirpurDohs",
+      "name": {
+        "bengali": "মিরপুর ডিওএইচএস",
+        "english": "Mirpur DOHS"
+      },
+      "distance": "2.5 km"
+    }
+  },
+  "homePage": {
+    "hero": {
+      "line": {
+        "bengali": "ইসলামি ও সাধারণ শিক্ষার আদর্শ সমন্বয়",
+        "english": "An ideal combination of Islamic and general education"
+      },
+      "chip1": {
+        "figure": "50/50",
+        "title": {
+          "bengali": "ইসলামি ও সাধারণ শিক্ষা",
+          "english": "Islamic and general"
+        },
+        "note": {
+          "bengali": "সমান গুরুত্বে",
+          "english": "given equal weight"
+        }
+      },
+      "chip2": {
+        "title": {
+          "bengali": "ডে-কেয়ার হিফজ",
+          "english": "Day-care hifz"
+        },
+        "note": {
+          "bengali": "সাথে সাধারণ শিক্ষা",
+          "english": "with general study alongside"
+        }
+      },
+      "chip3": {
+        "title": {
+          "bengali": "আরবি মিডিয়াম",
+          "english": "Arabic medium"
+        },
+        "note": {
+          "bengali": "৬ষ্ঠ শ্রেণি থেকে ইসলাম শিক্ষা",
+          "english": "Islamic studies from Class 6"
+        }
+      }
+    }
+  },
+  "curriculum": {
+    "stages": [
+      {
+        "_key": "stage1",
+        "name": {
+          "bengali": "প্রি-হিফজ",
+          "english": "Pre-Hifz"
+        },
+        "care": {
+          "bengali": "নন ডে-কেয়ার",
+          "english": "Non day-care"
+        },
+        "classes": {
+          "bengali": "নার্সারি থেকে প্রথম",
+          "english": "Nursery to Class 1"
+        },
+        "start": "09:00",
+        "end": "13:00",
+        "quran": 25,
+        "arabic": 25,
+        "general": 50,
+        "arabicIncludesIslam": false
+      },
+      {
+        "_key": "stage2",
+        "name": {
+          "bengali": "হিফজ",
+          "english": "Hifz"
+        },
+        "care": {
+          "bengali": "ডে-কেয়ার",
+          "english": "Day-care"
+        },
+        "classes": {
+          "bengali": "দ্বিতীয় থেকে পঞ্চম",
+          "english": "Classes 2 to 5"
+        },
+        "start": "07:00",
+        "end": "20:30",
+        "quran": 70,
+        "arabic": 15,
+        "general": 15,
+        "arabicIncludesIslam": false
+      },
+      {
+        "_key": "stage3",
+        "name": {
+          "bengali": "আফটার হিফজ",
+          "english": "After Hifz"
+        },
+        "care": {
+          "bengali": "দাখিলসহ",
+          "english": "Dakhil included"
+        },
+        "classes": {
+          "bengali": "ষষ্ঠ থেকে মুতাওয়াসসিতা",
+          "english": "Class 6 to Mutawassita"
+        },
+        "start": "08:00",
+        "end": "13:00",
+        "quran": 0,
+        "arabic": 50,
+        "general": 50,
+        "arabicIncludesIslam": true,
+        "note": {
+          "bengali": "দাখিলের পর দুটি পথ: এখানেই মুতাওয়াসসিতা, অথবা কলেজ।",
+          "english": "After Dakhil, two ways: Mutawassita here, or college."
+        }
+      }
+    ],
+    "classes": [
+      {
+        "_key": "class0",
+        "name": {
+          "bengali": "নার্সারি",
+          "english": "Nursery"
+        },
+        "stage": 1,
+        "age": 5,
+        "quran": {
+          "bengali": "কায়দা",
+          "english": "Qaida"
+        },
+        "bookLevel": "N",
+        "arabicBook": {
+          "bengali": "রওজা ১ম",
+          "english": "Rawdah 1"
+        },
+        "arabicFocus": {
+          "bengali": "আরবি বর্ণ লেখা ও শব্দ বলা শিক্ষা",
+          "english": "Writing Arabic letters and saying words"
+        },
+        "islamBook": {
+          "bengali": "ইসলাম শিক্ষা, নার্সারি",
+          "english": "Islamic studies, Nursery"
+        },
+        "islamFocus": {
+          "bengali": "আকিদা, ফিকহ, হাদিস, তারিখ",
+          "english": "Aqidah, fiqh, hadith, history"
+        },
+        "islamInArabic": false,
+        "general": [
+          "bangla",
+          "english",
+          "maths"
+        ],
+        "generalBooks": "aqvi",
+        "limited": false
+      },
+      {
+        "_key": "class1",
+        "name": {
+          "bengali": "কেজি",
+          "english": "KG"
+        },
+        "stage": 1,
+        "age": 6,
+        "quran": {
+          "bengali": "আম্মাপারা",
+          "english": "Ammapara"
+        },
+        "bookLevel": "KG",
+        "arabicBook": {
+          "bengali": "রওজা ২য়",
+          "english": "Rawdah 2"
+        },
+        "arabicFocus": {
+          "bengali": "আরবি শব্দ ও বাক্য লেখা শিক্ষা",
+          "english": "Writing Arabic words and sentences"
+        },
+        "islamBook": {
+          "bengali": "ইসলাম শিক্ষা, কেজি",
+          "english": "Islamic studies, KG"
+        },
+        "islamFocus": {
+          "bengali": "আকিদা, ফিকহ, হাদিস, তারিখ",
+          "english": "Aqidah, fiqh, hadith, history"
+        },
+        "islamInArabic": false,
+        "general": [
+          "bangla",
+          "english",
+          "maths"
+        ],
+        "generalBooks": "aqvi",
+        "limited": false
+      },
+      {
+        "_key": "class2",
+        "name": {
+          "bengali": "১ম",
+          "english": "Class 1"
+        },
+        "stage": 1,
+        "age": 7,
+        "quran": {
+          "bengali": "নাজেরা",
+          "english": "Nazera"
+        },
+        "bookLevel": "1",
+        "arabicBook": {
+          "bengali": "বিদায়া ১ম",
+          "english": "Bidayah 1"
+        },
+        "arabicFocus": {
+          "bengali": "আরবি কথাবার্তা শিক্ষা",
+          "english": "Arabic conversation"
+        },
+        "islamBook": {
+          "bengali": "ইসলাম শিক্ষা-১",
+          "english": "Islamic studies 1"
+        },
+        "islamFocus": {
+          "bengali": "আকিদা, ফিকহ, হাদিস, তারিখ",
+          "english": "Aqidah, fiqh, hadith, history"
+        },
+        "islamInArabic": false,
+        "general": [
+          "bangla",
+          "english",
+          "maths"
+        ],
+        "generalBooks": "nctb",
+        "limited": false
+      },
+      {
+        "_key": "class3",
+        "name": {
+          "bengali": "২য়",
+          "english": "Class 2"
+        },
+        "stage": 2,
+        "age": 8,
+        "quran": {
+          "bengali": "হিফজ ১",
+          "english": "Hifz 1"
+        },
+        "bookLevel": "2",
+        "arabicBook": {
+          "bengali": "বিদায়া ২য়",
+          "english": "Bidayah 2"
+        },
+        "arabicFocus": {
+          "bengali": "আরবি কথাবার্তা ও রচনা শিক্ষা",
+          "english": "Arabic conversation and composition"
+        },
+        "islamBook": {
+          "bengali": "ইসলাম শিক্ষা-২",
+          "english": "Islamic studies 2"
+        },
+        "islamFocus": {
+          "bengali": "আকিদা, ফিকহ, হাদিস, তারিখ",
+          "english": "Aqidah, fiqh, hadith, history"
+        },
+        "islamInArabic": false,
+        "general": [
+          "bangla",
+          "english",
+          "maths"
+        ],
+        "generalBooks": "nctb",
+        "limited": true
+      },
+      {
+        "_key": "class4",
+        "name": {
+          "bengali": "৩য়",
+          "english": "Class 3"
+        },
+        "stage": 2,
+        "age": 9,
+        "quran": {
+          "bengali": "হিফজ ২",
+          "english": "Hifz 2"
+        },
+        "bookLevel": "3",
+        "arabicBook": {
+          "bengali": "বিদায়া ৩য়",
+          "english": "Bidayah 3"
+        },
+        "arabicFocus": {
+          "bengali": "প্রাথমিক ব্যাকরণ শিক্ষা ও রচনা",
+          "english": "Basic grammar and composition"
+        },
+        "islamBook": {
+          "bengali": "ইসলাম শিক্ষা-৩",
+          "english": "Islamic studies 3"
+        },
+        "islamFocus": {
+          "bengali": "আকিদা, ফিকহ, হাদিস, তারিখ",
+          "english": "Aqidah, fiqh, hadith, history"
+        },
+        "islamInArabic": false,
+        "general": [
+          "bangla",
+          "english",
+          "maths"
+        ],
+        "generalBooks": "nctb",
+        "limited": true
+      },
+      {
+        "_key": "class5",
+        "name": {
+          "bengali": "৪র্থ",
+          "english": "Class 4"
+        },
+        "stage": 2,
+        "age": 10,
+        "quran": {
+          "bengali": "হিফজ ৩",
+          "english": "Hifz 3"
+        },
+        "bookLevel": "4",
+        "arabicBook": {
+          "bengali": "বিদায়া ৪র্থ",
+          "english": "Bidayah 4"
+        },
+        "arabicFocus": {
+          "bengali": "নাহু সরফ শিক্ষা ও রচনা",
+          "english": "Nahw and sarf, and composition"
+        },
+        "islamBook": {
+          "bengali": "ইসলাম শিক্ষা-৪, বিষয়ভিত্তিক ৫০ হাদিস",
+          "english": "Islamic studies 4, 50 hadith by topic"
+        },
+        "islamFocus": {
+          "bengali": "আকিদা, ফিকহ, হাদিস, তারিখ",
+          "english": "Aqidah, fiqh, hadith, history"
+        },
+        "islamInArabic": false,
+        "general": [
+          "bangla",
+          "english",
+          "maths"
+        ],
+        "generalBooks": "nctb",
+        "limited": true
+      },
+      {
+        "_key": "class6",
+        "name": {
+          "bengali": "৫ম",
+          "english": "Class 5"
+        },
+        "stage": 2,
+        "age": 11,
+        "quran": {
+          "bengali": "শুনানি",
+          "english": "Shunani"
+        },
+        "bookLevel": "5",
+        "arabicBook": {
+          "bengali": "বিদায়া ৫ম, ক্বাসাসুন নাবিয়্যিন",
+          "english": "Bidayah 5, Qasas an-Nabiyyin"
+        },
+        "arabicFocus": {
+          "bengali": "আরবি কথাবার্তা ও রচনা শিক্ষা",
+          "english": "Arabic conversation and composition"
+        },
+        "islamBook": {
+          "bengali": "ইসলাম শিক্ষা-৫, বিষয়ভিত্তিক ৫০ হাদিস",
+          "english": "Islamic studies 5, 50 hadith by topic"
+        },
+        "islamFocus": {
+          "bengali": "আকিদা, ফিকহ, হাদিস, তারিখ",
+          "english": "Aqidah, fiqh, hadith, history"
+        },
+        "islamInArabic": false,
+        "general": [
+          "bangla",
+          "english",
+          "maths",
+          "science"
+        ],
+        "generalBooks": "nctb",
+        "limited": true
+      },
+      {
+        "_key": "class7",
+        "name": {
+          "bengali": "৬ষ্ঠ",
+          "english": "Class 6"
+        },
+        "stage": 3,
+        "age": 12,
+        "bookLevel": "6",
+        "arabicBook": {
+          "bengali": "বিদায়া ৬ষ্ঠ, কালিমাতুল কুরআন",
+          "english": "Bidayah 6, Kalimatul Quran"
+        },
+        "arabicFocus": {
+          "bengali": "আরবি রচনা ও কুরআনের শব্দ শিক্ষা",
+          "english": "Arabic composition and the words of the Quran"
+        },
+        "islamBook": {
+          "bengali": "বিদায়াতুল ফিকহ, বিষয়ভিত্তিক ১০০ হাদিস",
+          "english": "Bidayatul Fiqh, 100 hadith by topic"
+        },
+        "islamFocus": {
+          "bengali": "ফিকহ, হাদিস; আরবি ভাষায়",
+          "english": "Fiqh, hadith; in Arabic"
+        },
+        "islamInArabic": true,
+        "general": [
+          "bangla",
+          "english",
+          "maths",
+          "science",
+          "bgs"
+        ],
+        "generalBooks": "nctb",
+        "limited": false
+      },
+      {
+        "_key": "class8",
+        "name": {
+          "bengali": "৭ম",
+          "english": "Class 7"
+        },
+        "stage": 3,
+        "age": 13,
+        "bookLevel": "7",
+        "arabicBook": {
+          "bengali": "লুগাতুল কুরআন, কুরআন অনুবাদ",
+          "english": "Lughatul Quran, Quran translation"
+        },
+        "arabicFocus": {
+          "bengali": "নাহু সরফ বালাগাহ ও কুরআন অনুবাদ",
+          "english": "Nahw, sarf and balagha, and Quran translation"
+        },
+        "islamBook": {
+          "bengali": "বুলুগুল মারাম, বিষয়ভিত্তিক ১০০ হাদিস",
+          "english": "Bulugh al-Maram, 100 hadith by topic"
+        },
+        "islamFocus": {
+          "bengali": "হাদিস",
+          "english": "Hadith"
+        },
+        "islamInArabic": true,
+        "general": [
+          "bangla",
+          "english",
+          "maths",
+          "science",
+          "bgs"
+        ],
+        "generalBooks": "nctb",
+        "limited": false
+      },
+      {
+        "_key": "class9",
+        "name": {
+          "bengali": "৮ম",
+          "english": "Class 8"
+        },
+        "stage": 3,
+        "age": 14,
+        "bookLevel": "8",
+        "arabicBook": {
+          "bengali": "কুরআন অনুবাদ",
+          "english": "Quran translation"
+        },
+        "arabicFocus": {
+          "bengali": "কুরআন অনুবাদ শিক্ষা",
+          "english": "Learning to translate the Quran"
+        },
+        "islamBook": {
+          "bengali": "আল ফিকহুল মুয়াসসার (প্রথম পার্ট), আত্বইয়াবুল মানহি",
+          "english": "Al-Fiqh al-Muyassar (part 1), Atyab al-Minah"
+        },
+        "islamFocus": {
+          "bengali": "ফিকহ, হাদিস",
+          "english": "Fiqh, hadith"
+        },
+        "islamInArabic": true,
+        "general": [
+          "bangla",
+          "english",
+          "maths",
+          "science",
+          "bgs"
+        ],
+        "generalBooks": "nctb",
+        "limited": false
+      },
+      {
+        "_key": "class10",
+        "name": {
+          "bengali": "৯ম",
+          "english": "Class 9"
+        },
+        "stage": 3,
+        "age": 15,
+        "board": "dakhil"
+      },
+      {
+        "_key": "class11",
+        "name": {
+          "bengali": "১০ম",
+          "english": "Class 10"
+        },
+        "stage": 3,
+        "age": 16,
+        "board": "dakhil"
+      },
+      {
+        "_key": "class12",
+        "name": {
+          "bengali": "একাদশ",
+          "english": "Class 11"
+        },
+        "stage": 3,
+        "board": "mutawassita"
+      }
+    ],
+    "goals": [
+      {
+        "_key": "goal0",
+        "title": {
+          "bengali": "কুরআন",
+          "english": "Quran"
+        },
+        "text": {
+          "bengali": "সামর্থ্য অনুযায়ী হিফজ ও কুরআন তর্জমা। দাখিলের মধ্যে কুরআনের ৯০%+ অনুবাদে সক্ষমতা।",
+          "english": "Hifz as each student is able, and Quran translation: the ability to translate 90%+ of the Quran by Dakhil."
+        },
+        "figure": "90%+"
+      },
+      {
+        "_key": "goal1",
+        "title": {
+          "bengali": "আরবি ভাষা",
+          "english": "Arabic"
+        },
+        "text": {
+          "bengali": "আরবি বলতে পারা, শুনে বুঝতে পারা, ইবারাত পড়তে পারা ও লিখতে পারা।",
+          "english": "Speaking Arabic, understanding it by ear, reading Arabic texts (ibarat) and writing it."
+        }
+      },
+      {
+        "_key": "goal2",
+        "title": {
+          "bengali": "আকিদাহ",
+          "english": "Aqidah"
+        },
+        "text": {
+          "bengali": "ঈমান ও আকিদার বিষয়াবলি ও ইসলামিক মূল্যবোধ।",
+          "english": "Matters of iman and aqidah, and Islamic values."
+        }
+      },
+      {
+        "_key": "goal3",
+        "title": {
+          "bengali": "ফিকহ",
+          "english": "Fiqh"
+        },
+        "text": {
+          "bengali": "বেসিক মাসায়িল, আদাব-তারবিয়া ও মাসনুন দোয়া।",
+          "english": "Basic rulings (masail), adab and tarbiyah, and masnun duas."
+        }
+      },
+      {
+        "_key": "goal4",
+        "title": {
+          "bengali": "হাদিস",
+          "english": "Hadith"
+        },
+        "text": {
+          "bengali": "নবম শ্রেণির মধ্যে বিষয়ভিত্তিক ৩০০+ হাদিস মুখস্থ করা।",
+          "english": "300+ hadith memorised, by topic, by Class 9."
+        },
+        "figure": "300+"
+      },
+      {
+        "_key": "goal5",
+        "title": {
+          "bengali": "ইতিহাস",
+          "english": "History"
+        },
+        "text": {
+          "bengali": "নবীদের ইতিহাস, কুরআনের বিভিন্ন ইতিহাস, খলিফাদের ইতিহাস ও পরবর্তী ইতিহাস।",
+          "english": "The history of the prophets, of the Quran, of the caliphs, and the history after them."
+        }
+      }
+    ],
+    "glance": [
+      {
+        "_key": "glance0",
+        "label": {
+          "bengali": "শ্রেণি",
+          "english": "Classes"
+        },
+        "value": {
+          "bengali": "নার্সারি থেকে মুতাওয়াসসিতা",
+          "english": "Nursery to Mutawassita"
+        }
+      },
+      {
+        "_key": "glance1",
+        "label": {
+          "bengali": "হিফজ",
+          "english": "Hifz"
+        },
+        "value": {
+          "bengali": "২য় থেকে ৫ম শ্রেণি, ডে-কেয়ারে",
+          "english": "Classes 2 to 5, in day-care"
+        }
+      },
+      {
+        "_key": "glance2",
+        "label": {
+          "bengali": "আরবি ও ইসলাম শিক্ষা",
+          "english": "Arabic and Islamic studies"
+        },
+        "value": {
+          "bengali": "AQVI প্রণীত, নার্সারি থেকে ৮ম",
+          "english": "By AQVI, Nursery to Class 8"
+        }
+      },
+      {
+        "_key": "glance3",
+        "label": {
+          "bengali": "ইসলাম শিক্ষা আরবি ভাষায়",
+          "english": "Islamic studies in Arabic"
+        },
+        "value": {
+          "bengali": "৬ষ্ঠ শ্রেণি থেকে",
+          "english": "From Class 6"
+        }
+      },
+      {
+        "_key": "glance4",
+        "label": {
+          "bengali": "বোর্ড পরীক্ষা",
+          "english": "Board exam"
+        },
+        "value": {
+          "bengali": "দাখিল",
+          "english": "Dakhil"
+        }
+      }
+    ]
+  }
+}

@@ -22,6 +22,8 @@ import { surveyTeacher } from './surveyTeacher'
 import { surveyTemplate } from './surveyTemplate'
 import { surveyRound } from './surveyRound'
 import { admissionFormTypes } from './admissionForm'
+import { policies } from './policies'
+import { curriculum } from './curriculum'
 
 export const schemaTypes = [
   feeSettings,
@@ -33,6 +35,8 @@ export const schemaTypes = [
   siteSettings,
   pagesOnOff,
   seoSettings,
+  policies,
+  curriculum,
   preAdmissionForm,
   department,
   director,

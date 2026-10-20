@@ -28,8 +28,8 @@ export function openingHoursFrom(text?: string) {
 
 /**
  * The school for search engines (schema.org School): from School details the name, logo, address, office hours, the
- * admissions phone, the active emails, the map and the social pages (anything missing is left out), with the photo
- * of the school's front (the share image) and its place on the map.
+ * admissions phone, the active emails, the map and the social pages (anything missing is left out), with the share
+ * picture (Studio → Search & sharing, else the photo of the school's front) and its place on the map.
  */
 export function generateSchoolStructuredData({
   locale,
@@ -40,6 +40,7 @@ export function generateSchoolStructuredData({
   emails,
   mapUrl,
   sameAs,
+  image,
 }: {
   locale: 'bengali' | 'english';
   logo?: string;
@@ -50,6 +51,8 @@ export function generateSchoolStructuredData({
   emails: string[];
   mapUrl?: string;
   sameAs: string[];
+  /** The share picture's URL. */
+  image?: string;
 }) {
   const origin = getSiteUrl();
   const openingHours = openingHoursFrom(hours);
@@ -61,7 +64,7 @@ export function generateSchoolStructuredData({
     name,
     alternateName,
     url: `${origin}/${locale}`,
-    image: `${origin}${SOCIAL_IMAGE}`,
+    image: image ?? `${origin}${SOCIAL_IMAGE}`,
     ...(logo && { logo }),
     ...(address && { address: { '@type': 'PostalAddress', streetAddress: address, addressLocality: 'Dhaka', addressCountry: 'BD' } }),
     geo: SCHOOL_GEO,

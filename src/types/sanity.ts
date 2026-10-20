@@ -132,6 +132,9 @@ export interface ContactInfo {
 }
 
 export interface LocationInfo {
+  gettingHere?: Partial<MultilingualText>
+  metroStation?: Partial<MultilingualText>
+  metroWalk?: string
   mapEmbedUrl?: string
   googleMapsUrl?: string
   landmarks?: Array<{
@@ -170,11 +173,26 @@ export interface SiteSettings {
   contactInfo?: ContactInfo
   locationInfo?: LocationInfo
   socialMedia?: SocialMediaLink[]
+  links?: { books?: string; parentLogin?: string; googlePlay?: string; appStore?: string }
   navigationVisibility?: NavigationVisibility
 }
 
 /** The main pages with their own title and description in Studio → Search & sharing. */
 export type SeoPage = 'home' | 'about' | 'admissions' | 'preAdmission' | 'curriculum' | 'campus' | 'contact' | 'notices' | 'gallery'
+
+/** One policy in Studio → Privacy & cookie policies. */
+export interface PolicyText {
+  title?: Partial<MultilingualText>
+  intro?: Partial<MultilingualText>
+  sections?: { heading?: Partial<MultilingualText>; body?: Partial<MultilingualText> }[]
+}
+
+/** Studio → Privacy & cookie policies (singleton `policies`). */
+export interface Policies {
+  updatedAt?: string
+  privacy?: PolicyText
+  cookies?: PolicyText
+}
 
 /** Studio → Search & sharing. Every field is optional: an empty one keeps the site's own wording. */
 export interface SeoSettings {

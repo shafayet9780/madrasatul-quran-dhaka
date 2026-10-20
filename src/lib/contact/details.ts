@@ -19,6 +19,13 @@ export function distanceLabel(raw: string | undefined, locale: Locale): string {
   return `${num(match[1], locale)} ${UNITS[locale][match[2].toLowerCase() as 'm' | 'km']}`;
 }
 
+/** The walk from the metro (School details → Location), for the drawing and the campus tour; null until both are filled in. */
+function metroWalk(location: SiteSettings['locationInfo'], locale: Locale): { station: string; walk: string } | null {
+  const station = txt(location?.metroStation, locale).trim();
+  const walk = distanceLabel(location?.metroWalk, locale);
+  return station && walk ? { station, walk } : null;
+}
+
 /** Only Google's embed address may fill the map frame. */
 export function mapEmbed(url: string | undefined): string | null {
   return url?.startsWith('https://www.google.com/maps/embed') ? url : null;
@@ -26,7 +33,8 @@ export function mapEmbed(url: string | undefined): string | null {
 
 /**
  * Everything the Contact page shows from School details → contact and location: the active desks with their numbers, the
- * WhatsApp number, the active emails, the office hours and address, and the landmarks. Numbers that don't parse are left out.
+ * WhatsApp number, the active emails, the office hours and address, how to get here, the walk from the metro (while both
+ * its station and distance are filled in) and the landmarks. Numbers that don't parse are left out.
  */
 export function contactDetails(settings: SiteSettings | null | undefined, locale: Locale) {
   const contact = settings?.contactInfo;
@@ -44,6 +52,8 @@ export function contactDetails(settings: SiteSettings | null | undefined, locale
     emails: (contact?.email ?? []).filter((e) => e.isActive && e.address).map((e) => e.address),
     hours: txt(office.officeHours, locale),
     address: txt(contact?.address, locale),
+    gettingHere: txt(location?.gettingHere, locale),
+    metro: metroWalk(location, locale),
     landmarks: (location?.landmarks ?? [])
       .map((l) => ({ name: txt(l.name, locale), distance: distanceLabel(l.distance, locale) }))
       .filter((l) => l.name),

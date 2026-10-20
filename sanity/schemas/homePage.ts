@@ -1,8 +1,8 @@
 import { defineArrayMember, defineField, defineType } from 'sanity'
 import { mlString, mlText } from './shared'
 
-// The homepage's own content (Studio → Homepage). Each list is optional: while it is empty the site shows
-// the wording it was launched with, so the page never goes blank.
+// The homepage's own content (Studio → Homepage). The routine and the FAQ are optional: while one is empty the site
+// shows the wording it was launched with, and an empty photo slot shows the photo it was launched with.
 
 const PARTS = [
   { title: 'Morning', value: 'morning' },
@@ -10,6 +10,18 @@ const PARTS = [
   { title: 'Afternoon', value: 'afternoon' },
   { title: 'Evening and night', value: 'evening' },
 ]
+
+const chip = (name: string, title: string, figure = false) =>
+  defineField({
+    name,
+    title,
+    type: 'object',
+    fields: [
+      ...(figure ? [defineField({ name: 'figure', title: 'Figure', type: 'string', description: 'Short, e.g. 50/50 (Bengali pages show Bengali digits).' })] : []),
+      mlString('title', 'Line 1 (bold)', { required: true }),
+      mlString('note', 'Line 2'),
+    ],
+  })
 
 const KINDS = [
   { title: 'Quran', value: 'quran' },
@@ -21,7 +33,7 @@ const KINDS = [
   { title: 'Home time', value: 'home' },
 ]
 
-const photo = (name: string, title: string, description: string) =>
+const photo = (name: string, title: string, description?: string) =>
   defineField({
     name,
     title,
@@ -35,9 +47,30 @@ export const homePage = defineType({
   name: 'homePage',
   title: 'Homepage',
   type: 'document',
+  groups: [
+    { name: 'top', title: 'Top of the page', default: true },
+    { name: 'day', title: 'The day' },
+    { name: 'photos', title: 'Photos' },
+    { name: 'faq', title: 'FAQ' },
+  ],
   fields: [
     defineField({
+      name: 'hero',
+      title: 'Hero text',
+      group: 'top',
+      type: 'object',
+      options: { collapsible: false },
+      description: 'Under the school’s name at the top of the homepage, and the three boxes under the photos (their icons stay).',
+      fields: [
+        mlString('line', 'The promise (one line)', { required: true }),
+        chip('chip1', 'Box 1 (dark, with a figure)', true),
+        chip('chip2', 'Box 2'),
+        chip('chip3', 'Box 3'),
+      ],
+    }),
+    defineField({
       name: 'heroImages',
+      group: 'top',
       title: 'Hero photos',
       description: 'The photos at the top of the homepage, in this order (5 work best).',
       type: 'array',
@@ -56,6 +89,7 @@ export const homePage = defineType({
     }),
     defineField({
       name: 'statistics',
+      group: 'top',
       title: 'The school in numbers',
       description: 'The band under the hero. Students and teachers show rounded down with a “+” (130 → ১৩০+), then the student:teacher ratio, then each extra number.',
       type: 'object',
@@ -79,6 +113,7 @@ export const homePage = defineType({
     }),
     defineField({
       name: 'routine',
+      group: 'day',
       title: 'A day in hifz day-care',
       description:
         'The routine, by part of the day. Morning steps take clock times; afternoon and evening steps follow the salat (for example "আসরের পর"). Home time is 8:30 pm. Leave empty to keep the launch routine.',
@@ -116,7 +151,24 @@ export const homePage = defineType({
       ],
     }),
     defineField({
+      name: 'photos',
+      title: 'Section photos',
+      group: 'photos',
+      type: 'object',
+      options: { collapsible: false },
+      description: 'An empty slot keeps the photo the site was launched with.',
+      fields: [
+        photo('building', 'The building (campus section)', 'Portrait: it stands beside the play spaces.'),
+        photo('entrance', 'The entrance (campus section)'),
+        photo('classroom', 'A classroom (campus section)'),
+        photo('van', 'The school van (the day)'),
+        photo('whyBooks', 'Books (first “why us” card)'),
+        photo('whyTeachers', 'Teachers (seventh “why us” card)'),
+      ],
+    }),
+    defineField({
       name: 'playSpaces',
+      group: 'photos',
       title: 'Play spaces',
       description: 'Shown beside the building photo in the campus section. Until a photo is added its frame shows a placeholder.',
       type: 'object',
@@ -127,6 +179,7 @@ export const homePage = defineType({
     }),
     defineField({
       name: 'faq',
+      group: 'faq',
       title: 'Questions parents ask',
       description: 'Facts only, no fees (point to the admissions page). Leave empty to keep the launch questions.',
       type: 'array',

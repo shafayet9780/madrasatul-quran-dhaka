@@ -6,7 +6,7 @@ import { Button } from '@/components/shadcn/button';
 import { pageMetadata } from '@/lib/page-seo';
 import { fieldWithRole } from '@/lib/admissions/form-config';
 import { asLocale, num, taka, txt } from '@/lib/admissions/display';
-import { intakeStatus } from '@/lib/admissions/intake';
+import { intakeStatus, sessionOrNext } from '@/lib/admissions/intake';
 import { flowPath, getLandingIntake } from '@/lib/admissions/pages';
 import { allBringItems } from '@/lib/admissions/bring-list';
 import { currentApplication } from '@/lib/admissions/session';
@@ -17,7 +17,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const locale = asLocale((await params).locale);
   const t = await getTranslations({ locale, namespace: 'preAdmission.intro' });
   const { intake } = await getLandingIntake();
-  const session = num(intake.session ?? '2027', locale);
+  const session = num(sessionOrNext(intake.session), locale);
   const title = t('metaTitle', { session });
   // The shared helper adds the canonical link and hreflang; the title keeps the site's ending (the school's name).
   return pageMetadata({ page: 'preAdmission', vars: { session }, title, description: t('metaDescription', { session }), locale, path: '/pre-admission', withSiteName: true });
@@ -30,7 +30,7 @@ export default async function PreAdmissionIntro({ params }: Props) {
   const [{ intake, snapshot }, current] = await Promise.all([getLandingIntake(), currentApplication().catch(() => null)]);
   const status = { text: intakeStatus(intake, locale, t), open: intake.state === 'open' };
   const settings = snapshot?.settings;
-  const session = num(intake.session ?? '2027', locale);
+  const session = num(sessionOrNext(intake.session), locale);
   const fee = settings ? taka(settings.applicationFee, locale) : '';
   const evalFee = settings ? taka(settings.evaluationFee, locale) : '';
   const classes = snapshot ? (fieldWithRole(snapshot, 'classApplied')?.options ?? []) : [];

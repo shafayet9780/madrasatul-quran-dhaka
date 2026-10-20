@@ -190,7 +190,7 @@ function Building({ cols, rows, children }: { cols: number; rows: number; childr
 function Walk({ copy }: { copy: StageCopy['walk'] }) {
   return (
     <div className="cd-walk">
-      <strong className="cd-walk-figure">{copy.distance}</strong>
+      {copy.distance && <strong className="cd-walk-figure">{copy.distance}</strong>}
       <div className="cd-walk-row">
         <span className="cd-walk-end">
           <span className="cd-walk-station">
@@ -211,7 +211,7 @@ function Walk({ copy }: { copy: StageCopy['walk'] }) {
           {copy.school}
         </span>
       </div>
-      <span className="cd-walk-note">{copy.note}</span>
+      {copy.note && <span className="cd-walk-note">{copy.note}</span>}
     </div>
   );
 }

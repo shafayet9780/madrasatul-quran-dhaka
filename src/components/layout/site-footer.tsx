@@ -8,22 +8,17 @@ import { urlFor } from '@/lib/sanity';
 import { getAdmissionsContact } from '@/lib/admissions-contact';
 import { sitePhone } from '@/lib/site/phone';
 import { Icon, type IconName } from '@/components/site/icon';
-import { BOOKS_URL, navPages, siteNav } from '@/lib/site/nav';
+import { navPages, siteNav } from '@/lib/site/nav';
 import { isSectionVisible } from '@/lib/nav-visibility';
 
 
 const SOCIAL_ICONS: Partial<Record<string, IconName>> = { facebook: 'facebook-logo', youtube: 'youtube-logo' };
 
-const APPS = [
-  { label: 'Google Play', href: 'https://play.google.com/store/apps/details?id=com.eximusedu.app', icon: 'google-play-logo' },
-  { label: 'App Store', href: 'https://apps.apple.com/us/app/eximusedu/id1459487310', icon: 'app-store-logo' },
-] as const;
-
 const pill = 'inline-flex min-h-11 items-center gap-2 rounded-full pl-3 pr-4 text-15 font-semibold text-on-dark no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-bronze-light';
 const heading = 'm-0 text-15 font-strong text-on-dark';
 const pageLink = 'inline-flex min-h-[34px] items-center text-on-dark-body no-underline hover:text-on-dark';
 
-/** The site footer. Contact details, the tagline and the mission come from Studio → School details. */
+/** The site footer. Contact details, the tagline, the mission and the outside links come from Studio → School details. */
 export async function SiteFooter({ locale, siteSettings }: { locale: Locale; siteSettings: SiteSettings | null }) {
   const t = await getTranslations({ locale, namespace: 'site' });
   const contact = siteSettings?.contactInfo;
@@ -39,9 +34,14 @@ export async function SiteFooter({ locale, siteSettings }: { locale: Locale; sit
   const mission = siteSettings?.mission?.[locale];
   const hours = contact?.officeHours?.[locale];
   const mapUrl = siteSettings?.locationInfo?.googleMapsUrl;
+  const links = siteSettings?.links;
+  const apps = [
+    { label: 'Google Play', href: links?.googlePlay, icon: 'google-play-logo' as const },
+    { label: 'App Store', href: links?.appStore, icon: 'app-store-logo' as const },
+  ].filter((a): a is typeof a & { href: string } => !!a.href);
   const legal = [
-    { label: t('footer.parentLogin'), href: 'https://www.eximusedu.com/go/mqd' },
-    ...(isSectionVisible('books', siteSettings?.navigationVisibility) ? [{ label: t('footer.books'), href: BOOKS_URL }] : []),
+    ...(links?.parentLogin ? [{ label: t('footer.parentLogin'), href: links.parentLogin }] : []),
+    ...(isSectionVisible('books', siteSettings?.navigationVisibility) && links?.books ? [{ label: t('footer.books'), href: links.books }] : []),
     { label: t('footer.privacy'), href: `/${locale}/privacy-policy` },
     { label: t('footer.cookies'), href: `/${locale}/cookie-policy` },
   ];
@@ -72,23 +72,25 @@ export async function SiteFooter({ locale, siteSettings }: { locale: Locale; sit
                 })}
               </div>
             )}
-            <div className="flex flex-col gap-2.5 border-t border-line-dark pt-4">
-              <span className="text-15 font-strong text-on-dark">{t('footer.appTitle')}</span>
-              <span className="text-14 leading-normal text-on-dark-muted">{t('footer.appText')}</span>
-              <div className="flex flex-wrap gap-2.5">
-                {APPS.map((a) => (
-                  <a key={a.href} href={a.href} lang="en" className={`${pill} bg-panel hover:bg-line-dark`}>
-                    <Icon name={a.icon} size={22} className="text-bronze" />
-                    {a.label}
-                  </a>
-                ))}
+            {apps.length > 0 && (
+              <div className="flex flex-col gap-2.5 border-t border-line-dark pt-4">
+                <span className="text-15 font-strong text-on-dark">{t('footer.appTitle')}</span>
+                <span className="text-14 leading-normal text-on-dark-muted">{t('footer.appText')}</span>
+                <div className="flex flex-wrap gap-2.5">
+                  {apps.map((a) => (
+                    <a key={a.href} href={a.href} lang="en" className={`${pill} bg-panel hover:bg-line-dark`}>
+                      <Icon name={a.icon} size={22} className="text-bronze" />
+                      {a.label}
+                    </a>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
           </div>
 
           <nav aria-label={t('footer.label')} className="flex flex-[1_1_170px] flex-col gap-0.5 text-15">
             <h2 className={`${heading} mb-2`}>{t('footer.pages')}</h2>
-            {navPages(siteNav(locale, siteSettings?.navigationVisibility)).map((p) => (
+            {navPages(siteNav(locale, siteSettings?.navigationVisibility, links?.books)).map((p) => (
               <Link key={p.key} href={p.href} className={pageLink}>
                 {t(`nav.${p.key}`)}
               </Link>

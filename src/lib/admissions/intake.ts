@@ -8,6 +8,9 @@ import type { FormSnapshot } from './form-config';
 export type IntakeState = 'open' | 'not_open' | 'closed' | 'off';
 export type Intake = { state: IntakeState; session?: string; opensAt?: string; closesAt?: string };
 
+/** The intake's session, else the coming school year (while no form is published). */
+export const sessionOrNext = (session: string | undefined, now: Date = new Date()): string => session ?? String(now.getFullYear() + 1);
+
 /** What the banner and the calls to action show; null while there is nothing to offer. */
 export type AdmissionCta = { state: 'open' | 'not_open'; session: string; status: string };
 

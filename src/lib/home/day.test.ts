@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import bengali from '../../../messages/bengali.json';
 import english from '../../../messages/english.json';
-import { AXIS_TICKS, ROUTINE, STAGE_HOURS, axisPos, routineFor, visibleRoutes } from './day';
+import { ROUTINE, routineFor, visibleRoutes } from './day';
 import type { TransportRoute } from '@/types/fees';
 
 const bi = (bengali: string, english = bengali) => ({ bengali, english });
@@ -30,14 +30,6 @@ describe('routineFor', () => {
     ];
     expect(routineFor(cms, 'english', [])).toEqual([{ part: 'morning', name: 'Morning', steps: [{ kind: 'quran', time: '7:00', title: 'Sabak' }] }]);
     expect(routineFor(cms, 'bengali', [])[0].steps[0].gloss).toBe('নতুন পড়া');
-  });
-});
-
-describe('the hours axis', () => {
-  it('places every stage and tick inside the axis', () => {
-    for (const [from, to] of STAGE_HOURS) expect([axisPos(from), axisPos(to)].every((p) => p >= 0 && p <= 100)).toBe(true);
-    expect(AXIS_TICKS.map(axisPos)[0]).toBe(0);
-    expect(AXIS_TICKS.map(axisPos).at(-1)).toBe(100);
   });
 });
 

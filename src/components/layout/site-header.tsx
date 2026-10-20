@@ -13,7 +13,7 @@ export async function SiteHeader({ locale, siteSettings }: { locale: Locale; sit
   const t = await getTranslations({ locale, namespace: 'site' });
   const logo = siteSettings?.logo?.asset ? urlFor(siteSettings.logo).width(96).height(96).url() : null;
   const entry = (l: NavLink) => ({ key: l.key, label: t(`nav.${l.key}`), href: l.href, external: l.external });
-  const items = siteNav(locale, siteSettings?.navigationVisibility).map((i) =>
+  const items = siteNav(locale, siteSettings?.navigationVisibility, siteSettings?.links?.books).map((i) =>
     isMenu(i) ? { key: i.key, label: t(`nav.${i.key}`), items: i.items.map(entry) } : entry(i),
   );
   return (

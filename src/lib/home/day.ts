@@ -40,20 +40,6 @@ export function routineFor(cms: HomeRoutinePart[] | undefined, locale: Locale, c
   return ROUTINE.map(({ part, steps }, i) => ({ part, name: copy[i].name, steps: steps.map((kind, j) => ({ kind, ...copy[i].steps[j] })) }));
 }
 
-/** School hours of Pre-Hifz, hifz day-care and After-Hifz, in minutes from midnight. */
-export const STAGE_HOURS: [number, number][] = [
-  [540, 780], // 9:00 am to 1:00 pm
-  [420, 1230], // 7:00 am to 8:30 pm
-  [480, 780], // 8:00 am to 1:00 pm
-];
-
-/** The hours axis runs over the longest day, 7:00 am to 8:30 pm; ticks at its start, 1:00 pm and its end. */
-export const DAY_AXIS: [number, number] = [420, 1230];
-export const AXIS_TICKS = [420, 780, 1230];
-
-/** Where a time sits on the hours axis, in % from its start. */
-export const axisPos = (minutes: number) => ((minutes - DAY_AXIS[0]) / (DAY_AXIS[1] - DAY_AXIS[0])) * 100;
-
 export type Route = { name: string; stops: string[] };
 
 /** The visible van routes (Fees, discounts & transport → Transport), in the order the CMS lists them. Route names carry their area. */

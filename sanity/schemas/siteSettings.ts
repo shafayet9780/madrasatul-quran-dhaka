@@ -23,7 +23,7 @@ export const siteSettings = defineType({
     { name: 'general', title: 'General', default: true },
     { name: 'contact', title: 'Contact' },
     { name: 'location', title: 'Location' },
-    { name: 'social', title: 'Social' },
+    { name: 'social', title: 'Social & links' },
   ],
   fields: [
     defineField({
@@ -126,12 +126,15 @@ export const siteSettings = defineType({
       type: 'object',
       options: { collapsible: false },
       fields: [
+        { ...mlString('gettingHere', 'How to get here'), description: 'One line, e.g. “600 metres east of Uttara Center metro”. The heading beside the address on the homepage and the Contact page, and the campus tour’s walk.' },
+        { ...mlString('metroStation', 'Nearest metro station'), description: 'Its short name, e.g. “Uttara Center”: written on the drawing of the walk.' },
+        defineField({ name: 'metroWalk', title: 'Walk from the metro', type: 'string', description: 'e.g. 600m: written on the drawing of the walk and the campus tour.' }),
         defineField({ name: 'googleMapsUrl', title: 'Google Maps link', type: 'url', description: 'The school’s pin, opened by “Map” in the footer and the homepage.' }),
         defineField({ name: 'mapEmbedUrl', title: 'Google Maps embed URL', type: 'url', description: 'The map on the contact page (Share → Embed a map → the src link).' }),
         defineField({
           name: 'landmarks',
           title: 'Nearby landmarks',
-          description: 'Shown beside the map on the contact page.',
+          description: 'Shown under the address on the homepage and beside the map on the contact page.',
           type: 'array',
           of: [
             defineArrayMember({
@@ -175,6 +178,20 @@ export const siteSettings = defineType({
           }
         }
       ]
+    }),
+    defineField({
+      name: 'links',
+      title: 'Outside links',
+      group: 'social',
+      type: 'object',
+      options: { collapsible: false },
+      description: 'An empty link hides its button.',
+      fields: [
+        defineField({ name: 'books', title: 'Our Books (the bookshop)', type: 'url', description: 'In the menu and the footer, while Pages on/off shows Our Books.' }),
+        defineField({ name: 'parentLogin', title: 'Parent login', type: 'url', description: 'The parent app’s web login, in the footer.' }),
+        defineField({ name: 'googlePlay', title: 'Parent app on Google Play', type: 'url' }),
+        defineField({ name: 'appStore', title: 'Parent app on the App Store', type: 'url' }),
+      ],
     }),
   ],
   preview: { prepare: () => ({ title: 'School details' }) },

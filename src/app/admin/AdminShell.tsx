@@ -8,6 +8,7 @@ import type { AdmissionsNav } from '@/lib/admissions/admin';
 import type { ShellData } from '@/lib/survey/admin-shell';
 import { toBengaliDigits as bn } from '@/lib/survey/normalise';
 import { Icon, type IconName } from './icons';
+import { sessionOrNext } from '@/lib/admissions/intake';
 
 // The admin app frame (dashboard frames D1–D4): sidebar on desktop, top bar + bottom tabs + menu
 // sheet on phones. Three modules share it, chosen with the switcher at the top: ভর্তি (admissions,
@@ -331,7 +332,7 @@ export function AdminShell({ data, admissions, children }: { data: ShellData; ad
     <ShellContext.Provider value={{ data, roundId, chooseRound, openMenu, mod }}>
       <div className="sv-shell" data-collapsed={collapsed}>
         <aside className="sv-side sv-no-print" aria-label="অ্যাপ মেনু">
-          <Brand mod={mod} session={admissions?.session ?? '2027'}>
+          <Brand mod={mod} session={sessionOrNext(admissions?.session)}>
             <button type="button" className="sv-icon-btn" aria-label={collapsed ? 'সাইডবার বড় করুন' : 'সাইডবার ছোট করুন'} onClick={() => setFolded(!collapsed)}>
               <Icon name="panel" />
             </button>
@@ -390,7 +391,7 @@ export function AdminShell({ data, admissions, children }: { data: ShellData; ad
           <div className="sv-sheet-wrap sv-no-print">
             <div className="sv-sheet-scrim" aria-hidden="true" onClick={closeMenu} />
             <div ref={sheet} className="sv-sheet" role="dialog" aria-modal="true" aria-label="মেনু" onKeyDown={trapTab}>
-              <Brand mod={mod} session={admissions?.session ?? '2027'}>
+              <Brand mod={mod} session={sessionOrNext(admissions?.session)}>
                 <button ref={closeButton} type="button" className="sv-icon-btn" aria-label="মেনু বন্ধ করুন" onClick={closeMenu}>
                   <Icon name="close" size={20} />
                 </button>

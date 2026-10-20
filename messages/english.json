@@ -1,25 +1,4 @@
 {
-  "navigation": {
-    "home": "Home",
-    "curriculum": "Curriculum",
-    "about": "About Us",
-    "programs": "Academic Programs",
-    "admissions": "Admissions",
-    "campus": "Campus & Facilities",
-    "news": "News & Events",
-    "contact": "Contact",
-    "books": "Our Books",
-    "academics": "Academics",
-    "ourStory": "Our Story",
-    "people": "Our People",
-    "directors": "Directors",
-    "teachers": "Teachers",
-    "allDirectors": "All Directors",
-    "allTeachers": "All Teachers",
-    "byDepartment": "By department",
-    "advisors": "Advisors",
-    "allAdvisors": "All Advisors"
-  },
   "teachers": {
     "meta": {
       "title": "Teachers | Madrasatul Quran",
@@ -61,16 +40,8 @@
     },
     "hero": {
       "name": "Madrasatul Quran",
-      "line": "An ideal combination of Islamic and general education",
       "apply": "Apply now",
       "prospectus": "Download the prospectus",
-      "fifty": "50/50",
-      "chip1a": "Islamic and general",
-      "chip1b": "given equal weight",
-      "chip2a": "Day-care hifz",
-      "chip2b": "with general study alongside",
-      "chip3a": "Arabic medium",
-      "chip3b": "Islamic studies from Class 6",
       "gallery": "Photos of Madrasatul Quran",
       "pause": "Pause the photos"
     },
@@ -111,53 +82,6 @@
       ],
       "note": "Arabic and Islamic studies books from Nursery to Class 8 are written by Al Quraner Vasha Institute (AQVI). Islamic studies are taught in Arabic from Class 6.",
       "fullPlan": "The full class-by-class plan",
-      "stages": [
-        {
-          "name": "Pre-Hifz",
-          "classes": "Nursery to Class 1",
-          "hours": "9:00 am to 1:00 pm"
-        },
-        {
-          "name": "Hifz day-care",
-          "classes": "Classes 2 to 5",
-          "hours": "7:00 am to 8:30 pm"
-        },
-        {
-          "name": "After-Hifz",
-          "classes": "Class 6 to Mutawassita",
-          "hours": "8:00 am to 1:00 pm"
-        }
-      ],
-      "classes": [
-        "Nursery",
-        "KG",
-        "Class 1",
-        "Class 2",
-        "Class 3",
-        "Class 4",
-        "Class 5",
-        "Class 6",
-        "Class 7",
-        "Class 8",
-        "Class 9",
-        "Class 10",
-        "Class 11"
-      ],
-      "ages": [
-        "5+ yrs",
-        "6+",
-        "7+",
-        "8+",
-        "9+",
-        "10+",
-        "11+",
-        "12+",
-        "13+",
-        "14+",
-        "15+",
-        "16+",
-        ""
-      ],
       "strands": {
         "quran": "Quran",
         "arabic": "Arabic",
@@ -165,13 +89,6 @@
         "general": "General"
       },
       "segments": {
-        "qaida": "Qaida",
-        "ammapara": "Ammapara",
-        "nazera": "Nazera",
-        "hifz1": "Hifz 1",
-        "hifz2": "Hifz 2",
-        "hifz3": "Hifz 3",
-        "shunani": "Shunani",
         "arabic": "Arabic language",
         "islam": "Islamic studies",
         "islamInArabic": "Islamic studies, in Arabic",
@@ -188,18 +105,15 @@
           "name": "Mutawassita",
           "note": "One year after Dakhil"
         }
-      ]
+      ],
+      "ageFirst": "{age}+ yrs",
+      "age": "{age}+"
     },
     "day": {
       "title": "A day in hifz day-care",
       "lede": "From 7:00 am to 8:30 pm, meals included, under full-day supervision. Alongside the Quran: Arabic, Islamic studies and general classes every day, a midday rest, and play after Asr.",
       "note": "Morning times stay the same all year. Afternoon and evening study follows the salat times, so in winter some afternoon study moves to the evening. Home time is always 8:30 pm.",
       "hoursTitle": "School hours by stage",
-      "ticks": [
-        "7 am",
-        "1 pm",
-        "8:30 pm"
-      ],
       "parts": [
         {
           "name": "Morning",
@@ -304,18 +218,15 @@
         }
       ],
       "sketch": {
-        "alt": "Sketch: Uttara Center metro station, then 600 metres east on foot to the school",
-        "station": "Uttara Center",
-        "walk": "600 m",
+        "alt": "Sketch: {station} metro station, then {walk} east on foot to the school",
         "school": "Madrasatul Quran",
         "notToScale": "Not to scale"
       },
       "where": {
-        "title": "600 metres east of Uttara Center metro",
-        "address": "House 37, Road 2/A, Block-I, Sector 17, Uttara, Dhaka",
-        "landmarks": "2.5 km from Mirpur DOHS.",
         "map": "Open in Google Maps",
-        "visit": "Visit the campus"
+        "visit": "Visit the campus",
+        "landmark": "{distance} from {name}",
+        "title": "Where to find us"
       },
       "gallery": "More photos and videos in the gallery"
     },
@@ -397,7 +308,7 @@
         },
         {
           "q": "Does the school run its own transport?",
-          "a": "Yes. School vans run on the Uttara and Mirpur routes. Transport office: 01733-202368."
+          "a": "Yes. School vans run on the Uttara and Mirpur routes."
         },
         {
           "q": "What are the fees?",
@@ -409,40 +320,8 @@
       "ledeOpen": "{status}. The form takes about 15 minutes.",
       "ledeNotOpen": "{status}.",
       "visit": "Visit the campus",
-      "docsTitle": "What you will need",
-      "docs": [
-        "The admission form",
-        "Two photos of the student and the birth certificate",
-        "One photo of the guardian and their NID"
-      ]
+      "docsTitle": "What you will need"
     }
-  },
-  "common": {
-    "loading": "Loading...",
-    "error": "An error occurred",
-    "readMore": "Read More",
-    "learnMore": "Learn More",
-    "contactUs": "Contact Us",
-    "apply": "Apply Now",
-    "close": "Close",
-    "open": "Open",
-    "menu": "Menu",
-    "search": "Search",
-    "submit": "Submit",
-    "cancel": "Cancel",
-    "save": "Save",
-    "edit": "Edit",
-    "delete": "Delete",
-    "confirm": "Confirm",
-    "back": "Back",
-    "next": "Next",
-    "previous": "Previous"
-  },
-  "language": {
-    "bengali": "বাংলা",
-    "english": "English",
-    "changeLanguage": "Change Language",
-    "currentLanguage": "Current Language"
   },
   "about": {
     "meta": {
@@ -550,28 +429,6 @@
       "lead": "Bangla-medium NCTB (Dakhil) curriculum with our own Islamic studies curriculum. Nursery to Mutawassita, in three stages.",
       "curriculumPdf": "Detailed curriculum (PDF)",
       "glanceTitle": "At a glance",
-      "glance": [
-        {
-          "label": "Classes",
-          "value": "Nursery to Mutawassita"
-        },
-        {
-          "label": "Hifz",
-          "value": "Classes 2 to 5, in day-care"
-        },
-        {
-          "label": "Arabic and Islamic studies",
-          "value": "By AQVI, Nursery to Class 8"
-        },
-        {
-          "label": "Islamic studies in Arabic",
-          "value": "From Class 6"
-        },
-        {
-          "label": "Board exam",
-          "value": "Dakhil"
-        }
-      ],
       "nav": {
         "model": "Teaching model",
         "strands": "Four strands",
@@ -597,28 +454,7 @@
         "arabic": "Arabic",
         "arabicIslam": "Arabic and Islam",
         "general": "General"
-      },
-      "stages": [
-        {
-          "name": "Pre-Hifz",
-          "care": "Non day-care",
-          "classes": "Nursery to Class 1",
-          "hours": "9:00 am to 1:00 pm"
-        },
-        {
-          "name": "Hifz",
-          "care": "Day-care",
-          "classes": "Classes 2 to 5",
-          "hours": "7:00 am to 8:30 pm"
-        },
-        {
-          "name": "After Hifz",
-          "care": "Dakhil included",
-          "classes": "Class 6 to Mutawassita",
-          "hours": "8:00 am to 1:00 pm",
-          "note": "After Dakhil, two ways: Mutawassita here, or college."
-        }
-      ]
+      }
     },
     "strands": {
       "title": "Four strands, one plan",
@@ -628,57 +464,27 @@
       "cards": [
         {
           "title": "Quran",
-          "text": "Qaida, Ammapara, Nazera, and hifz (hifz up to Class 5).",
-          "range": "Nursery to Class 5"
+          "text": "Qaida, Ammapara, Nazera, and hifz (hifz up to Class 5)."
         },
         {
           "title": "Arabic",
-          "text": "Our own curriculum by AQVI, from Nursery to Class 8.",
-          "range": "Nursery to Class 8"
+          "text": "Our own curriculum by AQVI, from Nursery to Class 8."
         },
         {
           "title": "Islamic studies",
-          "text": "A curriculum by AQVI from Nursery to Class 8 that puts the madrasa board's Mutawassita syllabus first, so students can sit the Mutawassita exam the year after Dakhil.",
-          "range": "Nursery to Class 8, in Arabic from Class 6"
+          "text": "A curriculum by AQVI from Nursery to Class 8 that puts the madrasa board's Mutawassita syllabus first, so students can sit the Mutawassita exam the year after Dakhil."
         },
         {
           "title": "General education",
-          "text": "General education up to Dakhil (secondary) level.",
-          "range": "Nursery to Dakhil"
+          "text": "General education up to Dakhil (secondary) level."
         }
-      ]
+      ],
+      "range": "{from} to {to}",
+      "inArabicFrom": ", in Arabic from {class}"
     },
     "goals": {
       "title": "Ten-year goals in Islamic studies",
-      "goalTag": "Goal",
-      "items": [
-        {
-          "title": "Quran",
-          "figure": "90%+",
-          "text": "Hifz as each student is able, and Quran translation: the ability to translate 90%+ of the Quran by Dakhil."
-        },
-        {
-          "title": "Arabic",
-          "text": "Speaking Arabic, understanding it by ear, reading Arabic texts (ibarat) and writing it."
-        },
-        {
-          "title": "Aqidah",
-          "text": "Matters of iman and aqidah, and Islamic values."
-        },
-        {
-          "title": "Fiqh",
-          "text": "Basic rulings (masail), adab and tarbiyah, and masnun duas."
-        },
-        {
-          "title": "Hadith",
-          "figure": "300+",
-          "text": "300+ hadith memorised, by topic, by Class 9."
-        },
-        {
-          "title": "History",
-          "text": "The history of the prophets, of the Quran, of the caliphs, and the history after them."
-        }
-      ]
+      "goalTag": "Goal"
     },
     "plan": {
       "title": "The ten-year study plan",
@@ -714,7 +520,7 @@
       "classTitle": "{name}",
       "dakhilTab": "Classes 9 and 10",
       "dakhilTitle": "Classes 9 and 10",
-      "dakhilAge": "15+ and 16+ yrs",
+      "dakhilAge": "{from}+ and {to}+ yrs",
       "dakhilText": "Two years of preparation for the Dakhil exam, on the madrasa board's syllabus.",
       "mutawassitaAge": "After Dakhil",
       "mutawassitaText": "After the Dakhil exam, students study the Talimi board's Mutawassita syllabus here for one year, then sit the Mutawassita exam.",
@@ -723,109 +529,7 @@
       "islam": "Islamic studies",
       "general": "General",
       "aqviBooks": "Books by AQVI",
-      "nctb": "NCTB",
-      "items": [
-        {
-          "arabic": [
-            "Rawdah 1",
-            "Writing Arabic letters and saying words"
-          ],
-          "islam": [
-            "Islamic studies, Nursery",
-            "Aqidah, fiqh, hadith, history"
-          ]
-        },
-        {
-          "arabic": [
-            "Rawdah 2",
-            "Writing Arabic words and sentences"
-          ],
-          "islam": [
-            "Islamic studies, KG",
-            "Aqidah, fiqh, hadith, history"
-          ]
-        },
-        {
-          "arabic": [
-            "Bidayah 1",
-            "Arabic conversation"
-          ],
-          "islam": [
-            "Islamic studies 1",
-            "Aqidah, fiqh, hadith, history"
-          ]
-        },
-        {
-          "arabic": [
-            "Bidayah 2",
-            "Arabic conversation and composition"
-          ],
-          "islam": [
-            "Islamic studies 2",
-            "Aqidah, fiqh, hadith, history"
-          ]
-        },
-        {
-          "arabic": [
-            "Bidayah 3",
-            "Basic grammar and composition"
-          ],
-          "islam": [
-            "Islamic studies 3",
-            "Aqidah, fiqh, hadith, history"
-          ]
-        },
-        {
-          "arabic": [
-            "Bidayah 4",
-            "Nahw and sarf, and composition"
-          ],
-          "islam": [
-            "Islamic studies 4, 50 hadith by topic",
-            "Aqidah, fiqh, hadith, history"
-          ]
-        },
-        {
-          "arabic": [
-            "Bidayah 5, Qasas an-Nabiyyin",
-            "Arabic conversation and composition"
-          ],
-          "islam": [
-            "Islamic studies 5, 50 hadith by topic",
-            "Aqidah, fiqh, hadith, history"
-          ]
-        },
-        {
-          "arabic": [
-            "Bidayah 6, Kalimatul Quran",
-            "Arabic composition and the words of the Quran"
-          ],
-          "islam": [
-            "Bidayatul Fiqh, 100 hadith by topic",
-            "Fiqh, hadith; in Arabic"
-          ]
-        },
-        {
-          "arabic": [
-            "Lughatul Quran, Quran translation",
-            "Nahw, sarf and balagha, and Quran translation"
-          ],
-          "islam": [
-            "Bulugh al-Maram, 100 hadith by topic",
-            "Hadith"
-          ]
-        },
-        {
-          "arabic": [
-            "Quran translation",
-            "Learning to translate the Quran"
-          ],
-          "islam": [
-            "Al-Fiqh al-Muyassar (part 1), Atyab al-Minah",
-            "Fiqh, hadith"
-          ]
-        }
-      ]
+      "nctb": "NCTB"
     },
     "after": {
       "title": "Higher education after school",
@@ -870,10 +574,8 @@
         "ground": "Ground"
       },
       "walk": {
-        "distance": "600 m",
         "station": "Station",
-        "school": "School",
-        "note": "East of Uttara Center metro station"
+        "school": "School"
       }
     },
     "close": {
@@ -924,14 +626,6 @@
       "newsText": "Everyday news and events of the school, on Facebook and YouTube."
     }
   },
-  "footer": {
-    "quickLinks": "Quick Links",
-    "contactInfo": "Contact Information",
-    "followUs": "Follow Us",
-    "copyright": "© 2025 Madrasatul Quran. All rights reserved.",
-    "cookiePolicy": "Cookie Policy",
-    "privacyPolicy": "Privacy Policy"
-  },
   "analytics": {
     "consent": {
       "noticeMessage": "We use cookies and similar technologies for analytics and advertising to improve your experience.",
@@ -951,25 +645,7 @@
       "cancel": "Cancel"
     },
     "policy": {
-      "privacyTitle": "Privacy Policy",
-      "cookieTitle": "Cookie Policy",
-      "legalReviewNotice": "This draft should be reviewed by legal counsel before production use.",
-      "privacyIntro": "Madrasatul Quran respects your privacy. This policy explains what information we collect, how we use analytics tools, and how to contact us about privacy requests.",
-      "dataCollectedTitle": "Information we collect",
-      "dataCollectedBody": "We collect information you voluntarily submit through forms (such as pre-admission inquiries), basic technical data needed to operate the website, and aggregated analytics events that do not include names, email addresses, phone numbers, or message content.",
-      "analyticsToolsTitle": "Analytics and advertising tools",
-      "analyticsToolsBody": "We use Google Tag Manager to load analytics and advertising tags, including Google Analytics 4, Meta Pixel, and Microsoft Clarity. These tools help us understand site usage and measure campaigns. We do not send personally identifiable information in analytics payloads.",
-      "childrenTitle": "Children's data",
-      "childrenBody": "Our website may be used by parents and guardians submitting information on behalf of students. We handle student-related form data securely and limit analytics to non-identifying events. Contact us to request access or deletion of submitted data.",
-      "contactTitle": "Privacy requests",
-      "contactBody": "For privacy questions or requests, contact us at mqdhakaoffice@gmail.com or through the contact page on this website.",
-      "cookieIntro": "This policy explains how Madrasatul Quran uses cookies and similar technologies for analytics, advertising, and site improvement.",
-      "toolsTitle": "Tools we use",
-      "toolsBody": "Google Tag Manager, Google Analytics 4, Meta Pixel, and Microsoft Clarity may set cookies or use similar storage when you consent. Configuration is managed in Google Tag Manager.",
-      "retentionTitle": "Retention",
-      "retentionBody": "Cookie and analytics retention periods are configured in each vendor platform and Google Tag Manager. Session attribution data is stored in your browser session only when consent allows.",
-      "preferencesTitle": "Changing your preferences",
-      "preferencesBody": "You can reopen cookie preferences from the website footer at any time to accept or reject non-essential analytics and advertising cookies."
+      "updated": "Last updated: {date}"
     }
   },
   "preview": {

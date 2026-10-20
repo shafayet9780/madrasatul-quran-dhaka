@@ -7,6 +7,7 @@ import { Button } from '@/components/shadcn/button';
 import { asLocale } from '@/lib/admissions/display';
 import { flowPath, safeCurrentCycle } from '@/lib/admissions/pages';
 import { currentApplication } from '@/lib/admissions/session';
+import { sessionOrNext } from '@/lib/admissions/intake';
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -24,7 +25,7 @@ export default async function StartPage({ params }: Props) {
   const existing = current && (current.app.status === 'draft' || current.app.status === 'unpaid') ? current.app : null;
 
   return (
-    <FlowShell locale={locale} session={cycle?.session ?? '2027'} title={t('start.title')} back={{ href: flowPath(locale), label: t('back') }}>
+    <FlowShell locale={locale} session={sessionOrNext(cycle?.session)} title={t('start.title')} back={{ href: flowPath(locale), label: t('back') }}>
       <main className="mx-auto flex w-full max-w-[480px] flex-col gap-6 px-4 pb-40 pt-7 md:px-6 md:py-18">
         <div className="flex flex-col gap-1.5 md:gap-2">
           <h1 className="text-2xl font-bold leading-[1.35] tracking-[-0.01em] md:text-[30px] md:leading-[1.3] md:tracking-[-0.015em]">{t('start.title')}</h1>

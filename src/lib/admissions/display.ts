@@ -25,7 +25,7 @@ export function taka(amount: number, locale: Locale): string {
 
 const intlLocale = (locale: Locale) => (locale === 'bengali' ? 'bn-BD' : 'en-GB');
 
-function bengaliDayPart(hour: number): string {
+export function bengaliDayPart(hour: number): string {
   if (hour >= 4 && hour < 6) return 'ভোর';
   if (hour >= 6 && hour < 12) return 'সকাল';
   if (hour >= 12 && hour < 15) return 'দুপুর';

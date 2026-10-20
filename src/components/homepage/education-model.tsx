@@ -1,11 +1,11 @@
 import { getTranslations } from 'next-intl/server';
 import type { Locale } from '@/lib/i18n';
 import { StageSplit } from './stage-split';
+import type { Plan } from '@/lib/curriculum/plan';
 
-/** The education model: the ৫০/৫০ mark, the two strands, and the card where the balance shifts by stage. */
-export async function EducationModel({ locale }: { locale: Locale }) {
+/** The education model: the ৫০/৫০ mark, the two strands, and the card where the balance shifts by stage (Studio → Curriculum). */
+export async function EducationModel({ locale, plan }: { locale: Locale; plan: Plan | null }) {
   const t = await getTranslations({ locale, namespace: 'home' });
-  const stages = (t.raw('plan.stages') as { name: string; classes: string; hours: string }[]).slice(0, 3);
   const strands = [
     { name: t('model.strandA'), text: t('model.strandAText') },
     { name: t('model.strandB'), text: t('model.strandBText') },
@@ -33,14 +33,16 @@ export async function EducationModel({ locale }: { locale: Locale }) {
           </div>
           <p className="m-0 max-w-[34em] text-lead">{t('model.lede')}</p>
         </div>
-        <StageSplit
-          stages={stages}
-          subjects={t.raw('model.subjects')}
-          title={t('model.balanceTitle')}
-          hoursLabel={t('model.hoursLabel')}
-          note={t('model.balanceNote')}
-          bengali={locale === 'bengali'}
-        />
+        {plan && (
+          <StageSplit
+            stages={plan.stages}
+            subjects={t.raw('model.subjects')}
+            title={t('model.balanceTitle')}
+            hoursLabel={t('model.hoursLabel')}
+            note={t('model.balanceNote')}
+            bengali={locale === 'bengali'}
+          />
+        )}
       </div>
     </section>
   );

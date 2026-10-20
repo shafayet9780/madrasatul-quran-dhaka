@@ -1,10 +1,10 @@
 import { getTranslations } from 'next-intl/server';
 import type { Locale } from '@/lib/i18n';
+import type { Plan } from '@/lib/curriculum/plan';
 
-/** The prospectus's ten-year goals in Islamic studies, on `dark`. A goal with a figure (৯০%+, ৩০০+) carries the লক্ষ্য tag: a target, not a result. */
-export async function Goals({ locale }: { locale: Locale }) {
+/** The ten-year goals in Islamic studies (Studio → Curriculum), on `dark`. A goal with a figure (৯০%+, ৩০০+) carries the লক্ষ্য tag: a target, not a result. */
+export async function Goals({ locale, goals: items }: { locale: Locale; goals: Plan['goals'] }) {
   const t = await getTranslations({ locale, namespace: 'curriculum.goals' });
-  const items = t.raw('items') as { title: string; text: string; figure?: string }[];
   return (
     <section id="goals" className="bg-dark text-on-dark">
       <div className="page-wrap flex flex-col gap-9 py-section">

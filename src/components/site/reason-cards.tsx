@@ -3,6 +3,8 @@ import { getTranslations } from 'next-intl/server';
 import type { Locale } from '@/lib/i18n';
 import { Icon, type IconName } from '@/components/site/icon';
 import { cn } from '@/lib/utils';
+import { homePhoto } from '@/lib/home/photos';
+import type { FixedPhoto, HomePage } from '@/types/home';
 
 // The reasons to choose the school (home.why.reasons) as cards: all eight on the homepage (Why), four on the Admissions page.
 
@@ -16,15 +18,15 @@ const LOOK = {
   dark: { card: 'bg-dark text-on-dark', sub: 'text-on-dark-body', accent: 'text-bronze' },
 };
 
-/** Each reason's card, in the order of home.why.reasons: a photo, an icon or a goal figure (the figure is in the copy). */
-const REASONS: { look: keyof typeof LOOK; photo?: { src: string; position: string }; icon?: IconName; goal?: boolean }[] = [
-  { look: 'light', photo: { src: '/images/home/why-books.jpg', position: '30% 80%' } },
+/** Each reason's card, in the order of home.why.reasons: a photo (Studio → Homepage → Section photos), an icon or a goal figure (the figure is in the copy). */
+const REASONS: { look: keyof typeof LOOK; photo?: FixedPhoto; icon?: IconName; goal?: boolean }[] = [
+  { look: 'light', photo: 'whyBooks' },
   { look: 'sand', icon: 'translate' },
   { look: 'dark', goal: true },
   { look: 'light', icon: 'book-open-text' },
   { look: 'light', icon: 'signpost' },
   { look: 'dark', goal: true },
-  { look: 'light', photo: { src: '/images/home/why-teachers.jpg', position: '50% 35%' } },
+  { look: 'light', photo: 'whyTeachers' },
   { look: 'sand', icon: 'scroll' },
 ];
 
@@ -35,7 +37,7 @@ type Reason = { title: string; text: string; figure?: string; alt?: string };
  * place in home.why.reasons. On a `paper` ground the light cards turn `surface` with a border, and on a `dark` ground
  * the dark cards turn `panel`, so every card still shows.
  */
-export async function ReasonCards({ locale, only, ground = 'cream' }: { locale: Locale; only?: number[]; ground?: 'cream' | 'paper' | 'dark' }) {
+export async function ReasonCards({ locale, home, only, ground = 'cream' }: { locale: Locale; home: HomePage | null; only?: number[]; ground?: 'cream' | 'paper' | 'dark' }) {
   const t = await getTranslations({ locale, namespace: 'home.why' });
   const reasons = t.raw('reasons') as Reason[];
   const shown = REASONS.map((r, i) => ({ ...r, i })).filter(({ i }) => !only || only.includes(i));
@@ -43,12 +45,13 @@ export async function ReasonCards({ locale, only, ground = 'cream' }: { locale: 
     <ul className="m-0 grid list-none grid-cols-[repeat(auto-fill,minmax(max(150px,calc(25%-18px)),1fr))] gap-3.5 p-0">
       {shown.map(({ look, photo, icon, goal, i }) => {
         const r = reasons[i];
+        const image = photo && homePhoto(home, photo, locale, 600, r.alt ?? '');
         const l = LOOK[look === 'light' && ground === 'paper' ? 'surface' : look === 'dark' && ground === 'dark' ? 'panel' : look];
         return (
           <li key={r.title} className={cn('flex flex-col overflow-hidden rounded-card', l.card)}>
-            {photo && (
+            {image && (
               <div className="relative aspect-[16/10]">
-                <Image src={photo.src} alt={r.alt ?? ''} fill sizes="(min-width: 1240px) 300px, (min-width: 700px) 25vw, 50vw" className="object-cover" style={{ objectPosition: photo.position }} />
+                <Image src={image.src} alt={image.alt} fill sizes="(min-width: 1240px) 300px, (min-width: 700px) 25vw, 50vw" className="object-cover" style={{ objectPosition: image.position }} />
               </div>
             )}
             <div className="flex flex-1 flex-col gap-1.5 p-[clamp(14px,1.6vw,20px)]">

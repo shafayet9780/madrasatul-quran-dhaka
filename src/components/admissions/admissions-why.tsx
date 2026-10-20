@@ -3,6 +3,7 @@ import { getTranslations } from 'next-intl/server';
 import type { Locale } from '@/lib/i18n';
 import { ReasonCards } from '@/components/site/reason-cards';
 import { Icon } from '@/components/site/icon';
+import type { HomePage } from '@/types/home';
 
 /** The homepage reasons shown here, by their place in home.why.reasons: the blend, the languages, the hadith goal, the path after Class 8. */
 const PICKED = [0, 1, 2, 4];
@@ -11,7 +12,7 @@ const PICKED = [0, 1, 2, 4];
  * Why Madrasatul Quran, short, on `dark` just before the fees, so the value comes before the price: four of the
  * homepage's reasons (same cards, same approved copy) and a link to all of them on the homepage.
  */
-export async function AdmissionsWhy({ locale }: { locale: Locale }) {
+export async function AdmissionsWhy({ locale, home }: { locale: Locale; home: HomePage | null }) {
   const t = await getTranslations({ locale, namespace: 'home.why' });
   const a = await getTranslations({ locale, namespace: 'admissions.page' });
   return (
@@ -27,7 +28,7 @@ export async function AdmissionsWhy({ locale }: { locale: Locale }) {
             <Icon name="arrow-right" size={18} />
           </Link>
         </div>
-        <ReasonCards locale={locale} only={PICKED} ground="dark" />
+        <ReasonCards locale={locale} home={home} only={PICKED} ground="dark" />
       </div>
     </section>
   );

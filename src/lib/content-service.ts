@@ -6,11 +6,13 @@ import { SAMPLE_ALBUMS } from '@/lib/gallery/testing/sample-albums';
 import type { NoticeIn } from '@/lib/notices/notices';
 import { SAMPLE_NOTICES } from '@/lib/notices/testing/sample-notices';
 import { localOverrides } from '@/lib/admissions/local';
-import { albumBySlugQuery, campusDayQuery, galleryAlbumsQuery, feeSettingsQuery, homePageQuery, homeTestimonialsQuery, noticeByNumberQuery, noticesQuery, seoSettingsQuery, siteSettingsQuery } from './sanity-queries';
+import { albumBySlugQuery, campusDayQuery, galleryAlbumsQuery, feeSettingsQuery, homePageQuery, homeTestimonialsQuery, noticeByNumberQuery, noticesQuery, policiesQuery, curriculumQuery, seoSettingsQuery, siteSettingsQuery } from './sanity-queries';
 import { client, previewClient } from './sanity';
 import { sanityFetch } from './sanity-fetch';
-import type { SeoSettings, SiteSettings } from '@/types/sanity';
+import type { Policies, SeoSettings, SiteSettings } from '@/types/sanity';
 import { phoneUse } from './admissions-contact';
+import type { CurriculumDoc } from './curriculum/plan';
+import seed from '../../scripts/data/cms-coverage-seed.json';
 
 /** Until the clean-up script has run (docs/studio-cleanup.md): old phones get the use the script will give them. */
 export function withPhoneUses(settings: SiteSettings | null): SiteSettings | null {
@@ -45,8 +47,9 @@ export class ContentService {
   /** Studio → Homepage: the routine, play-space photos and FAQ. */
   async getHomePage(): Promise<HomePage | null> {
     try {
-      if (this.isPreview) return await this.client.fetch(homePageQuery);
-      return await sanityFetch({ query: homePageQuery, tags: ['homePage'] });
+      const home: HomePage | null = this.isPreview ? await this.client.fetch(homePageQuery) : await sanityFetch({ query: homePageQuery, tags: ['homePage'] });
+      // Until the CMS coverage seed has filled it in (docs/cms-coverage.md), the hero text the site was launched with.
+      return { ...home, hero: home?.hero ?? (seed.homePage.hero as HomePage['hero']) };
     } catch (error) {
       console.error('Error fetching the homepage content:', error);
       return null;
@@ -61,6 +64,33 @@ export class ContentService {
       return await sanityFetch<SeoSettings | null>({ query: seoSettingsQuery, tags: ['seoSettings'] });
     } catch (error) {
       console.error('Error fetching search & sharing settings:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Studio → Curriculum. Until the document exists (a dataset the CMS coverage seed has not reached, the local preview
+   * with no Sanity), the curriculum the site was launched with.
+   */
+  async getCurriculum(): Promise<CurriculumDoc | null> {
+    if (localOverrides()) return seed.curriculum as CurriculumDoc;
+    try {
+      const doc = this.isPreview ? await this.client.fetch(curriculumQuery) : await sanityFetch<CurriculumDoc | null>({ query: curriculumQuery, tags: ['curriculum'] });
+      return doc ?? (seed.curriculum as CurriculumDoc);
+    } catch (error) {
+      console.error('Error fetching the curriculum:', error);
+      return null;
+    }
+  }
+
+  /** Studio → Privacy & cookie policies; until the document exists (as for the curriculum), the launch text. */
+  async getPolicies(): Promise<Policies | null> {
+    if (localOverrides()) return seed.policies;
+    try {
+      const doc = this.isPreview ? await this.client.fetch(policiesQuery) : await sanityFetch<Policies | null>({ query: policiesQuery, tags: ['policies'] });
+      return doc ?? seed.policies;
+    } catch (error) {
+      console.error('Error fetching the policies:', error);
       return null;
     }
   }

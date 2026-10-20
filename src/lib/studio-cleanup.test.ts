@@ -62,6 +62,12 @@ describe('schoolDetails', () => {
     expect(droppedFields(next)).toEqual([]);
   });
 
+  it('keeps the fields the CMS coverage seed fills in (docs/cms-coverage.md)', () => {
+    const seeded = { ...next, links: { books: 'https://books.example' }, locationInfo: { ...next.locationInfo, gettingHere: { english: '600 m east' }, metroStation: { english: 'Uttara Center' }, metroWalk: '600m' } };
+    expect(schoolDetails(seeded)).toEqual(seeded);
+    expect(droppedFields(seeded)).toEqual([]);
+  });
+
   it('reports what goes', () => {
     expect(droppedFields(site)).toEqual(['title', 'heroImages', 'statistics', 'admissionInfo', 'seo', 'navigationVisibility', 'contactInfo.admissionsPhone', 'locationInfo.transportation']);
   });

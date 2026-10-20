@@ -1,5 +1,10 @@
 import { cn } from '@/lib/utils';
 
+/** The sketch's labels: the station and the distance from School details, the rest from messages (home.campus.sketch). */
+export function sketchCopy(raw: { alt: string; school: string; notToScale: string }, metro: { station: string; walk: string }) {
+  return { ...raw, ...metro, alt: raw.alt.replace('{station}', metro.station).replace('{walk}', metro.walk) };
+}
+
 /** Not to scale: the metro station, the walk east and the school. Labels are set larger on phones, where the sketch is drawn small. */
 export function WalkSketch({ c }: { c: { alt: string; station: string; walk: string; school: string; notToScale: string } }) {
   const label = 'fill-on-dark font-bold';

@@ -5,6 +5,7 @@ import { FindForm } from '@/components/pre-admission/find-form';
 import { FlowShell } from '@/components/pre-admission/flow-shell';
 import { asLocale, dateTime, taka } from '@/lib/admissions/display';
 import { flowPath, safeCurrentCycle } from '@/lib/admissions/pages';
+import { sessionOrNext } from '@/lib/admissions/intake';
 
 type Props = { params: Promise<{ locale: string }>; searchParams: Promise<{ link?: string }> };
 
@@ -20,7 +21,7 @@ export default async function FindPage({ params, searchParams }: Props) {
   const t = await getTranslations({ locale, namespace: 'preAdmission' });
   const cycle = await safeCurrentCycle();
   const settings = cycle?.snapshot.settings;
-  const session = settings?.session ?? '2027';
+  const session = sessionOrNext(settings?.session);
   const year = Number(/^\d{4}/.exec(session)?.[0] ?? new Date().getFullYear() + 1);
 
   return (

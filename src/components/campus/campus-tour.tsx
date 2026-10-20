@@ -21,13 +21,14 @@ function stepHeight(s: Stop, i: number, last: boolean): [number, number] {
  * A day on campus: the steps scroll as ordinary text (the first step's heading is the page's H1), and the stage beside
  * them plays the day. Server HTML throughout; TourDriver only follows the scroll.
  */
-export async function CampusTour({ stops, locale }: { stops: Stop[]; locale: Locale }) {
+export async function CampusTour({ stops, locale, metro, gettingHere }: { stops: Stop[]; locale: Locale; metro: { station: string; walk: string } | null; gettingHere: string }) {
   const t = await getTranslations({ locale, namespace: 'campus.stage' });
   const beats = dayBeats(stops);
   const stopBeats = stops.map((s, i) => s.beats.map((_, j) => firstBeat(stops, i) + j));
   const rows = liftRows(stops);
   const lift = beats.some((b) => b.lift !== null) ? rows.map((r) => floorName(r, locale, t.raw('lift'))) : [];
-  const copy: StageCopy = { groups: t.raw('groups'), walk: t.raw('walk') };
+  // The walk's distance and line come from School details → Location.
+  const copy: StageCopy = { groups: t.raw('groups'), walk: { ...t.raw('walk'), distance: metro?.walk ?? '', note: gettingHere } };
 
   return (
     <TourDriver

@@ -1,11 +1,11 @@
 'use client';
 
 import { useEffect, useId, useRef, useState, type KeyboardEvent } from 'react';
-import { STAGE_SPLITS, tileGeometry } from '@/lib/home/plan';
+import { tileGeometry } from '@/lib/home/plan';
 import { toBengaliDigits } from '@/lib/survey/normalise';
 import { cn } from '@/lib/utils';
 
-type Stage = { name: string; classes: string; hours: string };
+type Stage = { name: string; classes: string; hours: string; split: number[]; arabicIslam: boolean };
 type Subjects = { quran: string; arabic: string; arabicIslam: string; general: string };
 
 const GAP = 6; // px between tiles
@@ -29,13 +29,13 @@ const padFor = (p: number) => (p >= 25 ? [16, 14] : [8, 10]); // [left, bottom] 
 export function StageSplit({ stages, subjects, title, hoursLabel, note, bengali }: { stages: Stage[]; subjects: Subjects; title: string; hoursLabel: string; note: string; bengali: boolean }) {
   const id = useId();
   const [stage, setStage] = useState(0);
-  const [shown, setShown] = useState<number[]>(STAGE_SPLITS[0].split);
+  const [shown, setShown] = useState<number[]>(stages[0].split);
   const shownRef = useRef(shown);
   const frame = useRef(0);
   const tabs = useRef<(HTMLButtonElement | null)[]>([]);
   useEffect(() => () => cancelAnimationFrame(frame.current), []);
 
-  const { split, arabicIslam } = STAGE_SPLITS[stage];
+  const { split, arabicIslam } = stages[stage];
   const geometry = tileGeometry(split, GAP);
   const names = [subjects.quran, arabicIslam ? subjects.arabicIslam : subjects.arabic, subjects.general];
   const num = (n: number) => `${bengali ? toBengaliDigits(n) : n}%`;
@@ -45,7 +45,7 @@ export function StageSplit({ stages, subjects, title, hoursLabel, note, bengali 
     setStage(next);
     cancelAnimationFrame(frame.current);
     const from = shownRef.current;
-    const to = STAGE_SPLITS[next].split;
+    const to = stages[next].split;
     const show = (v: number[]) => {
       shownRef.current = v;
       setShown(v);

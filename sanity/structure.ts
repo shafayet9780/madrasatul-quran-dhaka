@@ -2,7 +2,7 @@ import type { ListItem, ListItemBuilder, StructureResolver } from 'sanity/struct
 import { orderableDocumentListDeskItem } from '@sanity/orderable-document-list'
 
 /** The one-off documents: fixed sidebar entries whose id is their type; never created from "+" or duplicated (sanity.config.ts). */
-export const SINGLETONS = ['homePage', 'campusDay', 'preAdmissionForm', 'feeSettings', 'publicDownloadSettings', 'siteSettings', 'pagesOnOff', 'seoSettings']
+export const SINGLETONS = ['homePage', 'campusDay', 'preAdmissionForm', 'feeSettings', 'publicDownloadSettings', 'siteSettings', 'pagesOnOff', 'seoSettings', 'policies', 'curriculum']
 
 /**
  * The Studio sidebar, by how often each part is touched: the weekly updates first, then the pages, people and
@@ -28,6 +28,7 @@ export const structure: StructureResolver = (S, context) => {
 
       single('homePage', 'Homepage'),
       single('campusDay', 'Campus: a day'),
+      single('curriculum', 'Curriculum'),
       group('admissions', 'Admissions', [
         // A list, not the fixed id, until the clean-up script has moved the form there (docs/studio-cleanup.md); it can't be created from "+".
         S.listItem().title('Pre-admission form').id('preAdmissionForm').schemaType('preAdmissionForm').child(S.documentTypeList('preAdmissionForm').title('Pre-admission form')),
@@ -46,6 +47,7 @@ export const structure: StructureResolver = (S, context) => {
       single('siteSettings', 'School details'),
       single('pagesOnOff', 'Pages on/off'),
       single('seoSettings', 'Search & sharing'),
+      single('policies', 'Privacy & cookie policies'),
       S.divider(),
 
       group('surveys', 'Surveys', [

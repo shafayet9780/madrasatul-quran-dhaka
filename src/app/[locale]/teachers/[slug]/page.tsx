@@ -22,7 +22,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale, slug } = await params;
   const language = locale as Language;
   const teacher = await getTeacherBySlug(slug, language);
-  if (!teacher || teacher.showDetailPage === false) return { title: 'Teacher Not Found' };
+  if (!teacher || teacher.showDetailPage === false) return {};
 
   const name = getLocalizedText(teacher.name, language);
   const description =
