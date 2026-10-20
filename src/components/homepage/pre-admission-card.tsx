@@ -8,9 +8,10 @@ import { Icon } from '@/components/site/icon';
 
 /**
  * The page's close: the one rust block. The intake comes from the pre-admission form in the CMS (session, status, deadline);
- * when no intake is open or announced it points to the admissions page instead. Beside it, what admission needs.
+ * when no intake is open or announced it points to the admissions page instead. Beside it, what admission needs. The campus
+ * link shows while the Campus page is on.
  */
-export async function PreAdmissionCard({ locale, cta }: { locale: Locale; cta: AdmissionCta | null }) {
+export async function PreAdmissionCard({ locale, cta, showVisit }: { locale: Locale; cta: AdmissionCta | null; showVisit: boolean }) {
   const t = await getTranslations({ locale, namespace: 'home.preAdmission' });
   const c = await getTranslations({ locale, namespace: 'admissionCta' });
   const docs = t.raw('docs') as string[];
@@ -31,9 +32,11 @@ export async function PreAdmissionCard({ locale, cta }: { locale: Locale; cta: A
                 {cta ? (open ? c('apply') : c('details')) : c('fallbackButton')}
                 <Icon name="arrow-right" size={20} />
               </ButtonLink>
-              <Link href={`/${locale}/campus`} className="inline-flex min-h-11 items-center font-strong text-surface underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-surface">
-                {t('visit')}
-              </Link>
+              {showVisit && (
+                <Link href={`/${locale}/campus`} className="inline-flex min-h-11 items-center font-strong text-surface underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-surface">
+                  {t('visit')}
+                </Link>
+              )}
             </div>
           </div>
           <div className="flex min-w-0 flex-[2_1_300px] flex-col gap-3.5 rounded-card bg-dark/28 px-6 py-[22px]">

@@ -99,7 +99,7 @@ export function pagesOnOffFrom(nav: Doc = {}): Doc {
     showDirectors: on('showDirectors'),
     showAdvisors: on('showAdvisors'),
     showTeachers: on('showTeachers'),
-    showCampus: on('showCampus'),
+    showCampus: nav.showCampus === true, // off until the tour's photos are in (owner, 2026-10-20)
     showGallery: nav.showGallery === true,
     showNotices: nav.showNotices === true,
     showCurriculum: on('showAcademics') && on('showCurriculum'),

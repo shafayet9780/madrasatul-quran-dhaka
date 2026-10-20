@@ -3,8 +3,6 @@ import { getTranslations } from 'next-intl/server';
 import type { Locale } from '@/lib/i18n';
 import { AXIS_TICKS, STAGE_HOURS, axisPos, routineFor, type DayPart, type Route, type StepKind } from '@/lib/home/day';
 import type { HomeRoutinePart } from '@/types/home';
-import { sitePhone } from '@/lib/site/phone';
-import { ButtonLink } from '@/components/site/button';
 import { Icon, type IconName } from '@/components/site/icon';
 import { RouteLine } from '@/components/site/route-line';
 import { cn } from '@/lib/utils';
@@ -21,12 +19,11 @@ const STEP: Record<StepKind, { icon: IconName; look: string }> = {
 };
 
 /** A day in hifz day-care: the routine by part of the day (CMS, else the launch routine), each stage's hours on one axis, and the school's van routes. */
-export async function SchoolDay({ locale, routine, routes, transportPhone }: { locale: Locale; routine?: HomeRoutinePart[]; routes: Route[]; transportPhone?: string }) {
+export async function SchoolDay({ locale, routine, routes }: { locale: Locale; routine?: HomeRoutinePart[]; routes: Route[] }) {
   const t = await getTranslations({ locale, namespace: 'home' });
   const parts = routineFor(routine, locale, t.raw('day.parts'));
   const stages = (t.raw('plan.stages') as { name: string; hours: string }[]).slice(0, STAGE_HOURS.length);
   const ticks = t.raw('day.ticks') as string[];
-  const desk = sitePhone(transportPhone, locale);
   return (
     <section className="bg-paper text-ink">
       <div className="page-wrap flex flex-col gap-9 py-section">
@@ -108,11 +105,6 @@ export async function SchoolDay({ locale, routine, routes, transportPhone }: { l
                   <RouteLine key={r.name} route={r} school={t('hero.name')} />
                 ))}
               </div>
-            )}
-            {desk && (
-              <ButtonLink href={desk.tel} variant="outline" className="min-h-12 self-start border-rust px-[22px] text-rust-deep">
-                {t('day.transport.desk', { number: desk.display })}
-              </ButtonLink>
             )}
           </div>
           <figure className="m-0 flex max-w-[420px] flex-[1_1_280px] flex-col gap-2">

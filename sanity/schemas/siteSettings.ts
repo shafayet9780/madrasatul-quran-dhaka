@@ -2,10 +2,9 @@ import { normalizePhone } from '../../src/lib/admissions-contact';
 import { defineArrayMember, defineField, defineType, ALL_FIELDS_GROUP } from 'sanity'
 import { mlString, mlText } from './shared'
 
-/** What each school number is for: the site picks the admissions and transport numbers by it. */
+/** What each school number is for: the site picks the admissions number by it, the office's for the survey. */
 export const PHONE_USES = [
   { title: 'Admissions', value: 'admissions' },
-  { title: 'Transport', value: 'transport' },
   { title: 'Accounts', value: 'accounts' },
   { title: 'Office', value: 'office' },
 ]

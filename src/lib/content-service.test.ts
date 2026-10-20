@@ -64,7 +64,7 @@ describe('withPhoneUses (until the clean-up script has run)', () => {
       },
     } as unknown as SiteSettings;
     expect(withPhoneUses(old)?.contactInfo?.phone?.map((p) => p.usedFor)).toEqual(['office', 'admissions', 'accounts']);
-    const migrated = { contactInfo: { phone: [{ number: '01700000000', usedFor: 'transport', isActive: true }] } } as SiteSettings;
+    const migrated = { contactInfo: { phone: [{ number: '01700000000', usedFor: 'accounts', isActive: true }] } } as SiteSettings;
     expect(withPhoneUses(migrated)).toBe(migrated);
     expect(withPhoneUses(null)).toBeNull();
   });

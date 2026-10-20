@@ -113,7 +113,7 @@ export interface Teacher {
 }
 
 /** What a school number is for (Studio → School details → Phone numbers). */
-export type PhoneUse = 'admissions' | 'transport' | 'accounts' | 'office'
+export type PhoneUse = 'admissions' | 'accounts' | 'office'
 
 export interface ContactInfo {
   whatsappNumber?: string

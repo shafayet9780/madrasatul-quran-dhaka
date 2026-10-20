@@ -15,7 +15,7 @@ Why: the Studio held about twice what the site reads. The admissions phone was s
 | Pre-admission photo | The photo slot is removed (it was fed by Facilities, none of which had a photo). |
 | Copyright | Automatic: `© {year} মাদরাসাতুল কুরআন`. No field. |
 | SEO | Connected: site defaults (description, share image) plus a title and description per main page, all in the Studio. The code's current copy is the starting value and the fallback. Keywords are dropped. |
-| Phones | One list. Each number has a "used for" choice (Admissions / Transport / Accounts / Office) and a show switch. WhatsApp stays its own field. |
+| Phones | One list. Each number has a "used for" choice (Admissions / Accounts / Office) and a show switch. WhatsApp stays its own field. |
 | Teachers | Stay under People, with Departments nested under them. |
 
 ## The new sidebar
@@ -81,7 +81,7 @@ Each step ends with `pnpm lint`, `pnpm test` and `pnpm exec tsc --noEmit`. Playw
    - Reshape siteSettings as in the table above, and fold Footer in.
    - New `pagesOnOff` singleton.
    - Move the hero and numbers into homePage.
-   - Phones: `usedFor`. `getAdmissionsContact` and `transportPhone` pick by it, and the label regex goes.
+   - Phones: `usedFor`. `getAdmissionsContact` picks by it, and the label regex goes. The transport desk line (homepage and Admissions) is gone: the school has no transport number (owner, 20 October).
    - Copyright: automatic year.
    - Also fix: the footer's "Our Books" link follows `showBooks`. (The planned hidden-vehicle fix was dropped: a vehicle's "Show on website" only lists it in discount names, and route cards are frozen into the form.)
 3. **Search & sharing.**
@@ -117,7 +117,7 @@ Beyond the steps above:
 1. **Freeze Studio edits** (tell the office). Before this, nobody edits in the Preview Studio of this branch: it reads the live `development` data with the new schema (School details would not validate; a new pre-admission form could be made by mistake).
 2. **Export** `development`: `pnpm exec sanity dataset export development <backup>.tar.gz -p ohoxdsld`. Keep the file outside the repo (the rehearsal's is in `../sanity-backups/`); it is the backup and the rollback. The repo has no `sanity.cli.ts`, so the CLI needs `-p` and `SANITY_AUTH_TOKEN` (the `SANITY_API_TOKEN` of `.env.local`), and is run from outside the repo folder.
 3. **Empty `production`, then import** into it. Emptying matters: the rehearsal left the documents the script made (Pages on/off, Search & sharing, Homepage, the form under its fixed id), and an import keeps them, so the script would skip them with the rehearsal's values and stop at two pre-admission forms. Delete and recreate the dataset (public, as now): `sanity dataset delete production -p ohoxdsld`, `sanity dataset create production --visibility public -p ohoxdsld`, then `sanity dataset import <backup>.tar.gz production -p ohoxdsld`.
-4. **Run the data script on `production`:** `pnpm exec tsx scripts/studio-cleanup.ts --dataset production --dry-run`, read the list, then the same without `--dry-run`. The dry run of 20 October against `development` listed: School details reshaped (phones: Senior Admin → admissions, Admin → office, Accounts → accounts), 6 hero photos and the numbers to the Homepage, Pages on/off created (Teachers, Gallery, Notices off), Search & sharing created, the form moved to `preAdmissionForm`, the fees FAQ unset, 9 directors, 4 advisors, 1 teacher and 1 department ordered, and 16 old documents deleted.
+4. **Run the data script on `production`:** `pnpm exec tsx scripts/studio-cleanup.ts --dataset production --dry-run`, read the list, then the same without `--dry-run`. The dry run of 20 October against `development` listed: School details reshaped (phones: Senior Admin → admissions, Admin → office, Accounts → accounts), 6 hero photos and the numbers to the Homepage, Pages on/off created (Teachers, Gallery, Notices off; Campus off too since the owner's 20 October decision), Search & sharing created, the form moved to `preAdmissionForm`, the fees FAQ unset, 9 directors, 4 advisors, 1 teacher and 1 department ordered, and 16 old documents deleted.
 5. **Check locally** with `NEXT_PUBLIC_SANITY_DATASET=production`: `pnpm build`, `pnpm test:e2e`, and the Studio (sidebar, every singleton opens, drag ordering).
 6. **Vercel:** set `NEXT_PUBLIC_SANITY_DATASET` to `production` for Production and `development` for Preview. Point the Sanity webhooks (downloads, refresh) at the production dataset, adding them for it where they are per-dataset.
 7. **Merge and deploy.** Smoke-test home, admissions, pre-admission, contact, notices, about, downloads, `/studio` and a survey link.
@@ -132,7 +132,9 @@ Rollback: set Production's dataset back to `development` and redeploy the previo
 
 The browser tests against `production` passed except those failing on `development` too (the Teachers page is off, the Studio test without the login, the survey fixtures). They showed one expected change: link previews now use the Studio's share picture, so `e2e/seo.spec.ts` accepts it.
 
-## Open items for the owner (not blocking)
+## Owner's answers (20 October 2026)
 
-- **Which number is the transport desk?** No phone label mentions transport today. Until one is marked "Transport", the transport line stays hidden, as today.
-- **Board order:** seeded from the About page's current order. Adjust by dragging in People → Directors.
+- **Transport desk:** there is no transport number; the line and the "Transport" phone use are removed.
+- **Board order:** the About page's current order is right (the script keeps it).
+- **Release with what we have:** Gallery and Campus stay off (Campus waits for the tour's photos; the script creates Pages on/off with it off, and the homepage's campus links follow the switch).
+- **Notices:** a notice gets its number when it is created, as built.

@@ -12,7 +12,6 @@ import { buildTransport } from '@/lib/admissions/snapshot';
 import { num, taka, txt } from '@/lib/admissions/display';
 import { getAdmissionsContact } from '@/lib/admissions-contact';
 import { usableFeeSettings } from '@/lib/fees';
-import { transportPhone } from '@/lib/home/day';
 import { sitePhone } from '@/lib/site/phone';
 import { AdmissionsHero } from '@/components/admissions/admissions-hero';
 import { AdmissionClasses } from '@/components/admissions/admission-classes';
@@ -94,7 +93,7 @@ export default async function AdmissionsPage({ params }: Props) {
       {classes.length > 0 && <AdmissionClasses locale={locale} classes={classes} year={year} />}
       {steps.length > 0 && <AdmissionSteps locale={locale} title={intro('stepsTitle')} steps={steps} />}
       <AdmissionsWhy locale={locale} />
-      <AdmissionFees locale={locale} settings={settings} transportPhone={transportPhone(contact)} />
+      <AdmissionFees locale={locale} settings={settings} />
       <Reviews locale={locale} reviews={reviewsFor(testimonials, locale)} tone="dark" />
       {faq.length > 0 && (
         <FaqSection id="faq" locale={locale} title={intro('faqTitle')} lede={faqCopy('lede')} phone={sitePhone(getAdmissionsContact(contact).phone ?? undefined, locale)} items={faq} />

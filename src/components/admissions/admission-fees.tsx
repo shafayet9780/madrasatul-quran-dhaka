@@ -5,7 +5,6 @@ import { applicableNames, usableFeeSettings } from '@/lib/fees';
 import { feeGroups, keepHyphens } from '@/lib/admissions/admissions-page';
 import { buildTransport } from '@/lib/admissions/snapshot';
 import { taka, txt } from '@/lib/admissions/display';
-import { sitePhone } from '@/lib/site/phone';
 import { RouteLine } from '@/components/site/route-line';
 import { ButtonLink } from '@/components/site/button';
 import { Icon } from '@/components/site/icon';
@@ -18,7 +17,7 @@ const block = 'flex flex-col gap-3.5 rounded-card bg-cream p-[clamp(20px,2.4vw,2
  * non day-care side by side, so they compare at a glance), the discounts and the payment rules beside it on `cream`,
  * then the school's van routes with their vehicle and monthly charge. Without usable fee settings it says to ask the office.
  */
-export async function AdmissionFees({ locale, settings, transportPhone }: { locale: Locale; settings: FeeSettings | null; transportPhone?: string }) {
+export async function AdmissionFees({ locale, settings }: { locale: Locale; settings: FeeSettings | null }) {
   const t = await getTranslations({ locale, namespace: 'admissions.page' });
   const tr = await getTranslations({ locale, namespace: 'preAdmission.transport' });
   const home = await getTranslations({ locale, namespace: 'home' });
@@ -45,7 +44,6 @@ export async function AdmissionFees({ locale, settings, transportPhone }: { loca
   const discounts = (settings.discounts ?? []).filter((d) => d.visible);
   const policies = (settings.policies ?? []).map((p) => txt(p.text, locale)).filter(Boolean);
   const transport = buildTransport(settings);
-  const desk = sitePhone(transportPhone, locale);
 
   return (
     <div className="bg-paper text-ink">
@@ -171,12 +169,6 @@ export async function AdmissionFees({ locale, settings, transportPhone }: { loca
               <Icon name="info" size={20} className="mt-0.5 shrink-0 text-rust" />
               {tr('seatNote')}
             </p>
-            {desk && (
-              <ButtonLink href={desk.tel} variant="outline" className="min-h-12 border-rust px-[22px] text-rust-deep">
-                <Icon name="phone" size={18} />
-                {home('day.transport.desk', { number: desk.display })}
-              </ButtonLink>
-            )}
           </div>
         </section>
       ) : (

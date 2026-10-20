@@ -68,9 +68,10 @@ describe('schoolDetails', () => {
 });
 
 describe('phoneUse', () => {
-  it('reads transport and accounts from the label, and keeps a use already set', () => {
-    expect(phoneUse({ number: '01700000000', label: { english: 'Transport desk' } })).toBe('transport');
+  it('reads accounts from the label, and keeps a use already set', () => {
     expect(phoneUse({ number: '01700000000', type: 'admission' })).toBe('admissions');
+    expect(phoneUse({ number: '01700000000', label: { english: 'Accounts' } })).toBe('accounts');
+    expect(phoneUse({ number: '01700000000', label: { english: 'Transport desk' } })).toBe('office');
     expect(phoneUse({ number: '01700000000', usedFor: 'accounts' }, '01700000000')).toBe('accounts');
   });
 });
@@ -89,7 +90,7 @@ describe('homeFromSite', () => {
 
 describe('pagesOnOffFrom', () => {
   it('carries the switches over, curriculum only when both old switches were on', () => {
-    expect(pagesOnOffFrom(site.navigationVisibility)).toMatchObject({ showTeachers: false, showCurriculum: true, showPeople: true, showGallery: false, showNotices: false });
+    expect(pagesOnOffFrom(site.navigationVisibility)).toMatchObject({ showTeachers: false, showCurriculum: true, showPeople: true, showCampus: false, showGallery: false, showNotices: false });
     expect(pagesOnOffFrom({ showAcademics: false }).showCurriculum).toBe(false);
     expect(pagesOnOffFrom(undefined)).not.toHaveProperty('showAbout');
   });

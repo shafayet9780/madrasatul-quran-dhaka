@@ -1,9 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import bengali from '../../../messages/bengali.json';
 import english from '../../../messages/english.json';
-import { AXIS_TICKS, ROUTINE, STAGE_HOURS, axisPos, routineFor, transportPhone, visibleRoutes } from './day';
+import { AXIS_TICKS, ROUTINE, STAGE_HOURS, axisPos, routineFor, visibleRoutes } from './day';
 import type { TransportRoute } from '@/types/fees';
-import type { PhoneUse } from '@/types/sanity';
 
 const bi = (bengali: string, english = bengali) => ({ bengali, english });
 const route = (name: string, area: string, stops: string[], visible = true) =>
@@ -46,13 +45,5 @@ describe('visibleRoutes', () => {
   it('keeps visible routes with stops, in CMS order', () => {
     const routes = [route('M1', 'Mirpur', ['a', 'b']), route('U1', 'Uttara', ['c']), route('U2', 'Uttara', ['e'], false), route('U3', 'Uttara', [])];
     expect(visibleRoutes(routes, 'english')).toEqual([{ name: 'M1', stops: ['a', 'b'] }, { name: 'U1', stops: ['c'] }]);
-  });
-});
-
-describe('transportPhone', () => {
-  it('finds the first active number used for transport', () => {
-    const phone = (usedFor: PhoneUse, number: string, isActive = true) => ({ label: bi('Desk'), number, usedFor, isActive });
-    expect(transportPhone({ phone: [phone('office', '1'), phone('transport', '2', false), phone('transport', '3')] })).toBe('3');
-    expect(transportPhone({ phone: [phone('admissions', '1')] })).toBeUndefined();
   });
 });

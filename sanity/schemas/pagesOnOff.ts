@@ -21,7 +21,7 @@ export const pagesOnOff = defineType({
     toggle('showDirectors', 'Directors (on About us, and their profile pages)', 'pages'),
     toggle('showAdvisors', 'Advisors (on About us)', 'pages'),
     toggle('showTeachers', 'Teachers', 'pages'),
-    toggle('showCampus', 'Campus', 'pages'),
+    toggle('showCampus', 'Campus (turn on once the tour’s photos are in)', 'pages', false),
     toggle('showGallery', 'Gallery (turn on once the first albums are in)', 'pages', false),
     toggle('showNotices', 'Notice board (turn on once the first notices are in; old News links then lead to it)', 'pages', false),
     toggle('showCurriculum', 'Curriculum', 'links'),

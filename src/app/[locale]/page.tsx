@@ -4,7 +4,7 @@ import { Metadata } from 'next';
 import { draftMode } from 'next/headers';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { Hero, NumbersBand, EducationModel, StudyPlan, SchoolDay, Campus, Why, Founder, Reviews, Faq, PreAdmissionCard } from '@/components/homepage';
-import { transportPhone, visibleRoutes } from '@/lib/home/day';
+import { visibleRoutes } from '@/lib/home/day';
 import { getAdmissionsContact } from '@/lib/admissions-contact';
 import { getAdmissionCta } from '@/lib/admissions/pages';
 import { reviewsFor } from '@/lib/home/reviews';
@@ -64,14 +64,14 @@ export default async function Home({ params }: { params: Promise<{ locale: Local
       <NumbersBand locale={locale} statistics={homePage?.statistics} />
       <EducationModel locale={locale} />
       <StudyPlan locale={locale} />
-      <SchoolDay locale={locale} routine={homePage?.routine} routes={visibleRoutes(feeSettings?.transportRoutes, locale)} transportPhone={transportPhone(siteSettings?.contactInfo)} />
+      <SchoolDay locale={locale} routine={homePage?.routine} routes={visibleRoutes(feeSettings?.transportRoutes, locale)} />
       <Campus locale={locale} mapUrl={siteSettings?.locationInfo?.googleMapsUrl} playSpaces={homePage?.playSpaces} showVisit={isSectionVisible('campus', siteSettings?.navigationVisibility)} showGallery={isSectionVisible('gallery', siteSettings?.navigationVisibility)} />
       <Why locale={locale} />
       <Founder locale={locale} />
       <Reviews locale={locale} reviews={reviewsFor(testimonials, locale)} />
       {isSectionVisible('notices', siteSettings?.navigationVisibility) && <HomeNotices locale={locale} raw={notices} />}
       <Faq locale={locale} questions={homePage?.faq} officePhone={getAdmissionsContact(siteSettings?.contactInfo).phone ?? undefined} />
-      <PreAdmissionCard locale={locale} cta={admissionCta} />
+      <PreAdmissionCard locale={locale} cta={admissionCta} showVisit={isSectionVisible('campus', siteSettings?.navigationVisibility)} />
     </>
   );
 }

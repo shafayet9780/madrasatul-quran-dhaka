@@ -1,8 +1,6 @@
 // The homepage's day section: the hifz day-care routine, the stage hours and the van routes. Text lives in messages (home.day).
 import type { Locale } from '@/lib/i18n';
 import type { TransportRoute } from '@/types/fees';
-import type { ContactInfo } from '@/types/sanity';
-import { phoneFor } from '@/lib/admissions-contact';
 import type { HomeRoutinePart } from '@/types/home';
 
 export type StepKind = 'quran' | 'study' | 'meal' | 'rest' | 'salat' | 'play' | 'home';
@@ -67,5 +65,3 @@ export function visibleRoutes(routes: TransportRoute[] | undefined, locale: Loca
   });
 }
 
-/** The transport desk: the first number shown for Transport (Studio → School details → Phone numbers). */
-export const transportPhone = (contact: ContactInfo | undefined): string | undefined => phoneFor(contact, 'transport');

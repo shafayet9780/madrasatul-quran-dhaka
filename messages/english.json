@@ -275,8 +275,7 @@
         "title": "School transport",
         "lede": "Experienced drivers and a responsible attendant on every ride.",
         "vanAlt": "The school van with Madrasatul Quran livery, the building behind",
-        "vanCaption": "The school’s own van.",
-        "desk": "Transport desk: {number}"
+        "vanCaption": "The school’s own van."
       }
     },
     "campus": {

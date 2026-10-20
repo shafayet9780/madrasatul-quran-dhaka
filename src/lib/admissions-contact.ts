@@ -22,7 +22,6 @@ export function phoneUse(phone: { number?: string; usedFor?: PhoneUse; type?: st
   if (phone.usedFor) return phone.usedFor;
   if (phone.type === 'admission' || (number && number === normalizePhone(admissionsPhone))) return 'admissions';
   const label = phone.label?.english ?? '';
-  if (/transport/i.test(label)) return 'transport';
   if (/account/i.test(label)) return 'accounts';
   return 'office';
 }
