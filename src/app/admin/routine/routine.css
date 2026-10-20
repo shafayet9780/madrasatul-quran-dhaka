@@ -1,0 +1,124 @@
+/* Class routine pages (docs/class-routine.md §5). The school grid prints on A3 landscape; a
+   group's or a teacher's week and the proxy day on A4. */
+
+.rt-grid {
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 13px;
+}
+.rt-grid th,
+.rt-grid td {
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+.rt-grid tr > :first-child {
+  border-left: 1px solid var(--border);
+}
+.rt-grid thead th {
+  border-top: 1px solid var(--border);
+  background: #f5f5f5;
+  font-weight: 600;
+  padding: 6px 8px;
+  white-space: nowrap;
+}
+.rt-grid tr > :first-child {
+  width: 1%;
+}
+.rt-grid tbody th {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  background: #fff;
+  padding: 8px;
+  text-align: left;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.rt-grid td {
+  min-width: 128px;
+  padding: 0;
+  background: #fff;
+}
+.rt-cell {
+  display: flex;
+  width: 100%;
+  min-height: 52px;
+  flex-direction: column;
+  gap: 6px;
+  padding: 6px 8px;
+  text-align: left;
+}
+.rt-entry {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.35;
+}
+.rt-entry + .rt-entry {
+  border-top: 1px dashed var(--border);
+  padding-top: 6px;
+}
+.rt-days {
+  font-size: 11.5px;
+  color: var(--muted-foreground);
+}
+/* The period running now (a school day, that day shown). */
+.rt-grid thead th.rt-now {
+  background: color-mix(in srgb, var(--primary) 12%, #f5f5f5);
+}
+
+@media print {
+  @page a3 {
+    size: A3 landscape;
+    margin: 10mm;
+  }
+  @page a4l {
+    size: A4 landscape;
+    margin: 10mm;
+  }
+  .rt-a3 {
+    page: a3;
+    /* The whole A3 width, not the screen's 1280px column. */
+    max-width: none !important;
+  }
+  .rt-a4l {
+    page: a4l;
+  }
+  .rt-grid {
+    font-size: 10.5px;
+  }
+  .rt-grid td {
+    min-width: 0;
+  }
+  .rt-cell {
+    min-height: 0;
+    gap: 3px;
+    padding: 4px 5px;
+  }
+  /* One entry flows on one or two lines (days, subject, teachers, note) so the day fits fewer pages. */
+  .rt-entry {
+    flex-flow: row wrap;
+    column-gap: 4px;
+    line-height: 1.25;
+  }
+  .rt-entry + .rt-entry {
+    padding-top: 3px;
+  }
+  .rt-scroll {
+    overflow: visible !important;
+  }
+  /* The sheet's columns wrap onto the A3 page instead of scrolling off it. */
+  .rt-lanes {
+    flex-wrap: wrap;
+    overflow: visible !important;
+  }
+  .rt-grid tbody th {
+    position: static;
+  }
+  .rt-grid tr {
+    break-inside: avoid;
+  }
+  .rt-grid thead th.rt-now {
+    background: #f5f5f5;
+  }
+}

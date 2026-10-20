@@ -154,6 +154,37 @@ const PATHS = {
     </>
   ),
   check: <path d="M20 6 9 17l-5-5" />,
+  calendar: (
+    <>
+      <rect x="3" y="4.5" width="18" height="16.5" rx="2" />
+      <path d="M3 9.5h18" />
+      <path d="M8 2.5v4" />
+      <path d="M16 2.5v4" />
+      <path d="M7.5 13.5h3v3h-3z" />
+    </>
+  ),
+  free: (
+    <>
+      <circle cx="9" cy="8" r="3.5" />
+      <path d="M2.5 20c.8-3.5 3.4-5.5 6.5-5.5 1.6 0 3 .5 4.2 1.4" />
+      <path d="m15.5 18 2 2 4-4" />
+    </>
+  ),
+  swap: (
+    <>
+      <path d="M4 8h14" />
+      <path d="m14 4 4 4-4 4" />
+      <path d="M20 16H6" />
+      <path d="m10 12-4 4 4 4" />
+    </>
+  ),
+  gauge: (
+    <>
+      <path d="M3.5 17a9 9 0 1 1 17 0" />
+      <path d="m12 14 4-5" />
+      <circle cx="12" cy="14" r="1.5" />
+    </>
+  ),
   updown: (
     <>
       <path d="m7 15 5 5 5-5" />

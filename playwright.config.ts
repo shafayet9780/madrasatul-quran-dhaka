@@ -26,8 +26,8 @@ export default defineConfig({
     timeout: 240_000,
   },
   projects: [
-    // The pre-admission flow, the gallery and the notices run against the local preview: pnpm test:e2e:admissions.
-    { name: 'chromium', use: { ...devices['Desktop Chrome'] }, testIgnore: [DB_SPECS, /pre-admission.*\.spec\.ts/, /gallery\.spec\.ts/, /notices\.spec\.ts/] },
+    // The pre-admission flow, the class routine, the gallery and the notices run against the local preview: pnpm test:e2e:admissions.
+    { name: 'chromium', use: { ...devices['Desktop Chrome'] }, testIgnore: [DB_SPECS, /pre-admission.*\.spec\.ts/, /admin-routine\.spec\.ts/, /gallery\.spec\.ts/, /notices\.spec\.ts/] },
     // These specs reload shared fixtures in the Neon dev database, so they run one at a time.
     { name: 'survey-db', use: { ...devices['Desktop Chrome'] }, testMatch: DB_SPECS, workers: 1 },
   ],

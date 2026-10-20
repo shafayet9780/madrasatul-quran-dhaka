@@ -10,17 +10,19 @@ import { toBengaliDigits as bn } from '@/lib/survey/normalise';
 import { Icon, type IconName } from './icons';
 
 // The admin app frame (dashboard frames D1–D4): sidebar on desktop, top bar + bottom tabs + menu
-// sheet on phones. Two modules share it, chosen with the switcher at the top: ভর্তি (admissions,
-// /admin/admissions) and জরিপ (the teacher and guardian survey, everything else). The teacher round
-// chosen here applies to every survey report page (cookie sv-round).
+// sheet on phones. Three modules share it, chosen with the switcher at the top: ভর্তি (admissions,
+// /admin/admissions), রুটিন (the class routine, /admin/routine) and জরিপ (the teacher and guardian
+// survey, everything else). The teacher round chosen here applies to every survey report page
+// (cookie sv-round).
 
 const GUIDE: Record<Module, string> = {
   survey: 'https://github.com/shafayet9780/madrasatul-quran-dhaka/blob/main/docs/survey-admin-guide.md',
   admissions: 'https://github.com/shafayet9780/madrasatul-quran-dhaka/blob/main/docs/pre-admission-admin-guide.md',
+  routine: 'https://github.com/shafayet9780/madrasatul-quran-dhaka/blob/main/docs/class-routine.md',
 };
 
 type NavLink = { label: string; href: string; icon: IconName; badge?: boolean; count?: number; external?: boolean };
-type Module = 'admissions' | 'survey';
+type Module = 'admissions' | 'survey' | 'routine';
 const SURVEY_SECTIONS: { heading: string; links: NavLink[] }[] = [
   {
     heading: 'রিপোর্ট',
@@ -57,11 +59,35 @@ function admissionsSections(nav: AdmissionsNav): { heading: string; links: NavLi
   ];
 }
 
+const ROUTINE_SECTIONS: { heading: string; links: NavLink[] }[] = [
+  {
+    heading: 'ক্লাস রুটিন',
+    links: [
+      { label: 'রুটিন', href: '/admin/routine', icon: 'calendar' },
+      { label: 'ফ্রি টিচার', href: '/admin/routine/free', icon: 'free' },
+      { label: 'প্রক্সি', href: '/admin/routine/proxy', icon: 'swap' },
+      { label: 'ওয়ার্কলোড', href: '/admin/routine/workload', icon: 'gauge' },
+    ],
+  },
+  {
+    heading: 'সেটআপ',
+    links: [
+      { label: 'টিচার', href: '/admin/routine/teachers', icon: 'people' },
+      { label: 'পিরিয়ড, গ্রুপ, রুম', href: '/admin/routine/setup', icon: 'sliders' },
+    ],
+  },
+];
+
 type Tab = readonly [label: string, href: string, icon: IconName];
 const ADMISSIONS_TABS: Tab[] = [
   ['ওভারভিউ', '/admin/admissions', 'overview'],
   ['আবেদন', '/admin/admissions/applications', 'people'],
   ['অ্যাসেসমেন্ট', '/admin/admissions/evaluation-day', 'scan'],
+];
+const ROUTINE_TABS: Tab[] = [
+  ['রুটিন', '/admin/routine', 'calendar'],
+  ['ফ্রি', '/admin/routine/free', 'free'],
+  ['প্রক্সি', '/admin/routine/proxy', 'swap'],
 ];
 const SURVEY_TABS: Tab[] = [
   ['ওভারভিউ', '/admin/reports/overview', 'overview'],
@@ -69,7 +95,11 @@ const SURVEY_TABS: Tab[] = [
   ['ট্র্যাকার', '/admin/tracker', 'tracker'],
 ];
 
-const moduleOf = (pathname: string): Module => (pathname === '/admin/admissions' || pathname.startsWith('/admin/admissions/') ? 'admissions' : 'survey');
+const under = (pathname: string, root: string) => pathname === root || pathname.startsWith(`${root}/`);
+const moduleOf = (pathname: string): Module => (under(pathname, '/admin/admissions') ? 'admissions' : under(pathname, '/admin/routine') ? 'routine' : 'survey');
+const SECTIONS = { survey: SURVEY_SECTIONS, routine: ROUTINE_SECTIONS };
+const TABS: Record<Module, Tab[]> = { admissions: ADMISSIONS_TABS, survey: SURVEY_TABS, routine: ROUTINE_TABS };
+const MENU_LABEL: Record<Module, string> = { admissions: 'ভর্তি মেনু', survey: 'রিপোর্ট মেনু', routine: 'রুটিন মেনু' };
 
 /** The longest nav link that the path is under (so /admin/reports/raters is not also "reports"). */
 function isCurrent(pathname: string, href: string, hrefs: string[]) {
@@ -145,12 +175,13 @@ function NavLinks({ pathname, pending, compact, sections }: { pathname: string; 
 const MODULES: Record<Module, { title: string; menu: string; href: string; icon: IconName }> = {
   admissions: { title: 'ভর্তি', menu: 'ভর্তি', href: '/admin/admissions', icon: 'admissions' },
   survey: { title: 'জরিপ', menu: 'শিক্ষক ও অভিভাবক জরিপ', href: '/admin/reports/overview', icon: 'survey' },
+  routine: { title: 'রুটিন', menu: 'ক্লাস রুটিন ও প্রক্সি', href: '/admin/routine', icon: 'calendar' },
 };
 
 /** The module switcher (ভর্তি | জরিপ) at the top of the sidebar and the phone menu. */
 function ModuleSwitch({ mod, session, compact }: { mod: Module; session: string; compact?: boolean }) {
   const current = MODULES[mod];
-  const sub = mod === 'admissions' ? `প্রি-অ্যাডমিশন ${bn(session)}` : 'শিক্ষক ও অভিভাবক জরিপ';
+  const sub = mod === 'admissions' ? `প্রি-অ্যাডমিশন ${bn(session)}` : current.menu;
   return (
     <DropdownMenu>
       <DropdownMenuTrigger className="sv-module" aria-label={`মডিউল: ${current.title} (বদলান)`} title={compact ? current.title : undefined}>
@@ -210,7 +241,7 @@ function Brand({ mod, session, children }: { mod: Module; session: string; child
 export function AdminShell({ data, admissions, children }: { data: ShellData; admissions: AdmissionsNav; children: ReactNode }) {
   const pathname = usePathname();
   const mod = moduleOf(pathname);
-  const sections = mod === 'admissions' ? admissionsSections(admissions) : SURVEY_SECTIONS;
+  const sections = mod === 'admissions' ? admissionsSections(admissions) : SECTIONS[mod];
   const router = useRouter();
   const params = useSearchParams();
   // A page opened with ?round= of a teacher round shows that one; otherwise the chosen one.
@@ -305,7 +336,7 @@ export function AdminShell({ data, admissions, children }: { data: ShellData; ad
               <Icon name="panel" />
             </button>
           </Brand>
-          {mod === 'admissions' ? null : collapsed ? (
+          {mod !== 'survey' ? null : collapsed ? (
             <div className="flex flex-col items-center" style={{ gap: 4 }}>
               <button
                 type="button"
@@ -334,7 +365,7 @@ export function AdminShell({ data, admissions, children }: { data: ShellData; ad
               </Link>
             </div>
           )}
-          <nav aria-label={mod === 'admissions' ? 'ভর্তি মেনু' : 'রিপোর্ট মেনু'} className="flex flex-col" style={{ gap: 4 }}>
+          <nav aria-label={MENU_LABEL[mod]} className="flex flex-col" style={{ gap: 4 }}>
             <NavLinks pathname={pathname} pending={data.pending} compact={collapsed} sections={sections} />
           </nav>
           <FooterLinks compact={collapsed} mod={mod} />
@@ -343,7 +374,7 @@ export function AdminShell({ data, admissions, children }: { data: ShellData; ad
         <main className="sv-shell-main">{children}</main>
 
         <nav className="sv-tabs sv-no-print" aria-label="প্রধান মেনু">
-          {(mod === 'admissions' ? ADMISSIONS_TABS : SURVEY_TABS).map(([label, href, icon]) => (
+          {TABS[mod].map(([label, href, icon]) => (
             <Link key={href} href={href} className="sv-tab" aria-current={isCurrent(pathname, href, sections.flatMap((x) => x.links.map((l) => l.href))) ? 'page' : undefined}>
               <Icon name={icon} size={22} />
               {label}
@@ -365,7 +396,7 @@ export function AdminShell({ data, admissions, children }: { data: ShellData; ad
                 </button>
               </Brand>
               {mod === 'survey' && <RoundSelect />}
-              <nav aria-label={mod === 'admissions' ? 'ভর্তি মেনু (ফোন)' : 'রিপোর্ট মেনু (ফোন)'} className="flex flex-col" style={{ gap: 4, overflowY: 'auto' }}>
+              <nav aria-label={`${MENU_LABEL[mod]} (ফোন)`} className="flex flex-col" style={{ gap: 4, overflowY: 'auto' }}>
                 <NavLinks pathname={pathname} pending={data.pending} compact={false} sections={sections} />
               </nav>
               <FooterLinks compact={false} mod={mod} />
