@@ -2,6 +2,7 @@
 import type { Locale } from '@/lib/i18n';
 import type { TransportRoute } from '@/types/fees';
 import type { ContactInfo } from '@/types/sanity';
+import { phoneFor } from '@/lib/admissions-contact';
 import type { HomeRoutinePart } from '@/types/home';
 
 export type StepKind = 'quran' | 'study' | 'meal' | 'rest' | 'salat' | 'play' | 'home';
@@ -57,7 +58,7 @@ export const axisPos = (minutes: number) => ((minutes - DAY_AXIS[0]) / (DAY_AXIS
 
 export type Route = { name: string; stops: string[] };
 
-/** The visible van routes (Fees & Discounts → Transport), in the order the CMS lists them. Route names carry their area. */
+/** The visible van routes (Fees, discounts & transport → Transport), in the order the CMS lists them. Route names carry their area. */
 export function visibleRoutes(routes: TransportRoute[] | undefined, locale: Locale): Route[] {
   return (routes ?? []).flatMap((r) => {
     const name = r.name?.[locale];
@@ -66,7 +67,5 @@ export function visibleRoutes(routes: TransportRoute[] | undefined, locale: Loca
   });
 }
 
-/** The transport desk: the active site phone whose English label mentions transport. */
-export function transportPhone(contact: ContactInfo | undefined): string | undefined {
-  return contact?.phone?.find((p) => p.isActive && /transport/i.test(p.label?.english ?? ''))?.number;
-}
+/** The transport desk: the first number shown for Transport (Studio → School details → Phone numbers). */
+export const transportPhone = (contact: ContactInfo | undefined): string | undefined => phoneFor(contact, 'transport');

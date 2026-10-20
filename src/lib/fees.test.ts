@@ -77,14 +77,20 @@ describe('contact destinations', () => {
   it('prefers configured destinations and omits invalid explicit values', () => {
     expect(
       getAdmissionsContact({
-        admissionsPhone: 'bad',
+        phone: [{ number: 'bad', usedFor: 'admissions', isActive: true }],
         whatsappNumber: 'bad',
       } as any)
     ).toMatchObject({ phone: null, whatsapp: null });
     expect(
       getAdmissionsContact({
-        phone: [{ number: '01301226644', type: 'admission', isActive: true }],
+        phone: [
+          { number: '01700000000', usedFor: 'office', isActive: true },
+          { number: '01302332244', usedFor: 'admissions', isActive: false },
+          { number: '01301226644', usedFor: 'admissions', isActive: true },
+        ],
       } as any).phone
     ).toBe('+8801301226644');
+    // With no admissions number shown, the first number shown stands in.
+    expect(getAdmissionsContact({ phone: [{ number: '01700000000', usedFor: 'office', isActive: true }] } as any).phone).toBe('+8801700000000');
   });
 });

@@ -7,22 +7,22 @@ const settings = {
     address: { bengali: 'বাসা ৩৭, উত্তরা', english: 'House 37, Uttara' },
     officeHours: { bengali: 'শনি থেকে বৃহস্পতি', english: '' },
     phone: [
-      { label: { bengali: 'সিনিয়র এডমিন', english: 'Senior Admin' }, number: '+880 1302-332244', type: 'main', isPrimary: true, isActive: true },
-      { label: { bengali: 'একাউন্টস', english: 'Accounts' }, number: '+880 1304 226644', type: 'main', isPrimary: true, isActive: true },
-      { label: { bengali: 'পুরনো', english: 'Old' }, number: '+880 1700 000000', type: 'main', isPrimary: false, isActive: false },
-      { label: { bengali: 'ভুল', english: 'Wrong' }, number: 'call us', type: 'main', isPrimary: false, isActive: true },
+      { label: { bengali: 'সিনিয়র এডমিন', english: 'Senior Admin' }, number: '+880 1302-332244', usedFor: 'admissions', isActive: true },
+      { label: { bengali: 'একাউন্টস', english: 'Accounts' }, number: '+880 1304 226644', usedFor: 'accounts', isActive: true },
+      { label: { bengali: 'পুরনো', english: 'Old' }, number: '+880 1700 000000', usedFor: 'office', isActive: false },
+      { label: { bengali: 'ভুল', english: 'Wrong' }, number: 'call us', usedFor: 'office', isActive: true },
     ],
     email: [
-      { address: 'info@example.com', type: 'info', isPrimary: true, isActive: true },
-      { address: 'old@example.com', type: 'info', isPrimary: false, isActive: false },
+      { address: 'info@example.com', isActive: true },
+      { address: 'old@example.com', isActive: false },
     ],
   },
   locationInfo: {
     mapEmbedUrl: 'https://www.google.com/maps/embed?pb=1',
     googleMapsUrl: 'https://maps.app.goo.gl/x',
     landmarks: [
-      { name: { bengali: 'উত্তরা সেন্টার', english: 'Uttara Center' }, distance: '600m', icon: 'bus' },
-      { name: { bengali: '', english: '' }, distance: '1 km', icon: 'bus' },
+      { name: { bengali: 'উত্তরা সেন্টার', english: 'Uttara Center' }, distance: '600m' },
+      { name: { bengali: '', english: '' }, distance: '1 km' },
     ],
   },
 } as unknown as SiteSettings;
@@ -66,7 +66,7 @@ describe('contactDetails', () => {
     expect(d.address).toBe('House 37, Uttara');
     expect(d.mapEmbed).toBe('https://www.google.com/maps/embed?pb=1');
   });
-  it('shows nothing without Site Settings', () => {
+  it('shows nothing without School details', () => {
     const d = contactDetails(null, 'english');
     expect(d.desks).toEqual([]);
     expect(d.emails).toEqual([]);

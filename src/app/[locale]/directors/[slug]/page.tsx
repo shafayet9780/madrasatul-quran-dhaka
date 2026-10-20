@@ -10,7 +10,7 @@ import { isSectionVisible } from '@/lib/nav-visibility';
 import { num, txt } from '@/lib/admissions/display';
 import { tidyBio } from '@/lib/about/bio';
 import { profileHref } from '@/lib/about/people';
-import { generatePageMetadata } from '@/lib/page-metadata';
+import { pageMetadata } from '@/lib/page-seo';
 import { generatePersonStructuredData, generateBreadcrumbStructuredData, serializeJsonLd } from '@/lib/seo';
 import { PersonBand } from '@/components/about/person-band';
 import { Portraits } from '@/components/about/portraits';
@@ -31,7 +31,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!director || director.showDetailPage === false) return {};
   const t = await getTranslations({ locale, namespace: 'about.profile' });
   const who = { name: txt(director.name, locale), role: txt(director.designation, locale) };
-  return generatePageMetadata({
+  return pageMetadata({
     title: t('title', who),
     // Who they are at the school, then their Studio summary (too short alone for a search result).
     description: [t('description', who), txt(director.summary, locale)].filter(Boolean).join(' '),

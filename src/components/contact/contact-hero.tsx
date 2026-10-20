@@ -8,7 +8,7 @@ type Details = ReturnType<typeof contactDetails>;
 
 /**
  * The page's opening, on `paper`: the H1, what to get in touch about, the office's call and WhatsApp buttons (WhatsApp in
- * its own green), and a card with the office hours and the address (Site Settings → contact) linking to the way here.
+ * its own green), and a card with the office hours and the address (School details → contact) linking to the way here.
  */
 export async function ContactHero({ locale, details }: { locale: Locale; details: Details }) {
   const t = await getTranslations({ locale, namespace: 'contact.hero' });

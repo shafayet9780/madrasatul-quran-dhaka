@@ -31,7 +31,6 @@ export interface DownloadCategory {
   _id: string
   _type: 'downloadCategory'
   name: MultilingualText
-  description?: MultilingualText
   slug: { current: string }
   displayOrder: number
   shareVersion: number

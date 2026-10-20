@@ -4,14 +4,10 @@ import { campusDay } from './campusDay'
 import { album } from './album'
 import { notice } from './notice'
 import { testimonial } from './testimonial'
-import { page } from './page'
-import { newsEvent } from './newsEvent'
-import { academicProgram } from './academicProgram'
-import { facility } from './facility'
 import { siteSettings } from './siteSettings'
-import { footer } from './footer'
+import { pagesOnOff } from './pagesOnOff'
+import { seoSettings } from './seoSettings'
 import { preAdmissionForm } from './preAdmissionForm'
-import prospectus from './prospectus'
 import { department } from './department'
 import { director } from './director'
 import { teacher } from './teacher'
@@ -34,14 +30,10 @@ export const schemaTypes = [
   album,
   notice,
   testimonial,
-  page,
-  newsEvent,
-  academicProgram,
-  facility,
   siteSettings,
-  footer,
+  pagesOnOff,
+  seoSettings,
   preAdmissionForm,
-  prospectus,
   department,
   director,
   teacher,

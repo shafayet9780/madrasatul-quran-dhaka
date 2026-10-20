@@ -1,13 +1,13 @@
 import { getTranslations } from 'next-intl/server';
 import type { Locale } from '@/lib/i18n';
-import type { SiteSettings } from '@/types/sanity';
+import type { SchoolStatistics } from '@/types/sanity';
 import { homeStats } from '@/lib/home/stats';
 import { CountUp } from '@/components/site/count-up';
 
-/** The school in numbers, from siteSettings.statistics (see homeStats for what shows and how it rounds). */
-export async function NumbersBand({ locale, siteSettings }: { locale: Locale; siteSettings: SiteSettings | null }) {
+/** The school in numbers, from Studio → Homepage (see homeStats for what shows and how it rounds). */
+export async function NumbersBand({ locale, statistics }: { locale: Locale; statistics?: SchoolStatistics }) {
   const t = await getTranslations({ locale, namespace: 'home.stats' });
-  const stats = homeStats(siteSettings?.statistics, locale, { students: t('students'), teachers: t('teachers'), ratio: t('ratio') });
+  const stats = homeStats(statistics, locale, { students: t('students'), teachers: t('teachers'), ratio: t('ratio') });
   if (stats.length === 0) return null;
   return (
     <section aria-label={t('label')} className="bg-dark text-on-dark">

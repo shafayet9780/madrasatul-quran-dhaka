@@ -3,7 +3,7 @@ import { structureTool } from 'sanity/structure';
 import { visionTool } from '@sanity/vision';
 
 import { schemaTypes } from './sanity/schemas';
-import { structure } from './sanity/structure';
+import { SINGLETONS, structure } from './sanity/structure';
 import { StudioLogo } from './sanity/components/StudioLogo';
 import { DownloadLinksTool } from './sanity/tools/DownloadLinksTool';
 import { ShareDownloadAction } from './sanity/actions/ShareDownloadAction';
@@ -32,13 +32,13 @@ export default defineConfig({
 
   schema: {
     types: schemaTypes,
-    templates: (prev) => prev.filter(template => !['feeSettings', 'homePage', 'campusDay'].includes(template.schemaType)),
+    templates: (prev) => prev.filter(template => !SINGLETONS.includes(template.schemaType)),
   },
 
   document: {
     actions: (prev, context) =>
-      ['feeSettings', 'homePage', 'campusDay'].includes(context.schemaType)
-        ? prev.filter(action => action.action !== 'duplicate')
+      SINGLETONS.includes(context.schemaType)
+        ? prev.filter(action => action.action !== 'duplicate' && action.action !== 'delete')
         : ['downloadCategory', 'downloadable'].includes(context.schemaType)
         ? [...prev, ShareDownloadAction, RevokeDownloadLinksAction]
         : context.schemaType === 'surveyRound'

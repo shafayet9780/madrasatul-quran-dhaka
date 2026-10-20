@@ -1,4 +1,5 @@
 import { defineField, defineType } from 'sanity'
+import { orderRankField, orderRankOrdering } from '@sanity/orderable-document-list'
 import { mlString } from './shared'
 
 // A guardian's words for the homepage (Studio → Guardian reviews). Only reviews with recorded consent are shown,
@@ -49,9 +50,9 @@ export const testimonial = defineType({
         rule.custom((note: string | undefined, context) => (context.document?.consent && !note?.trim() ? 'Record how and when the guardian agreed.' : true)),
     }),
     defineField({ name: 'show', title: 'Show on the homepage', type: 'boolean', initialValue: true }),
-    defineField({ name: 'order', title: 'Order', description: 'Lower numbers come first. The homepage shows the first three.', type: 'number' }),
+    orderRankField({ type: 'testimonial', newItemPosition: 'after' }),
   ],
-  orderings: [{ title: 'Order', name: 'order', by: [{ field: 'order', direction: 'asc' }] }],
+  orderings: [orderRankOrdering],
   preview: {
     select: { who: 'who.bengali', classLine: 'classLine.bengali', consent: 'consent', show: 'show' },
     prepare: ({ who, classLine, consent, show }) => ({

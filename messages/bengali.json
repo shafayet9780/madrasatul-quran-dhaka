@@ -492,12 +492,6 @@
       "description": "{name}, উত্তরা, ঢাকার মাদরাসাতুল কুরআনের {role}।"
     }
   },
-  "programs": {
-    "meta": {
-      "title": "একাডেমিক প্রোগ্রাম",
-      "description": "ইসলামী শিক্ষা, এনসিটিবি কারিকুলাম এবং সহশিক্ষা কার্যক্রমের বিস্তারিত তথ্য।"
-    }
-  },
   "admissions": {
     "meta": {
       "title": "ভর্তি ও ফি | মাদরাসাতুল কুরআন",
@@ -891,87 +885,6 @@
       "gallery": "ছবি ও ভিডিও দেখুন"
     }
   },
-  "news": {
-    "meta": {
-      "title": "সংবাদ ও ইভেন্ট | মাদরাসাতুল কুরআন",
-      "description": "মাদরাসাতুল কুরআনের সর্বশেষ সংবাদ, ইভেন্ট, অর্জন এবং ঘোষণা সম্পর্কে আপডেট থাকুন।"
-    },
-    "title": "সংবাদ ও ইভেন্ট",
-    "subtitle": "স্কুলের খবর, অনুষ্ঠান আর ঘোষণা, এক জায়গায়",
-    "loading": "সংবাদ ও ইভেন্ট লোড হচ্ছে...",
-    "noResults": "এই খোঁজে কোনো খবর বা ইভেন্ট পাওয়া যায়নি।",
-    "tabs": {
-      "list": "সংবাদ তালিকা",
-      "calendar": "ইভেন্ট ক্যালেন্ডার",
-      "gallery": "ফটো গ্যালারি"
-    },
-    "filters": {
-      "filterBy": "ফিল্টার করুন",
-      "all": "সব",
-      "achievements": "অর্জনসমূহ",
-      "news": "সংবাদ",
-      "events": "ইভেন্ট",
-      "announcements": "ঘোষণা"
-    },
-    "search": {
-      "placeholder": "খবর বা ইভেন্ট খুঁজুন..."
-    },
-    "card": {
-      "readMore": "আরও পড়ুন",
-      "categories": {
-        "achievement": "অর্জন",
-        "news": "সংবাদ",
-        "event": "ইভেন্ট",
-        "announcement": "ঘোষণা"
-      }
-    },
-    "calendar": {
-      "upcomingEvents": "আসন্ন ইভেন্টসমূহ",
-      "noUpcomingEvents": "কোনো আসন্ন ইভেন্ট নির্ধারিত নেই।",
-      "more": "আরও",
-      "rsvp": "রেজিস্ট্রেশন"
-    },
-    "rsvp": {
-      "title": "ইভেন্টে রেজিস্ট্রেশন",
-      "form": {
-        "name": "পূর্ণ নাম",
-        "namePlaceholder": "আপনার পূর্ণ নাম লিখুন",
-        "email": "ইমেইল ঠিকানা",
-        "emailPlaceholder": "your.email@example.com",
-        "phone": "ফোন নম্বর",
-        "phonePlaceholder": "+৮৮০ ১XXX-XXXXXX",
-        "attendees": "অংশগ্রহণকারীর সংখ্যা",
-        "person": "জন",
-        "people": "জন",
-        "message": "আর কিছু জানাতে চাইলে",
-        "messagePlaceholder": "কোনো বিশেষ প্রয়োজন বা প্রশ্ন...",
-        "cancel": "বাতিল",
-        "submit": "রেজিস্ট্রেশন করুন",
-        "submitting": "রেজিস্ট্রেশন হচ্ছে..."
-      },
-      "success": {
-        "title": "রেজিস্ট্রেশন হয়েছে!",
-        "message": "রেজিস্ট্রেশনের জন্য ধন্যবাদ। ইভেন্টের বিস্তারিত জানাতে আমরা শিগগিরই যোগাযোগ করব।",
-        "close": "বন্ধ করুন"
-      }
-    },
-    "gallery": {
-      "categories": {
-        "all": "সকল ছবি",
-        "achievement": "অর্জনসমূহ",
-        "news": "সংবাদ",
-        "event": "ইভেন্ট",
-        "announcement": "ঘোষণা"
-      },
-      "noImages": "এই বিভাগে কোনো ছবি নেই।",
-      "share": "ছবি শেয়ার করুন",
-      "featured": "বাছাই করা ছবি ও ভিডিও",
-      "allPhotos": "সকল ছবি"
-    },
-    "slideshow": {
-      "noImages": "দেখানোর মতো কোনো ছবি নেই।"
-    }
-  },
   "contact": {
     "meta": {
       "title": "যোগাযোগ | মাদরাসাতুল কুরআন",
@@ -1068,63 +981,6 @@
       "hideButton": "ব্যানার লুকান"
     }
   },
-  "translation": {
-    "dashboard": {
-      "title": "অনুবাদ ড্যাশবোর্ড",
-      "description": "বহুভাষিক কন্টেন্ট অনুবাদ পর্যবেক্ষণ ও পরিচালনা করুন"
-    },
-    "stats": {
-      "total": "মোট কাজ",
-      "completed": "সম্পন্ন",
-      "inProgress": "চলমান",
-      "pending": "অপেক্ষমান",
-      "bengali": "বাংলা অনুবাদ",
-      "english": "ইংরেজি অনুবাদ"
-    },
-    "workflow": {
-      "title": "অনুবাদ কর্মপ্রবাহ",
-      "description": "অনুবাদের মনোযোগ প্রয়োজন এমন কন্টেন্ট আইটেম",
-      "noItems": "সকল অনুবাদ সম্পন্ন!",
-      "noItemsDescription": "সকল কন্টেন্ট উভয় ভাষায় অনুবাদ করা হয়েছে।"
-    },
-    "documentTypes": {
-      "newsEvent": "সংবাদ ও ইভেন্ট",
-      "page": "পৃষ্ঠা",
-      "academicProgram": "একাডেমিক প্রোগ্রাম",
-      "staffMember": "কর্মী সদস্য",
-      "facility": "সুবিধা"
-    },
-    "languages": {
-      "bengali": "বাংলা",
-      "english": "ইংরেজি"
-    },
-    "actions": {
-      "createTask": "কাজ তৈরি করুন"
-    },
-    "bulkActions": {
-      "selected": "{count}টি আইটেম নির্বাচিত",
-      "createTasks": "কাজ তৈরি করুন",
-      "clear": "নির্বাচন পরিষ্কার করুন"
-    },
-    "filters": {
-      "title": "ফিল্টার",
-      "clear": "সব পরিষ্কার করুন",
-      "documentType": "ডকুমেন্ট টাইপ",
-      "language": "ভাষা",
-      "priority": "অগ্রাধিকার",
-      "status": "অবস্থা",
-      "all": "সব"
-    },
-    "priority": {
-      "high": "উচ্চ",
-      "medium": "মধ্যম",
-      "low": "নিম্ন"
-    },
-    "status": {
-      "complete": "সম্পন্ন",
-      "incomplete": "অসম্পূর্ণ"
-    }
-  },
   "admissionCta": {
     "title": "প্রি-অ্যাডমিশন {session}",
     "apply": "আবেদন করুন",
@@ -1203,8 +1059,7 @@
       "faqPaymentQ": "পেমেন্ট কি নিরাপদ?",
       "faqPaymentA": "পেমেন্ট হয় SSLCommerz-এর মাধ্যমে। আপনার কার্ড বা বিকাশের তথ্য আমাদের কাছে আসে না।",
       "moreQuestions": "আরও প্রশ্ন থাকলে",
-      "contactUs": "যোগাযোগ করুন",
-      "campusPhoto": "মাদরাসাতুল কুরআনের ক্যাম্পাস"
+      "contactUs": "যোগাযোগ করুন"
     },
     "start": {
       "title": "আবেদন শুরু করুন",
@@ -1492,7 +1347,8 @@
       "parentLogin": "অভিভাবক লগইন",
       "books": "আমাদের বইসমূহ",
       "privacy": "গোপনীয়তা নীতি",
-      "cookies": "কুকি নীতি"
+      "cookies": "কুকি নীতি",
+      "copyright": "© {year} মাদরাসাতুল কুরআন। সকল অধিকার সংরক্ষিত।"
     }
   },
   "gallery": {

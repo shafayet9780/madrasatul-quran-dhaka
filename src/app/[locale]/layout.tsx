@@ -8,7 +8,8 @@ import { locales } from '@/lib/i18n';
 import { localModeRequested } from '@/lib/admissions/local';
 import { languageTag } from '@/lib/locale-tags';
 import { getSiteUrl } from '@/lib/site-url';
-import { SOCIAL_IMAGE } from '@/lib/page-metadata';
+import { SITE_DESCRIPTION, SOCIAL_IMAGE } from '@/lib/page-metadata';
+import { sharePicture } from '@/lib/page-seo';
 import { ANEK_BANGLA_URL, siteFontVariables } from '@/lib/fonts';
 import { pickMessages, SHARED_CLIENT_MESSAGES } from '@/lib/i18n-messages';
 import LocaleProvider from '@/components/locale-provider';
@@ -37,21 +38,22 @@ export const viewport: Viewport = {
 };
 
 const TITLE = 'Madrasatul Quran, Uttara | Islamic and general education';
-const DESCRIPTION =
-  'At Madrasatul Quran in Uttara, Dhaka, Islamic and general education are given equal weight in one ten-year plan. Day-care hifz with general study alongside. Nursery to Class 11.';
 
 /**
  * The site's defaults; each page sets its own title, description and links. Page titles end with the school's name in
- * the page's language; a page that sets none (a not-found page) is titled with the name alone.
+ * the page's language; a page that sets none (a not-found page) is titled with the name alone. The description and the
+ * share picture come from Studio → Search & sharing when filled in.
  */
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
   if (!hasLocale(locales, locale)) return {};
-  const t = await getTranslations({ locale, namespace: 'site' });
+  const [t, seo] = await Promise.all([getTranslations({ locale, namespace: 'site' }), getContentService(false).getSeoSettings()]);
+  const description = seo?.description?.[locale]?.trim() || SITE_DESCRIPTION;
+  const share = sharePicture(seo, locale) ?? { url: SOCIAL_IMAGE, alt: 'Madrasatul Quran school building' };
   return {
     metadataBase: new URL(getSiteUrl()),
     title: { template: `%s | ${t('schoolName')}`, absolute: t('schoolName') },
-    description: DESCRIPTION,
+    description,
     keywords: ['Islamic education', 'Madrasah', 'Quran', 'Hadith', 'Dhaka', 'Bangladesh', 'Educational institution'],
     authors: [{ name: 'Madrasatul Quran' }],
     creator: 'Madrasatul Quran',
@@ -68,10 +70,10 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
       url: getSiteUrl(),
       siteName: 'Madrasatul Quran',
       title: TITLE,
-      description: DESCRIPTION,
-      images: [{ url: SOCIAL_IMAGE, width: 1200, height: 630, alt: 'Madrasatul Quran school building' }],
+      description,
+      images: [{ url: share.url, width: 1200, height: 630, alt: share.alt }],
     },
-    twitter: { card: 'summary_large_image', title: TITLE, description: DESCRIPTION, images: [SOCIAL_IMAGE] },
+    twitter: { card: 'summary_large_image', title: TITLE, description, images: [share.url] },
     // Optional Search Console verification; omit unconfigured tokens.
     verification: { google: process.env.GOOGLE_SITE_VERIFICATION || undefined },
     robots: {
@@ -90,12 +92,11 @@ export default async function LocaleLayout({ children, params }: { children: Rea
   // A Bengali page needs the Bengali font from its first line; an English page fetches it only if Bengali text shows.
   if (locale === 'bengali') preload(ANEK_BANGLA_URL, { as: 'font', type: 'font/woff2', crossOrigin: 'anonymous' });
 
-  // Site and footer settings (cached) feed the server-rendered header and footer.
+  // School details (cached) feed the server-rendered header and footer.
   const contentService = getContentService(false);
-  const [messages, siteSettings, footerSettings, admissionCta, t] = await Promise.all([
+  const [messages, siteSettings, admissionCta, t] = await Promise.all([
     getMessages(),
     contentService.getSiteSettings(),
-    contentService.getFooterSettings(),
     getAdmissionCta(asLocale(locale)),
     getTranslations({ locale, namespace: 'site' }),
   ]);
@@ -111,7 +112,7 @@ export default async function LocaleLayout({ children, params }: { children: Rea
                 <LanguageContextProvider>
                   <MainLayout
                     header={<SiteHeader locale={asLocale(locale)} siteSettings={siteSettings} />}
-                    footer={<SiteFooter locale={asLocale(locale)} siteSettings={siteSettings} footerSettings={footerSettings} />}
+                    footer={<SiteFooter locale={asLocale(locale)} siteSettings={siteSettings} />}
                     skipLabel={t('skip')}
                     admissionCta={admissionCta}
                   >

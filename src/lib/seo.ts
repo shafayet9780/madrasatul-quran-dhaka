@@ -1,123 +1,13 @@
 import { getSiteUrl } from './site-url';
 import { SOCIAL_IMAGE } from './page-metadata';
-import { Metadata } from 'next';
-import { getTranslations } from 'next-intl/server';
 
-export interface SEOData {
-  title: {
-    bengali: string;
-    english: string;
-  };
-  description: {
-    bengali: string;
-    english: string;
-  };
-  keywords?: {
-    bengali: string[];
-    english: string[];
-  };
-  image?: string;
-  url?: string;
-  type?: 'website' | 'article' | 'profile';
-  publishedTime?: string;
-  modifiedTime?: string;
-  author?: string;
-  section?: string;
-}
-
-/**
- * Generate metadata for Next.js pages
- */
-export async function generateMetadata(
-  seoData: SEOData,
-  locale: 'bengali' | 'english',
-  path: string = ''
-): Promise<Metadata> {
-  const t = await getTranslations('seo');
-  const baseUrl = getSiteUrl();
-  const currentUrl = `${baseUrl}/${locale}${path}`;
-
-  const title = seoData.title[locale];
-  const description = seoData.description[locale];
-  const keywords = seoData.keywords?.[locale] || [];
-
-  return {
-    title,
-    description,
-    keywords: keywords.join(', '),
-    authors: seoData.author ? [{ name: seoData.author }] : undefined,
-    
-    // Open Graph
-    openGraph: {
-      title,
-      description,
-      url: currentUrl,
-      siteName: locale === 'bengali' ? 'মাদরাসাতুল কুরআন' : 'Madrasatul Quran',
-      locale: locale === 'bengali' ? 'bn_BD' : 'en_US',
-      type: seoData.type || 'website',
-      publishedTime: seoData.publishedTime,
-      modifiedTime: seoData.modifiedTime,
-      section: seoData.section,
-      images: seoData.image ? [
-        {
-          url: seoData.image,
-          width: 1200,
-          height: 630,
-          alt: title,
-        }
-      ] : undefined,
-    },
-
-    // Twitter
-    twitter: {
-      card: 'summary_large_image',
-      title,
-      description,
-      images: seoData.image ? [seoData.image] : undefined,
-      creator: '@madrasatul_quran',
-      site: '@madrasatul_quran',
-    },
-
-    // Additional meta tags
-    other: {
-      'og:locale:alternate': locale === 'bengali' ? 'en_US' : 'bn_BD',
-      'article:author': seoData.author || '',
-      'article:section': seoData.section || '',
-      'article:published_time': seoData.publishedTime || '',
-      'article:modified_time': seoData.modifiedTime || '',
-    },
-
-    // Canonical URL
-    alternates: {
-      canonical: currentUrl,
-      languages: {
-        'bn-BD': `${baseUrl}/bengali${path}`,
-        'en-US': `${baseUrl}/english${path}`,
-      },
-    },
-
-    // Robots
-    robots: {
-      index: true,
-      follow: true,
-      googleBot: {
-        index: true,
-        follow: true,
-        'max-video-preview': -1,
-        'max-image-preview': 'large',
-        'max-snippet': -1,
-      },
-    },
-  };
-}
-
-// The school's pin on Google Maps (Site Settings → Location → Google Maps Link).
+// The school's pin on Google Maps (School details → Location → Google Maps Link).
 const SCHOOL_GEO = { '@type': 'GeoCoordinates', latitude: 23.8563215, longitude: 90.3682335 } as const;
 
 const DAYS = ['Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
 
 /**
- * Office hours written like "Sat - Thu: 8:00 AM - 5:00 PM" (Site Settings, English) as schema.org opening hours;
+ * Office hours written like "Sat - Thu: 8:00 AM - 5:00 PM" (School details, English) as schema.org opening hours;
  * undefined for anything else, so a differently written text is left out rather than misread.
  */
 export function openingHoursFrom(text?: string) {
@@ -137,7 +27,7 @@ export function openingHoursFrom(text?: string) {
 }
 
 /**
- * The school for search engines (schema.org School): from Site Settings the name, logo, address, office hours, the
+ * The school for search engines (schema.org School): from School details the name, logo, address, office hours, the
  * admissions phone, the active emails, the map and the social pages (anything missing is left out), with the photo
  * of the school's front (the share image) and its place on the map.
  */
@@ -263,67 +153,3 @@ export function generateFAQStructuredData(
     })),
   };
 }
-
-/**
- * Default SEO configuration for different page types
- */
-export const defaultSEOConfig = {
-  homepage: {
-    title: {
-      bengali: 'মাদরাসাতুল কুরআন - ইসলামী শিক্ষায় উৎকর্ষতা',
-      english: 'Madrasatul Quran - Excellence in Islamic Education',
-    },
-    description: {
-      bengali: 'ঢাকার একটি প্রতিষ্ঠিত ইসলামী শিক্ষা প্রতিষ্ঠান যা ঐতিহ্যবাহী ইসলামী শিক্ষার সাথে আধুনিক শিক্ষার সমন্বয় করে সামগ্রিক উন্নয়নের জন্য।',
-      english: 'A leading Islamic educational institution in Dhaka combining traditional Islamic values with contemporary education for holistic development.',
-    },
-    keywords: {
-      bengali: ['ইসলামী শিক্ষা', 'মাদরাসা', 'কুরআন', 'হাদিস', 'ঢাকা', 'বাংলাদেশ', 'শিক্ষা প্রতিষ্ঠান'],
-      english: ['Islamic education', 'Madrasah', 'Quran', 'Hadith', 'Dhaka', 'Bangladesh', 'Educational institution'],
-    },
-  },
-  
-  about: {
-    title: {
-      bengali: 'আমাদের সম্পর্কে - মাদরাসাতুল কুরআন',
-      english: 'About Us - Madrasatul Quran',
-    },
-    description: {
-      bengali: 'মাদরাসাতুল কুরআনের ইতিহাস, দর্শন এবং নেতৃত্ব সম্পর্কে জানুন। আমাদের শিক্ষা পদ্ধতি এবং মূল্যবোধ সম্পর্কে বিস্তারিত তথ্য।',
-      english: 'Learn about Madrasatul Quran\'s history, philosophy, and leadership. Detailed information about our educational approach and values.',
-    },
-  },
-  
-  programs: {
-    title: {
-      bengali: 'শিক্ষা কার্যক্রম - মাদরাসাতুল কুরআন',
-      english: 'Academic Programs - Madrasatul Quran',
-    },
-    description: {
-      bengali: 'আমাদের ইসলামী শিক্ষা এবং এনসিটিবি পাঠ্যক্রমের বিস্তারিত তথ্য। কুরআন মুখস্থকরণ, হাদিস, ফিকহ এবং আধুনিক বিষয়সমূহ।',
-      english: 'Comprehensive information about our Islamic studies and NCTB curriculum. Quran memorization, Hadith, Fiqh, and modern subjects.',
-    },
-  },
-  
-  admissions: {
-    title: {
-      bengali: 'ভর্তি তথ্য - মাদরাসাতুল কুরআন',
-      english: 'Admissions - Madrasatul Quran',
-    },
-    description: {
-      bengali: 'ভর্তির প্রয়োজনীয়তা, আবেদন প্রক্রিয়া, ফি কাঠামো এবং গুরুত্বপূর্ণ তারিখসমূহ। বৃত্তি এবং আর্থিক সহায়তার তথ্য।',
-      english: 'Admission requirements, application process, fee structure, and important dates. Scholarship and financial aid information.',
-    },
-  },
-  
-  contact: {
-    title: {
-      bengali: 'যোগাযোগ - মাদরাসাতুল কুরআন',
-      english: 'Contact Us - Madrasatul Quran',
-    },
-    description: {
-      bengali: 'মাদরাসাতুল কুরআনের সাথে যোগাযোগের তথ্য। ঠিকানা, ফোন নম্বর, ইমেইল এবং অবস্থানের মানচিত্র।',
-      english: 'Contact information for Madrasatul Quran. Address, phone numbers, email, and location map.',
-    },
-  },
-} as const;

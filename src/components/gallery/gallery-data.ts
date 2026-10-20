@@ -20,7 +20,7 @@ export const shareImage = (raw: AlbumIn | null, album: Album | null) => {
   return cover?.asset?._ref && album?.photos[0] ? { url: urlFor(cover).width(1200).height(630).fit('crop').url(), alt: album.photos[0].alt } : undefined;
 };
 
-/** The school's Facebook page and YouTube channel, when Site Settings lists them as active. */
+/** The school's Facebook page and YouTube channel, when School details lists them as active. */
 export function socialLinks(settings: SiteSettings | null): SocialLinks {
   const active = (settings?.socialMedia ?? []).filter((s) => s.isActive && s.url);
   // The icon is picked from a list; the platform's name is typed, so it is the fallback.

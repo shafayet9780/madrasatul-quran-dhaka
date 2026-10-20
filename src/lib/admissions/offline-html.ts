@@ -11,7 +11,7 @@ import { CHOICE_TYPES, NO_ROUTE, allFields, type FormField, type FormSection, ty
 
 export type OfflineData = {
   snapshot: FormSnapshot;
-  /** `phones`: every active number with its label (Site Settings), printed on the guardian's copy. */
+  /** `phones`: every active number with its label (School details), printed on the guardian's copy. */
   school: { name: string; line: string; logo: string | null; phone: string; website: string; phones?: { label: string; number: string }[] };
   whatsappQrSvg: string | null;
   fontCss: string;

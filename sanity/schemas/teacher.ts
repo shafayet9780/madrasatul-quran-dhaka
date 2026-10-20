@@ -1,4 +1,5 @@
 import { defineType, defineField } from 'sanity'
+import { orderRankField, orderRankOrdering } from '@sanity/orderable-document-list'
 import {
   mlString,
   mlText,
@@ -8,8 +9,6 @@ import {
   profilePhoto,
   genderField,
   educationField,
-  displayOrderField,
-  featuredField,
   seniorityField,
 } from './shared'
 
@@ -53,8 +52,7 @@ export const teacher = defineType({
       validation: (Rule) => Rule.min(0),
     }),
     educationField(),
-    displayOrderField(),
-    featuredField(),
+    orderRankField({ type: 'teacher', newItemPosition: 'after' }),
     defineField({
       name: 'showDetailPage',
       title: 'Enable Detail Page',
@@ -67,6 +65,6 @@ export const teacher = defineType({
     select: { title: 'name.english', subtitle: 'department.name.english', media: 'photo' },
   },
   orderings: [
-    { title: 'Display Order', name: 'displayOrderAsc', by: [{ field: 'displayOrder', direction: 'asc' }] },
+    orderRankOrdering,
   ],
 })

@@ -1,5 +1,5 @@
 import type { DayPart, StepKind } from '@/lib/home/day';
-import type { SanityImage } from './sanity';
+import type { SanityImage, SchoolStatistics } from './sanity';
 
 // Studio → Homepage and Guardian reviews (sanity/schemas/homePage.ts, testimonial.ts).
 type Bilingual = { bengali?: string; english?: string };
@@ -9,6 +9,8 @@ export type HomePhoto = Omit<SanityImage, 'alt'> & { alt?: Bilingual };
 export type HomeFaqItem = { question?: Bilingual; answer?: Bilingual };
 
 export interface HomePage {
+  heroImages?: { image: SanityImage; alt: string; title?: Bilingual }[];
+  statistics?: SchoolStatistics;
   routine?: HomeRoutinePart[];
   playSpaces?: { roof?: HomePhoto; field?: HomePhoto };
   faq?: HomeFaqItem[];

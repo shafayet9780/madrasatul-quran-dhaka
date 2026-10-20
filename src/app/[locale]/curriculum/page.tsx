@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import type { Locale } from '@/lib/i18n';
-import { generatePageMetadata } from '@/lib/page-metadata';
+import { pageMetadata } from '@/lib/page-seo';
 import { getPublishedIntake } from '@/lib/admissions/pages';
 import { CurriculumHero } from '@/components/curriculum/curriculum-hero';
 import { TeachingModel } from '@/components/curriculum/teaching-model';
@@ -16,7 +16,7 @@ type Props = { params: Promise<{ locale: Locale }> };
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'curriculum.meta' });
-  return generatePageMetadata({ title: t('title'), description: t('description'), locale, path: '/curriculum' });
+  return pageMetadata({ page: 'curriculum', title: t('title'), description: t('description'), locale, path: '/curriculum' });
 }
 
 /**

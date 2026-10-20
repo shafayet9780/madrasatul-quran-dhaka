@@ -68,9 +68,9 @@ async function schoolInfo() {
     }
     const contact = site?.contactInfo;
     const address = typeof contact?.address === 'string' ? contact.address : contact?.address?.bengali;
-    // The admissions number, else an active admission line, else the primary number.
+    // The admissions number (sorted first), else the first number shown.
     const phones = activePhones(contact);
-    const phone = contact?.admissionsPhone || (phones.find((p) => p.type === 'admission') ?? phones[0])?.number;
+    const phone = phones[0]?.number;
     // Every active number with its label, for the guardian's copy of the offline form.
     const contacts = phones.map((p) => ({ label: (typeof p.label === 'string' ? p.label : p.label?.bengali) ?? '', number: p.number }));
     return { name: 'মাদরাসাতুল কুরআন', line: [address, phone].filter(Boolean).join(' · '), logo, phone: phone ?? '', phones: contacts };

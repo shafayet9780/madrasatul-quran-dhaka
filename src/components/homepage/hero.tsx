@@ -1,6 +1,6 @@
 import { getTranslations } from 'next-intl/server';
 import type { Locale } from '@/lib/i18n';
-import type { SiteSettings } from '@/types/sanity';
+import type { HomePage } from '@/types/home';
 import { urlFor } from '@/lib/sanity';
 import { ButtonLink } from '@/components/site/button';
 import { Icon, type IconName } from '@/components/site/icon';
@@ -15,9 +15,9 @@ const CHIPS: { icon: IconName; a: string; b: string; tone: string; sub: string }
 const chip = 'flex flex-wrap content-start items-center gap-x-3 gap-y-2.5 rounded-card px-4 py-3.5 motion-safe:animate-rise';
 const lines = 'flex flex-[1_1_128px] flex-col leading-[1.3]';
 
-/** Photos from the CMS (siteSettings.heroImages): the title in the page language is the alt text, else the CMS alt. */
-function heroPhotos(siteSettings: SiteSettings | null, locale: Locale): HeroPhoto[] {
-  return (siteSettings?.heroImages ?? [])
+/** Photos from Studio → Homepage (heroImages): the title in the page language is the alt text, else the CMS alt. */
+function heroPhotos(images: HomePage['heroImages'], locale: Locale): HeroPhoto[] {
+  return (images ?? [])
     .filter((h) => h.image?.asset)
     .map((h) => ({
       src: urlFor(h.image).width(1600).url(),
@@ -27,9 +27,9 @@ function heroPhotos(siteSettings: SiteSettings | null, locale: Locale): HeroPhot
 }
 
 /** The homepage hero: the name and the promise, the two actions, the photos and three chips. */
-export async function Hero({ locale, siteSettings }: { locale: Locale; siteSettings: SiteSettings | null }) {
+export async function Hero({ locale, images }: { locale: Locale; images: HomePage['heroImages'] }) {
   const t = await getTranslations({ locale, namespace: 'home.hero' });
-  const photos = heroPhotos(siteSettings, locale);
+  const photos = heroPhotos(images, locale);
   return (
     <section data-hero className="bg-cream text-ink">
       <div className="page-wrap flex flex-wrap items-center gap-x-16 gap-y-11 pb-[clamp(3rem,6vw,5.5rem)] pt-[clamp(2rem,5vw,4.5rem)]">

@@ -13,7 +13,7 @@ export const isMenu = (item: NavItem): item is NavMenu => 'items' in item;
 
 /**
  * The main menu: About us (the board and advisors), Curriculum, Campus, Gallery, Admissions, Notices, Contact, Our books.
- * Whatever Site Settings switches off is left out: About us follows the Our people switch and shows while directors or
+ * Whatever Pages on/off switches off is left out: About us follows the Our people switch and shows while directors or
  * advisors do; Campus follows its own switch; Gallery and Notices show only once their switches are on. The old About
  * us menu (our story, news) is gone: the notice board takes the place of news. The logo links home.
  */
@@ -22,7 +22,7 @@ export function siteNav(locale: Locale, visibility?: NavigationVisibility | null
   const page = (key: NavKey, path: string): NavLink => ({ key, href: `/${locale}${path}` });
   return [
     ...(show('people') && (show('directors') || show('advisors')) ? [page('about', '/about')] : []),
-    ...(show('academics') && show('curriculum') ? [page('curriculum', '/curriculum')] : []),
+    ...(show('curriculum') ? [page('curriculum', '/curriculum')] : []),
     ...(show('campus') ? [page('campus', '/campus')] : []),
     ...(show('gallery') ? [page('gallery', '/gallery')] : []),
     ...(show('admissions') ? [page('admissions', '/admissions')] : []),

@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import type { Locale } from '@/lib/i18n';
-import { generatePageMetadata } from '@/lib/page-metadata';
+import { pageMetadata } from '@/lib/page-seo';
 import { getContentService } from '@/lib/content-service';
 import { contactDetails } from '@/lib/contact/details';
 import { ContactHero } from '@/components/contact/contact-hero';
@@ -14,13 +14,13 @@ type Props = { params: Promise<{ locale: Locale }> };
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'contact.meta' });
-  return generatePageMetadata({ title: t('title'), description: t('description'), locale, path: '/contact' });
+  return pageMetadata({ page: 'contact', title: t('title'), description: t('description'), locale, path: '/contact' });
 }
 
 /**
  * Contact: the office's call and WhatsApp buttons, hours and address, each desk's number, the emails, the way from the
  * metro with Google's map on request, and where to read more. Numbers, emails, hours, landmarks and the map come from
- * Site Settings → contact and location; there is no message form (calls and WhatsApp reach the office directly).
+ * School details → contact and location; there is no message form (calls and WhatsApp reach the office directly).
  */
 export default async function ContactPage({ params }: Props) {
   const { locale } = await params;

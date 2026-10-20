@@ -1,4 +1,4 @@
-// What the public Admissions page shows from the published form and Fees & Discounts. Pure.
+// What the public Admissions page shows from the published form and Fees, discounts & transport. Pure.
 import { groupFees } from '@/lib/fees';
 import type { FeePrice, FeeSettings, SchoolFee } from '@/types/fees';
 import { taka, txt, type Locale } from './display';

@@ -1,80 +1,49 @@
 import { normalizePhone } from '../../src/lib/admissions-contact';
-import { defineField, defineType, ALL_FIELDS_GROUP } from 'sanity'
+import { defineArrayMember, defineField, defineType, ALL_FIELDS_GROUP } from 'sanity'
+import { mlString, mlText } from './shared'
 
+/** What each school number is for: the site picks the admissions and transport numbers by it. */
+export const PHONE_USES = [
+  { title: 'Admissions', value: 'admissions' },
+  { title: 'Transport', value: 'transport' },
+  { title: 'Accounts', value: 'accounts' },
+  { title: 'Office', value: 'office' },
+]
+
+const phoneRule = (value: string | undefined) =>
+  !value || !!normalizePhone(value) || 'Write a Bangladeshi mobile number, e.g. +8801301226644 or 01301226644.'
+
+/** Studio → School details: who the school is and how to reach it. Shown in the footer, the contact page and the PDFs. */
 export const siteSettings = defineType({
   name: 'siteSettings',
-  title: 'Site Settings',
+  title: 'School details',
   type: 'document',
   groups: [
     // Hide the auto-generated "All fields" tab — every field is grouped below.
     { ...ALL_FIELDS_GROUP, hidden: true },
     { name: 'general', title: 'General', default: true },
-    { name: 'homepage', title: 'Homepage' },
     { name: 'contact', title: 'Contact' },
     { name: 'location', title: 'Location' },
-    { name: 'navigation', title: 'Navigation' },
     { name: 'social', title: 'Social' },
-    { name: 'seo', title: 'SEO' },
   ],
   fields: [
-    defineField({
-      name: 'title',
-      title: 'Site Title',
-      group: 'general',
-      type: 'object',
-      fields: [
-        {
-          name: 'bengali',
-          title: 'Bengali',
-          type: 'string',
-          validation: (Rule) => Rule.required(),
-        },
-        {
-          name: 'english',
-          title: 'English',
-          type: 'string',
-          validation: (Rule) => Rule.required(),
-        },
-      ],
-      validation: (Rule) => Rule.required(),
-    }),
-    defineField({
-      name: 'description',
-      title: 'Site Description',
-      group: 'general',
-      type: 'object',
-      fields: [
-        {
-          name: 'bengali',
-          title: 'Bengali',
-          type: 'text',
-          rows: 3,
-        },
-        {
-          name: 'english',
-          title: 'English',
-          type: 'text',
-          rows: 3,
-        },
-      ],
-    }),
     defineField({
       name: 'logo',
       title: 'Logo',
       group: 'general',
       type: 'image',
-      options: {
-        hotspot: true,
-      },
-      fields: [
-        {
-          name: 'alt',
-          type: 'string',
-          title: 'Alternative Text',
-          validation: (Rule) => Rule.required(),
-        },
-      ],
+      options: { hotspot: true },
+      fields: [{ name: 'alt', type: 'string', title: 'Alternative Text', validation: (Rule) => Rule.required() }],
     }),
+    defineField({
+      name: 'favicon',
+      title: 'Favicon',
+      group: 'general',
+      type: 'image',
+      description: 'Small icon for browser tabs (32x32px recommended)',
+    }),
+    { ...mlString('tagline', 'Tagline', { required: true }), group: 'general', description: 'One line under the school’s name in the footer.' },
+    { ...mlText('mission', 'Mission', { required: true }), group: 'general', description: 'A short paragraph in the footer.' },
     defineField({
       name: 'defaultMaleAvatar',
       title: 'Default Male Avatar',
@@ -92,515 +61,87 @@ export const siteSettings = defineType({
       description: 'Placeholder shown for female directors/teachers (per modesty guidelines).',
     }),
     defineField({
-      name: 'heroImages',
-      title: 'Homepage Hero Images',
-      group: 'homepage',
-      description: 'Images for the homepage hero section gallery (recommended: 5 images)',
-      type: 'array',
-      of: [
-        {
-          type: 'object',
-          fields: [
-            {
-              name: 'image',
-              title: 'Image',
-              type: 'image',
-              options: {
-                hotspot: true,
-              },
-              validation: (Rule) => Rule.required(),
-            },
-            {
-              name: 'alt',
-              title: 'Alternative Text',
-              type: 'string',
-              validation: (Rule) => Rule.required(),
-            },
-            {
-              name: 'title',
-              title: 'Image Title',
-              type: 'object',
-              fields: [
-                {
-                  name: 'bengali',
-                  title: 'Bengali Title',
-                  type: 'string',
-                },
-                {
-                  name: 'english',
-                  title: 'English Title',
-                  type: 'string',
-                },
-              ],
-            },
-            {
-              name: 'description',
-              title: 'Description',
-              type: 'object',
-              fields: [
-                {
-                  name: 'bengali',
-                  title: 'Bengali Description',
-                  type: 'text',
-                  rows: 2,
-                },
-                {
-                  name: 'english',
-                  title: 'English Description',
-                  type: 'text',
-                  rows: 2,
-                },
-              ],
-            },
-            {
-              name: 'order',
-              title: 'Display Order',
-              type: 'number',
-              description: 'Order in which this image appears in the gallery (1, 2, 3, etc.)',
-            },
-          ],
-          preview: {
-            select: {
-              title: 'title.english',
-              subtitle: 'title.bengali',
-              media: 'image',
-            },
-          },
-        },
-      ],
-      validation: (Rule) => Rule.max(10).min(1),
-    }),
-    defineField({
-      name: 'favicon',
-      title: 'Favicon',
-      group: 'general',
-      type: 'image',
-      description: 'Small icon for browser tabs (32x32px recommended)',
-    }),
-    defineField({
       name: 'contactInfo',
-      title: 'Contact Information',
+      title: 'Contact',
       group: 'contact',
       type: 'object',
+      options: { collapsible: false },
       fields: [
-        ...['admissionsPhone', 'whatsappNumber'].map(name => ({ name, title: name === 'admissionsPhone' ? 'Admissions phone' : 'WhatsApp number', type: 'string', description: 'International format, for example +8801301226644', validation: (Rule: any) => Rule.regex(/^\+[1-9]\d{7,14}$/, {name: 'international phone number'}).custom((value: string | undefined) => !value || normalizePhone(value) === value || 'Use international format without the local leading zero, e.g. +8801301226644.') })),
-        {
-          name: 'address',
-          title: 'Address',
-          type: 'object',
-          fields: [
-            {
-              name: 'bengali',
-              title: 'Bengali',
-              type: 'text',
-              rows: 3,
-            },
-            {
-              name: 'english',
-              title: 'English',
-              type: 'text',
-              rows: 3,
-            },
-          ],
-        },
-        {
+        defineField({
           name: 'phone',
-          title: 'Phone Numbers',
+          title: 'Phone numbers',
+          description: 'Every number the site shows, each with what it is for. The first Admissions number is the one the site and the application PDF give.',
           type: 'array',
           of: [
-            {
+            defineArrayMember({
               type: 'object',
               fields: [
-                {
-                  name: 'label',
-                  title: 'Label',
-                  type: 'object',
-                  fields: [
-                    {
-                      name: 'bengali',
-                      title: 'Bengali',
-                      type: 'string',
-                    },
-                    {
-                      name: 'english',
-                      title: 'English',
-                      type: 'string',
-                    },
-                  ],
-                },
-                {
-                  name: 'number',
-                  title: 'Phone Number',
-                  type: 'string',
-                  validation: (Rule) => Rule.required(),
-                },
-                {
-                  name: 'type',
-                  title: 'Phone Type',
-                  type: 'string',
-                  options: {
-                    list: [
-                      { title: 'Main Office', value: 'main' },
-                      { title: 'Admission Office', value: 'admission' },
-                      { title: 'Principal Office', value: 'principal' },
-                      { title: 'Emergency', value: 'emergency' },
-                      { title: 'Department', value: 'department' }
-                    ]
-                  },
-                  initialValue: 'main'
-                },
-                {
-                  name: 'isPrimary',
-                  title: 'Primary Contact',
-                  type: 'boolean',
-                  description: 'Mark as primary contact number for display in header/footer',
-                  initialValue: false
-                },
-                {
-                  name: 'isActive',
-                  title: 'Active',
-                  type: 'boolean',
-                  initialValue: true
-                }
+                defineField({ name: 'number', title: 'Number', type: 'string', validation: (Rule) => Rule.required().custom(phoneRule) }),
+                defineField({ name: 'usedFor', title: 'Used for', type: 'string', options: { list: PHONE_USES, layout: 'radio', direction: 'horizontal' }, validation: (Rule) => Rule.required() }),
+                mlString('label', 'Label (the desk’s name, as the footer and contact page show it)'),
+                defineField({ name: 'isActive', title: 'Show on the site', type: 'boolean', initialValue: true }),
               ],
               preview: {
-                select: {
-                  title: 'label.english',
-                  subtitle: 'number',
-                  description: 'type'
-                }
-              }
-            },
+                select: { number: 'number', usedFor: 'usedFor', label: 'label.english', active: 'isActive' },
+                prepare: ({ number, usedFor, label, active }) => ({
+                  title: number,
+                  subtitle: [PHONE_USES.find((u) => u.value === usedFor)?.title, label, active === false ? 'hidden' : null].filter(Boolean).join(' · '),
+                }),
+              },
+            }),
           ],
-        },
-        {
+        }),
+        defineField({
+          name: 'whatsappNumber',
+          title: 'WhatsApp number',
+          type: 'string',
+          description: 'International format, for example +8801301226644',
+          validation: (Rule) =>
+            Rule.regex(/^\+[1-9]\d{7,14}$/, { name: 'international phone number' }).custom(
+              (value: string | undefined) => !value || normalizePhone(value) === value || 'Use international format without the local leading zero, e.g. +8801301226644.',
+            ),
+        }),
+        defineField({
           name: 'email',
-          title: 'Email Addresses',
+          title: 'Email addresses',
           type: 'array',
           of: [
-            {
+            defineArrayMember({
               type: 'object',
               fields: [
-                {
-                  name: 'label',
-                  title: 'Label',
-                  type: 'object',
-                  fields: [
-                    {
-                      name: 'bengali',
-                      title: 'Bengali',
-                      type: 'string',
-                    },
-                    {
-                      name: 'english',
-                      title: 'English',
-                      type: 'string',
-                    },
-                  ],
-                },
-                {
-                  name: 'address',
-                  title: 'Email Address',
-                  type: 'email',
-                  validation: (Rule) => Rule.required(),
-                },
-                {
-                  name: 'type',
-                  title: 'Email Type',
-                  type: 'string',
-                  options: {
-                    list: [
-                      { title: 'General Info', value: 'info' },
-                      { title: 'Admissions', value: 'admission' },
-                      { title: 'Principal', value: 'principal' },
-                      { title: 'Academic', value: 'academic' },
-                      { title: 'Support', value: 'support' }
-                    ]
-                  },
-                  initialValue: 'info'
-                },
-                {
-                  name: 'isPrimary',
-                  title: 'Primary Contact',
-                  type: 'boolean',
-                  description: 'Mark as primary email for display in header/footer',
-                  initialValue: false
-                },
-                {
-                  name: 'isActive',
-                  title: 'Active',
-                  type: 'boolean',
-                  initialValue: true
-                }
+                defineField({ name: 'address', title: 'Email address', type: 'email', validation: (Rule) => Rule.required() }),
+                defineField({ name: 'isActive', title: 'Show on the site', type: 'boolean', initialValue: true }),
               ],
-              preview: {
-                select: {
-                  title: 'label.english',
-                  subtitle: 'address',
-                  description: 'type'
-                }
-              }
-            },
+              preview: { select: { title: 'address', active: 'isActive' }, prepare: ({ title, active }) => ({ title, subtitle: active === false ? 'hidden' : undefined }) },
+            }),
           ],
-        },
-        {
-          name: 'officeHours',
-          title: 'Office Hours',
-          type: 'object',
-          fields: [
-            {
-              name: 'bengali',
-              title: 'Bengali',
-              type: 'text',
-              rows: 3,
-            },
-            {
-              name: 'english',
-              title: 'English',
-              type: 'text',
-              rows: 3,
-            },
-          ],
-        },
+        }),
+        mlText('officeHours', 'Office hours', { rows: 2 }),
+        mlText('address', 'Address', { rows: 3 }),
       ],
     }),
     defineField({
       name: 'locationInfo',
-      title: 'Location Information',
+      title: 'Location',
       group: 'location',
       type: 'object',
+      options: { collapsible: false },
       fields: [
-        {
-          name: 'mapEmbedUrl',
-          title: 'Google Maps Embed URL',
-          type: 'url',
-          description: 'Google Maps embed URL for the interactive map',
-        },
-        {
-          name: 'googleMapsUrl',
-          title: 'Google Maps Link',
-          type: 'url',
-          description: 'Direct link to Google Maps location',
-        },
-        {
+        defineField({ name: 'googleMapsUrl', title: 'Google Maps link', type: 'url', description: 'The school’s pin, opened by “Map” in the footer and the homepage.' }),
+        defineField({ name: 'mapEmbedUrl', title: 'Google Maps embed URL', type: 'url', description: 'The map on the contact page (Share → Embed a map → the src link).' }),
+        defineField({
           name: 'landmarks',
-          title: 'Nearby Landmarks',
+          title: 'Nearby landmarks',
+          description: 'Shown beside the map on the contact page.',
           type: 'array',
           of: [
-            {
+            defineArrayMember({
               type: 'object',
-              fields: [
-                {
-                  name: 'name',
-                  title: 'Landmark Name',
-                  type: 'object',
-                  fields: [
-                    {
-                      name: 'bengali',
-                      title: 'Bengali',
-                      type: 'string',
-                    },
-                    {
-                      name: 'english',
-                      title: 'English',
-                      type: 'string',
-                    },
-                  ],
-                },
-                {
-                  name: 'description',
-                  title: 'Description',
-                  type: 'object',
-                  fields: [
-                    {
-                      name: 'bengali',
-                      title: 'Bengali',
-                      type: 'text',
-                      rows: 2,
-                    },
-                    {
-                      name: 'english',
-                      title: 'English',
-                      type: 'text',
-                      rows: 2,
-                    },
-                  ],
-                },
-                {
-                  name: 'distance',
-                  title: 'Distance from School',
-                  type: 'string',
-                  description: 'e.g., "5 minutes walk", "2 km"',
-                },
-                {
-                  name: 'icon',
-                  title: 'Icon Type',
-                  type: 'string',
-                  options: {
-                    list: [
-                      { title: 'Map Pin', value: 'mapPin' },
-                      { title: 'Bus Stop', value: 'bus' },
-                      { title: 'Hospital', value: 'hospital' },
-                      { title: 'University', value: 'university' },
-                      { title: 'Shopping', value: 'shopping' },
-                      { title: 'Park', value: 'park' },
-                    ],
-                  },
-                  initialValue: 'mapPin',
-                },
-              ],
-              preview: {
-                select: {
-                  title: 'name.english',
-                  subtitle: 'distance',
-                },
-              },
-            },
+              fields: [mlString('name', 'Name', { required: true }), defineField({ name: 'distance', title: 'Distance', type: 'string', description: 'e.g. 600m or 3 km' })],
+              preview: { select: { title: 'name.bengali', subtitle: 'distance' } },
+            }),
           ],
-        },
-        {
-          name: 'transportation',
-          title: 'Transportation Information',
-          type: 'object',
-          fields: [
-            {
-              name: 'busRoutes',
-              title: 'Bus Routes',
-              type: 'object',
-              fields: [
-                {
-                  name: 'bengali',
-                  title: 'Bengali',
-                  type: 'text',
-                  rows: 3,
-                },
-                {
-                  name: 'english',
-                  title: 'English',
-                  type: 'text',
-                  rows: 3,
-                },
-              ],
-            },
-            {
-              name: 'rickshawInfo',
-              title: 'Auto-rickshaw & CNG Information',
-              type: 'object',
-              fields: [
-                {
-                  name: 'bengali',
-                  title: 'Bengali',
-                  type: 'text',
-                  rows: 2,
-                },
-                {
-                  name: 'english',
-                  title: 'English',
-                  type: 'text',
-                  rows: 2,
-                },
-              ],
-            },
-            {
-              name: 'rideSharing',
-              title: 'Ride Sharing Information',
-              type: 'object',
-              fields: [
-                {
-                  name: 'bengali',
-                  title: 'Bengali',
-                  type: 'text',
-                  rows: 2,
-                },
-                {
-                  name: 'english',
-                  title: 'English',
-                  type: 'text',
-                  rows: 2,
-                },
-              ],
-            },
-            {
-              name: 'parking',
-              title: 'Parking Information',
-              type: 'object',
-              fields: [
-                {
-                  name: 'bengali',
-                  title: 'Bengali',
-                  type: 'text',
-                  rows: 2,
-                },
-                {
-                  name: 'english',
-                  title: 'English',
-                  type: 'text',
-                  rows: 2,
-                },
-              ],
-            },
-          ],
-        },
-        {
-          name: 'directions',
-          title: 'Directions from Major Locations',
-          type: 'array',
-          of: [
-            {
-              type: 'object',
-              fields: [
-                {
-                  name: 'from',
-                  title: 'From Location',
-                  type: 'object',
-                  fields: [
-                    {
-                      name: 'bengali',
-                      title: 'Bengali',
-                      type: 'string',
-                    },
-                    {
-                      name: 'english',
-                      title: 'English',
-                      type: 'string',
-                    },
-                  ],
-                },
-                {
-                  name: 'description',
-                  title: 'Directions',
-                  type: 'object',
-                  fields: [
-                    {
-                      name: 'bengali',
-                      title: 'Bengali',
-                      type: 'text',
-                      rows: 3,
-                    },
-                    {
-                      name: 'english',
-                      title: 'English',
-                      type: 'text',
-                      rows: 3,
-                    },
-                  ],
-                },
-                {
-                  name: 'estimatedTime',
-                  title: 'Estimated Time',
-                  type: 'string',
-                  description: 'e.g., "30 min", "45 min"',
-                },
-              ],
-              preview: {
-                select: {
-                  title: 'from.english',
-                  subtitle: 'estimatedTime',
-                },
-              },
-            },
-          ],
-        },
+        }),
       ],
     }),
     defineField({
@@ -636,413 +177,6 @@ export const siteSettings = defineType({
         }
       ]
     }),
-    defineField({
-      name: 'navigationVisibility',
-      title: 'Navigation Visibility',
-      group: 'navigation',
-      description:
-        'Turn navbar links on/off. Use "Whole sections" to hide an entire menu (About / Academics / Our People) in one switch, or toggle individual links below. Hiding removes the link from desktop + mobile menus. The "Our People" links (Directors/Teachers/Advisors) additionally make their pages return 404 when hidden; other links are hidden from the menu only.',
-      type: 'object',
-      fieldsets: [
-        { name: 'sections', title: 'Whole sections (hide a menu entirely)' },
-        { name: 'people', title: 'Our People links' },
-        { name: 'about', title: 'About menu links' },
-        { name: 'academics', title: 'Academics menu links' },
-        { name: 'other', title: 'Other links' },
-      ],
-      fields: [
-        { name: 'showPeople', title: 'Our People', type: 'boolean', initialValue: true, fieldset: 'sections' },
-        { name: 'showAbout', title: 'About', type: 'boolean', initialValue: true, fieldset: 'sections' },
-        { name: 'showAcademics', title: 'Academics', type: 'boolean', initialValue: true, fieldset: 'sections' },
-        { name: 'showDirectors', title: 'Directors', type: 'boolean', initialValue: true, fieldset: 'people' },
-        { name: 'showTeachers', title: 'Teachers', type: 'boolean', initialValue: true, fieldset: 'people' },
-        { name: 'showAdvisors', title: 'Advisors', type: 'boolean', initialValue: true, fieldset: 'people' },
-        { name: 'showOurStory', title: 'Our Story', type: 'boolean', initialValue: true, fieldset: 'about' },
-        { name: 'showCampus', title: 'Campus & Facilities', type: 'boolean', initialValue: true, fieldset: 'about' },
-        { name: 'showNews', title: 'News & Events', type: 'boolean', initialValue: true, fieldset: 'about' },
-        { name: 'showCurriculum', title: 'Curriculum', type: 'boolean', initialValue: true, fieldset: 'academics' },
-        { name: 'showPrograms', title: 'Academic Programs', type: 'boolean', initialValue: true, fieldset: 'academics' },
-        { name: 'showAdmissions', title: 'Admissions', type: 'boolean', initialValue: true, fieldset: 'other' },
-        { name: 'showContact', title: 'Contact', type: 'boolean', initialValue: true, fieldset: 'other' },
-        { name: 'showNotices', title: 'Notice board (off at first: turn it on once the first notices are in; the old News page then leads to it)', type: 'boolean', initialValue: false, fieldset: 'other' },
-        { name: 'showGallery', title: 'Gallery (off at first: turn it on once the first albums are in)', type: 'boolean', initialValue: false, fieldset: 'other' },
-        { name: 'showBooks', title: 'Our Books (external)', type: 'boolean', initialValue: true, fieldset: 'other' },
-      ],
-    }),
-    defineField({
-      name: 'admissionInfo',
-      title: 'Admission Information',
-      group: 'contact',
-      type: 'object',
-      fields: [
-        {
-          name: 'admissionPhone',
-          title: 'Admission Office Phone',
-          type: 'string',
-        },
-        {
-          name: 'admissionEmail',
-          title: 'Admission Office Email',
-          type: 'email',
-        },
-        {
-          name: 'admissionHours',
-          title: 'Admission Office Hours',
-          type: 'object',
-          fields: [
-            {
-              name: 'bengali',
-              title: 'Bengali',
-              type: 'text',
-              rows: 2,
-            },
-            {
-              name: 'english',
-              title: 'English',
-              type: 'text',
-              rows: 2,
-            },
-          ],
-        },
-      ],
-    }),
-    defineField({
-      name: 'officeContacts',
-      title: 'Office Contacts',
-      group: 'contact',
-      description: 'Per-office contact directory (e.g. Admissions, Accounts). Distinct from the academic "Department" documents that teachers belong to.',
-      type: 'array',
-      of: [
-        {
-          type: 'object',
-          fields: [
-            {
-              name: 'name',
-              title: 'Department Name',
-              type: 'object',
-              fields: [
-                { name: 'bengali', title: 'Bengali Name', type: 'string' },
-                { name: 'english', title: 'English Name', type: 'string' }
-              ],
-              validation: (Rule) => Rule.required()
-            },
-            {
-              name: 'head',
-              title: 'Department Head',
-              type: 'object',
-              fields: [
-                { name: 'bengali', title: 'Bengali Name', type: 'string' },
-                { name: 'english', title: 'English Name', type: 'string' }
-              ]
-            },
-            {
-              name: 'phone',
-              title: 'Phone Number',
-              type: 'string'
-            },
-            {
-              name: 'email',
-              title: 'Email Address',
-              type: 'email'
-            },
-            {
-              name: 'type',
-              title: 'Department Type',
-              type: 'string',
-              options: {
-                list: [
-                  { title: 'Academic', value: 'academic' },
-                  { title: 'Islamic Studies', value: 'islamic' },
-                  { title: 'Student Affairs', value: 'student' },
-                  { title: 'Finance', value: 'finance' },
-                  { title: 'Administration', value: 'administration' }
-                ]
-              }
-            },
-            {
-              name: 'isActive',
-              title: 'Active',
-              type: 'boolean',
-              initialValue: true
-            }
-          ],
-          preview: {
-            select: {
-              title: 'name.english',
-              subtitle: 'head.english',
-              description: 'type'
-            }
-          }
-        }
-      ]
-    }),
-    defineField({
-      name: 'seo',
-      title: 'SEO Settings',
-      group: 'seo',
-      type: 'object',
-      fields: [
-        {
-          name: 'metaTitle',
-          title: 'Default Meta Title',
-          type: 'object',
-          fields: [
-            {
-              name: 'bengali',
-              title: 'Bengali',
-              type: 'string',
-              validation: (Rule) => Rule.max(60),
-            },
-            {
-              name: 'english',
-              title: 'English',
-              type: 'string',
-              validation: (Rule) => Rule.max(60),
-            },
-          ],
-        },
-        {
-          name: 'metaDescription',
-          title: 'Default Meta Description',
-          type: 'object',
-          fields: [
-            {
-              name: 'bengali',
-              title: 'Bengali',
-              type: 'text',
-              validation: (Rule) => Rule.max(160),
-            },
-            {
-              name: 'english',
-              title: 'English',
-              type: 'text',
-              validation: (Rule) => Rule.max(160),
-            },
-          ],
-        },
-        {
-          name: 'ogImage',
-          title: 'Default Open Graph Image',
-          type: 'image',
-          options: {
-            hotspot: true,
-          },
-        },
-        {
-          name: 'keywords',
-          title: 'Keywords',
-          type: 'object',
-          fields: [
-            {
-              name: 'bengali',
-              title: 'Bengali Keywords',
-              type: 'array',
-              of: [{ type: 'string' }],
-            },
-            {
-              name: 'english',
-              title: 'English Keywords',
-              type: 'array',
-              of: [{ type: 'string' }],
-            },
-          ],
-        },
-      ],
-    }),
-    defineField({
-      name: 'statistics',
-      title: 'School Statistics',
-      group: 'homepage',
-      type: 'object',
-      fields: [
-        {
-          name: 'yearsOfService',
-          title: 'Years of Service',
-          type: 'number',
-        },
-        {
-          name: 'totalStudents',
-          title: 'Total Students',
-          type: 'number',
-        },
-        {
-          name: 'graduationRate',
-          title: 'Graduation Rate (%)',
-          type: 'number',
-          validation: (Rule) => Rule.min(0).max(100),
-        },
-        {
-          name: 'teacherCount',
-          title: 'Number of Teachers',
-          type: 'number',
-        },
-        {
-          name: 'achievements',
-          title: 'Key Achievements',
-          type: 'array',
-          of: [
-            {
-              type: 'object',
-              fields: [
-                {
-                  name: 'title',
-                  title: 'Achievement Title',
-                  type: 'object',
-                  fields: [
-                    {
-                      name: 'bengali',
-                      title: 'Bengali',
-                      type: 'string',
-                    },
-                    {
-                      name: 'english',
-                      title: 'English',
-                      type: 'string',
-                    },
-                  ],
-                },
-                {
-                  name: 'value',
-                  title: 'Value/Number',
-                  type: 'string',
-                },
-              ],
-            },
-          ],
-        },
-      ],
-    }),
-    defineField({
-      name: 'admissionBanner',
-      title: 'Admission Banner',
-      group: 'homepage',
-      type: 'object',
-      fields: [
-        {
-          name: 'isEnabled',
-          title: 'Show Banner',
-          type: 'boolean',
-          description: 'Toggle to show/hide the admission banner across the website',
-          initialValue: true,
-        },
-        {
-          name: 'title',
-          title: 'Banner Title',
-          type: 'object',
-          fields: [
-            {
-              name: 'bengali',
-              title: 'Bengali Title',
-              type: 'string',
-              validation: (Rule) => Rule.required(),
-            },
-            {
-              name: 'english',
-              title: 'English Title',
-              type: 'string',
-              validation: (Rule) => Rule.required(),
-            },
-          ],
-        },
-        {
-          name: 'subtitle',
-          title: 'Banner Subtitle',
-          type: 'object',
-          fields: [
-            {
-              name: 'bengali',
-              title: 'Bengali Subtitle',
-              type: 'string',
-            },
-            {
-              name: 'english',
-              title: 'English Subtitle',
-              type: 'string',
-            },
-          ],
-        },
-        {
-          name: 'buttonText',
-          title: 'Button Text',
-          type: 'object',
-          fields: [
-            {
-              name: 'bengali',
-              title: 'Bengali Button Text',
-              type: 'string',
-              validation: (Rule) => Rule.required(),
-            },
-            {
-              name: 'english',
-              title: 'English Button Text',
-              type: 'string',
-              validation: (Rule) => Rule.required(),
-            },
-          ],
-        },
-        {
-          name: 'buttonLink',
-          title: 'Button Link',
-          type: 'string',
-          description: 'URL where the button should link to (e.g., /contact, /admissions)',
-          validation: (Rule) => Rule.required(),
-        },
-        {
-          name: 'backgroundColor',
-          title: 'Background Color',
-          type: 'string',
-          options: {
-            list: [
-              { title: 'Forest Green (Attention-grabbing)', value: 'primary' },
-              { title: 'Golden Brown (Warm)', value: 'secondary' },
-              { title: 'Crimson Red (Urgent)', value: 'accent' },
-              { title: 'Custom Gradient', value: 'custom' },
-            ],
-          },
-          initialValue: 'primary',
-        },
-        {
-          name: 'customGradient',
-          title: 'Custom Gradient Colors',
-          type: 'object',
-          fields: [
-            {
-              name: 'from',
-              title: 'From Color',
-              type: 'string',
-              description: 'Hex color code (e.g., #8B5A3C)',
-            },
-            {
-              name: 'to',
-              title: 'To Color',
-              type: 'string',
-              description: 'Hex color code (e.g., #DEB887)',
-            },
-          ],
-          hidden: ({ parent }) => parent?.backgroundColor !== 'custom',
-        },
-        {
-          name: 'showCloseButton',
-          title: 'Show Close Button',
-          type: 'boolean',
-          description: 'Allow users to dismiss the banner',
-          initialValue: true,
-        },
-        {
-          name: 'autoHide',
-          title: 'Auto Hide After',
-          type: 'number',
-          description: 'Auto hide banner after specified seconds (0 = never auto hide)',
-          initialValue: 0,
-          validation: (Rule) => Rule.min(0).max(300),
-        },
-      ],
-    }),
   ],
-  preview: {
-    select: {
-      title: 'title.english',
-      media: 'logo',
-    },
-  },
+  preview: { prepare: () => ({ title: 'School details' }) },
 })

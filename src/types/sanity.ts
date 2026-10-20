@@ -1,3 +1,4 @@
+import type { NavigationVisibility } from '@/lib/nav-visibility'
 import type { PortableTextBlock } from '@portabletext/types'
 
 export interface MultilingualText {
@@ -37,74 +38,6 @@ export interface SanityImage {
   }
 }
 
-export interface SEOData {
-  metaTitle?: MultilingualText
-  metaDescription?: MultilingualText
-  ogImage?: SanityImage
-}
-
-export interface Page {
-  _id: string
-  _type: 'page'
-  title: MultilingualText
-  slug: MultilingualSlug
-  content: MultilingualContent
-  featuredImage?: SanityImage
-  seo?: SEOData
-  publishedAt: string
-}
-
-export interface NewsEvent {
-  _id: string
-  _type: 'newsEvent'
-  title: MultilingualText
-  slug: MultilingualSlug
-  excerpt?: MultilingualText
-  content: MultilingualContent
-  featuredImage: SanityImage
-  gallery?: SanityImage[]
-  eventDate?: string
-  category: 'news' | 'event' | 'achievement' | 'announcement'
-  featured: boolean
-  publishedAt: string
-}
-
-export interface Subject {
-  name: MultilingualText
-  description?: MultilingualText
-  hoursPerWeek?: number
-}
-
-export interface CoCurricularActivity {
-  name: MultilingualText
-  description?: MultilingualText
-  category: 'islamic_competition' | 'cultural_program' | 'sports' | 'academic_competition' | 'community_service'
-}
-
-export interface AcademicProgram {
-  _id: string
-  _type: 'academicProgram'
-  title: MultilingualText
-  slug: MultilingualSlug
-  description?: MultilingualText
-  ageRange: string
-  duration?: string
-  islamicCurriculum?: {
-    subjects: Subject[]
-  }
-  nctbCurriculum?: {
-    subjects: Subject[]
-  }
-  coCurricularActivities?: CoCurricularActivity[]
-  prerequisites?: MultilingualText
-  outcomes?: {
-    bengali: string[]
-    english: string[]
-  }
-  featuredImage?: SanityImage
-  order: number
-}
-
 export interface Education {
   degree?: MultilingualText
   institution?: MultilingualText
@@ -116,9 +49,8 @@ export interface Department {
   _type: 'department'
   name: MultilingualText
   slug: MultilingualSlug
-  description?: MultilingualText
   accentColor?: string
-  displayOrder: number
+  orderRank?: string
 }
 
 export interface ProfileSocialLink {
@@ -132,7 +64,6 @@ export interface Director {
   name: MultilingualText
   slug: MultilingualSlug
   designation: MultilingualText
-  gender: 'male' | 'female'
   photo?: SanityImage
   summary?: MultilingualText
   message?: MultilingualContent
@@ -143,9 +74,6 @@ export interface Director {
   }
   education?: Education[]
   socialLinks?: ProfileSocialLink[]
-  signatureName?: string
-  displayOrder: number
-  featured?: boolean
   showDetailPage?: boolean
 }
 
@@ -153,11 +81,8 @@ export interface Advisor {
   _id: string
   _type: 'advisor'
   name: MultilingualText
-  gender: 'male' | 'female'
   photo?: SanityImage
   summary: MultilingualText
-  displayOrder: number
-  featured?: boolean
 }
 
 export interface Teacher {
@@ -183,60 +108,24 @@ export interface Teacher {
   specializations?: string[]
   yearsOfExperience?: number
   education?: Education[]
-  displayOrder: number
-  featured?: boolean
+  orderRank?: string
   showDetailPage?: boolean
 }
 
-export interface Facility {
-  _id: string
-  _type: 'facility'
-  name: MultilingualText
-  slug: MultilingualSlug
-  description?: MultilingualText
-  category: 'academic' | 'islamic' | 'recreational' | 'administrative' | 'support'
-  images: SanityImage[]
-  capacity?: number
-  features?: {
-    bengali: string[]
-    english: string[]
-  }
-  specifications?: {
-    area?: number
-    equipment?: {
-      bengali: string[]
-      english: string[]
-    }
-    accessibility?: {
-      bengali: string[]
-      english: string[]
-    }
-  }
-  safetyFeatures?: {
-    bengali: string[]
-    english: string[]
-  }
-  usageSchedule?: MultilingualText
-  displayOrder: number
-  featured: boolean
-}
+/** What a school number is for (Studio → School details → Phone numbers). */
+export type PhoneUse = 'admissions' | 'transport' | 'accounts' | 'office'
 
 export interface ContactInfo {
-  admissionsPhone?: string
   whatsappNumber?: string
   address?: MultilingualText
   phone?: Array<{
     label?: MultilingualText
     number: string
-    type: 'main' | 'admission' | 'principal' | 'emergency' | 'department'
-    isPrimary: boolean
+    usedFor?: PhoneUse
     isActive: boolean
   }>
   email?: Array<{
-    label?: MultilingualText
     address: string
-    type: 'info' | 'admission' | 'principal' | 'academic' | 'support'
-    isPrimary: boolean
     isActive: boolean
   }>
   officeHours?: MultilingualText
@@ -247,20 +136,7 @@ export interface LocationInfo {
   googleMapsUrl?: string
   landmarks?: Array<{
     name: MultilingualText
-    description: MultilingualText
     distance?: string
-    icon: 'mapPin' | 'bus' | 'hospital' | 'university' | 'shopping' | 'park'
-  }>
-  transportation?: {
-    busRoutes?: MultilingualText
-    rickshawInfo?: MultilingualText
-    rideSharing?: MultilingualText
-    parking?: MultilingualText
-  }
-  directions?: Array<{
-    from: MultilingualText
-    description: MultilingualText
-    estimatedTime?: string
   }>
 }
 
@@ -272,26 +148,8 @@ export interface SocialMediaLink {
   order?: number
 }
 
-
-export interface DepartmentContact {
-  name: MultilingualText
-  head?: MultilingualText
-  phone?: string
-  email?: string
-  type: 'academic' | 'islamic' | 'student' | 'finance' | 'administration'
-  isActive: boolean
-}
-
-export interface AdmissionInfo {
-  admissionPhone?: string
-  admissionEmail?: string
-  admissionHours?: MultilingualText
-}
-
 export interface SchoolStatistics {
-  yearsOfService?: number
   totalStudents?: number
-  graduationRate?: number
   teacherCount?: number
   achievements?: Array<{
     title?: MultilingualText
@@ -299,135 +157,28 @@ export interface SchoolStatistics {
   }>
 }
 
-export interface AdmissionBanner {
-  isEnabled: boolean
-  title: MultilingualText
-  subtitle?: MultilingualText
-  buttonText: MultilingualText
-  buttonLink: string
-  backgroundColor: 'primary' | 'secondary' | 'accent' | 'custom'
-  customGradient?: {
-    from?: string
-    to?: string
-  }
-  showCloseButton: boolean
-  autoHide: number
-}
-
-export interface FormFieldOption {
-  label: MultilingualText
-  value: string
-}
-
-export interface FormField {
-  fieldName?: string
-  label?: MultilingualText
-  // Some collections (e.g., generalQuestions) use 'question' instead of 'label'
-  question?: MultilingualText
-  // Sanity array items carry a stable _key we can use as fallback name
-  _key?: string
-  fieldType: 'text' | 'textarea' | 'select' | 'radio' | 'checkbox' | 'date' | 'time' | 'email' | 'tel' | 'number' | 'boolean' | 'file'
-  fileType?: 'general' | 'student-image' | 'father-image' | 'student-birth-certificate'
-  options?: FormFieldOption[]
-  isRequired: boolean
-  placeholder?: MultilingualText
-  helpText?: MultilingualText
-}
-
-export interface PreAdmissionForm {
-  _id: string
-  _type: 'preAdmissionForm'
-  formSettings: {
-    isEnabled: boolean
-    formTitle: MultilingualText
-    formDescription?: MultilingualText
-    submissionDate: string
-    googleSheetsId?: string
-  }
-  generalQuestions: FormField[]
-  studentInfoFields: FormField[]
-  studentAssessmentFields: FormField[]
-  parentInfoFields: {
-    fatherFields: FormField[]
-    motherFields: FormField[]
-  }
-  additionalQuestions: FormField[]
-  contactInfoFields: FormField[]
-  declarationText: MultilingualText
-  successMessage: MultilingualText
-}
-
-export interface FooterSettings {
-  _id: string
-  _type: 'footer'
-  title: MultilingualText
-  subtitle?: MultilingualText
-  description?: MultilingualText
-  useGlobalContactInfo: boolean
-  useGlobalSocialLinks: boolean
-  quickLinks?: Array<{
-    label: MultilingualText
-    url: string
-    isActive: boolean
-    order?: number
-  }>
-  legalLinks?: Array<{
-    label: MultilingualText
-    url: string
-    isActive: boolean
-  }>
-  copyright?: MultilingualText
-  isActive: boolean
-}
-
+/** Studio → School details. `navigationVisibility` is Studio → Pages on/off, joined in by the query. */
 export interface SiteSettings {
   _id: string
   _type: 'siteSettings'
-  title: MultilingualText
-  description?: MultilingualText
   logo?: SanityImage
+  favicon?: SanityImage
+  tagline?: MultilingualText
+  mission?: MultilingualText
   defaultMaleAvatar?: SanityImage
   defaultFemaleAvatar?: SanityImage
-  heroImages?: Array<{
-    image: SanityImage
-    alt: string
-    title?: MultilingualText
-    description?: MultilingualText
-    order?: number
-  }>
-  favicon?: SanityImage
   contactInfo?: ContactInfo
   locationInfo?: LocationInfo
   socialMedia?: SocialMediaLink[]
-  officeContacts?: DepartmentContact[]
-  admissionInfo?: AdmissionInfo
-  seo?: {
-    metaTitle?: MultilingualText
-    metaDescription?: MultilingualText
-    ogImage?: SanityImage
-    keywords?: {
-      bengali: string[]
-      english: string[]
-    }
-  }
-  statistics?: SchoolStatistics
-  admissionBanner?: AdmissionBanner
-  navigationVisibility?: {
-    showPeople?: boolean
-    showAbout?: boolean
-    showAcademics?: boolean
-    showDirectors?: boolean
-    showTeachers?: boolean
-    showAdvisors?: boolean
-    showOurStory?: boolean
-    showCampus?: boolean
-    showNews?: boolean
-    showCurriculum?: boolean
-    showPrograms?: boolean
-    showAdmissions?: boolean
-    showContact?: boolean
-    showGallery?: boolean
-    showNotices?: boolean
-    showBooks?: boolean
-  }
+  navigationVisibility?: NavigationVisibility
+}
+
+/** The main pages with their own title and description in Studio → Search & sharing. */
+export type SeoPage = 'home' | 'about' | 'admissions' | 'preAdmission' | 'curriculum' | 'campus' | 'contact' | 'notices' | 'gallery'
+
+/** Studio → Search & sharing. Every field is optional: an empty one keeps the site's own wording. */
+export interface SeoSettings {
+  description?: Partial<MultilingualText>
+  shareImage?: Omit<SanityImage, 'alt'> & { alt?: Partial<MultilingualText> }
+  pages?: Partial<Record<SeoPage, { title?: Partial<MultilingualText>; description?: Partial<MultilingualText> }>>
 }

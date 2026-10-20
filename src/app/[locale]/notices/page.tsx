@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import type { Locale } from '@/lib/i18n';
-import { generatePageMetadata } from '@/lib/page-metadata';
+import { pageMetadata } from '@/lib/page-seo';
 import { getContentService } from '@/lib/content-service';
 import { isSectionVisible } from '@/lib/nav-visibility';
 import { num } from '@/lib/gallery/albums';
@@ -18,7 +18,7 @@ type Props = { params: Promise<{ locale: Locale }> };
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'notices.meta' });
-  return generatePageMetadata({ title: t('title'), description: t('description'), locale, path: '/notices' });
+  return pageMetadata({ page: 'notices', title: t('title'), description: t('description'), locale, path: '/notices' });
 }
 
 /**

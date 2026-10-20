@@ -1,199 +1,30 @@
-# Sanity CMS Configuration for Madrasatul Quran Website
+# Sanity Studio for the Madrasatul Quran website
 
-This directory contains the Sanity CMS configuration for the Madrasatul Quran website, including schemas, custom components, and studio configuration.
+The Studio is served by the site at `/studio` (`sanity.config.ts`). The sidebar is built in `structure.ts`, and the schemas live in `schemas/` (registered in `schemas/index.ts`). The arrangement was agreed on 20 October 2026; see `docs/studio-cleanup.md`.
 
-## Structure
+## The sidebar
 
-```
-sanity/
-├── components/          # Custom Sanity Studio components
-│   ├── PreviewComponent.tsx    # Custom preview components
-│   └── StudioLogo.tsx         # Custom studio logo
-├── schemas/            # Content type schemas
-│   ├── index.ts               # Schema exports
-│   ├── page.ts               # Page content schema
-│   ├── newsEvent.ts          # News & events schema
-│   ├── academicProgram.ts    # Academic programs schema
-│   ├── facility.ts           # Facility schema
-│   └── siteSettings.ts       # Site settings schema
-├── structure.ts        # Custom studio structure
-└── README.md          # This file
-```
+| Entry | Type | What it holds |
+|---|---|---|
+| Notices | `notice` | The notice board (`docs/notices.md`) |
+| Gallery | `album` | Photo and video albums (`docs/gallery.md`) |
+| Guardian reviews | `testimonial` | Reviews shown with consent; drag to order, the first three show on the homepage |
+| Homepage | `homePage` | Hero photos, the numbers band, the routine, play-space photos, the FAQ |
+| Campus: a day | `campusDay` | The campus tour (`docs/campus-day.md`) |
+| Admissions → Pre-admission form | `preAdmissionForm` | The form, its cycle and the "Form open" switch (`docs/pre-admission-admin-guide.md`) |
+| Admissions → Fees, discounts & transport | `feeSettings` | Fees, discounts, vehicles and van routes (`docs/fees-and-admissions.md`) |
+| People | `director`, `advisor`, `teacher`, `department` | Profiles; drag to order |
+| Downloads | `downloadable`, `downloadCategory`, `publicDownloadSettings` | The library and the public PDFs (`docs/downloads-library.md`) |
+| School details | `siteSettings` | Logo, tagline, mission, phones (each with what it is used for), emails, WhatsApp, hours, address, map, social links |
+| Pages on/off | `pagesOnOff` | Which pages exist and which menu links show |
+| Search & sharing | `seoSettings` | Default description, share picture, and each main page's title and description |
+| Surveys | `survey*` | Rounds, templates, classes, teachers and areas (`docs/survey-admin-guide.md`) |
 
-## Content Types
+The one-off documents (`SINGLETONS` in `structure.ts`) have their type as their id, and cannot be created from "+", duplicated or deleted.
 
-### 1. Site Settings (Singleton)
-Global site configuration including:
-- Site title and description (multilingual)
-- Logo and favicon
-- Contact information
-- Social media links
-- SEO settings
-- School statistics
+## Conventions
 
-### 2. Pages
-Static pages with:
-- Multilingual title and content
-- SEO metadata
-- Featured images
-- Rich text content with images
-
-### 3. News & Events
-Dynamic content including:
-- News articles
-- Event announcements
-- Student achievements
-- Photo galleries
-- Category filtering
-
-### 4. Academic Programs
-Educational program information:
-- Islamic studies curriculum
-- NCTB curriculum details
-- Co-curricular activities
-- Age-wise program structure
-- Learning outcomes
-
-### 5. Staff Members
-Faculty and staff profiles:
-- Personal information
-- Qualifications and experience
-- Department categorization
-- Leadership team designation
-- Professional photos
-
-### 6. Facilities
-Campus facilities showcase:
-- Facility descriptions and images
-- Category-based organization
-- Capacity and specifications
-- Safety features
-- Usage schedules
-
-## Multilingual Support
-
-All content types support Bengali and English languages with:
-- Separate fields for each language
-- Fallback mechanisms
-- Language-specific slugs
-- Proper typography support
-
-## Image Optimization
-
-Images are configured with:
-- Hotspot support for cropping
-- Alt text requirements
-- Responsive image generation
-- WebP format support
-- Lazy loading optimization
-
-## Studio Features
-
-### Custom Structure
-- Organized content navigation
-- Category-based filtering
-- Featured content sections
-- Department-wise staff organization
-
-### Preview Components
-- Multilingual content preview
-- Status indicators
-- Category badges
-- Rich media previews
-
-### Validation
-- Required field validation
-- Character limits for SEO
-- Image alt text requirements
-- Email format validation
-
-## Development Commands
-
-```bash
-# Start Sanity Studio in development mode
-npm run sanity
-
-# Build Sanity Studio for production
-npm run sanity:build
-
-# Deploy Sanity Studio
-npm run sanity:deploy
-```
-
-## Environment Variables
-
-Required environment variables:
-```
-NEXT_PUBLIC_SANITY_PROJECT_ID=your_project_id
-NEXT_PUBLIC_SANITY_DATASET=production
-SANITY_API_TOKEN=your_api_token
-```
-
-## Content Management Workflow
-
-1. **Site Settings**: Configure global site information first
-2. **Pages**: Create static pages (About, Contact, etc.)
-3. **Academic Programs**: Set up educational program details
-4. **Staff**: Add faculty and staff information
-5. **Facilities**: Showcase campus facilities
-6. **News & Events**: Regularly update with fresh content
-
-## Best Practices
-
-### Content Creation
-- Always fill both Bengali and English fields
-- Use descriptive alt text for all images
-- Keep meta descriptions under 160 characters
-- Use consistent formatting across content
-
-### Image Guidelines
-- Use high-quality images (minimum 1200px width)
-- Follow Islamic modesty guidelines for photos
-- Optimize images before upload
-- Include descriptive captions
-
-### SEO Optimization
-- Write unique meta titles and descriptions
-- Use relevant keywords naturally
-- Structure content with proper headings
-- Include local SEO elements for Dhaka
-
-### Performance
-- Limit image file sizes
-- Use appropriate image formats
-- Minimize rich text content length
-- Regular content audits
-
-## Troubleshooting
-
-### Common Issues
-
-1. **Schema Validation Errors**
-   - Check required fields are filled
-   - Verify field types match schema
-   - Ensure proper multilingual structure
-
-2. **Image Upload Issues**
-   - Check file size limits
-   - Verify image format support
-   - Ensure proper alt text
-
-3. **Preview Not Working**
-   - Verify environment variables
-   - Check API token permissions
-   - Confirm dataset configuration
-
-### Support
-
-For technical issues:
-1. Check Sanity documentation
-2. Verify environment configuration
-3. Review schema definitions
-4. Test with minimal content
-
-## Security
-
-- API tokens are environment-specific
-- Content is validated before publishing
-- Image uploads are scanned
-- User permissions are role-based
+- Text the site shows in both languages is an object with `bengali` and `english` (`mlString`, `mlText` in `schemas/shared.ts`).
+- An empty optional field keeps the site's own wording; the site never goes blank because a field is empty.
+- Ordered lists use `@sanity/orderable-document-list` (the `orderRank` field); queries sort by `orderRank`.
+- Data scripts in `scripts/` write to the dataset named in `.env.local` unless told otherwise. Read a script before running it.

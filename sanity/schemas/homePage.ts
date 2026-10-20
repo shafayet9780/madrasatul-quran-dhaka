@@ -37,6 +37,47 @@ export const homePage = defineType({
   type: 'document',
   fields: [
     defineField({
+      name: 'heroImages',
+      title: 'Hero photos',
+      description: 'The photos at the top of the homepage, in this order (5 work best).',
+      type: 'array',
+      validation: (rule) => rule.min(1).max(10),
+      of: [
+        defineArrayMember({
+          type: 'object',
+          fields: [
+            defineField({ name: 'image', title: 'Photo', type: 'image', options: { hotspot: true }, validation: (rule) => rule.required() }),
+            mlString('title', 'What the photo shows (read out by screen readers)'),
+            defineField({ name: 'alt', title: 'Fallback description', type: 'string', description: 'Used when the title above is empty.', validation: (rule) => rule.required() }),
+          ],
+          preview: { select: { title: 'title.bengali', subtitle: 'title.english', media: 'image' } },
+        }),
+      ],
+    }),
+    defineField({
+      name: 'statistics',
+      title: 'The school in numbers',
+      description: 'The band under the hero. Students and teachers show rounded down with a “+” (130 → ১৩০+), then the student:teacher ratio, then each extra number.',
+      type: 'object',
+      options: { collapsible: false },
+      fields: [
+        defineField({ name: 'totalStudents', title: 'Students', type: 'number', validation: (rule) => rule.min(0).integer() }),
+        defineField({ name: 'teacherCount', title: 'Teachers', type: 'number', validation: (rule) => rule.min(0).integer() }),
+        defineField({
+          name: 'achievements',
+          title: 'Extra numbers',
+          type: 'array',
+          of: [
+            defineArrayMember({
+              type: 'object',
+              fields: [mlString('title', 'Label', { required: true }), defineField({ name: 'value', title: 'Value', type: 'string', validation: (rule) => rule.required() })],
+              preview: { select: { title: 'title.bengali', subtitle: 'value' } },
+            }),
+          ],
+        }),
+      ],
+    }),
+    defineField({
       name: 'routine',
       title: 'A day in hifz day-care',
       description:

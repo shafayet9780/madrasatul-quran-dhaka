@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import type { Locale } from '@/lib/i18n';
-import { generatePageMetadata } from '@/lib/page-metadata';
+import { pageMetadata } from '@/lib/page-seo';
 import { getContentService } from '@/lib/content-service';
 import { isSectionVisible } from '@/lib/nav-visibility';
 import { getSiteUrl } from '@/lib/site-url';
@@ -38,7 +38,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   // The date first (the link preview shows it), then the start of the text, cut at a word.
   const room = 155 - notice.dateText.length;
   const text = notice.excerpt.length > room ? `${notice.excerpt.slice(0, room).replace(/\s+\S*$/, '')}…` : notice.excerpt;
-  return generatePageMetadata({
+  return pageMetadata({
     title: t('notice', { number: notice.number, title: notice.title }),
     description: t('noticeDescription', { date: notice.dateText, text: text || t('description') }),
     locale,

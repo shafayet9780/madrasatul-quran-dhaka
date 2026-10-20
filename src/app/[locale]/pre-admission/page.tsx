@@ -3,9 +3,7 @@ import Link from 'next/link';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { ArrowRight, Camera, ChevronDown, Clock, FileText, Smartphone } from 'lucide-react';
 import { Button } from '@/components/shadcn/button';
-import { getContentService } from '@/lib/content-service';
-import { generatePageMetadata } from '@/lib/page-metadata';
-import { urlFor } from '@/lib/sanity';
+import { pageMetadata } from '@/lib/page-seo';
 import { fieldWithRole } from '@/lib/admissions/form-config';
 import { asLocale, num, taka, txt } from '@/lib/admissions/display';
 import { intakeStatus } from '@/lib/admissions/intake';
@@ -22,18 +20,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const session = num(intake.session ?? '2027', locale);
   const title = t('metaTitle', { session });
   // The shared helper adds the canonical link and hreflang; the title keeps the site's ending (the school's name).
-  return { ...generatePageMetadata({ title, description: t('metaDescription', { session }), locale, path: '/pre-admission' }), title };
+  return pageMetadata({ page: 'preAdmission', vars: { session }, title, description: t('metaDescription', { session }), locale, path: '/pre-admission', withSiteName: true });
 }
 
 export default async function PreAdmissionIntro({ params }: Props) {
   const locale = asLocale((await params).locale);
   setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: 'preAdmission.intro' });
-  const [{ intake, snapshot }, current, facilities] = await Promise.all([
-    getLandingIntake(),
-    currentApplication().catch(() => null),
-    getContentService(false).getFeaturedFacilities().catch(() => []),
-  ]);
+  const [{ intake, snapshot }, current] = await Promise.all([getLandingIntake(), currentApplication().catch(() => null)]);
   const status = { text: intakeStatus(intake, locale, t), open: intake.state === 'open' };
   const settings = snapshot?.settings;
   const session = num(intake.session ?? '2027', locale);
@@ -45,7 +39,6 @@ export default async function PreAdmissionIntro({ params }: Props) {
   const regular = classes.filter((o) => !o.special).map(name);
   const special = classes.filter((o) => o.special).map(name);
   const resumable = current && (current.app.status === 'draft' || current.app.status === 'unpaid');
-  const photo = (facilities ?? []).find((f) => f.images?.length)?.images[0];
 
   // Step 5 lists what to bring (Sanity → Cycle settings) when the form has the list.
   const tc = await getTranslations({ locale, namespace: 'preAdmission.chapter' });
@@ -95,14 +88,6 @@ export default async function PreAdmissionIntro({ params }: Props) {
               </Button>
             </div>
           </div>
-          {photo && (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={urlFor(photo).width(1200).height(900).url()}
-              alt={t('campusPhoto')}
-              className="hidden aspect-[4/3] w-full rounded-xl border object-cover lg:block"
-            />
-          )}
         </div>
       </section>
 

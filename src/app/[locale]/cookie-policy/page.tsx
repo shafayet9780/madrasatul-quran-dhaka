@@ -1,7 +1,7 @@
 import { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import type { Locale } from '@/lib/i18n';
-import { generatePageMetadata } from '@/lib/page-metadata';
+import { pageMetadata } from '@/lib/page-seo';
 
 export async function generateMetadata({
   params,
@@ -13,7 +13,7 @@ export async function generateMetadata({
 
   const title = t('cookieTitle');
   // The shared helper adds the canonical link and hreflang; the title keeps the site's ending (the school's name).
-  return { ...generatePageMetadata({ title, description: t('cookieIntro'), locale: locale as Locale, path: '/cookie-policy' }), title };
+  return pageMetadata({ title, description: t('cookieIntro'), locale: locale as Locale, path: '/cookie-policy', withSiteName: true });
 }
 
 export default async function CookiePolicyPage({

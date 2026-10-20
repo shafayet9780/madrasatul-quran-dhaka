@@ -1,9 +1,9 @@
 /**
  * Seniority ranking for directors & teachers.
  *
- * Drives list ordering (rank, then displayOrder) and an optional card badge.
+ * Drives list ordering (rank, then the Studio's drag order) and an optional card badge.
  * Lower number = more senior. Unknown/undefined ranks after all named roles
- * so unranked profiles fall back to displayOrder among themselves.
+ * so unranked profiles fall back to the drag order among themselves.
  */
 const RANK: Record<string, number> = {
   chairman: 1,
@@ -27,10 +27,18 @@ export function rankOf(seniority?: string | null): number {
   return RANK[seniority] ?? UNRANKED;
 }
 
-export function sortBySeniority<T extends { seniority?: string; displayOrder: number }>(list: T[]): T[] {
+/** The Studio's drag order (`orderRank`, compared as Sanity sorts it); unordered entries last. */
+export function compareOrderRank(a?: string, b?: string): number {
+  if (a === b) return 0;
+  if (a === undefined) return 1;
+  if (b === undefined) return -1;
+  return a < b ? -1 : 1;
+}
+
+export function sortBySeniority<T extends { seniority?: string; orderRank?: string }>(list: T[]): T[] {
   return [...list].sort((a, b) => {
     const r = rankOf(a.seniority) - rankOf(b.seniority);
-    return r !== 0 ? r : (a.displayOrder ?? 0) - (b.displayOrder ?? 0);
+    return r !== 0 ? r : compareOrderRank(a.orderRank, b.orderRank);
   });
 }
 

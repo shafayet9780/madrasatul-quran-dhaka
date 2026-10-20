@@ -2,12 +2,14 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
 import type { Locale } from '@/lib/i18n';
-import type { FooterSettings, SiteSettings } from '@/types/sanity';
+import type { SiteSettings } from '@/types/sanity';
+import { num } from '@/lib/admissions/display';
 import { urlFor } from '@/lib/sanity';
 import { getAdmissionsContact } from '@/lib/admissions-contact';
 import { sitePhone } from '@/lib/site/phone';
 import { Icon, type IconName } from '@/components/site/icon';
-import { navPages, siteNav } from '@/lib/site/nav';
+import { BOOKS_URL, navPages, siteNav } from '@/lib/site/nav';
+import { isSectionVisible } from '@/lib/nav-visibility';
 
 
 const SOCIAL_ICONS: Partial<Record<string, IconName>> = { facebook: 'facebook-logo', youtube: 'youtube-logo' };
@@ -21,8 +23,8 @@ const pill = 'inline-flex min-h-11 items-center gap-2 rounded-full pl-3 pr-4 tex
 const heading = 'm-0 text-15 font-strong text-on-dark';
 const pageLink = 'inline-flex min-h-[34px] items-center text-on-dark-body no-underline hover:text-on-dark';
 
-/** The site footer. Contact details, links and the mission come from the CMS (site settings and footer). */
-export async function SiteFooter({ locale, siteSettings, footerSettings }: { locale: Locale; siteSettings: SiteSettings | null; footerSettings: FooterSettings | null }) {
+/** The site footer. Contact details, the tagline and the mission come from Studio → School details. */
+export async function SiteFooter({ locale, siteSettings }: { locale: Locale; siteSettings: SiteSettings | null }) {
   const t = await getTranslations({ locale, namespace: 'site' });
   const contact = siteSettings?.contactInfo;
   const logo = siteSettings?.logo?.asset ? urlFor(siteSettings.logo).width(96).height(96).url() : null;
@@ -33,13 +35,13 @@ export async function SiteFooter({ locale, siteSettings, footerSettings }: { loc
   const emails = (contact?.email ?? []).filter((e) => e.isActive).map((e) => e.address);
   const whatsapp = sitePhone(getAdmissionsContact(contact).whatsapp ?? undefined, locale);
   const social = (siteSettings?.socialMedia ?? []).filter((s) => s.isActive).sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
-  const tagline = footerSettings?.subtitle?.[locale];
-  const mission = footerSettings?.description?.[locale];
+  const tagline = siteSettings?.tagline?.[locale];
+  const mission = siteSettings?.mission?.[locale];
   const hours = contact?.officeHours?.[locale];
   const mapUrl = siteSettings?.locationInfo?.googleMapsUrl;
   const legal = [
     { label: t('footer.parentLogin'), href: 'https://www.eximusedu.com/go/mqd' },
-    { label: t('footer.books'), href: 'https://alquranervasha.com/downloads' },
+    ...(isSectionVisible('books', siteSettings?.navigationVisibility) ? [{ label: t('footer.books'), href: BOOKS_URL }] : []),
     { label: t('footer.privacy'), href: `/${locale}/privacy-policy` },
     { label: t('footer.cookies'), href: `/${locale}/cookie-policy` },
   ];
@@ -135,7 +137,7 @@ export async function SiteFooter({ locale, siteSettings, footerSettings }: { loc
         </div>
 
         <div className="flex flex-wrap justify-between gap-x-6 gap-y-2.5 border-t border-line-dark pt-5 text-14 text-on-dark-faint">
-          {footerSettings?.copyright?.[locale] && <span>{footerSettings.copyright[locale]}</span>}
+          <span>{t('footer.copyright', { year: num(new Date().getFullYear(), locale) })}</span>
           <span className="flex flex-wrap gap-x-5 gap-y-1.5">
             {legal.map((l) =>
               l.href.startsWith('/') ? (

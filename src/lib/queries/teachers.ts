@@ -7,7 +7,7 @@ const departmentProjection = `
     name,
     slug,
     accentColor,
-    displayOrder
+    orderRank
   }
 `;
 
@@ -21,10 +21,10 @@ const teacherListProjection = `
   gender,
   photo { ..., alt },
   subjects,
+  qualifications,
   specializations,
   yearsOfExperience,
-  displayOrder,
-  featured,
+  orderRank,
   showDetailPage,
   ${departmentProjection}
 `;
@@ -49,15 +49,14 @@ const teacherDetailProjection = `
     institution,
     year
   },
-  displayOrder,
-  featured,
+  orderRank,
   showDetailPage,
   ${departmentProjection}
 `;
 
 export async function getTeachers(): Promise<Teacher[]> {
   const query = `
-    *[_type == "teacher"] | order(department->displayOrder asc, displayOrder asc) {
+    *[_type == "teacher"] | order(department->orderRank asc, orderRank asc) {
       ${teacherListProjection}
     }
   `;

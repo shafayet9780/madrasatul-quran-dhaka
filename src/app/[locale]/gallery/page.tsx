@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import type { Locale } from '@/lib/i18n';
-import { generatePageMetadata } from '@/lib/page-metadata';
+import { pageMetadata } from '@/lib/page-seo';
 import { getContentService } from '@/lib/content-service';
 import { isSectionVisible } from '@/lib/nav-visibility';
 import { filterChoices, monthRows, num } from '@/lib/gallery/albums';
@@ -18,12 +18,12 @@ type Props = { params: Promise<{ locale: Locale }> };
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'gallery.meta' });
-  return generatePageMetadata({ title: t('title'), description: t('description'), locale, path: '/gallery' });
+  return pageMetadata({ page: 'gallery', title: t('title'), description: t('description'), locale, path: '/gallery' });
 }
 
 /**
  * The gallery (docs/gallery.md): the latest album, the dated albums month by month under a filter bar, the videos on
- * dark, the all-time albums, then come and see. Albums come from Studio → Gallery; the page shows once Site Settings
+ * dark, the all-time albums, then come and see. Albums come from Studio → Gallery; the page shows once Pages on/off
  * switches the gallery on.
  */
 export default async function GalleryPage({ params }: Props) {

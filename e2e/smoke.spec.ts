@@ -27,15 +27,13 @@ test('language toggle: both locale homes are reachable and differ in URL', async
   await expect(page).toHaveURL(/\/english(\/|$)/);
 });
 
-// The old-design pages stay out of search until they are redesigned. Programs also follows its Site Settings switch.
-for (const path of ['/english/programs', '/bengali/news']) {
-  test(`${path} is kept out of search`, async ({ page }) => {
-    const res = await page.request.get(path);
-    if (path.endsWith('/programs') && res.status() === 404) return;
-    expect(res.status()).toBe(200);
-    expect(await res.text()).toMatch(/<meta name="robots" content="noindex/);
-  });
-}
+// The old Programs and News pages are gone: Programs leads to the curriculum, News to the notice board (home while it is off).
+test('old Programs and News links lead to their new pages', async ({ page }) => {
+  await page.goto('/english/programs');
+  await expect(page).toHaveURL(/\/english\/curriculum$/);
+  await page.goto('/bengali/news/some-old-article');
+  await expect(page).toHaveURL(/\/bengali(\/notices)?$/);
+});
 
 // An unknown address, or a missing profile or article, gets the site's 404 page inside the header and footer.
 for (const [path, heading] of [

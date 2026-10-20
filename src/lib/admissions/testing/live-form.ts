@@ -46,7 +46,7 @@ export function liveLegacyDocument(): LegacyFormDocument {
 
 const AGES: Record<string, [number, number]> = { N: [4, 5], KG: [5, 6], C1: [6, 7], C2: [7, 8], C3: [8, 9], C4: [9, 10], C5: [10, 11] };
 
-/** Fees & Discounts → Transport as published before the 2027 updates (vehicles, no charges, no routes). */
+/** Fees, discounts & transport → Transport as published before the 2027 updates (vehicles, no charges, no routes). */
 const LIVE_FEES = {
   _rev: 'local-fees-1',
   transport: [

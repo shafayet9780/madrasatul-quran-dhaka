@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import type { Locale } from '@/lib/i18n';
-import { generatePageMetadata } from '@/lib/page-metadata';
+import { pageMetadata } from '@/lib/page-seo';
 import { getContentService } from '@/lib/content-service';
 import { isSectionVisible } from '@/lib/nav-visibility';
 import { getSiteUrl } from '@/lib/site-url';
@@ -31,7 +31,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const album = raw && isSectionVisible('gallery', settings?.navigationVisibility) ? albumIn(raw, locale) : null;
   if (!album) return {};
   const { t } = await galleryWords(locale);
-  return generatePageMetadata({
+  return pageMetadata({
     title: t('album.meta', { title: album.title }),
     description: album.summary || t('meta.description'),
     locale,

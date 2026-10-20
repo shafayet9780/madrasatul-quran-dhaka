@@ -2,8 +2,8 @@ import { defineField } from 'sanity'
 
 /**
  * Shared field builders for multilingual (Bengali/English) content.
- * Mirrors the object-with-bengali/english pattern used across the schemas
- * (see newsEvent) so Directors/Teachers stay consistent.
+ * Mirrors the object-with-bengali/english pattern used across the schemas,
+ * so Directors/Teachers stay consistent.
  */
 
 type Req = { required?: boolean }
@@ -173,15 +173,5 @@ export function displayOrderField() {
     type: 'number',
     description: 'Lower numbers appear first.',
     initialValue: 0,
-  })
-}
-
-export function featuredField(description = 'Highlight this profile') {
-  return defineField({
-    name: 'featured',
-    title: 'Featured',
-    type: 'boolean',
-    description,
-    initialValue: false,
   })
 }

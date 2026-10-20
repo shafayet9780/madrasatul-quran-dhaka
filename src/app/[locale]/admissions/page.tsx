@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import type { Locale } from '@/lib/i18n';
-import { generatePageMetadata } from '@/lib/page-metadata';
+import { pageMetadata } from '@/lib/page-seo';
 import { getContentService } from '@/lib/content-service';
 import { getPublishedIntake } from '@/lib/admissions/pages';
 import { intakeStatus } from '@/lib/admissions/intake';
@@ -29,7 +29,7 @@ type Props = { params: Promise<{ locale: Locale }> };
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'admissions.meta' });
-  return generatePageMetadata({ title: t('title'), description: t('description'), locale, path: '/admissions' });
+  return pageMetadata({ page: 'admissions', title: t('title'), description: t('description'), locale, path: '/admissions' });
 }
 
 /**

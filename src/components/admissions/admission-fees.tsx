@@ -14,7 +14,7 @@ import { cn } from '@/lib/utils';
 const block = 'flex flex-col gap-3.5 rounded-card bg-cream p-[clamp(20px,2.4vw,28px)]';
 
 /**
- * What it costs, on `paper`, all from Studio → Fees & Discounts: the fee table on a `surface` card (day-care and
+ * What it costs, on `paper`, all from Studio → Fees, discounts & transport: the fee table on a `surface` card (day-care and
  * non day-care side by side, so they compare at a glance), the discounts and the payment rules beside it on `cream`,
  * then the school's van routes with their vehicle and monthly charge. Without usable fee settings it says to ask the office.
  */

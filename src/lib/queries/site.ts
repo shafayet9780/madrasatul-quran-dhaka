@@ -1,16 +1,18 @@
 import { sanityFetch } from '@/lib/sanity-fetch';
+import { pagesOnOffProjection } from '@/lib/sanity-queries';
 import type { AvatarPlaceholders } from '@/lib/profile-avatar';
 import type { NavigationVisibility } from '@/lib/nav-visibility';
 import type { SanityImage } from '@/types/sanity';
 
-/** Editor-controlled show/hide toggles for the "Our People" nav sections. */
+/** Studio → Pages on/off. */
 export async function getNavigationVisibility(): Promise<NavigationVisibility> {
-  const query = `*[_type == "siteSettings"][0].navigationVisibility`;
-  const result = await sanityFetch<NavigationVisibility | null>({ query, tags: ['siteSettings'] });
+  // The old switches stand in until the clean-up script has made Pages on/off (docs/studio-cleanup.md).
+  const query = `coalesce(${pagesOnOffProjection}, *[_type == "siteSettings"][0].navigationVisibility)`;
+  const result = await sanityFetch<NavigationVisibility | null>({ query, tags: ['pagesOnOff'] });
   return result ?? {};
 }
 
-/** Lightweight read of just the gender placeholder avatars from Site Settings. */
+/** Lightweight read of just the gender placeholder avatars from School details. */
 export async function getProfilePlaceholders(): Promise<AvatarPlaceholders> {
   const query = `
     *[_type == "siteSettings"][0] {
@@ -31,7 +33,7 @@ export interface PeoplePageData {
 }
 
 /**
- * Single Site Settings read for the directors/teachers/advisors routes —
+ * Single School details read for the directors/teachers/advisors routes —
  * returns the avatar placeholders + nav visibility together so each route
  * makes one round-trip instead of two.
  */
@@ -40,14 +42,14 @@ export async function getPeoplePageData(): Promise<PeoplePageData> {
     *[_type == "siteSettings"][0] {
       "male": defaultMaleAvatar { ..., "alt": coalesce(alt, "Avatar") },
       "female": defaultFemaleAvatar { ..., "alt": coalesce(alt, "Avatar") },
-      navigationVisibility
+      "navigationVisibility": coalesce(${pagesOnOffProjection}, navigationVisibility)
     }
   `;
   const result = await sanityFetch<{
     male?: SanityImage;
     female?: SanityImage;
     navigationVisibility?: NavigationVisibility;
-  } | null>({ query, tags: ['siteSettings'] });
+  } | null>({ query, tags: ['siteSettings', 'pagesOnOff'] });
   return {
     placeholders: { male: result?.male ?? null, female: result?.female ?? null },
     visibility: result?.navigationVisibility ?? {},

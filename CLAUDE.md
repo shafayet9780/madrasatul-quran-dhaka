@@ -82,18 +82,15 @@ pnpm test           # vitest run (unit)
 pnpm test:watch     # vitest watch
 pnpm test:e2e       # playwright (builds + serves on port 3100)
 
-# Google Sheets form integration (run once for setup)
-pnpm setup:headers  # write column headers to the sheet
+# Google Sheets (paid applications are copied to the pre-admission sheet)
 pnpm test:sheets    # verify Sheets credentials/connection
-pnpm setup:form     # node scripts/populate-pre-admission-form.js
-pnpm setup:all      # setup:form + setup:headers + test:sheets
 ```
 
 Tests: **Vitest** unit (`src/lib/*.test.ts`, jsdom; setup `vitest.setup.ts`) + **Playwright** route smoke (`e2e/`, `playwright.config.ts`). E2E serves on **port 3100** (3000 often occupied). One-off run: `pnpm exec playwright install chromium` first. Lint scope: eslint flat config (`eslint-config-next` 16, imported natively) ignores build output, `scripts/**` (Node CJS tooling) and `docs/**` (prototypes) — Next 16 removed `next lint`. The React Compiler rules (`react-hooks/set-state-in-effect`, `refs`, `purity`, `immutability`, `preserve-manual-memoization`) are warnings until older components are reworked; new code should pass them.
 
 Sanity Studio served in-app at `/studio`.
 
-Many `scripts/*.js` / `.ts` are one-shot Sanity data seeders (e.g. `populate-sanity-data.js`, `populate-footer-data.js`, `upload-prospectus-data.js`). Run with `node` / `tsx`. Read the script before running — they write to the live Sanity dataset.
+Many `scripts/*.js` / `.ts` are one-shot Sanity data seeders (list and status in `scripts/README.md`). Run with `node` / `tsx`. Read the script before running — they write to the dataset in `.env.local` (`development`). **Datasets:** until the 2027 release the live site reads `development`; from the release on it reads `production`, and `development` serves previews and local work (`docs/studio-cleanup.md`).
 
 ## Architecture
 
@@ -101,15 +98,15 @@ Many `scripts/*.js` / `.ts` are one-shot Sanity data seeders (e.g. `populate-san
 - Locales are `'bengali'` and `'english'` (literal segment values, **not** `bn`/`en`). Default `bengali`, `localePrefix: 'always'` — every page lives under `/[locale]/...`.
 - `src/proxy.ts` runs `next-intl` middleware for all routes except `api`, `_next`, `studio`, sitemap/robots. It also gates `/studio` with optional basic auth (`STUDIO_AUTH_ENABLED`, `STUDIO_USERNAME`, `STUDIO_PASSWORD`). (Next 16 renamed the `middleware` convention to `proxy`; nodejs runtime only.)
 - `src/lib/i18n.ts` is the next-intl request config; messages load from `messages/{locale}.json`.
-- Pages: `src/app/[locale]/{about,admissions,campus,contact,curriculum,gallery,news,notices,programs,pre-admission}`. There is no `src/app/layout.tsx`: `src/app/[locale]/layout.tsx` is the public site's root layout (`<html lang>`, fonts, analytics, site/footer settings fetched server-side and passed as props into the (client) `MainLayout` — don't import the content service into client components); `/admin`, `/survey` and `/studio` have their own root layouts. `[locale]/not-found.tsx` is the 404 page (`[...rest]` sends unknown paths there).
+- Pages: `src/app/[locale]/{about,admissions,campus,contact,curriculum,gallery,notices,pre-admission}` (`news` and `programs` only redirect: to the notice board, or home while it is off; to the curriculum). There is no `src/app/layout.tsx`: `src/app/[locale]/layout.tsx` is the public site's root layout (`<html lang>`, fonts, analytics, site/footer settings fetched server-side and passed as props into the (client) `MainLayout` — don't import the content service into client components); `/admin`, `/survey` and `/studio` have their own root layouts. `[locale]/not-found.tsx` is the 404 page (`[...rest]` sends unknown paths there).
 - **Pages are cached** (built ahead of time, refreshed from the CMS every 60 s): every `[locale]` page and layout calls `setRequestLocale(locale)`, and nothing on them may read the request (`headers()`, `cookies()`, `searchParams`) unless the page is meant to render per visit (pre-admission, downloads). The visitor's country for the consent defaults comes from a cookie the proxy sets (`src/lib/analytics/country.ts`). Pages with an id (`[slug]`) are built on their first visit. In the local preview (`ADMISSIONS_LOCAL=1`) nothing is built ahead of time.
-- **The browser gets only the messages it needs:** the root layout sends `SHARED_CLIENT_MESSAGES` (`src/lib/i18n-messages.ts`); a section whose client components call `useTranslations` adds its namespaces in its own layout (`ClientMessages`: pre-admission, teachers, news). A new client `useTranslations` needs its namespace added there.
+- **The browser gets only the messages it needs:** the root layout sends `SHARED_CLIENT_MESSAGES` (`src/lib/i18n-messages.ts`); a section whose client components call `useTranslations` adds its namespaces in its own layout (`ClientMessages`: pre-admission, teachers). A new client `useTranslations` needs its namespace added there.
 - **Fonts:** Anek Latin from next/font (`src/lib/fonts.ts`); Anek Bangla and Tiro Bangla (quotations) self-hosted and trimmed in `public/fonts` (`src/styles/fonts.css`, made by `scripts/trim-fonts.py`; Anek Bangla preloaded on Bengali pages only).
 
 **Cache Components (`cacheComponents`) is intentionally OFF** — next-intl doesn't support it yet (locale reads via `getMessages`/`getTranslations` can't be statically resolved; awaits Next's `next/root-params`). Don't enable the flag or add `'use cache'` to the fetch layer until next-intl ships support.
 
 ### Content (Sanity CMS)
-- Schemas in `sanity/schemas/` (registered via `sanity/schemas/index.ts`): `siteSettings`, `page`, `newsEvent`, `academicProgram`, `staffMember`, `facility`, `footer`, `prospectus`, `preAdmissionForm`, `homePage` (singleton: the homepage routine, play-space photos and FAQ; empty lists fall back to `messages` `home.*`), `testimonial` (guardian reviews, shown only with consent), `album` (the gallery: photos in Sanity, videos as YouTube links; spec `docs/gallery.md`; the page shows only once Site Settings switches `showGallery` on), `notice` (the notice board at `/notices`: numbered ২০২৬/১৭ when created, the link is the number; spec `docs/notices.md`; shows once `showNotices` is on, and then `/news` leads to it). Studio config: `sanity.config.ts` + custom `sanity/structure.ts`.
+- Schemas in `sanity/schemas/` (registered via `sanity/schemas/index.ts`): `siteSettings`, `footer`, `preAdmissionForm`, `homePage` (singleton: the homepage routine, play-space photos and FAQ; empty lists fall back to `messages` `home.*`), `testimonial` (guardian reviews, shown only with consent), `album` (the gallery: photos in Sanity, videos as YouTube links; spec `docs/gallery.md`; the page shows only once Site Settings switches `showGallery` on), `notice` (the notice board at `/notices`: numbered ২০২৬/১৭ when created, the link is the number; spec `docs/notices.md`; shows once `showNotices` is on, and then the old `/news` links lead to it). Studio config: `sanity.config.ts` + custom `sanity/structure.ts`.
 - All content is multilingual — fields carry Bengali + English variants.
 - Client layer in `src/lib/`:
   - `sanity.ts` — `client` (CDN in prod, no CDN in dev), `previewClient` (token-auth, never CDN), `urlFor()` (built via `@sanity/image-url` v2 named `createImageUrlBuilder`), `getClient(preview)`.
@@ -118,16 +115,16 @@ Many `scripts/*.js` / `.ts` are one-shot Sanity data seeders (e.g. `populate-san
 - Preview mode via `/api/preview` + `/api/exit-preview`; `/api/refresh` triggers revalidation.
 
 ### Forms → Google Sheets
-- Pre-admission form posts to `src/app/api/submit-form/route.ts`, which appends rows to a Google Sheet via the `googleapis` service-account credentials (`GOOGLE_PROJECT_ID`, `GOOGLE_PRIVATE_KEY`, `GOOGLE_CLIENT_EMAIL`, etc.). Helper logic in `src/lib/google-sheets.ts`. See `GOOGLE_SHEETS_SETUP.md`.
+- Pre-admission applications live in Postgres; paid ones are copied to the tab "ভর্তি ২০২৭" of the pre-admission sheet (`FORM_GOOGLE_SHEETS_ID`) by `src/lib/admissions/sheet-copy.ts`, via the `googleapis` service-account credentials in `src/lib/google-sheets-server.ts` (`GOOGLE_PROJECT_ID`, `GOOGLE_PRIVATE_KEY`, `GOOGLE_CLIENT_EMAIL`, etc.). The survey copies to `SURVEY_SHEET_ID` the same way.
 
 ### Other API routes
-`src/app/api/`: `download-prospectus`, `download-curriculum`, `download-code-of-conduct` (PDF/asset delivery), `upload` (Vercel Blob), `image` / `favicon` (image proxy/optimization), `test-sheets`.
+`src/app/api/`: `download-prospectus`, `download-curriculum`, `download-code-of-conduct` (PDF/asset delivery), `image` / `favicon` (image proxy/optimization), `test-sheets`.
 
 ### Conventions
 - Import alias `@/*` → `src/*`.
 - `@typescript-eslint/no-explicit-any` is **off**; unused vars are warnings only. TypeScript `strict` on but `noImplicitAny` off.
-- Components grouped by domain under `src/components/` (`homepage`, `about`, `admissions`, `news-events`, `curriculum`, `campus`, `programs`, `forms`, `layout`, `ui`, `translation`, `analytics`, `preview`).
-- Cross-cutting libs in `src/lib/`: SEO (`seo.ts`: JSON-LD builders, the homepage's School data comes from Site Settings, plus the photo of the school's front and its map pin; `page-metadata.ts`: canonical + hreflang; `sitemap.ts`), performance (`performance-monitoring.ts`, `image-optimization.ts`), `fonts.ts`, `multilingual-content.ts`, `content-validation.ts`, `publishing-workflow.ts`.
+- Components grouped by domain under `src/components/` (`homepage`, `about`, `admissions`, `curriculum`, `campus`, `layout`, `ui`, `analytics`, `preview`).
+- Cross-cutting libs in `src/lib/`: SEO (`seo.ts`: JSON-LD builders, the homepage's School data comes from Site Settings, plus the photo of the school's front and its map pin; `page-metadata.ts`: canonical + hreflang; `sitemap.ts`), performance (`performance-monitoring.ts`, `image-optimization.ts`), `fonts.ts`.
 - Public-site design tokens (2027 revamp) live in `src/styles/tokens.css` (Tailwind v4 `@theme`, imported by `globals.css`); `DESIGN.md` and the Claude design system are written from it. The old `primary`/`secondary`/`accent` scales in `globals.css` stay until every page is redesigned, then go. The admin keeps Inter + Noto Sans Bengali (`src/components/survey/fonts.ts`).
 - Next images: only `cdn.sanity.io` is whitelisted; WebP/AVIF, 1-year cache TTL (`next.config.ts`).
 - Bengali copy uses the words Bangladeshi parents actually say, not literal translations of English: ফেসবুক পেজ, ওয়েবসাইট, লিংক, যোগাযোগ পেজে (not ফেসবুক পাতা, যোগাযোগ পাতায়). When a term has a common English loanword in everyday Bengali, use the loanword; write a Bengali coinage only when it is the one people use.

@@ -19,8 +19,8 @@ export type Stat = {
 type Labels = { students: string; teachers: string; ratio: string };
 
 /**
- * The numbers band, from siteSettings.statistics: students and teachers as floors, the ratio from the exact
- * values, then each achievement as the CMS has it. graduationRate and yearsOfService are left out on purpose.
+ * The numbers band, from Studio → Homepage: students and teachers as floors, the ratio from the exact
+ * values, then each achievement as the CMS has it.
  */
 export function homeStats(statistics: SchoolStatistics | undefined, locale: Locale, labels: Labels): Stat[] {
   const stats: Stat[] = [];

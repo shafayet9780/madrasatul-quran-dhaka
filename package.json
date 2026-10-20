@@ -22,10 +22,7 @@
     "setup:admissions-updates": "tsx scripts/setup-admissions-updates.ts",
     "arrange:admissions": "tsx scripts/arrange-admissions-form.ts",
     "setup:faculty": "node scripts/populate-faculty-data.js",
-    "setup:form": "node scripts/populate-pre-admission-form.js",
-    "setup:headers": "node scripts/setup-google-sheets-headers.js",
     "test:sheets": "node scripts/test-google-sheets.js",
-    "setup:all": "npm run setup:form && npm run setup:headers && npm run test:sheets",
     "migrate:public-downloads": "tsx scripts/migrate-public-download-settings.ts"
   },
   "dependencies": {
@@ -41,6 +38,7 @@
     "@sanity/image-url": "^2.1.1",
     "@sanity/insert-menu": "^3.0.9",
     "@sanity/migrate": "^6.1.2",
+    "@sanity/orderable-document-list": "^2.0.28",
     "@sanity/runtime-cli": "^10.11.3",
     "@sanity/ui": "^3.5.5",
     "@sanity/util": "^5.31.2",
@@ -95,6 +93,7 @@
     "eslint": "^9.39.5",
     "eslint-config-next": "16.4.1",
     "jsdom": "^29.1.1",
+    "lexorank": "^1.0.5",
     "postcss": "^8.5.30",
     "tailwind-merge": "^3.7.0",
     "tailwindcss": "^4.3.3",

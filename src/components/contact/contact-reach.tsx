@@ -10,7 +10,7 @@ const focus = 'focus-visible:outline-2 focus-visible:outline-offset-[-3px] focus
 
 /**
  * Still on `paper`: WhatsApp in a plain card (only its logo and button carry WhatsApp's green), then each desk in one
- * card, the whole row a call link, side by side on wide screens; then the emails. All from Site Settings → contact.
+ * card, the whole row a call link, side by side on wide screens; then the emails. All from School details → contact.
  */
 export async function ContactReach({ locale, details }: { locale: Locale; details: Details }) {
   const t = await getTranslations({ locale, namespace: 'contact.reach' });

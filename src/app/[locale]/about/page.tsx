@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import type { Locale } from '@/lib/i18n';
-import { generatePageMetadata } from '@/lib/page-metadata';
+import { pageMetadata } from '@/lib/page-seo';
 import { getDirectors } from '@/lib/queries/directors';
 import { getAdvisors } from '@/lib/queries/advisors';
 import { getPeoplePageData } from '@/lib/queries/site';
@@ -21,13 +21,13 @@ type Props = { params: Promise<{ locale: Locale }> };
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'about.meta' });
-  return generatePageMetadata({ title: t('title'), description: t('description'), locale, path: '/about' });
+  return pageMetadata({ page: 'about', title: t('title'), description: t('description'), locale, path: '/about' });
 }
 
 /**
  * About us: the chairman alone at the top (his rule), then the board's portraits in Studio's order and the members
  * without a photo by name, then the advisors. People, roles and photos come from Studio (Directors, Advisors); the
- * chairman's words are the homepage founder quote. Shown while Site Settings shows Our people and the board or the
+ * chairman's words are the homepage founder quote. Shown while Pages on/off shows Our people and the board or the
  * advisors; each section follows its own switch.
  */
 export default async function AboutPage({ params }: Props) {

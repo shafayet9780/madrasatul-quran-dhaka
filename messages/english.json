@@ -492,12 +492,6 @@
       "description": "{name}, {role} of Madrasatul Quran in Uttara, Dhaka."
     }
   },
-  "programs": {
-    "meta": {
-      "title": "Academic Programs",
-      "description": "Detailed information about Islamic Studies, NCTB curriculum, and co-curricular activities."
-    }
-  },
   "admissions": {
     "meta": {
       "title": "Admissions and fees | Madrasatul Quran",
@@ -891,87 +885,6 @@
       "gallery": "See photos and videos"
     }
   },
-  "news": {
-    "meta": {
-      "title": "News & Events | Madrasatul Quran",
-      "description": "Stay updated with the latest news, events, achievements, and announcements from Madrasatul Quran."
-    },
-    "title": "News & Events",
-    "subtitle": "Stay connected with our school community and latest updates",
-    "loading": "Loading news and events...",
-    "noResults": "No news or events found matching your criteria.",
-    "tabs": {
-      "list": "News List",
-      "calendar": "Events Calendar",
-      "gallery": "Photo Gallery"
-    },
-    "filters": {
-      "filterBy": "Filter by",
-      "all": "All",
-      "achievements": "Achievements",
-      "news": "News",
-      "events": "Events",
-      "announcements": "Announcements"
-    },
-    "search": {
-      "placeholder": "Search news and events..."
-    },
-    "card": {
-      "readMore": "Read More",
-      "categories": {
-        "achievement": "Achievement",
-        "news": "News",
-        "event": "Event",
-        "announcement": "Announcement"
-      }
-    },
-    "calendar": {
-      "upcomingEvents": "Upcoming Events",
-      "noUpcomingEvents": "No upcoming events scheduled.",
-      "more": "more",
-      "rsvp": "RSVP"
-    },
-    "rsvp": {
-      "title": "Event Registration",
-      "form": {
-        "name": "Full Name",
-        "namePlaceholder": "Enter your full name",
-        "email": "Email Address",
-        "emailPlaceholder": "your.email@example.com",
-        "phone": "Phone Number",
-        "phonePlaceholder": "+880 1XXX-XXXXXX",
-        "attendees": "Number of Attendees",
-        "person": "person",
-        "people": "people",
-        "message": "Additional Message",
-        "messagePlaceholder": "Any special requirements or questions...",
-        "cancel": "Cancel",
-        "submit": "Register",
-        "submitting": "Registering..."
-      },
-      "success": {
-        "title": "Registration Successful!",
-        "message": "Thank you for registering. We will contact you with event details soon.",
-        "close": "Close"
-      }
-    },
-    "gallery": {
-      "categories": {
-        "all": "All Photos",
-        "achievement": "Achievements",
-        "news": "News",
-        "event": "Events",
-        "announcement": "Announcements"
-      },
-      "noImages": "No photos available for the selected category.",
-      "share": "Share Photo",
-      "featured": "Featured Media",
-      "allPhotos": "All Photos"
-    },
-    "slideshow": {
-      "noImages": "No images available for slideshow."
-    }
-  },
   "contact": {
     "meta": {
       "title": "Contact | Madrasatul Quran",
@@ -1068,63 +981,6 @@
       "hideButton": "Hide banner"
     }
   },
-  "translation": {
-    "dashboard": {
-      "title": "Translation Dashboard",
-      "description": "Monitor and manage multilingual content translations"
-    },
-    "stats": {
-      "total": "Total Tasks",
-      "completed": "Completed",
-      "inProgress": "In Progress",
-      "pending": "Pending",
-      "bengali": "Bengali Translations",
-      "english": "English Translations"
-    },
-    "workflow": {
-      "title": "Translation Workflow",
-      "description": "Content items requiring translation attention",
-      "noItems": "All translations complete!",
-      "noItemsDescription": "All content has been translated to both languages."
-    },
-    "documentTypes": {
-      "newsEvent": "News & Events",
-      "page": "Page",
-      "academicProgram": "Academic Program",
-      "staffMember": "Staff Member",
-      "facility": "Facility"
-    },
-    "languages": {
-      "bengali": "Bengali",
-      "english": "English"
-    },
-    "actions": {
-      "createTask": "Create Task"
-    },
-    "bulkActions": {
-      "selected": "{count} items selected",
-      "createTasks": "Create Tasks",
-      "clear": "Clear Selection"
-    },
-    "filters": {
-      "title": "Filters",
-      "clear": "Clear all",
-      "documentType": "Document Type",
-      "language": "Language",
-      "priority": "Priority",
-      "status": "Status",
-      "all": "All"
-    },
-    "priority": {
-      "high": "High",
-      "medium": "Medium",
-      "low": "Low"
-    },
-    "status": {
-      "complete": "Complete",
-      "incomplete": "Incomplete"
-    }
-  },
   "admissionCta": {
     "title": "Pre-admission {session}",
     "apply": "Apply now",
@@ -1203,8 +1059,7 @@
       "faqPaymentQ": "Is the payment secure?",
       "faqPaymentA": "Payment is made through SSLCommerz. Your card or bKash details never reach us.",
       "moreQuestions": "More questions?",
-      "contactUs": "Contact us",
-      "campusPhoto": "The Madrasatul Quran campus"
+      "contactUs": "Contact us"
     },
     "start": {
       "title": "Start your application",
@@ -1492,7 +1347,8 @@
       "parentLogin": "Parent login",
       "books": "Our books",
       "privacy": "Privacy policy",
-      "cookies": "Cookie policy"
+      "cookies": "Cookie policy",
+      "copyright": "© {year} Madrasatul Quran. All rights reserved."
     }
   },
   "gallery": {

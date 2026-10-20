@@ -3,7 +3,7 @@ import { generateSchoolStructuredData, openingHoursFrom } from './seo';
 import { getSiteUrl } from './site-url';
 
 describe('generateSchoolStructuredData', () => {
-  it('describes the school from the Site Settings values it is given', () => {
+  it('describes the school from the School details values it is given', () => {
     const ld = generateSchoolStructuredData({
       locale: 'english',
       logo: 'https://cdn.sanity.io/logo.png',
@@ -31,7 +31,7 @@ describe('generateSchoolStructuredData', () => {
     });
   });
 
-  it('leaves out what Site Settings does not have', () => {
+  it('leaves out what School details does not have', () => {
     const ld = generateSchoolStructuredData({ locale: 'bengali', emails: ['a@example.com'], sameAs: [] });
     expect(ld.name).toBe('মাদরাসাতুল কুরআন');
     expect(ld).toMatchObject({ email: 'a@example.com' });

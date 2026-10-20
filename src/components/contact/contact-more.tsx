@@ -10,7 +10,7 @@ const SOCIAL_ICONS: Partial<Record<string, IconName>> = { facebook: 'facebook-lo
 const row =
   'flex min-h-14 items-center justify-between gap-4 border-t border-line text-18 font-strong text-ink no-underline hover:text-rust-deep focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink';
 
-/** The page's close, on `paper`: where to read more (Admissions, Curriculum, the prospectus), and the school's pages (Site Settings → social media). */
+/** The page's close, on `paper`: where to read more (Admissions, Curriculum, the prospectus), and the school's pages (School details → social media). */
 export async function ContactMore({ locale, social }: { locale: Locale; social: SocialMediaLink[] }) {
   const t = await getTranslations({ locale, namespace: 'contact.more' });
   const links = [

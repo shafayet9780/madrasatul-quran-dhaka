@@ -9,7 +9,7 @@ import { MapOnTap } from './map-on-tap';
 type Details = ReturnType<typeof contactDetails>;
 
 /**
- * How to get here, on `dark`: the homepage's walk from the metro, the landmarks (Site Settings → location), Google's map
+ * How to get here, on `dark`: the homepage's walk from the metro, the landmarks (School details → location), Google's map
  * when asked for, and links to directions and to the place on Google Maps.
  */
 export async function ContactFind({ locale, details }: { locale: Locale; details: Details }) {

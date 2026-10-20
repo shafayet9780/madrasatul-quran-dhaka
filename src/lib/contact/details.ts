@@ -25,7 +25,7 @@ export function mapEmbed(url: string | undefined): string | null {
 }
 
 /**
- * Everything the Contact page shows from Site Settings → contact and location: the active desks with their numbers, the
+ * Everything the Contact page shows from School details → contact and location: the active desks with their numbers, the
  * WhatsApp number, the active emails, the office hours and address, and the landmarks. Numbers that don't parse are left out.
  */
 export function contactDetails(settings: SiteSettings | null | undefined, locale: Locale) {

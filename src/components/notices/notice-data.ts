@@ -25,7 +25,7 @@ export const noticeShareImage = (n: Notice) => {
   return first?.attachment.asset?._ref ? { url: urlFor(first.attachment).width(1200).height(630).fit('crop').crop('top').url(), alt: first.alt || n.title } : undefined;
 };
 
-/** The office's phone and hours (Site Settings → Contact), for questions about a notice. */
+/** The office's phone and hours (School details → Contact), for questions about a notice. */
 export function officeContact(settings: SiteSettings | null, locale: Locale) {
   const contact = settings?.contactInfo;
   return { phone: sitePhone(getAdmissionsContact(contact).phone ?? undefined, locale), hours: txt(contact?.officeHours, locale).trim() };

@@ -1,4 +1,4 @@
-import { generatePageMetadata } from '@/lib/page-metadata';
+import { pageMetadata } from '@/lib/page-seo';
 import type { Locale } from '@/lib/i18n';
 import { Metadata } from 'next';
 import { draftMode } from 'next/headers';
@@ -22,7 +22,7 @@ export async function generateMetadata({params}: {params:Promise<{locale:Locale}
   const {locale}=await params;
   const t = await getTranslations({locale,namespace:'home'});
 
-  return generatePageMetadata({title:t('meta.title'),description:t('meta.description'),locale});
+  return pageMetadata({ page: 'home', title: t('meta.title'), description: t('meta.description'), locale });
 }
 
 export default async function Home({ params }: { params: Promise<{ locale: Locale }> }) {
@@ -60,8 +60,8 @@ export default async function Home({ params }: { params: Promise<{ locale: Local
       {previewContext.isPreview && <PreviewBanner exitUrl={previewContext.exitUrl} />}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(school) }} />
       
-      <Hero locale={locale} siteSettings={siteSettings} />
-      <NumbersBand locale={locale} siteSettings={siteSettings} />
+      <Hero locale={locale} images={homePage?.heroImages} />
+      <NumbersBand locale={locale} statistics={homePage?.statistics} />
       <EducationModel locale={locale} />
       <StudyPlan locale={locale} />
       <SchoolDay locale={locale} routine={homePage?.routine} routes={visibleRoutes(feeSettings?.transportRoutes, locale)} transportPhone={transportPhone(siteSettings?.contactInfo)} />

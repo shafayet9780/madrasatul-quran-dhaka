@@ -34,7 +34,7 @@ const TYPE_TITLES: Record<(typeof FIELD_TYPES)[number], string> = {
   checkbox: 'Checkboxes (several choices)',
   yesno: 'Yes / No',
   file: 'Photo or document upload',
-  transportStop: 'Transport stop (routes from Fees & Discounts)',
+  transportStop: 'Transport stop (routes from Fees, discounts & transport)',
 }
 
 export const admissionOption = defineType({

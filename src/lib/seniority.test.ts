@@ -16,15 +16,16 @@ describe('rankOf', () => {
 });
 
 describe('sortBySeniority', () => {
-  it('sorts by seniority rank, then displayOrder, without mutating input', () => {
+  it('sorts by seniority rank, then the drag order, without mutating input', () => {
     const input = [
-      { _id: 'a', seniority: 'teacher', displayOrder: 1 },
-      { _id: 'b', seniority: 'principal', displayOrder: 9 },
-      { _id: 'c', displayOrder: 0 }, // no seniority
-      { _id: 'd', seniority: 'teacher', displayOrder: 0 },
+      { _id: 'a', seniority: 'teacher', orderRank: '0|20000g:' },
+      { _id: 'b', seniority: 'principal', orderRank: '0|90000i:' },
+      { _id: 'c', orderRank: '0|100000:' }, // no seniority
+      { _id: 'd', seniority: 'teacher', orderRank: '0|100000:' },
+      { _id: 'e', seniority: 'teacher' }, // not ordered yet: last among its rank
     ];
     const out = sortBySeniority(input);
-    expect(out.map((x) => x._id)).toEqual(['b', 'd', 'a', 'c']);
+    expect(out.map((x) => x._id)).toEqual(['b', 'd', 'a', 'e', 'c']);
     // input not mutated
     expect(input[0]._id).toBe('a');
   });

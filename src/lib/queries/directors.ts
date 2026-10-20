@@ -7,11 +7,8 @@ const directorListProjection = `
   name,
   slug,
   designation,
-  gender,
   photo { ..., alt },
   summary,
-  displayOrder,
-  featured,
   showDetailPage
 `;
 
@@ -21,7 +18,6 @@ const directorDetailProjection = `
   name,
   slug,
   designation,
-  gender,
   photo { ..., alt },
   summary,
   message,
@@ -33,15 +29,12 @@ const directorDetailProjection = `
     year
   },
   socialLinks[] { platform, url },
-  signatureName,
-  displayOrder,
-  featured,
   showDetailPage
 `;
 
 export async function getDirectors(): Promise<Director[]> {
   const query = `
-    *[_type == "director"] | order(displayOrder asc) {
+    *[_type == "director"] | order(orderRank asc) {
       ${directorListProjection}
     }
   `;

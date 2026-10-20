@@ -12,12 +12,11 @@ describe('siteNav', () => {
     expect(items[5]).toEqual({ key: 'books', href: BOOKS_URL, external: true });
   });
 
-  it('follows the Site Settings switches', () => {
-    // The live settings in October 2026: the old About us switch is off, but the About us page follows Our people.
-    const live = { showAbout: false, showAcademics: true, showPrograms: false, showPeople: true, showDirectors: true, showAdvisors: true, showTeachers: false, showAdmissions: true, showContact: true, showBooks: true };
+  it('follows the Pages on/off switches', () => {
+    // The live switches in October 2026 (Teachers off).
+    const live = { showPeople: true, showDirectors: true, showAdvisors: true, showTeachers: false, showCurriculum: true, showAdmissions: true, showContact: true, showBooks: true };
     expect(keys(siteNav('english', live))).toEqual(['about', 'curriculum', 'campus', 'admissions', 'contact', 'books']);
-    expect(keys(siteNav('english', { showAcademics: false }))).not.toContain('curriculum');
-    // Campus has its own switch; the old About us switch does not hide it.
+    expect(keys(siteNav('english', { showCurriculum: false }))).not.toContain('curriculum');
     expect(keys(siteNav('english', { ...live, showCampus: false }))).not.toContain('campus');
   });
 

@@ -86,7 +86,7 @@ function PlaySpaces({ layout, spaces, buildingAlt, className }: { layout: Collag
 
 /**
  * The campus: where the students play, two photos of the school (and the gallery, once it is on), and how to get there
- * from the metro; the Campus page while Site Settings shows it.
+ * from the metro; the Campus page while Pages on/off shows it.
  */
 export async function Campus({ locale, mapUrl, playSpaces, showVisit, showGallery }: { locale: Locale; mapUrl?: string; playSpaces?: HomePage['playSpaces']; showVisit: boolean; showGallery: boolean }) {
   const t = await getTranslations({ locale, namespace: 'home.campus' });

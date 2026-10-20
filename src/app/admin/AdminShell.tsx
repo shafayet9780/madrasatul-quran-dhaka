@@ -53,7 +53,7 @@ function admissionsSections(nav: AdmissionsNav): { heading: string; links: NavLi
         { label: 'অ্যাসেসমেন্টের দিন', href: '/admin/admissions/evaluation-day', icon: 'scan' },
       ],
     },
-    { heading: 'সেটআপ', links: [{ label: 'ফর্ম ও ফি (স্টুডিও)', href: '/studio/structure/preAdmissionForm', icon: 'sliders', external: true }] },
+    { heading: 'সেটআপ', links: [{ label: 'ফর্ম ও ফি (স্টুডিও)', href: '/studio/structure/admissions;preAdmissionForm', icon: 'sliders', external: true }] },
   ];
 }
 
