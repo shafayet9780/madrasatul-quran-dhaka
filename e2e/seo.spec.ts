@@ -68,9 +68,10 @@ for (const locale of ['bengali', 'english']) {
         'content',
         title
       );
+      // Studio → Search & sharing → Share picture (cut to 1200 × 630), else the school building on the site itself.
       await expect(page.locator('meta[property="og:image"]')).toHaveAttribute(
         'content',
-        `${DEFAULT_SITE_URL}/images/social/school.jpg`
+        new RegExp(`^(https://cdn\\.sanity\\.io/images/.+w=1200&h=630&fit=crop|${DEFAULT_SITE_URL.replace(/\./g, '\\.')}/images/social/school\\.jpg)$`)
       );
       await expect(
         page.locator('meta[name="google-site-verification"][content^="your-"]')

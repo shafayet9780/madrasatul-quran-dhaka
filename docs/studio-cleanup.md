@@ -115,8 +115,8 @@ Beyond the steps above:
 ## Release-day runbook
 
 1. **Freeze Studio edits** (tell the office). Before this, nobody edits in the Preview Studio of this branch: it reads the live `development` data with the new schema (School details would not validate; a new pre-admission form could be made by mistake).
-2. **Export** `development`: `pnpm exec sanity dataset export development <backup>.tar.gz`. Keep the file outside the repo; it is the backup and the rollback.
-3. **Import** it into `production`: `pnpm exec sanity dataset import <backup>.tar.gz production --replace`.
+2. **Export** `development`: `pnpm exec sanity dataset export development <backup>.tar.gz -p ohoxdsld`. Keep the file outside the repo (the rehearsal's is in `../sanity-backups/`); it is the backup and the rollback. The repo has no `sanity.cli.ts`, so the CLI needs `-p` and `SANITY_AUTH_TOKEN` (the `SANITY_API_TOKEN` of `.env.local`), and is run from outside the repo folder.
+3. **Empty `production`, then import** into it. Emptying matters: the rehearsal left the documents the script made (Pages on/off, Search & sharing, Homepage, the form under its fixed id), and an import keeps them, so the script would skip them with the rehearsal's values and stop at two pre-admission forms. Delete and recreate the dataset (public, as now): `sanity dataset delete production -p ohoxdsld`, `sanity dataset create production --visibility public -p ohoxdsld`, then `sanity dataset import <backup>.tar.gz production -p ohoxdsld`.
 4. **Run the data script on `production`:** `pnpm exec tsx scripts/studio-cleanup.ts --dataset production --dry-run`, read the list, then the same without `--dry-run`. The dry run of 20 October against `development` listed: School details reshaped (phones: Senior Admin → admissions, Admin → office, Accounts → accounts), 6 hero photos and the numbers to the Homepage, Pages on/off created (Teachers, Gallery, Notices off), Search & sharing created, the form moved to `preAdmissionForm`, the fees FAQ unset, 9 directors, 4 advisors, 1 teacher and 1 department ordered, and 16 old documents deleted.
 5. **Check locally** with `NEXT_PUBLIC_SANITY_DATASET=production`: `pnpm build`, `pnpm test:e2e`, and the Studio (sidebar, every singleton opens, drag ordering).
 6. **Vercel:** set `NEXT_PUBLIC_SANITY_DATASET` to `production` for Production and `development` for Preview. Point the Sanity webhooks (downloads, refresh) at the production dataset, adding them for it where they are per-dataset.
@@ -125,6 +125,12 @@ Beyond the steps above:
 9. **Then remove the stand-ins:** the queries fall back to the old fields until the script has run (`coalesce` in `siteSettingsQuery`, `homePageQuery` and `src/lib/queries/site.ts`; the old `admissionsPhone`/`type` read in `siteSettingsQuery` and `withPhoneUses` in `content-service.ts`; all marked "stand-in"), so previews on the old data look like the live site. Once both datasets are cleaned up, drop the fallbacks.
 
 Rollback: set Production's dataset back to `development` and redeploy the previous build. `development` is untouched until step 8.
+
+## Rehearsal of 20 October 2026
+
+`development` exported (91 documents, 30 images; `../sanity-backups/development-2026-10-20.tar.gz`) and imported into the empty `production`; the per-type counts matched. The script ran there in one transaction and a second run found nothing to do. Checked: the directors and advisors keep the About page's order; the phones carry their uses; the Homepage has the 6 hero photos and the numbers; Pages on/off keeps Teachers, Gallery and Notices off; Search & sharing has the 9 pages and the share picture; one pre-admission form, under `preAdmissionForm`, without the old fields; the removed types are gone. The Studio on `production` showed the drag-ordered directors and School details without errors.
+
+The browser tests against `production` passed except those failing on `development` too (the Teachers page is off, the Studio test without the login, the survey fixtures). They showed one expected change: link previews now use the Studio's share picture, so `e2e/seo.spec.ts` accepts it.
 
 ## Open items for the owner (not blocking)
 
