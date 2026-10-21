@@ -21,8 +21,10 @@ const num = (n: number) => bn(Number.isInteger(n) ? n : n.toFixed(1));
 /** Periods a school day as the sheet writes it, main + TA, to the nearest whole: "৩+১". */
 const perDay = (main: number, ta: number) => `${bn(Math.round(main / DAYS.length))}+${bn(Math.round(ta / DAYS.length))}`;
 
-export default async function WorkloadPage({ searchParams }: { searchParams: Promise<{ r?: string }> }) {
-  const { r } = await searchParams;
+export default async function WorkloadPage({ searchParams }: { searchParams: Promise<{ r?: string; salary?: string }> }) {
+  const { r, salary } = await searchParams;
+  // Salaries show only when asked for (the page is often open on a shared screen).
+  const pay = salary === '1';
   const [routines, routine, month] = await Promise.all([listRoutines(), pickRoutine(r), monthProxyCounts(dhakaToday())]);
   const data = routine ? await routineData(routine) : null;
   const crumbs = [{ label: 'রুটিন', href: '/admin/routine' }, { label: 'ওয়ার্কলোড' }];
@@ -38,21 +40,30 @@ export default async function WorkloadPage({ searchParams }: { searchParams: Pro
     );
   }
   const active = data.teachers.filter((t) => t.active);
-  const loads = teacherLoads(active, data.assignments, data.periods);
+  const loads = teacherLoads(active, data.assignments);
   const subjectName = new Map(data.subjects.map((s) => [s.id, s.name]));
   // By name, so a row stays put when its target is typed in and its status changes.
   const staff = active.filter((t) => !t.isVacancy);
   const vacancies = active.filter((t) => t.isVacancy);
   const count = (s: LoadStatus) => staff.filter((t) => loads.get(t.id)!.status === s).length;
   const q = routine?.status === 'active' ? '' : `?r=${routine!.id}`;
+  const payHref = `/admin/routine/workload?${new URLSearchParams({ ...(routine?.status === 'active' ? {} : { r: routine!.id }), ...(pay ? {} : { salary: '1' }) })}`;
 
   return (
     <>
       <PageTop crumbs={crumbs} round={false} />
       <PageBody>
         <div className="flex flex-wrap items-end justify-between gap-3">
-          <PageTitle sub={routineSub(data.routine, 'সপ্তাহের পিরিয়ড = মেইন + টিএ-র অর্ধেক। টার্গেটের ৮০%-এর কম হলে ‘কম’, ১০০%-এর বেশি হলে ‘বেশি’। টার্গেট এখানেই লিখুন, Enter দিলে সেভ হবে।')}>ওয়ার্কলোড</PageTitle>
-          <RoutinePicker routines={routines} current={data.routine.id} />
+          <PageTitle sub={routineSub(data.routine, 'সপ্তাহের ক্লাস = মেইন + টিএ-র অর্ধেক। টার্গেটের ৮০%-এর কম হলে ‘কম’, ১০০%-এর বেশি হলে ‘বেশি’। টার্গেট এখানেই লিখুন, Enter দিলে সেভ হবে।')}>ওয়ার্কলোড</PageTitle>
+          <div className="flex flex-wrap items-center gap-3">
+            <Link href={payHref} role="switch" aria-checked={pay} className="inline-flex items-center gap-2 text-sm text-muted-foreground no-underline">
+              <span className={cn('relative inline-flex h-5 w-9 rounded-full transition-colors', pay ? 'bg-primary' : 'bg-[#d6d3d1]')}>
+                <span className={cn('absolute top-0.5 size-4 rounded-full bg-white shadow transition-all', pay ? 'left-[18px]' : 'left-0.5')} />
+              </span>
+              বেতন দেখান
+            </Link>
+            <RoutinePicker routines={routines} current={data.routine.id} />
+          </div>
         </div>
         <StatTiles>
           <StatTile label="বেশি" value={bn(count('over'))} unit="জন" />
@@ -65,7 +76,7 @@ export default async function WorkloadPage({ searchParams }: { searchParams: Pro
           <EmptyState>কোনো চালু টিচার নেই।</EmptyState>
         ) : (
           <div className="overflow-x-auto rounded-xl border bg-card">
-            <table className="w-full min-w-[1080px] text-sm">
+            <table className={cn('w-full text-sm', pay ? 'min-w-[1080px]' : 'min-w-[880px]')}>
               <thead>
                 <tr className="border-b">
                   <th className={TH}>টিচার</th>
@@ -78,8 +89,8 @@ export default async function WorkloadPage({ searchParams }: { searchParams: Pro
                   <th className={TH}>সপ্তাহে সময়</th>
                   <th className={TH}>সবচেয়ে বেশি ক্লাস</th>
                   <th className={TH}>এ মাসে প্রক্সি</th>
-                  <th className={TH}>বেতন</th>
-                  <th className={TH}>প্রতি পিরিয়ডে</th>
+                  {pay && <th className={TH}>বেতন</th>}
+                  {pay && <th className={TH}>প্রতি ক্লাসে</th>}
                 </tr>
               </thead>
               <tbody>
@@ -109,8 +120,8 @@ export default async function WorkloadPage({ searchParams }: { searchParams: Pro
                       <td className={TD}>{durationText(l.minutesMain + l.minutesTa)}</td>
                       <td className={TD}>{busy ? `${daysText(busy.days)} (${bn(busy.count)})` : '—'}</td>
                       <td className={cn(TD, 'tabular-nums')}>{bn(month[t.id] ?? 0)}</td>
-                      <td className={cn(TD, 'tabular-nums')}>{money(t.salary)}</td>
-                      <td className={cn(TD, 'tabular-nums')}>{money(salaryPerPeriod(t.salary, l.weighted))}</td>
+                      {pay && <td className={cn(TD, 'tabular-nums')}>{money(t.salary)}</td>}
+                      {pay && <td className={cn(TD, 'tabular-nums')}>{money(salaryPerPeriod(t.salary, l.weighted))}</td>}
                     </tr>
                   );
                 })}
@@ -134,7 +145,7 @@ export default async function WorkloadPage({ searchParams }: { searchParams: Pro
                       </Link>
                       <span className="text-muted-foreground"> · {t.subjectIds.map((id) => subjectName.get(id)).filter(Boolean).join(', ') || 'সাবজেক্ট দেওয়া নেই'}</span>
                     </span>
-                    <span className="tabular-nums">সপ্তাহে {num(l.weighted)} পিরিয়ড</span>
+                    <span className="tabular-nums">সপ্তাহে {num(l.weighted)}টা ক্লাস</span>
                   </li>
                 );
               })}

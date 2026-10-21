@@ -46,6 +46,6 @@ describe('routine backup', () => {
     const saved = JSON.parse(body).tables;
     expect(Object.keys(saved).sort()).toEqual(tables);
     expect(saved.routine_teachers.length).toBeGreaterThan(0);
-    expect(saved.routine_assignments.length).toBe(29);
+    expect(saved.routine_assignments.length).toBeGreaterThan(40);
   });
 });

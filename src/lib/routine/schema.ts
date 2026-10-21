@@ -8,23 +8,38 @@ const ts = (name: string) => timestamp(name, { withTimezone: true });
 
 export const routineGender = pgEnum('routine_gender', ['male', 'female']);
 export const routineGenderRule = pgEnum('routine_gender_rule', ['any', 'male', 'female']);
-export const routineGroupKind = pgEnum('routine_group_kind', ['section', 'level']);
+// Where a type's classes or groups show in the routine table: a class has its own row; a group with
+// its own room (Hifz, Najera) too, at the top; a seated group (Quran, Arabic) uses a class's room.
+export const routinePlacement = pgEnum('routine_placement', ['class', 'own_room', 'seated']);
 export const routineStatus = pgEnum('routine_status', ['draft', 'active']);
-export const routineSlotKind = pgEnum('routine_slot_kind', ['group', 'teacher', 'room']);
 export const routineRole = pgEnum('routine_role', ['main', 'ta']);
 
-export const routineSubjects = pgTable('routine_subjects', {
+/** জেনারেল, হিফয, নাজেরা, কুরআন, আরবি (seeded; the admin can add and reorder). */
+export const routineClassTypes = pgTable('routine_class_types', {
   id: uuid('id').primaryKey().defaultRandom(),
   name: text('name').notNull().unique(),
+  placement: routinePlacement('placement').notNull(),
   sort: integer('sort').notNull().default(0),
-  active: boolean('active').notNull().default(true),
 });
 
-/** A shared room (the hall) may hold several groups at once; any other room is a clash. */
+/** A subject belongs to exactly one class type ("Islam" of জেনারেল and of আরবি are two subjects). */
+export const routineSubjects = pgTable(
+  'routine_subjects',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    typeId: uuid('type_id')
+      .notNull()
+      .references(() => routineClassTypes.id),
+    name: text('name').notNull(),
+    sort: integer('sort').notNull().default(0),
+    active: boolean('active').notNull().default(true),
+  },
+  (t) => [uniqueIndex('routine_subjects_type_name_uq').on(t.typeId, sql`lower(${t.name})`)],
+);
+
 export const routineRooms = pgTable('routine_rooms', {
   id: uuid('id').primaryKey().defaultRandom(),
   name: text('name').notNull().unique(),
-  shared: boolean('shared').notNull().default(false),
 });
 
 export const routineTeachers = pgTable(
@@ -69,16 +84,15 @@ export const routineTeacherSubjects = pgTable(
   (t) => [primaryKey({ columns: [t.teacherId, t.subjectId] })],
 );
 
-/** A class section (Nursery-A) or a level group that mixes classes (Qaida-A, Arabic L-3). */
+/** A class (Nursery-A) or a group of its type (Hifz-1 (M), Qaida-A, L-3), which mixes classes. */
 export const routineGroups = pgTable('routine_groups', {
   id: uuid('id').primaryKey().defaultRandom(),
   name: text('name').notNull().unique(),
-  kind: routineGroupKind('kind').notNull().default('section'),
-  // The heading the grid sorts the group under (জেনারেল, কুরআন, আরবি, হিফয).
-  section: text('section').notNull().default(''),
-  // Groups that share a band ("LEVEL-1" for L-1 A, B, C) sit under one label, as in the sheet.
-  band: text('band').notNull().default(''),
+  typeId: uuid('type_id')
+    .notNull()
+    .references(() => routineClassTypes.id),
   sort: integer('sort').notNull().default(0),
+  // A class's or own-room group's room; a seated group has none (it uses its host class's).
   defaultRoomId: uuid('default_room_id').references(() => routineRooms.id, { onDelete: 'set null' }),
   genderRule: routineGenderRule('gender_rule').notNull().default('any'),
   active: boolean('active').notNull().default(true),
@@ -97,21 +111,10 @@ export const routineRoutines = pgTable(
   (t) => [uniqueIndex('routine_routines_one_active_uq').on(t.status).where(sql`${t.status} = 'active'`)],
 );
 
-export const routinePeriods = pgTable(
-  'routine_periods',
-  {
-    id: uuid('id').primaryKey().defaultRandom(),
-    routineId: uuid('routine_id')
-      .notNull()
-      .references(() => routineRoutines.id, { onDelete: 'cascade' }),
-    label: text('label').notNull().default(''),
-    startsAt: smallint('starts_at').notNull(),
-    endsAt: smallint('ends_at').notNull(),
-  },
-  (t) => [index('routine_periods_routine_idx').on(t.routineId), check('routine_periods_time_ck', sql`${t.endsAt} > ${t.startsAt} AND ${t.startsAt} >= 0 AND ${t.endsAt} <= 1440`)],
-);
-
-/** One group's period on a set of days. A cell that changes by day is several rows with disjoint days. */
+/**
+ * One class or group's lesson at a typed time on a set of days. A cell that changes by day is
+ * several rows with disjoint days. A seated group (Quran, Arabic) names the class whose room it uses.
+ */
 export const routineAssignments = pgTable(
   'routine_assignments',
   {
@@ -122,9 +125,9 @@ export const routineAssignments = pgTable(
     groupId: uuid('group_id')
       .notNull()
       .references(() => routineGroups.id),
-    periodId: uuid('period_id')
-      .notNull()
-      .references(() => routinePeriods.id, { onDelete: 'cascade' }),
+    hostGroupId: uuid('host_group_id').references(() => routineGroups.id),
+    startsAt: smallint('starts_at').notNull(),
+    endsAt: smallint('ends_at').notNull(),
     days: smallint('days').array().notNull(),
     subjectId: uuid('subject_id')
       .notNull()
@@ -133,38 +136,41 @@ export const routineAssignments = pgTable(
       .notNull()
       .references(() => routineTeachers.id),
     taId: uuid('ta_id').references(() => routineTeachers.id),
-    // Empty: the group's default room.
-    roomId: uuid('room_id').references(() => routineRooms.id, { onDelete: 'set null' }),
-    note: text('note').notNull().default(''),
   },
   (t) => [
     index('routine_assignments_routine_idx').on(t.routineId),
+    check('routine_assignments_time_ck', sql`${t.endsAt} > ${t.startsAt} AND ${t.startsAt} >= 0 AND ${t.endsAt} <= 1440`),
     check('routine_assignments_days_ck', sql`cardinality(${t.days}) > 0 AND ${t.days} <@ ARRAY[0,1,2,3,4,5]::smallint[]`),
     check('routine_assignments_ta_ck', sql`${t.taId} IS NULL OR ${t.taId} <> ${t.teacherId}`),
   ],
 );
 
 /**
- * What each assignment occupies, one row per day: its group, its teacher and TA, and its room
- * unless the room is shared. The primary key is the clash guard: a second booking of the same
- * group, teacher or room in the same period and day fails, and with it the whole write.
+ * What each assignment occupies, one row per day: its group, its teacher and TA, and its room (the
+ * row it shows in: its own, or its host class's). The clash guard is an exclusion constraint made in
+ * the migration (drizzle can't declare one): two rows of the same routine, day, kind and ref whose
+ * times overlap fail, and with them the whole write.
  */
 export const routineSlots = pgTable(
   'routine_slots',
   {
     routineId: uuid('routine_id').notNull(),
-    periodId: uuid('period_id').notNull(),
+    startsAt: smallint('starts_at').notNull(),
+    endsAt: smallint('ends_at').notNull(),
     day: smallint('day').notNull(),
-    kind: routineSlotKind('kind').notNull(),
+    // text, not an enum: the exclusion constraint's btree_gist compares it.
+    kind: text('kind').$type<'group' | 'teacher' | 'room'>().notNull(),
     refId: uuid('ref_id').notNull(),
     assignmentId: uuid('assignment_id')
       .notNull()
       .references(() => routineAssignments.id, { onDelete: 'cascade' }),
   },
-  (t) => [primaryKey({ columns: [t.routineId, t.periodId, t.day, t.kind, t.refId] }), index('routine_slots_assignment_idx').on(t.assignmentId)],
+  (t) => [index('routine_slots_assignment_idx').on(t.assignmentId)],
 );
 
-/** A teacher away on a date: the whole day (periodIds NULL) or chosen periods of the active routine. */
+export type TimeSpan = { startsAt: number; endsAt: number };
+
+/** A teacher away on a date: the whole day (times NULL) or some times of it. */
 export const routineAbsences = pgTable(
   'routine_absences',
   {
@@ -173,7 +179,7 @@ export const routineAbsences = pgTable(
     teacherId: uuid('teacher_id')
       .notNull()
       .references(() => routineTeachers.id),
-    periodIds: uuid('period_ids').array(),
+    times: jsonb('times').$type<TimeSpan[]>(),
     reason: text('reason').notNull().default(''),
     createdAt: ts('created_at').notNull().defaultNow(),
   },
@@ -190,7 +196,10 @@ export const routineProxies = pgTable(
     date: date('date').notNull(),
     assignmentId: uuid('assignment_id').references(() => routineAssignments.id, { onDelete: 'set null' }),
     role: routineRole('role').notNull().default('main'),
-    periodId: uuid('period_id').references(() => routinePeriods.id, { onDelete: 'set null' }),
+    // The class's time on the day (empty on old history whose time was lost); a proxy teacher's
+    // covers may not overlap (exclusion constraint in the migration).
+    startsAt: smallint('starts_at'),
+    endsAt: smallint('ends_at'),
     proxyTeacherId: uuid('proxy_teacher_id')
       .notNull()
       .references(() => routineTeachers.id),
@@ -199,7 +208,6 @@ export const routineProxies = pgTable(
   },
   (t) => [
     uniqueIndex('routine_proxies_slot_uq').on(t.date, t.assignmentId, t.role),
-    uniqueIndex('routine_proxies_teacher_uq').on(t.date, t.periodId, t.proxyTeacherId),
     index('routine_proxies_date_idx').on(t.date),
   ],
 );

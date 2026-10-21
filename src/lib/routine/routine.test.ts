@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { assignmentWarnings, clashText, findClashes, lookup, occupancy, overlappingPeriod } from './clash';
-import { dayOfDate, daysText, parseTime, periodText, timeText } from './days';
-import { atSchool, freeTeachers, sessionOf } from './free';
-import { bandRuns, groupPeriods, sheetBlocks, sheetLayout } from './layout';
+import { assignmentWarnings, clashText, findClashes, hostProblem, lookup, occupancy } from './clash';
+import { dayOfDate, daysText, distinctTimes, inputTime, overlaps, parseSpan, parseTime, spanText, timeText } from './days';
+import { atSchool, busyTeachers, sittingOf } from './free';
+import { cellLessons, groupSections, tableSections } from './layout';
 import { busiestDays, loadStatus, salaryPerPeriod, teacherLoads } from './load';
 import { needsFor, proxyDayText, rankCandidates } from './proxy';
-import { assignment, group, period, room, subject, teacher } from './testing/sample';
+import { assignment, group, subject, teacher, TYPES } from './testing/sample';
 
 describe('days and times', () => {
   it('names day sets the way the sheet does', () => {
@@ -26,87 +26,121 @@ describe('days and times', () => {
     expect(timeText(7 * 60)).toBe('৭:০০');
     expect(timeText(13 * 60)).toBe('১:০০');
     expect(timeText(12 * 60 + 15)).toBe('১২:১৫');
-    expect(periodText(period('p', 540, 585, 'কুরআন'))).toBe('৯:০০–৯:৪৫ · কুরআন');
+    expect(spanText({ startsAt: 540, endsAt: 585 })).toBe('৯:০০–৯:৪৫');
+  });
+
+  it('reads typed times in Bengali or English digits, 1–6 o\'clock as the afternoon', () => {
+    expect(parseTime('১০:৪৫')).toBe(645);
+    expect(parseTime('10.45')).toBe(645);
+    expect(parseTime('0800')).toBe(480);
+    expect(parseTime('৩:০০')).toBe(900);
+    expect(parseTime('12:15')).toBe(735);
     expect(parseTime('15:00')).toBe(900);
+    expect(parseTime('7:00')).toBe(420);
     expect(parseTime('25:00')).toBeNull();
+    expect(parseTime('nine')).toBeNull();
+    // An end before the start is the afternoon: the evening Hifz is written 3:00–8:00.
+    expect(parseSpan('৩:০০', '৮:০০')).toEqual({ startsAt: 900, endsAt: 1200 });
+    expect(parseSpan('১১:৩০', '১২:১৫')).toEqual({ startsAt: 690, endsAt: 735 });
+    expect(parseSpan('১০:০০', '৯:০০')).toBeNull();
+    expect(parseSpan('৯:০০', '')).toBeNull();
+    // A leading zero is taken as typed (the morning); the boxes write evening times so they read back.
+    expect(parseTime('০৬:৩০')).toBe(390);
+    expect(parseTime('0600')).toBe(360);
+    for (const m of [390, 420, 540, 780, 1140, 1200]) expect(parseTime(inputTime(m))).toBe(m);
+    expect(inputTime(1140)).toBe('১৯:০০');
+  });
+
+  it('lists the distinct times in order and tells overlaps from touching ends', () => {
+    const times = distinctTimes([
+      { startsAt: 540, endsAt: 600 },
+      { startsAt: 540, endsAt: 585 },
+      { startsAt: 420, endsAt: 495 },
+      { startsAt: 540, endsAt: 585 },
+    ]);
+    expect(times).toEqual([
+      { startsAt: 420, endsAt: 495 },
+      { startsAt: 540, endsAt: 585 },
+      { startsAt: 540, endsAt: 600 },
+    ]);
+    expect(overlaps({ startsAt: 540, endsAt: 585 }, { startsAt: 585, endsAt: 630 })).toBe(false);
+    expect(overlaps({ startsAt: 540, endsAt: 600 }, { startsAt: 585, endsAt: 630 })).toBe(true);
   });
 });
 
 describe('clashes', () => {
-  const groups = [group('nursery-a', { defaultRoomId: '402' }), group('kg-a', { defaultRoomId: '402' }), group('five-m', { defaultRoomId: 'hall' }), group('five-f', { defaultRoomId: 'hall' })];
-  const rooms = [room('402'), room('501'), room('hall', true)];
-  const names = lookup({ groups, rooms, teachers: [teacher('mueen'), teacher('rakib')], subjects: [subject('math')] });
+  const groups = [group('nursery-a'), group('one-a'), group('qaida-a', { typeId: 'quran' }), group('hifz-1', { typeId: 'hifz', genderRule: 'male' })];
+  const teachers = [teacher('mueen', { gender: 'male', subjectIds: ['qaida'] }), teacher('nasreen'), teacher('dolon')];
+  const names = lookup({ types: TYPES, groups, teachers, subjects: [subject('math'), subject('qaida', 'quran')] });
+  const qaida = assignment({ groupId: 'qaida-a', hostGroupId: 'nursery-a', teacherId: 'mueen', subjectId: 'qaida', days: [0, 1, 2] });
 
-  it('finds a teacher in two places only on shared days', () => {
-    const other = assignment({ groupId: 'nursery-a', periodId: 'p1', teacherId: 'mueen', days: [0, 1, 2], roomId: '501' });
-    const clashes = findClashes({ ...assignment({ groupId: 'kg-a', periodId: 'p1', teacherId: 'mueen', days: [2, 3] }), id: undefined }, [other], names.groups, names.rooms);
-    expect(clashes.map((c) => [c.kind, c.days])).toEqual([['teacher', [2]]]);
-    expect(clashText(clashes[0], names)).toBe('mueen সোম এই পিরিয়ডে nursery-a-তে আছেন।');
+  it('finds a teacher at overlapping times only on shared days', () => {
+    // Six (F)'s own 9:00–10:00 runs into Quran's 9:00–9:45.
+    const own = assignment({ groupId: 'one-a', teacherId: 'mueen', startsAt: 540, endsAt: 600, days: [2, 3] });
+    expect(findClashes(own, [qaida]).map((c) => [c.kind, c.days])).toEqual([['teacher', [2]]]);
+    expect(findClashes({ ...own, days: [3, 4] }, [qaida])).toEqual([]);
+    // Back to back is fine.
+    expect(findClashes({ ...own, startsAt: 585, endsAt: 630 }, [qaida])).toEqual([]);
   });
 
   it('counts a TA as busy too', () => {
-    const other = assignment({ groupId: 'nursery-a', periodId: 'p1', teacherId: 'rakib', taId: 'mueen', roomId: '501' });
-    const clashes = findClashes(assignment({ groupId: 'kg-a', periodId: 'p1', teacherId: 'mueen' }), [other], names.groups, names.rooms);
-    expect(clashes.map((c) => c.kind)).toEqual(['teacher']);
+    const other = assignment({ groupId: 'one-a', teacherId: 'nasreen', taId: 'mueen', days: [0] });
+    expect(findClashes(other, [qaida]).map((c) => c.kind)).toEqual(['teacher']);
   });
 
-  it('blocks a room through the default room, but not a shared one', () => {
-    const a = assignment({ groupId: 'nursery-a', periodId: 'p1', teacherId: 'mueen' });
-    expect(findClashes(assignment({ groupId: 'kg-a', periodId: 'p1', teacherId: 'rakib' }), [a], names.groups, names.rooms).map((c) => c.kind)).toEqual(['room']);
-    const hall = assignment({ groupId: 'five-m', periodId: 'p1', teacherId: 'mueen' });
-    expect(findClashes(assignment({ groupId: 'five-f', periodId: 'p1', teacherId: 'rakib' }), [hall], names.groups, names.rooms)).toEqual([]);
+  it('blocks a class lesson in the room a group sits in, once, and the group in two rooms', () => {
+    const math = assignment({ groupId: 'nursery-a', teacherId: 'nasreen', startsAt: 570, endsAt: 615, days: [1] });
+    const clashes = findClashes(math, [qaida]);
+    expect(clashes.map((c) => [c.kind, c.refId])).toEqual([['room', 'nursery-a']]);
+    expect(clashText(clashes[0], names)).toBe('nursery-a-এর রুমে রবি ৯:০০–৯:৪৫-এ qaida-a চলে।');
+    // The class's own second lesson at that time is a group clash only, not also a room one.
+    const again = assignment({ groupId: 'nursery-a', teacherId: 'dolon', days: [1] });
+    expect(findClashes(again, [math]).map((c) => c.kind)).toEqual(['group']);
+    // Qaida-A can't also be in One-A's room then.
+    const moved = assignment({ groupId: 'qaida-a', hostGroupId: 'one-a', teacherId: 'dolon', days: [0] });
+    expect(findClashes(moved, [qaida]).map((c) => c.kind)).toEqual(['group']);
   });
 
   it('lets day-split rows of one cell sit side by side, and ignores the row being edited', () => {
-    const sunTue = assignment({ groupId: 'nursery-a', periodId: 'p1', teacherId: 'mueen', days: [1, 2, 3] });
-    expect(findClashes(assignment({ groupId: 'nursery-a', periodId: 'p1', teacherId: 'rakib', days: [4, 5] }), [sunTue], names.groups, names.rooms)).toEqual([]);
-    expect(findClashes({ ...sunTue, days: [1, 2, 3, 4] }, [sunTue], names.groups, names.rooms)).toEqual([]);
-    expect(findClashes(assignment({ groupId: 'nursery-a', periodId: 'p2', teacherId: 'mueen' }), [sunTue], names.groups, names.rooms)).toEqual([]);
+    const rest = assignment({ groupId: 'qaida-a', hostGroupId: 'nursery-a', teacherId: 'nasreen', subjectId: 'qaida', days: [3, 4, 5] });
+    expect(findClashes(rest, [qaida])).toEqual([]);
+    expect(findClashes(qaida, [qaida])).toEqual([]);
   });
 
-  it('lists one occupancy per day for group, teacher, TA and unshared room', () => {
-    const occ = occupancy(assignment({ groupId: 'nursery-a', periodId: 'p1', teacherId: 'mueen', taId: 'rakib', days: [0] }), names.groups, names.rooms);
+  it('lists one occupancy per day for the group, its room row, teacher and TA', () => {
+    const occ = occupancy({ ...qaida, days: [0], taId: 'dolon' });
     expect(occ).toEqual([
-      { kind: 'group', refId: 'nursery-a', day: 0 },
+      { kind: 'group', refId: 'qaida-a', day: 0 },
+      { kind: 'room', refId: 'nursery-a', day: 0 },
       { kind: 'teacher', refId: 'mueen', day: 0 },
-      { kind: 'teacher', refId: 'rakib', day: 0 },
-      { kind: 'room', refId: '402', day: 0 },
+      { kind: 'teacher', refId: 'dolon', day: 0 },
     ]);
   });
 
-  it('warns about subjects and the gender rule', () => {
-    const w = lookup({
-      groups: [group('two-m', { genderRule: 'male' })],
-      rooms: [],
-      teachers: [teacher('fariza', { subjectIds: ['english'] }), teacher('nayeem', { gender: 'male', subjectIds: ['math'] }), teacher('science-1', { gender: null, isVacancy: true, subjectIds: ['math'] })],
-      subjects: [subject('math', 'Math'), subject('english')],
-    });
-    expect(assignmentWarnings(assignment({ groupId: 'two-m', periodId: 'p', teacherId: 'nayeem', taId: 'fariza' }), w)).toEqual(['two-m-এ শুধু পুরুষ টিচার পড়ান, কিন্তু fariza মহিলা।']);
-    expect(assignmentWarnings(assignment({ groupId: 'two-m', periodId: 'p', teacherId: 'fariza' }), w)).toHaveLength(2);
-    // An open post without a gender yet: no gender warning.
-    expect(assignmentWarnings(assignment({ groupId: 'two-m', periodId: 'p', teacherId: 'science-1' }), w)).toEqual([]);
+  it('wants a host class for a seated group and none for the rest', () => {
+    expect(hostProblem(qaida, names)).toBeNull();
+    expect(hostProblem({ ...qaida, hostGroupId: null }, names)).toBe('কোন ক্লাসের রুমে বসে, সেটা সিলেক্ট করুন।');
+    expect(hostProblem({ ...qaida, hostGroupId: 'hifz-1' }, names)).toBe('গ্রুপ শুধু কোনো ক্লাসের রুমে বসতে পারে।');
+    expect(hostProblem({ groupId: 'hifz-1', hostGroupId: null }, names)).toBeNull();
+    expect(hostProblem({ groupId: 'one-a', hostGroupId: 'nursery-a' }, names)).toBe('এই ক্লাস বা গ্রুপ নিজের রুমে বসে।');
   });
 
-  it('finds overlapping periods', () => {
-    const periods = [period('a', 540, 585), period('b', 600, 645)];
-    expect(overlappingPeriod({ startsAt: 580, endsAt: 600 }, periods)?.id).toBe('a');
-    expect(overlappingPeriod({ startsAt: 585, endsAt: 600 }, periods)).toBeUndefined();
-    expect(overlappingPeriod({ id: 'a', startsAt: 540, endsAt: 590 }, periods)).toBeUndefined();
+  it('warns about subjects and the gender rule', () => {
+    expect(assignmentWarnings(qaida, names)).toEqual([]);
+    expect(assignmentWarnings({ ...qaida, teacherId: 'nasreen' }, names)).toEqual(['nasreen-এর সাবজেক্টের লিস্টে qaida নেই।']);
+    expect(assignmentWarnings(assignment({ groupId: 'hifz-1', teacherId: 'mueen', taId: 'dolon', subjectId: 'qaida' }), names)).toEqual(['hifz-1-এ শুধু পুরুষ টিচার পড়ান, কিন্তু dolon মহিলা।']);
   });
 });
 
 describe('load', () => {
-  const periods = [period('hifz', 420, 495), period('p1', 540, 585), period('pm', 900, 1200)];
-
-  it('counts periods, half-weight TA, minutes and the status', () => {
+  it('counts lessons, half-weight TA, minutes and the status', () => {
     const loads = teacherLoads(
       [{ id: 't', targetPeriods: 10 }],
       [
-        assignment({ groupId: 'g', periodId: 'p1', teacherId: 't', days: [0, 1, 2] }),
-        assignment({ groupId: 'g', periodId: 'pm', teacherId: 't', days: [1, 2, 3, 4] }),
-        assignment({ groupId: 'h', periodId: 'hifz', teacherId: 'x', taId: 't', days: [0, 1] }),
+        assignment({ groupId: 'g', teacherId: 't', days: [0, 1, 2] }),
+        assignment({ groupId: 'g', teacherId: 't', startsAt: 900, endsAt: 1200, days: [1, 2, 3, 4] }),
+        assignment({ groupId: 'h', teacherId: 'x', taId: 't', startsAt: 420, endsAt: 495, days: [0, 1] }),
       ],
-      periods,
     );
     const t = loads.get('t')!;
     expect([t.main, t.ta, t.weighted]).toEqual([7, 2, 8]);
@@ -144,50 +178,58 @@ describe('free teachers and proxies', () => {
     teacher('old', { active: false, subjectIds: ['quran'] }),
     teacher('tanjila', { subjectIds: ['quran'] }),
   ];
-  const qaidaA = assignment({ groupId: 'qaida-a', periodId: 'p1', teacherId: 'mueen', subjectId: 'quran', days: [1, 2, 3] });
-  const qaidaB = assignment({ groupId: 'qaida-b', periodId: 'p1', teacherId: 'tanjila', subjectId: 'quran' });
-  const islam = assignment({ groupId: 'two-f', periodId: 'p2', teacherId: 'nasreen', subjectId: 'islam' });
+  const qaidaA = assignment({ groupId: 'qaida-a', hostGroupId: 'nursery-a', teacherId: 'mueen', subjectId: 'quran', days: [1, 2, 3] });
+  const qaidaB = assignment({ groupId: 'qaida-b', hostGroupId: 'nursery-b', teacherId: 'tanjila', subjectId: 'quran' });
+  const islam = assignment({ groupId: 'two-f', teacherId: 'nasreen', subjectId: 'islam', startsAt: 600, endsAt: 645 });
   const all = [qaidaA, qaidaB, islam];
+  const p1 = { startsAt: 540, endsAt: 585 };
 
-  it('lists active, non-vacancy teachers free in the period', () => {
-    expect(freeTeachers(teachers, all, 1, 'p1').map((t) => t.id)).toEqual(['dolon', 'nasreen']);
-    expect(freeTeachers(teachers, all, 0, 'p1').map((t) => t.id)).toEqual(['dolon', 'mueen', 'nasreen']);
+  it('knows who is busy at an overlapping time', () => {
+    expect([...busyTeachers(all, 1, p1)].sort()).toEqual(['mueen', 'tanjila']);
+    expect([...busyTeachers(all, 1, { startsAt: 570, endsAt: 615 })].sort()).toEqual(['mueen', 'nasreen', 'tanjila']);
+    expect([...busyTeachers(all, 0, p1)]).toEqual(['tanjila']);
   });
 
   it('splits the day into sittings and knows who is at school in one', () => {
-    const periods = [period('a', 420, 495), period('b', 495, 540), period('c', 645, 690), period('eve', 900, 1200)];
-    expect([...sessionOf(periods, 'b')]).toEqual(['a', 'b']);
-    expect([...sessionOf(periods, 'eve')]).toEqual(['eve']);
+    const spans = [
+      { startsAt: 420, endsAt: 495 },
+      { startsAt: 495, endsAt: 540 },
+      { startsAt: 645, endsAt: 690 },
+      { startsAt: 900, endsAt: 1200 },
+    ];
+    expect(sittingOf(spans, { startsAt: 495, endsAt: 540 })).toEqual({ startsAt: 420, endsAt: 540 });
+    expect(sittingOf(spans, { startsAt: 900, endsAt: 1200 })).toEqual({ startsAt: 900, endsAt: 1200 });
     // 9:00–9:45 to 10:00 is a 15-minute gap: the same sitting.
-    expect([...sessionOf([period('p1', 540, 585), period('p2', 600, 645)], 'p2')]).toEqual(['p1', 'p2']);
-    expect(atSchool(all, new Set(['p1', 'p2']), 'nasreen', 1)).toBe(true);
-    expect(atSchool(all, new Set(['p1', 'p2']), 'dolon', 1)).toBe(false);
+    expect(sittingOf([p1, { startsAt: 600, endsAt: 645 }], { startsAt: 600, endsAt: 645 })).toEqual({ startsAt: 540, endsAt: 645 });
+    expect(atSchool(all, { startsAt: 540, endsAt: 645 }, 'nasreen', 1)).toBe(true);
+    expect(atSchool(all, { startsAt: 540, endsAt: 645 }, 'dolon', 1)).toBe(false);
   });
 
-  it('turns absences into the classes to cover', () => {
-    expect(needsFor(1, [{ teacherId: 'mueen', periodIds: null }], all).map((n) => n.assignment.id)).toEqual([qaidaA.id]);
-    expect(needsFor(0, [{ teacherId: 'mueen', periodIds: null }], all)).toEqual([]);
-    expect(needsFor(1, [{ teacherId: 'nasreen', periodIds: ['p1'] }], all)).toEqual([]);
+  it('turns absences into the lessons to cover', () => {
+    expect(needsFor(1, [{ teacherId: 'mueen', times: null }], all).map((n) => n.assignment.id)).toEqual([qaidaA.id]);
+    expect(needsFor(0, [{ teacherId: 'mueen', times: null }], all)).toEqual([]);
+    expect(needsFor(1, [{ teacherId: 'nasreen', times: [p1] }], all)).toEqual([]);
+    expect(needsFor(1, [{ teacherId: 'nasreen', times: [{ startsAt: 630, endsAt: 700 }] }], all).map((n) => n.assignment.id)).toEqual([islam.id]);
   });
 
-  it('ranks subject teachers first, then the lightest day, then fewest proxies this month', () => {
+  it('ranks subject teachers first, then those at school, the lightest day, then fewest proxies this month', () => {
     const need = { assignment: qaidaA, role: 'main' as const, absentId: 'mueen' };
-    const base = { teachers, assignments: all, periods: [period('p1', 540, 585), period('p2', 600, 645)], day: 1, absences: [{ teacherId: 'mueen', periodIds: null }], proxies: [], monthCounts: new Map<string, number>(), group: group('qaida-a') };
-    // Nasreen teaches Quran but has a class that day; Dolon has none and doesn't teach Quran.
+    const base = { teachers, assignments: all, day: 1, absences: [{ teacherId: 'mueen', times: null }], proxies: [], monthCounts: new Map<string, number>(), group: group('qaida-a') };
+    // Nasreen teaches Quran but has a lesson that day; Dolon has none and doesn't teach Quran.
     expect(rankCandidates(need, base).map((c) => [c.teacher.id, c.canTeach, c.today])).toEqual([
       ['nasreen', true, 1],
       ['dolon', false, 0],
     ]);
-    // A proxy in the same period elsewhere makes a teacher busy; the gender rule filters.
-    const taken = [{ id: 'x', assignmentId: 'other', role: 'main' as const, periodId: 'p1', proxyTeacherId: 'nasreen' }];
+    // A proxy at an overlapping time elsewhere makes a teacher busy; the gender rule filters.
+    const taken = [{ id: 'x', assignmentId: 'other', role: 'main' as const, startsAt: 570, endsAt: 615, proxyTeacherId: 'nasreen' }];
     expect(rankCandidates(need, { ...base, proxies: taken }).map((c) => c.teacher.id)).toEqual(['dolon']);
     expect(rankCandidates(need, { ...base, group: group('qaida-a', { genderRule: 'male' }) })).toEqual([]);
     // The need's own proxy doesn't hide its teacher.
-    const own = [{ id: 'y', assignmentId: qaidaA.id, role: 'main' as const, periodId: 'p1', proxyTeacherId: 'nasreen' }];
+    const own = [{ id: 'y', assignmentId: qaidaA.id, role: 'main' as const, startsAt: 540, endsAt: 585, proxyTeacherId: 'nasreen' }];
     expect(rankCandidates(need, { ...base, proxies: own })[0].teacher.id).toBe('nasreen');
-    // Someone at school that sitting comes before someone with no class then, even with a busier day.
+    // Someone at school that sitting comes before someone with no lesson then, even with a busier day.
     const kamal = teacher('kamal', { subjectIds: ['english'] });
-    const english = assignment({ groupId: 'one-a', periodId: 'p2', teacherId: 'kamal', subjectId: 'english' });
+    const english = assignment({ groupId: 'one-a', teacherId: 'kamal', subjectId: 'english', startsAt: 600, endsAt: 645 });
     expect(rankCandidates(need, { ...base, teachers: [...teachers, kamal], assignments: [...all, english] }).map((c) => [c.teacher.id, c.atSchool])).toEqual([
       ['nasreen', true],
       ['kamal', true],
@@ -198,90 +240,53 @@ describe('free teachers and proxies', () => {
   });
 
   it('writes the day for WhatsApp', () => {
-    expect(proxyDayText('2026-10-18', [{ period: '৯:০০–৯:৪৫', group: 'Qaida-A', subject: 'Quran', absent: 'Mueen', proxy: 'Nasreen', role: 'main' }])).toBe(
+    expect(proxyDayText('2026-10-18', [{ time: '৯:০০–৯:৪৫', group: 'Qaida-A', subject: 'Quran', absent: 'Mueen', proxy: 'Nasreen', role: 'main' }])).toBe(
       'প্রক্সি — ১৮ অক্টোবর, ২০২৬, রবিবার\n\n৯:০০–৯:৪৫ · Qaida-A (Quran): Mueen → Nasreen',
     );
   });
 });
 
-describe('sheet-style layout', () => {
+describe('routine table layout', () => {
   const groups = [
-    group('hifz-m', { section: 'হিফয' }),
-    group('qaida-a', { section: 'কুরআন' }),
-    group('l1-a', { section: 'আরবি', band: 'LEVEL-1' }),
-    group('l1-b', { section: 'আরবি', band: 'LEVEL-1' }),
-    group('l2', { section: 'আরবি', band: 'LEVEL-2' }),
-    group('nursery-a'),
-    group('nursery-b'),
+    group('two-m', { sort: 2 }),
+    group('nursery-a', { sort: 1 }),
+    group('hifz-1-m', { typeId: 'hifz', genderRule: 'male' }),
+    group('najera-1-f', { typeId: 'najera', genderRule: 'female' }),
+    group('hifz-1-f', { typeId: 'hifz', genderRule: 'female' }),
+    group('qaida-a', { typeId: 'quran' }),
+    group('l-1-a', { typeId: 'arabic' }),
+    group('old', { active: false }),
   ];
-  const periods = [period('h1', 420, 495), period('h2', 495, 540), period('q', 540, 585), period('a', 600, 645), period('g1', 645, 690), period('empty', 690, 735), period('g2', 735, 780), period('pm', 900, 1200)];
-  const at = (groupId: string, periodId: string) => assignment({ groupId, periodId, teacherId: 't' });
-  const assignments = [
-    at('hifz-m', 'h1'), at('hifz-m', 'h2'), at('hifz-m', 'pm'),
-    at('qaida-a', 'q'),
-    at('l1-a', 'a'), at('l1-b', 'a'), at('l2', 'a'),
-    at('nursery-a', 'g1'), at('nursery-b', 'g2'),
-  ];
+  const qaida = assignment({ groupId: 'qaida-a', hostGroupId: 'nursery-a', teacherId: 'mueen', days: [2, 3] });
+  const qaidaLate = assignment({ groupId: 'qaida-a', hostGroupId: 'two-m', teacherId: 'mueen', startsAt: 660, endsAt: 705 });
+  const math = assignment({ groupId: 'nursery-a', teacherId: 'jamila', days: [0, 1] });
 
-  it('cuts the day into blocks by heading, in time order, skipping empty periods', () => {
-    const blocks = sheetBlocks(periods, assignments, groups);
-    expect(blocks.map((b) => [b.headings.join(), b.periods.map((p) => p.id).join(), b.groups.map((g) => g.id).join(), b.banded])).toEqual([
-      ['হিফয', 'h1,h2', 'hifz-m', false],
-      ['কুরআন', 'q', 'qaida-a', false],
-      ['আরবি', 'a', 'l1-a,l1-b,l2', true],
-      ['জেনারেল', 'g1,g2', 'nursery-a,nursery-b', false],
-      ['হিফয', 'pm', 'hifz-m', false],
+  it('puts own-room groups first by gender, then the classes; seated groups have no rows of their own', () => {
+    expect(tableSections(TYPES, groups, []).map((s) => [s.title, s.groups.map((g) => g.id)])).toEqual([
+      ['হিফয · নাজেরা (M)', ['hifz-1-m']],
+      ['হিফয · নাজেরা (F)', ['hifz-1-f', 'najera-1-f']],
+      ['ক্লাস', ['nursery-a', 'two-m']],
     ]);
   });
 
-  it('puts a group on its own timetable into the block of the heading most classes are under', () => {
-    const six = group('six-f');
-    const blocks = sheetBlocks(periods, [...assignments, at('six-f', 'h2'), at('six-f', 'a')], [...groups, six]);
-    expect(blocks.map((b) => [b.headings.join(), b.periods.map((p) => p.id).join(), b.groups.map((g) => g.id).join()])).toEqual([
-      ['হিফয', 'h1,h2', 'hifz-m,six-f'],
-      ['কুরআন', 'q', 'qaida-a'],
-      ['আরবি', 'a', 'l1-a,l1-b,l2,six-f'],
-      ['জেনারেল', 'g1,g2', 'nursery-a,nursery-b'],
-      ['হিফয', 'pm', 'hifz-m'],
+  it('lists every type in the group view: own-room, seated, then classes', () => {
+    expect(groupSections(TYPES, groups, []).map((s) => [s.title, s.groups.map((g) => g.id)])).toEqual([
+      ['হিফয গ্রুপ', ['hifz-1-m', 'hifz-1-f']],
+      ['নাজেরা গ্রুপ', ['najera-1-f']],
+      ['কুরআন গ্রুপ', ['qaida-a']],
+      ['আরবি গ্রুপ', ['l-1-a']],
+      ['জেনারেল ক্লাস', ['nursery-a', 'two-m']],
     ]);
+    // An inactive class still shows while it has lessons.
+    const kept = assignment({ groupId: 'old', teacherId: 'x' });
+    expect(groupSections(TYPES, groups, [kept]).at(-1)?.groups.map((g) => g.id)).toEqual(['old', 'nursery-a', 'two-m']);
   });
 
-  it('gives one group\'s day: its heading\'s periods and its own, else all', () => {
-    const ids = (g: ReturnType<typeof group>, list = assignments) => groupPeriods(periods, list, groups, g).map((p) => p.id).join();
-    expect(ids(groups[0])).toBe('h1,h2,pm');
-    // Nursery-A has a class only at g1, but its heading's other period is there to fill.
-    expect(ids(groups[5])).toBe('g1,g2');
-    expect(ids(group('nursery-c'))).toBe('g1,g2');
-    // A group on its own times keeps its classes in other headings' blocks.
-    expect(ids(groups[5], [...assignments, at('nursery-a', 'a')])).toBe('a,g1,g2');
-    expect(ids(group('new', { section: 'নতুন' }))).toBe(periods.map((p) => p.id).join());
-  });
-
-  it('groups each run of one band', () => {
-    const runs = bandRuns([{ band: 'LEVEL-1' }, { band: 'LEVEL-1' }, { band: '' }, { band: '' }, { band: 'LEVEL-2' }, { band: 'LEVEL-1' }]);
-    expect(runs.map((r) => [r.band, r.groups.length])).toEqual([['LEVEL-1', 2], ['', 1], ['', 1], ['LEVEL-2', 1], ['LEVEL-1', 1]]);
-  });
-
-  it('lays the sheet out as columns: cards where the classes are the same in each period, a table otherwise', () => {
-    const { lanes, strips } = sheetLayout(periods, assignments, groups);
-    expect(lanes.map((l) => [l.headings[0], l.cards])).toEqual([['হিফয', true], ['কুরআন', true], ['আরবি', true], ['জেনারেল', false], ['হিফয', true]]);
-    expect(strips).toEqual([]);
-    // Hifz changes in its second period: a table from then on.
-    const changed = assignments.map((a) => (a.groupId === 'hifz-m' && a.periodId === 'h2' ? { ...a, subjectId: 'quran' } : a));
-    expect(sheetLayout(periods, changed, groups).lanes[0].cards).toBe(false);
-    // …and so does a room of its own in one period.
-    const moved = assignments.map((a) => (a.groupId === 'hifz-m' && a.periodId === 'h2' ? { ...a, roomId: 'hall' } : a));
-    expect(sheetLayout(periods, moved, groups).lanes[0].cards).toBe(false);
-  });
-
-  it('gives a group on its own times a strip, and puts a group with no class yet in its heading', () => {
-    const six = group('six-f');
-    const play = group('play');
-    const { lanes, strips } = sheetLayout(periods, [...assignments, at('six-f', 'h2'), at('six-f', 'a'), at('six-f', 'g1')], [...groups, six, play]);
-    expect(strips.map((g) => g.id)).toEqual(['six-f']);
-    expect(lanes.map((l) => l.groups.map((g) => g.id).join())).toEqual(['hifz-m', 'qaida-a', 'l1-a,l1-b,l2', 'nursery-a,nursery-b,play', 'hifz-m']);
-    // A group in just one other block (Play at 10:00) stays in that column.
-    const one = sheetLayout(periods, [...assignments, at('play', 'a')], [...groups, play]);
-    expect([one.strips, one.lanes[2].groups.map((g) => g.id)]).toEqual([[], ['l1-a', 'l1-b', 'l2', 'play']]);
+  it('fills a room row with its class and the groups seated there, and a group row with all its lessons', () => {
+    const all = [qaida, qaidaLate, math];
+    expect(cellLessons(all, 'nursery-a', { startsAt: 540, endsAt: 585 }, 'room').map((a) => a.id)).toEqual([math.id, qaida.id]);
+    expect(cellLessons(all, 'nursery-a', { startsAt: 540, endsAt: 585 }, 'room', 2).map((a) => a.id)).toEqual([qaida.id]);
+    expect(cellLessons(all, 'qaida-a', { startsAt: 660, endsAt: 705 }, 'group').map((a) => a.id)).toEqual([qaidaLate.id]);
+    expect(cellLessons(all, 'two-m', { startsAt: 660, endsAt: 705 }, 'room').map((a) => a.id)).toEqual([qaidaLate.id]);
   });
 });

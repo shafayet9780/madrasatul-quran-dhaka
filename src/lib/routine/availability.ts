@@ -1,7 +1,7 @@
-import { daysText } from './days';
-import { atSchool, periodsOnDay, sessionOf } from './free';
-import { absentIn, rankCandidates, type Absence, type Need, type ProxyRecord } from './proxy';
-import type { Assignment, Group, Period, Role, Teacher } from './types';
+import { daysText, distinctTimes, overlaps } from './days';
+import { atSchool, periodsOnDay, sittingOf } from './free';
+import { absentIn, daySpans, proxyAt, rankCandidates, type Absence, type Need, type ProxyRecord } from './proxy';
+import type { Assignment, Group, Role, Teacher, TimeSpan } from './types';
 
 // Who can take a class, for the teacher picker (docs/class-routine.md §5–6): every teacher is a
 // choice, free (green, those who teach the subject first) or not (red, with the reason). The proxy
@@ -24,7 +24,7 @@ const count = (n: number) => n.toLocaleString('bn-BD');
 /** The proxy choices for one class on a date: everyone but the absent teacher, free ones ranked. */
 export function proxyChoices<T extends Teacher>(
   need: Need,
-  ctx: { teachers: T[]; assignments: Assignment[]; periods: Period[]; day: number; absences: Absence[]; proxies: ProxyRecord[]; monthCounts: Map<string, number>; groups: Map<string, Group>; today?: boolean },
+  ctx: { teachers: T[]; assignments: Assignment[]; day: number; absences: Absence[]; proxies: ProxyRecord[]; monthCounts: Map<string, number>; groups: Map<string, Group>; today?: boolean },
 ): Choice<T>[] {
   const when = ctx.today === false ? 'এ দিন' : 'আজ';
   const group = ctx.groups.get(need.assignment.groupId);
@@ -36,11 +36,11 @@ export function proxyChoices<T extends Teacher>(
     why: '',
     meta: [`${when} ${count(c.today)}টা ক্লাস`, c.month ? `এ মাসে ${count(c.month)}টা প্রক্সি` : '', c.atSchool ? '' : 'এ সময় স্কুলে থাকেন না'].filter(Boolean).join(' · '),
   }));
-  const periodId = need.assignment.periodId;
+  const span = need.assignment;
   const own = ctx.proxies.find((p) => p.assignmentId === need.assignment.id && p.role === need.role);
   const classIn = new Map<string, Assignment>();
   for (const a of ctx.assignments) {
-    if (a.periodId !== periodId || !a.days.includes(ctx.day)) continue;
+    if (!overlaps(a, span) || !a.days.includes(ctx.day)) continue;
     classIn.set(a.teacherId, a);
     if (a.taId) classIn.set(a.taId, a);
   }
@@ -49,9 +49,9 @@ export function proxyChoices<T extends Teacher>(
     .filter((t) => t.active && !t.isVacancy && t.id !== need.absentId && !free.has(t.id))
     .map((t) => {
       const name = (a: { groupId: string } | undefined) => ctx.groups.get(a?.groupId ?? '')?.name ?? '';
-      const proxy = ctx.proxies.find((p) => p !== own && p.periodId === periodId && p.proxyTeacherId === t.id);
+      const proxy = ctx.proxies.find((p) => p !== own && p.proxyTeacherId === t.id && proxyAt(p, span));
       const proxyFor = proxy && ctx.assignments.find((a) => a.id === proxy.assignmentId);
-      const why = ctx.absences.some((x) => x.teacherId === t.id && absentIn(x, periodId))
+      const why = ctx.absences.some((x) => x.teacherId === t.id && absentIn(x, span))
         ? 'অ্যাবসেন্ট'
         : classIn.has(t.id)
           ? `${name(classIn.get(t.id))}-এ ক্লাস`
@@ -67,8 +67,8 @@ export function proxyChoices<T extends Teacher>(
 }
 
 /**
- * The choices for the class editor: a teacher is free when they have nothing else in this period on
- * any of the chosen days. Open posts can be chosen; a group's gender rule only warns (the server asks
+ * The choices for the class editor: a teacher is free when they have nothing else at an overlapping
+ * time on any of the chosen days. Open posts can be chosen; a group's gender rule only warns (the server asks
  * to confirm), so it doesn't make anyone red, only says so. Free ones with the lightest week first.
  */
 export function editorChoices<T extends Teacher>(ctx: {
@@ -76,7 +76,7 @@ export function editorChoices<T extends Teacher>(ctx: {
   assignments: Assignment[];
   groups: Map<string, Group>;
   groupId: string;
-  periodId: string;
+  span: TimeSpan;
   days: number[];
   subjectId: string;
   /** The row being edited: its own class doesn't count against anyone. */
@@ -91,7 +91,7 @@ export function editorChoices<T extends Teacher>(ctx: {
   const choices = ctx.teachers
     .filter((t) => t.active || ctx.keep?.includes(t.id))
     .map((t) => {
-      const clash = others.filter((a) => a.periodId === ctx.periodId && (a.teacherId === t.id || a.taId === t.id) && a.days.some((d) => ctx.days.includes(d)));
+      const clash = others.filter((a) => overlaps(a, ctx.span) && (a.teacherId === t.id || a.taId === t.id) && a.days.some((d) => ctx.days.includes(d)));
       const busyDays = [...new Set(clash.flatMap((a) => a.days.filter((d) => ctx.days.includes(d))))];
       const where = [...new Set(clash.map((a) => ctx.groups.get(a.groupId)?.name ?? ''))].join(', ');
       const free = clash.length === 0;
@@ -111,28 +111,29 @@ export type BoardCell =
   | { kind: 'away' | 'absent' }
   | { kind: 'class' | 'proxy'; assignment: Assignment | undefined; role: Role };
 
-export type BoardPeriod = { period: Period; cells: Map<string, BoardCell>; free: number };
+export type BoardTime = { time: TimeSpan; cells: Map<string, BoardCell>; free: number };
 
 /**
- * Every teacher's state in every period of a date, for the free-teacher page: absent, in a class
- * (main or TA), on a proxy, free, or away (free, but not at school in that sitting). A free teacher
- * fits when they teach the chosen subject, else a subject taught in that period that day.
+ * Every teacher's state at every lesson time of a date, for the free-teacher page: absent, in a
+ * lesson (main or TA), on a proxy, free, or away (free, but not at school in that sitting). A free
+ * teacher fits when they teach the chosen subject, else a subject taught at that time that day.
  */
-export function dayBoard<T extends Teacher>(ctx: { teachers: T[]; assignments: Assignment[]; periods: Period[]; day: number; absences: Absence[]; proxies: ProxyRecord[]; subjectId?: string }) {
+export function dayBoard<T extends Teacher>(ctx: { teachers: T[]; assignments: Assignment[]; day: number; absences: Absence[]; proxies: ProxyRecord[]; subjectId?: string }) {
   const teachers = ctx.teachers.filter((t) => t.active && !t.isVacancy);
   const classes = new Map(teachers.map((t) => [t.id, periodsOnDay(ctx.assignments, t.id, ctx.day) + ctx.proxies.filter((p) => p.proxyTeacherId === t.id).length]));
-  const periods: BoardPeriod[] = ctx.periods.map((period) => {
-    const running = ctx.assignments.filter((a) => a.periodId === period.id && a.days.includes(ctx.day));
-    const subjects = new Set(running.map((a) => a.subjectId));
-    const session = sessionOf(ctx.periods, period.id);
+  const spans = daySpans(ctx.assignments, ctx.day);
+  const times: BoardTime[] = distinctTimes(spans).map((time) => {
+    const running = ctx.assignments.filter((a) => overlaps(a, time) && a.days.includes(ctx.day));
+    const subjects = new Set(running.filter((a) => a.startsAt === time.startsAt && a.endsAt === time.endsAt).map((a) => a.subjectId));
+    const sitting = sittingOf(spans, time);
     const cells = new Map<string, BoardCell>();
     for (const t of teachers) {
       const own = running.find((a) => a.teacherId === t.id || a.taId === t.id);
-      const proxy = ctx.proxies.find((p) => p.periodId === period.id && p.proxyTeacherId === t.id);
-      const here = atSchool(ctx.assignments, session, t.id, ctx.day) || ctx.proxies.some((p) => p.proxyTeacherId === t.id && session.has(p.periodId ?? ''));
+      const proxy = ctx.proxies.find((p) => p.proxyTeacherId === t.id && proxyAt(p, time));
+      const here = atSchool(ctx.assignments, sitting, t.id, ctx.day) || ctx.proxies.some((p) => p.proxyTeacherId === t.id && proxyAt(p, sitting));
       cells.set(
         t.id,
-        ctx.absences.some((x) => x.teacherId === t.id && absentIn(x, period.id))
+        ctx.absences.some((x) => x.teacherId === t.id && absentIn(x, time))
           ? { kind: 'absent' }
           : own
             ? { kind: 'class', assignment: own, role: own.teacherId === t.id ? 'main' : 'ta' }
@@ -143,7 +144,7 @@ export function dayBoard<T extends Teacher>(ctx: { teachers: T[]; assignments: A
                 : { kind: 'free', fits: ctx.subjectId ? t.subjectIds.includes(ctx.subjectId) : t.subjectIds.some((s) => subjects.has(s)) },
       );
     }
-    return { period, cells, free: [...cells.values()].filter((c) => c.kind === 'free').length };
+    return { time, cells, free: [...cells.values()].filter((c) => c.kind === 'free').length };
   });
-  return { teachers, periods, classes };
+  return { teachers, times, classes };
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { toAsciiDigits, toBengaliDigits as bn } from '@/lib/survey/normalise';
 import { cn } from '@/lib/utils';
 import { setTargetAction } from '../actions';
@@ -15,7 +15,13 @@ export function TargetInput({ teacherId, name, target }: { teacherId: string; na
   const [value, setValue] = useState(shown(target));
   useEffect(() => setValue(shown(target)), [target]);
   const { pending, run, line } = useAction();
+  // Escape puts the saved target back; the blur that follows must not save the typed one.
+  const cancelled = useRef(false);
   const save = () => {
+    if (cancelled.current) {
+      cancelled.current = false;
+      return setValue(shown(target));
+    }
     const raw = toAsciiDigits(value).trim();
     const next = raw === '' ? null : Number(raw);
     if (next === target) return setValue(shown(target));
@@ -30,13 +36,13 @@ export function TargetInput({ teacherId, name, target }: { teacherId: string; na
         value={value}
         placeholder="—"
         disabled={pending}
-        aria-label={`${name}: সপ্তাহে টার্গেট (পিরিয়ড)`}
+        aria-label={`${name}: সপ্তাহে টার্গেট (ক্লাস)`}
         onChange={(e) => setValue(e.target.value)}
         onBlur={save}
         onKeyDown={(e) => {
           if (e.key === 'Enter') e.currentTarget.blur();
           if (e.key === 'Escape') {
-            setValue(shown(target));
+            cancelled.current = true;
             e.currentTarget.blur();
           }
         }}

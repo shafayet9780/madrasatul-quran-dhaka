@@ -8,24 +8,26 @@ import {
   deleteAbsence,
   deleteAssignment,
   deleteGroup,
-  deletePeriod,
   deleteRoom,
   deleteRoutine,
   deleteSubject,
   deleteTeacher,
+  deleteType,
+  moveType,
   renameRoutine,
   saveAbsence,
   saveAssignment,
   saveGroup,
-  savePeriod,
   saveRoom,
   saveSubject,
   saveTeacher,
+  saveType,
   setProxy,
   setTeacherTarget,
+  teacherFootprint,
   type Outcome,
 } from '@/lib/routine/data';
-import { isDate, parseTime } from '@/lib/routine/days';
+import { isDate } from '@/lib/routine/days';
 import { assertAdmin } from '@/lib/survey/admin-auth';
 
 // Class routine admin changes. Every action checks the admin login first (the proxy also gates /admin).
@@ -50,16 +52,19 @@ async function act<T>(schema: z.ZodType<T>, input: unknown, run: (value: T) => P
 
 // ── Assignments ──
 
+const minute = z.number().int().min(0).max(1440);
+const span = z.object({ startsAt: minute, endsAt: minute }).refine((t) => t.endsAt > t.startsAt);
+
 const assignment = z.object({
   id: id.optional(),
   groupId: id,
-  periodId: id,
+  hostGroupId: optionalId,
+  startsAt: minute,
+  endsAt: minute,
   days: z.array(z.number().int().min(0).max(5)).min(1).max(6),
   subjectId: id,
   teacherId: id,
   taId: optionalId,
-  roomId: optionalId,
-  note: text(200),
 });
 
 export async function saveAssignmentAction(routineId: string, input: z.input<typeof assignment>, confirm: boolean): Promise<Result> {
@@ -99,22 +104,43 @@ export async function setTargetAction(teacherId: string, target: number | null):
   return act(z.object({ teacherId: id, target: z.number().int().min(0).max(80).nullable() }), { teacherId, target }, (v) => setTeacherTarget(v.teacherId, v.target));
 }
 
+/** What deleting a teacher would take with it (asked before the confirm). */
+export async function teacherFootprintAction(teacherId: string): Promise<{ lessons: number; taLessons: number; history: boolean } | null> {
+  await assertAdmin();
+  const parsed = id.safeParse(teacherId);
+  return parsed.success ? teacherFootprint(parsed.data) : null;
+}
+
 export async function deleteTeacherAction(teacherId: string): Promise<Result> {
   return act(id, teacherId, deleteTeacher);
 }
 
-// ── Subjects, rooms, groups ──
+// ── Class types, subjects, rooms, classes and groups ──
 
-export async function saveSubjectAction(input: { id?: string; name: string; sort: number; active: boolean }): Promise<Result> {
-  return act(z.object({ id: id.optional(), name, sort: z.number().int().min(-9999).max(9999), active: z.boolean() }), input, saveSubject);
+const placement = z.enum(['class', 'own_room', 'seated']);
+
+export async function saveTypeAction(input: { id?: string; name: string; placement: 'class' | 'own_room' | 'seated' }): Promise<Result> {
+  return act(z.object({ id: id.optional(), name, placement }), input, saveType);
+}
+
+export async function moveTypeAction(typeId: string, step: -1 | 1): Promise<Result> {
+  return act(z.object({ id, step: z.union([z.literal(-1), z.literal(1)]) }), { id: typeId, step }, (v) => moveType(v.id, v.step));
+}
+
+export async function deleteTypeAction(typeId: string): Promise<Result> {
+  return act(id, typeId, deleteType);
+}
+
+export async function saveSubjectAction(input: { id?: string; typeId: string; name: string; sort: number; active: boolean }): Promise<Result> {
+  return act(z.object({ id: id.optional(), typeId: id, name, sort: z.number().int().min(-9999).max(9999), active: z.boolean() }), input, saveSubject);
 }
 
 export async function deleteSubjectAction(subjectId: string): Promise<Result> {
   return act(id, subjectId, deleteSubject);
 }
 
-export async function saveRoomAction(input: { id?: string; name: string; shared: boolean }): Promise<Result> {
-  return act(z.object({ id: id.optional(), name, shared: z.boolean() }), input, saveRoom);
+export async function saveRoomAction(input: { id?: string; name: string }): Promise<Result> {
+  return act(z.object({ id: id.optional(), name }), input, saveRoom);
 }
 
 export async function deleteRoomAction(roomId: string): Promise<Result> {
@@ -124,9 +150,7 @@ export async function deleteRoomAction(roomId: string): Promise<Result> {
 const group = z.object({
   id: id.optional(),
   name,
-  kind: z.enum(['section', 'level']),
-  section: text(60),
-  band: text(40),
+  typeId: id,
   sort: z.number().int().min(-9999).max(9999),
   defaultRoomId: optionalId,
   genderRule: z.enum(['any', 'male', 'female']),
@@ -141,7 +165,7 @@ export async function deleteGroupAction(groupId: string): Promise<Result> {
   return act(id, groupId, deleteGroup);
 }
 
-// ── Routines and periods ──
+// ── Routines ──
 
 export async function createRoutineAction(routineName: string, copyFromId: string | null): Promise<Result> {
   return act(z.object({ name, copyFromId: optionalId }), { name: routineName, copyFromId }, (v) => createRoutine(v.name, v.copyFromId));
@@ -159,24 +183,13 @@ export async function deleteRoutineAction(routineId: string): Promise<Result> {
   return act(id, routineId, deleteRoutine);
 }
 
-const time = z.string().transform((v, ctx) => parseTime(v) ?? (ctx.addIssue({ code: 'custom', message: 'time' }), z.NEVER));
-
-export async function savePeriodAction(routineId: string, input: { id?: string; label: string; startsAt: string; endsAt: string }): Promise<Result> {
-  return act(z.object({ routineId: id, input: z.object({ id: id.optional(), label: text(40), startsAt: time, endsAt: time }) }), { routineId, input }, (v) => savePeriod(v.routineId, v.input));
-}
-
-export async function deletePeriodAction(periodId: string): Promise<Result> {
-  return act(id, periodId, deletePeriod);
-}
-
 // ── Absences and proxies ──
 
 const date = z.string().refine(isDate);
 
-export async function saveAbsenceAction(day: string, teacherId: string, periodIds: string[] | null, reason: string): Promise<Result> {
-  return act(z.object({ day: date, teacherId: id, periodIds: z.array(id).max(30).nullable(), reason: text(200) }), { day, teacherId, periodIds, reason }, (v) =>
-    saveAbsence(v.day, v.teacherId, v.periodIds, v.reason),
-  );
+/** Away the whole day (times null) or at these times. */
+export async function saveAbsenceAction(day: string, teacherId: string, times: { startsAt: number; endsAt: number }[] | null, reason: string): Promise<Result> {
+  return act(z.object({ day: date, teacherId: id, times: z.array(span).max(40).nullable(), reason: text(200) }), { day, teacherId, times, reason }, (v) => saveAbsence(v.day, v.teacherId, v.times, v.reason));
 }
 
 export async function deleteAbsenceAction(absenceId: string): Promise<Result> {

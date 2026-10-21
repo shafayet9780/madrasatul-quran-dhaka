@@ -3,18 +3,21 @@
 
 export type Gender = 'male' | 'female';
 export type GenderRule = 'any' | Gender;
-export type GroupKind = 'section' | 'level';
 export type Role = 'main' | 'ta';
+/** class: a class row; own_room: a group with its own room and row (Hifz); seated: a group in a class's room (Quran). */
+export type Placement = 'class' | 'own_room' | 'seated';
 
-export type Subject = { id: string; name: string; sort: number; active: boolean };
-export type Room = { id: string; name: string; shared: boolean };
+export type TimeSpan = { startsAt: number; endsAt: number };
 
+export type ClassType = { id: string; name: string; placement: Placement; sort: number };
+export type Subject = { id: string; typeId: string; name: string; sort: number; active: boolean };
+export type Room = { id: string; name: string };
+
+/** A class (Nursery-A) or a group (Hifz-1 (M), Qaida-A). */
 export type Group = {
   id: string;
   name: string;
-  kind: GroupKind;
-  section: string;
-  band: string;
+  typeId: string;
   sort: number;
   defaultRoomId: string | null;
   genderRule: GenderRule;
@@ -42,25 +45,23 @@ export type Teacher = {
 };
 
 export type RoutineInfo = { id: string; name: string; status: 'draft' | 'active'; createdAt: string };
-export type Period = { id: string; label: string; startsAt: number; endsAt: number };
 
-export type Assignment = {
+/** One lesson: a class or group at a time on some days. A seated group names its host class. */
+export type Assignment = TimeSpan & {
   id: string;
   groupId: string;
-  periodId: string;
+  hostGroupId: string | null;
   days: number[];
   subjectId: string;
   teacherId: string;
   taId: string | null;
-  roomId: string | null;
-  note: string;
 };
 
-/** Everything one routine needs on a page: its periods and assignments plus the shared lists. */
+/** Everything one routine needs on a page: its assignments plus the shared lists. */
 export type RoutineData = {
   routine: RoutineInfo;
-  periods: Period[];
   assignments: Assignment[];
+  types: ClassType[];
   groups: Group[];
   teachers: Teacher[];
   subjects: Subject[];

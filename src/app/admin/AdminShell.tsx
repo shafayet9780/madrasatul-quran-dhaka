@@ -66,6 +66,7 @@ const ROUTINE_SECTIONS: { heading: string; links: NavLink[] }[] = [
       { label: 'রুটিন', href: '/admin/routine', icon: 'calendar' },
       { label: 'ফ্রি টিচার', href: '/admin/routine/free', icon: 'free' },
       { label: 'প্রক্সি', href: '/admin/routine/proxy', icon: 'swap' },
+      { label: 'প্রক্সি তালিকা', href: '/admin/routine/proxy/list', icon: 'list' },
       { label: 'ওয়ার্কলোড', href: '/admin/routine/workload', icon: 'gauge' },
     ],
   },
@@ -73,7 +74,7 @@ const ROUTINE_SECTIONS: { heading: string; links: NavLink[] }[] = [
     heading: 'সেটআপ',
     links: [
       { label: 'টিচার', href: '/admin/routine/teachers', icon: 'people' },
-      { label: 'পিরিয়ড, গ্রুপ, রুম', href: '/admin/routine/setup', icon: 'sliders' },
+      { label: 'সেটআপ', href: '/admin/routine/setup', icon: 'sliders' },
     ],
   },
 ];
@@ -375,7 +376,7 @@ export function AdminShell({ data, admissions, children }: { data: ShellData; ad
 
         <nav className="sv-tabs sv-no-print" aria-label="প্রধান মেনু">
           {TABS[mod].map(([label, href, icon]) => (
-            <Link key={href} href={href} className="sv-tab" aria-current={isCurrent(pathname, href, sections.flatMap((x) => x.links.map((l) => l.href))) ? 'page' : undefined}>
+            <Link key={href} href={href} className="sv-tab" aria-current={isCurrent(pathname, href, TABS[mod].map((t) => t[1])) ? 'page' : undefined}>
               <Icon name={icon} size={22} />
               {label}
             </Link>

@@ -4,7 +4,7 @@ import { notFound } from 'next/navigation';
 import { Pencil } from 'lucide-react';
 import { Button } from '@/components/shadcn/button';
 import { listRoutines, monthProxyCounts, pickRoutine, routineData, teacherProxies } from '@/lib/routine/data';
-import { DAY_NAMES, dateText, daysText, dhakaToday, durationText } from '@/lib/routine/days';
+import { DAY_NAMES, dateText, daysText, dhakaToday, distinctTimes, durationText, sameTime } from '@/lib/routine/days';
 import { busiestDays, salaryPerPeriod, teacherLoads } from '@/lib/routine/load';
 import { toBengaliDigits as bn } from '@/lib/survey/normalise';
 import { PageTop } from '../../../AdminShell';
@@ -35,7 +35,7 @@ export default async function TeacherPage({ params, searchParams }: { params: Pr
     );
   }
   const [proxies, month] = await Promise.all([teacherProxies(id), monthProxyCounts(dhakaToday())]);
-  const load = teacherLoads([teacher], data.assignments, data.periods).get(teacher.id)!;
+  const load = teacherLoads([teacher], data.assignments).get(teacher.id)!;
   const busiest = busiestDays(load);
   const perPeriod = salaryPerPeriod(teacher.salary, load.weighted);
   const groups = new Map(data.groups.map((g) => [g.id, g]));
@@ -50,7 +50,7 @@ export default async function TeacherPage({ params, searchParams }: { params: Pr
         round={false}
         actions={
           <Button asChild variant="outline" className="adm h-9 bg-white shadow-none">
-            <Link href={`/admin/routine/teachers/${id}/edit`}>
+            <Link href={`/admin/routine/teachers?edit=${id}`}>
               <Pencil aria-hidden />
               তথ্য এডিট
             </Link>
@@ -72,27 +72,27 @@ export default async function TeacherPage({ params, searchParams }: { params: Pr
 
         <div className="sv-no-print">
           <StatTiles>
-            <StatTile label="সপ্তাহে পিরিয়ড" value={bn(load.weighted)} unit={load.target ? `/ ${bn(load.target)}` : undefined} sub={`মেইন ${bn(load.main)} · টিএ ${bn(load.ta)} (টিএ অর্ধেক ধরা হয়)`} note={<LoadBadge status={load.status} />} />
+            <StatTile label="সপ্তাহে ক্লাস" value={bn(load.weighted)} unit={load.target ? `/ ${bn(load.target)}` : undefined} sub={`মেইন ${bn(load.main)} · টিএ ${bn(load.ta)} (টিএ অর্ধেক ধরা হয়)`} note={<LoadBadge status={load.status} />} />
             <StatTile label="সপ্তাহে সময়" value={durationText(load.minutesMain + load.minutesTa)} sub={load.minutesTa ? `টিএ হিসেবে ${durationText(load.minutesTa)}` : undefined} />
-            <StatTile label="সবচেয়ে বেশি ক্লাস" value={busiest ? (busiest.days.length === 1 ? DAY_NAMES[busiest.days[0]] : daysText(busiest.days)) : '—'} sub={busiest ? `${bn(busiest.count)}টা পিরিয়ড${busiest.days.length > 1 ? ' করে' : ''}` : undefined} />
-            <StatTile label="এ মাসে প্রক্সি" value={bn(month[id] ?? 0)} unit="টা" sub={perPeriod ? `প্রতি পিরিয়ডে বেতন প্রায় ৳${bn(perPeriod)}` : undefined} />
+            <StatTile label="সবচেয়ে বেশি ক্লাস" value={busiest ? (busiest.days.length === 1 ? DAY_NAMES[busiest.days[0]] : daysText(busiest.days)) : '—'} sub={busiest ? `${bn(busiest.count)}টা ক্লাস${busiest.days.length > 1 ? ' করে' : ''}` : undefined} />
+            <StatTile label="এ মাসে প্রক্সি" value={bn(month[id] ?? 0)} unit="টা" sub={perPeriod ? `প্রতি ক্লাসে বেতন প্রায় ৳${bn(perPeriod)}` : undefined} />
           </StatTiles>
         </div>
 
         <p className="m-0 text-sm">
           <span className="text-muted-foreground">যে সাবজেক্ট পড়ান: </span>
-          {teacher.subjectIds.map((s) => subjects.get(s)).filter(Boolean).join(', ') || '—'}
+          {[...new Set(teacher.subjectIds.map((s) => subjects.get(s)).filter(Boolean))].join(', ') || '—'}
         </p>
 
         {mine.length === 0 ? (
           <EmptyState>এই রুটিনে এখনো কোনো ক্লাস নেই।</EmptyState>
         ) : (
           <WeekTable
-            periods={data.periods}
+            times={distinctTimes(mine)}
             label={`${teacher.shortName}-এর সাপ্তাহিক রুটিন`}
-            cell={(day, period) =>
+            cell={(day, time) =>
               mine
-                .filter((a) => a.periodId === period.id && a.days.includes(day))
+                .filter((a) => sameTime(a, time) && a.days.includes(day))
                 .map((a) => (
                   <div key={a.id} className="rt-entry">
                     <Link href={`/admin/routine/groups/${a.groupId}${q}`} className="font-medium no-underline hover:underline">

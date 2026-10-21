@@ -17,7 +17,7 @@ export function NoRoutine({ children }: { children?: ReactNode }) {
     <EmptyState>
       {children ?? 'এখনো কোনো রুটিন বানানো হয়নি।'}{' '}
       <Link href="/admin/routine/setup" className="text-foreground underline underline-offset-4">
-        সেটআপে গিয়ে রুটিন, পিরিয়ড আর গ্রুপ যোগ করুন।
+        সেটআপে গিয়ে রুটিন ভার্সন, ক্লাস আর গ্রুপ যোগ করুন।
       </Link>
     </EmptyState>
   );
