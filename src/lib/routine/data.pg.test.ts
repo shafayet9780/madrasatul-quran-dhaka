@@ -14,6 +14,7 @@ import {
   listRoutines,
   pickRoutine,
   proxyDay,
+  reorder,
   routineData,
   saveAbsence,
   saveAssignment,
@@ -173,6 +174,21 @@ describe('setup', () => {
     // A seated group has no room of its own.
     const r = await saveGroup({ name: 'qaida-b', typeId: id('quran'), sort: 0, defaultRoomId: id('r402'), genderRule: 'any', active: true });
     expect((await db.select().from(schema.routineGroups)).find((g) => g.id === ok(r).id)?.defaultRoomId).toBeNull();
+  });
+
+  it('reorders types and one type\'s groups, refusing a list that is out of date', async () => {
+    const names = async () => (await db.select().from(schema.routineGroups).orderBy(schema.routineGroups.sort, schema.routineGroups.name)).filter((g) => g.typeId === id('general')).map((g) => g.name);
+    expect(await names()).toEqual(['kg', 'nursery']);
+    ok(await reorder('groups', [id('nursery'), id('kg')]));
+    expect(await names()).toEqual(['nursery', 'kg']);
+    // A group of another type, a missing one, or a repeat refuses and changes nothing.
+    expect(await reorder('groups', [id('kg'), id('qaidaA')])).toMatchObject({ ok: false });
+    expect(await reorder('groups', [id('kg')])).toMatchObject({ ok: false });
+    expect(await reorder('groups', [id('kg'), id('kg')])).toMatchObject({ ok: false });
+    expect(await names()).toEqual(['nursery', 'kg']);
+    const types = (await db.select().from(schema.routineClassTypes).orderBy(schema.routineClassTypes.sort)).map((t) => t.id);
+    ok(await reorder('types', [...types].reverse()));
+    expect((await db.select().from(schema.routineClassTypes).orderBy(schema.routineClassTypes.sort)).map((t) => t.id)).toEqual([...types].reverse());
   });
 
   it('allows the same subject name under two types', async () => {
