@@ -46,7 +46,7 @@
       "pause": "Pause the photos"
     },
     "stats": {
-      "label": "The school in numbers",
+      "label": "The madrasa in numbers",
       "students": "Students",
       "teachers": "Teachers",
       "ratio": "Teachers to students, roughly"
@@ -61,8 +61,8 @@
       "strandBText": "Bangla-medium NCTB, through Dakhil",
       "lede": "An education where the curriculum, syllabus and daily routine give Islamic and general education equal weight.",
       "balanceTitle": "How the balance shifts by stage",
-      "hoursLabel": "School day",
-      "balanceNote": "50-50 is the school’s overall philosophy, not every class’s timetable.",
+      "hoursLabel": "Madrasa day",
+      "balanceNote": "50-50 is the madrasa’s overall philosophy, not every class’s timetable.",
       "subjects": {
         "quran": "Quran",
         "arabic": "Arabic",
@@ -77,7 +77,7 @@
       "mapSub": "Class 1 to Dakhil, with full or partial hifz. Nursery, KG and Class 11 are shown too.",
       "exitsLabel": "After Dakhil:",
       "exits": [
-        "Mutawassita, here",
+        "Mutawassita",
         "College"
       ],
       "note": "Arabic and Islamic studies books from Nursery to Class 8 are written by Al Quraner Vasha Institute (AQVI). Islamic studies are taught in Arabic from Class 6.",
@@ -113,7 +113,7 @@
       "title": "A day in hifz day-care",
       "lede": "From 7:00 am to 8:30 pm, meals included, under full-day supervision. Alongside the Quran: Arabic, Islamic studies and general classes every day, a midday rest, and play after Asr.",
       "note": "Morning times stay the same all year. Afternoon and evening study follows the salat times, so in winter some afternoon study moves to the evening. Home time is always 8:30 pm.",
-      "hoursTitle": "School hours by stage",
+      "hoursTitle": "Madrasa hours by stage",
       "parts": [
         {
           "name": "Morning",
@@ -129,7 +129,7 @@
             },
             {
               "time": "9:00",
-              "title": "Sat sabaq and amukhta preparation (mashq)",
+              "title": "Sat sabaq, amukhta preparation and mashq",
               "gloss": "Amukhta: revising earlier lessons."
             }
           ]
@@ -186,10 +186,10 @@
         }
       ],
       "transport": {
-        "title": "School transport",
+        "title": "Madrasa transport",
         "lede": "Experienced drivers and a responsible attendant on every ride.",
-        "vanAlt": "The school van with Madrasatul Quran livery, the building behind",
-        "vanCaption": "The school’s own van."
+        "vanAlt": "The madrasa van with Madrasatul Quran livery, the building behind",
+        "vanCaption": "The madrasa’s own van."
       }
     },
     "campus": {
@@ -199,18 +199,18 @@
       "buildingAlt": "The eight-storey building with a red MQD sign on the roof",
       "roof": {
         "title": "Girls: the rooftop garden",
-        "sub": "On the roof of the school building",
+        "sub": "On the roof of the madrasa building",
         "placeholder": "[Photo: rooftop garden]"
       },
       "field": {
         "title": "Boys: the field next door",
-        "sub": "Beside the school building",
+        "sub": "Beside the madrasa building",
         "placeholder": "[Photo: the field]"
       },
       "photos": [
         {
           "caption": "The entrance at dusk.",
-          "alt": "School entrance at dusk with its lit signboard"
+          "alt": "Madrasa entrance at dusk with its lit signboard"
         },
         {
           "caption": "A winter morning in class.",
@@ -218,7 +218,7 @@
         }
       ],
       "sketch": {
-        "alt": "Sketch: {station} metro station, then {walk} east on foot to the school",
+        "alt": "Sketch: {station} metro station, then {walk} east on foot to the madrasa",
         "school": "Madrasatul Quran",
         "notToScale": "Not to scale"
       },
@@ -304,11 +304,11 @@
         },
         {
           "q": "What comes after hifz?",
-          "a": "After Hifz runs from Class 6 to Mutawassita, with Dakhil in Classes 9 and 10. After Dakhil: Mutawassita here, or college."
+          "a": "After Hifz runs from Class 6 to Mutawassita, with Dakhil in Classes 9 and 10. After Dakhil: Mutawassita or college."
         },
         {
-          "q": "Does the school run its own transport?",
-          "a": "Yes. School vans run on the Uttara and Mirpur routes."
+          "q": "Does the madrasa run its own transport?",
+          "a": "Yes. Madrasa vans run on the Uttara and Mirpur routes."
         },
         {
           "q": "What are the fees?",
@@ -373,7 +373,7 @@
   "admissions": {
     "meta": {
       "title": "Admissions and fees | Madrasatul Quran",
-      "description": "Admission at Madrasatul Quran in Uttara, Dhaka: classes and ages, how to apply, tuition and fees, discounts and the school’s own transport."
+      "description": "Admission at Madrasatul Quran in Uttara, Dhaka: classes and ages, how to apply, tuition and fees, discounts and the madrasa’s own transport."
     },
     "page": {
       "title": "Admissions and fees",
@@ -509,7 +509,7 @@
       },
       "limited": "During hifz: limited, on a special syllabus",
       "dakhil": "Dakhil",
-      "mutawassita": "Mutawassita, here",
+      "mutawassita": "Mutawassita",
       "orCollege": "or college",
       "note": "Arabic and Islamic studies books for every class, and the general books for Nursery and KG, are by AQVI."
     },
@@ -536,7 +536,7 @@
       "lead": "Three ways after the Dakhil exam.",
       "items": [
         {
-          "tag": "Here, Class 11",
+          "tag": "Class 11",
           "title": "Mutawassita",
           "text": "After the Dakhil exam, students study the Talimi board's Mutawassita syllabus here for one year, then sit the Mutawassita exam."
         },
@@ -561,7 +561,7 @@
   "campus": {
     "meta": {
       "title": "A day on campus | Madrasatul Quran",
-      "description": "A day on the Madrasatul Quran campus, 600 metres east of Uttara Center metro station: the school van at 7:00 am, the entrance, classes, salat, lunch, play and home time at 8:30 pm."
+      "description": "A day on the Madrasatul Quran campus, 600 metres east of Uttara Center metro station: the madrasa van at 7:00 am, the entrance, classes, salat, lunch, play and home time at 8:30 pm."
     },
     "stage": {
       "groups": {
@@ -575,7 +575,7 @@
       },
       "walk": {
         "station": "Station",
-        "school": "School"
+        "school": "Madrasa"
       }
     },
     "close": {
@@ -622,8 +622,8 @@
       "admissions": "Admissions and fees",
       "curriculum": "Curriculum",
       "prospectus": "Download the prospectus",
-      "newsTitle": "School news",
-      "newsText": "Everyday news and events of the school, on Facebook and YouTube."
+      "newsTitle": "Madrasa news",
+      "newsText": "Everyday news and events of the madrasa, on Facebook and YouTube."
     }
   },
   "analytics": {
@@ -1033,7 +1033,7 @@
     },
     "hero": {
       "eyebrow": "Gallery · Photos and videos",
-      "title": "Our school diary",
+      "title": "Our madrasa diary",
       "lead": "From the morning lesson to the home-time bell. Classes, events and days on campus, kept album by album.",
       "facebook": "Facebook page",
       "youtube": "YouTube channel",
@@ -1118,7 +1118,7 @@
     },
     "board": {
       "title": "Notice board",
-      "lead": "The school’s official notices: admissions, holidays, exams and events. Each notice has a number and its own link, to send on WhatsApp.",
+      "lead": "The madrasa’s official notices: admissions, holidays, exams and events. Each notice has a number and its own link, to send on WhatsApp.",
       "pinned": "Important",
       "pinnedTitle": "Important notices",
       "types": "Type of notice",
@@ -1162,7 +1162,7 @@
     },
     "home": {
       "title": "Notice board",
-      "lead": "The school’s latest official notices: admissions, holidays, exams and events.",
+      "lead": "The madrasa’s latest official notices: admissions, holidays, exams and events.",
       "all": "See all notices"
     }
   }

@@ -241,8 +241,8 @@
         "general": 50,
         "arabicIncludesIslam": true,
         "note": {
-          "bengali": "দাখিলের পর দুটি পথ: এখানেই মুতাওয়াসসিতা, অথবা কলেজ।",
-          "english": "After Dakhil, two ways: Mutawassita here, or college."
+          "bengali": "দাখিলের পর দুটি পথ: মুতাওয়াসসিতা অথবা কলেজ।",
+          "english": "After Dakhil, two ways: Mutawassita or college."
         }
       }
     ],
