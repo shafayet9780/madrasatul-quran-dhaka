@@ -149,18 +149,27 @@ export async function saveType(input: Omit<ClassType, 'id' | 'sort'> & { id?: st
   return { ok: true };
 }
 
-/** Swaps a type with its neighbour above (-1) or below (+1); the routine table follows this order. */
-export async function moveType(id: string, step: -1 | 1): Promise<Outcome> {
+const SORTED = { types: routineClassTypes, groups: routineGroups, subjects: routineSubjects };
+
+/**
+ * Puts types, or one type's groups or subjects, in this order (the routine table follows it). The
+ * ids must be the whole list as it is now; anything added or removed meanwhile refuses.
+ */
+export async function reorder(kind: keyof typeof SORTED, ids: string[]): Promise<Outcome> {
   const db = getRoutineDb();
-  const types = await listTypes();
-  const i = types.findIndex((t) => t.id === id);
-  const j = i + step;
-  if (i < 0 || j < 0 || j >= types.length) return { ok: true };
-  const order = [...types];
-  [order[i], order[j]] = [order[j], order[i]];
+  const table = SORTED[kind];
+  let now: string[];
+  if (kind === 'types') now = (await db.select({ id: routineClassTypes.id }).from(routineClassTypes)).map((r) => r.id);
+  else {
+    const typed = table as typeof routineGroups | typeof routineSubjects;
+    const [first] = await db.select({ typeId: typed.typeId }).from(typed).where(eq(typed.id, ids[0]));
+    if (!first) return fail(RACE);
+    now = (await db.select({ id: typed.id }).from(typed).where(eq(typed.typeId, first.typeId))).map((r) => r.id);
+  }
+  if (new Set(ids).size !== ids.length || ids.length !== now.length || !ids.every((x) => now.includes(x))) return fail(RACE);
   await run(
     db,
-    order.map((t, sort) => db.update(routineClassTypes).set({ sort }).where(eq(routineClassTypes.id, t.id))),
+    ids.map((x, sort) => db.update(table).set({ sort }).where(eq(table.id, x))),
   );
   return { ok: true };
 }
