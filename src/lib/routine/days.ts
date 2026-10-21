@@ -1,5 +1,5 @@
 import { toBengaliDigits as bn } from '@/lib/survey/normalise';
-import type { Period } from './types';
+import type { TimeSpan } from './types';
 
 // The school week is Saturday–Thursday (0–5); Friday has no classes.
 
@@ -37,10 +37,20 @@ export function dhakaMinutes(now = new Date()): number {
   return h * 60 + m;
 }
 
-/** The period running at this time, else null. */
-export function periodAt<P extends Pick<Period, 'startsAt' | 'endsAt'>>(periods: P[], minutes: number): P | null {
-  return periods.find((p) => minutes >= p.startsAt && minutes < p.endsAt) ?? null;
+/** Whether a time is running at this minute. */
+export const runningAt = (span: TimeSpan, minutes: number) => minutes >= span.startsAt && minutes < span.endsAt;
+
+/** Two times overlap (touching ends don't: 9:00–9:45 and 9:45–10:30 are fine). */
+export const overlaps = (a: TimeSpan, b: TimeSpan) => a.startsAt < b.endsAt && b.startsAt < a.endsAt;
+
+/** The distinct times among these, by start then end (the columns of the routine table). */
+export function distinctTimes(spans: TimeSpan[]): TimeSpan[] {
+  const seen = new Map<string, TimeSpan>();
+  for (const s of spans) seen.set(`${s.startsAt}-${s.endsAt}`, { startsAt: s.startsAt, endsAt: s.endsAt });
+  return [...seen.values()].sort((a, b) => a.startsAt - b.startsAt || a.endsAt - b.endsAt);
 }
+
+export const sameTime = (a: TimeSpan, b: TimeSpan) => a.startsAt === b.startsAt && a.endsAt === b.endsAt;
 
 export function isDate(value: unknown): value is string {
   return typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value) && !Number.isNaN(Date.parse(`${value}T00:00:00Z`));
@@ -59,28 +69,45 @@ export function timeText(minutes: number): string {
   return bn(`${h}:${String(minutes % 60).padStart(2, '0')}`);
 }
 
-export function periodTime(p: Pick<Period, 'startsAt' | 'endsAt'>): string {
-  return `${timeText(p.startsAt)}–${timeText(p.endsAt)}`;
+/** A time for a typed box, so it reads back the same: as the school writes it, or "১৯:০০" / "০৬:৩০" when that would be read otherwise. */
+export function inputTime(minutes: number): string {
+  const plain = timeText(minutes);
+  if (parseTime(plain) === minutes) return plain;
+  return bn(`${String(Math.floor(minutes / 60)).padStart(2, '0')}:${String(minutes % 60).padStart(2, '0')}`);
 }
 
-/** The time, and the label when there is one: "৯:০০–৯:৪৫ · কুরআন". */
-export function periodText(p: Period): string {
-  return p.label ? `${periodTime(p)} · ${p.label}` : periodTime(p);
+/** "৯:০০–৯:৪৫" */
+export function spanText(s: TimeSpan): string {
+  return `${timeText(s.startsAt)}–${timeText(s.endsAt)}`;
 }
 
-export const minutesOf = (p: Pick<Period, 'startsAt' | 'endsAt'>) => p.endsAt - p.startsAt;
+export const minutesOf = (s: TimeSpan) => s.endsAt - s.startsAt;
 
-/** "HH:MM" (24-hour, as a time input gives it) → minutes, or null. */
+/**
+ * A typed clock time → minutes, or null: "১০:৪৫", "10.45", "1045" or "০৮০০". The school writes
+ * times without am/pm, so 1–6 o'clock are the afternoon; 13–23, and a leading zero ("০৬:৩০"), are
+ * taken as typed.
+ */
 export function parseTime(value: string): number | null {
-  const m = /^(\d{1,2}):(\d{2})$/.exec(value.trim());
+  const latin = value.trim().replace(/[০-৯]/g, (d) => String('০১২৩৪৫৬৭৮৯'.indexOf(d)));
+  const m = /^(\d{1,2})[:.](\d{2})$/.exec(latin) ?? /^(\d{1,2})(\d{2})$/.exec(latin);
   if (!m) return null;
-  const h = Number(m[1]);
+  let h = Number(m[1]);
   const min = Number(m[2]);
+  if (h >= 1 && h <= 6 && m[1].length === 1) h += 12;
   return h < 24 && min < 60 ? h * 60 + min : null;
 }
 
-export function timeInput(minutes: number): string {
-  return `${String(Math.floor(minutes / 60)).padStart(2, '0')}:${String(minutes % 60).padStart(2, '0')}`;
+/**
+ * A typed start and end → a time, or null. After an afternoon start, an end that reads earlier is
+ * in the evening ("৩:০০"–"৮:০০" is 3–8 pm, as the school writes the evening Hifz).
+ */
+export function parseSpan(start: string, end: string): { startsAt: number; endsAt: number } | null {
+  const startsAt = parseTime(start);
+  let endsAt = parseTime(end);
+  if (startsAt === null || endsAt === null) return null;
+  if (endsAt <= startsAt && startsAt >= 720 && endsAt < 720) endsAt += 720;
+  return endsAt > startsAt ? { startsAt, endsAt } : null;
 }
 
 /** 930 → "১৫ ঘণ্টা ৩০ মিনিট" */

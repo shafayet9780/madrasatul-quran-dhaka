@@ -1,8 +1,9 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { effectiveRoomId } from '@/lib/routine/clash';
 import { listRoutines, pickRoutine, routineData } from '@/lib/routine/data';
+import { toBengaliDigits as bn } from '@/lib/survey/normalise';
+import { distinctTimes, sameTime } from '@/lib/routine/days';
 import { PageTop } from '../../../AdminShell';
 import { ReportTools } from '../../../reports/ReportTools';
 import { EmptyState, PageBody, PageTitle } from '../../../ui';
@@ -36,9 +37,10 @@ export default async function GroupPage({ params, searchParams }: { params: Prom
   const rooms = new Map(data.rooms.map((x) => [x.id, x.name]));
   const subjects = new Map(data.subjects.map((s) => [s.id, s.name]));
   const teachers = new Map(data.teachers.map((t) => [t.id, t.shortName]));
-  const mine = data.assignments.filter((a) => a.groupId === id);
-  const used = data.periods.filter((p) => mine.some((a) => a.periodId === p.id));
+  // A class's own lessons and the groups that sit in its room; a group's lessons wherever it sits.
+  const mine = data.assignments.filter((a) => a.groupId === id || a.hostGroupId === id);
   const room = group.defaultRoomId ? rooms.get(group.defaultRoomId) : null;
+  const type = data.types.find((t) => t.id === group.typeId);
   const q = routine && routine.status !== 'active' ? `?r=${routine.id}` : '';
 
   return (
@@ -46,7 +48,7 @@ export default async function GroupPage({ params, searchParams }: { params: Prom
       <PageTop crumbs={crumbs} round={false} />
       <PageBody className="rt-a4l">
         <div className="flex flex-wrap items-end justify-between gap-3">
-          <PageTitle sub={routineSub(data.routine, [room && `রুম ${room}`, group.kind === 'level' ? 'লেভেল গ্রুপ' : '', RULE[group.genderRule]].filter(Boolean).join(' · '))}>{group.name}</PageTitle>
+          <PageTitle sub={routineSub(data.routine, [type && (type.placement === 'class' ? `${type.name} ক্লাস` : `${type.name} গ্রুপ`), room && `রুম ${bn(room)}`, RULE[group.genderRule]].filter(Boolean).join(' · '))}>{group.name}</PageTitle>
           <div className="flex flex-wrap items-center gap-3">
             <RoutinePicker routines={routines} current={data.routine.id} />
             <ReportTools printLabel="প্রিন্ট (A4)" />
@@ -61,15 +63,20 @@ export default async function GroupPage({ params, searchParams }: { params: Prom
           </EmptyState>
         ) : (
           <WeekTable
-            periods={used}
+            times={distinctTimes(mine)}
             label={`${group.name}-এর সাপ্তাহিক রুটিন`}
-            cell={(day, period) =>
+            cell={(day, time) =>
               mine
-                .filter((a) => a.periodId === period.id && a.days.includes(day))
+                .filter((a) => sameTime(a, time) && a.days.includes(day))
                 .map((a) => {
-                  const own = effectiveRoomId(a, groups);
+                  const host = a.hostGroupId && a.groupId === id ? groups.get(a.hostGroupId) : undefined;
                   return (
                     <div key={a.id} className="rt-entry">
+                      {a.groupId !== id && (
+                        <Link href={`/admin/routine/groups/${a.groupId}${q}`} className="font-semibold no-underline hover:underline">
+                          {groups.get(a.groupId)?.name}
+                        </Link>
+                      )}
                       <span className="font-medium">{subjects.get(a.subjectId)}</span>
                       <span>
                         <Link href={`/admin/routine/teachers/${a.teacherId}${q}`} className="no-underline hover:underline">
@@ -84,7 +91,7 @@ export default async function GroupPage({ params, searchParams }: { params: Prom
                           </>
                         )}
                       </span>
-                      {own && own !== group.defaultRoomId && <span className="rt-days">রুম {rooms.get(own)}</span>}
+                      {host && <span className="rt-days">{host.name}-এর রুমে</span>}
                     </div>
                   );
                 })

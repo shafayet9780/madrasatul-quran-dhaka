@@ -1,51 +1,48 @@
-import { daysText } from './days';
-import type { Assignment, Group, Room, Subject, Teacher } from './types';
+import { daysText, overlaps, spanText } from './days';
+import type { Assignment, ClassType, Group, Subject, Teacher } from './types';
 
-// Clash rules (docs/class-routine.md §3): in one period on one day a group has one class, a
-// teacher is in one place (as main teacher or TA), and a room holds one group unless it is shared.
-// The same rules fill routine_slots, whose primary key enforces them in the database.
+// Clash rules (docs/class-routine.md §3): at overlapping times on one day a class or group has one
+// lesson, a teacher is in one place (as main teacher or TA), and a room (a row of the routine table:
+// a class's room, or an own-room group's) holds one lesson. The same rules fill routine_slots, whose
+// exclusion constraint enforces them in the database.
 
 export type SlotKind = 'group' | 'teacher' | 'room';
 export type Occupancy = { kind: SlotKind; refId: string; day: number };
 export type Draft = Omit<Assignment, 'id'> & { id?: string };
 
-export type Lookup = { groups: Map<string, Group>; rooms: Map<string, Room>; teachers: Map<string, Teacher>; subjects: Map<string, Subject> };
+export type Lookup = { types: Map<string, ClassType>; groups: Map<string, Group>; teachers: Map<string, Teacher>; subjects: Map<string, Subject> };
 
-export function lookup(data: { groups: Group[]; rooms: Room[]; teachers: Teacher[]; subjects: Subject[] }): Lookup {
+export function lookup(data: { types: ClassType[]; groups: Group[]; teachers: Teacher[]; subjects: Subject[] }): Lookup {
   return {
+    types: new Map(data.types.map((t) => [t.id, t])),
     groups: new Map(data.groups.map((g) => [g.id, g])),
-    rooms: new Map(data.rooms.map((r) => [r.id, r])),
     teachers: new Map(data.teachers.map((t) => [t.id, t])),
     subjects: new Map(data.subjects.map((s) => [s.id, s])),
   };
 }
 
-/** The assignment's own room, else its group's default room. */
-export function effectiveRoomId(a: Pick<Assignment, 'roomId' | 'groupId'>, groups: Map<string, Group>): string | null {
-  return a.roomId ?? groups.get(a.groupId)?.defaultRoomId ?? null;
-}
+/** The row (room) a lesson takes: its host class's for a seated group, else its own. */
+export const rowOf = (a: Pick<Assignment, 'groupId' | 'hostGroupId'>) => a.hostGroupId ?? a.groupId;
 
-/** What an assignment takes up, one entry per day. */
-export function occupancy(a: Draft, groups: Map<string, Group>, rooms: Map<string, Room>): Occupancy[] {
-  const room = effectiveRoomId(a, groups);
-  const roomTaken = room !== null && !rooms.get(room)?.shared;
+/** What a lesson takes up, one entry per day. */
+export function occupancy(a: Draft): Occupancy[] {
   return [...new Set(a.days)].flatMap((day) => [
     { kind: 'group' as const, refId: a.groupId, day },
+    { kind: 'room' as const, refId: rowOf(a), day },
     { kind: 'teacher' as const, refId: a.teacherId, day },
     ...(a.taId ? [{ kind: 'teacher' as const, refId: a.taId, day }] : []),
-    ...(roomTaken ? [{ kind: 'room' as const, refId: room, day }] : []),
   ]);
 }
 
 export type Clash = { kind: SlotKind; refId: string; days: number[]; other: Assignment };
 
-/** Every clash between a new or edited assignment and the rest of its routine. */
-export function findClashes(candidate: Draft, existing: Assignment[], groups: Map<string, Group>, rooms: Map<string, Room>): Clash[] {
-  const mine = occupancy(candidate, groups, rooms);
+/** Every clash between a new or edited lesson and the rest of its routine. */
+export function findClashes(candidate: Draft, existing: Assignment[]): Clash[] {
+  const mine = occupancy(candidate);
   const clashes: Clash[] = [];
   for (const other of existing) {
-    if (other.id === candidate.id || other.periodId !== candidate.periodId) continue;
-    const theirs = new Set(occupancy(other, groups, rooms).map((o) => `${o.kind}:${o.refId}:${o.day}`));
+    if (other.id === candidate.id || !overlaps(other, candidate)) continue;
+    const theirs = new Set(occupancy(other).map((o) => `${o.kind}:${o.refId}:${o.day}`));
     const found = new Map<string, Clash>();
     for (const o of mine) {
       if (!theirs.has(`${o.kind}:${o.refId}:${o.day}`)) continue;
@@ -54,18 +51,22 @@ export function findClashes(candidate: Draft, existing: Assignment[], groups: Ma
       clash.days.push(o.day);
       found.set(key, clash);
     }
+    // A class's own lesson takes its group and its room, which are the same thing: say it once.
+    if (found.has(`group:${candidate.groupId}`)) found.delete(`room:${candidate.groupId}`);
     clashes.push(...found.values());
   }
   return clashes;
 }
 
-/** "মুঈন শনি–সোম Qaida-C-তে আছেন।" */
+/** "Lubna শনি–সোম ৯:০০–৯:৪৫-এ Qaida-A-তে আছেন।" */
 export function clashText(c: Clash, names: Lookup): string {
   const days = daysText(c.days);
-  const otherGroup = names.groups.get(c.other.groupId)?.name ?? '';
-  if (c.kind === 'group') return `${names.groups.get(c.refId)?.name ?? ''}-এর এই পিরিয়ডে ${days} আগে থেকেই ক্লাস আছে।`;
-  if (c.kind === 'teacher') return `${names.teachers.get(c.refId)?.shortName ?? ''} ${days} এই পিরিয়ডে ${otherGroup}-তে আছেন।`;
-  return `রুম ${names.rooms.get(c.refId)?.name ?? ''} ${days} এই পিরিয়ডে ${otherGroup} ব্যবহার করছে।`;
+  const when = spanText(c.other);
+  const other = names.groups.get(c.other.groupId)?.name ?? '';
+  const subject = names.subjects.get(c.other.subjectId)?.name ?? '';
+  if (c.kind === 'group') return `${names.groups.get(c.refId)?.name ?? ''}-এর ${days} ${when}-এ আগে থেকেই ${subject} আছে।`;
+  if (c.kind === 'teacher') return `${names.teachers.get(c.refId)?.shortName ?? ''} ${days} ${when}-এ ${other}-এ আছেন।`;
+  return `${names.groups.get(c.refId)?.name ?? ''}-এর রুমে ${days} ${when}-এ ${c.other.groupId === c.refId ? subject : other} চলে।`;
 }
 
 /** Things allowed after confirming: a subject the teacher isn't listed for, or a broken gender rule. */
@@ -83,7 +84,15 @@ export function assignmentWarnings(a: Draft, names: Lookup): string[] {
   return warnings;
 }
 
-/** Periods in one routine may not overlap; returns the first one this time range runs into. */
-export function overlappingPeriod<P extends { id: string; startsAt: number; endsAt: number }>(range: { id?: string; startsAt: number; endsAt: number }, periods: P[]): P | undefined {
-  return periods.find((p) => p.id !== range.id && range.startsAt < p.endsAt && p.startsAt < range.endsAt);
+/**
+ * Where a lesson may sit, or why not: a seated group (Quran, Arabic) needs a host class; a class or
+ * own-room group sits in its own row, with no host.
+ */
+export function hostProblem(a: Pick<Draft, 'groupId' | 'hostGroupId'>, names: Lookup): string | null {
+  const group = names.groups.get(a.groupId);
+  const placement = group && names.types.get(group.typeId)?.placement;
+  if (placement !== 'seated') return a.hostGroupId ? 'এই ক্লাস বা গ্রুপ নিজের রুমে বসে।' : null;
+  const host = a.hostGroupId ? names.groups.get(a.hostGroupId) : undefined;
+  if (!host) return 'কোন ক্লাসের রুমে বসে, সেটা সিলেক্ট করুন।';
+  return names.types.get(host.typeId)?.placement === 'class' ? null : 'গ্রুপ শুধু কোনো ক্লাসের রুমে বসতে পারে।';
 }

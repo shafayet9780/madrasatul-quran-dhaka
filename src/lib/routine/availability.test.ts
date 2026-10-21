@@ -1,9 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { dayBoard, editorChoices, proxyChoices } from './availability';
-import { dhakaMinutes, periodAt } from './days';
-import { assignment, group, period, teacher } from './testing/sample';
+import { dhakaMinutes, runningAt } from './days';
+import { assignment, group, teacher } from './testing/sample';
 
-const periods = [period('p1', 540, 585), period('p2', 600, 645), period('eve', 900, 1200)];
+const p1 = { startsAt: 540, endsAt: 585 };
+const p2 = { startsAt: 600, endsAt: 645 };
 const groups = new Map([group('qaida-a'), group('two-f'), group('one-a'), group('hifz-m', { genderRule: 'male' })].map((g) => [g.id, g]));
 const teachers = [
   teacher('mueen', { gender: 'male', subjectIds: ['quran'] }),
@@ -13,17 +14,17 @@ const teachers = [
   teacher('lubna', { subjectIds: ['quran'] }),
   teacher('science-1', { isVacancy: true, gender: null, subjectIds: ['quran'] }),
 ];
-const qaidaA = assignment({ groupId: 'qaida-a', periodId: 'p1', teacherId: 'mueen', subjectId: 'quran', days: [1, 2, 3] });
-const english = assignment({ groupId: 'one-a', periodId: 'p1', teacherId: 'kamal', subjectId: 'english' });
-const islam = assignment({ groupId: 'two-f', periodId: 'p2', teacherId: 'nasreen', subjectId: 'islam' });
+const qaidaA = assignment({ groupId: 'qaida-a', hostGroupId: 'two-f', teacherId: 'mueen', subjectId: 'quran', days: [1, 2, 3] });
+const english = assignment({ groupId: 'one-a', teacherId: 'kamal', subjectId: 'english' });
+const islam = assignment({ groupId: 'two-f', ...p2, teacherId: 'nasreen', subjectId: 'islam' });
 const all = [qaidaA, english, islam];
 
 describe('proxy choices', () => {
   const need = { assignment: qaidaA, role: 'main' as const, absentId: 'mueen' };
-  const ctx = { teachers, assignments: all, periods, day: 1, absences: [{ teacherId: 'mueen', periodIds: null }], proxies: [], monthCounts: new Map<string, number>(), groups };
+  const ctx = { teachers, assignments: all, day: 1, absences: [{ teacherId: 'mueen', times: null }], proxies: [], monthCounts: new Map<string, number>(), groups };
 
   it('lists free teachers green, subject teachers first, and the rest red with why', () => {
-    const choices = proxyChoices(need, { ...ctx, absences: [...ctx.absences, { teacherId: 'lubna', periodIds: ['p1'] }] });
+    const choices = proxyChoices(need, { ...ctx, absences: [...ctx.absences, { teacherId: 'lubna', times: [p1] }] });
     expect(choices.map((c) => [c.teacher.id, c.free, c.canTeach, c.why])).toEqual([
       ['nasreen', true, true, ''],
       ['dolon', true, false, ''],
@@ -37,48 +38,51 @@ describe('proxy choices', () => {
     expect(proxyChoices(need, { ...ctx, today: false })[0].meta).toMatch(/^এ দিন /);
   });
 
-  it('names another proxy in the same period', () => {
-    const other = [{ id: 'x', assignmentId: islam.id, role: 'main' as const, periodId: 'p1', proxyTeacherId: 'dolon' }];
+  it('names another proxy at an overlapping time', () => {
+    const other = [{ id: 'x', assignmentId: islam.id, role: 'main' as const, startsAt: 570, endsAt: 615, proxyTeacherId: 'dolon' }];
     expect(proxyChoices(need, { ...ctx, proxies: other }).find((c) => c.teacher.id === 'dolon')).toMatchObject({ free: false, why: 'two-f-এ প্রক্সি' });
   });
 });
 
 describe('editor choices', () => {
   it('turns a teacher red only on a clash on the chosen days, naming the days when partial', () => {
-    const choices = editorChoices({ teachers, assignments: all, groups, groupId: 'qaida-a', periodId: 'p1', days: [0, 1, 2, 3, 4, 5], subjectId: 'quran' });
+    const choices = editorChoices({ teachers, assignments: all, groups, groupId: 'qaida-a', span: p1, days: [0, 1, 2, 3, 4, 5], subjectId: 'quran' });
     const by = Object.fromEntries(choices.map((c) => [c.teacher.id, c]));
     expect(by.mueen).toMatchObject({ free: false, why: 'qaida-a-এ ক্লাস (রবি–মঙ্গল)' });
     expect(by.kamal).toMatchObject({ free: false, why: 'one-a-এ ক্লাস' });
     expect(by['science-1']).toMatchObject({ free: true, meta: 'খালি পোস্ট · সপ্তাহে ০টা ক্লাস' });
     // A group's gender rule stays a note on a free teacher; the server asks on save.
-    const hifz = editorChoices({ teachers, assignments: all, groups, groupId: 'hifz-m', periodId: 'p2', days: [0], subjectId: 'quran' });
+    const hifz = editorChoices({ teachers, assignments: all, groups, groupId: 'hifz-m', span: p2, days: [0], subjectId: 'quran' });
     expect(hifz.find((c) => c.teacher.id === 'lubna')).toMatchObject({ free: true, meta: 'এই গ্রুপে শুধু পুরুষ টিচার · সপ্তাহে ০টা ক্লাস' });
     expect(hifz.find((c) => c.teacher.id === 'mueen')?.meta).toBe('সপ্তাহে ৩টা ক্লাস');
     // Mueen is free on the days he has no class.
-    expect(editorChoices({ teachers, assignments: all, groups, groupId: 'qaida-a', periodId: 'p1', days: [4, 5], subjectId: 'quran' }).find((c) => c.teacher.id === 'mueen')?.free).toBe(true);
+    expect(editorChoices({ teachers, assignments: all, groups, groupId: 'qaida-a', span: p1, days: [4, 5], subjectId: 'quran' }).find((c) => c.teacher.id === 'mueen')?.free).toBe(true);
     // Editing a row doesn't clash with itself.
-    expect(editorChoices({ teachers, assignments: all, groups, groupId: 'qaida-a', periodId: 'p1', days: [1], subjectId: 'quran', exceptId: qaidaA.id }).find((c) => c.teacher.id === 'mueen')?.free).toBe(true);
+    expect(editorChoices({ teachers, assignments: all, groups, groupId: 'qaida-a', span: p1, days: [1], subjectId: 'quran', exceptId: qaidaA.id }).find((c) => c.teacher.id === 'mueen')?.free).toBe(true);
   });
 
   it('puts the free ones first, lightest week first', () => {
-    const ids = editorChoices({ teachers, assignments: all, groups, groupId: 'qaida-a', periodId: 'p2', days: [0], subjectId: 'islam' }).map((c) => [c.teacher.id, c.free]);
+    const ids = editorChoices({ teachers, assignments: all, groups, groupId: 'qaida-a', span: p2, days: [0], subjectId: 'islam' }).map((c) => [c.teacher.id, c.free]);
     expect(ids[ids.length - 1]).toEqual(['nasreen', false]);
     expect(ids.slice(0, 3).map(([id]) => id)).toEqual(['dolon', 'lubna', 'science-1']);
   });
 });
 
 describe('day board', () => {
-  const proxies = [{ id: 'x', assignmentId: qaidaA.id, role: 'main' as const, periodId: 'p1', proxyTeacherId: 'dolon' }];
-  const ctx = { teachers, assignments: all, periods, day: 1, absences: [{ teacherId: 'mueen', periodIds: null }], proxies };
-  const kinds = (b: ReturnType<typeof dayBoard>, i: number) => Object.fromEntries([...b.periods[i].cells].map(([id, c]) => [id, c.kind === 'free' ? (c.fits ? 'fits' : 'free') : c.kind]));
+  const proxies = [{ id: 'x', assignmentId: qaidaA.id, role: 'main' as const, ...p1, proxyTeacherId: 'dolon' }];
+  const ctx = { teachers, assignments: all, day: 1, absences: [{ teacherId: 'mueen', times: null }], proxies };
+  const kinds = (b: ReturnType<typeof dayBoard>, i: number) => Object.fromEntries([...b.times[i].cells].map(([id, c]) => [id, c.kind === 'free' ? (c.fits ? 'fits' : 'free') : c.kind]));
 
-  it('gives every teacher a state in every period, and fits by the subjects taught then', () => {
+  it('gives every teacher a state at every lesson time of the day, and fits by the subjects taught then', () => {
     const b = dayBoard(ctx);
     expect(b.teachers.map((t) => t.id)).not.toContain('science-1');
     expect(kinds(b, 0)).toEqual({ mueen: 'absent', nasreen: 'fits', dolon: 'proxy', kamal: 'class', lubna: 'away' });
     // At 10:00 Dolon is at school (she has the 9:00 proxy) and Islam is taught then; Kamal teaches English.
     expect(kinds(b, 1)).toEqual({ mueen: 'absent', nasreen: 'class', dolon: 'fits', kamal: 'free', lubna: 'away' });
-    expect(b.periods.map((p) => p.free)).toEqual([1, 2, 0]);
+    expect(b.times.map((t) => [t.time.startsAt, t.free])).toEqual([
+      [540, 1],
+      [600, 2],
+    ]);
     expect(b.classes.get('dolon')).toBe(1);
   });
 
@@ -88,9 +92,9 @@ describe('day board', () => {
 });
 
 describe('now', () => {
-  it('reads Dhaka time and finds the running period', () => {
+  it('reads Dhaka time and knows what is running', () => {
     expect(dhakaMinutes(new Date('2026-10-19T03:30:00Z'))).toBe(9 * 60 + 30);
-    expect(periodAt(periods, 560)?.id).toBe('p1');
-    expect(periodAt(periods, 590)).toBeNull();
+    expect(runningAt(p1, 560)).toBe(true);
+    expect(runningAt(p1, 585)).toBe(false);
   });
 });

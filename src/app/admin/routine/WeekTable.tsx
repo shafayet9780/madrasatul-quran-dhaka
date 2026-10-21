@@ -1,10 +1,10 @@
 import type { ReactNode } from 'react';
-import { DAY_NAMES, DAYS, periodTime } from '@/lib/routine/days';
-import type { Period } from '@/lib/routine/types';
+import { DAY_NAMES, DAYS, spanText } from '@/lib/routine/days';
+import type { TimeSpan } from '@/lib/routine/types';
 
-// One group's or one teacher's week: days down, periods across (A4 landscape on paper).
+// One group's or one teacher's week: days down, its times across (A4 landscape on paper).
 
-export function WeekTable({ periods, cell, label }: { periods: Period[]; cell: (day: number, period: Period) => ReactNode; label: string }) {
+export function WeekTable({ times, cell, label }: { times: TimeSpan[]; cell: (day: number, time: TimeSpan) => ReactNode; label: string }) {
   return (
     <div className="rt-scroll overflow-x-auto rounded-xl border bg-card">
       <table className="rt-grid w-full" aria-label={label}>
@@ -13,10 +13,9 @@ export function WeekTable({ periods, cell, label }: { periods: Period[]; cell: (
             <th scope="col" className="text-left">
               দিন
             </th>
-            {periods.map((p) => (
-              <th key={p.id} scope="col" className="text-left">
-                {periodTime(p)}
-                {p.label && <div className="text-[11.5px] font-normal text-muted-foreground">{p.label}</div>}
+            {times.map((t) => (
+              <th key={`${t.startsAt}-${t.endsAt}`} scope="col" className="text-left">
+                {spanText(t)}
               </th>
             ))}
           </tr>
@@ -25,9 +24,9 @@ export function WeekTable({ periods, cell, label }: { periods: Period[]; cell: (
           {DAYS.map((day) => (
             <tr key={day}>
               <th scope="row">{DAY_NAMES[day]}</th>
-              {periods.map((p) => (
-                <td key={p.id}>
-                  <div className="rt-cell">{cell(day, p)}</div>
+              {times.map((t) => (
+                <td key={`${t.startsAt}-${t.endsAt}`}>
+                  <div className="rt-cell">{cell(day, t)}</div>
                 </td>
               ))}
             </tr>

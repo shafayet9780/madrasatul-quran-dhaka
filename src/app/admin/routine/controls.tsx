@@ -1,9 +1,9 @@
 'use client';
 
-import { useEffect, useState, useTransition, type ComponentProps, type ReactNode } from 'react';
+import { useEffect, useState, useTransition, type ComponentProps, type KeyboardEvent, type ReactNode } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { DialogContent } from '@/components/shadcn/dialog';
+import { DialogContent, DialogDescription, DialogTitle } from '@/components/shadcn/dialog';
 import { dayOfDate, dhakaToday } from '@/lib/routine/days';
 import { cn } from '@/lib/utils';
 import type { Result } from './actions';
@@ -83,6 +83,77 @@ export function StatusLine({ message }: { message: NonNullable<Message> }) {
 /** A dialog inside the admin's look (it is portalled outside the page's `.adm` scope). */
 export function RoutineDialog({ className, ...props }: ComponentProps<typeof DialogContent>) {
   return <DialogContent className={cn('adm max-h-[92dvh] overflow-y-auto bg-white text-[14px] sm:max-w-xl', className)} style={{ fontFamily: 'var(--font-english), var(--font-bengali), system-ui, sans-serif' }} {...props} />;
+}
+
+/**
+ * A form that slides in from the right (add or edit), the page still visible behind it. Header,
+ * scrolling body and a footer for the buttons; inside the admin's look like RoutineDialog.
+ */
+export function SidePanel({ title, description, footer, children }: { title: ReactNode; description?: ReactNode; footer: ReactNode; children: ReactNode }) {
+  return (
+    <DialogContent
+      className="adm top-0 right-0 left-auto flex h-dvh max-h-dvh w-full max-w-[min(480px,100vw)] translate-x-0 translate-y-0 flex-col gap-0 rounded-none border-0 border-l bg-white p-0 text-[14px] data-[state=open]:zoom-in-100 data-[state=open]:slide-in-from-right data-[state=closed]:zoom-out-100 data-[state=closed]:slide-out-to-right sm:max-w-[480px]"
+      style={{ fontFamily: 'var(--font-english), var(--font-bengali), system-ui, sans-serif' }}
+    >
+      <div className="border-b px-5 py-4 pr-12">
+        <DialogTitle className="text-lg">{title}</DialogTitle>
+        {description && <DialogDescription className="mt-1">{description}</DialogDescription>}
+      </div>
+      <div className="flex flex-1 flex-col gap-5 overflow-y-auto px-5 py-4">{children}</div>
+      <div className="flex flex-wrap items-center gap-2 border-t bg-[#fbfaf9] px-5 py-3">{footer}</div>
+    </DialogContent>
+  );
+}
+
+
+/** A radio group of buttons: one tab stop, arrow keys move the choice (as native radios do). */
+export function Segmented<T extends string | number>({ label, value, options, onChange }: { label: string; value: T; options: [T, string][]; onChange: (v: T) => void }) {
+  const move = (e: KeyboardEvent<HTMLDivElement>) => {
+    const step = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 }[e.key];
+    if (!step) return;
+    e.preventDefault();
+    const i = options.findIndex(([v]) => v === value);
+    const next = (i + step + options.length) % options.length;
+    onChange(options[next][0]);
+    (e.currentTarget.children[next] as HTMLElement | undefined)?.focus();
+  };
+  return (
+    <div role="radiogroup" aria-label={label} onKeyDown={move} className="inline-flex shrink-0 gap-0.5 rounded-lg bg-muted p-[3px]">
+      {options.map(([v, text]) => (
+        <button
+          key={v}
+          type="button"
+          role="radio"
+          aria-checked={value === v}
+          tabIndex={value === v ? 0 : -1}
+          onClick={() => onChange(v)}
+          className={cn('h-[30px] whitespace-nowrap rounded-md px-3 text-sm font-medium', value === v ? 'bg-white text-foreground shadow-[0_1px_2px_rgba(23,23,23,0.08)]' : 'text-muted-foreground hover:text-foreground')}
+        >
+          {text}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+/** A row of choices as toggle chips (one or several on). */
+export function Chips<T extends string | number>({ label, options, isOn, onToggle, className }: { label: string; options: { value: T; label: ReactNode; title?: string }[]; isOn: (v: T) => boolean; onToggle: (v: T) => void; className?: string }) {
+  return (
+    <div role="group" aria-label={label} className={cn('flex flex-wrap gap-1.5', className)}>
+      {options.map((o) => (
+        <button
+          key={o.value}
+          type="button"
+          title={o.title}
+          aria-pressed={isOn(o.value)}
+          onClick={() => onToggle(o.value)}
+          className={cn('h-9 rounded-full border px-3 text-sm', isOn(o.value) ? 'border-primary bg-primary text-primary-foreground' : 'bg-white hover:border-input')}
+        >
+          {o.label}
+        </button>
+      ))}
+    </div>
+  );
 }
 
 /** Sets one search parameter (or removes it with null), keeping the rest. */
