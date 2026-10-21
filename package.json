@@ -17,7 +17,6 @@
     "db:migrate": "drizzle-kit migrate",
     "admin:screenshots": "tsx scripts/admin-screenshots.ts",
     "survey:fixtures": "tsx --conditions=react-server scripts/survey-dev-fixtures.ts",
-    "routine:import": "tsx --conditions=react-server scripts/routine-import.ts",
     "setup:fees": "tsx scripts/setup-fees.ts",
     "setup:admissions": "tsx scripts/setup-admissions.ts",
     "setup:admissions-updates": "tsx scripts/setup-admissions-updates.ts",

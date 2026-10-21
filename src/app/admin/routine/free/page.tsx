@@ -2,8 +2,8 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { dayBoard, type BoardCell } from '@/lib/routine/availability';
 import { proxyDay } from '@/lib/routine/data';
-import { dateText, dayOfDate, dhakaMinutes, dhakaToday, isDate, periodAt, periodTime } from '@/lib/routine/days';
-import type { Period, Teacher } from '@/lib/routine/types';
+import { dateText, dayOfDate, dhakaMinutes, dhakaToday, isDate, runningAt, spanText } from '@/lib/routine/days';
+import type { Teacher, TimeSpan } from '@/lib/routine/types';
 import { toBengaliDigits as bn } from '@/lib/survey/normalise';
 import { cn } from '@/lib/utils';
 import { PageTop } from '../../AdminShell';
@@ -14,8 +14,8 @@ import { NoRoutine, routineSub } from '../ui';
 export const metadata: Metadata = { title: 'ফ্রি টিচার' };
 export const dynamic = 'force-dynamic';
 
-// Who is free in every period of a date (docs/class-routine.md §5). Two views: নাম (a column per
-// period, every teacher a coloured chip) and টেবিল (a row per teacher). Solid green: free and teaches
+// Who is free at every lesson time of a date (docs/class-routine.md §5). Two views: নাম (a column
+// per time, every teacher a coloured chip) and টেবিল (a row per teacher). Solid green: free and teaches
 // a subject taught then (or the chosen one); dashed: free, other subjects; orange: on a proxy; red: in
 // class; grey: absent. Teachers not at school in that sitting fold into one line.
 
@@ -62,11 +62,12 @@ export default async function FreePage({ searchParams }: { searchParams: Promise
   const groupName = new Map(data.groups.map((g) => [g.id, g.name]));
   const isToday = date === dhakaToday();
   const now = dhakaMinutes();
-  const running = isToday ? periodAt(data.periods, now) : null;
-  const past = (p: Period) => isToday && p.endsAt <= now;
-  const board = day === null ? null : dayBoard({ teachers: data.teachers, assignments: data.assignments, periods: data.periods, day, absences, proxies, subjectId: subject?.id });
+  const past = (p: TimeSpan) => isToday && p.endsAt <= now;
+  const board = day === null ? null : dayBoard({ teachers: data.teachers, assignments: data.assignments, day, absences, proxies, subjectId: subject?.id });
+  const running = isToday ? (board?.times.find((t) => runningAt(t.time, now))?.time ?? null) : null;
+  const key = (p: TimeSpan) => `${p.startsAt}-${p.endsAt}`;
   const away = absences.map((a) => data.teachers.find((t) => t.id === a.teacherId)?.shortName).filter(Boolean);
-  const subjectsOf = (t: Teacher) => t.subjectIds.map((id) => subjectName.get(id)).filter(Boolean).join(', ') || 'সাবজেক্ট দেওয়া নেই';
+  const subjectsOf = (t: Teacher) => [...new Set(t.subjectIds.map((id) => subjectName.get(id)).filter(Boolean))].join(', ') || 'সাবজেক্ট দেওয়া নেই';
   const look = (c: BoardCell) => (c.kind === 'free' ? (c.fits ? 'fits' : 'free') : c.kind);
   const note = (t: Teacher, c: BoardCell) => {
     if (c.kind === 'free') return subjectsOf(t);
@@ -105,13 +106,13 @@ export default async function FreePage({ searchParams }: { searchParams: Promise
     <>
       <PageTop crumbs={crumbs} round={false} />
       <PageBody>
-        <PageTitle sub={routineSub(data.routine, isToday && running ? `এখন ${periodTime(running)}` : '')}>ফ্রি টিচার · {isToday ? 'আজ' : dateText(date)}</PageTitle>
+        <PageTitle sub={routineSub(data.routine, isToday && running ? `এখন ${spanText(running)}` : '')}>ফ্রি টিচার · {isToday ? 'আজ' : dateText(date)}</PageTitle>
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex flex-wrap items-center gap-3">
             {views}
             <DatePicker date={date} />
           </div>
-          <ParamSelect name="subject" value={subject?.id ?? ''} label="সাবজেক্ট" options={[{ value: '', label: 'সব সাবজেক্ট' }, ...data.subjects.filter((s) => s.active).map((s) => ({ value: s.id, label: s.name }))]} />
+          <ParamSelect name="subject" value={subject?.id ?? ''} label="সাবজেক্ট" options={[{ value: '', label: 'সব সাবজেক্ট' }, ...data.subjects.filter((s) => s.active).map((s) => ({ value: s.id, label: data.subjects.some((x) => x.id !== s.id && x.name === s.name) ? `${s.name} (${data.types.find((t) => t.id === s.typeId)?.name ?? ''})` : s.name }))]} />
         </div>
         {!board ? (
           <EmptyState>শুক্রবার ক্লাস নেই।</EmptyState>
@@ -144,8 +145,8 @@ export default async function FreePage({ searchParams }: { searchParams: Promise
 
             {!table ? (
               <div id="free-board" className="relative overflow-x-auto pb-1">
-                <div className="grid gap-2" style={{ gridTemplateColumns: `repeat(${board.periods.length}, minmax(140px, 1fr))`, minWidth: board.periods.length * 148 }}>
-                  {board.periods.map(({ period: p, cells, free }) => {
+                <div className="grid gap-2" style={{ gridTemplateColumns: `repeat(${board.times.length}, minmax(140px, 1fr))`, minWidth: board.times.length * 148 }}>
+                  {board.times.map(({ time: p, cells, free }) => {
                     const isNow = p === running;
                     const order = { fits: 0, free: 1, proxy: 2, class: 3, absent: 4, away: 5 };
                     const list = board.teachers
@@ -154,13 +155,12 @@ export default async function FreePage({ searchParams }: { searchParams: Promise
                       .sort((a, b) => order[look(a.c)] - order[look(b.c)] || (a.c.kind === 'free' ? board.classes.get(a.t.id)! - board.classes.get(b.t.id)! : 0) || a.t.shortName.localeCompare(b.t.shortName));
                     const awayCount = board.teachers.length - list.length;
                     return (
-                      <section key={p.id} aria-label={periodTime(p)} data-now={isNow || undefined} className={cn('self-start rounded-xl bg-card', isNow ? 'border-2 border-primary' : 'border', past(p) && 'opacity-55')}>
+                      <section key={key(p)} aria-label={spanText(p)} data-now={isNow || undefined} className={cn('self-start rounded-xl bg-card', isNow ? 'border-2 border-primary' : 'border', past(p) && 'opacity-55')}>
                         <div className={cn('rounded-t-[11px] border-b px-2.5 py-2', isNow ? 'bg-[#e9e1db]' : 'bg-muted')}>
                           <div className="flex items-center gap-1.5 whitespace-nowrap text-[13.5px] font-semibold">
-                            {periodTime(p)}
+                            {spanText(p)}
                             {isNow && <span className="rounded-full bg-primary px-1.5 py-px text-[11px] font-medium text-primary-foreground">এখন</span>}
                           </div>
-                          {p.label && <div className="text-[12px] text-muted-foreground">{p.label}</div>}
                           <div className="mt-1 text-[12.5px] font-semibold text-success">{freeText(free)}</div>
                         </div>
                         <ul className="m-0 flex list-none flex-col gap-1.5 p-2">
@@ -182,20 +182,19 @@ export default async function FreePage({ searchParams }: { searchParams: Promise
               </div>
             ) : (
               <div id="free-table" className="relative overflow-x-auto rounded-xl border bg-card">
-                <table className="w-full border-separate border-spacing-0 text-[13px]" style={{ minWidth: 200 + board.periods.length * 116 }}>
-                  <caption className="sr-only">কোন পিরিয়ডে কোন টিচার ফ্রি</caption>
+                <table className="w-full border-separate border-spacing-0 text-[13px]" style={{ minWidth: 200 + board.times.length * 116 }}>
+                  <caption className="sr-only">কোন সময়ে কোন টিচার ফ্রি</caption>
                   <thead>
                     <tr>
                       <th scope="col" data-pin className="sticky left-0 z-[2] border-b border-r bg-muted px-3 py-2.5 text-left font-semibold">
                         টিচার
                       </th>
-                      {board.periods.map(({ period: p, free }) => (
-                        <th key={p.id} scope="col" data-now={p === running || undefined} className={cn('border-b border-r px-2.5 py-2.5 text-left align-top', p === running ? 'bg-[#e9e1db] shadow-[inset_2px_0_0_var(--primary),inset_-2px_0_0_var(--primary)]' : 'bg-muted', past(p) && 'opacity-55')}>
+                      {board.times.map(({ time: p, free }) => (
+                        <th key={key(p)} scope="col" data-now={p === running || undefined} className={cn('border-b border-r px-2.5 py-2.5 text-left align-top', p === running ? 'bg-[#e9e1db] shadow-[inset_2px_0_0_var(--primary),inset_-2px_0_0_var(--primary)]' : 'bg-muted', past(p) && 'opacity-55')}>
                           <div className="flex items-center gap-1.5 whitespace-nowrap font-semibold">
-                            {periodTime(p)}
+                            {spanText(p)}
                             {p === running && <span className="rounded-full bg-primary px-1.5 py-px text-[11px] font-medium text-primary-foreground">এখন</span>}
                           </div>
-                          {p.label && <div className="whitespace-nowrap text-[12px] font-normal text-muted-foreground">{p.label}</div>}
                           <div className="mt-1 whitespace-nowrap text-[12px] font-semibold text-success">{freeText(free)}</div>
                         </th>
                       ))}
@@ -212,7 +211,7 @@ export default async function FreePage({ searchParams }: { searchParams: Promise
                         ]
                       : [['', board.teachers]]
                     ).map(([title, list]) => (
-                      <TeacherRows key={title as string} title={title as string} teachers={list as Teacher[]} span={board.periods.length + 2}>
+                      <TeacherRows key={title as string} title={title as string} teachers={list as Teacher[]} span={board.times.length + 2}>
                         {(t) => (
                           <tr key={t.id}>
                             <th scope="row" className="sticky left-0 z-[1] border-b border-r bg-card px-3 py-2 text-left align-top font-normal">
@@ -221,11 +220,11 @@ export default async function FreePage({ searchParams }: { searchParams: Promise
                               </Link>
                               <div className="text-[12px] text-muted-foreground">{subjectsOf(t)}</div>
                             </th>
-                            {board.periods.map(({ period: p, cells }) => {
+                            {board.times.map(({ time: p, cells }) => {
                               const c = cells.get(t.id)!;
                               const k = look(c);
                               return (
-                                <td key={p.id} className={cn('min-w-[108px] border-b border-r px-2.5 py-2 align-top', CELL[k], p === running && 'shadow-[inset_2px_0_0_var(--primary),inset_-2px_0_0_var(--primary)]', past(p) && 'opacity-55')}>
+                                <td key={key(p)} className={cn('min-w-[108px] border-b border-r px-2.5 py-2 align-top', CELL[k], p === running && 'shadow-[inset_2px_0_0_var(--primary),inset_-2px_0_0_var(--primary)]', past(p) && 'opacity-55')}>
                                   {k === 'fits' || k === 'free' ? (
                                     <span className={cn('font-semibold', k === 'fits' ? 'text-white' : 'text-[#116331]')}>ফ্রি</span>
                                   ) : k === 'away' ? (

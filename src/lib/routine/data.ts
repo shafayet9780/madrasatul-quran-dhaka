@@ -1,16 +1,16 @@
 import 'server-only';
-import { and, asc, eq, gte, inArray, isNotNull, lt, ne, sql } from 'drizzle-orm';
+import { and, asc, eq, gte, inArray, lt, ne, sql } from 'drizzle-orm';
 import type { BatchItem } from 'drizzle-orm/batch';
-import { assignmentWarnings, clashText, effectiveRoomId, findClashes, lookup, occupancy, overlappingPeriod, type Draft } from './clash';
-import { dayOfDate, daysText, dhakaToday, periodText } from './days';
+import { assignmentWarnings, clashText, findClashes, hostProblem, lookup, occupancy, type Draft } from './clash';
+import { dayOfDate, dhakaToday, sameTime, spanText } from './days';
 import { busyTeachers } from './free';
 import { getRoutineDb, type RoutineDb } from './db';
-import { absentIn, needsFor, rankCandidates, type Absence, type ProxyRecord } from './proxy';
+import { absentIn, needsFor, proxySpan, rankCandidates, type Absence, type ProxyRecord } from './proxy';
 import {
   routineAbsences,
   routineAssignments,
+  routineClassTypes,
   routineGroups,
-  routinePeriods,
   routineProxies,
   routineRooms,
   routineRoutines,
@@ -20,15 +20,17 @@ import {
   routineTeachers,
   type ProxySnapshot,
 } from './schema';
-import type { Group, Role, Room, RoutineData, RoutineInfo, Subject, Teacher } from './types';
+import type { ClassType, Group, Role, Room, RoutineData, RoutineInfo, Subject, Teacher, TimeSpan } from './types';
 
 // Reads and writes for the class routine admin (docs/class-routine.md). Every multi-statement write
-// is one db.batch (one transaction); routine_slots makes a clash fail the whole batch.
+// is one db.batch (one transaction); routine_slots' exclusion constraint makes a clash fail the batch.
 
 export type Outcome = { ok: true; id?: string } | { ok: false; error: string; warnings?: string[] };
 
 const fail = (error: string): Outcome => ({ ok: false, error });
 const pgCode = (e: unknown): string | undefined => (e as { code?: string }).code ?? (e as { cause?: { code?: string } }).cause?.code;
+/** A unique index (23505) or an exclusion constraint (23P01) refused the write. */
+const conflict = (e: unknown) => pgCode(e) === '23505' || pgCode(e) === '23P01';
 const RACE = 'এর মধ্যে রুটিনে অন্য কিছু বদলেছে। পেজটা রিলোড করে আবার চেষ্টা করুন।';
 
 function omit<T extends object, K extends keyof T>(o: T, ...keys: K[]): Omit<T, K> {
@@ -41,27 +43,28 @@ async function run(db: RoutineDb, statements: BatchItem<'pg'>[]) {
   if (statements.length) await db.batch(statements as [BatchItem<'pg'>, ...BatchItem<'pg'>[]]);
 }
 
-/** Slot rows in inserts of 1,000 (6 parameters a row stays under Postgres's 65,535). */
+/** Slot rows in inserts of 1,000 (7 parameters a row stays under Postgres's 65,535). */
 function insertSlots(db: RoutineDb, rows: (typeof routineSlots.$inferInsert)[]): BatchItem<'pg'>[] {
   const out: BatchItem<'pg'>[] = [];
   for (let i = 0; i < rows.length; i += 1000) out.push(db.insert(routineSlots).values(rows.slice(i, i + 1000)));
   return out;
 }
 
+function slotRows(routineId: string, a: Draft & { id: string }): (typeof routineSlots.$inferInsert)[] {
+  return occupancy(a).map((o) => ({ routineId, startsAt: a.startsAt, endsAt: a.endsAt, day: o.day, kind: o.kind, refId: o.refId, assignmentId: a.id }));
+}
+
 // ── Reads ──────────────────────────────────────────────────────────────────────────────────────
 
-export type RoutineSummary = RoutineInfo & { periods: number; assignments: number };
+export type RoutineSummary = RoutineInfo & { assignments: number };
 
 export async function listRoutines(): Promise<RoutineSummary[]> {
   const db = getRoutineDb();
-  const count = sql<number>`count(*)::int`;
-  const [rows, periods, assignments] = await Promise.all([
+  const [rows, assignments] = await Promise.all([
     db.select().from(routineRoutines).orderBy(sql`${routineRoutines.createdAt} desc`),
-    db.select({ id: routinePeriods.routineId, n: count }).from(routinePeriods).groupBy(routinePeriods.routineId),
-    db.select({ id: routineAssignments.routineId, n: count }).from(routineAssignments).groupBy(routineAssignments.routineId),
+    db.select({ id: routineAssignments.routineId, n: sql<number>`count(*)::int` }).from(routineAssignments).groupBy(routineAssignments.routineId),
   ]);
-  const n = (list: { id: string; n: number }[], id: string) => list.find((x) => x.id === id)?.n ?? 0;
-  return rows.map((r) => ({ id: r.id, name: r.name, status: r.status, createdAt: r.createdAt.toISOString(), periods: n(periods, r.id), assignments: n(assignments, r.id) }));
+  return rows.map((r) => ({ id: r.id, name: r.name, status: r.status, createdAt: r.createdAt.toISOString(), assignments: assignments.find((x) => x.id === r.id)?.n ?? 0 }));
 }
 
 /** The routine asked for, else the active one, else the newest draft. */
@@ -72,6 +75,10 @@ export async function pickRoutine(id?: string | null): Promise<RoutineInfo | nul
 
 export async function activeRoutine(): Promise<RoutineInfo | null> {
   return (await listRoutines()).find((r) => r.status === 'active') ?? null;
+}
+
+export async function listTypes(): Promise<ClassType[]> {
+  return getRoutineDb().select().from(routineClassTypes).orderBy(asc(routineClassTypes.sort), asc(routineClassTypes.name));
 }
 
 export async function listSubjects(): Promise<Subject[]> {
@@ -94,58 +101,95 @@ export async function listTeachers(): Promise<Teacher[]> {
 
 export async function routineData(routine: RoutineInfo): Promise<RoutineData> {
   const db = getRoutineDb();
-  const [periods, assignments, groups, teachers, subjects, rooms] = await Promise.all([
-    db.select({ id: routinePeriods.id, label: routinePeriods.label, startsAt: routinePeriods.startsAt, endsAt: routinePeriods.endsAt }).from(routinePeriods).where(eq(routinePeriods.routineId, routine.id)).orderBy(asc(routinePeriods.startsAt)),
+  const [assignments, types, groups, teachers, subjects, rooms] = await Promise.all([
     db.select().from(routineAssignments).where(eq(routineAssignments.routineId, routine.id)),
+    listTypes(),
     listGroups(),
     listTeachers(),
     listSubjects(),
     listRooms(),
   ]);
-  return { routine, periods, assignments: assignments.map((a) => omit(a, 'routineId')), groups, teachers, subjects, rooms };
+  return { routine, assignments: assignments.map((a) => omit(a, 'routineId')), types, groups, teachers, subjects, rooms };
 }
 
-// ── Room slots (rebuilt whenever rooms or groups' default rooms change) ───────────────────────
+/** Lessons per class or group (as itself or as the host of a seated group), over every routine. */
+export async function groupLessonCounts(): Promise<Record<string, number>> {
+  const rows = await getRoutineDb().select({ groupId: routineAssignments.groupId, hostGroupId: routineAssignments.hostGroupId }).from(routineAssignments);
+  const counts: Record<string, number> = {};
+  for (const r of rows) for (const id of new Set([r.groupId, r.hostGroupId ?? r.groupId])) counts[id] = (counts[id] ?? 0) + 1;
+  return counts;
+}
 
-/**
- * The room rows of routine_slots for every routine under these rooms and groups, or the first
- * clash. `removedRoom`: a room being deleted, which assignments stop using.
- */
-async function roomSlotStatements(db: RoutineDb, rooms: Room[], groups: Group[], removedRoom?: string): Promise<{ statements: BatchItem<'pg'>[] } | { error: string }> {
-  const [stored, routines] = await Promise.all([db.select().from(routineAssignments), db.select({ id: routineRoutines.id, name: routineRoutines.name }).from(routineRoutines)]);
-  const assignments = stored.map((a) => (a.roomId === removedRoom ? { ...a, roomId: null } : a));
-  const groupMap = new Map(groups.map((g) => [g.id, g]));
-  const roomMap = new Map(rooms.map((r) => [r.id, r]));
-  const seen = new Map<string, (typeof assignments)[number]>();
-  const rows: (typeof routineSlots.$inferInsert)[] = [];
-  for (const a of assignments) {
-    const room = effectiveRoomId(a, groupMap);
-    if (!room || roomMap.get(room)?.shared) continue;
-    for (const day of new Set(a.days)) {
-      const key = `${a.routineId}:${a.periodId}:${day}:${room}`;
-      const other = seen.get(key);
-      if (other) {
-        const routine = routines.find((r) => r.id === a.routineId)?.name ?? '';
-        return {
-          error: `রুম ${roomMap.get(room)?.name}-এ ${daysText([day])} একই পিরিয়ডে ${groupMap.get(other.groupId)?.name} আর ${groupMap.get(a.groupId)?.name}-এর ক্লাস পড়ে যাবে (${routine} রুটিন)। আগে রুটিনে রুম বদলান, নয়তো রুমটা "শেয়ার্ড" করে দিন।`,
-        };
+// ── Class types, subjects, rooms, groups ───────────────────────────────────────────────────────
+
+export async function saveType(input: Omit<ClassType, 'id' | 'sort'> & { id?: string }): Promise<Outcome> {
+  const db = getRoutineDb();
+  try {
+    if (input.id) {
+      const [current] = await db.select().from(routineClassTypes).where(eq(routineClassTypes.id, input.id));
+      if (!current) return fail(RACE);
+      if (current.placement !== input.placement) {
+        const [used] = await db
+          .select({ n: sql<number>`count(*)::int` })
+          .from(routineAssignments)
+          // Its own lessons and the groups seated in its classes' rooms.
+          .innerJoin(routineGroups, sql`${routineGroups.id} in (${routineAssignments.groupId}, ${routineAssignments.hostGroupId})`)
+          .where(eq(routineGroups.typeId, input.id));
+        if (used.n) return fail('এই ধরনের ক্লাস রুটিনে আছে, তাই কোথায় বসে সেটা বদলানো যাবে না।');
       }
-      seen.set(key, a);
-      rows.push({ routineId: a.routineId, periodId: a.periodId, day, kind: 'room', refId: room, assignmentId: a.id });
+      await db.update(routineClassTypes).set({ name: input.name, placement: input.placement }).where(eq(routineClassTypes.id, input.id));
+    } else {
+      const [last] = await db.select({ n: sql<number>`coalesce(max(${routineClassTypes.sort}), -1)::int` }).from(routineClassTypes);
+      await db.insert(routineClassTypes).values({ name: input.name, placement: input.placement, sort: last.n + 1 });
     }
+  } catch (e) {
+    if (pgCode(e) === '23505') return fail('এই নামে ধরন আগে থেকেই আছে।');
+    throw e;
   }
-  return { statements: [db.delete(routineSlots).where(eq(routineSlots.kind, 'room')), ...insertSlots(db, rows)] };
+  return { ok: true };
 }
 
-// ── Subjects, rooms, groups ────────────────────────────────────────────────────────────────────
+/** Swaps a type with its neighbour above (-1) or below (+1); the routine table follows this order. */
+export async function moveType(id: string, step: -1 | 1): Promise<Outcome> {
+  const db = getRoutineDb();
+  const types = await listTypes();
+  const i = types.findIndex((t) => t.id === id);
+  const j = i + step;
+  if (i < 0 || j < 0 || j >= types.length) return { ok: true };
+  const order = [...types];
+  [order[i], order[j]] = [order[j], order[i]];
+  await run(
+    db,
+    order.map((t, sort) => db.update(routineClassTypes).set({ sort }).where(eq(routineClassTypes.id, t.id))),
+  );
+  return { ok: true };
+}
+
+export async function deleteType(id: string): Promise<Outcome> {
+  const db = getRoutineDb();
+  const [used] = await db
+    .select({ n: sql<number>`(select count(*)::int from ${routineGroups} where ${routineGroups.typeId} = ${id}) + (select count(*)::int from ${routineSubjects} where ${routineSubjects.typeId} = ${id})` })
+    .from(sql`(select 1) as one`);
+  if (used.n) return fail('এই ধরনের ক্লাস, গ্রুপ বা সাবজেক্ট আছে। আগে সেগুলো সরান বা অন্য ধরনে নিন।');
+  await db.delete(routineClassTypes).where(eq(routineClassTypes.id, id));
+  return { ok: true };
+}
 
 export async function saveSubject(input: Omit<Subject, 'id'> & { id?: string }): Promise<Outcome> {
   const db = getRoutineDb();
   try {
-    if (input.id) await db.update(routineSubjects).set({ name: input.name, sort: input.sort, active: input.active }).where(eq(routineSubjects.id, input.id));
-    else await db.insert(routineSubjects).values({ name: input.name, sort: input.sort, active: input.active });
+    if (input.id) {
+      const [current] = await db.select().from(routineSubjects).where(eq(routineSubjects.id, input.id));
+      if (!current) return fail(RACE);
+      if (current.typeId !== input.typeId) {
+        const [used] = await db.select({ n: sql<number>`count(*)::int` }).from(routineAssignments).where(eq(routineAssignments.subjectId, input.id));
+        if (used.n) return fail('সাবজেক্টটা রুটিনে আছে, তাই ধরন বদলানো যাবে না।');
+      }
+      await db.update(routineSubjects).set(omit(input, 'id')).where(eq(routineSubjects.id, input.id));
+    } else await db.insert(routineSubjects).values(omit(input, 'id'));
   } catch (e) {
-    if (pgCode(e) === '23505') return fail('এই নামে সাবজেক্ট আগে থেকেই আছে।');
+    if (pgCode(e) === '23505') return fail('এই ধরনে এই নামে সাবজেক্ট আগে থেকেই আছে।');
+    if (pgCode(e) === '23503') return fail(RACE);
     throw e;
   }
   return { ok: true };
@@ -161,54 +205,54 @@ export async function deleteSubject(id: string): Promise<Outcome> {
 
 export async function saveRoom(input: Omit<Room, 'id'> & { id?: string }): Promise<Outcome> {
   const db = getRoutineDb();
-  const id = input.id ?? crypto.randomUUID();
-  const rooms = (await listRooms()).filter((r) => r.id !== id).concat({ id, name: input.name, shared: input.shared });
-  const rebuilt = await roomSlotStatements(db, rooms, await listGroups());
-  if ('error' in rebuilt) return fail(rebuilt.error);
-  const write = input.id ? db.update(routineRooms).set({ name: input.name, shared: input.shared }).where(eq(routineRooms.id, id)) : db.insert(routineRooms).values({ id, name: input.name, shared: input.shared });
   try {
-    await run(db, [write, ...rebuilt.statements]);
+    if (input.id) await db.update(routineRooms).set({ name: input.name }).where(eq(routineRooms.id, input.id));
+    else await db.insert(routineRooms).values({ name: input.name });
   } catch (e) {
-    if (pgCode(e) === '23505') return fail(rooms.some((r) => r.id !== id && r.name === input.name) ? 'এই নামে রুম আগে থেকেই আছে।' : RACE);
+    if (pgCode(e) === '23505') return fail('এই নামে রুম আগে থেকেই আছে।');
     throw e;
   }
-  return { ok: true, id };
+  return { ok: true };
 }
 
+/** Classes and groups in the room lose it (ON DELETE SET NULL); the routine's rows stay as they are. */
 export async function deleteRoom(id: string): Promise<Outcome> {
-  const db = getRoutineDb();
-  // Groups and assignments lose the room (ON DELETE SET NULL); assignments then fall back to their
-  // group's room, which could clash: checked first.
-  const groups = (await listGroups()).map((g) => (g.defaultRoomId === id ? { ...g, defaultRoomId: null } : g));
-  const rebuilt = await roomSlotStatements(db, (await listRooms()).filter((r) => r.id !== id), groups, id);
-  if ('error' in rebuilt) return fail(rebuilt.error);
-  await run(db, [db.delete(routineRooms).where(eq(routineRooms.id, id)), ...rebuilt.statements]);
+  await getRoutineDb().delete(routineRooms).where(eq(routineRooms.id, id));
   return { ok: true };
 }
 
 export async function saveGroup(input: Omit<Group, 'id'> & { id?: string }): Promise<Outcome> {
   const db = getRoutineDb();
-  const id = input.id ?? crypto.randomUUID();
-  const values = omit(input, 'id');
-  const groups = (await listGroups()).filter((g) => g.id !== id).concat({ ...values, id });
-  const rebuilt = await roomSlotStatements(db, await listRooms(), groups);
-  if ('error' in rebuilt) return fail(rebuilt.error);
-  const write = input.id ? db.update(routineGroups).set(values).where(eq(routineGroups.id, id)) : db.insert(routineGroups).values({ ...values, id });
+  const types = await listTypes();
+  const type = types.find((t) => t.id === input.typeId);
+  if (!type) return fail(RACE);
+  const values = { ...omit(input, 'id'), defaultRoomId: type.placement === 'seated' ? null : input.defaultRoomId };
   try {
-    await run(db, [write, ...rebuilt.statements]);
+    if (input.id) {
+      const [current] = await db.select().from(routineGroups).where(eq(routineGroups.id, input.id));
+      if (!current) return fail(RACE);
+      const before = types.find((t) => t.id === current.typeId)?.placement;
+      if (before !== type.placement && (await groupLessonCounts())[input.id]) return fail('রুটিনে এর ক্লাস আছে, তাই অন্য রকম ধরনে নেওয়া যাবে না (ক্লাস, নিজের রুমের গ্রুপ, ক্লাসের রুমে বসা গ্রুপ)।');
+      // Its lessons have subjects of its type, so with lessons it keeps its type.
+      if (current.typeId !== input.typeId) {
+        const [own] = await db.select({ n: sql<number>`count(*)::int` }).from(routineAssignments).where(eq(routineAssignments.groupId, input.id));
+        if (own.n) return fail('রুটিনে এর ক্লাস আছে (সেই ধরনের সাবজেক্টে), তাই ধরন বদলানো যাবে না। আগে ক্লাসগুলো ডিলিট করুন।');
+      }
+      await db.update(routineGroups).set(values).where(eq(routineGroups.id, input.id));
+      return { ok: true, id: input.id };
+    }
+    const [row] = await db.insert(routineGroups).values(values).returning({ id: routineGroups.id });
+    return { ok: true, id: row.id };
   } catch (e) {
-    if (pgCode(e) === '23505') return fail(groups.some((g) => g.id !== id && g.name === input.name) ? 'এই নামে গ্রুপ আগে থেকেই আছে।' : RACE);
+    if (pgCode(e) === '23505') return fail('এই নামে ক্লাস বা গ্রুপ আগে থেকেই আছে।');
     if (pgCode(e) === '23503') return fail(RACE);
     throw e;
   }
-  return { ok: true, id };
 }
 
 export async function deleteGroup(id: string): Promise<Outcome> {
-  const db = getRoutineDb();
-  const [used] = await db.select({ n: sql<number>`count(*)::int` }).from(routineAssignments).where(eq(routineAssignments.groupId, id));
-  if (used.n) return fail('গ্রুপটার রুটিনে ক্লাস আছে, তাই ডিলিট করা যাবে না। "চালু" টিক তুলে দিন।');
-  await db.delete(routineGroups).where(eq(routineGroups.id, id));
+  if ((await groupLessonCounts())[id]) return fail('রুটিনে এর ক্লাস আছে (বা কোনো গ্রুপ এর রুমে বসে), তাই ডিলিট করা যাবে না। "চালু" টিক তুলে দিন।');
+  await getRoutineDb().delete(routineGroups).where(eq(routineGroups.id, id));
   return { ok: true };
 }
 
@@ -234,6 +278,7 @@ export async function saveTeacher(input: TeacherInput): Promise<Outcome> {
     if (pgCode(e) === '23503') return fail(RACE);
     throw e;
   }
+  if (input.id && (!input.active || input.isVacancy)) await pruneUpcomingProxies();
   return { ok: true, id };
 }
 
@@ -243,41 +288,53 @@ export async function setTeacherTarget(id: string, target: number | null): Promi
   return rows.length ? { ok: true } : fail(RACE);
 }
 
-export async function deleteTeacher(id: string): Promise<Outcome> {
+/** What deleting a teacher takes with it: their lessons as main teacher, and whether they have history. */
+export async function teacherFootprint(id: string): Promise<{ lessons: number; taLessons: number; history: boolean }> {
   const db = getRoutineDb();
-  const [used] = await db
+  const [row] = await db
     .select({
-      n: sql<number>`(select count(*)::int from ${routineAssignments} where ${routineAssignments.teacherId} = ${id} or ${routineAssignments.taId} = ${id})
-        + (select count(*)::int from ${routineAbsences} where ${routineAbsences.teacherId} = ${id})
-        + (select count(*)::int from ${routineProxies} where ${routineProxies.proxyTeacherId} = ${id})`,
+      lessons: sql<number>`(select count(*)::int from ${routineAssignments} where ${routineAssignments.teacherId} = ${id})`,
+      taLessons: sql<number>`(select count(*)::int from ${routineAssignments} where ${routineAssignments.taId} = ${id})`,
+      history: sql<number>`(select count(*)::int from ${routineAbsences} where ${routineAbsences.teacherId} = ${id}) + (select count(*)::int from ${routineProxies} where ${routineProxies.proxyTeacherId} = ${id})`,
     })
     .from(sql`(select 1) as one`);
-  if (used.n) return fail('টিচার রুটিনে বা প্রক্সির হিসাবে আছেন, তাই ডিলিট করা যাবে না। "চালু" টিক তুলে দিন।');
-  await db.delete(routineTeachers).where(eq(routineTeachers.id, id));
+  return { lessons: row.lessons, taLessons: row.taLessons, history: row.history > 0 };
+}
+
+/**
+ * Deletes a teacher and their lessons (as main teacher; where they are TA the lesson loses its TA).
+ * A teacher with absences or proxies on record is hidden instead (no longer active), so the
+ * register's history keeps its names.
+ */
+export async function deleteTeacher(id: string): Promise<Outcome> {
+  const db = getRoutineDb();
+  const { history } = await teacherFootprint(id);
+  await run(db, [
+    db.delete(routineAssignments).where(eq(routineAssignments.teacherId, id)),
+    db.update(routineAssignments).set({ taId: null }).where(eq(routineAssignments.taId, id)),
+    db.delete(routineSlots).where(and(eq(routineSlots.kind, 'teacher'), eq(routineSlots.refId, id))),
+    history ? db.update(routineTeachers).set({ active: false, updatedAt: new Date() }).where(eq(routineTeachers.id, id)) : db.delete(routineTeachers).where(eq(routineTeachers.id, id)),
+  ]);
+  await pruneUpcomingProxies();
   return { ok: true };
 }
 
-// ── Routines and periods ───────────────────────────────────────────────────────────────────────
+// ── Routines ───────────────────────────────────────────────────────────────────────────────────
 
-/** A new empty routine, or a copy of another one (its periods and assignments). */
+/** A new empty routine, or a copy of another one (its lessons). */
 export async function createRoutine(name: string, copyFromId?: string | null): Promise<Outcome> {
   const db = getRoutineDb();
   const id = crypto.randomUUID();
   const statements: BatchItem<'pg'>[] = [db.insert(routineRoutines).values({ id, name, copiedFromId: copyFromId ?? null })];
   if (copyFromId) {
-    const [periods, assignments, slots] = await Promise.all([
-      db.select().from(routinePeriods).where(eq(routinePeriods.routineId, copyFromId)),
+    if (!(await db.select({ id: routineRoutines.id }).from(routineRoutines).where(eq(routineRoutines.id, copyFromId))).length) return fail('যে রুটিন কপি করবেন সেটা পাওয়া যায়নি।');
+    const [assignments, slots] = await Promise.all([
       db.select().from(routineAssignments).where(eq(routineAssignments.routineId, copyFromId)),
       db.select().from(routineSlots).where(eq(routineSlots.routineId, copyFromId)),
     ]);
-    if (!periods.length && !(await db.select({ id: routineRoutines.id }).from(routineRoutines).where(eq(routineRoutines.id, copyFromId))).length) return fail('যে রুটিন কপি করবেন সেটা পাওয়া যায়নি।');
-    const periodIds = new Map(periods.map((p) => [p.id, crypto.randomUUID()]));
-    const assignmentIds = new Map(assignments.map((a) => [a.id, crypto.randomUUID()]));
-    if (periods.length) statements.push(db.insert(routinePeriods).values(periods.map((p) => ({ ...p, id: periodIds.get(p.id)!, routineId: id }))));
-    if (assignments.length) {
-      statements.push(db.insert(routineAssignments).values(assignments.map((a) => ({ ...a, id: assignmentIds.get(a.id)!, routineId: id, periodId: periodIds.get(a.periodId)! }))));
-    }
-    statements.push(...insertSlots(db, slots.map((s) => ({ ...s, routineId: id, periodId: periodIds.get(s.periodId)!, assignmentId: assignmentIds.get(s.assignmentId)! }))));
+    const ids = new Map(assignments.map((a) => [a.id, crypto.randomUUID()]));
+    if (assignments.length) statements.push(db.insert(routineAssignments).values(assignments.map((a) => ({ ...a, id: ids.get(a.id)!, routineId: id }))));
+    statements.push(...insertSlots(db, slots.map((s) => ({ ...s, routineId: id, assignmentId: ids.get(s.assignmentId)! }))));
   }
   try {
     await run(db, statements);
@@ -302,25 +359,11 @@ export async function renameRoutine(id: string, name: string): Promise<Outcome> 
 export async function activateRoutine(id: string): Promise<Outcome> {
   const db = getRoutineDb();
   if (!(await db.select({ id: routineRoutines.id }).from(routineRoutines).where(eq(routineRoutines.id, id))).length) return fail(RACE);
-  // Upcoming absences for chosen periods name the old routine's periods: they move to the new
-  // routine's periods at the same time. With none at that time the absence becomes the whole day,
-  // so a cover isn't silently lost.
-  const [partial, periods] = await Promise.all([
-    db.select({ id: routineAbsences.id, periodIds: routineAbsences.periodIds }).from(routineAbsences).where(and(gte(routineAbsences.date, dhakaToday()), isNotNull(routineAbsences.periodIds))),
-    db.select().from(routinePeriods),
-  ]);
-  const byId = new Map(periods.map((p) => [p.id, p]));
-  const moved = partial.flatMap((a) => {
-    const old = a.periodIds!.flatMap((pid) => byId.get(pid) ?? []);
-    const next = periods.filter((p) => p.routineId === id && old.some((o) => o.startsAt < p.endsAt && p.startsAt < o.endsAt)).map((p) => p.id);
-    const periodIds = next.length ? next : null;
-    return JSON.stringify(periodIds) === JSON.stringify(a.periodIds) ? [] : [db.update(routineAbsences).set({ periodIds }).where(eq(routineAbsences.id, a.id))];
-  });
+  // Absences are kept by time, so they carry over as they are.
   await run(db, [
-    ...moved,
     db.update(routineRoutines).set({ status: 'draft' }).where(and(eq(routineRoutines.status, 'active'), sql`${routineRoutines.id} <> ${id}`)),
     db.update(routineRoutines).set({ status: 'active' }).where(eq(routineRoutines.id, id)),
-    // Today's and later proxies were made for the old routine's classes; past ones stay as history.
+    // Today's and later proxies were made for the old routine's lessons; past ones stay as history.
     db.delete(routineProxies).where(and(gte(routineProxies.date, dhakaToday()), inArray(routineProxies.assignmentId, db.select({ id: routineAssignments.id }).from(routineAssignments).where(ne(routineAssignments.routineId, id))))),
   ]);
   return { ok: true };
@@ -335,36 +378,11 @@ export async function deleteRoutine(id: string): Promise<Outcome> {
   return deleted.length ? { ok: true } : fail('চালু রুটিন ডিলিট করা যায় না। আগে অন্য একটা রুটিন চালু করুন।');
 }
 
-export async function savePeriod(routineId: string, input: { id?: string; label: string; startsAt: number; endsAt: number }): Promise<Outcome> {
-  const db = getRoutineDb();
-  if (input.endsAt <= input.startsAt) return fail('শেষের সময় শুরুর পরে দিন।');
-  const periods = await db.select().from(routinePeriods).where(eq(routinePeriods.routineId, routineId));
-  if (input.id && !periods.some((p) => p.id === input.id)) return fail(RACE);
-  const overlap = overlappingPeriod(input, periods);
-  if (overlap) return fail(`এই সময়টা ${periodText(overlap)} পিরিয়ডের সাথে মিলে যাচ্ছে।`);
-  const values = { label: input.label, startsAt: input.startsAt, endsAt: input.endsAt };
-  try {
-    if (input.id) await db.update(routinePeriods).set(values).where(eq(routinePeriods.id, input.id));
-    else await db.insert(routinePeriods).values({ ...values, routineId });
-  } catch (e) {
-    if (pgCode(e) === '23503') return fail(RACE);
-    throw e;
-  }
-  return { ok: true };
-}
-
-/** Deletes the period and its classes. */
-export async function deletePeriod(id: string): Promise<Outcome> {
-  await getRoutineDb().delete(routinePeriods).where(eq(routinePeriods.id, id));
-  await pruneUpcomingProxies();
-  return { ok: true };
-}
-
-// ── Assignments ────────────────────────────────────────────────────────────────────────────────
+// ── Lessons ────────────────────────────────────────────────────────────────────────────────────
 
 /**
- * Adds or edits one assignment. Clashes are refused; a subject the teacher isn't listed for or a
- * broken gender rule comes back as `warnings` until the admin confirms.
+ * Adds or edits one lesson. Clashes are refused; a subject the teacher isn't listed for or a broken
+ * gender rule comes back as `warnings` until the admin confirms.
  */
 export async function saveAssignment(routineId: string, input: Draft, confirm: boolean): Promise<Outcome> {
   const db = getRoutineDb();
@@ -376,8 +394,13 @@ export async function saveAssignment(routineId: string, input: Draft, confirm: b
   if (input.id && !existing) return fail(RACE);
   const days = [...new Set(input.days)].sort();
   if (!days.length) return fail('অন্তত একটা দিন সিলেক্ট করুন।');
-  if (!data.periods.some((p) => p.id === input.periodId) || !names.groups.has(input.groupId) || !names.subjects.has(input.subjectId)) return fail(RACE);
-  if (input.roomId && !names.rooms.has(input.roomId)) return fail(RACE);
+  if (!Number.isInteger(input.startsAt) || !Number.isInteger(input.endsAt) || input.startsAt < 0 || input.endsAt > 1440 || input.endsAt <= input.startsAt) return fail('শেষের সময় শুরুর পরে দিন।');
+  const group = names.groups.get(input.groupId);
+  const subject = names.subjects.get(input.subjectId);
+  if (!group || !subject) return fail(RACE);
+  if (subject.typeId !== group.typeId) return fail('এই সাবজেক্ট এই ধরনের ক্লাসের না।');
+  const host = hostProblem(input, names);
+  if (host) return fail(host);
   const usable = (id: string, current?: string | null) => {
     const t = names.teachers.get(id);
     return !!t && (t.active || id === current);
@@ -387,22 +410,21 @@ export async function saveAssignment(routineId: string, input: Draft, confirm: b
   if (input.taId === input.teacherId) return fail('একই জন মেইন টিচার আর টিএ দুটোই হতে পারেন না।');
 
   const draft: Draft = { ...input, days };
-  const clashes = findClashes(draft, data.assignments, names.groups, names.rooms);
+  const clashes = findClashes(draft, data.assignments);
   if (clashes.length) return fail(clashes.map((c) => clashText(c, names)).join(' '));
   const warnings = assignmentWarnings(draft, names);
   if (warnings.length && !confirm) return { ok: false, error: '', warnings };
 
   const id = input.id ?? crypto.randomUUID();
-  const values = { groupId: draft.groupId, periodId: draft.periodId, days, subjectId: draft.subjectId, teacherId: draft.teacherId, taId: draft.taId, roomId: draft.roomId, note: draft.note };
-  const slots = occupancy(draft, names.groups, names.rooms).map((o) => ({ routineId, periodId: draft.periodId, day: o.day, kind: o.kind, refId: o.refId, assignmentId: id }));
+  const values = { groupId: draft.groupId, hostGroupId: draft.hostGroupId, startsAt: draft.startsAt, endsAt: draft.endsAt, days, subjectId: draft.subjectId, teacherId: draft.teacherId, taId: draft.taId };
   try {
     await run(db, [
       input.id ? db.update(routineAssignments).set(values).where(eq(routineAssignments.id, id)) : db.insert(routineAssignments).values({ ...values, id, routineId }),
       db.delete(routineSlots).where(eq(routineSlots.assignmentId, id)),
-      db.insert(routineSlots).values(slots),
+      db.insert(routineSlots).values(slotRows(routineId, { ...draft, id })),
     ]);
   } catch (e) {
-    if (pgCode(e) === '23505' || pgCode(e) === '23503') return fail(RACE);
+    if (conflict(e) || pgCode(e) === '23503') return fail(RACE);
     throw e;
   }
   await pruneUpcomingProxies();
@@ -449,9 +471,9 @@ export async function proxyDay(date: string): Promise<ProxyDay> {
 export async function dayRecords(date: string) {
   const db = getRoutineDb();
   const [absences, proxies] = await Promise.all([
-    db.select({ id: routineAbsences.id, teacherId: routineAbsences.teacherId, periodIds: routineAbsences.periodIds, reason: routineAbsences.reason }).from(routineAbsences).where(eq(routineAbsences.date, date)),
+    db.select({ id: routineAbsences.id, teacherId: routineAbsences.teacherId, times: routineAbsences.times, reason: routineAbsences.reason }).from(routineAbsences).where(eq(routineAbsences.date, date)),
     db
-      .select({ id: routineProxies.id, assignmentId: routineProxies.assignmentId, role: routineProxies.role, periodId: routineProxies.periodId, proxyTeacherId: routineProxies.proxyTeacherId, snapshot: routineProxies.snapshot })
+      .select({ id: routineProxies.id, assignmentId: routineProxies.assignmentId, role: routineProxies.role, startsAt: routineProxies.startsAt, endsAt: routineProxies.endsAt, proxyTeacherId: routineProxies.proxyTeacherId, snapshot: routineProxies.snapshot })
       .from(routineProxies)
       .where(eq(routineProxies.date, date)),
   ]);
@@ -472,10 +494,16 @@ async function pruneProxies(date: string) {
   const stale = proxies
     .filter((p) => {
       if (!p.assignmentId) return upcoming;
+      // A teacher taken off the list (hidden or turned off), or made an open post, covers nothing ahead.
+      const cover = data?.teachers.find((t) => t.id === p.proxyTeacherId);
+      if (upcoming && data && (!cover?.active || cover.isVacancy)) return true;
       if (!needed.has(`${p.assignmentId}:${p.role}`)) return true;
-      const periodId = p.periodId;
-      if (!periodId || day === null || !data) return false;
-      return absences.some((x) => x.teacherId === p.proxyTeacherId && absentIn(x, periodId)) || busyTeachers(data.assignments, day, periodId).has(p.proxyTeacherId);
+      const span = proxySpan(p);
+      // From today on, a lesson moved to another time needs its proxy found again.
+      const lesson = data?.assignments.find((a) => a.id === p.assignmentId);
+      if (upcoming && lesson && !(span && sameTime(span, lesson))) return true;
+      if (!span || day === null || !data) return false;
+      return absences.some((x) => x.teacherId === p.proxyTeacherId && absentIn(x, span)) || busyTeachers(data.assignments, day, span).has(p.proxyTeacherId);
     })
     .map((p) => p.id);
   if (stale.length) await getRoutineDb().delete(routineProxies).where(inArray(routineProxies.id, stale));
@@ -487,15 +515,16 @@ async function pruneUpcomingProxies() {
   for (const { date } of dates) await pruneProxies(date);
 }
 
-export async function saveAbsence(date: string, teacherId: string, periodIds: string[] | null, reason: string): Promise<Outcome> {
+/** Away the whole day (times null or empty) or at these times. */
+export async function saveAbsence(date: string, teacherId: string, times: TimeSpan[] | null, reason: string): Promise<Outcome> {
   const db = getRoutineDb();
   if (dayOfDate(date) === null) return fail('শুক্রবার ক্লাস নেই।');
-  const ids = periodIds?.length ? periodIds : null;
+  const ids = times?.length ? times.map((t) => ({ startsAt: t.startsAt, endsAt: t.endsAt })) : null;
   try {
     await db
       .insert(routineAbsences)
-      .values({ date, teacherId, periodIds: ids, reason })
-      .onConflictDoUpdate({ target: [routineAbsences.date, routineAbsences.teacherId], set: { periodIds: ids, reason } });
+      .values({ date, teacherId, times: ids, reason })
+      .onConflictDoUpdate({ target: [routineAbsences.date, routineAbsences.teacherId], set: { times: ids, reason } });
   } catch (e) {
     if (pgCode(e) === '23503') return fail(RACE);
     throw e;
@@ -524,22 +553,22 @@ export async function setProxy(date: string, assignmentId: string, role: Role, t
   const need = data ? needsFor(day, absences, data.assignments).find((n) => n.assignment.id === assignmentId && n.role === role) : undefined;
   if (!data || !need) return fail(RACE);
   const names = lookup(data);
-  const candidates = rankCandidates(need, { teachers: data.teachers, assignments: data.assignments, periods: data.periods, day, absences, proxies, monthCounts: new Map(Object.entries(monthCounts)), group: names.groups.get(need.assignment.groupId) });
-  if (!candidates.some((c) => c.teacher.id === teacherId)) return fail('এই পিরিয়ডে তিনি আর ফ্রি নেই। পেজটা রিলোড করুন।');
-  const period = data.periods.find((p) => p.id === need.assignment.periodId)!;
+  const candidates = rankCandidates(need, { teachers: data.teachers, assignments: data.assignments, day, absences, proxies, monthCounts: new Map(Object.entries(monthCounts)), group: names.groups.get(need.assignment.groupId) });
+  if (!candidates.some((c) => c.teacher.id === teacherId)) return fail('এই সময়ে তিনি আর ফ্রি নেই। পেজটা রিলোড করুন।');
+  const { startsAt, endsAt } = need.assignment;
   const snapshot: ProxySnapshot = {
     group: names.groups.get(need.assignment.groupId)?.name ?? '',
     subject: names.subjects.get(need.assignment.subjectId)?.name ?? '',
-    period: periodText(period),
+    period: spanText(need.assignment),
     absent: names.teachers.get(need.absentId)?.shortName ?? '',
   };
   try {
     await db
       .insert(routineProxies)
-      .values({ date, assignmentId, role, periodId: period.id, proxyTeacherId: teacherId, snapshot })
-      .onConflictDoUpdate({ target: [routineProxies.date, routineProxies.assignmentId, routineProxies.role], set: { proxyTeacherId: teacherId, periodId: period.id, snapshot } });
+      .values({ date, assignmentId, role, startsAt, endsAt, proxyTeacherId: teacherId, snapshot })
+      .onConflictDoUpdate({ target: [routineProxies.date, routineProxies.assignmentId, routineProxies.role], set: { proxyTeacherId: teacherId, startsAt, endsAt, snapshot } });
   } catch (e) {
-    if (pgCode(e) === '23505') return fail('এই পিরিয়ডে তিনি আরেকটা প্রক্সিতে আছেন।');
+    if (conflict(e)) return fail('এই সময়ে তিনি আরেকটা প্রক্সিতে আছেন।');
     throw e;
   }
   return { ok: true };

@@ -1,87 +1,62 @@
-import type { Assignment, Group, Period } from './types';
+import { rowOf } from './clash';
+import { distinctTimes, sameTime } from './days';
+import type { Assignment, ClassType, Group, Placement, TimeSpan } from './types';
 
-// Layout of the sheet-style view (docs/class-routine.md §5): the day left to right, cut into blocks
-// as the school's sheet is (HIFZ | QURAN | ARABIC | GENERAL | HIFZ). A block is a run of periods
-// whose classes are mostly under the same heading; it lists every group taught in it, so a group on
-// its own timetable (Six (F) at 8:15) is a row of that block, as at the bottom of the sheet.
+// Rows of the routine page (docs/class-routine.md §5). টেবিল: a row per room as in the school's
+// sheet — the own-room groups (Hifz, Najera) first, split by gender, then the classes; a seated group
+// (Quran, Arabic) shows in the row of the class whose room it uses. গ্রুপ: a row per class or group
+// under its type. Columns are the routine's distinct times either way.
 
-export type Block = { headings: string[]; periods: Period[]; groups: Group[]; banded: boolean };
+export type Section = { key: string; title: string; groups: Group[] };
 
-/** Blocks of the periods that have classes, in time order (periods arrive sorted by start). */
-export function sheetBlocks(periods: Period[], assignments: Assignment[], groups: Group[]): Block[] {
-  const blocks: (Block & { key: string; ids: Set<string> })[] = [];
-  for (const period of periods) {
-    const ids = new Set(assignments.filter((a) => a.periodId === period.id).map((a) => a.groupId));
-    if (!ids.size) continue;
-    const count = new Map<string, number>();
-    for (const g of groups.filter((x) => ids.has(x.id))) count.set(g.section, (count.get(g.section) ?? 0) + 1);
-    const top = Math.max(...count.values());
-    const leading = [...count].filter(([, n]) => n === top).map(([section]) => section);
-    const last = blocks[blocks.length - 1];
-    // A tie keeps the block going (one Hifz group and Six (F) at 8:15 stay in the Hifz block).
-    const key = last && leading.includes(last.key) ? last.key : leading[0];
-    const headings = [key];
-    if (last?.key === key) {
-      last.periods.push(period);
-      for (const id of ids) last.ids.add(id);
-    } else {
-      blocks.push({ headings, periods: [period], groups: [], banded: false, key, ids });
-    }
-  }
-  return blocks.map(({ headings, periods: own, ids }) => {
-    const rows = groups.filter((g) => ids.has(g.id));
-    return { headings, periods: own, groups: rows, banded: rows.some((g) => g.band) };
-  });
+const PLACEMENT_ORDER: Placement[] = ['own_room', 'seated', 'class'];
+
+/** Active groups, and inactive ones that still have lessons, in their type's then their own order. */
+function listed(types: ClassType[], groups: Group[], assignments: Assignment[]): Group[] {
+  const used = new Set(assignments.flatMap((a) => [a.groupId, rowOf(a)]));
+  const typeSort = new Map(types.map((t) => [t.id, t.sort]));
+  return groups
+    .filter((g) => g.active || used.has(g.id))
+    .sort((a, b) => (typeSort.get(a.typeId) ?? 0) - (typeSort.get(b.typeId) ?? 0) || a.sort - b.sort || a.name.localeCompare(b.name));
 }
 
-/** Runs of groups under one band (LEVEL-1: L-1 A, B, C); a group without a band is a run of its own. */
-export function bandRuns<G extends Pick<Group, 'band'>>(groups: G[]): { band: string; groups: G[] }[] {
-  const runs: { band: string; groups: G[] }[] = [];
-  for (const g of groups) {
-    const last = runs[runs.length - 1];
-    if (last && g.band && last.band === g.band) last.groups.push(g);
-    else runs.push({ band: g.band, groups: [g] });
-  }
-  return runs;
+const GENDER_TITLE = { male: ' (M)', female: ' (F)', any: '' } as const;
+const GENDER_ORDER = ['male', 'female', 'any'];
+
+/** টেবিল: own-room groups by gender (M, F, then any), then the classes. */
+export function tableSections(types: ClassType[], groups: Group[], assignments: Assignment[]): Section[] {
+  const placement = new Map(types.map((t) => [t.id, t.placement]));
+  const rows = listed(types, groups, assignments);
+  const own = rows.filter((g) => placement.get(g.typeId) === 'own_room');
+  const ownTitle = types.filter((t) => t.placement === 'own_room' && own.some((g) => g.typeId === t.id)).map((t) => t.name).join(' · ');
+  const sections: Section[] = (GENDER_ORDER as (keyof typeof GENDER_TITLE)[])
+    .map((rule) => ({ key: `own-${rule}`, title: ownTitle + GENDER_TITLE[rule], groups: own.filter((g) => g.genderRule === rule) }))
+    .filter((s) => s.groups.length);
+  const classes = rows.filter((g) => placement.get(g.typeId) === 'class');
+  if (classes.length) sections.push({ key: 'classes', title: 'ক্লাস', groups: classes });
+  return sections;
 }
 
-export type Lane = Block & {
-  /** One period, or every group has the same classes in each: shown as cards, not a table. */
-  cards: boolean;
-};
-
-/**
- * The sheet view as columns (one per block) plus strips. A group with classes in two or more blocks
- * of other headings runs on its own times (Six (F)) and gets a strip instead; a group with no class
- * yet sits in the column of its heading, so it can be filled in.
- */
-export function sheetLayout(periods: Period[], assignments: Assignment[], groups: Group[]): { lanes: Lane[]; strips: Group[] } {
-  const blocks = sheetBlocks(periods, assignments, groups);
-  const strips = groups.filter((g) => blocks.filter((b) => b.headings[0] !== g.section && b.groups.includes(g)).length >= 2);
-  const used = new Set(assignments.map((a) => a.groupId));
-  const lanes = blocks.map((b) => {
-    const home = groups.filter((g) => g.active && !used.has(g.id) && g.section === b.headings[0] && blocks.find((x) => x.headings[0] === g.section) === b);
-    const members = new Set([...b.groups.filter((g) => !strips.includes(g)), ...home]);
-    const rows = groups.filter((g) => members.has(g));
-    // The same classes in every period: a group's classes per period, as one comparable text.
-    const sign = (g: Group, p: Period) =>
-      assignments
-        .filter((a) => a.groupId === g.id && a.periodId === p.id)
-        .map((a) => [a.subjectId, a.teacherId, a.taId, a.roomId, a.days.join(), a.note].join('|'))
-        .sort()
-        .join('\n');
-    const same = rows.every((g) => b.periods.every((p) => sign(g, p) === sign(g, b.periods[0])));
-    return { ...b, groups: rows, banded: rows.some((g) => g.band), cards: b.periods.length === 1 || same };
-  });
-  return { lanes: lanes.filter((l) => l.groups.length), strips };
+/** গ্রুপ: every type with its classes or groups — own-room types, then seated, then classes. */
+export function groupSections(types: ClassType[], groups: Group[], assignments: Assignment[]): Section[] {
+  const rows = listed(types, groups, assignments);
+  return [...types]
+    .sort((a, b) => PLACEMENT_ORDER.indexOf(a.placement) - PLACEMENT_ORDER.indexOf(b.placement) || a.sort - b.sort)
+    .map((t) => {
+      const mine = rows.filter((g) => g.typeId === t.id);
+      // Hifz and Najera list the boys' groups, then the girls', as the টেবিল does.
+      if (t.placement === 'own_room') mine.sort((a, b) => GENDER_ORDER.indexOf(a.genderRule) - GENDER_ORDER.indexOf(b.genderRule));
+      return { key: t.id, title: t.placement === 'class' ? `${t.name} ক্লাস` : `${t.name} গ্রুপ`, groups: mine };
+    })
+    .filter((s) => s.groups.length);
 }
 
-/**
- * The periods a group's day is made of, for one group's list (a strip, the phone): its heading's
- * blocks and any period it has a class in; with neither, every period.
- */
-export function groupPeriods(periods: Period[], assignments: Assignment[], groups: Group[], group: Group): Period[] {
-  const home = new Set(sheetBlocks(periods, assignments, groups).filter((b) => b.headings[0] === group.section).flatMap((b) => b.periods.map((p) => p.id)));
-  const own = periods.filter((p) => home.has(p.id) || assignments.some((a) => a.groupId === group.id && a.periodId === p.id));
-  return own.length ? own : periods;
+/** The lessons in one cell: a row's lessons at a time (by room for টেবিল, by group for গ্রুপ), earliest day first. */
+export function cellLessons(assignments: Assignment[], groupId: string, time: TimeSpan, by: 'room' | 'group', day: number | null = null): Assignment[] {
+  return assignments
+    .filter((a) => (by === 'room' ? rowOf(a) : a.groupId) === groupId && sameTime(a, time) && (day === null || a.days.includes(day)))
+    .sort((a, b) => Math.min(...a.days) - Math.min(...b.days));
 }
+
+/** The table's columns: every distinct lesson time of the routine. */
+export const columns = (assignments: Assignment[]) => distinctTimes(assignments);

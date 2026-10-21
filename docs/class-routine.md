@@ -1,12 +1,12 @@
 # Class Routine — Specification
 
-Status: **phase 1 built** (2026-10-18) on branch `class-routine`; spec agreed with the owner the same day. Build notes: §11. Next: owner review on the preview, then phase 2 (sheet import).
+Status: **phase 1 built** (2026-10-18); **simplified and rebuilt** (2026-10-21, §2a) on branch `class-routine`: typed times instead of periods, class types, rows = rooms. Build notes: §11. The parents' routine waits for the owner's samples.
 
 The school's class routine is kept today in a Google Sheet ([`1. Class schedule for teachers 2027.xlsx`](https://docs.google.com/spreadsheets/d/1vJ4Yil_kTcJ2uXCMjsw0oXpk-Xsg7oLy/edit?gid=2014558857#gid=2014558857)). This module moves it into `/admin` as a third module, **রুটিন**, next to ভর্তি and জরিপ:
 
 1. Enter teachers (profile, subjects they can teach, salary, weekly target).
-2. Assign each group's periods: subject + main teacher + optional TA.
-3. See the routine, and for any day + period which teachers are free and what they can teach, to arrange a proxy fast.
+2. Give each class and group its lessons: a typed time, days, subject + main teacher + optional TA.
+3. See the routine, and for any day and time which teachers are free and what they can teach, to arrange a proxy fast.
 4. See each teacher's weekly load, flagged under- or over-utilized.
 
 ## 1. What the current sheet tells us
@@ -49,11 +49,28 @@ Findings the design rests on:
 | Import | One-time script: sheet → **draft** routine + list of cells it couldn't read (phase 2) |
 | "3+1" in the sheet's "No of Classes" | **Main + TA** (owner, 2026-10-18): periods a day as main teacher + as TA. The new load is computed from assignments and shows main and TA apart the same way |
 
+### 2a. Simplification (owner, 2026-10-21; mockup locked on the canvas, page "সরল রুটিন (নতুন)")
+
+| Topic | Decision |
+|---|---|
+| Classes and groups | A **class** is a conventional class (Nursery…Six). Every student is also in one Quran group (Qaida, Ammapara, Najera, Hifz) and one Arabic group (L-1…), mixed across classes. Groups are **not linked** to classes and no students are tracked. |
+| Class types | An editable list (seeded জেনারেল, হিফয, নাজেরা, কুরআন, আরবি), each with a **placement**: *class* (own room, a row in the table), *own room* (Hifz/Najera: their own rooms and rows), *seated* (Quran/Arabic: sit in a class's room, chosen per lesson as **কোথায় বসে**). A subject belongs to exactly one type. |
+| Times | **Typed freely** per lesson (no periods). Quran/Arabic groups may move to any time (9:00–9:45, 11:00–11:45). Overlapping times are allowed; the table's columns are the routine's distinct times. |
+| Rooms | No shared rooms. |
+| Views | **টেবিল** (rows = rooms: Hifz/Najera sections on top, foldable, then the classes with the groups seated in their rooms), **গ্রুপ** (every class and group under its type, foldable), **টিচার**. Flat colour fill per type; no left accent bars or tinted chips. |
+| Add / edit | A side panel (§5). |
+| Prints | One table across an **A4 landscape** page. |
+| Teachers | Edit and delete on each row; delete removes the teacher's lessons, and a teacher with absence/proxy history is hidden instead (**সরান**). |
+| Sheet import | **Retired.** Classes and periods were wiped by migration `0012` (teachers, subjects, rooms, groups, absences and proxies kept). |
+| Parents' routine | Deferred until the owner sends samples. |
+
 ## 3. Data (Postgres, Drizzle — `src/lib/routine/schema.ts`, added to `drizzle.config.ts`)
 
 All tables are prefixed `routine_`.
 
-**`routine_subjects`**: `id`, `name` (as the school writes it, e.g. "Math", "বাংলা", "Qaida"), `order`, `active`.
+**`routine_class_types`**: `name` (unique), `placement` (class / own_room / seated), `sort` (the table's section order).
+
+**`routine_subjects`**: `id`, `type_id`, `name` (as the school writes it, e.g. "Math", "Qaida"; unique per type, so Islam can be both জেনারেল and আরবি), `sort`, `active`.
 
 **`routine_teachers`**
 
@@ -75,32 +92,30 @@ All tables are prefixed `routine_`.
 
 **`routine_teacher_subjects`**: teacher ↔ subject (the "can teach" checkboxes).
 
-**`routine_rooms`**: `name` (e.g. "501", "Hall"), `shared` (true → never a clash).
+**`routine_rooms`**: `name` (e.g. "501", "Hall").
 
-**`routine_groups`**: `name` (Nursery-A, Two (M), Qaida-A, L-1 A), `kind` (class section / level group), `section` (heading the grid sorts under: e.g. জেনারেল, কুরআন, আরবি, হিফয), `band` (optional label shared by a run of groups, e.g. LEVEL-1 for L-1 A, B, C), `order`, `default_room_id`, `gender_rule` (any / male / female), `active`.
+**`routine_groups`** (classes and groups): `name` (Nursery-A, Hifz-1 (M), Qaida-A, L-1 A), `type_id`, `sort`, `default_room_id` (none for a seated group), `gender_rule` (any / male / female), `active`.
 
 **`routine_routines`**: `name`, `status` (draft / active; at most one active), `created_at`, `copied_from_id`.
 
-**`routine_periods`** (per routine): `label` (optional, e.g. "হিফয"), `starts_at`, `ends_at` (minutes = difference), `order`. Periods in one routine may not overlap.
+**`routine_assignments`** (lessons): `routine_id`, `group_id`, `host_group_id` (a seated group: the class whose room it uses), `starts_at`, `ends_at` (minutes after midnight, end after start), `days` (set of sat…thu, at least one), `subject_id` (of the group's type), `teacher_id` (main, required), `ta_id` (optional, ≠ main).
 
-**`routine_assignments`**: `routine_id`, `group_id`, `period_id`, `days` (set of sat…thu, at least one), `subject_id`, `teacher_id` (main, required), `ta_id` (optional, ≠ main), `room_id` (optional; falls back to the group's default room), `note`.
+A cell that changes by day is several rows with disjoint `days`. Example, `farhana/nasreen (sun–tue)`: row 1 sat, wed, thu → Farhana; row 2 sun–tue → Farhana + TA Nasreen.
 
-A cell that changes by day is several rows with disjoint `days`. Example, `farhana/nasreen (sun–tue)` in an English period: row 1 sat, wed, thu → Farhana; row 2 sun–tue → Farhana + TA Nasreen.
+**`routine_absences`**: `date`, `teacher_id`, `times` (null = all day, or the lesson times away), `reason` (optional).
+**`routine_proxies`**: `date`, `assignment_id`, `role`, `starts_at`, `ends_at`, `proxy_teacher_id`, plus a **snapshot** of group / time / subject / absent-teacher names so history stays readable after the routine changes. One proxy per assignment and role per date; a proxy teacher can't take two overlapping ones (exclusion constraint).
 
-**`routine_absences`**: `date`, `teacher_id`, `periods` (all day, or chosen period ids), `reason` (optional).
-**`routine_proxies`**: `date`, `assignment_id`, `proxy_teacher_id`, plus a **snapshot** of group / period / subject / absent-teacher names so history stays readable after the routine changes. One proxy per assignment per date.
-
-**Clash rule** (server action, inside one transaction that locks the routine row): for the same routine, same period and an overlapping day, refuse if the main teacher or TA is already main or TA elsewhere, if the group already has an assignment, or if the effective room is in use and not shared. The error names what clashes ("মুঈন ৯:০০ রবি–মঙ্গল Qaida-C-তে আছেন"). Subject not in the teacher's list and gender rule broken → **warning**, saved after confirming.
+**Clash rule:** in one routine, on a shared day, two lessons whose times overlap (touching ends don't) may not share the group, a teacher (main or TA) or the room row (a seated group takes its host class's row; a class or own-room group its own). The database refuses it (`routine_slots_no_overlap`, an exclusion constraint over `int4range(starts_at, ends_at)`, btree_gist); the editor checks the same rules first (`clash.ts`) and names what clashes ("Six (F)-এর প্রতিদিন ৯:০০–১০:০০-এ আগে থেকেই English আছে।"). Subject not in the teacher's list and gender rule broken → **warning**, saved after confirming.
 
 ## 4. Load math (pure module, unit-tested)
 
-- `main` = Σ over the teacher's main assignments of the number of days; `ta` likewise for TA rows.
+- `main` = Σ over the teacher's main lessons of the number of days (each lesson a day = 1 class, whatever its length); `ta` likewise for TA rows.
 - `weighted = main + ½ × ta`; `percent = weighted ÷ target_periods`.
 - Status: **কম** (< 80 %), **ঠিক আছে** (80–100 %), **বেশি** (> 100 %), or **টার্গেট নেই**.
-- `minutes/week` = Σ of period length × days (main and TA shown separately).
+- `minutes/week` = Σ of lesson length × days (main and TA shown separately).
 - `a day` = main ÷ 6 + TA ÷ 6, shown as the sheet writes it ("৩+১"). The target stays one weekly number (owner, 2026-10-18): 3+1 a day is (3 + ½) × 6 = 21.
-- `salary per period` ≈ salary ÷ (weighted × 52 ÷ 12), shown on the workload page only.
-- Busiest day: the most periods on any one day (a teacher with 6 on Sunday and 1 on Thursday stands out).
+- `salary per class` ≈ salary ÷ (weighted × 52 ÷ 12), shown on the workload page behind **বেতন দেখান**.
+- Busiest day: the most classes on any one day (a teacher with 6 on Sunday and 1 on Thursday stands out).
 
 The **active** routine feeds the workload page; a draft shows its own workload while it's being edited.
 
@@ -110,14 +125,15 @@ Follows the shared admin design (`docs/admin-redesign-plan.md`, pieces in `src/a
 
 | Nav | Page | Contents |
 |---|---|---|
-| রুটিন | `/admin/routine` | The chosen routine (active by default) in three views (owner, 2026-10-18; redesigned and locked 2026-10-19), all with a day filter (**সব দিন** shows day chips; one day shows only that day) and an **A3 print**: **শিট** (default) — a column per block of the day in time order (a run of periods whose classes share a heading: হিফয · কুরআন · আরবি · জেনারেল · হিফয বিকেল; a block is named by the heading most of its classes are under). A block with one period, or the same classes in each, shows a card per group (name, room small, subject with its day tags, teachers); a longer one (জেনারেল) is a small table, periods across, the room under the group name. Groups of one band (LEVEL-1) sit under a band subheading. A group with classes in two or more other headings' blocks runs on its own times (Six (F)) and gets a strip at the bottom (its heading's periods and its classes elsewhere, "+" where a day has none); a group with no class yet sits in its heading's column with "+" cells. The columns fit a 1600px screen with the sidebar; narrower, the row scrolls to the running column. **টাইমলাইন** — every group on one time axis, a row per group under a heading row, a column per period, cells outside a group's blocks greyed ("+" on hover); subject colours on by default. **টিচার অনুযায়ী** — a row per teacher, periods across, empty = free, weekly load at the end. Main teacher names in brown, TA in blue with "+", open posts dashed, the note as a small tag ("Extra support"). **টিচার খুঁজুন** (শিট and টাইমলাইন) fades every class but the chosen teacher's and counts them. With today's day on screen in the active routine, **today's absences** show struck through with the proxy (→ name) or **প্রক্সি লাগবে**. Any class cell opens the editor: tap a subject, then a teacher from the **teacher picker** (free teachers green, those who teach the subject first, the lightest week first; busy ones red with where they are, folded away); the TA, a split by days (**দিন ভাগ করুন**), the room and a note only when needed; clashes refused; a cell whose days are all taken shows only its rows. A group's gender rule stays a note on a green chip and asks on save. On a school day the **running period is marked এখন** in every view (refreshed every minute). The view and day stay in the address (`?view=`, `?day=`). **On a phone** the page shows one day as a list (today's, unless a day is asked for): one group's periods (its heading's, plus any it has a class in) with "+" where that day has no class (group chips) or one teacher's (গ্রুপ/টিচার switch), the running period outlined. |
-| ক্লাসের রুটিন | `/admin/routine/groups/[id]` | One group's week: days × periods. **A4 print**. |
+| রুটিন | `/admin/routine` | The chosen routine (active by default; `?r=` a draft) as one plain table, the routine's distinct times across (sticky head and name column), in three views (`?view=`, locked 2026-10-21): **টেবিল** (default) — a row per room: the own-room types first (Hifz and Najera, one section per gender, "হিফয · নাজেরা (M)"), then **ক্লাস**, each class's row also showing the seated groups in its room (group name in its type's colour). **গ্রুপ** — every class and group under its type (own room, seated, then classes), a seated group's cell saying "Nursery-A-এর রুমে · ৪০২". **টিচার** — a row per teacher, empty = free, the week's load at the end. A section heading folds its rows into one line counting the groups in class at each time (remembered in the browser; prints unfolded). Cells take a flat fill per type. A day filter (`?day=`), **টিচার খুঁজুন** (fades every other lesson and counts the chosen teacher's), **ছোট করে দেখুন** (compact), **?** (what the names and colours mean) and **⋯** (print, versions). With today on screen in the active routine, today's absences show struck through with the proxy (→ name) or **প্রক্সি লাগবে**; the running time is marked **এখন**. **ক্লাস যোগ করুন**, a lesson, or "+" in an empty cell (that row and time) opens the side panel: ক্লাস, না কোন গ্রুপ (type chips) → name → subject (that type's) → time (typed, Bengali or English digits; "✓ … কলামে বসবে" or "নতুন কলাম তৈরি হবে", the routine's times one tap away) → days → **কোথায় বসে** (seated groups; the last one preselected) → clash alert → teacher picker (free green, subject teachers first; busy folded with where they are) → TA. **সেভ**, **সেভ করে আরেকটা**, **ডিলিট** (edit), and an undo toast. **Print:** one table across A4 landscape, the time row repeated on each page. |
+| ক্লাসের রুটিন | `/admin/routine/groups/[id]` | One class's or group's week: days × its times (a class also shows the groups seated in its room). **A4 print**. |
 | টিচারের রুটিন | `/admin/routine/teachers/[id]` | One teacher's week (main and TA marked), load summary. **A4 print** (no salary or phone). |
-| ফ্রি টিচার | `/admin/routine/free` | One **date** (default today; ‹ › step a school day), every teacher's state in every period (`dayBoard`). Two views (locked 2026-10-19), `?view=`: **নাম** (default) — a column per period (time, label, "N জন ফ্রি", এখন), each teacher a chip with only their subject names: **solid green** free and teaches a subject taught in that period (or the chosen subject), **dashed pale green** free with other subjects, **orange** on a proxy (group shown), **red** in class (group · subject), **grey** absent; free chips first, fewest classes that day first. Teachers with no class that day in the period's **sitting** (periods at most 30 minutes apart: the morning school day; the evening Hifz is another) fold into "+N জন স্কুলে নেই". **টেবিল** — a row per teacher, periods across, the same colours, the day's class count at the end; with a subject chosen, its teachers come first under their own heading. Today, past periods fade and the board scrolls to the running one. That day's absentees are named with a link to the proxy page. |
+| ফ্রি টিচার | `/admin/routine/free` | One **date** (default today; ‹ › step a school day), every teacher's state at every lesson time (`dayBoard`). Two views (locked 2026-10-19), `?view=`: **নাম** (default) — a column per time ("N জন ফ্রি", এখন), each teacher a chip with only their subject names: **solid green** free and teaches a subject taught then (or the chosen subject), **dashed pale green** free with other subjects, **orange** on a proxy (group shown), **red** in class (group · subject), **grey** absent; free chips first, fewest classes that day first. Teachers with no class that day in the time's **sitting** (lessons at most 30 minutes apart: the morning school day; the evening Hifz is another) fold into "+N জন স্কুলে নেই". **টেবিল** — a row per teacher, times across, the same colours, the day's class count at the end; with a subject chosen, its teachers come first under their own heading. Today, past times fade and the board scrolls to the running one. That day's absentees are named with a link to the proxy page. |
 | প্রক্সি | `/admin/routine/proxy` | Daily register (§6). |
-| ওয়ার্কলোড | `/admin/routine/workload` | Every teacher: main, TA, weighted, target, %, status badge, minutes/week, busiest day (all of them when tied), proxies this month, salary, salary per period. The **target is typed in the table** (saved on Enter or leaving the box), so rows sort by name and stay put. Also **খালি পোস্ট** (posts to fill): vacancy teachers with their subjects and weekly load. |
-| টিচার | `/admin/routine/teachers` | List + form (fields of §3, subjects as checkboxes). |
-| সেটআপ | `/admin/routine/setup` | Routines (create, copy, make active, rename, delete draft), periods of a routine, subjects, rooms, groups. |
+| প্রক্সি তালিকা | `/admin/routine/proxy/list` | Who was away and who covered which class, for a day or a school week (**দিন / সপ্তাহ**, ‹ ›), totals, WhatsApp copy, print, and the month's proxy counts as bars. Today and later list every class of an absent teacher (covered or **প্রক্সি লাগবে**); past days list only the proxies given (their snapshot), since the routine may have changed since. |
+| ওয়ার্কলোড | `/admin/routine/workload` | Every teacher: main, TA, weighted, target, %, status badge, minutes/week, busiest day (all of them when tied), proxies this month; salary and salary per class only with **বেতন দেখান** on (`?salary=1`). The **target is typed in the table** (saved on Enter or leaving the box), so rows sort by name and stay put. Also **খালি পোস্ট** (posts to fill): vacancy teachers with their subjects and weekly load. |
+| টিচার | `/admin/routine/teachers` | Search by name or subject, filter সবাই / বেশি / কম / খালি পোস্ট; each row **এডিট** (side panel: short name, gender, full name, designation, phone, subjects by type, target, salary, the rest folded) and **ডিলিট** (a confirm listing the lessons it deletes; with history it is **সরান**: hidden, lessons deleted, history kept). `?edit=<id>` / `?new=1` open the panel. |
+| সেটআপ | `/admin/routine/setup` | Tabs (`?tab=`): **ক্লাসের ধরন** (name, placement, ▲▼ order), **ক্লাস ও গ্রুপ** and **সাবজেক্ট** under their type, **রুম**, **রুটিন ভার্সন** (new, copy, make active, rename, delete a draft). A row's **এডিট** opens a side panel; **⋯** holds the rest. Deleting a type, subject or room asks first (a room's classes then have no room); deleting a class or group shows an undo. A type, subject, class or group still in the routine can't be deleted (turn it off instead); a type's placement, or a class's or group's type, can't change while it has lessons. Making a version active asks first (today's and later proxies of the old one are dropped); a new or copied version opens in the routine page. |
 
 Making a routine active asks for confirmation. Saved proxies of past dates keep their snapshot.
 
@@ -128,41 +144,19 @@ The screen (rebuilt 2026-10-19 for the principal and office staff, phone first):
 1. Pick a date (default today, ‹ › a school day back or on; Fridays have no classes).
 2. **কে আসেননি?** Select an absent teacher (whole day; an optional reason). Each absent teacher is a chip showing how many of their classes still need a proxy; tap one to open them.
 3. Their classes that day come up as cards (time, group · subject, TA marked), each **প্রক্সি লাগবে** or **প্রক্সি: name**. The first uncovered card is open, showing the **teacher picker**:
-   - green = can take it (`rankCandidates`, the same list the server checks): active, not a vacancy, not absent, free in that period on that day (no class as main or TA, no proxy already that date + period), and meeting the group's gender rule;
+   - green = can take it (`rankCandidates`, the same list the server checks): active, not a vacancy, not absent, free at that time on that day (no overlapping class as main or TA, no overlapping proxy that date), and meeting the group's gender rule;
    - first those who teach the subject (**<subject> পড়ান**), then **অন্য সাবজেক্টের টিচার**;
-   - within each, those at school then (a class in the same sitting that day, see ফ্রি টিচার) before the rest, marked "এ সময় স্কুলে থাকেন না"; then fewest periods that day (proxies included), then fewest proxies this month — shown under each name;
+   - within each, those at school then (a class in the same sitting that day, see ফ্রি টিচার) before the rest, marked "এ সময় স্কুলে থাকেন না"; then fewest classes that day (proxies included), then fewest proxies this month — shown under each name;
    - red = everyone else, with why (অ্যাবসেন্ট, <group>-এ ক্লাস, <group>-এ প্রক্সি, the gender rule).
-4. Tapping a green name saves at once, shows an **undo** toast and opens the next uncovered card. An assigned card offers **WhatsApp** (a ready message to the proxy teacher's number), **প্রক্সি সরান**, and for an uncovered one **এ পিরিয়ডে আছেন** (the absence then keeps only the other periods; none left removes it).
-5. Below: the day's list (prints on A4; copies as WhatsApp text: date, period, class, subject, absent teacher → proxy) and the month's proxy counts.
-6. Making another routine active moves upcoming absences for chosen periods to its periods at the same times; with none at that time the absence becomes the whole day (never silently nothing).
+4. Tapping a green name saves at once, shows an **undo** toast and opens the next uncovered card. An assigned card offers **WhatsApp** (a ready message to the proxy teacher's number), **প্রক্সি সরান**, and for an uncovered one **এ ক্লাসে আছেন** (the absence then keeps only the other times; none left removes it).
+5. Below: the day's list (prints on A4; copies as WhatsApp text: date, time, class, subject, absent teacher → proxy) and the month's proxy counts.
+6. Absences are kept by time, so making another routine active carries them over as they are.
 
 Proxy counts per teacher for the month show on the proxy page and the workload page.
 
-## 7. Import from the sheet (phase 2)
+## 7. Import from the sheet (retired 2026-10-21)
 
-A one-time script reads the sheet's Excel download into a **draft** routine (built 2026-10-18):
-
-```bash
-pnpm routine:import "<path>/Class schedule.xlsx"          # dry run: drafts names.json, writes report.md
-pnpm routine:import "<path>/Class schedule.xlsx" --apply  # writes a draft routine to DATABASE_URL (.env.local)
-# options: --name "<routine name>" (default "শিট থেকে (date)"), --dir <folder>
-```
-
-- Its files go to `routine-import/` next to the `.xlsx`, never into this public repo:
-  - `names.json` maps each short name to its full name and ERP ID (from the ERP teacher list), a gender, a "Profile all" row (qualification, phone, salary) and other spellings (aliases). The first run drafts it from "Free Teachers" plus any names the grid uses; the owner fills in the rest. `--apply` refuses while a teacher's gender is missing (open posts may stay empty) or a Profile name doesn't match.
-  - `report.md` lists what would be created, the fix list, the classes with days left empty, and every class it read.
-  - `applied.md` (after `--apply`) lists the classes that could not be placed.
-- Reading the grid (`src/lib/routine/sheet-import.ts`, pure, unit-tested):
-  - Periods and blocks come from the time row and the block-name row above it. Times have no am/pm, so 1–6 are read as afternoon.
-  - Bands of rows sit between empty rows. In a band: a Hifz group (merged over its periods), a Quran group (name, then teacher), an Arabic level (`LEVEL-n` merged down its letters → `L-n A`, band `LEVEL-n`; RA/BA book lines → subject Arabic, the book in the note), and a class (name, room, one cell per general period).
-  - Cell lines are subjects (`Subject`, `Subject (days)`, `Subject: Teacher (days)`, `(ex tue)`), then teacher lines.
-    - A subject without days gets the days the other lines leave.
-    - "A / B" or "A + B" makes A main and B TA. Days after them are the TA's days.
-    - With as many teachers as subjects, they pair in order.
-  - Everything else goes on the fix list, never guessed: two subjects in one line, a missing teacher, overlapping days, unknown names, a class with its own times (Six (F)), rooms given to two classes (marked shared).
-- Writing (`sheet-import-apply.ts`): subjects, rooms, groups and teachers with the same name are reused untouched; new ones are created (groups get no gender rule, since "(M)"/"(F)" in the sheet is the students' section and women teach boys' sections; new teachers get the subjects the sheet gives them; no weekly targets). Every class goes through `saveAssignment`, so clashes are refused as in the editor. When only the TA clashes, the class is kept without the TA and noted.
-
-Nothing is written to the active routine. The owner reviews the draft, fixes the list in the editor and makes it active. A failed run leaves a partial draft: delete it in setup and run again.
+A one-time script once read the sheet into a draft routine (`pnpm routine:import`). With typed times and class types it no longer fits, and the owner chose to enter the routine fresh in the new editor, so the script and its tests were removed (git history before 2026-10-21 has them).
 
 ## 8. Security & privacy
 
@@ -176,21 +170,23 @@ Nothing is written to the active routine. The owner reviews the draft, fixes the
 | Phase | Scope |
 |---|---|
 | **1** | Schema + migration; subjects, rooms, groups, periods, routines (draft / active / copy); teachers (incl. vacancy flag, ERP ID); routine editor with clash checks; school / group / teacher views; free teachers; workload + posts to fill; **proxy register**; **prints** (A3 school grid, A4 group / teacher / proxy day). Local preview fixtures (`ADMISSIONS_LOCAL=1`) with sample routine. |
-| **2** | Sheet import script (draft + fix list). Built 2026-10-18 (§7). |
-| **3** | Ramadan timings (a second set of period times reusing the same assignments); subject coverage per group (periods/week needed vs assigned); use ERP ID to join routine with survey reports. |
+| **2** | Sheet import script (draft + fix list). Built 2026-10-18, retired 2026-10-21 (§7). |
+| **2a** | Simplification (§2a): class types, typed times, rows = rooms, side-panel editor, setup tabs, teacher delete, proxy list. Built 2026-10-21. |
+| **3** | Parents' routine (when the owner sends samples); Ramadan timings (a copied version with other times); subject coverage per group (periods/week needed vs assigned); use ERP ID to join routine with survey reports. |
 
-Tests: pure modules (clash detection, load math, free-teacher and proxy ranking, day-split helpers) unit-tested; clash enforcement and proxy save as `*.db.test.ts`; Playwright smoke for the routine pages in the local preview.
+Tests: pure modules (clash detection, load math, free-teacher and proxy ranking, time parsing) unit-tested; clash enforcement and proxy save on PGlite (`*.pg.test.ts`); Playwright smoke for the routine pages in the local preview.
 
 ## 10. Open questions
 
 1. ~~What does "3+1" mean?~~ Main + TA periods a day (owner, 2026-10-18).
 2. Target periods per week for each teacher: to be entered by the owner (the sheet has none per week).
 
-## 11. Build notes (phase 1, 2026-10-18)
+## 11. Build notes (2026-10-18, rebuilt 2026-10-21)
 
-- **Code:** logic in `src/lib/routine/` (pure: `days`, `clash`, `load`, `free`, `proxy`, `availability` — the picker's green/red choices for the proxy screen, the editor and the free page; server-only: `data`, `db`); pages in `src/app/admin/routine/` (`page.tsx` + `RoutineGrid.tsx` is the routine page and cell editor, its views in `views.tsx` (শিট, টাইমলাইন, phone) with shared cells in `cells.tsx`, the sheet's columns from `sheetLayout` in `src/lib/routine/layout.ts`; `groups/[id]`, `teachers/[id]`, `free`, `proxy`, `workload`, `teachers`, `setup`). Migration `drizzle/0008_routine_init.sql`.
-- **Clash guard:** `routine_slots` holds one row per assignment × day for its group, its teacher and TA, and its room unless shared; the primary key `(routine, period, day, kind, ref)` makes a double booking fail the whole `db.batch`. The editor checks the same rules first (`clash.ts`) to give a readable message. Slot rows are inserted 1,000 to a statement (Postgres's parameter limit). Room rows are rebuilt for every routine whenever a room's "shared" flag, a group's default room or a room's existence changes, and the change is refused if it would create a clash.
-- **Copy:** copying a routine copies its periods, assignments and slot rows with new ids.
-- **Proxies:** the register works on the active routine. A saved proxy is dropped when it no longer holds: nobody is away from that class any more, or the proxy teacher is now away or has a class in that period. Absence changes re-check that date; routine changes (a class saved or deleted, a period deleted) re-check every date from today on. Making another routine active drops today's and later proxies of the old one. Past proxies stay as history: each keeps a name snapshot, and its class and period links go NULL when those are deleted.
-- **Local preview:** `ADMISSIONS_LOCAL=1` loads a sample routine with made-up names (`src/lib/routine/testing/dev-fixtures.ts`): class sections, Quran/Arabic/Hifz level groups, a shared hall, day-split cells, a TA, a vacancy, and one teacher away today.
-- **Tests:** `src/lib/routine/routine.test.ts` (pure logic), `data.pg.test.ts` (PGlite: clash guard, rooms, copy, proxies, the sample), `e2e/admin-routine.spec.ts` (`pnpm test:e2e:admissions`, project `routine`). `pnpm admin:screenshots [dir] routine` captures the pages and the A3/A4 prints.
+- **Code:** logic in `src/lib/routine/` (pure: `days` (times, `parseTime`/`parseSpan`: Bengali or English digits, 1–6 o'clock read as afternoon, an end before an afternoon start read in the evening), `clash`, `load`, `free` (sittings), `proxy`, `availability` (the picker's choices), `layout` (`tableSections`, `groupSections`, `cellLessons`); server-only: `data`, `db`, `backup`). Pages in `src/app/admin/routine/`: `page.tsx` + `RoutineGrid.tsx` (the three views), `LessonPanel.tsx` (the side panel), `cells.tsx` (time heads, a lesson, type fills), `controls.tsx` (side panel, chips, segmented control, toasts); `groups/[id]`, `teachers` (`TeacherList`, `TeacherForm` = the panel), `teachers/[id]`, `free`, `proxy` (+ `proxy/list`), `workload`, `setup` (`SetupBoard`). Migrations `drizzle/0008_routine_init.sql` … `0012_routine_typed_times_finish.sql`.
+- **Migration 0011/0012:** seeds the five types, types each group from its old section, splits subjects by type (Islam, Arabic, Quran), moves absence and proxy periods to times, **deletes every lesson** and drops `routine_periods`. It runs on deploy (`vercel-build`), so the production routine is emptied then; teachers and the register's history stay.
+- **Clash guard:** `routine_slots` holds one row per lesson × day for its group, its room row, its teacher and TA (`kind` text, `ref_id`, `starts_at`, `ends_at`); the exclusion constraint makes an overlapping double booking fail the whole `db.batch`. PGlite loads btree_gist for the tests and the preview (`src/lib/admissions/testing/pg.ts`).
+- **Copy:** copying a routine copies its lessons and slot rows with new ids.
+- **Proxies:** the register works on the active routine. A saved proxy is dropped when it no longer holds (nobody away from that class, or the proxy teacher now away or in an overlapping class). Absence changes re-check that date; routine changes re-check every date from today on. Making another routine active drops today's and later proxies of the old one. Past proxies keep their name snapshot.
+- **Local preview:** `ADMISSIONS_LOCAL=1` loads a sample routine with made-up names (`src/lib/routine/testing/dev-fixtures.ts`): Hifz/Najera M/F groups in their own rooms (morning and evening), classes, Quran/Arabic groups seated in class rooms, a class on its own times (Six (F)), day-split cells, a TA, a vacancy, and one teacher away today.
+- **Tests:** `src/lib/routine/routine.test.ts`, `availability.test.ts` (pure logic), `data.pg.test.ts`, `backup.pg.test.ts` (PGlite: clash guard, copy, teacher delete, proxies, the sample), `e2e/admin-routine.spec.ts` (`pnpm test:e2e:admissions`, project `routine`). `pnpm admin:screenshots [dir] routine` captures the pages and prints.
