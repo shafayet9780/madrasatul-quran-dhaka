@@ -2,8 +2,8 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
-import { ArrowDown, ArrowUp, MoreHorizontal, Plus } from 'lucide-react';
+import { useOptimistic, useRef, useState, type PointerEvent } from 'react';
+import { ArrowDown, ArrowUp, GripVertical, MoreHorizontal, Plus } from 'lucide-react';
 import { Button } from '@/components/shadcn/button';
 import { Dialog, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/shadcn/dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/shadcn/dropdown-menu';
@@ -19,8 +19,8 @@ import {
   deleteRoutineAction,
   deleteSubjectAction,
   deleteTypeAction,
-  moveTypeAction,
   renameRoutineAction,
+  reorderAction,
   saveGroupAction,
   saveRoomAction,
   saveSubjectAction,
@@ -31,7 +31,8 @@ import { Chips, ConfirmButton, INPUT, OUTLINE, RoutineDialog, SidePanel, useActi
 
 // Routine setup (docs/class-routine.md §4) in tabs: ক্লাসের ধরন (their order is the routine table's),
 // ক্লাস ও গ্রুপ and সাবজেক্ট under their type, রুম, and the routine's versions. A row's এডিট opens
-// the side panel; ⋯ holds the rest.
+// the side panel; ⋯ holds the rest. Types, and classes and subjects within their type, are put in order
+// with ↑↓ or by dragging the handle.
 
 export type Tab = 'types' | 'classes' | 'subjects' | 'rooms' | 'routines';
 const TABS: [Tab, string][] = [
@@ -56,7 +57,8 @@ const RULES: { value: GenderRule; label: string }[] = [
 
 type Props = { tab: Tab; routines: RoutineSummary[]; current: RoutineInfo | null; types: ClassType[]; groups: Group[]; subjects: Subject[]; rooms: Room[]; teachers: Teacher[]; lessons: Record<string, number> };
 type Panel = { tab: Tab; id?: string };
-type Row = { key: string; title: string; sub: string; badges?: { text: string; tone: 'green' | 'grey' | 'blue' }[]; edit: () => void; move?: (step: -1 | 1) => void; menu: { label: string; run?: () => void; href?: string; danger?: boolean }[] };
+type Section = { key: string; title?: string; rows: Row[]; reorder?: (ids: string[]) => Promise<Result> };
+type Row = { key: string; title: string; sub: string; badges?: { text: string; tone: 'green' | 'grey' | 'blue' }[]; edit: () => void; menu: { label: string; run?: () => void; href?: string; danger?: boolean }[] };
 
 const BADGE = { green: 'bg-success/10 text-success', grey: 'bg-muted text-muted-foreground', blue: 'bg-[#eef4ff] text-[#1e40af]' };
 
@@ -90,15 +92,16 @@ export function SetupBoard(props: Props) {
   const typeOf = (id: string) => types.find((t) => t.id === id);
 
   const counts: Record<Tab, number> = { types: types.length, classes: groups.length, subjects: subjects.length, rooms: rooms.length, routines: routines.length };
-  const sections: { title?: string; rows: Row[] }[] = [];
+  const sections: Section[] = [];
   if (tab === 'types') {
     sections.push({
+      key: 'types',
+      reorder: (ids) => reorderAction('types', ids),
       rows: types.map((t) => ({
         key: t.id,
         title: t.name,
         sub: `${PLACEMENTS.find((p) => p.value === t.placement)?.label} · ${bn(groups.filter((g) => g.typeId === t.id).length)}টা ক্লাস/গ্রুপ · ${bn(subjects.filter((s) => s.typeId === t.id).length)}টা সাবজেক্ট`,
         edit: () => open({ tab, id: t.id }),
-        move: (step) => run(() => moveTypeAction(t.id, step)),
         menu: [{ label: 'ডিলিট', danger: true, run: () => setAsking({ title: `${t.name} ধরন ডিলিট করবেন?`, body: 'ধরনটা খালি হলে (কোনো ক্লাস, গ্রুপ বা সাবজেক্ট নেই) তবেই ডিলিট হবে।', run: () => act(() => deleteTypeAction(t.id), `${t.name} ডিলিট হয়েছে`) }) }],
       })),
     });
@@ -135,10 +138,11 @@ export function SetupBoard(props: Props) {
                 edit: () => open({ tab, id: s.id }),
                 menu: [{ label: 'ডিলিট', danger: true, run: () => setAsking({ title: `${s.name} ডিলিট করবেন?`, body: 'টিচারদের সাবজেক্টের লিস্ট থেকেও বাদ যাবে। রুটিনে থাকলে ডিলিট হবে না; তখন এডিটে গিয়ে বন্ধ করুন।', run: () => act(() => deleteSubjectAction(s.id), `${s.name} ডিলিট হয়েছে`) }) }],
               }));
-      if (rows.length) sections.push({ title: `${t.name} · ${bn(rows.length)}`, rows });
+      if (rows.length) sections.push({ key: t.id, title: `${t.name} · ${bn(rows.length)}`, rows, reorder: (ids) => reorderAction(tab === 'classes' ? 'groups' : 'subjects', ids) });
     }
   } else if (tab === 'rooms') {
     sections.push({
+      key: 'rooms',
       rows: rooms.map((r) => {
         const used = groups.filter((g) => g.defaultRoomId === r.id).map((g) => g.name);
         return {
@@ -152,6 +156,7 @@ export function SetupBoard(props: Props) {
     });
   } else {
     sections.push({
+      key: 'routines',
       rows: routines.map((v) => ({
         key: v.id,
         title: v.name,
@@ -195,57 +200,22 @@ export function SetupBoard(props: Props) {
       {sections.length === 0 || sections.every((s) => !s.rows.length) ? (
         <p className="m-0 rounded-xl border border-dashed p-6 text-center text-sm text-muted-foreground">এখনো কিছু নেই। উপরের &quot;{NEW[tab]}&quot; চাপুন।</p>
       ) : (
-        sections.map((s, i) => (
-          <section key={s.title ?? i} className="flex flex-col gap-2">
+        sections.map((s) => (
+          <section key={s.key} className="flex flex-col gap-2">
             {s.title && <h2 className="m-0 text-[13px] font-semibold text-muted-foreground">{s.title}</h2>}
-            <ul className="m-0 flex list-none flex-col divide-y rounded-xl border bg-card p-0">
-              {s.rows.map((r, j) => (
-                <li key={r.key} className="flex flex-wrap items-center gap-x-3 gap-y-1 px-4 py-2.5">
-                  {r.move && (
-                    <span className="flex gap-1">
-                      <button type="button" disabled={j === 0} onClick={() => r.move!(-1)} aria-label={`${r.title} উপরে`} className="inline-flex size-7 items-center justify-center rounded-md border bg-white disabled:opacity-30">
-                        <ArrowUp aria-hidden className="size-3.5" />
-                      </button>
-                      <button type="button" disabled={j === s.rows.length - 1} onClick={() => r.move!(1)} aria-label={`${r.title} নিচে`} className="inline-flex size-7 items-center justify-center rounded-md border bg-white disabled:opacity-30">
-                        <ArrowDown aria-hidden className="size-3.5" />
-                      </button>
-                    </span>
-                  )}
-                  <span className="flex min-w-0 flex-1 flex-col">
-                    <span className="flex flex-wrap items-center gap-2 font-medium">
-                      {r.title}
-                      {r.badges?.map((b) => (
-                        <span key={b.text} className={cn('rounded-full px-2 py-px text-[12px] font-semibold', BADGE[b.tone])}>
-                          {b.text}
-                        </span>
-                      ))}
-                    </span>
-                    <span className="text-[12.5px] text-muted-foreground">{r.sub}</span>
-                  </span>
-                  <Button type="button" variant="outline" className={cn(OUTLINE, 'h-8')} onClick={r.edit}>
-                    এডিট
-                  </Button>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger className="inline-flex size-8 items-center justify-center rounded-md border bg-white text-muted-foreground hover:bg-muted" aria-label={`${r.title}: আরও`}>
-                      <MoreHorizontal aria-hidden className="size-4" />
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="adm w-52">
-                      {r.menu.map((m) =>
-                        m.href ? (
-                          <DropdownMenuItem key={m.label} asChild>
-                            <Link href={m.href}>{m.label}</Link>
-                          </DropdownMenuItem>
-                        ) : (
-                          <DropdownMenuItem key={m.label} onSelect={m.run} className={cn(m.danger && 'text-destructive focus:text-destructive')}>
-                            {m.label}
-                          </DropdownMenuItem>
-                        ),
-                      )}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </li>
-              ))}
-            </ul>
+            <RowList
+              rows={s.rows}
+              reorder={
+                s.reorder &&
+                ((ids, setOrder) =>
+                  run(async () => {
+                    setOrder(ids);
+                    const result = await s.reorder!(ids);
+                    if (!result.ok) show(result.error);
+                    return result;
+                  }))
+              }
+            />
           </section>
         ))
       )}
@@ -296,6 +266,141 @@ export function SetupBoard(props: Props) {
     </>
   );
 }
+
+/**
+ * A section's rows. With `reorder`, each row has ↑↓ and a handle to drag (mouse or finger): the rows
+ * move as it's dragged and the order saves on letting go, showing at once.
+ */
+function RowList({ rows, reorder }: { rows: Row[]; reorder?: (ids: string[], setOrder: (ids: string[]) => void) => void }) {
+  const [saved, setSaved] = useOptimistic(rows.map((r) => r.key));
+  const [drag, setDrag] = useState<{ key: string; order: string[] } | null>(null);
+  const list = useRef<HTMLUListElement>(null);
+  const pointer = useRef({ y: 0, frame: 0 });
+  const live = useRef<typeof drag>(null);
+  const order = drag?.order ?? saved;
+  const byKey = new Map(rows.map((r) => [r.key, r]));
+  const shown = [...order.filter((k) => byKey.has(k)), ...rows.map((r) => r.key).filter((k) => !order.includes(k))].map((k) => byKey.get(k)!);
+  const movable = !!reorder && rows.length > 1;
+  const commit = (ids: string[]) => {
+    if (ids.join() !== saved.join()) reorder!(ids, setSaved);
+  };
+
+  // Where the dragged row goes: after every other row whose middle is above the pointer.
+  const place = (d: { key: string; order: string[] }) => {
+    const others = [...(list.current?.querySelectorAll<HTMLElement>('li[data-key]') ?? [])].filter((li) => li.dataset.key !== d.key);
+    const at = others.filter((li) => {
+      const r = li.getBoundingClientRect();
+      return r.top + r.height / 2 < pointer.current.y;
+    }).length;
+    const rest = d.order.filter((k) => k !== d.key);
+    const next = [...rest.slice(0, at), d.key, ...rest.slice(at)];
+    return next.join() === d.order.join() ? d : { ...d, order: next };
+  };
+  const follow = () => {
+    const d = live.current;
+    const next = d && place(d);
+    if (next && next !== d) setDrag((live.current = next));
+  };
+  // Scrolls the page while the pointer is near the top or bottom edge.
+  const scroll = () => {
+    const { y } = pointer.current;
+    const step = y < 80 ? -12 : y > window.innerHeight - 80 ? 12 : 0;
+    if (step) {
+      window.scrollBy(0, step);
+      follow();
+    }
+    pointer.current.frame = requestAnimationFrame(scroll);
+  };
+  // The page follows the pointer, not the handle: moving a row in the page would lose a capture.
+  const start = (e: PointerEvent<HTMLElement>, key: string) => {
+    if (live.current || e.button !== 0) return;
+    e.preventDefault();
+    pointer.current.y = e.clientY;
+    setDrag((live.current = { key, order: shown.map((r) => r.key) }));
+    const move = (ev: globalThis.PointerEvent) => {
+      pointer.current.y = ev.clientY;
+      follow();
+    };
+    const stop = (ev: globalThis.PointerEvent) => {
+      window.removeEventListener('pointermove', move);
+      window.removeEventListener('pointerup', stop);
+      window.removeEventListener('pointercancel', stop);
+      cancelAnimationFrame(pointer.current.frame);
+      const d = live.current;
+      setDrag((live.current = null));
+      if (d && ev.type === 'pointerup') commit(d.order);
+    };
+    window.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', stop);
+    window.addEventListener('pointercancel', stop);
+    pointer.current.frame = requestAnimationFrame(scroll);
+  };
+
+  return (
+    <ul ref={list} className="m-0 flex list-none flex-col divide-y rounded-xl border bg-card p-0">
+      {shown.map((r, j) => (
+        <li key={r.key} data-key={r.key} className={cn('flex flex-wrap items-center gap-x-3 gap-y-1 px-4 py-2.5', drag?.key === r.key && 'relative z-10 bg-muted shadow-md')}>
+          {movable && (
+            <span className="flex items-center gap-1">
+              <span
+                aria-hidden
+                title="টেনে সরান"
+                onPointerDown={(e) => start(e, r.key)}
+                className={cn('-ml-2 inline-flex h-8 w-6 touch-none select-none items-center justify-center rounded-md text-muted-foreground hover:bg-muted', drag ? 'cursor-grabbing' : 'cursor-grab')}
+              >
+                <GripVertical className="size-4" />
+              </span>
+              <button type="button" disabled={j === 0} onClick={() => commit(swap(shown, j, j - 1))} aria-label={`${r.title} উপরে`} className="inline-flex size-7 items-center justify-center rounded-md border bg-white disabled:opacity-30">
+                <ArrowUp aria-hidden className="size-3.5" />
+              </button>
+              <button type="button" disabled={j === shown.length - 1} onClick={() => commit(swap(shown, j, j + 1))} aria-label={`${r.title} নিচে`} className="inline-flex size-7 items-center justify-center rounded-md border bg-white disabled:opacity-30">
+                <ArrowDown aria-hidden className="size-3.5" />
+              </button>
+            </span>
+          )}
+          <span className="flex min-w-0 flex-1 flex-col">
+            <span className="flex flex-wrap items-center gap-2 font-medium">
+              {r.title}
+              {r.badges?.map((b) => (
+                <span key={b.text} className={cn('rounded-full px-2 py-px text-[12px] font-semibold', BADGE[b.tone])}>
+                  {b.text}
+                </span>
+              ))}
+            </span>
+            <span className="text-[12.5px] text-muted-foreground">{r.sub}</span>
+          </span>
+          <Button type="button" variant="outline" className={cn(OUTLINE, 'h-8')} onClick={r.edit}>
+            এডিট
+          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger className="inline-flex size-8 items-center justify-center rounded-md border bg-white text-muted-foreground hover:bg-muted" aria-label={`${r.title}: আরও`}>
+              <MoreHorizontal aria-hidden className="size-4" />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="adm w-52">
+              {r.menu.map((m) =>
+                m.href ? (
+                  <DropdownMenuItem key={m.label} asChild>
+                    <Link href={m.href}>{m.label}</Link>
+                  </DropdownMenuItem>
+                ) : (
+                  <DropdownMenuItem key={m.label} onSelect={m.run} className={cn(m.danger && 'text-destructive focus:text-destructive')}>
+                    {m.label}
+                  </DropdownMenuItem>
+                ),
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+const swap = (rows: Row[], i: number, j: number) => {
+  const ids = rows.map((r) => r.key);
+  [ids[i], ids[j]] = [ids[j], ids[i]];
+  return ids;
+};
 
 /** The side panel for one row (or a new one): name, and what that kind of row needs. */
 function EditPanel({ panel, types, groups, subjects, rooms, routines, typeOf, onDone }: Props & { panel: Panel; typeOf: (id: string) => ClassType | undefined; onDone: (text: string, id?: string) => void }) {

@@ -13,8 +13,8 @@ import {
   deleteSubject,
   deleteTeacher,
   deleteType,
-  moveType,
   renameRoutine,
+  reorder,
   saveAbsence,
   saveAssignment,
   saveGroup,
@@ -123,8 +123,8 @@ export async function saveTypeAction(input: { id?: string; name: string; placeme
   return act(z.object({ id: id.optional(), name, placement }), input, saveType);
 }
 
-export async function moveTypeAction(typeId: string, step: -1 | 1): Promise<Result> {
-  return act(z.object({ id, step: z.union([z.literal(-1), z.literal(1)]) }), { id: typeId, step }, (v) => moveType(v.id, v.step));
+export async function reorderAction(kind: 'types' | 'groups' | 'subjects', ids: string[]): Promise<Result> {
+  return act(z.object({ kind: z.enum(['types', 'groups', 'subjects']), ids: z.array(id).min(1).max(500) }), { kind, ids }, (v) => reorder(v.kind, v.ids));
 }
 
 export async function deleteTypeAction(typeId: string): Promise<Result> {
