@@ -81,7 +81,7 @@ export function StartForm({ locale }: { locale: string }) {
             </span>
           )}
         </div>
-        <p id="mobile-help" className={cn('mt-1.5 text-[13px] leading-normal', mobileError ? 'text-destructive' : 'text-muted-foreground')}>
+        <p id="mobile-help" className={cn('mt-1.5 text-[14px] font-[450] leading-normal', mobileError ? 'text-destructive' : 'text-muted-foreground')}>
           {mobileError ?? t('start.mobileHelp')}
         </p>
       </div>
@@ -105,7 +105,7 @@ export function StartForm({ locale }: { locale: string }) {
           className="h-11 rounded-lg bg-card px-3 text-base shadow-none md:text-base"
         />
         {emailError && (
-          <p id="email-error" className="mt-1.5 text-[13px] text-destructive">
+          <p id="email-error" className="mt-1.5 text-[14px] font-[450] text-destructive">
             {emailError}
           </p>
         )}

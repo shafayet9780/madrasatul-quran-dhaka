@@ -1,58 +1,48 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { getTranslations } from 'next-intl/server';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { ArrowRight, Camera, ChevronDown, Clock, FileText, Smartphone } from 'lucide-react';
 import { Button } from '@/components/shadcn/button';
-import { getContentService } from '@/lib/content-service';
-import { urlFor } from '@/lib/sanity';
+import { pageMetadata } from '@/lib/page-seo';
 import { fieldWithRole } from '@/lib/admissions/form-config';
-import { asLocale, num, taka, txt, type Locale } from '@/lib/admissions/display';
-import { intakeStatus } from '@/lib/admissions/intake';
-import { flowPath, safeCurrentCycle } from '@/lib/admissions/pages';
+import { asLocale, num, taka, txt } from '@/lib/admissions/display';
+import { intakeStatus, sessionOrNext } from '@/lib/admissions/intake';
+import { flowPath, getLandingIntake } from '@/lib/admissions/pages';
 import { allBringItems } from '@/lib/admissions/bring-list';
 import { currentApplication } from '@/lib/admissions/session';
-import type { CycleState } from '@/lib/admissions/cycle';
 
 type Props = { params: Promise<{ locale: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const locale = asLocale((await params).locale);
   const t = await getTranslations({ locale, namespace: 'preAdmission.intro' });
-  const cycle = await safeCurrentCycle();
-  const session = num(cycle?.session ?? '2027', locale);
-  return { title: t('metaTitle', { session }), description: t('metaDescription', { session }) };
-}
-
-function statusLine(cycle: CycleState | null, locale: Locale, t: Awaited<ReturnType<typeof getTranslations>>): { text: string; open: boolean } {
-  const settings = cycle?.snapshot.settings;
-  const state = !cycle || !cycle.enabled ? 'off' : cycle.window;
-  return { text: intakeStatus({ state, opensAt: settings?.opensAt, closesAt: settings?.closesAt }, locale, t), open: state === 'open' };
+  const { intake } = await getLandingIntake();
+  const session = num(sessionOrNext(intake.session), locale);
+  const title = t('metaTitle', { session });
+  // The shared helper adds the canonical link and hreflang; the title keeps the site's ending (the school's name).
+  return pageMetadata({ page: 'preAdmission', vars: { session }, title, description: t('metaDescription', { session }), locale, path: '/pre-admission', withSiteName: true });
 }
 
 export default async function PreAdmissionIntro({ params }: Props) {
   const locale = asLocale((await params).locale);
+  setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: 'preAdmission.intro' });
-  const [cycle, current, facilities] = await Promise.all([
-    safeCurrentCycle(),
-    currentApplication().catch(() => null),
-    getContentService(false).getFeaturedFacilities().catch(() => []),
-  ]);
-  const status = statusLine(cycle, locale, t);
-  const settings = cycle?.snapshot.settings;
-  const session = num(cycle?.session ?? '2027', locale);
+  const [{ intake, snapshot }, current] = await Promise.all([getLandingIntake(), currentApplication().catch(() => null)]);
+  const status = { text: intakeStatus(intake, locale, t), open: intake.state === 'open' };
+  const settings = snapshot?.settings;
+  const session = num(sessionOrNext(intake.session), locale);
   const fee = settings ? taka(settings.applicationFee, locale) : '';
   const evalFee = settings ? taka(settings.evaluationFee, locale) : '';
-  const classes = cycle ? (fieldWithRole(cycle.snapshot, 'classApplied')?.options ?? []) : [];
+  const classes = snapshot ? (fieldWithRole(snapshot, 'classApplied')?.options ?? []) : [];
   // A class with requirements shows them beside it: "৭ম শ্রেণী (শুধু মেয়েদের জন্য; …)".
   const name = (o: (typeof classes)[number]) => (o.requires?.length ? `${txt(o.label, locale)} (${o.requires.map((r) => txt(r.message, locale)).join('; ')})` : txt(o.label, locale));
   const regular = classes.filter((o) => !o.special).map(name);
   const special = classes.filter((o) => o.special).map(name);
   const resumable = current && (current.app.status === 'draft' || current.app.status === 'unpaid');
-  const photo = (facilities ?? []).find((f) => f.images?.length)?.images[0];
 
   // Step 5 lists what to bring (Sanity → Cycle settings) when the form has the list.
   const tc = await getTranslations({ locale, namespace: 'preAdmission.chapter' });
-  const bring = cycle ? allBringItems(cycle.snapshot, locale).map((i) => (i.conditional ? `${i.text} ${tc('ifApplicable')}` : i.text)) : [];
+  const bring = snapshot ? allBringItems(snapshot, locale).map((i) => (i.conditional ? `${i.text} ${tc('ifApplicable')}` : i.text)) : [];
   const steps = [1, 2, 3, 4, 5, 6].map((n) => ({
     n: num(n, locale),
     title: t(`step${n}`),
@@ -67,7 +57,7 @@ export default async function PreAdmissionIntro({ params }: Props) {
   ];
 
   return (
-    <div className="adm [font-family:var(--font-english),var(--font-bengali),system-ui,sans-serif]">
+    <div className="adm font-sans">
       <section className="border-b bg-card">
         <div className="mx-auto grid max-w-[1200px] items-center gap-12 px-4 py-7 md:px-8 md:py-16 lg:grid-cols-2">
           <div className="flex flex-col gap-4 md:gap-5">
@@ -98,14 +88,6 @@ export default async function PreAdmissionIntro({ params }: Props) {
               </Button>
             </div>
           </div>
-          {photo && (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={urlFor(photo).width(1200).height(900).url()}
-              alt={t('campusPhoto')}
-              className="hidden aspect-[4/3] w-full rounded-xl border object-cover lg:block"
-            />
-          )}
         </div>
       </section>
 

@@ -93,7 +93,7 @@ const entryPreview = {
 };
 export const feeSettings = defineType({
   name: 'feeSettings',
-  title: 'Fees & Discounts',
+  title: 'Fees, discounts & transport',
   type: 'document',
   groups: [
     { name: 'general', title: 'General text', default: true },
@@ -101,7 +101,6 @@ export const feeSettings = defineType({
     { name: 'transport', title: 'Transport' },
     { name: 'discounts', title: 'Discounts' },
     { name: 'payment', title: 'Payment policies' },
-    { name: 'faq', title: 'Financial FAQ' },
   ],
   fields: [
     ...[
@@ -178,7 +177,6 @@ export const feeSettings = defineType({
           fields: [
             visible,
             bilingual('name', 'Vehicle name'),
-            bilingual('note', 'Note', false),
             price('price', 'Monthly price (both programs)'),
           ],
           preview: entryPreview,
@@ -189,7 +187,7 @@ export const feeSettings = defineType({
       name: 'transportRoutes',
       title: 'Routes',
       description:
-        'Shown on the Admissions page and in the pre-admission form, where the guardian picks the nearest stop. The charge comes from the route’s vehicle. After the form opens, edit names freely but do not delete a route or stop that guardians may have chosen; hide the route instead.',
+        'Shown on the homepage (stops only, no charges), the Admissions page and in the pre-admission form, where the guardian picks the nearest stop. The charge comes from the route’s vehicle. After the form opens, edit names freely but do not delete a route or stop that guardians may have chosen; hide the route instead.',
       type: 'array',
       group: 'transport',
       of: [
@@ -295,8 +293,6 @@ export const feeSettings = defineType({
         },
       ],
     }),
-    { ...bilingual('faqQuestion', 'Question'), group: 'faq' },
-    { ...bilingual('faqAnswer', 'Answer'), group: 'faq' },
   ],
-  preview: { prepare: () => ({ title: 'Fees & Discounts' }) },
+  preview: { prepare: () => ({ title: 'Fees, discounts & transport' }) },
 });

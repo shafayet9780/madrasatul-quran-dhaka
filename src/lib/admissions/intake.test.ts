@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { intakeFrom, intakeStatus, type Intake } from './intake';
+import { intakeFrom, intakeStatus, sessionOrNext, type Intake } from './intake';
 import type { FormDocument } from './snapshot';
 import { liveFormDocument } from './testing/live-form';
 
@@ -52,5 +52,12 @@ describe('intakeStatus', () => {
   it('reports closed and off', () => {
     expect(at({ state: 'closed' })).toBe('statusClosed');
     expect(at({ state: 'off' })).toBe('statusUnavailable');
+  });
+});
+
+describe('sessionOrNext', () => {
+  it('keeps the form’s session, else names the coming school year', () => {
+    expect(sessionOrNext('2027-28', now)).toBe('2027-28');
+    expect(sessionOrNext(undefined, now)).toBe('2027');
   });
 });

@@ -14,7 +14,7 @@ export default async function ImportPage() {
     <>
       <PageTop crumbs={[{ label: 'অ্যাডমিন' }, { label: 'ERP ইমপোর্ট' }]} round={false} />
       <PageBody>
-        <PageTitle sub={`প্রতিটি রাউন্ড খোলার আগে হালনাগাদ করুন · শেষ ইমপোর্ট: ${last?.appliedAt ? formatDateTime(last.appliedAt) : 'এখনো হয়নি'}`}>ERP থেকে শিক্ষার্থী ইমপোর্ট</PageTitle>
+        <PageTitle sub={`প্রতিটি রাউন্ড খোলার আগে আপডেট করুন · শেষ ইমপোর্ট: ${last?.appliedAt ? formatDateTime(last.appliedAt) : 'এখনো হয়নি'}`}>ERP থেকে শিক্ষার্থী ইমপোর্ট</PageTitle>
         <ImportBoard />
       </PageBody>
     </>

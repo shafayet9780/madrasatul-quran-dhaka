@@ -21,7 +21,7 @@ export type CycleState = {
   testPass?: boolean;
 };
 
-// Transport routes and charges (Fees & Discounts) are frozen with the form.
+// Transport routes and charges (Fees, discounts & transport) are frozen with the form.
 const FEES = '{ _rev, transport, transportRoutes }';
 
 export const FORM_QUERY = `*[_type == "preAdmissionForm" && !(_id in path("drafts.**"))][0]{

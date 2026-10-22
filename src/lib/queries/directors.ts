@@ -7,11 +7,8 @@ const directorListProjection = `
   name,
   slug,
   designation,
-  gender,
   photo { ..., alt },
   summary,
-  displayOrder,
-  featured,
   showDetailPage
 `;
 
@@ -21,7 +18,6 @@ const directorDetailProjection = `
   name,
   slug,
   designation,
-  gender,
   photo { ..., alt },
   summary,
   message,
@@ -33,19 +29,17 @@ const directorDetailProjection = `
     year
   },
   socialLinks[] { platform, url },
-  signatureName,
-  displayOrder,
-  featured,
   showDetailPage
 `;
 
 export async function getDirectors(): Promise<Director[]> {
   const query = `
-    *[_type == "director"] | order(displayOrder asc) {
+    *[_type == "director"] | order(orderRank asc) {
       ${directorListProjection}
     }
   `;
-  return await sanityFetch<Director[]>({ query, tags: ['director'] });
+  // The local preview reads no Sanity (null): an empty list there.
+  return (await sanityFetch<Director[] | null>({ query, tags: ['director'] })) ?? [];
 }
 
 export async function getDirectorBySlug(

@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { getTranslations } from 'next-intl/server';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { ChapterForm } from '@/components/pre-admission/chapter-form';
 import { FlowShell } from '@/components/pre-admission/flow-shell';
 import { asLocale, txt } from '@/lib/admissions/display';
@@ -19,6 +19,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function ChapterPage({ params }: Props) {
   const { locale: localeParam, chapter } = await params;
+  setRequestLocale(localeParam);
   const locale = asLocale(localeParam);
   const t = await getTranslations({ locale, namespace: 'preAdmission' });
   const { app, snapshot } = await requireDraft(locale);

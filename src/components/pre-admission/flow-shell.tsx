@@ -27,7 +27,7 @@ export async function FlowShell({ locale, session, title, back, saving, children
   const intro = `/${locale}/pre-admission`;
 
   const body = (
-    <div className="adm flex min-h-dvh flex-col text-foreground [font-family:var(--font-english),var(--font-bengali),system-ui,sans-serif]">
+    <div className="adm flex min-h-dvh flex-col text-foreground font-sans">
       <header className="sticky top-0 z-30 border-b bg-card">
         <div className="grid h-14 grid-cols-[48px_1fr_48px] items-center px-1 md:hidden">
           {back ? (

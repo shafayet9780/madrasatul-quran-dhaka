@@ -74,6 +74,6 @@ describe('guardian sheet rows', () => {
     expect(rows).toHaveLength(subjects.length);
     expect(rows[0]).toHaveLength(guardianSheetHeader(snapshot).length);
     expect(rows[1].slice(2, 3)).toEqual(['আগের']);
-    expect(rows[1].slice(11, 16)).toEqual(['অযাচাইকৃত', subjects[1].name, 8, 6, 4]);
+    expect(rows[1].slice(11, 16)).toEqual(['যাচাই হয়নি', subjects[1].name, 8, 6, 4]);
   });
 });

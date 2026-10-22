@@ -1,16 +1,19 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-const { freshFetch } = vi.hoisted(() => ({ freshFetch: vi.fn() }))
+const { freshFetch, rawFetch } = vi.hoisted(() => ({ freshFetch: vi.fn(), rawFetch: vi.fn() }))
 vi.mock('@/lib/sanity', () => ({
   client: {
     withConfig: vi.fn(() => ({ fetch: freshFetch })),
   },
-  previewClient: {},
+  previewClient: {
+    withConfig: vi.fn(({ dataset }: { dataset: string }) => ({ fetch: () => rawFetch(dataset) })),
+  },
 }))
 vi.mock('@/lib/sanity-fetch', () => ({ sanityFetch: vi.fn() }))
 
 import { sanityFetch } from '@/lib/sanity-fetch'
-import { getDownloadableBySlug, getDownloadables } from './downloads'
+import { client } from '@/lib/sanity'
+import { getAllBlobReferences, getDownloadableBySlug, getDownloadables, getPublishedBlobReferences } from './downloads'
 
 describe('downloads queries', () => {
   beforeEach(() => {
@@ -48,5 +51,46 @@ describe('downloads queries', () => {
       { slug: 'lesson-plan' },
       { cache: 'no-store' },
     )
+  })
+})
+
+describe('getAllBlobReferences', () => {
+  beforeEach(() => {
+    vi.stubEnv('SANITY_API_TOKEN', 'token')
+    vi.stubEnv('NEXT_PUBLIC_SANITY_DATASET', 'production')
+    rawFetch.mockReset()
+  })
+  afterEach(() => vi.unstubAllEnvs())
+
+  it('keeps a file that either dataset references (they share one Blob store)', async () => {
+    rawFetch.mockImplementation(async (dataset: string) =>
+      dataset === 'production'
+        ? { downloadables: [{ pathname: 'downloads/a.pdf' }], settings: [{ prospectus: { pathname: 'downloads/public/p.pdf' } }] }
+        : { downloadables: [{ pathname: 'downloads/b.pdf' }, {}], settings: [] },
+    )
+    expect([...(await getAllBlobReferences())].sort()).toEqual(['downloads/a.pdf', 'downloads/b.pdf', 'downloads/public/p.pdf'])
+    expect(rawFetch.mock.calls.map(([dataset]) => dataset).sort()).toEqual(['development', 'production'])
+  })
+
+  it('fails when a dataset cannot be read, so nothing is deleted', async () => {
+    rawFetch.mockImplementation(async (dataset: string) => {
+      if (dataset === 'development') throw new Error('down')
+      return { downloadables: [], settings: [] }
+    })
+    await expect(getAllBlobReferences()).rejects.toThrow('down')
+  })
+})
+
+describe('getPublishedBlobReferences', () => {
+  afterEach(() => vi.unstubAllEnvs())
+
+  it('reads the published files of both datasets', async () => {
+    vi.stubEnv('NEXT_PUBLIC_SANITY_DATASET', 'development')
+    freshFetch.mockReset()
+    freshFetch.mockResolvedValueOnce({ downloadables: [{ pathname: 'downloads/a.pdf' }], settings: [] })
+    freshFetch.mockResolvedValueOnce({ downloadables: [], settings: [{ curriculum: { pathname: 'downloads/public/c.pdf' } }] })
+    vi.mocked(client.withConfig).mockClear()
+    expect([...(await getPublishedBlobReferences())].sort()).toEqual(['downloads/a.pdf', 'downloads/public/c.pdf'])
+    expect(vi.mocked(client.withConfig).mock.calls.map(([config]) => config?.dataset).sort()).toEqual(['development', 'production'])
   })
 })

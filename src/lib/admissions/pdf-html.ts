@@ -132,7 +132,7 @@ export function applicationHtml(d: PdfData, tight = false): string {
   const receipt = d.receipt
     ? `<section class="box receipt">
         <div><div class="strong">আবেদন ফি পরিশোধের রসিদ</div>
-        <div class="muted small">${esc(d.receipt.method)} · লেনদেন আইডি <span class="lat ink">${esc(d.receipt.transactionId)}</span>${d.receipt.paidAt ? ` · ${esc(dateTime(d.receipt.paidAt.toISOString(), 'bengali'))}` : ''}</div></div>
+        <div class="muted small">${esc(d.receipt.method)} · ট্রানজেকশন আইডি <span class="lat ink">${esc(d.receipt.transactionId)}</span>${d.receipt.paidAt ? ` · ${esc(dateTime(d.receipt.paidAt.toISOString(), 'bengali'))}` : ''}</div></div>
         <div class="right"><div class="amount">${esc(taka(d.receipt.amount, 'bengali'))}</div><span class="stamp">পরিশোধিত</span></div>
       </section>`
     : '';

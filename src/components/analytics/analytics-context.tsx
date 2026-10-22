@@ -21,6 +21,7 @@ import {
 } from '@/lib/analytics/events';
 import { pushToDataLayer, setAnalyticsConsent } from '@/lib/analytics/push';
 import { toConsentStorage } from '@/lib/analytics/consent';
+import { readCountryCookie } from '@/lib/analytics/country';
 
 interface AnalyticsContextValue {
   consent: EffectiveConsent;
@@ -36,13 +37,10 @@ interface AnalyticsContextValue {
 
 const AnalyticsContext = createContext<AnalyticsContextValue | null>(null);
 
-export function AnalyticsProvider({
-  children,
-  countryCode,
-}: {
-  children: ReactNode;
-  countryCode: string | null;
-}) {
+export function AnalyticsProvider({ children }: { children: ReactNode }) {
+  // Read once in the browser (null while rendering on the server). Nothing renders from it before the page has
+  // loaded: the banner and the tag manager wait for their effects.
+  const [countryCode] = useState(readCountryCookie);
   const [consent, setConsent] = useState<EffectiveConsent>(() =>
     getEffectiveConsent(countryCode)
   );

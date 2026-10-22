@@ -27,7 +27,7 @@ test('shows coverage and drafts, and resolves a duplicate', async ({ page }) => 
 
   const dups = page.getByRole('region', { name: /^ডুপ্লিকেট/ });
   await dups.getByRole('radio', { name: /উস্তাযা সুমাইয়া-এরটি রাখুন/ }).check();
-  await dups.getByRole('button', { name: 'সিদ্ধান্ত সংরক্ষণ করুন' }).click();
+  await dups.getByRole('button', { name: 'সিদ্ধান্ত সেভ করুন' }).click();
   // Decided: the box at the top goes away.
   await expect(page.getByRole('region', { name: /^ডুপ্লিকেট/ })).toHaveCount(0);
   await expect(page.getByRole('status').filter({ hasText: 'কোনো ডুপ্লিকেট নেই।' })).toBeAttached();
@@ -56,7 +56,7 @@ test('a guardian round shows response by class, reminders, unverified and repeat
   // Children without any number cannot get a reminder.
   await expect(pending.getByText('ERP-তে নম্বর যোগ করুন').first()).toBeVisible();
 
-  const unverified = page.getByRole('region', { name: /অযাচাইকৃত জমা \(১\)/ });
+  const unverified = page.getByRole('region', { name: /যাচাই হয়নি এমন জমা \(১\)/ });
   await expect(unverified.getByText('রাশেদ কবির (মামা) · Hamza Rahim')).toBeVisible();
   const multiple = page.getByRole('region', { name: /একাধিক জমা \(১\)/ });
   await expect(multiple.getByText('Hamza Rahim')).toBeVisible();

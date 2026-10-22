@@ -1,0 +1,1496 @@
+<!doctype html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Ten Years, Every Day</title>
+<meta name="description" content="মাদরাসাতুল কুরআন ঢাকা, উত্তরা — শিক্ষা পদ্ধতি (৫০-৫০ মডেল): ইসলামিক ও সাধারণ শিক্ষার একটি আদর্শ সমন্বয়।">
+<meta name="theme-color" content="#efe4d0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anek+Bangla:wdth,wght@75..125,100..800&family=Noto+Naskh+Arabic:wght@500;700&family=Schibsted+Grotesk:wght@400..800&family=Tiro+Bangla:ital@0;1&display=swap" rel="stylesheet">
+<style>
+:root{
+  --sand:#efe4d0; --sand-2:#e4d4b8; --paper:#f7f0e3; --line:rgba(36,22,13,.14); --line-2:rgba(36,22,13,.24);
+  --walnut:#22150c; --walnut-2:#2f1d10; --walnut-3:#4a321d; --walnut-line:rgba(243,233,216,.13);
+  --date:#7a4a26; --date-deep:#5e3619;
+  --brass:#c99a4b; --brass-soft:#e7c78c;
+  --ink:#24160d; --ink-2:#5a4331; --on-dark:#f3e9d8; --on-dark-2:#cdbb9f;
+  --now:#4caa6c;
+  --s-quran:#9b5b2e; --s-arabic:#c58d55; --s-general:#e4d4b8;
+  --focus:var(--date);
+  --r:16px; --gutter:clamp(16px,4vw,48px); --max:1200px;
+  --ease:cubic-bezier(.16,1,.3,1);
+  --bn:"Anek Bangla","Noto Sans Bengali",system-ui,sans-serif;
+  --voice:"Tiro Bangla","Noto Serif Bengali",serif;
+  --lat:"Schibsted Grotesk","Anek Bangla",system-ui,sans-serif;
+  --ar:"Noto Naskh Arabic",serif;
+  --hdr:64px;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth;scrollbar-color:var(--date) var(--sand-2);background:var(--sand)}
+body{margin:0;background:var(--sand);color:var(--ink);font-family:var(--bn);font-size:17px;line-height:1.7;overflow-x:clip;text-rendering:optimizeLegibility}
+::selection{background:var(--date);color:var(--paper)}
+.dark ::selection{background:var(--brass-soft);color:var(--walnut)}
+:focus-visible{outline:2.5px solid var(--focus);outline-offset:3px;border-radius:8px}
+.dark{--focus:var(--brass)}
+input,select,textarea{caret-color:var(--date)}
+[hidden]{display:none!important}
+a{color:inherit;text-underline-offset:.25em;text-decoration-thickness:1px}
+img{max-width:100%;display:block;height:auto}
+h1,h2,h3,h4{margin:0;line-height:1.2;text-wrap:balance;font-weight:700}
+p{margin:0}
+ul,ol{margin:0;padding:0}
+.wrap{max-width:var(--max);margin:0 auto;padding:0 var(--gutter)}
+.lat{font-family:var(--lat)}
+.ar{font-family:var(--ar);direction:rtl;unicode-bidi:isolate}
+.sel{user-select:text;-webkit-user-select:text}
+.vh{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap}
+.draft{display:inline-block;font:700 9.5px/1 var(--lat);letter-spacing:.06em;color:var(--date);border:1px solid currentColor;border-radius:4px;padding:3px 4px 2px;margin-inline-start:6px;vertical-align:.25em;white-space:nowrap}
+.dark .draft,.on-dark .draft{color:var(--on-dark-2)}
+.skip{position:absolute;left:12px;top:-60px;z-index:50;background:var(--walnut);color:var(--on-dark);padding:10px 16px;border-radius:10px}
+.skip:focus{top:12px}
+section{padding:clamp(76px,10vw,140px) 0;scroll-margin-top:var(--hdr)}
+.dark{background:var(--walnut);color:var(--on-dark)}
+.paper{background:var(--paper)}
+h2{font-size:clamp(32px,4.6vw,58px);letter-spacing:-.012em;font-weight:700;line-height:1.14}
+.lede{color:var(--ink-2);max-width:60ch;margin-top:18px;font-size:clamp(17px,1.5vw,19px)}
+.dark .lede{color:var(--on-dark-2)}
+.en{display:block;font-family:var(--lat);font-size:13.5px;line-height:1.5;color:var(--ink-2);margin-top:6px}
+.dark .en{color:var(--on-dark-2)}
+
+/* icons */
+.i{width:20px;height:20px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:48px;padding:0 22px;border-radius:999px;font:600 16px/1 var(--bn);text-decoration:none;border:1.5px solid transparent;cursor:pointer;white-space:nowrap;transition:background .3s var(--ease),border-color .3s var(--ease),transform .3s var(--ease),box-shadow .3s var(--ease),color .3s}
+.btn-primary{background:var(--date);color:var(--paper);box-shadow:0 8px 20px -10px rgba(60,30,10,.7)}
+.btn-primary:hover{background:var(--date-deep);transform:translateY(-1px);box-shadow:0 12px 26px -12px rgba(60,30,10,.75)}
+.btn-ghost{border-color:var(--line-2);color:var(--ink);background:transparent}
+.btn-ghost:hover{background:var(--paper);border-color:var(--date)}
+.dark .btn-ghost{border-color:rgba(243,233,216,.28);color:var(--on-dark)}
+.dark .btn-ghost:hover{background:var(--walnut-3);border-color:var(--brass)}
+.btn-paper{background:var(--paper);color:var(--walnut);box-shadow:0 8px 20px -12px rgba(34,21,12,.8)}
+.btn-paper:hover{background:#fffaf1;transform:translateY(-1px)}
+.btn[disabled]{opacity:.6;cursor:progress;transform:none}
+.btn-ico{width:44px;min-height:44px;padding:0}
+.tlink{display:inline-flex;align-items:center;gap:8px;min-height:44px;font-weight:600;color:var(--date);text-decoration:underline;text-decoration-color:rgba(122,74,38,.35)}
+.tlink:hover{text-decoration-color:currentColor}
+.dark .tlink{color:var(--on-dark);text-decoration-color:rgba(243,233,216,.4)}
+
+/* header */
+.hdr{position:sticky;top:env(safe-area-inset-top,0px);z-index:30;background:rgba(239,228,208,.9);-webkit-backdrop-filter:saturate(1.3) blur(12px);backdrop-filter:saturate(1.3) blur(12px);border-bottom:1px solid var(--line)}
+.hdr-in{display:flex;align-items:center;gap:16px;height:var(--hdr)}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;min-width:0;flex:0 1 auto;min-height:44px}
+.mark{width:40px;height:40px;flex:none;border-radius:50%}
+.brand-t{display:flex;flex-direction:column;min-width:0}
+.brand-t b{font-size:17px;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.brand-t small{font-size:12px;line-height:1.35;font-weight:500;color:var(--ink-2);white-space:nowrap}
+.hnav{margin-left:auto}
+.hnav ul{display:flex;gap:2px;list-style:none}
+.hnav a{position:relative;display:flex;align-items:center;min-height:44px;padding:0 11px;border-radius:999px;text-decoration:none;font-size:15px;font-weight:500;color:var(--ink-2);transition:background .25s,color .25s}
+.hnav a:hover{background:var(--sand-2);color:var(--ink)}
+.hnav a[aria-current="true"]{color:var(--ink);font-weight:600}
+.hnav a[aria-current="true"]::after{content:"";position:absolute;left:12px;right:12px;bottom:6px;height:2px;border-radius:1px;background:var(--date)}
+@media (min-width:1181px) and (max-width:1499px){.brand-t small{display:none}}
+.hnav a{white-space:nowrap}
+.hdr-act{display:flex;align-items:center;gap:6px;flex:none}
+.hdr-act .btn{min-height:44px;font-size:15px;padding:0 16px}
+.hdr-act .btn-ico{padding:0}
+.lang{font-size:13.5px;font-weight:600;text-decoration:none;color:var(--ink-2);padding:0 8px;white-space:nowrap;min-height:44px;display:flex;align-items:center}
+.short{display:none}
+.menu-btn{display:none}
+.msheet{display:none}
+@media (max-width:1180px){
+  .hnav{display:none}.hdr-act{margin-left:auto}
+  .menu-btn{display:inline-flex}
+  .msheet{position:absolute;left:0;right:0;top:100%;background:var(--sand);border-bottom:1px solid var(--line-2);box-shadow:0 30px 50px -30px rgba(36,22,13,.45);max-height:calc(100dvh - var(--hdr));overflow-y:auto;overscroll-behavior:contain}
+  .msheet.open{display:block}
+}
+.menu-btn .i{transition:transform .3s var(--ease)}
+.menu-btn[aria-expanded="true"]{background:var(--paper);border-color:var(--date)}
+.msheet ol{list-style:none;position:relative;padding:12px 0 8px}
+.msheet ol::before{content:"";position:absolute;left:21px;top:34px;bottom:34px;width:4px;border-radius:2px;background:var(--date)}
+.msheet li a{position:relative;display:flex;align-items:center;gap:18px;min-height:52px;padding:0 4px;text-decoration:none;font-size:18px;font-weight:600}
+.msheet li a::before{content:"";flex:none;width:18px;height:18px;margin-left:14px;border-radius:50%;background:var(--paper);border:4px solid var(--date);box-sizing:border-box;position:relative;z-index:1}
+.msheet li a:hover::before,.msheet li a:focus-visible::before{border-color:var(--brass)}
+.msheet .ms-x{display:flex;flex-wrap:wrap;gap:4px 8px;padding:10px 0 18px;border-top:1px solid var(--line)}
+.msheet .ms-x a{display:inline-flex;align-items:center;min-height:44px;padding:0 14px;border-radius:999px;border:1.5px solid var(--line-2);text-decoration:none;font-weight:600;font-size:15px}
+@media (max-width:760px){.lang{display:none}.brand-t small{display:none}}
+@media (max-width:440px){:root{--hdr:60px}.brand-t b .dhaka{display:none}.full{display:none}.short{display:inline}.hdr-act .btn{padding:0 14px}.hdr-act .btn-primary .i{display:none}.hdr-act .hcall{display:none}.mark{width:32px;height:32px}.brand{gap:8px}}
+
+/* hero */
+.hero{padding:clamp(36px,6vw,84px) 0 clamp(44px,6vw,80px)}
+.hero-g{display:grid;grid-template-columns:minmax(0,1.04fr) minmax(0,.96fr);gap:clamp(28px,5vw,72px);align-items:center}
+@media (max-width:900px){.hero-g{grid-template-columns:1fr}.h1-a{font-size:clamp(40px,9vw,72px)}.h1-b{font-size:clamp(44px,10vw,80px)}}
+@media (max-width:520px){#fees .ctas,#visit .ctas{display:grid;grid-template-columns:1fr}.hero .ctas{display:grid;grid-template-columns:1fr 1fr}.hero .ctas .btn-primary{grid-column:1/-1}.hero .ctas .btn{padding:0 14px}}
+.hero h1{font-weight:800;line-height:1.06;letter-spacing:-.02em}
+.h1-a{display:block;font-size:clamp(40px,5.8vw,80px)}
+.h1-b{display:flex;align-items:center;flex-wrap:nowrap;white-space:nowrap;gap:.14em;font-size:clamp(44px,5.8vw,80px);margin-top:.06em;padding-bottom:30px}
+.tile{position:relative;display:inline-grid;place-items:center;padding:.02em .16em 0;border-radius:.16em;line-height:1.08}
+.t-a{background:var(--date);color:var(--paper)}
+.t-b{background:var(--paper);box-shadow:inset 0 0 0 .045em var(--date);color:var(--date)}
+.tile .cap{position:absolute;top:calc(100% + 8px);left:0;font:600 13px/1.2 var(--bn);letter-spacing:0;color:var(--ink-2);white-space:nowrap}
+.dash{display:inline-block;color:var(--date)}
+@keyframes tileA{from{transform:translateX(-.3em) scale(.94)}to{transform:none}}
+@keyframes tileB{from{transform:translateX(.3em) scale(.94)}to{transform:none}}
+@keyframes dashIn{from{transform:scaleX(.15)}to{transform:none}}
+.t-a{animation:tileA .62s var(--ease) .1s both}
+.t-b{animation:tileB .62s var(--ease) .1s both}
+.dash{animation:dashIn .5s var(--ease) .28s both}
+.sub{font-size:clamp(18px,1.7vw,21px);color:var(--ink-2);max-width:44ch;margin-top:18px;line-height:1.65}
+.sub-en{font:500 14px/1.5 var(--lat);color:var(--ink-2);margin-top:10px;letter-spacing:.005em}
+.ctas{display:flex;flex-wrap:wrap;gap:10px;margin-top:28px}
+.status{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;margin-top:22px;font-size:15px;color:var(--ink-2)}
+.status a{font-weight:600;color:var(--date);min-height:44px;display:inline-flex;align-items:center}
+.dot{width:9px;height:9px;border-radius:50%;flex:none;background:var(--date);box-shadow:0 0 0 3px rgba(122,74,38,.18)}
+.dot.live{background:var(--now);box-shadow:0 0 0 3px rgba(76,170,108,.22)}
+.dot.off{width:12px;height:12px;background:var(--walnut);border:2.5px solid var(--brass);box-shadow:none}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 3px rgba(76,170,108,.22)}50%{box-shadow:0 0 0 7px rgba(76,170,108,0)}}
+.dot.live{animation:pulse 2.6s var(--ease) infinite}
+
+/* board frame (hero photo) */
+.frame{margin:0;background:var(--walnut);border-radius:24px;padding:10px;color:var(--on-dark);box-shadow:0 50px 90px -50px rgba(36,22,13,.8),0 1px 0 rgba(255,255,255,.05) inset}
+.frame-top{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:12px;padding:6px 12px 12px;margin-bottom:10px;border-bottom:1px solid var(--walnut-line)}
+.now{display:block;min-height:44px;padding:2px 0;text-decoration:none;min-width:0;line-height:1.35}
+.now-l{display:block}
+.ft-r{display:flex;flex-direction:column;align-items:flex-end;gap:5px;padding-left:12px;border-left:1px solid var(--walnut-line)}
+.now:hover .now-v{text-decoration:underline;text-decoration-color:rgba(231,199,140,.5)}
+.now-l{font-size:12px;letter-spacing:.02em;color:var(--on-dark-2)}
+.now-v{display:block;font:700 18px/1.3 var(--bn);color:var(--on-dark)}
+.clock-l{font-size:11.5px;line-height:1;color:var(--on-dark-2);white-space:nowrap}
+.clock{font:600 16px/1 var(--bn);color:var(--on-dark);white-space:nowrap;font-variant-numeric:tabular-nums}
+.frame-img{border-radius:16px;overflow:hidden;aspect-ratio:16/10;background:var(--walnut-2)}
+.frame-img img{width:100%;height:100%;object-fit:cover}
+.sign{display:flex;align-items:center;gap:10px;padding:12px 10px 4px;font-size:14.5px;color:var(--on-dark);flex-wrap:wrap}
+.sign-k{width:24px;height:24px;border-radius:6px;background:transparent;box-shadow:inset 0 0 0 1px rgba(243,233,216,.45);color:var(--on-dark);display:grid;place-items:center;flex:none}
+.sign-k .i{width:15px;height:15px;stroke-width:2.2}
+.sign .sep{color:var(--on-dark-2)}
+.photo{margin:0}
+.photo img{width:100%;border-radius:16px;object-fit:cover}
+.photo figcaption{display:flex;align-items:center;gap:10px;margin-top:12px;font-size:14.5px;color:var(--ink-2);flex-wrap:wrap}
+.photo figcaption .sign-k{background:var(--date);color:var(--paper)}
+
+/* departure ticker — one typographic run */
+.ticker{background:var(--walnut);color:var(--on-dark);overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:none;-webkit-mask:linear-gradient(90deg,#000 calc(100% - 44px),transparent);mask:linear-gradient(90deg,#000 calc(100% - 44px),transparent)}
+.ticker::-webkit-scrollbar{display:none}
+.tk{list-style:none;display:flex;align-items:center;gap:0;width:max-content;min-width:100%;margin:0;padding:20px var(--gutter);animation:wipe .45s var(--ease) .2s both}
+@media (min-width:1240px){.tk{justify-content:space-between}}
+@keyframes wipe{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 0 0 0)}}
+.tk li{display:flex;align-items:center;gap:8px;white-space:nowrap}
+.tk li+li::before{content:"";flex:none;width:11px;height:11px;border-radius:50%;border:2.5px solid var(--brass);margin:0 clamp(12px,1vw,16px) 0 6px;box-sizing:border-box}
+.tk .tk-h{font-size:15px;font-weight:700;color:var(--on-dark-2)}
+.tk b{font:700 24px/1 var(--bn);font-stretch:87.5%;color:var(--on-dark);letter-spacing:-.01em}
+.tk .tk-l{display:flex;flex-direction:column;font-size:14.5px;line-height:1.3;color:var(--on-dark)}
+.tk .tk-l small{font-size:12.5px;color:var(--on-dark-2)}
+.tk .draft{margin-inline-start:6px;vertical-align:.15em}
+
+/* founder question */
+.why-g{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.5fr);gap:clamp(28px,6vw,96px);align-items:start}
+@media (max-width:900px){.why-g{grid-template-columns:1fr}}
+.signers{display:flex;align-items:center;gap:14px;margin-top:28px;text-decoration:none}
+.faces{display:flex;flex:none}
+.faces img{flex:none;max-width:none;width:42px;height:42px;border-radius:50%;object-fit:cover;border:2.5px solid var(--sand);margin-left:-10px;filter:grayscale(1) sepia(.28) contrast(1.04)}
+.faces img:first-child{margin-left:0}
+.signers span{font-size:14.5px;line-height:1.4;color:var(--ink-2)}
+.signers b{display:block;color:var(--ink);font-weight:600}
+.letter{margin:0;font-family:var(--voice);font-size:clamp(21px,2.3vw,30px);line-height:1.78;color:var(--ink);max-width:36em}
+.letter .bis{color:var(--date)}
+.letter .q{background:linear-gradient(transparent 64%,rgba(122,74,38,.16) 64%);padding:0 .05em}
+.letter .src{display:block;margin-top:18px;font:500 14px/1.5 var(--bn);color:var(--ink-2)}
+.reasons{list-style:none;margin-top:clamp(48px,6vw,80px);display:grid;grid-template-columns:1fr 1fr;grid-template-rows:repeat(6,auto);grid-auto-flow:column;column-gap:56px;border-top:2px solid var(--ink)}
+.reasons li{border-bottom:1px solid var(--line)}
+.reasons a{display:grid;grid-template-columns:52px minmax(0,1fr) 24px;gap:14px;align-items:start;padding:18px 8px 18px 4px;text-decoration:none;color:inherit;border-radius:10px;transition:background .3s var(--ease)}
+.reasons a:hover{background:var(--paper)}
+.reasons a:hover .ra{transform:translateX(3px);color:var(--date)}
+.rn{font:700 32px/1 var(--bn);font-stretch:85%;color:var(--date);padding-top:2px}
+.rt b{display:block;font-size:18.5px;font-weight:700;line-height:1.35}
+.rt span{display:block;color:var(--ink-2);font-size:16.5px;line-height:1.6;margin-top:3px}
+.ra{color:var(--ink-2);margin-top:4px;transition:transform .35s var(--ease),color .3s}
+@media (max-width:820px){.reasons{grid-template-columns:1fr;grid-template-rows:none;grid-auto-flow:row}}
+
+/* THE BOARD */
+.board-sec{padding-bottom:clamp(80px,10vw,140px)}
+.sec-head{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:24px 64px;align-items:end}
+@media (max-width:900px){.sec-head{grid-template-columns:1fr}}
+.sec-head .lede{margin-top:0}
+.board{margin-top:clamp(36px,5vw,56px);background:var(--walnut-2);border:1px solid var(--walnut-3);border-radius:24px;box-shadow:0 60px 100px -60px rgba(0,0,0,.9),0 1px 0 rgba(255,255,255,.05) inset;scroll-margin-top:calc(var(--hdr) + 12px);overflow:hidden}
+.board-top{display:flex;align-items:center;justify-content:space-between;gap:10px 16px;flex-wrap:wrap;padding:14px clamp(16px,2.4vw,28px);border-bottom:1px solid var(--walnut-3);background:linear-gradient(180deg,rgba(255,255,255,.035),transparent)}
+.bt-l{display:flex;align-items:center;gap:10px;font-size:15px;color:var(--on-dark-2)}
+.bt-l b{color:var(--on-dark);font-weight:700}
+.bt-l .i{color:var(--on-dark-2)}
+.bt-r{font-size:13.5px;color:var(--on-dark-2);display:flex;align-items:center;gap:8px}
+.bt-r b{color:var(--on-dark);font-weight:600;font-variant-numeric:tabular-nums}
+.line-scroll{overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:thin;scrollbar-color:var(--walnut-3) transparent;padding:0 clamp(8px,2vw,24px)}
+.line{position:relative;display:grid;grid-template-columns:repeat(6,minmax(120px,1fr));padding:64px 0 14px;min-width:720px}
+.tabs{grid-column:1/6;display:grid;grid-template-columns:repeat(5,minmax(0,1fr))}
+.rail,.fill{position:absolute;top:87px;height:6px;border-radius:3px;left:calc(100%/12)}
+.rail{right:calc(100%/6 - 14px);background:linear-gradient(90deg,var(--date),#9a6234 60%,var(--date))}
+.fill{width:calc(var(--sel,0) * 100% / 6);background:var(--brass);transition:width .55s var(--ease);box-shadow:0 0 18px rgba(201,154,75,.35)}
+.br{position:absolute;right:calc(100%/6 - 14px);border:3px dashed rgba(231,199,140,.5);border-right:0;border-bottom:0;border-top-left-radius:18px;pointer-events:none}
+.br1{left:calc(100%*7/12 + 6px);top:56px;height:34px}
+.br2{left:calc(100%*7/12 - 6px);top:24px;height:66px}
+.tp{position:absolute;left:calc(100%*5/6 + 12px);display:flex;align-items:center;gap:6px;height:28px;padding:0 11px;border-radius:999px;font-size:13px;font-weight:600;white-space:nowrap;background:var(--walnut);color:var(--on-dark)}
+.tp1{top:76px;border:2px solid var(--date)}
+.tp2{top:42px;border:1.5px dashed rgba(231,199,140,.6);color:var(--on-dark-2)}
+.tp3{top:10px;border:1.5px dashed rgba(231,199,140,.6);color:var(--on-dark-2)}
+.stn{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:6px;padding:0 6px 8px;background:none;border:0;color:inherit;font:inherit;cursor:pointer;text-align:center;border-radius:16px;min-height:44px;-webkit-tap-highlight-color:transparent}
+.stn .ring{width:52px;height:52px;border-radius:50%;background:var(--walnut);border:5px solid var(--date);display:grid;place-items:center;font:700 20px/1 var(--bn);color:var(--on-dark);transition:transform .45s var(--ease),background .35s,border-color .35s,color .35s,box-shadow .45s var(--ease)}
+.stn.ix .ring{box-shadow:0 0 0 3px var(--walnut-2),0 0 0 5.5px rgba(231,199,140,.7)}
+.stn.past .ring{border-color:var(--brass)}
+.stn:hover .ring{transform:scale(1.06);border-color:var(--brass)}
+.stn[aria-selected="true"] .ring{background:var(--brass);border-color:var(--brass-soft);color:var(--walnut);transform:scale(1.14);box-shadow:0 0 0 7px rgba(201,154,75,.16)}
+.stn.ix[aria-selected="true"] .ring{box-shadow:0 0 0 3px var(--walnut-2),0 0 0 5.5px var(--brass-soft),0 0 0 12px rgba(201,154,75,.14)}
+.stn .nm{font-weight:700;font-size:17px;line-height:1.25;margin-top:6px}
+.stn .cl{font-size:13px;line-height:1.3;color:var(--on-dark-2)}
+.stn[aria-selected="true"] .nm{color:var(--brass-soft)}
+.stn:focus-visible{outline-offset:0}
+.line-wrap{position:relative}
+.more,.doors-strip{display:none}
+@media (max-width:899px){
+  .line-scroll{-webkit-mask:linear-gradient(90deg,transparent 0,#000 14px,#000 calc(100% - 40px),transparent);mask:linear-gradient(90deg,transparent 0,#000 14px,#000 calc(100% - 40px),transparent);scrollbar-width:none;scroll-snap-type:x mandatory;scroll-padding:0 16px}
+  .line-scroll::-webkit-scrollbar{display:none}
+  .line{grid-template-columns:repeat(5,96px);width:max-content;min-width:0;padding:48px 64px 14px 0}
+  .tabs{grid-column:1/-1}
+  .rail{left:48px;right:auto;width:384px}
+  .fill{left:48px;width:calc(var(--sel,0) * 96px)}
+  .rail,.fill{top:67px}
+  .br,.tp{display:none}
+  .stn{scroll-snap-align:center;padding:0 4px 8px}
+  .stn .ring{width:44px;height:44px;border-width:4px;font-size:18px}
+  .stn .nm{font-size:14.5px;white-space:normal;margin-top:4px}
+  .stn .cl{font-size:12.5px}
+  .more{display:inline-flex;align-items:center;gap:6px;position:absolute;right:10px;top:2px;min-height:44px;padding:0 14px;border-radius:999px;border:1px solid var(--walnut-3);background:var(--walnut);color:var(--on-dark);font:600 13.5px/1 var(--bn);cursor:pointer;transition:opacity .3s var(--ease)}
+  .more .i{width:16px;height:16px}
+  .more.gone{opacity:0;pointer-events:none}
+  .doors-strip{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;padding:6px 16px 18px}
+  .doors-strip .ds-l{font-size:13.5px;color:var(--on-dark-2);margin-right:2px}
+  .doors-strip a{display:inline-flex;align-items:center;min-height:44px;padding:0 4px;text-decoration:none}
+  .doors-strip a span{display:inline-flex;align-items:center;height:30px;padding:0 12px;border-radius:999px;font-size:13.5px;font-weight:600;white-space:nowrap;background:var(--walnut);color:var(--on-dark-2);border:1.5px dashed rgba(231,199,140,.6)}
+  .doors-strip a.d1 span{border:2px solid var(--date);color:var(--on-dark)}
+}
+.panel{display:grid;grid-template-columns:minmax(0,.92fr) minmax(0,1.08fr);gap:0 clamp(28px,4vw,64px);padding:clamp(20px,3vw,36px) clamp(18px,3vw,36px) clamp(24px,3.4vw,40px);border-top:1px solid var(--walnut-3)}
+.p-l{grid-column:1;grid-row:1}.p-r{grid-column:2;grid-row:1/span 2}.panel .share-row{grid-column:1;grid-row:2}
+@media (max-width:900px){.panel{grid-template-columns:1fr}.p-l,.p-r,.panel .share-row{grid-column:1;grid-row:auto}.p-r{margin-top:26px;padding-top:22px;border-top:1px solid var(--walnut-line)}.panel .share-row{margin-top:26px}}
+.panel:focus-visible{outline-offset:-4px;border-radius:0 0 24px 24px}
+.rows{margin:0;display:grid;gap:0}
+.rows>div{display:grid;grid-template-columns:76px minmax(0,1fr);gap:14px;align-items:baseline;padding:14px 0;border-top:1px solid var(--walnut-line)}
+.rows>div:first-child{border-top:0;padding-top:0}
+.rows dt{font-size:13.5px;color:var(--on-dark-2)}
+.rows dd{margin:0;font-size:17px}
+.big{display:block;font-size:clamp(28px,3.2vw,40px);font-weight:700;line-height:1.15;letter-spacing:-.01em}
+.mid{display:block;font-size:clamp(20px,2vw,24px);font-weight:600;line-height:1.3}
+.sub2{display:block;color:var(--on-dark-2);font-size:14.5px;margin-top:4px}
+.sub2 .lat{font-size:13.5px}
+.p-arw{display:flex;align-items:center;gap:4px;margin-top:6px}
+.p-ar{font-family:var(--ar);font-size:22px;color:var(--on-dark);display:block;line-height:1.5}
+.p-note{margin-top:20px;font-size:16.5px;color:var(--on-dark);line-height:1.7;padding-top:18px;border-top:1px solid var(--walnut-line)}
+.p-note .ar{color:var(--on-dark);font-size:18px;margin-inline-start:6px}
+.doors{list-style:none;margin-top:14px;display:grid;gap:10px}
+.doors li{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:start;font-size:15.5px;color:var(--on-dark-2);line-height:1.6}
+.doors b{display:inline-flex;align-items:center;height:26px;padding:0 10px;border-radius:999px;font-size:13px;font-weight:600;color:var(--on-dark);border:1.5px dashed rgba(231,199,140,.6);white-space:nowrap;margin-top:1px}
+.doors li:first-child b{border:2px solid var(--date)}
+.share-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:22px}
+.toast{font-size:14px;color:var(--on-dark-2);min-height:1.4em}
+.inst{margin:0}
+.inst+.inst{margin-top:26px;padding-top:22px;border-top:1px solid var(--walnut-line)}
+.inst figcaption{display:flex;justify-content:space-between;align-items:baseline;gap:12px;font-size:13.5px;color:var(--on-dark-2);margin-bottom:10px}
+.inst figcaption b{color:var(--on-dark);font-weight:600;font-size:15px}
+.ruler{position:relative;height:84px}
+.r-axis{position:absolute;left:0;right:0;top:46px;height:2px;background:var(--walnut-3);border-radius:1px}
+.r-h{position:absolute;top:42px;width:1px;height:10px;background:var(--walnut-3)}
+.r-h.maj{height:14px;top:40px;background:rgba(205,187,159,.45)}
+.r-t{position:absolute;top:60px;transform:translateX(-50%);font-size:12.5px;color:var(--on-dark-2);white-space:nowrap}
+.r-t.first{transform:none}.r-t.last{transform:translateX(-100%)}
+.r-span{position:absolute;top:40px;height:14px;border-radius:7px;background:linear-gradient(90deg,var(--brass),var(--brass-soft));box-shadow:0 8px 22px -6px rgba(201,154,75,.55);transition:left .55s var(--ease),width .55s var(--ease)}
+.r-lbl{position:absolute;top:0;font-size:15px;font-weight:600;color:var(--on-dark);white-space:nowrap;transition:left .55s var(--ease)}
+.r-now{position:absolute;top:24px;height:38px;width:2px;margin-left:-1px;background:var(--on-dark);border-radius:1px;z-index:2}
+.r-now i{position:absolute;top:-1px;left:5px;font:600 11.5px/1 var(--bn);font-style:normal;color:var(--on-dark);white-space:nowrap}
+@media (max-width:560px){.r-t.minor{display:none}}
+.bar{display:flex;height:58px;border-radius:12px;overflow:hidden;background:var(--walnut)}
+.seg{flex:0 1 0;min-width:0;display:flex;align-items:flex-end;padding:0 10px 8px;font:700 18px/1 var(--bn);white-space:nowrap;overflow:hidden;transition:flex-grow .6s var(--ease),padding .3s}
+.seg+.seg{box-shadow:inset 2px 0 0 var(--walnut-2)}
+.seg.q{background:var(--s-quran);color:#fbf3e6}
+.seg.a{background:var(--s-arabic);color:var(--walnut)}
+.seg.g{background:var(--s-general);color:var(--walnut)}
+.seg.zero{padding:0}
+.legend{list-style:none;display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:12px;font-size:14.5px;color:var(--on-dark-2)}
+.legend li{display:inline-flex;align-items:center;gap:8px}
+.legend i{width:12px;height:12px;border-radius:3px;display:inline-block}
+.legend b{color:var(--on-dark);font-weight:600}
+.k-q{background:var(--s-quran)}.k-a{background:var(--s-arabic)}.k-g{background:var(--s-general)}
+.pending{height:58px;border-radius:12px;display:flex;align-items:center;padding:0 16px;font-size:15px;color:var(--on-dark-2);background:repeating-linear-gradient(135deg,rgba(243,233,216,.06) 0 8px,transparent 8px 16px);border:1.5px dashed var(--walnut-3)}
+.swap{animation:swap .42s var(--ease)}
+@keyframes swap{from{transform:translateY(5px);opacity:.55}to{transform:none;opacity:1}}
+
+/* outcomes — ruled index */
+.abil{list-style:none;display:grid;grid-template-columns:1fr 1fr;column-gap:56px;margin-top:clamp(44px,6vw,68px);border-top:2px solid var(--ink)}
+@media (max-width:820px){.abil{grid-template-columns:1fr}}
+.ab{display:grid;grid-template-columns:132px minmax(0,1fr);align-content:start;gap:6px 20px;padding:22px 4px 24px;border-bottom:1px solid var(--line)}
+@media (max-width:480px){.ab{grid-template-columns:1fr}}
+.ab h3{font-size:22px;font-weight:700;line-height:1.3}
+.ab h3::before{content:"";display:inline-block;width:6px;height:.8em;border-radius:2px;background:var(--k,var(--date));margin-right:12px;vertical-align:-.04em}
+.ab p{font-size:clamp(18px,1.6vw,20px);line-height:1.55;font-weight:500}
+.ab .en{grid-column:2;margin-top:2px;font-size:13px}
+@media (max-width:480px){.ab .en{grid-column:1}}
+
+/* curriculum */
+.cur-g{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(32px,6vw,88px);align-items:center}
+@media (max-width:900px){.cur-g{grid-template-columns:1fr}}
+.cur-line{margin-top:28px;font-size:clamp(22px,2.4vw,30px);font-weight:700;line-height:1.4;color:var(--date);max-width:22em}
+.cur-g .photo img{aspect-ratio:4/3}
+.streams{list-style:none;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:28px;margin-top:clamp(52px,6vw,80px)}
+@media (max-width:900px){.streams{grid-template-columns:1fr 1fr}}
+@media (max-width:560px){.streams{grid-template-columns:1fr;gap:22px}}
+.streams li{padding-top:16px;border-top:6px solid var(--k);font-size:16px;color:var(--ink-2);line-height:1.6}
+.streams h3{font-size:20px;color:var(--ink);margin-bottom:6px}
+.streams li.s-is{border-top:6px double var(--s-arabic)}
+.aqvi{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr);gap:24px 64px;margin-top:clamp(56px,7vw,96px);padding:clamp(24px,3vw,40px);border-radius:20px;background:var(--sand);align-items:center}
+@media (max-width:900px){.aqvi{grid-template-columns:1fr}}
+.aqvi h3{font-size:clamp(24px,2.6vw,32px)}
+.aqvi h3 small{display:block;font:600 14px/1.4 var(--lat);color:var(--ink-2);margin-top:6px}
+.aqvi blockquote{margin:0;font-family:var(--voice);font-size:clamp(18px,1.7vw,21px);line-height:1.8}
+.aqvi cite{display:block;margin-top:12px;font:500 14px/1.5 var(--bn);font-style:normal;color:var(--ink-2)}
+.plan-h{display:flex;justify-content:space-between;align-items:end;gap:12px 32px;flex-wrap:wrap;margin-top:clamp(56px,7vw,96px)}
+.plan-h h3{font-size:clamp(24px,2.6vw,32px)}
+.plan-h p{color:var(--ink-2);font-size:15px}
+.plan{width:100%;border-collapse:separate;border-spacing:0 6px;margin-top:20px;font-size:15px}
+.plan thead th{font-size:13px;color:var(--ink-2);text-align:left;font-weight:600;padding:0 12px 4px}
+.plan td,.plan tbody th{background:var(--sand);padding:9px 12px;vertical-align:middle;text-align:left}
+.plan tr>*:first-child{border-radius:10px 0 0 10px}.plan tr>*:last-child{border-radius:0 10px 10px 0}
+.plan tbody th{width:158px;background:var(--walnut);color:var(--on-dark);border-radius:10px!important;border-right:8px solid var(--paper)}
+.plan tbody th a{display:flex;align-items:center;justify-content:space-between;gap:8px;text-decoration:none;font-size:16px;font-weight:700;min-height:44px}
+.plan tbody th a .i{width:16px;height:16px;color:var(--on-dark-2)}
+.plan tbody th a:hover{text-decoration:underline}
+.plan tbody th small{display:block;font:500 12px/1.3 var(--lat);color:var(--on-dark-2)}
+.plan .age{width:56px;color:var(--ink-2);font-weight:600}
+.plan .cls{width:80px;font-weight:700}
+.plan tbody tr:first-child td:first-of-type{border-radius:10px 0 0 10px}
+.c{display:inline-block;padding:3px 9px;border-radius:7px;font-size:14px;font-style:normal;font-weight:600;margin:2px 3px 2px 0;line-height:1.5}
+.c.q{background:var(--s-quran);color:#fbf3e6}
+.c.a{background:var(--s-arabic);color:var(--walnut)}
+.c.s{box-shadow:inset 0 0 0 1.5px var(--s-arabic);color:var(--date-deep);background:var(--paper)}
+.c.g{background:var(--paper);color:var(--ink);box-shadow:inset 0 0 0 1px var(--line-2)}
+.c.x{background:var(--walnut);color:var(--on-dark)}
+.c.x small{font:600 11.5px/1 var(--lat);color:var(--on-dark-2);margin-left:6px;letter-spacing:.04em}
+.plan tbody{margin:0}
+.plan tbody+tbody tr:first-child>*{border-top:10px solid var(--paper)}
+@media (max-width:760px){
+  .plan,.plan tbody,.plan tr,.plan td,.plan tbody th{display:block}
+  .plan thead{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+  .plan{border-spacing:0}
+  .plan tbody{margin-top:16px;background:var(--sand);border-radius:14px;overflow:hidden}
+  .plan tbody+tbody tr:first-child>*{border-top:0}
+  .plan tbody th{width:auto;border-radius:0!important}
+  .plan tr{display:grid;grid-template-columns:auto 1fr;column-gap:10px;padding:10px 14px;border-top:1px solid var(--line)}
+  .plan tr:has(th){padding-top:0;border-top:0}
+  .plan tr>th{grid-column:1/-1;margin:0 -14px 10px;padding:4px 14px}
+  .plan td,.plan tbody th{background:transparent;padding:0;border-radius:0!important}
+  .plan tbody th{background:var(--walnut)}
+  .plan .age{width:auto}.plan .cls{width:auto}
+  .plan .isl,.plan .gen{grid-column:1/-1;margin-top:4px}
+  .plan tbody tr>th{padding:8px 14px;border-right:0;margin:0 -14px 8px}
+  .plan tbody th a{min-height:44px}
+  .plan .dk{grid-column:1/-1;margin-top:4px}
+}
+
+/* care & service */
+.care-top{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:clamp(24px,4vw,48px);margin-top:clamp(44px,6vw,72px)}
+@media (max-width:900px){.care-top{grid-template-columns:1fr}}
+.dc{background:var(--walnut);color:var(--on-dark);border-radius:22px;padding:clamp(24px,3.4vw,40px);display:flex;flex-direction:column;gap:18px}
+.dc h3{font-size:clamp(22px,2.2vw,28px)}
+.nw{white-space:nowrap}
+.dc .hours{font-size:clamp(34px,4.2vw,54px);font-weight:800;line-height:1.05;letter-spacing:-.015em;color:var(--on-dark)}
+.dc .hours small{display:block;font-size:15px;font-weight:500;letter-spacing:0;color:var(--on-dark-2);margin-top:12px}
+.dc p{color:var(--on-dark-2)}
+.dc dl{display:grid;grid-template-columns:auto 1fr;gap:8px 18px;margin:0;padding-top:16px;border-top:1px solid var(--walnut-line);font-size:15.5px}
+.dc dt{color:var(--on-dark-2)}.dc dd{margin:0;font-weight:600}
+.play{border:1.5px solid rgba(122,74,38,.3);border-radius:22px;padding:clamp(20px,3vw,32px);display:flex;flex-direction:column;gap:16px;background:var(--paper);scroll-margin-top:calc(var(--hdr) + 12px)}
+.play h3{font-size:clamp(22px,2.2vw,28px)}
+.play p{font-size:17px;color:var(--ink-2)}
+.elev{width:100%;height:auto}
+.elev .e-ln{stroke:var(--date);fill:none;stroke-width:2}
+.elev .e-fill{fill:var(--sand)}
+.elev .e-win{fill:var(--sand-2)}
+.elev .e-roof{fill:var(--s-arabic)}
+.elev .e-field{fill:var(--sand-2);stroke:var(--date);stroke-width:1.5}
+.elev .e-mark{stroke:var(--date);stroke-width:1.2;fill:none;stroke-dasharray:3 4}
+.elev text{font-family:var(--bn);font-size:14px;font-weight:600;fill:var(--ink)}
+.elev .e-sm{font-size:12px;font-weight:500;fill:var(--ink-2)}
+.tr{display:grid;grid-template-columns:minmax(0,.62fr) minmax(0,1.38fr);gap:clamp(24px,4vw,56px);margin-top:clamp(28px,4vw,48px);align-items:start;scroll-margin-top:calc(var(--hdr) + 12px)}
+@media (max-width:900px){.tr{grid-template-columns:1fr}}
+.tr .photo img{aspect-ratio:3/4}
+@media (max-width:900px){.tr .photo img{aspect-ratio:4/3}}
+.tr h3{font-size:clamp(24px,2.6vw,32px)}
+.tr .say{font-size:clamp(18px,1.6vw,20px);margin-top:12px;max-width:46ch;line-height:1.65}
+.tr .say+.say{margin-top:6px;color:var(--ink-2);font-size:16px}
+.routes{display:grid;grid-template-columns:1fr 1fr;gap:24px 40px;margin-top:28px}
+@media (max-width:560px){.routes{grid-template-columns:1fr}}
+.route h4{font-size:19px;display:flex;align-items:center;gap:10px}
+.route h4 i{width:22px;height:6px;border-radius:3px;background:var(--date);display:inline-block}
+.route.m h4 i{background:var(--s-arabic)}
+.rline{list-style:none;margin-top:12px;position:relative;padding-left:30px}
+.rline::before{content:"";position:absolute;left:9px;top:12px;bottom:12px;width:5px;border-radius:3px;background:var(--date)}
+.route.m .rline::before{background:var(--s-arabic)}
+.rline li{position:relative;font-size:15.5px;line-height:1.4;padding:7px 0}
+.rline li::before{content:"";position:absolute;left:-27px;top:50%;margin-top:-8px;width:16px;height:16px;border-radius:50%;background:var(--paper);border:3.5px solid var(--date);box-sizing:border-box}
+.route.m .rline li::before{border-color:var(--s-arabic)}
+.rline li.hub{font-weight:700}
+.rline li.hub::before{width:22px;height:22px;margin-top:-11px;left:-30px;background:var(--walnut);border:4px solid var(--brass)}
+.rnote{display:flex;align-items:center;gap:10px;margin-top:8px;font-size:14.5px;color:var(--ink-2)}
+.rnote i{width:26px;height:0;border-top:3px dashed var(--date);display:inline-block;flex:none}
+.route.m .rnote i{border-color:var(--s-arabic)}
+.tr-foot{display:flex;flex-wrap:wrap;align-items:center;gap:12px 20px;margin-top:26px;padding-top:20px;border-top:1px solid var(--line)}
+.tr-foot .lbl{font-size:14px;color:var(--ink-2)}
+.num{font-family:var(--lat);font-weight:600;font-variant-numeric:tabular-nums;letter-spacing:.01em}
+.mail{font-family:var(--lat);font-weight:600;font-size:17px;letter-spacing:0;overflow-wrap:anywhere}
+.mail-row{display:flex;flex-wrap:wrap;align-items:center;gap:0 16px}
+.foot .mail{font-size:15px;color:var(--on-dark)}
+.tr-foot .num{font-size:22px}
+.fineprint{font-size:13.5px;color:var(--ink-2);margin-top:14px}
+.parents{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr) auto;gap:10px 32px;align-items:center;margin-top:clamp(40px,5vw,64px);padding-top:24px;border-top:2px solid var(--ink)}
+@media (max-width:760px){.parents{grid-template-columns:1fr}}
+.parents h3{font-size:20px;display:flex;align-items:center;gap:10px}
+.parents h3 .i{color:var(--date)}
+.parents p{color:var(--ink-2);font-size:16px}
+.parents .links{display:flex;flex-wrap:wrap;gap:0 18px}
+
+/* campus */
+.camp-g{display:grid;grid-template-columns:minmax(0,1.75fr) minmax(0,1fr);gap:clamp(20px,3vw,32px);margin-top:clamp(40px,5vw,64px);align-items:start}
+@media (max-width:980px){.camp-g{grid-template-columns:1fr}}
+.mosaic{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.mosaic figure{margin:0;position:relative;border-radius:14px;overflow:hidden;background:var(--sand-2)}
+.mosaic img{width:100%;height:100%;object-fit:cover;aspect-ratio:4/3;transition:transform .9s var(--ease)}
+.mosaic figure:hover img{transform:scale(1.025)}
+.mosaic .m1{grid-column:span 2;grid-row:span 2}
+.mosaic .m1 img{aspect-ratio:auto}
+.mosaic figcaption{position:absolute;left:8px;bottom:8px;right:8px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.mosaic figcaption span.t{background:rgba(34,21,12,.86);color:var(--on-dark);font-size:13px;line-height:1.3;padding:6px 10px;border-radius:8px}
+.mosaic figcaption .draft{background:rgba(34,21,12,.86);color:var(--on-dark);border-color:rgba(243,233,216,.5);margin:0;padding:4px 5px 3px}
+@media (max-width:600px){.mosaic{grid-template-columns:1fr 1fr;gap:10px}.mosaic .m1{grid-row:auto}.mosaic .m1 img{aspect-ratio:4/3}.mosaic .m-opt{display:none}}
+.notices{background:var(--walnut);color:var(--on-dark);border-radius:20px;overflow:hidden}
+.notices h3{font-size:17px;padding:16px 20px;border-bottom:1px solid var(--walnut-3);display:flex;justify-content:space-between;align-items:center;gap:10px}
+.notices h3 small{font:500 12.5px/1 var(--lat);color:var(--on-dark-2)}
+.notices ol{list-style:none}
+.notices li{display:grid;grid-template-columns:62px minmax(0,1fr);gap:14px;padding:15px 20px;border-bottom:1px solid var(--walnut-line);font-size:15.5px;line-height:1.55}
+.notices li:last-child{border-bottom:0}
+.notices .tag{font:700 12.5px/1 var(--bn);font-stretch:87.5%;color:var(--on-dark);background:var(--walnut-2);border-radius:6px;padding:7px 0 5px;text-align:center;align-self:start;margin-top:2px}
+.notices a{display:inline-flex;align-items:center;min-height:44px;margin:-10px 0;color:var(--on-dark);text-decoration-color:rgba(243,233,216,.45)}
+.notices .st{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--on-dark-2);margin-top:4px}
+
+/* people */
+.msg{display:grid;grid-template-columns:auto minmax(0,1fr);gap:clamp(20px,4vw,48px);margin:clamp(44px,6vw,72px) 0 0;align-items:start}
+@media (max-width:700px){.msg{grid-template-columns:1fr}}
+.msg img{width:clamp(108px,14vw,168px);height:clamp(108px,14vw,168px);border-radius:28px;object-fit:cover;filter:grayscale(1) sepia(.3) contrast(1.05)}
+.msg blockquote{margin:0;font-family:var(--voice);font-size:clamp(19px,1.9vw,24px);line-height:1.8;color:var(--on-dark);max-width:40em}
+.msg blockquote .pull{color:var(--on-dark);font-weight:700}
+.msg figcaption{margin-top:18px;font-size:15px;color:var(--on-dark-2)}
+.msg figcaption b{display:block;font-family:var(--voice);font-weight:400;font-size:21px;color:var(--on-dark)}
+.ppl-g{display:grid;grid-template-columns:1fr 1fr;gap:clamp(36px,6vw,80px);margin-top:clamp(56px,7vw,96px)}
+@media (max-width:860px){.ppl-g{grid-template-columns:1fr}}
+.ppl-g h3,.ppl-more h3{font-size:clamp(21px,2vw,24px)}
+.ppl-g .note{font-size:15px;color:var(--on-dark-2);margin-top:6px}
+.ppl{list-style:none;margin-top:16px;border-top:1px solid var(--walnut-line)}
+.ppl li{display:grid;grid-template-columns:64px minmax(0,1fr);gap:16px;align-items:center;padding:16px 0;border-bottom:1px solid var(--walnut-line)}
+.ppl img{width:64px;height:64px;border-radius:16px;object-fit:cover;filter:grayscale(1) sepia(.3) contrast(1.05);background:var(--walnut-2)}
+.ppl b{display:block;font-family:var(--voice);font-weight:400;font-size:20px;line-height:1.35}
+.ppl .role{display:block;color:var(--on-dark);font-size:14.5px;font-weight:600;margin-top:1px}
+.ppl .cred{display:block;color:var(--on-dark-2);font-size:14.5px;line-height:1.55;margin-top:2px}
+.ppl .lat{display:block;font-size:12.5px;color:var(--on-dark-2);margin-top:2px}
+.ppl-more{display:grid;grid-template-columns:1fr 1fr;gap:clamp(36px,6vw,80px);margin-top:clamp(48px,6vw,80px);padding-top:clamp(32px,4vw,48px);border-top:1px solid var(--walnut-3)}
+@media (max-width:860px){.ppl-more{grid-template-columns:1fr}}
+.monos{list-style:none;margin-top:16px;display:grid;gap:0;border-top:1px solid var(--walnut-line)}
+.monos li{display:grid;grid-template-columns:44px minmax(0,1fr);gap:14px;align-items:center;padding:12px 0;border-bottom:1px solid var(--walnut-line)}
+.mono{width:44px;height:44px;border-radius:12px;background:var(--walnut-2);border:1.5px solid var(--walnut-3);display:grid;place-items:center;font:600 17px/1 var(--voice);color:var(--on-dark-2)}
+.monos b{font-family:var(--voice);font-weight:400;font-size:18px;display:block;line-height:1.35}
+.monos span{font-size:14px;color:var(--on-dark-2)}
+.teachers .photo img{aspect-ratio:16/9;margin-top:16px}
+.teachers .photo figcaption{color:var(--on-dark-2)}
+.teachers .photo figcaption .sign-k{background:transparent;color:var(--on-dark)}
+.teacher{display:grid;grid-template-columns:44px minmax(0,1fr);gap:14px;align-items:center;margin-top:18px}
+.teacher b{font-family:var(--voice);font-weight:400;font-size:19px;display:block}
+.teacher span{font-size:14px;color:var(--on-dark-2)}
+.teachers p.soon{margin-top:14px;font-size:15px;color:var(--on-dark-2)}
+
+/* fees */
+.fees-g{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:clamp(36px,6vw,88px);align-items:start}
+@media (max-width:900px){.fees-g{grid-template-columns:1fr}}
+.ftable-wrap{margin-top:32px;overflow-x:auto;border-radius:18px;background:var(--paper);box-shadow:0 1px 0 var(--line),0 30px 60px -44px rgba(36,22,13,.55)}
+.ftable{width:100%;border-collapse:collapse;min-width:300px}
+.ftable caption{caption-side:bottom;text-align:left;padding:12px 18px 16px;font-size:13.5px;color:var(--ink-2)}
+.ftable th,.ftable td{padding:15px 18px;border-bottom:1px solid var(--line);text-align:left}
+.ftable thead th{font-size:14px;font-weight:600;color:var(--ink-2);background:var(--sand-2)}
+.ftable thead th:not(:first-child),.ftable td{text-align:right}
+.ftable tbody th{font-weight:600;font-size:16.5px}
+.ftable tbody th small{display:block;font-weight:500;font-size:13.5px;color:var(--ink-2)}
+.ftable td{font:700 clamp(19px,1.8vw,23px)/1 var(--bn);font-variant-numeric:tabular-nums;color:var(--ink);white-space:nowrap}
+.ftable td.na{color:var(--ink-2);font-weight:500}
+.ftable tbody tr:last-child>*{border-bottom:0}
+.sib{display:flex;gap:12px;align-items:flex-start;margin-top:20px;font-size:17px;font-weight:600;color:var(--date)}
+.sib .i{margin-top:3px}
+.sub-h{font-size:19px;margin-top:36px}
+.rules{list-style:none;margin-top:10px}
+.rules li{padding:10px 0 10px 22px;border-bottom:1px solid var(--line);position:relative;color:var(--ink-2);font-size:16px}
+.rules li::before{content:"";position:absolute;left:2px;top:19px;width:8px;height:8px;border-radius:2px;background:var(--date)}
+.steps{list-style:none;margin-top:14px;counter-reset:s}
+.steps li{counter-increment:s;display:grid;grid-template-columns:44px minmax(0,1fr);gap:12px;padding:12px 0;border-bottom:1px solid var(--line);font-size:16.5px}
+.steps li::before{content:"০" counter(s,bengali);font:700 22px/1.3 var(--bn);font-stretch:85%;color:var(--date)}
+.docs{list-style:none;margin-top:14px;counter-reset:d}
+.docs li{counter-increment:d;display:grid;grid-template-columns:44px minmax(0,1fr);gap:12px;padding:12px 0;border-bottom:1px solid var(--line);font-size:16.5px;font-weight:600}
+.docs li::before{content:counter(d,bengali);width:32px;height:32px;border-radius:50%;display:grid;place-items:center;font:700 16px/1 var(--bn);color:var(--paper);background:var(--date)}
+.wl{margin-top:clamp(56px,7vw,96px);background:var(--date);color:var(--paper);border-radius:26px;padding:clamp(24px,5vw,56px);display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:28px 56px;align-items:start;scroll-margin-top:calc(var(--hdr) + 16px);--focus:var(--brass-soft)}
+@media (max-width:860px){.wl{grid-template-columns:1fr}}
+.wl h3{font-size:clamp(28px,3.4vw,42px);line-height:1.15}
+.wl .w-p{color:#f1e0c8;margin-top:14px;font-size:17px}
+.wl .draft{color:#f1e0c8}
+.wl form{display:grid;gap:6px}
+.wl label{font-size:14.5px;font-weight:600;margin-top:8px}
+.wl label:first-child{margin-top:0}
+.wl input,.wl select{min-height:52px;border-radius:12px;border:1.5px solid rgba(248,242,231,.35);background:rgba(34,21,12,.2);color:var(--paper);padding:0 14px;font:500 17px var(--bn);width:100%;caret-color:var(--brass-soft);transition:border-color .25s,background .25s;-webkit-appearance:none;appearance:none}
+.wl select{background-image:linear-gradient(45deg,transparent 50%,var(--paper) 50%),linear-gradient(135deg,var(--paper) 50%,transparent 50%);background-position:calc(100% - 22px) 23px,calc(100% - 16px) 23px;background-size:6px 6px;background-repeat:no-repeat;padding-right:40px}
+.wl select option{color:var(--ink);background:var(--paper)}
+.wl input::placeholder{color:#dcc4a3}
+.wl input:hover,.wl select:hover{border-color:rgba(248,242,231,.6)}
+.wl input:focus,.wl select:focus{outline:none;border-color:var(--brass-soft);background:rgba(34,21,12,.32)}
+.wl [aria-invalid="true"]{border-color:#ffcf9e}
+.wl .err{color:#ffe0bf;font-size:14px;min-height:0}
+.wl .btn{margin-top:14px;width:100%}
+.wl .fine{font-size:13px;color:#e9d3b4;margin-top:8px}
+.ok{display:none;align-items:flex-start;gap:14px;font-size:18px;line-height:1.6;padding:20px;border-radius:16px;background:rgba(34,21,12,.22)}
+.ok .dot{margin-top:9px}
+.wl.done form{display:none}
+.wl.done .ok{display:flex}
+
+/* visit */
+.visit-g{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);gap:clamp(36px,6vw,88px);align-items:start}
+@media (max-width:900px){.visit-g{grid-template-columns:1fr}}
+address{font-style:normal;margin-top:28px;font-size:clamp(19px,1.8vw,22px);font-weight:600;line-height:1.5}
+address .land{display:block;font-size:15.5px;font-weight:500;color:var(--ink-2);margin-top:8px;line-height:1.6}
+address .lat{display:block;font-size:14px;font-weight:500;color:var(--ink-2);margin-top:6px}
+.contact{margin:28px 0 0;display:grid;gap:0;border-top:1px solid var(--line)}
+.contact>div{display:grid;grid-template-columns:96px minmax(0,1fr);gap:12px;padding:12px 0;border-bottom:1px solid var(--line);align-items:center}
+.contact dt{font-size:14px;color:var(--ink-2)}
+.contact dd{margin:0}
+.phones{list-style:none;display:flex;flex-wrap:wrap;gap:4px 18px}
+.phones li{display:flex;align-items:center;gap:2px}
+.phones .num{font-size:17px}
+.call{width:44px;height:44px;display:grid;place-items:center;border-radius:50%;color:var(--date);text-decoration:none;transition:background .25s}
+.call:hover{background:var(--sand-2)}
+.call .i{width:18px;height:18px}
+.walk{margin:0;background:var(--sand);border-radius:22px;padding:clamp(12px,2vw,20px);box-shadow:0 1px 0 var(--line)}
+.walk svg{width:100%;height:auto;display:block}
+.walk .w-narrow{display:none}
+@media (max-width:600px){.walk .w-wide{display:none}.walk .w-narrow{display:block}.walk .w-narrow text{font-size:14.5px}.walk .w-narrow .t-sm{font-size:12.5px}.walk .w-narrow .t-big{font-size:21px}}
+.walk .w-bg{fill:var(--sand)}
+.walk .w-case{stroke:var(--sand-2);stroke-width:22;stroke-linecap:round;fill:none}
+.walk .w-line{stroke:var(--date);stroke-width:9;stroke-linecap:round;fill:none}
+.walk .w-st{fill:var(--paper);stroke:var(--date);stroke-width:4}
+.walk .w-hub{fill:var(--walnut);stroke:var(--brass);stroke-width:5}
+.walk .w-path{stroke:var(--date);stroke-width:5;stroke-linecap:round;fill:none;stroke-dasharray:.1 11}
+.walk.play .w-path{animation:march .6s var(--ease) 1}
+@keyframes march{to{stroke-dashoffset:-11.1}}
+.walk .w-bld{fill:var(--date)}
+.walk .w-door{fill:var(--walnut)}
+.walk .w-grid{stroke:rgba(36,22,13,.07);stroke-width:1}
+.walk text{font-family:var(--bn);fill:var(--ink);font-size:15px;font-weight:600}
+.walk .t-sm{font-size:12.5px;font-weight:500;fill:var(--ink-2)}
+.walk .t-big{font-size:22px;font-weight:800;fill:var(--date)}
+.walk figcaption{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:4px 12px;padding:10px 6px 0;font-size:14px;color:var(--ink-2)}
+.visit-photo{margin-top:20px}
+.visit-photo img{aspect-ratio:16/9}
+
+/* footer */
+.foot{padding:clamp(56px,7vw,88px) 0 32px;font-size:15px;color:var(--on-dark-2)}
+.f-top{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr) minmax(0,1.3fr) minmax(0,1fr);gap:36px}
+@media (max-width:980px){.f-top{grid-template-columns:1fr 1fr}}
+@media (max-width:560px){.f-top{grid-template-columns:1fr}}
+.f-brand .ar{display:block;font-size:26px;color:var(--on-dark);line-height:1.6;text-align:left}
+.f-brand b{display:block;font-size:22px;color:var(--on-dark);margin-top:2px}
+.f-brand .tag{display:block;color:var(--on-dark-2);margin-top:2px}
+.f-brand p{margin-top:16px;max-width:42ch;line-height:1.7}
+.foot h3{font-size:14px;font-weight:600;color:var(--on-dark);margin-bottom:10px}
+.foot ul{list-style:none;display:grid;gap:0}
+.foot ul a{display:inline-flex;align-items:center;min-height:44px;text-decoration:none;color:var(--on-dark-2);transition:color .2s}
+.foot ul a:hover{color:var(--on-dark);text-decoration:underline}
+.foot .f-c p{line-height:1.6;margin-bottom:8px}
+.foot .f-c .num{color:var(--on-dark);font-size:15px}
+.foot .f-tel a{color:var(--on-dark)}
+.f-tel{list-style:none;display:grid;margin-bottom:8px}
+.f-tel a{display:inline-flex;align-items:center;min-height:44px;white-space:nowrap;font-variant-numeric:tabular-nums;text-decoration:none}
+.f-tel a:hover{text-decoration:underline}
+.legend-d{display:flex;align-items:center;gap:0}
+.f-base{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px 24px;margin-top:48px;padding-top:20px;border-top:1px solid var(--walnut-3);font-size:13.5px}
+
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{animation:none!important;transition:none!important}
+}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <symbol id="i-phone" viewBox="0 0 24 24"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/></symbol>
+  <symbol id="i-doc" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M12 11v6M9 14l3 3 3-3"/></symbol>
+  <symbol id="i-cal" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></symbol>
+  <symbol id="i-share" viewBox="0 0 24 24"><circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="M8.2 10.8l7.6-4.4M8.2 13.2l7.6 4.4"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+  <symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 17v-6a6 6 0 0 1 12 0v6l1.5 2h-15zM10 21h4"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s7-6.2 7-12a7 7 0 0 0-14 0c0 5.8 7 12 7 12z"/><circle cx="12" cy="9" r="2.5"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></symbol>
+  <symbol id="i-chat" viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 10h8M8 13h5"/></symbol>
+  <symbol id="i-phone-app" viewBox="0 0 24 24"><rect x="6.5" y="2.5" width="11" height="19" rx="2.5"/><path d="M10.5 18.5h3"/></symbol>
+  <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h10"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+</svg>
+
+<a class="skip" href="#main">মূল অংশে যান</a>
+
+<header class="hdr">
+  <div class="wrap hdr-in">
+    <a class="brand" href="#top" aria-label="মাদরাসাতুল কুরআন ঢাকা — শুরুতে যান">
+      <img class="mark" src="assets/logo-mqd.webp" width="128" height="128" alt="">
+      <span class="brand-t"><b>মাদরাসাতুল কুরআন<span class="dhaka"> ঢাকা</span></b><small>ইসলামিক ও সাধারণ শিক্ষার একটি আদর্শ সমন্বয়</small></span>
+    </a>
+    <nav class="hnav" aria-label="প্রধান মেনু">
+      <ul>
+        <li><a href="#board">শিক্ষা পদ্ধতি</a></li>
+        <li><a href="#curriculum">কারিকুলাম</a></li>
+        <li><a href="#care">সেবা</a></li>
+        <li><a href="#people">সদস্যবৃন্দ</a></li>
+        <li><a href="#fees">ফি ও ভর্তি</a></li>
+        <li><a href="#visit">যোগাযোগ</a></li>
+      </ul>
+    </nav>
+    <div class="hdr-act">
+      <a class="lang" href="https://www.madrasatulquranbd.com/english" lang="en">English</a>
+      <a class="lang" href="https://www.eximusedu.com/go/mqd" rel="noopener">লগইন</a>
+      <a class="btn btn-ghost btn-ico hcall" href="tel:+8801301226644" aria-label="কল করুন: 01301-226644"><svg class="i" aria-hidden="true"><use href="#i-phone"/></svg></a>
+      <a class="btn btn-primary" href="#visit"><svg class="i" aria-hidden="true"><use href="#i-cal"/></svg><span class="full">ক্যাম্পাস ভিজিট</span><span class="short">ভিজিট</span></a>
+      <button class="btn btn-ghost btn-ico menu-btn" type="button" id="menuBtn" aria-expanded="false" aria-controls="msheet" aria-label="মেনু"><svg class="i" aria-hidden="true"><use href="#i-menu"/></svg></button>
+    </div>
+  </div>
+  <nav class="msheet" id="msheet" aria-label="মেনু">
+    <div class="wrap">
+      <ol>
+        <li><a href="#board">শিক্ষা পদ্ধতি</a></li>
+        <li><a href="#curriculum">কারিকুলাম</a></li>
+        <li><a href="#care">সেবা</a></li>
+        <li><a href="#people">সদস্যবৃন্দ</a></li>
+        <li><a href="#fees">ফি ও ভর্তি</a></li>
+        <li><a href="#visit">যোগাযোগ</a></li>
+      </ol>
+      <p class="ms-x"><a href="tel:+8801301226644">কল করুন <span class="num sel" style="margin-left:6px">01301-226644</span></a><a href="https://www.madrasatulquranbd.com/english" lang="en">English</a><a href="https://www.eximusedu.com/go/mqd" rel="noopener">লগইন (অভিভাবক)</a></p>
+    </div>
+  </nav>
+</header>
+
+<main id="main">
+
+<!-- 1 · HERO -->
+<section class="hero" id="top" aria-labelledby="h-hero">
+  <div class="wrap hero-g">
+    <div>
+      <h1 id="h-hero"><span class="h1-a">শিক্ষা পদ্ধতি</span><span class="h1-b"><span class="tile t-a">৫০<span class="cap" aria-hidden="true">ইসলামি শিক্ষা</span></span><span class="dash">–</span><span class="tile t-b">৫০<span class="cap" aria-hidden="true">সাধারণ শিক্ষা</span></span><span>মডেল</span></span></h1>
+      <p class="sub">এটি এমন একটি শিক্ষাব্যবস্থা, যেখানে মাদরাসার কারিকুলাম, সিলেবাস ও রুটিনে ইসলামি শিক্ষা ও সাধারণ শিক্ষাকে সমান গুরুত্ব দেওয়া হয়।</p>
+      <p class="sub-en" lang="en">An ideal combination of Islamic and general education (50-50)</p>
+      <div class="ctas">
+        <a class="btn btn-primary" href="#visit"><svg class="i" aria-hidden="true"><use href="#i-cal"/></svg>ক্যাম্পাস ভিজিট</a>
+        <a class="btn btn-ghost" href="tel:+8801301226644"><svg class="i" aria-hidden="true"><use href="#i-phone"/></svg>কল করুন</a>
+        <a class="btn btn-ghost" href="https://www.madrasatulquranbd.com/api/download-prospectus" aria-label="প্রসপেক্টাস ডাউনলোড করুন (PDF)"><svg class="i" aria-hidden="true"><use href="#i-doc"/></svg>প্রসপেক্টাস</a>
+      </div>
+      <p class="status"><span class="dot" aria-hidden="true"></span><span>প্রি-অ্যাডমিশন বর্তমানে গ্রহণ করা হচ্ছে না।</span><a href="#waitlist">অপেক্ষমাণ তালিকায় নাম দিন<span class="draft">DRAFT</span></a></p>
+    </div>
+
+    <figure class="frame" aria-labelledby="frame-cap">
+      <div class="frame-top">
+        <span class="dot off" id="nowDot" aria-hidden="true"></span>
+        <a class="now" id="now" href="#board"><span class="now-l" id="nowL" hidden>এখন ক্যাম্পাসে</span><span class="now-v" id="nowV">ক্যাম্পাস খুলবে সকাল ৭:০০-এ<span class="draft">DRAFT</span></span></a>
+        <span class="ft-r"><span class="clock-l">ঢাকা সময়</span><span class="clock" id="clock">উত্তরা</span></span>
+      </div>
+      <div class="frame-img"><img src="assets/photo-classroom-drawings.jpg" width="1400" height="788" alt="শ্রেণিকক্ষে টুপি ও বাদামি পাঞ্জাবি পরা শিশুরা নিজেদের আঁকা আমের ছবি তুলে ধরেছে" fetchpriority="high"></div>
+      <figcaption class="sign" id="frame-cap"><span class="sign-k" aria-hidden="true"><svg class="i"><use href="#i-arrow"/></svg></span>শ্রেণিকক্ষ<span class="sep">·</span>উত্তরা<span class="draft">DRAFT</span></figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- 2 · DEPARTURE TICKER -->
+<div class="ticker" role="region" aria-label="এক নজরে — মূল তথ্য" tabindex="0">
+  <ul class="tk">
+    <li><span class="tk-h">এক নজরে</span></li>
+    <li><b>৩০০+</b><span class="tk-l">হাদিস মুখস্থ<small>নবম শ্রেণির মধ্যে</small></span></li>
+    <li><b>৯০%+</b><span class="tk-l">কুরআনের অনুবাদে সক্ষমতা<small>এস.এস.সি/দাখিল লেভেলে</small></span></li>
+    <li><b>৬ষ্ঠ</b><span class="tk-l">শ্রেণি থেকে<small>ইসলাম শিক্ষা আরবি ভাষায়</small></span></li>
+    <li><b>হিফজ + NCTB</b><span class="tk-l"><span>একসাথে<span class="draft">DRAFT</span></span><small>হিফজের বছরেও জেনারেল শিক্ষা</small></span></li>
+    <li><b>৬০০ মি.</b><span class="tk-l">উত্তরা সেন্টার মেট্রো থেকে<small>পূর্ব দিকে</small></span></li>
+  </ul>
+</div>
+
+<!-- 3 · THE FOUNDERS' QUESTION + 11 REASONS -->
+<section id="why" aria-labelledby="h-why">
+  <div class="wrap">
+    <div class="why-g">
+      <div>
+        <h2 id="h-why">কেন মাদরাসাতুল কুরআন?</h2>
+        <a class="signers" href="#people">
+          <span class="faces" aria-hidden="true">
+            <img src="assets/portrait-dir-nahid-hasan.jpg" width="600" height="600" alt="" loading="lazy">
+            <img src="assets/portrait-dir-muinul-islam.jpg" width="600" height="600" alt="" loading="lazy">
+            <img src="assets/portrait-dir-ashrafuddowla.jpg" width="600" height="600" alt="" loading="lazy">
+            <img src="assets/portrait-dir-shafayet-ahmmed.jpg" width="600" height="600" alt="" loading="lazy">
+          </span>
+          <span><b>প্রতিষ্ঠাতা পরিচালক</b>এস এম নাহিদ হাসান, মো: মুঈনুল ইসলাম, মো: আশরাফউদ্দৌলা, শাফায়েত আহম্মেদ</span>
+        </a>
+      </div>
+      <blockquote class="letter">
+        <p><span class="bis">বিসমিল্লাহির রাহমানির রাহীম, ওয়াস সলাতু ওয়াসসালামু আলা রসুলিল্লাহ।</span> <span class="q">এতো এতো ভালো ইসলামিক স্কুল থাকতে আমরা কেন মাদরাসাতুল কুরআনের কথা ভাবলাম?</span> এর একটা বড় কারন হলো জেনারেল শিক্ষার পাশাপাশি আমরা যেভাবে আরবি ও ইসলাম শিক্ষায় জোর দিতে চেয়েছি এমন বাংলা মিডিয়াম স্কুল পাচ্ছিলাম না। মূলত আমরা কয়েকটা বিষয়কে আমাদের স্কুলের অনন্য বৈশিষ্ট্য হবে বলে আশা করি। ইনশা আল্লাহ</p>
+        <footer class="src">— প্রসপেক্টাস, “কেন মাদরাসাতুল কুরআন?”</footer>
+      </blockquote>
+    </div>
+
+    <ol class="reasons" aria-label="মাদরাসাতুল কুরআনের ১১টি অনন্য বৈশিষ্ট্য">
+      <li><a href="#pre-hifz"><span class="rn" aria-hidden="true">১</span><span class="rt"><b>আদর্শ সমন্বয়</b><span>আরবি ভাষা ও ইসলামিক শিক্ষার সাথে জেনারেল শিক্ষার আদর্শ সমন্বয়।</span></span><svg class="i ra" aria-hidden="true"><use href="#i-arrow"/></svg></a></li>
+      <li><a href="#outcomes"><span class="rn" aria-hidden="true">২</span><span class="rt"><b>ভাষার চারটি দক্ষতা</b><span>ইংরেজি ও আরবি ভাষার ক্ষেত্রে ভাষার চারটি মৌলিক দক্ষতা অর্জন (শোনা, বলা, পড়া ও লেখা)</span></span><svg class="i ra" aria-hidden="true"><use href="#i-arrow"/></svg></a></li>
+      <li><a href="#after-hifz"><span class="rn" aria-hidden="true">৩</span><span class="rt"><b>আরবি মিডিয়াম ইসলামী শিক্ষা</b><span>৬ষ্ঠ শ্রেণি থেকে ইসলাম শিক্ষা আরবি ভাষায় পাঠদান।</span></span><svg class="i ra" aria-hidden="true"><use href="#i-arrow"/></svg></a></li>
+      <li><a href="#dakhil"><span class="rn" aria-hidden="true">৪</span><span class="rt"><b>উচ্চ শিক্ষার সুযোগ</b><span>৮ম শ্রেণির পর এস.এস.সি/দাখিল/মাদ্রাসা শিক্ষার সুযোগ।</span></span><svg class="i ra" aria-hidden="true"><use href="#i-arrow"/></svg></a></li>
+      <li><a href="#care"><span class="rn" aria-hidden="true">৫</span><span class="rt"><b>ডে-কেয়ার হিফজ</b><span>ডে-কেয়ার হিফজের ব্যবস্থা।</span></span><svg class="i ra" aria-hidden="true"><use href="#i-arrow"/></svg></a></li>
+      <li><a href="#transport"><span class="rn" aria-hidden="true">৬</span><span class="rt"><b>নিজস্ব পরিবহন</b><span>নিজস্ব যাতায়াত ব্যবস্থা।</span></span><svg class="i ra" aria-hidden="true"><use href="#i-arrow"/></svg></a></li>
+      <li><a href="#outcomes"><span class="rn" aria-hidden="true">৭</span><span class="rt"><b>হাদিস মুখস্থ</b><span>নবম শ্রেণির মধ্যে ৩০০+ হাদিস মুখস্থ করা।</span></span><svg class="i ra" aria-hidden="true"><use href="#i-arrow"/></svg></a></li>
+      <li><a href="#outcomes"><span class="rn" aria-hidden="true">৮</span><span class="rt"><b>কুরআন তর্জমা দক্ষতা</b><span>এস.এস.সি/দাখিল লেভেলে কুরআনের ৯০%+ অনুবাদে সক্ষমতা অর্জন।</span></span><svg class="i ra" aria-hidden="true"><use href="#i-arrow"/></svg></a></li>
+      <li><a href="#outcomes"><span class="rn" aria-hidden="true">৯</span><span class="rt"><b>নৈতিকতা ও আদব</b><span>ইসলামিক নৈতিকতা ও শিষ্টাচার শিক্ষায় সর্বোচ্চ গুরুত্ব প্রদান।</span></span><svg class="i ra" aria-hidden="true"><use href="#i-arrow"/></svg></a></li>
+      <li><a href="#outcomes"><span class="rn" aria-hidden="true">১০</span><span class="rt"><b>ইসলামী ইতিহাস</b><span>ইসলামের ইতিহাস ও সীরাহ শিক্ষার উপর জোরদান।</span></span><svg class="i ra" aria-hidden="true"><use href="#i-arrow"/></svg></a></li>
+      <li><a href="#play"><span class="rn" aria-hidden="true">১১</span><span class="rt"><b>বিনোদনের সুযোগ</b><span>ছেলেদের ক্যাম্পাস সংলগ্ন মাঠে খেলার সুযোগ এবং মেয়েদের ছাদবাগানে খেলার সুযোগ।</span></span><svg class="i ra" aria-hidden="true"><use href="#i-arrow"/></svg></a></li>
+    </ol>
+  </div>
+</section>
+
+<!-- 4 · THE BOARD -->
+<section class="dark board-sec" id="board" aria-labelledby="h-board">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2 id="h-board">শ্রেণি বিন্যাস ও সময়সূচি</h2>
+      <p class="lede">আমাদের প্রধান উদ্দেশ্য হলো মাধ্যমিক পর্যায়ে একজন শিক্ষার্থীর এমন একটি শক্ত ভিত্তি গড়ে দেওয়া, যাতে সে ভবিষ্যতে মাদরাসা কিংবা কলেজ—উভয় ক্ষেত্রেই সফল হওয়ার পূর্ণ প্রস্তুতি অর্জন করতে পারে।</p>
+    </div>
+
+    <div class="board" id="routine">
+      <div class="board-top">
+        <span class="bt-l"><svg class="i" aria-hidden="true"><use href="#i-bell"/></svg>দৈনিক রুটিন ·&nbsp;<b id="btStage">প্রি-হিফজ</b></span>
+        <span class="bt-r"><span>উত্তরা, ঢাকা</span><b id="bClock"></b></span>
+      </div>
+
+      <div class="line-wrap">
+      <div class="line-scroll" id="lineScroll">
+        <div class="line" id="line" style="--sel:0">
+          <span class="rail" aria-hidden="true"></span>
+          <span class="fill" aria-hidden="true"></span>
+          <span class="br br1" aria-hidden="true"></span>
+          <span class="br br2" aria-hidden="true"></span>
+          <div class="tabs" role="tablist" aria-label="শিক্ষাস্তর বেছে নিন">
+            <button class="stn" type="button" role="tab" id="tab-pre-hifz" aria-controls="panel" aria-selected="true" tabindex="0"><span class="ring" aria-hidden="true">১</span><span class="nm">প্রি-হিফজ</span><span class="cl">নার্সারি – ১ম</span></button>
+            <button class="stn" type="button" role="tab" id="tab-hifz" aria-controls="panel" aria-selected="false" tabindex="-1"><span class="ring" aria-hidden="true">২</span><span class="nm">হিফজ ডে-কেয়ার</span><span class="cl">২য় – ৫ম</span></button>
+            <button class="stn" type="button" role="tab" id="tab-after-hifz" aria-controls="panel" aria-selected="false" tabindex="-1"><span class="ring" aria-hidden="true">৩</span><span class="nm">আফটার হিফজ</span><span class="cl">৬ষ্ঠ – ৮ম</span></button>
+            <button class="stn ix" type="button" role="tab" id="tab-dakhil" aria-controls="panel" aria-selected="false" tabindex="-1"><span class="ring" aria-hidden="true">৪</span><span class="nm">দাখিল</span><span class="cl">৯ম – ১০ম</span></button>
+            <button class="stn" type="button" role="tab" id="tab-mutawassita" aria-controls="panel" aria-selected="false" tabindex="-1"><span class="ring" aria-hidden="true">৫</span><span class="nm">মুতাওয়াসসিতা</span><span class="cl">একাদশ</span></button>
+          </div>
+          <span class="tp tp3">SSC → কলেজ</span>
+          <span class="tp tp2">কাফিয়া · কওমি</span>
+          <span class="tp tp1">মাদরাসা</span>
+        </div>
+      </div>
+      <button class="more" type="button" id="moreBtn" tabindex="-1" aria-hidden="true">আরও স্টেশন<svg class="i" aria-hidden="true"><use href="#i-arrow"/></svg></button>
+      <p class="doors-strip"><span class="ds-l">দাখিলের পর:</span><a class="d1" href="#dakhil"><span>মাদরাসা</span></a><a href="#dakhil"><span>কাফিয়া · কওমি</span></a><a href="#dakhil"><span>SSC → কলেজ</span></a></p>
+      </div>
+
+      <div class="panel" id="panel" role="tabpanel" aria-labelledby="tab-pre-hifz" tabindex="0">
+        <div class="p-l" id="pL">
+          <dl class="rows">
+            <div><dt>স্তর</dt><dd><span class="big" id="pName">প্রি-হিফজ</span><span class="p-arw" id="pArw" hidden><span class="p-ar" lang="ar" id="pAr"></span><span class="draft">DRAFT</span></span><span class="sub2"><span class="lat" id="pEn">Pre-Hifz</span> · <span id="pNo">স্তর ১</span></span></dd></div>
+            <div><dt>শ্রেণি</dt><dd><span class="mid" id="pCls">নার্সারি থেকে প্রথম</span><span class="sub2" id="pAge">বয়স ৫+ থেকে ৭+</span></dd></div>
+            <div><dt>সময়</dt><dd><span class="mid" id="pTime">সকাল ৯:০০ – দুপুর ১:০০</span><span class="sub2" id="pDur">দিনে ৪ ঘণ্টা</span></dd></div>
+            <div id="pSvcRow" hidden><dt>সেবা</dt><dd><span class="mid">ডে-কেয়ার · খাবার<span class="draft">DRAFT</span></span><a class="tlink" href="#care">ডে-কেয়ার ও খাবারের বিস্তারিত</a></dd></div>
+          </dl>
+          <div class="p-note" id="pNote">কুরআন শিক্ষা: কায়দা → আম্মাপারা → নাজেরা<span class="draft">DRAFT</span></div>
+        </div>
+        <div class="p-r">
+          <figure class="inst">
+            <figcaption><b>দিনের সময়রেখা<span class="draft">DRAFT</span></b><span>সকাল ৭টা থেকে রাত ৮:৩০</span></figcaption>
+            <div class="ruler" id="ruler" role="img" aria-label="প্রি-হিফজ: সকাল ৯:০০ থেকে দুপুর ১:০০">
+              <div class="r-axis"></div>
+              <span class="r-h maj" style="left:0%"></span><span class="r-h" style="left:7.41%"></span><span class="r-h" style="left:14.81%"></span><span class="r-h maj" style="left:22.22%"></span><span class="r-h" style="left:29.63%"></span><span class="r-h" style="left:37.04%"></span><span class="r-h maj" style="left:44.44%"></span><span class="r-h" style="left:51.85%"></span><span class="r-h" style="left:59.26%"></span><span class="r-h maj" style="left:66.67%"></span><span class="r-h" style="left:74.07%"></span><span class="r-h" style="left:81.48%"></span><span class="r-h" style="left:88.89%"></span><span class="r-h" style="left:96.3%"></span><span class="r-h maj" style="left:100%"></span>
+              <span class="r-t first" style="left:0%">সকাল ৭টা</span>
+              <span class="r-t minor" style="left:22.22%">১০টা</span>
+              <span class="r-t" style="left:44.44%">দুপুর ১টা</span>
+              <span class="r-t minor" style="left:66.67%">বিকাল ৪টা</span>
+              <span class="r-t last" style="left:100%">রাত ৮:৩০</span>
+              <span class="r-span" id="rSpan" style="left:14.81%;width:29.63%"></span>
+              <span class="r-lbl" id="rLbl" style="left:14.81%">সকাল ৯:০০ – দুপুর ১:০০</span>
+              <span class="r-now" id="rNow" hidden><i>এখন</i></span>
+            </div>
+          </figure>
+          <figure class="inst">
+            <figcaption><b>বিষয় বিভাজন</b><span>পাঠ্যসূচি, সিলেবাস ও রুটিনে<span class="draft">DRAFT</span></span></figcaption>
+            <div id="barWrap">
+              <div class="bar" id="bar" role="img" aria-label="কুরআন ২৫%, আরবি ২৫%, জেনারেল ৫০%">
+                <span class="seg q" style="flex-grow:25">২৫%</span><span class="seg a" style="flex-grow:25">২৫%</span><span class="seg g" style="flex-grow:50">৫০%</span>
+              </div>
+              <ul class="legend" id="legend"><li><i class="k-q"></i>কুরআন <b>২৫%</b></li><li><i class="k-a"></i>আরবি <b>২৫%</b></li><li><i class="k-g"></i>জেনারেল <b>৫০%</b></li></ul>
+            </div>
+            <p class="pending" id="pending" hidden>বিষয় বিভাজন শীঘ্রই<span class="draft">DRAFT</span></p>
+          </figure>
+        </div>
+        <div class="share-row">
+          <button class="btn btn-ghost" type="button" id="shareBtn"><svg class="i" aria-hidden="true"><use href="#i-share"/></svg>এই স্টেশন শেয়ার করুন</button>
+          <span class="toast" id="toast" role="status" aria-live="polite"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 5 · TEN-YEAR TARGET ABILITIES -->
+<section id="outcomes" aria-labelledby="h-out">
+  <div class="wrap">
+    <h2 id="h-out">দশ বছরে ইসলাম শিক্ষায় উদ্দিষ্ট যোগ্যতা</h2>
+    <ul class="abil">
+      <li class="ab" style="--k:var(--s-quran)"><h3>কুরআন</h3><p>সামর্থ্য অনুযায়ী হিফজ ও কুরআন তর্জমা</p><span class="en" lang="en">Hifz (memorization) and Quranic translation according to ability</span></li>
+      <li class="ab" style="--k:var(--s-arabic)"><h3>আরবী ভাষা</h3><p>আরবী বলতে পারা, শুনে বুঝতে পারা, ইবারাত পড়তে পারা ও লিখতে পারা</p><span class="en" lang="en">Ability to speak, understand by listening, read Ibaarat, and write Arabic</span></li>
+      <li class="ab" style="--k:var(--date)"><h3>আকিদাহ</h3><p>ইমান ও আকিদার বিষয়াবলি ও ইসলামিক মূল্যবোধ</p><span class="en" lang="en">Matters of faith and creed, and Islamic values</span></li>
+      <li class="ab" style="--k:var(--date)"><h3>ফিকহ</h3><p>বেসিক মাসায়িল, আদাব-তারবিয়া ও মাসনুন দোয়া</p><span class="en" lang="en">Basic Masa'il, Adab-Tarbiyah and Masnoon Duas</span></li>
+      <li class="ab" style="--k:var(--walnut-3)"><h3>হাদিস</h3><p>নবম শ্রেণির মধ্যে বিষয়ভিত্তিক ৩০০+ হাদিস মুখস্থ করা।</p><span class="en" lang="en">Memorizing 300+ subject-wise Hadith by 9th grade</span></li>
+      <li class="ab" style="--k:var(--walnut-3)"><h3>ইতিহাস</h3><p>নবীদের ইতিহাস, কুরআনের বিভিন্ন ইতিহাস, খলিফাদের ইতিহাস ও পরবর্তী ইতিহাস</p><span class="en" lang="en">History of Prophets, histories from the Quran, history of Caliphs, and after</span></li>
+    </ul>
+  </div>
+</section>
+
+<!-- 6 · CURRICULUM AUTHORSHIP + 10-YEAR PLAN -->
+<section class="paper" id="curriculum" aria-labelledby="h-cur">
+  <div class="wrap">
+    <div class="cur-g">
+      <div>
+        <h2 id="h-cur">আমাদের কারিকুলাম</h2>
+        <p class="lede">কুরআন-সুন্নাহ ভিত্তিক তারবিয়াহ্‌, আরবী ও দীনী শিক্ষা এবং NCTB একাডেমিকের সমন্বয়ে পরিকল্পিত সমন্বিত কারিকুলাম</p>
+        <p class="cur-line">বাংলা মিডিয়াম NCTB (দাখিল/এস.এস.সি) এর সাথে নিজস্ব ইসলামী শিক্ষার কারিকুলাম।</p>
+      </div>
+      <figure class="photo">
+        <img src="assets/photo-stilllife-kitab-microscope.jpg" width="1400" height="1034" alt="তাকের ওপর আরবি কিতাবের স্তূপ, পাশে অণুবীক্ষণ যন্ত্র, মানবকঙ্কালের মডেল ও গাছ" loading="lazy">
+        <figcaption><span class="sign-k" aria-hidden="true"><svg class="i"><use href="#i-arrow"/></svg></span>কিতাব, অণুবীক্ষণ যন্ত্র ও কঙ্কাল — একই তাকে<span class="draft">DRAFT</span></figcaption>
+      </figure>
+    </div>
+
+    <ul class="streams" aria-label="চার ধারা">
+      <li style="--k:var(--s-quran)"><h3>কুরআন শিক্ষা</h3>কায়েদা, আম্মাপারা, নাজেরা, হিফজ (ক্লাস ফাইভ পর্যন্ত হিফজ)</li>
+      <li style="--k:var(--s-arabic)"><h3>আরবি</h3>নার্সারি থেকে ক্লাস এইট পর্যন্ত AQVI প্রণীত নিজস্ব কারিকুলাম।</li>
+      <li class="s-is"><h3>ইসলামিক শিক্ষা</h3>নার্সারি থেকে ক্লাস এইট পর্যন্ত AQVI প্রণীত কারিকুলাম, যেখানে মাদ্রাসা বোর্ডের মুতাওয়াসসিতা সিলেবাসকে প্রাধান্য দেওয়া হয়েছে- যাতে দাখিল পরীক্ষার পরবর্তী বছর মুতাওয়াসসিতা পরীক্ষায় অংশগ্রহণ করা যায়।</li>
+      <li style="--k:var(--s-general)"><h3>জেনারেল শিক্ষা</h3>দাখিল (মাধ্যমিক) স্তর পর্যন্ত জেনারেল শিক্ষা কার্যক্রম।</li>
+    </ul>
+
+    <div class="plan-h">
+      <h3 id="h-plan">দশ বছরের পাঠ পরিকল্পনা (পূর্ণ/আংশিক হিফয সহ)</h3>
+      <p class="plan-key" aria-hidden="true"><i class="c q">কুরআন</i><i class="c a">আরবি</i><i class="c s">ইসলাম</i><i class="c g">জেনারেল</i></p>
+    </div>
+    <table class="plan" aria-labelledby="h-plan">
+      <thead><tr><th scope="col">স্তর</th><th scope="col">বয়স</th><th scope="col">শ্রেণি</th><th scope="col">ইসলামিক স্টাডিজ</th><th scope="col">জেনারেল</th></tr></thead>
+      <tbody>
+        <tr><th scope="rowgroup" rowspan="3"><a href="#pre-hifz"><span>প্রি-হিফজ<small>Pre-Hifz</small></span><svg class="i" aria-hidden="true"><use href="#i-arrow"/></svg></a></th><td class="age">৫+</td><td class="cls">নার্সারি</td><td class="isl" data-l="ইসলামিক স্টাডিজ"><i class="c q">কায়দা</i><i class="c a">আরবি-N</i><i class="c s">ইসলাম-N</i></td><td class="gen" data-l="জেনারেল"><i class="c g">বাংলা</i><i class="c g">ইংরেজি</i><i class="c g">গণিত</i></td></tr>
+        <tr><td class="age">৬+</td><td class="cls">কেজি</td><td class="isl" data-l="ইসলামিক স্টাডিজ"><i class="c q">আম্মাপারা</i><i class="c a">আরবি-KG</i><i class="c s">ইসলাম-KG</i></td><td class="gen" data-l="জেনারেল"><i class="c g">বাংলা</i><i class="c g">ইংরেজি</i><i class="c g">গণিত</i></td></tr>
+        <tr><td class="age">৭+</td><td class="cls">১ম</td><td class="isl" data-l="ইসলামিক স্টাডিজ"><i class="c q">নাজেরা</i><i class="c a">আরবি-১</i><i class="c s">ইসলাম-১</i></td><td class="gen" data-l="জেনারেল"><i class="c g">বাংলা</i><i class="c g">ইংরেজি</i><i class="c g">গণিত</i></td></tr>
+      </tbody>
+      <tbody>
+        <tr><th scope="rowgroup" rowspan="4"><a href="#hifz"><span>হিফজ<small>Hifz Day-care</small></span><svg class="i" aria-hidden="true"><use href="#i-arrow"/></svg></a></th><td class="age">৮+</td><td class="cls">২য়</td><td class="isl" data-l="ইসলামিক স্টাডিজ"><i class="c q">হিফজ-১</i><i class="c a">আরবি-২</i><i class="c s">ইসলাম-২</i></td><td class="gen" data-l="জেনারেল"><i class="c g">বাংলা</i><i class="c g">ইংরেজি</i><i class="c g">গণিত</i></td></tr>
+        <tr><td class="age">৯+</td><td class="cls">৩য়</td><td class="isl" data-l="ইসলামিক স্টাডিজ"><i class="c q">হিফজ-২</i><i class="c a">আরবি-৩</i><i class="c s">ইসলাম-৩</i></td><td class="gen" data-l="জেনারেল"><i class="c g">বাংলা</i><i class="c g">ইংরেজি</i><i class="c g">গণিত</i></td></tr>
+        <tr><td class="age">১০+</td><td class="cls">৪র্থ</td><td class="isl" data-l="ইসলামিক স্টাডিজ"><i class="c q">হিফজ-৩</i><i class="c s">ইসলাম-৪</i><i class="c a">আরবি-৪</i></td><td class="gen" data-l="জেনারেল"><i class="c g">বাংলা</i><i class="c g">ইংরেজি</i><i class="c g">গণিত</i></td></tr>
+        <tr><td class="age">১১+</td><td class="cls">৫ম</td><td class="isl" data-l="ইসলামিক স্টাডিজ"><i class="c q">শুনানি</i><i class="c a">আরবি-৫</i><i class="c s">ইসলাম-৫</i></td><td class="gen" data-l="জেনারেল"><i class="c g">বাংলা</i><i class="c g">ইংরেজি</i><i class="c g">গণিত</i><i class="c g">বিজ্ঞান</i></td></tr>
+      </tbody>
+      <tbody>
+        <tr><th scope="rowgroup" rowspan="3"><a href="#after-hifz"><span>আফটার হিফজ<small>After-Hifz</small></span><svg class="i" aria-hidden="true"><use href="#i-arrow"/></svg></a></th><td class="age">১২+</td><td class="cls">৬ষ্ঠ</td><td class="isl" data-l="ইসলামিক স্টাডিজ"><i class="c a">আরবি-৬</i><i class="c s">ইসলাম-৬</i></td><td class="gen" data-l="জেনারেল"><i class="c g">বাংলা</i><i class="c g">ইংরেজি</i><i class="c g">গণিত</i><i class="c g">বিজ্ঞান</i><i class="c g">বিজিএস</i></td></tr>
+        <tr><td class="age">১৩+</td><td class="cls">৭ম</td><td class="isl" data-l="ইসলামিক স্টাডিজ"><i class="c a">আরবি-৭</i><i class="c s">ইসলাম-৭</i></td><td class="gen" data-l="জেনারেল"><i class="c g">বাংলা</i><i class="c g">ইংরেজি</i><i class="c g">গণিত</i><i class="c g">বিজ্ঞান</i><i class="c g">বিজিএস</i></td></tr>
+        <tr><td class="age">১৪+</td><td class="cls">৮ম</td><td class="isl" data-l="ইসলামিক স্টাডিজ"><i class="c a">আরবি-৮</i><i class="c s">ইসলাম-৮</i></td><td class="gen" data-l="জেনারেল"><i class="c g">বাংলা</i><i class="c g">ইংরেজি</i><i class="c g">গণিত</i><i class="c g">বিজ্ঞান</i><i class="c g">বিজিএস</i></td></tr>
+      </tbody>
+      <tbody>
+        <tr><th scope="rowgroup" rowspan="2"><a href="#dakhil"><span>দাখিল<small>SSC / Dakhil</small></span><svg class="i" aria-hidden="true"><use href="#i-arrow"/></svg></a></th><td class="age">১৫+</td><td class="cls">৯ম</td><td class="dk" colspan="2"><i class="c x">দাখিল / এস.এস.সি<small>NCTB</small></i></td></tr>
+        <tr><td class="age">১৬+</td><td class="cls">১০ম</td><td class="dk" colspan="2"><i class="c x">দাখিল / এস.এস.সি<small>NCTB</small></i></td></tr>
+      </tbody>
+    </table>
+
+    <div class="aqvi">
+      <h3>আল কুরআনের ভাষা ইনস্টিটিউট (AQVI)<small>Arabic &amp; Islamic studies, Nursery – Class 8</small></h3>
+      <div>
+        <blockquote><p>বিশেষ করে শিশুদের জন্য সহজ ও ধাপে ধাপে আরবি শেখার বিষয়টি নিশ্চিত করতে তিনি রচনা করেন “বিদায়াতুল আরাবিয়া” সিরিজ। বর্তমানে এই সিরিজটি একটি অত্যন্ত কার্যকর সহায়ক গ্রন্থ হিসেবে ২০০ টিরও বেশি শিক্ষা প্রতিষ্ঠানের পাঠ্যসূচিতে (সিলেবাস) অন্তর্ভুক্ত রয়েছে।</p><cite>— এস এম নাহিদ হাসানের পরিচিতি, মাদরাসাতুল কুরআনের ওয়েবসাইট</cite></blockquote>
+        <a class="tlink" href="https://alquranervasha.com/downloads" rel="noopener">আমাদের বইসমূহ<svg class="i" aria-hidden="true"><use href="#i-arrow"/></svg></a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 7 · CARE & SERVICE -->
+<section id="care" aria-labelledby="h-care">
+  <div class="wrap">
+    <h2 id="h-care">সেবা ও সুবিধা</h2>
+    <div class="care-top">
+      <article class="dc">
+        <h3>ডে-কেয়ার হিফজ</h3>
+        <p class="hours"><span class="nw">সকাল ৭:০০</span> – <span class="nw">রাত ৮:৩০</span><small>হিফজ (ডে-কেয়ার) · দ্বিতীয় থেকে পঞ্চম শ্রেণি</small></p>
+        <p>ডে-কেয়ার হিফজ (কুরআন মুখস্থ) প্রোগ্রামের ব্যবস্থা</p>
+        <dl>
+          <dt>খাবার খরচ (মাসিক)</dt><dd>৪,৫০০/-</dd>
+          <dt>বেতন (মাসিক)</dt><dd>১০,০০০/-</dd>
+        </dl>
+        <a class="tlink" href="#hifz">রুটিন বোর্ডে হিফজ ডে-কেয়ার<svg class="i" aria-hidden="true"><use href="#i-arrow"/></svg></a>
+      </article>
+      <article class="play" id="play">
+        <h3>খেলার সুযোগ<span class="draft">DRAFT</span></h3>
+        <svg class="elev" viewBox="0 0 380 230" role="img" aria-labelledby="elevT">
+          <title id="elevT">ক্যাম্পাস ভবনের ছাদে মেয়েদের ছাদবাগান, পাশে ছেলেদের মাঠ</title>
+          <rect class="e-fill" x="96" y="44" width="112" height="160" rx="3"/>
+          <path class="e-ln" d="M96 204V44h112v160"/>
+          <path class="e-ln" d="M90 44h124" stroke-width="3"/>
+          <g class="e-win">
+            <rect x="108" y="56" width="20" height="10" rx="2"/><rect x="142" y="56" width="20" height="10" rx="2"/><rect x="176" y="56" width="20" height="10" rx="2"/>
+            <rect x="108" y="76" width="20" height="10" rx="2"/><rect x="142" y="76" width="20" height="10" rx="2"/><rect x="176" y="76" width="20" height="10" rx="2"/>
+            <rect x="108" y="96" width="20" height="10" rx="2"/><rect x="142" y="96" width="20" height="10" rx="2"/><rect x="176" y="96" width="20" height="10" rx="2"/>
+            <rect x="108" y="116" width="20" height="10" rx="2"/><rect x="142" y="116" width="20" height="10" rx="2"/><rect x="176" y="116" width="20" height="10" rx="2"/>
+            <rect x="108" y="136" width="20" height="10" rx="2"/><rect x="142" y="136" width="20" height="10" rx="2"/><rect x="176" y="136" width="20" height="10" rx="2"/>
+            <rect x="108" y="156" width="20" height="10" rx="2"/><rect x="142" y="156" width="20" height="10" rx="2"/><rect x="176" y="156" width="20" height="10" rx="2"/>
+          </g>
+          <path class="e-ln" d="M140 204v-20a12 12 0 0 1 24 0v20"/>
+          <g class="e-roof"><circle cx="110" cy="37" r="7"/><circle cx="124" cy="34" r="9"/><circle cx="140" cy="37" r="7"/><circle cx="168" cy="36" r="8"/><circle cx="184" cy="38" r="6"/><circle cx="197" cy="35" r="8"/></g>
+          <path class="e-ln" d="M6 204h368" stroke-width="2.5"/>
+          <rect class="e-field" x="232" y="170" width="132" height="34" rx="4"/>
+          <path class="e-ln" d="M298 170v34" stroke-width="1.5"/><circle class="e-ln" cx="298" cy="187" r="8" stroke-width="1.5"/>
+          <path class="e-ln" d="M240 178v18M356 178v18" stroke-width="3"/>
+          <path class="e-mark" d="M150 30 V14 H40"/>
+          <text x="10" y="11">মেয়েদের ছাদবাগান</text>
+          <path class="e-mark" d="M298 166 V128 H288"/>
+          <text x="232" y="120">ছেলেদের মাঠ</text>
+          <text class="e-sm" x="232" y="138">ক্যাম্পাস সংলগ্ন</text>
+          <text class="e-sm" x="96" y="222">ক্যাম্পাস ভবন</text>
+        </svg>
+        <p>ছেলেদের ক্যাম্পাস সংলগ্ন মাঠে খেলার সুযোগ এবং মেয়েদের ছাদবাগানে খেলার সুযোগ।</p>
+      </article>
+    </div>
+
+    <article class="tr" id="transport" aria-labelledby="h-tr">
+      <figure class="photo">
+        <img src="assets/photo-van-building.jpg" width="960" height="1280" alt="মাদরাসাতুল কুরআন ঢাকা লেখা সাদা মাইক্রোবাস, পেছনে ক্যাম্পাস ভবন" loading="lazy">
+        <figcaption><span class="sign-k" aria-hidden="true"><svg class="i"><use href="#i-arrow"/></svg></span>নিজস্ব যাতায়াত ব্যবস্থা</figcaption>
+      </figure>
+      <div>
+        <h3 id="h-tr">ট্রান্সপোর্ট রুট ম্যাপ ২০২৬</h3>
+        <p class="say">আমরা নিশ্চিত করি আপনার সন্তানের নিরাপদ ভ্রমণ। অভিজ্ঞ চালক ও দায়িত্বশীল সহকারীর মাধ্যমে পরিচালিত আমাদের এই সেবা।</p>
+        <p class="say">ঐচ্ছিক মাসিক পরিবহন সুবিধা রয়েছে। যানবাহনের ভাড়া ও প্রাপ্যতা জানতে অফিসে যোগাযোগ করুন।</p>
+        <div class="routes">
+          <div class="route u">
+            <h4><i aria-hidden="true"></i>উত্তরা রুট</h4>
+            <ol class="rline" aria-label="উত্তরা রুট · মাইক্রো">
+              <li class="hub">মাদরাসাতুল কুরআন</li><li>সেক্টর ১৫</li><li>প্রিয়াংকা সিটি</li><li>সেক্টর ১২ – ১৩</li><li>সেক্টর ৭</li><li>আজমপুর</li>
+            </ol>
+            <p class="rnote"><i aria-hidden="true"></i>অটো রুট: সেক্টর ১৮ · ধলিপাড়া</p>
+          </div>
+          <div class="route m">
+            <h4><i aria-hidden="true"></i>মিরপুর রুট</h4>
+            <ol class="rline" aria-label="মিরপুর রুট · মাইক্রো">
+              <li class="hub">মাদরাসাতুল কুরআন</li><li>উত্তরা দক্ষিণ</li><li>মিরপুর ডিওএইচএস</li><li>পল্লবী</li><li>মিরপুর ১১</li>
+            </ol>
+            <p class="rnote"><i aria-hidden="true"></i>অটো রুট: মিরপুর ১১ থেকে</p>
+          </div>
+        </div>
+        <p class="fineprint">প্রসপেক্টাসের রুট ম্যাপ থেকে প্রধান এলাকাগুলো; নির্দিষ্ট স্টপেজ জানতে কল করুন।<span class="draft">DRAFT</span></p>
+        <div class="tr-foot">
+          <span class="lbl">যোগাযোগের জন্য</span>
+          <span class="num sel">01733-202368</span>
+          <a class="btn btn-ghost" href="tel:+8801733202368"><svg class="i" aria-hidden="true"><use href="#i-phone"/></svg>পরিবহন বিভাগে কল</a>
+        </div>
+      </div>
+    </article>
+
+    <div class="parents">
+      <h3><svg class="i" aria-hidden="true"><use href="#i-phone-app"/></svg>অভিভাবকদের জন্য<span class="draft">DRAFT</span></h3>
+      <p>অভিভাবকদের জন্য EximusEdu অ্যাপ<span class="draft">DRAFT</span></p>
+      <p class="links"><a class="tlink" href="https://play.google.com/store/apps/details?id=com.eximusedu.app" rel="noopener">Android</a><a class="tlink" href="https://apps.apple.com/app/id1459487310" rel="noopener">iOS</a><a class="tlink" href="https://www.eximusedu.com/go/mqd" rel="noopener">লগইন</a></p>
+    </div>
+  </div>
+</section>
+
+<!-- 8 · LIFE ON CAMPUS + NOTICES -->
+<section class="paper" id="campus" aria-labelledby="h-camp">
+  <div class="wrap">
+    <h2 id="h-camp">ক্যাম্পাস</h2>
+    <div class="camp-g">
+      <div class="mosaic">
+        <figure class="m1"><img src="assets/photo-preschool-roundtable.jpg" width="1400" height="1051" alt="গোল টেবিল ঘিরে হলুদ বাংলা বই নিয়ে ছোট ছেলেমেয়েরা, একজন হাসছে" loading="lazy"><figcaption><span class="t">শ্রেণিকক্ষ · ছোটদের দলগত পড়া</span><span class="draft">DRAFT</span></figcaption></figure>
+        <figure><img src="assets/photo-entrance-garden.jpg" width="1400" height="1051" alt="সন্ধ্যায় আলোকিত আরবি ও বাংলা সাইনবোর্ড, ফুলের বাগানসহ মাদরাসার প্রবেশপথ" loading="lazy"><figcaption><span class="t">মাদরাসা ভবন</span></figcaption></figure>
+        <figure><img src="assets/photo-classroom-girls-boys.jpg" width="1400" height="1050" alt="শীতের পোশাকে শ্রেণিকক্ষে ছেলেমেয়েরা; পেছনে হিজাব পরা মেয়েরা, সামনে টুপি পরা ছেলেরা" loading="lazy"><figcaption><span class="t">শ্রেণিকক্ষ · ক্লাস শুরুর আগে</span><span class="draft">DRAFT</span></figcaption></figure>
+        <figure><img src="assets/photo-textbooks-table.jpg" width="1400" height="1051" alt="টেবিলভর্তি নতুন পাঠ্যবইয়ের স্তূপ" loading="lazy"><figcaption><span class="t">নতুন বছরের বই</span><span class="draft">DRAFT</span></figcaption></figure>
+        <figure><img src="assets/photo-facade-signboard.jpg" width="1400" height="1051" alt="দিনের আলোয় মাদরাসা ভবনের সামনের দিক: বারান্দায় টবের গাছ, সাইনবোর্ড ও গেটে ভর্তির ব্যানার" loading="lazy"><figcaption><span class="t">মাদরাসা ভবন · দিনের বেলা</span><span class="draft">DRAFT</span></figcaption></figure>
+        <figure class="m-opt"><img src="assets/photo-van-rear.jpg" width="960" height="1280" alt="পেছনের কাচে ও পাশে মাদরাসাতুল কুরআনের লোগোসহ সাদা স্কুল ভ্যান, খোলা মাঠে" loading="lazy" style="object-position:50% 60%"><figcaption><span class="t">স্কুল ভ্যান</span><span class="draft">DRAFT</span></figcaption></figure>
+      </div>
+      <aside class="notices" aria-labelledby="h-notice">
+        <h3 id="h-notice">নোটিশ বোর্ড<span class="draft">DRAFT</span></h3>
+        <ol>
+          <li><span class="tag">ভর্তি</span><div>প্রি-অ্যাডমিশন বর্তমানে গ্রহণ করা হচ্ছে না।<span class="st"><span class="dot" aria-hidden="true"></span><a href="#waitlist">অপেক্ষমাণ তালিকা</a></span></div></li>
+          <li><span class="tag">পরিবহন</span><div><a href="#transport">ট্রান্সপোর্ট রুট ম্যাপ ২০২৬</a> — উত্তরা রুট ও মিরপুর রুট</div></li>
+          <li><span class="tag">ভিজিট</span><div>শনিবার থেকে বৃহস্পতিবার সকাল ৯:০০ থেকে বিকাল ৪:০০ পর্যন্ত ক্যাম্পাস ভিজিট করা যায়।<span class="st"><a href="#visit">ঠিকানা ও পথ</a></span></div></li>
+        </ol>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<!-- 9 · PEOPLE -->
+<section class="dark" id="people" aria-labelledby="h-ppl">
+  <div class="wrap">
+    <h2 id="h-ppl">আমাদের সদস্যবৃন্দ</h2>
+    <p class="lede">ইসলামী ও আধুনিক শিক্ষায় উৎকর্ষের লক্ষ্যে আমাদের নেতৃত্ব।</p>
+
+    <figure class="msg">
+      <img src="assets/portrait-dir-nahid-hasan.jpg" width="600" height="600" alt="এস এম নাহিদ হাসান" loading="lazy">
+      <div>
+        <blockquote><p>আসসালামু আলাইকুম ওয়া রহমাতুল্লাহ। <span class="pull">জ্ঞান অর্জন করা কোন ঐচ্ছিক বিষয় নয়।</span> দুনিয়া ও আখিরাত এই দুই জগতের সফলতার জন্য আমাদের যেমন কুরআন হাদিস তথা ইসলামি শরীয়াত শিখতে হয় তেমনি অধুনা সভ্যতার জ্ঞানও শিখতে হয়। আমাদের এই শিক্ষা প্রতিষ্ঠানের মূল লক্ষ্য হলো শিক্ষার্থীদের কুরআন ও সুন্নাহর সঠিক জ্ঞান প্রদানের পাশাপাশি আধুনিক শিক্ষা প্রদান করা। যাতে আমাদের বাচ্চারা একেকজন আদর্শ মানুষ হিসেবে গড়ে ওঠে। আমাদের এই পথচলায় আপনাদের আন্তরিক সহযোগিতা ও দোয়া আমাদের পাথেয়। আল্লাহ আমাদের এই প্রচেষ্টাকে কবুল করুন। আমীন।</p></blockquote>
+        <figcaption><b>এস এম নাহিদ হাসান</b>প্রতিষ্ঠাতা চেয়ারম্যান · চেয়ারম্যান, আল কুরআনের ভাষা ইনস্টিটিউট</figcaption>
+      </div>
+    </figure>
+
+    <div class="ppl-g">
+      <div>
+        <h3>উপদেষ্টা পরিষদ</h3>
+        <p class="note">প্রজ্ঞা ও পরামর্শ দিয়ে আমাদের লক্ষ্যকে এগিয়ে নেওয়া অভিজ্ঞ দিকনির্দেশকগণ।</p>
+        <ul class="ppl">
+          <li><img src="assets/portrait-adv-mokhter-ahmad.jpg" width="600" height="600" alt="" loading="lazy"><div><b>প্রফেসর মোখতার আহমাদ</b><span class="cred">চেয়ারম্যান, তারবিয়াহ ফাউন্ডেশন</span><span class="lat">Professor Mokhter Ahmad</span></div></li>
+          <li><img src="assets/portrait-adv-abdun-noor-madani.jpg" width="600" height="600" alt="" loading="lazy"><div><b>শাইখ আব্দুন নূর মাদানী</b><span class="cred">প্রিন্সিপাল, দারুস সুন্নাহ মিরপুর-১২</span><span class="lat">Sheikh Abdun Noor Madani</span></div></li>
+          <li><img src="assets/portrait-adv-saeed-ahmad.jpg" width="600" height="600" alt="" loading="lazy"><div><b>শাইখ সাঈদ আহমাদ</b><span class="cred">উস্তায জামিয়া রাহমানিয়া আজিজিয়া, মোহাম্মাদপুর ঢাকা</span><span class="lat">Sheikh Saeed Ahmad</span></div></li>
+          <li><img src="assets/portrait-adv-shah-alam-chowdhury.jpg" width="600" height="600" alt="" loading="lazy"><div><b>শাহ আলম চৌধুরি</b><span class="cred">আরবি ভাষা প্রশিক্ষক, অবসরপ্রাপ্ত ব্রিগেডিয়ার জেনারেল, মিরপুর ডিওএইচএস</span><span class="lat">Brig. Gen. (Retd) Shah Alam Chowdhury</span></div></li>
+        </ul>
+      </div>
+      <div>
+        <h3>প্রতিষ্ঠাতা পরিচালক</h3>
+        <p class="note">Founding directors</p>
+        <ul class="ppl">
+          <li><img src="assets/portrait-dir-nahid-hasan.jpg" width="600" height="600" alt="" loading="lazy"><div><b>এস এম নাহিদ হাসান</b><span class="role">সভাপতি</span><span class="cred">সিভিল ইঞ্জিনিয়ার, বুয়েট। সিইও: ডিজাইন এইড। আরবি ভাষা প্রশিক্ষক ও চেয়ারম্যান: আল কুরআনের ভাষা ইনস্টিটিউট (AQVI)</span></div></li>
+          <li><img src="assets/portrait-dir-muinul-islam.jpg" width="600" height="600" alt="" loading="lazy"><div><b>মো: মুঈনুল ইসলাম</b><span class="role">সহ সভাপতি</span><span class="cred">আরবি ভাষা প্রশিক্ষক, গবেষক ও ব্যবস্থাপক: আল কুরআনের ভাষা ইনস্টিটিউট (AQVI)</span></div></li>
+          <li><img src="assets/portrait-dir-ashrafuddowla.jpg" width="600" height="600" alt="" loading="lazy" style="object-position:50% 70%"><div><b>মো: আশরাফউদ্দৌলা</b><span class="role">ব্যবস্থাপনা পরিচালক</span><span class="cred">সিভিল ইঞ্জিনিয়ার, বুয়েট। চেয়ারম্যান: IIRK</span></div></li>
+          <li><img src="assets/portrait-dir-shafayet-ahmmed.jpg" width="600" height="600" alt="" loading="lazy"><div><b>শাফায়েত আহম্মেদ</b><span class="role">নির্বাহী পরিচালক</span><span class="cred">সফটওয়্যার ইঞ্জিনিয়ার। প্রাক্তন আর্মি অফিসার। শিক্ষক: আল কুরআনের ভাষা ইনস্টিটিউট (AQVI)</span></div></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="ppl-more">
+      <div>
+        <h3>পরিচালকবৃন্দ</h3>
+        <ul class="monos">
+          <li><span class="mono" aria-hidden="true">সা</span><div><b>মোঃ সাজেদুর রহমান</b><span>পরিচালক</span></div></li>
+          <li><span class="mono" aria-hidden="true">ফ</span><div><b>এন. মুহাম্মদ ফয়সাল</b><span>পরিচালক</span></div></li>
+          <li><span class="mono" aria-hidden="true">সা</span><div><b>মোঃ সামিউল হুদা সুমেল</b><span>পরিচালক</span></div></li>
+          <li><span class="mono" aria-hidden="true">শা</span><div><b>শায়লা রহমান</b><span>পরিচালক</span></div></li>
+          <li><span class="mono" aria-hidden="true">আ</span><div><b>আবিদা সুলতানা</b><span>পরিচালক ও উপাধ্যক্ষ (মহিলা বিভাগ)</span></div></li>
+        </ul>
+      </div>
+      <div class="teachers">
+        <h3>শিক্ষকমণ্ডলী</h3>
+        <figure class="photo">
+          <img src="assets/photo-teachers-meeting.jpg" width="882" height="637" alt="সাদা কাপড়ে ঢাকা টেবিলে চারজন; মাঝের জন মাইক্রোফোন হাতে একটি কাগজ পড়ছেন" loading="lazy">
+          <figcaption><span class="sign-k" aria-hidden="true"><svg class="i"><use href="#i-arrow"/></svg></span>ক্যাম্পাসের একটি সভা<span class="draft">DRAFT</span></figcaption>
+        </figure>
+        <div class="teacher"><span class="mono" aria-hidden="true">রা</span><div><b>রাকিবুল ইসলাম নূর</b><span>হিফয শিক্ষক · কুরআন বিভাগ</span></div></div>
+        <p class="soon">শিক্ষকমণ্ডলীর পূর্ণ পরিচিতি শীঘ্রই আসছে।<span class="draft">DRAFT</span></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 10 · FEES & ADMISSION -->
+<section id="fees" aria-labelledby="h-fees">
+  <div class="wrap">
+    <div class="fees-g">
+      <div>
+        <h2 id="h-fees">টিউশন ফি</h2>
+        <p class="lede">প্রি-হিফজ ও হিফজের প্রতিটি ফি এবং প্রদানের সময়কাল নিচে দেওয়া হলো।</p>
+        <div class="ftable-wrap">
+          <table class="ftable">
+            <caption>সকল পরিমাণ বাংলাদেশি টাকায়</caption>
+            <thead><tr><th scope="col">বিষয়</th><th scope="col">প্রি-হিফজ</th><th scope="col">হিফজ</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">ভর্তি ফি<small>এককালীন</small></th><td>২০,০০০</td><td>২৫,০০০</td></tr>
+              <tr><th scope="row">সেশন ফি<small>বাৎসরিক</small></th><td>১৫,০০০</td><td>২০,০০০</td></tr>
+              <tr><th scope="row">বেতন<small>মাসিক</small></th><td>৬,০০০</td><td>১০,০০০</td></tr>
+              <tr><th scope="row">খাবার খরচ<small>মাসিক</small></th><td class="na"><span aria-hidden="true">—</span><span class="vh">প্রযোজ্য নয়</span></td><td>৪,৫০০</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="sib"><svg class="i" aria-hidden="true"><use href="#i-heart"/></svg>একাধিক সন্তানের জন্য বিশেষ ছাড় থাকবে, ইনশা আল্লাহ।</p>
+        <h3 class="sub-h">পেমেন্ট সম্পর্কিত তথ্য</h3>
+        <ul class="rules">
+          <li>ভর্তির সময় ভর্তি ফি প্রদান করতে হবে।</li>
+          <li>মাসিক বেতন প্রতি মাসের ১০ তারিখের মধ্যে প্রদান করতে হবে।</li>
+          <li>রিফান্ড স্কুল কর্তৃপক্ষের সিদ্ধান্তের উপর নির্ভরশীল।</li>
+        </ul>
+      </div>
+      <div>
+        <h3 class="sub-h" style="margin-top:0">ভর্তির ধাপ</h3>
+        <ol class="steps">
+          <li>আপনার সন্তানের আবেদন নিয়ে ভর্তি অফিসে যোগাযোগ করুন।</li>
+          <li>পরবর্তী ধাপ সম্পর্কে স্কুলের নির্দেশনার জন্য অপেক্ষা করুন।</li>
+          <li>নির্বাচিত হলে ক্যাম্পাসে পেমেন্ট সম্পন্ন করে ভর্তি নিশ্চিত করুন।</li>
+        </ol>
+        <h3 class="sub-h">ভর্তির জন্য প্রয়োজনীয় কাগজপত্র</h3>
+        <ol class="docs">
+          <li>ভর্তি ফর্ম</li>
+          <li>শিক্ষার্থীর ২ কপি ছবি ও জন্ম নিবন্ধন সনদ</li>
+          <li>অভিভাবকের ১ কপি ছবি ও জাতীয় পরিচয়পত্র</li>
+        </ol>
+        <div class="ctas">
+          <a class="btn btn-primary" href="https://www.madrasatulquranbd.com/api/download-prospectus"><svg class="i" aria-hidden="true"><use href="#i-doc"/></svg>প্রসপেক্টাস ডাউনলোড করুন</a>
+          <a class="btn btn-ghost" href="https://wa.me/8801301226644" rel="noopener"><svg class="i" aria-hidden="true"><use href="#i-chat"/></svg>হোয়াটসঅ্যাপ</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="wl" id="waitlist">
+      <div>
+        <h3>অপেক্ষমাণ তালিকা</h3>
+        <p class="w-p">প্রি-অ্যাডমিশন বর্তমানে গ্রহণ করা হচ্ছে না।</p>
+        <p class="w-p">নাম ও মোবাইল নম্বর দিন — ফর্ম খুললে আমরা জানাব, ইন শা আল্লাহ।<span class="draft">DRAFT</span></p>
+      </div>
+      <div>
+        <form id="wlForm" novalidate>
+          <label for="wlName">অভিভাবকের নাম</label>
+          <input id="wlName" name="name" autocomplete="name" required aria-describedby="eName">
+          <span class="err" id="eName"></span>
+          <label for="wlPhone">মোবাইল নম্বর</label>
+          <input id="wlPhone" name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="01XXXXXXXXX" required aria-describedby="ePhone">
+          <span class="err" id="ePhone"></span>
+          <label for="wlStage">কোন স্তরের জন্য</label>
+          <select id="wlStage" name="stage" required aria-describedby="eStage">
+            <option value="">বেছে নিন</option>
+            <option>প্রি-হিফজ (নার্সারি – ১ম)</option>
+            <option>হিফজ ডে-কেয়ার (২য় – ৫ম)</option>
+            <option>আফটার হিফজ (৬ষ্ঠ – ৮ম)</option>
+            <option>দাখিল (৯ম – ১০ম)</option>
+          </select>
+          <span class="err" id="eStage"></span>
+          <button class="btn btn-paper" type="submit" id="wlBtn">অপেক্ষমাণ তালিকায় যোগ দিন</button>
+          <p class="fine">এই নকশা-সংস্করণে তথ্য কোথাও পাঠানো হয় না।<span class="draft">DRAFT</span></p>
+        </form>
+        <div class="ok" id="wlOk" tabindex="-1" role="status"><span class="dot live" aria-hidden="true"></span><p>আলহামদুলিল্লাহ, আপনার নাম তালিকায় যোগ হয়েছে। ফর্ম খুললে আমরা যোগাযোগ করব ইন শা আল্লাহ।<span class="draft">DRAFT</span></p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 11 · VISIT -->
+<section class="paper" id="visit" aria-labelledby="h-visit">
+  <div class="wrap visit-g">
+    <div>
+      <h2 id="h-visit">ক্যাম্পাস ভিজিট</h2>
+      <p class="lede">আমরা সম্ভাব্য পরিবারগুলোকে আমাদের ক্যাম্পাস দেখতে উৎসাহিত করি। গাইডেড ট্যুরের জন্য আমাদের ভর্তি অফিসে যোগাযোগ করুন।</p>
+      <address>
+        বাসা ৩৭, রোড ২/এ, ব্লক-আই, সেক্টর-১৭, উত্তরা, ঢাকা
+        <span class="land">উত্তরা সেন্টার মেট্রোরেল স্টেশন থেকে ৬০০ মিটার পূর্ব দিকে / মিরপুর DOHS থেকে ২.৫ কি.মি.</span>
+        <span class="lat" lang="en">House no- 37, Road- 2/A, Block- i, Sector- 17, Uttara, Dhaka</span>
+      </address>
+      <dl class="contact">
+        <div><dt>ফোন</dt><dd><ul class="phones">
+          <li><span class="num sel">01301-226644</span><a class="call" href="tel:+8801301226644" aria-label="কল করুন 01301-226644"><svg class="i" aria-hidden="true"><use href="#i-phone"/></svg></a></li>
+          <li><span class="num sel">01304-226644</span><a class="call" href="tel:+8801304226644" aria-label="কল করুন 01304-226644"><svg class="i" aria-hidden="true"><use href="#i-phone"/></svg></a></li>
+          <li><span class="num sel">01304-223350</span><a class="call" href="tel:+8801304223350" aria-label="কল করুন 01304-223350"><svg class="i" aria-hidden="true"><use href="#i-phone"/></svg></a></li>
+          <li><span class="num sel">01711-083463</span><a class="call" href="tel:+8801711083463" aria-label="কল করুন 01711-083463"><svg class="i" aria-hidden="true"><use href="#i-phone"/></svg></a></li>
+        </ul></dd></div>
+        <div><dt>পরিবহন</dt><dd><ul class="phones"><li><span class="num sel">01733-202368</span><a class="call" href="tel:+8801733202368" aria-label="কল করুন 01733-202368"><svg class="i" aria-hidden="true"><use href="#i-phone"/></svg></a></li></ul></dd></div>
+        <div><dt>ইমেইল</dt><dd class="mail-row"><span class="mail sel">office.mqd@gmail.com</span><a class="tlink" href="mailto:office.mqd@gmail.com">ইমেইল লিখুন</a></dd></div>
+        <div><dt>অফিস সময়</dt><dd>শনি - বৃহস্পতি: সকাল ৮টা - বিকাল ৫টা</dd></div>
+      </dl>
+      <div class="ctas">
+        <a class="btn btn-primary" href="https://maps.app.goo.gl/QBe1yWBvnweTWnfM9" rel="noopener"><svg class="i" aria-hidden="true"><use href="#i-pin"/></svg>গুগল ম্যাপে দেখুন</a>
+        <a class="btn btn-ghost" href="https://wa.me/8801301226644" rel="noopener"><svg class="i" aria-hidden="true"><use href="#i-chat"/></svg>হোয়াটসঅ্যাপ</a>
+      </div>
+    </div>
+    <div>
+      <figure class="walk" id="walk">
+        <svg class="w-wide" viewBox="0 0 560 330" role="img" aria-labelledby="walkT">
+          <title id="walkT">উত্তরা সেন্টার মেট্রো স্টেশন থেকে ৬০০ মিটার পূর্বে মাদরাসাতুল কুরআন</title>
+          <rect class="w-bg" width="560" height="330" rx="16"/>
+          <path class="w-grid" d="M0 60H560M0 120H560M0 180H560M0 240H560M0 300H560M200 0V330M260 0V330M320 0V330M380 0V330M440 0V330M500 0V330"/>
+          <path class="w-case" d="M150 22V308"/>
+          <path class="w-line" d="M150 22V308"/>
+          <circle class="w-st" cx="150" cy="58" r="10"/>
+          <circle class="w-hub" cx="150" cy="168" r="16"/>
+          <circle class="w-st" cx="150" cy="278" r="10"/>
+          <text x="128" y="63" text-anchor="end" class="t-sm">উত্তরা উত্তর</text>
+          <text x="126" y="166" text-anchor="end">উত্তরা সেন্টার</text>
+          <text x="126" y="184" text-anchor="end" class="t-sm">মেট্রোরেল স্টেশন</text>
+          <text x="128" y="283" text-anchor="end" class="t-sm">উত্তরা দক্ষিণ</text>
+          <text x="128" y="318" text-anchor="end" class="t-sm">↓ মিরপুর</text>
+          <path class="w-path" d="M172 168H346Q366 168 366 148V128H430"/>
+          <text x="258" y="156" text-anchor="middle" class="t-big">৬০০ মি.</text>
+          <text x="258" y="194" text-anchor="middle" class="t-sm">পূর্ব দিকে হাঁটা পথ</text>
+          <rect class="w-bld" x="436" y="72" width="76" height="78" rx="10"/>
+          <path class="w-door" d="M458 150v-30a16 16 0 0 1 32 0v30z"/>
+          <text x="474" y="176" text-anchor="middle">মাদরাসাতুল কুরআন</text>
+          <text x="474" y="194" text-anchor="middle" class="t-sm">সেক্টর-১৭, রোড ২/এ</text>
+          <text x="524" y="40" text-anchor="middle" class="t-sm">উত্তর ↑</text>
+          <text x="474" y="282" text-anchor="middle" class="t-sm">মিরপুর DOHS থেকে ২.৫ কি.মি.</text>
+        </svg>
+        <svg class="w-narrow" viewBox="0 0 340 330" role="img" aria-labelledby="walkT2">
+          <title id="walkT2">উত্তরা সেন্টার মেট্রো স্টেশন থেকে ৬০০ মিটার পূর্বে মাদরাসাতুল কুরআন</title>
+          <rect class="w-bg" width="340" height="330" rx="14"/>
+          <path class="w-grid" d="M0 60H340M0 120H340M0 180H340M0 240H340M0 300H340M160 0V330M210 0V330M260 0V330M310 0V330"/>
+          <path class="w-case" d="M120 18V312"/>
+          <path class="w-line" d="M120 18V312"/>
+          <circle class="w-st" cx="120" cy="60" r="9"/>
+          <circle class="w-hub" cx="120" cy="165" r="15"/>
+          <circle class="w-st" cx="120" cy="268" r="9"/>
+          <text x="100" y="64" text-anchor="end" class="t-sm">উত্তরা উত্তর</text>
+          <text x="100" y="163" text-anchor="end">উত্তরা সেন্টার</text>
+          <text x="100" y="181" text-anchor="end" class="t-sm">মেট্রোরেল স্টেশন</text>
+          <text x="100" y="272" text-anchor="end" class="t-sm">উত্তরা দক্ষিণ</text>
+          <text x="100" y="310" text-anchor="end" class="t-sm">↓ মিরপুর</text>
+          <path class="w-path" d="M140 165H238Q256 165 256 147V122H262"/>
+          <text x="192" y="152" text-anchor="middle" class="t-big">৬০০ মি.</text>
+          <text x="192" y="190" text-anchor="middle" class="t-sm">পূর্ব দিকে হাঁটা পথ</text>
+          <rect class="w-bld" x="264" y="74" width="64" height="66" rx="9"/>
+          <path class="w-door" d="M282 140v-24a14 14 0 0 1 28 0v24z"/>
+          <text x="332" y="236" text-anchor="end">মাদরাসাতুল কুরআন</text>
+          <text x="332" y="254" text-anchor="end" class="t-sm">সেক্টর-১৭, রোড ২/এ</text>
+          <text x="332" y="298" text-anchor="end" class="t-sm">মিরপুর DOHS থেকে ২.৫ কি.মি.</text>
+          <text x="330" y="36" text-anchor="end" class="t-sm">উত্তর ↑</text>
+        </svg>
+        <figcaption><span>স্কেল অনুযায়ী নয় — দিক বোঝার জন্য</span><span class="draft">DRAFT</span></figcaption>
+      </figure>
+      <figure class="photo visit-photo">
+        <img src="assets/photo-building-mqd-tower.jpg" width="1400" height="1050" alt="আটতলা সাদা ভবন, ছাদে লাল অক্ষরে MQD লেখা" loading="lazy">
+        <figcaption><span class="sign-k" aria-hidden="true"><svg class="i"><use href="#i-arrow"/></svg></span>ছাদে লাল “MQD” লেখা ভবনটি খুঁজুন<span class="draft">DRAFT</span></figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+</main>
+
+<!-- 12 · FOOTER -->
+<footer class="foot dark">
+  <div class="wrap">
+    <div class="f-top">
+      <div class="f-brand">
+        <span class="ar" lang="ar">مَدْرَسَةُ القُرْآن داكا</span>
+        <b>মাদরাসাতুল কুরআন ঢাকা</b>
+        <span class="tag">ইসলামিক ও সাধারণ শিক্ষার একটি আদর্শ সমন্বয়</span>
+        <p>কুরআন ও সুন্নাহর আলোকে শিক্ষার্থীদের চরিত্র গঠন এবং আধুনিক শিক্ষায় দক্ষতা অর্জনের মাধ্যমে একটি আদর্শ মুসলিম সমাজ গড়ে তোলা।</p>
+      </div>
+      <nav aria-label="দ্রুত লিংক">
+        <h3>দ্রুত লিংক</h3>
+        <ul>
+          <li><a href="#board">শিক্ষা পদ্ধতি</a></li>
+          <li><a href="#curriculum">কারিকুলাম</a></li>
+          <li><a href="#care">সেবা ও পরিবহন</a></li>
+          <li><a href="#people">আমাদের সদস্যবৃন্দ</a></li>
+          <li><a href="#fees">ফি ও ভর্তি</a></li>
+          <li><a href="#visit">যোগাযোগ</a></li>
+        </ul>
+      </nav>
+      <div class="f-c">
+        <h3>যোগাযোগের তথ্য</h3>
+        <p>বাসা ৩৭, রোড ২/এ, ব্লক-আই, সেক্টর-১৭, উত্তরা, ঢাকা</p>
+        <ul class="f-tel">
+          <li><a class="num sel" href="tel:+8801301226644">01301-226644</a></li>
+          <li><a class="num sel" href="tel:+8801304226644">01304-226644</a></li>
+          <li><a class="num sel" href="tel:+8801304223350">01304-223350</a></li>
+          <li><a class="num sel" href="tel:+8801711083463">01711-083463</a></li>
+          <li><a class="mail sel" href="mailto:office.mqd@gmail.com">office.mqd@gmail.com</a></li>
+        </ul>
+        <p>শনি - বৃহস্পতি: সকাল ৮টা - বিকাল ৫টা</p>
+      </div>
+      <div>
+        <h3>আরও</h3>
+        <ul>
+          <li><a href="https://www.eximusedu.com/go/mqd" rel="noopener">লগইন (অভিভাবক)</a></li>
+          <li><a href="https://www.facebook.com/madrasatulqurandhaka.bd" rel="noopener">Facebook</a></li>
+          <li><a href="https://www.youtube.com/@madrasatulqurandhaka" rel="noopener">YouTube</a></li>
+          <li><a href="https://alquranervasha.com/downloads" rel="noopener">আমাদের বইসমূহ</a></li>
+          <li><a href="https://play.google.com/store/apps/details?id=com.eximusedu.app" rel="noopener">মোবাইল অ্যাপ · Android</a></li>
+          <li><a href="https://apps.apple.com/app/id1459487310" rel="noopener">মোবাইল অ্যাপ · iOS</a></li>
+          <li><a href="https://www.madrasatulquranbd.com/english" lang="en">English</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="f-base"><span>© ২০২৬ মাদরাসাতুল কুরআন। সকল অধিকার সংরক্ষিত।</span><span class="legend-d"><span class="draft" style="margin:0 8px 0 0">DRAFT</span>= অনুমোদনের অপেক্ষায় নতুন বাক্য</span><span class="lat">www.madrasatulquranbd.com</span></div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var D='০১২৩৪৫৬৭৮৯';
+  function bn(s){return String(s).replace(/\d/g,function(d){return D[d]})}
+  function $(id){return document.getElementById(id)}
+  var RM=window.matchMedia?matchMedia('(prefers-reduced-motion: reduce)'):{matches:false};
+  var T0=420,T1=1230;
+  function pct(m){return (m-T0)/(T1-T0)*100}
+  function per(h){return h<4?'রাত':h<6?'ভোর':h<12?'সকাল':h<15?'দুপুর':h<18?'বিকাল':h<20?'সন্ধ্যা':'রাত'}
+  function tf(m){var h=Math.floor(m/60)%24,mm=m%60;return per(h)+' '+bn(h%12||12)+':'+bn(mm<10?'0'+mm:mm)}
+  var DRAFT='<span class="draft">DRAFT</span>';
+
+  var S=[
+    {id:'pre-hifz',nm:'প্রি-হিফজ',en:'Pre-Hifz',ar:'',cls:'নার্সারি থেকে প্রথম',age:'বয়স ৫+ থেকে ৭+',from:540,to:780,
+      mix:[['q','কুরআন',25],['a','আরবি',25],['g','জেনারেল',50]],
+      note:'কুরআন শিক্ষা: কায়দা → আম্মাপারা → নাজেরা'+DRAFT},
+    {id:'hifz',nm:'হিফজ ডে-কেয়ার',en:'Hifz Day-care',ar:'تحفيظ القرآن',cls:'দ্বিতীয় থেকে পঞ্চম',age:'বয়স ৮+ থেকে ১১+',from:420,to:1230,svc:true,
+      mix:[['q','কুরআন',70],['a','আরবি',15],['g','জেনারেল',15]],
+      note:'ডে-কেয়ার হিফজের ব্যবস্থা। হিফজ-১ → হিফজ-২ → হিফজ-৩ → শুনানি'+DRAFT},
+    {id:'after-hifz',nm:'আফটার হিফজ',en:'After-Hifz',ar:'',cls:'ষষ্ঠ থেকে অষ্টম',age:'বয়স ১২+ থেকে ১৪+',from:480,to:780,
+      mix:[['q','কুরআন',0],['a','আরবি+ইসলাম',50],['g','জেনারেল',50]],
+      note:'৬ষ্ঠ শ্রেণি থেকে ইসলাম শিক্ষা আরবি ভাষায় পাঠদান। <span class="ar" lang="ar">بالعربية</span>'},
+    {id:'dakhil',nm:'দাখিল',en:'Dakhil',ar:'داخل',cls:'নবম ও দশম',age:'বয়স ১৫+ থেকে ১৬+',from:480,to:780,mix:null,
+      note:'৮ম শ্রেণির পর এস.এস.সি/দাখিল/মাদ্রাসা শিক্ষার সুযোগ।',doors:true},
+    {id:'mutawassita',nm:'মুতাওয়াসসিতা',en:'Mutawassita',ar:'المتوسطة',cls:'একাদশ',age:'দাখিলের পরের বছর',from:480,to:780,mix:null,
+      note:'দাখিল পরীক্ষার পরে আমাদের মাদ্রাসায়, এক বছর তালিমী বোর্ডের মুতাওয়াসসিতা সিলেবাসের বই পড়ানো হবে এবং মুতাওয়াসসিতা পরীক্ষা দিবে।'}
+  ];
+  var DOORS='<ul class="doors">'+
+    '<li><b>মাদরাসা</b><span>দাখিল পরীক্ষার পরে আমাদের মাদ্রাসায়, এক বছর তালিমী বোর্ডের মুতাওয়াসসিতা সিলেবাসের বই পড়ানো হবে এবং মুতাওয়াসসিতা পরীক্ষা দিবে।</span></li>'+
+    '<li><b>কওমি মাদরাসা</b><span>এছাড়া ছাত্রছাত্রীরা চাইলে দাখিল পরীক্ষার পরে কওমি মাদরাসায় কাফিয়া জামাতে ভর্তি হতে পারবে।</span></li>'+
+    '<li><b>কলেজ</b><span>কলেজ শিক্ষার জন্য শিক্ষার্থীরা সাধারণ শিক্ষায় মনোনিবেশ করবে এবং এসএসসি পরীক্ষা দেবে।</span></li></ul>';
+  function dur(s){var d=s.to-s.from,h=Math.floor(d/60),m=d%60;return 'দিনে '+bn(h)+' ঘণ্টা'+(m?' '+bn(m)+' মিনিট':'')}
+
+  /* ---------- the board ---------- */
+  var line=$('line'),tabs=[].slice.call(document.querySelectorAll('.stn')),panel=$('panel'),cur=0;
+  function select(i,o){
+    o=o||{};cur=i;var s=S[i];
+    tabs.forEach(function(b,j){b.setAttribute('aria-selected',j===i?'true':'false');b.tabIndex=j===i?0:-1;b.classList.toggle('past',j<i)});
+    panel.setAttribute('aria-labelledby',tabs[i].id);
+    if(o.focus)tabs[i].focus({preventScroll:true});
+    var sc=$('lineScroll');
+    if(sc.scrollWidth>sc.clientWidth+2){var b=tabs[i];var x=b.getBoundingClientRect().left-sc.getBoundingClientRect().left+sc.scrollLeft+b.offsetWidth/2-sc.clientWidth/2;
+      try{sc.scrollTo({left:Math.max(0,x),behavior:RM.matches?'auto':'smooth'})}catch(e){sc.scrollLeft=x}}
+    line.style.setProperty('--sel',i);
+    $('btStage').textContent=s.nm;
+    $('pName').textContent=s.nm;$('pAr').textContent=s.ar;$('pArw').hidden=!s.ar;$('pEn').textContent=s.en;$('pNo').textContent='স্তর '+bn(i+1);
+    $('pCls').textContent=s.cls;$('pAge').textContent=s.age;
+    $('pTime').textContent=tf(s.from)+' – '+tf(s.to);$('pDur').textContent=dur(s);
+    $('pSvcRow').hidden=!s.svc;
+    $('pNote').innerHTML=s.note+(s.doors?DOORS:'');
+    var a=pct(s.from),z=pct(s.to);
+    $('rSpan').style.left=a+'%';$('rSpan').style.width=(z-a)+'%';
+    $('rLbl').style.left=a+'%';$('rLbl').textContent=tf(s.from)+' – '+tf(s.to);
+    $('ruler').setAttribute('aria-label',s.nm+': '+tf(s.from)+' থেকে '+tf(s.to));
+    if(s.mix){
+      $('barWrap').hidden=false;$('pending').hidden=true;
+      var segs=$('bar').children;
+      s.mix.forEach(function(m,k){segs[k].style.flexGrow=m[2];segs[k].textContent=m[2]?bn(m[2])+'%':'';segs[k].classList.toggle('zero',!m[2])});
+      $('legend').innerHTML=s.mix.filter(function(m){return m[2]}).map(function(m){return '<li><i class="k-'+m[0]+'"></i>'+m[1]+' <b>'+bn(m[2])+'%</b></li>'}).join('');
+      $('bar').setAttribute('aria-label',s.mix.filter(function(m){return m[2]}).map(function(m){return m[1]+' '+bn(m[2])+'%'}).join(', '));
+    }else{$('barWrap').hidden=true;$('pending').hidden=false}
+    if(o.anim&&!RM.matches){var pl=$('pL');pl.classList.remove('swap');void pl.offsetWidth;pl.classList.add('swap')}
+    if(o.push){try{history.replaceState(null,'','#'+s.id)}catch(e){}}
+    $('toast').textContent='';
+  }
+  tabs.forEach(function(b,i){b.addEventListener('click',function(){select(i,{push:true,anim:true})})});
+  document.querySelector('.tabs').addEventListener('keydown',function(e){
+    var n=tabs.length,i=cur;
+    if(e.key==='ArrowRight')i=(cur+1)%n;else if(e.key==='ArrowLeft')i=(cur+n-1)%n;else if(e.key==='Home')i=0;else if(e.key==='End')i=n-1;else return;
+    e.preventDefault();select(i,{push:true,focus:true,anim:true});
+  });
+  function goStation(i,smooth){select(i,{anim:true});var r=$('routine');r.scrollIntoView({behavior:smooth&&!RM.matches?'smooth':'auto',block:'start'})}
+  function idxFromHash(h){for(var i=0;i<S.length;i++)if('#'+S[i].id===h)return i;return -1}
+  document.addEventListener('click',function(e){
+    var a=e.target.closest&&e.target.closest('a[href^="#"]');if(!a)return;
+    var i=idxFromHash(a.getAttribute('href'));if(i<0)return;
+    e.preventDefault();try{history.pushState(null,'','#'+S[i].id)}catch(x){}goStation(i,true);
+  });
+  window.addEventListener('hashchange',function(){var i=idxFromHash(location.hash);if(i>=0)goStation(i,true)});
+  var h0=idxFromHash(location.hash);
+  if(h0>=0){select(h0);requestAnimationFrame(function(){$('routine').scrollIntoView({block:'start'})})}else select(0);
+
+  /* mobile: "more stations" chip */
+  var sc0=$('lineScroll'),more=$('moreBtn');
+  function moreState(){more.classList.toggle('gone',sc0.scrollLeft>4||sc0.scrollWidth<=sc0.clientWidth+2)}
+  sc0.addEventListener('scroll',moreState,{passive:true});window.addEventListener('resize',moreState);moreState();
+  more.addEventListener('click',function(){try{sc0.scrollBy({left:sc0.clientWidth*.7,behavior:RM.matches?'auto':'smooth'})}catch(e){sc0.scrollLeft+=sc0.clientWidth*.7}});
+
+  /* share */
+  $('shareBtn').addEventListener('click',function(){
+    var s=S[cur],url=location.href.split('#')[0]+'#'+s.id;
+    var lines=['মাদরাসাতুল কুরআন ঢাকা — '+s.nm+' ('+s.cls+' শ্রেণি)','সময়: '+tf(s.from)+' – '+tf(s.to)];
+    if(s.mix)lines.push('বিষয় বিভাজন: '+s.mix.filter(function(m){return m[2]}).map(function(m){return m[1]+' '+bn(m[2])+'%'}).join(' · '));
+    var text=lines.join('\n');
+    function say(t){$('toast').textContent=t}
+    function fallback(){
+      var w=window.open('https://wa.me/?text='+encodeURIComponent(text+'\n'+url),'_blank');
+      if(w){try{w.opener=null}catch(x){}say('হোয়াটসঅ্যাপে পাঠানোর জন্য খোলা হলো');return}
+      if(navigator.clipboard){navigator.clipboard.writeText(text+'\n'+url).then(function(){say('লিংক কপি হয়েছে — যেকোনো জায়গায় পেস্ট করুন')},function(){say(url)})}else say(url);
+    }
+    if(navigator.share){navigator.share({title:'মাদরাসাতুল কুরআন ঢাকা',text:text,url:url}).catch(function(e){if(!e||e.name!=='AbortError')fallback()})}else fallback();
+  });
+
+  /* ---------- live "now on campus" ---------- */
+  function dhaka(){
+    try{var p=new Intl.DateTimeFormat('en-GB',{timeZone:'Asia/Dhaka',hourCycle:'h23',hour:'2-digit',minute:'2-digit',weekday:'short'}).formatToParts(new Date());
+      var g=function(t){for(var k=0;k<p.length;k++)if(p[k].type===t)return p[k].value;return ''};
+      return {m:(+g('hour')%24)*60+(+g('minute')),wd:g('weekday')}}catch(e){return null}
+  }
+  function live(){
+    var t=dhaka();if(!t)return;
+    var fri=t.wd==='Fri',on=fri?[]:S.filter(function(s){return t.m>=s.from&&t.m<s.to});
+    var L=$('nowL'),V=$('nowV'),dot=$('nowDot'),a=$('now');
+    $('clock').textContent=tf(t.m);$('bClock').textContent=tf(t.m);
+    if(on.length){
+      L.hidden=false;L.textContent='এখন ক্যাম্পাসে';dot.className='dot live';
+      if(on.length===1){V.innerHTML=on[0].nm+DRAFT;a.setAttribute('href','#'+on[0].id)}
+      else{V.innerHTML=bn(on.length)+'টি স্তরে ক্লাস চলছে'+DRAFT;a.setAttribute('href','#board')}
+    }else{
+      L.hidden=true;dot.className='dot off';a.setAttribute('href','#board');
+      var next=fri||(t.m>=T1&&t.wd==='Thu')?'শনিবার সকাল ৭:০০-এ':(t.m>=T1?'আগামীকাল সকাল ৭:০০-এ':'সকাল ৭:০০-এ');
+      V.innerHTML=(fri?'আজ শুক্রবার · ':'')+'ক্যাম্পাস খুলবে '+next+DRAFT;
+    }
+    var rn=$('rNow');
+    if(!fri&&t.m>=T0&&t.m<=T1){rn.hidden=false;rn.style.left=pct(t.m)+'%'}else rn.hidden=true;
+  }
+  live();setInterval(live,30000);
+
+  /* ---------- photos: lazy first, then fetch the rest once the page has loaded ---------- */
+  window.addEventListener('load',function(){setTimeout(function(){
+    [].forEach.call(document.querySelectorAll('img[loading="lazy"]'),function(im){im.loading='eager'});
+  },60)});
+
+  /* ---------- header: mark the section in view ---------- */
+  var navA=[].slice.call(document.querySelectorAll('.hnav a'));
+  if('IntersectionObserver' in window&&navA.length){
+    var secs=navA.map(function(a){return document.querySelector(a.getAttribute('href'))});
+    var io=new IntersectionObserver(function(){
+      var y=innerHeight*.35,hit=-1;
+      secs.forEach(function(sec,k){if(sec){var r=sec.getBoundingClientRect();if(r.top<=y&&r.bottom>y)hit=k}});
+      navA.forEach(function(a,k){if(k===hit)a.setAttribute('aria-current','true');else a.removeAttribute('aria-current')});
+    },{rootMargin:'-35% 0px -60% 0px'});
+    secs.forEach(function(sec){if(sec)io.observe(sec)});
+  }
+
+  /* ---------- mobile menu ---------- */
+  var mb=$('menuBtn'),ms=$('msheet');
+  function menu(open){mb.setAttribute('aria-expanded',open?'true':'false');ms.classList.toggle('open',open)}
+  mb.addEventListener('click',function(){menu(mb.getAttribute('aria-expanded')!=='true')});
+  ms.addEventListener('click',function(e){if(e.target.closest('a'))menu(false)});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape'&&ms.classList.contains('open')){menu(false);mb.focus()}});
+  window.addEventListener('resize',function(){if(innerWidth>1180)menu(false)});
+
+  /* ---------- walk map: one orchestrated move ---------- */
+  var wk=$('walk');
+  if('IntersectionObserver' in window&&!RM.matches){
+    var wio=new IntersectionObserver(function(es){es.forEach(function(en){if(en.isIntersecting){wk.classList.add('play');wio.disconnect()}})},{threshold:.4});
+    wio.observe(wk);
+  }
+
+  /* ---------- waitlist ---------- */
+  var f=$('wlForm');
+  function lat(s){return s.replace(/[০-৯]/g,function(d){return D.indexOf(d)})}
+  function err(el,msgEl,msg){el.setAttribute('aria-invalid',msg?'true':'false');$(msgEl).textContent=msg||''}
+  f.addEventListener('submit',function(e){
+    e.preventDefault();
+    var n=$('wlName'),p=$('wlPhone'),st=$('wlStage'),bad=null;
+    var pv=lat(p.value).replace(/[\s\-()]/g,'');
+    err(n,'eName',n.value.trim().length<2?'অভিভাবকের নাম লিখুন।':'');if(n.value.trim().length<2)bad=bad||n;
+    var okP=/^(?:\+?88)?01[3-9]\d{8}$/.test(pv);
+    err(p,'ePhone',okP?'':'সঠিক মোবাইল নম্বর লিখুন — ১১ সংখ্যা, যেমন 01XXXXXXXXX');if(!okP)bad=bad||p;
+    err(st,'eStage',st.value?'':'কোন স্তরের জন্য, বেছে নিন।');if(!st.value)bad=bad||st;
+    if(bad){bad.focus();return}
+    var b=$('wlBtn');b.disabled=true;b.textContent='পাঠানো হচ্ছে…';
+    setTimeout(function(){$('waitlist').classList.add('done');$('wlOk').focus()},650);
+  });
+})();
+</script>
+</body>
+</html>

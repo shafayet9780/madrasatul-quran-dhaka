@@ -1,131 +1,43 @@
-import { generatePageMetadata } from '@/lib/page-metadata';
-import Image from 'next/image';
-import { curriculumImage } from '@/lib/curriculum-images';
-import styles from '@/components/admissions/admissions-experience.module.css';
-import { PageHero } from '@/components/ui/page-hero';
-import ProspectusDownload from '@/components/ui/prospectus-download';
-import CurriculumDownload from '@/components/ui/curriculum-download';
-import TenYearStudyPlan from '@/components/curriculum/ten-year-study-plan';
-import UniqueFeatures from '@/components/curriculum/unique-features';
-import CurriculumBreakdown from '@/components/curriculum/curriculum-breakdown';
-import {
-  ApplicationAction,
-  ContactPanel,
-} from '@/components/admissions/contact-panel';
-import { PageNavigation } from '@/components/admissions/page-navigation';
-import {
-  FinancialInformation,
-  financialLinks,
-} from '@/components/fees/financial-information';
-import { getContentService } from '@/lib/content-service';
-import { getIntake } from '@/lib/admissions/pages';
-import { getTranslations } from 'next-intl/server';
-import type { FeeLocale } from '@/types/fees';
-interface CurriculumPageProps {
-  params: Promise<{ locale: FeeLocale }>;
-}
-export async function generateMetadata({ params }: CurriculumPageProps) {
+import type { Metadata } from 'next';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
+import type { Locale } from '@/lib/i18n';
+import { pageMetadata } from '@/lib/page-seo';
+import { getPublishedIntake } from '@/lib/admissions/pages';
+import { CurriculumHero } from '@/components/curriculum/curriculum-hero';
+import { TeachingModel } from '@/components/curriculum/teaching-model';
+import { Strands } from '@/components/curriculum/strands';
+import { Goals } from '@/components/curriculum/goals';
+import { StudyPlanTable } from '@/components/curriculum/study-plan-table';
+import { HigherEducation } from '@/components/curriculum/higher-education';
+import { CurriculumClose } from '@/components/curriculum/curriculum-close';
+import { loadPlan } from '@/lib/curriculum/load';
+
+type Props = { params: Promise<{ locale: Locale }> };
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
-  const bn = locale === 'bengali';
-  return generatePageMetadata({
-    locale,
-    path: '/curriculum',
-    title: bn
-      ? 'আমাদের কারিকুলাম - মাদরাসাতুল কুরআন'
-      : 'Our Curriculum - Madrasatul Quran',
-    description: bn
-      ? 'উত্তরা, ঢাকার মাদরাসাতুল কুরআনের সমন্বিত কুরআন, আরবি ও NCTB কারিকুলাম, শ্রেণি ও পিরিয়ড অনুযায়ী পাঠ পরিকল্পনা, শিক্ষার লক্ষ্য এবং ফি সম্পর্কে জানুন।'
-      : 'Explore our integrated Quran, Arabic and NCTB curriculum, class-by-class study plan, learning goals and school fees in Uttara, Dhaka.',
-  });
+  const t = await getTranslations({ locale, namespace: 'curriculum.meta' });
+  return pageMetadata({ page: 'curriculum', title: t('title'), description: t('description'), locale, path: '/curriculum' });
 }
-export default async function CurriculumPage({ params }: CurriculumPageProps) {
+
+/**
+ * The curriculum, from the prospectus (the source of truth): the 50-50 model and its three stages, the four strands,
+ * the ten-year goals, the class-by-class plan with each class's books (the detailed curriculum), and the ways on after
+ * Dakhil. Fees are on the Admissions page; the close links there, with apply while the form is open.
+ */
+export default async function CurriculumPage({ params }: Props) {
   const { locale } = await params;
-  const bn = locale === 'bengali';
-  const t = await getTranslations({
-    locale,
-    namespace: 'admissionsExperience',
-  });
-  const service = getContentService(false);
-  const [settings, intake, site] = await Promise.all([
-    service.getFeeSettings(),
-    getIntake(),
-    service.getSiteSettings(),
-  ]);
-  const available = intake.state === 'open' || intake.state === 'not_open';
-  const libraryImage = curriculumImage('higher-education');
+  setRequestLocale(locale);
+  const [{ intake }, plan] = await Promise.all([getPublishedIntake(), loadPlan(locale)]);
   return (
-    <div className={`${styles.page} bg-white pb-20`}>
-      <PageHero
-        compact
-        language={locale}
-        title={bn ? 'আমাদের কারিকুলাম' : 'Our Curriculum'}
-        subtitle={
-          bn
-            ? 'কুরআন-সুন্নাহ ভিত্তিক তারবিয়াহ্‌, আরবী ও দীনী শিক্ষা এবং NCTB একাডেমিকের সমন্বয়ে পরিকল্পিত সমন্বিত কারিকুলাম'
-            : 'Integrated curriculum combining Quran-Sunnah based Tarbiyah, Arabic & Islamic education with NCTB academic standards'
-        }
-        actions={
-          <>
-            <ApplicationAction available={available} locale={locale} />
-            <CurriculumDownload
-              locale={locale}
-              variant="outline"
-              size="md"
-              className="bg-white text-primary-800 hover:bg-primary-50 motion-reduce:transition-none"
-            />
-          </>
-        }
-      />
-      <div className="mx-auto max-w-6xl px-4">
-        <PageNavigation
-          label={t('navigation')}
-          links={[
-            { id: 'features', label: t('features') },
-            { id: 'study-plan', label: t('studyPlan') },
-            { id: 'outcomes', label: t('outcomes') },
-            ...financialLinks(settings, locale),
-          ]}
-        />
-        <div className="space-y-12 py-8 md:py-12">
-          <section id="features" className="scroll-mt-48">
-            <UniqueFeatures compact />
-          </section>
-          <section id="study-plan" className="scroll-mt-48">
-            <TenYearStudyPlan />
-          </section>
-          <section id="outcomes" className="scroll-mt-48 space-y-6">
-            <CurriculumBreakdown compact />
-            <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white md:grid md:grid-cols-[1fr_1.6fr]">
-              <Image
-                src={libraryImage.src}
-                alt={libraryImage.alt[locale]}
-                width={768}
-                height={512}
-                sizes="(min-width: 768px) 430px, calc(100vw - 32px)"
-                loading="lazy"
-                className="h-full w-full aspect-[3/2] object-cover"
-              />
-              <div className="p-5 md:p-8">
-                <h3 className="text-xl font-semibold text-primary-800">
-                  {t('higherEducation')}
-                </h3>
-                <p className="mt-3 text-gray-700 leading-relaxed">
-                  {t('alimPath')}
-                </p>
-                <p className="mt-3 text-gray-700 leading-relaxed">
-                  {t('collegePath')}
-                </p>
-              </div>
-            </div>
-          </section>
-          <FinancialInformation settings={settings} locale={locale} />
-          <ContactPanel contact={site?.contactInfo} locale={locale} />
-          <div className="flex flex-wrap gap-3">
-            <ApplicationAction available={available} locale={locale} />
-            <ProspectusDownload locale={locale} variant="secondary" size="md" />
-          </div>
-        </div>
-      </div>
-    </div>
+    <>
+      <CurriculumHero locale={locale} glance={plan?.glance ?? []} sections={[...(plan?.goals.length ? (['goals'] as const) : []), ...(plan ? (['plan'] as const) : [])]} />
+      <TeachingModel locale={locale} stages={plan?.stages ?? []} />
+      <Strands locale={locale} plan={plan} />
+      {plan && plan.goals.length > 0 && <Goals locale={locale} goals={plan.goals} />}
+      {plan && <StudyPlanTable locale={locale} plan={plan} />}
+      <HigherEducation locale={locale} />
+      <CurriculumClose locale={locale} open={intake.state === 'open'} />
+    </>
   );
 }

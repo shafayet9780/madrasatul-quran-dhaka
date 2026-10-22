@@ -1,5 +1,5 @@
 import { defineField, defineType } from 'sanity'
-import { displayOrderField, mlString, mlText } from './shared'
+import { displayOrderField, mlString } from './shared'
 import { isStableDownloadSlug } from '../../src/lib/downloads/validation'
 
 export const downloadCategory = defineType({
@@ -8,7 +8,6 @@ export const downloadCategory = defineType({
   type: 'document',
   fields: [
     mlString('name', 'Name', { required: true }),
-    mlText('description', 'Description'),
     defineField({
       name: 'slug',
       title: 'Stable URL Slug',

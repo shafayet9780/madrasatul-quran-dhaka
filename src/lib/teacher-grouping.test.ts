@@ -2,16 +2,16 @@ import { describe, it, expect } from 'vitest';
 import { getDepartments, filterTeachers, groupByDepartment } from './teacher-grouping';
 import type { Teacher, Department } from '@/types/sanity';
 
-const dept = (id: string, order: number, en: string): Department => ({
+const dept = (id: string, orderRank: string, en: string): Department => ({
   _id: id,
   _type: 'department',
   name: { bengali: en, english: en },
   slug: { bengali: { current: id }, english: { current: id } },
-  displayOrder: order,
+  orderRank,
 });
 
-const islamic = dept('d-islamic', 1, 'Islamic Studies');
-const science = dept('d-science', 2, 'Science');
+const islamic = dept('d-islamic', '0|100000:', 'Islamic Studies');
+const science = dept('d-science', '0|200000:', 'Science');
 
 const teacher = (id: string, name: string, d: Department | undefined, extra: Partial<Teacher> = {}): Teacher => ({
   _id: id,
@@ -20,7 +20,6 @@ const teacher = (id: string, name: string, d: Department | undefined, extra: Par
   slug: { bengali: { current: id }, english: { current: id } },
   gender: 'male',
   department: d,
-  displayOrder: 0,
   ...extra,
 });
 
@@ -31,7 +30,7 @@ const teachers: Teacher[] = [
 ];
 
 describe('getDepartments', () => {
-  it('returns unique departments ordered by displayOrder', () => {
+  it('returns unique departments in the drag order', () => {
     const result = getDepartments(teachers);
     expect(result.map((d) => d._id)).toEqual(['d-islamic', 'd-science']);
   });

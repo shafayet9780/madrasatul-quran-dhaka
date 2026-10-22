@@ -23,7 +23,7 @@ export default async function EvaluationDayPage() {
     <>
       <PageTop crumbs={[{ label: 'ভর্তি', href: '/admin/admissions' }, { label: 'অ্যাসেসমেন্টের দিন' }]} round={false} />
       <PageBody className="gap-5">
-        <PageTitle sub={`আবেদনপত্রের “অফিস ব্যবহারের জন্য” QR ফোনের ক্যামেরায় স্ক্যান করলে সরাসরি আবেদনটি খোলে। না হলে নিচে আইডি লিখুন। আবেদনের পাতায় উপস্থিতি ও অ্যাসেসমেন্ট ফি ${taka(cycle.snapshot.settings.evaluationFee, 'bengali')} চিহ্নিত করুন।`}>
+        <PageTitle sub={`আবেদনপত্রের “অফিস ব্যবহারের জন্য” QR ফোনের ক্যামেরায় স্ক্যান করলে সরাসরি আবেদনটি খোলে। না হলে নিচে আইডি লিখুন। আবেদনের পেজে উপস্থিতি ও অ্যাসেসমেন্ট ফি ${taka(cycle.snapshot.settings.evaluationFee, 'bengali')} চিহ্নিত করুন।`}>
           অ্যাসেসমেন্টের দিন
         </PageTitle>
         <div className="flex flex-wrap items-start gap-5">

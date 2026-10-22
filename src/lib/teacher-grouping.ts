@@ -1,9 +1,10 @@
 import type { Teacher, Department } from '@/types/sanity';
 import { getLocalizedText, getLocalizedArray, type Language } from '@/lib/sanity-utils';
+import { compareOrderRank } from '@/lib/seniority';
 
 const UNASSIGNED = '__unassigned__';
 
-/** Unique departments present in a teacher list, ordered by displayOrder then English name. */
+/** Unique departments present in a teacher list, in the Studio's drag order then by English name. */
 export function getDepartments(teachers: Teacher[]): Department[] {
   const map = new Map<string, Department>();
   for (const teacher of teachers) {
@@ -12,7 +13,7 @@ export function getDepartments(teachers: Teacher[]): Department[] {
     }
   }
   return [...map.values()].sort((a, b) => {
-    const order = (a.displayOrder ?? 0) - (b.displayOrder ?? 0);
+    const order = compareOrderRank(a.orderRank, b.orderRank);
     return order !== 0 ? order : (a.name?.english ?? '').localeCompare(b.name?.english ?? '');
   });
 }

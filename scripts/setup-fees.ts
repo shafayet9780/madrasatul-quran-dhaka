@@ -36,7 +36,7 @@ async function main() {
   const prepared = prepareContactDraft(draft, published);
   if (prepared && draft) {
     const fields: Record<string, string> = {};
-    for (const key of ['admissionsPhone', 'whatsappNumber'])
+    for (const key of ['whatsappNumber'])
       if (!draft.contactInfo?.[key] && prepared.contactInfo[key])
         fields[`contactInfo.${key}`] = prepared.contactInfo[key];
     await client

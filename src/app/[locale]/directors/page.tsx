@@ -1,29 +1,7 @@
-import { Metadata } from 'next';
-import { notFound } from 'next/navigation';
-import { getTranslations } from 'next-intl/server';
-import { DirectorsList } from '@/components/directors';
-import { getDirectors } from '@/lib/queries/directors';
-import { getPeoplePageData } from '@/lib/queries/site';
-import { isSectionVisible } from '@/lib/nav-visibility';
+import { permanentRedirect } from 'next/navigation';
 
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ locale: string }>;
-}): Promise<Metadata> {
+/** The board of directors live on the About us page now (its #board section); old links and bookmarks land there. */
+export default async function DirectorsPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: 'directors' });
-  return {
-    title: t('meta.title'),
-    description: t('meta.description'),
-  };
-}
-
-export default async function DirectorsPage() {
-  const [directors, { placeholders, visibility }] = await Promise.all([
-    getDirectors(),
-    getPeoplePageData(),
-  ]);
-  if (!isSectionVisible('directors', visibility)) notFound();
-  return <DirectorsList directors={directors} placeholders={placeholders} />;
+  permanentRedirect(`/${locale}/about#board`);
 }

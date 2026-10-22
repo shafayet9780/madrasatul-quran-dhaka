@@ -40,8 +40,9 @@ export function PledgeForm({ locale, steps, index, intro, groups, pledge, declar
   // The review opens only once both ticks are stored (it checks them on the server).
   const ready = left === 0 && pending === 0 && saveState !== 'saving' && saveState !== 'error';
   const hint = left === 0 ? t('pledge.hintDone') : left === 2 ? t('pledge.hintBoth') : t('pledge.hintOne');
-  // The rail shows this step's state as ticked here, before the server page is reloaded.
-  const shownSteps = steps.map((s, i) => (i === index ? { ...s, status: left === 0 ? ('done' as const) : left === 2 ? ('not_started' as const) : ('in_progress' as const) } : s));
+  // The rail shows this step's state as ticked here, before the server page is reloaded; done (which opens its review
+  // link) only once both ticks are stored, like the review button.
+  const shownSteps = steps.map((s, i) => (i === index ? { ...s, status: ready ? ('done' as const) : left === 2 ? ('not_started' as const) : ('in_progress' as const) } : s));
 
   async function tick(which: Pledge, value: boolean) {
     setAgreed((a) => ({ ...a, [which]: value }));

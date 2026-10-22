@@ -27,11 +27,26 @@ test('language toggle: both locale homes are reachable and differ in URL', async
   await expect(page).toHaveURL(/\/english(\/|$)/);
 });
 
-test('a content detail route renders (programs)', async ({ page }) => {
-  const res = await page.goto('/english/programs');
-  expect(res?.status()).toBeLessThan(400);
-  await expect(page.locator('body')).not.toBeEmpty();
+// The old Programs and News pages are gone: Programs leads to the curriculum, News to the notice board (home while it is off).
+test('old Programs and News links lead to their new pages', async ({ page }) => {
+  await page.goto('/english/programs');
+  await expect(page).toHaveURL(/\/english\/curriculum$/);
+  await page.goto('/bengali/news/some-old-article');
+  await expect(page).toHaveURL(/\/bengali(\/notices)?$/);
 });
+
+// An unknown address, or a missing profile or article, gets the site's 404 page inside the header and footer.
+for (const [path, heading] of [
+  ['/bengali/no-such-page', 'পেজটি পাওয়া যায়নি'],
+  ['/english/teachers/no-such-teacher', "This page isn't here"],
+]) {
+  test(`${path} shows the 404 page`, async ({ page }) => {
+    const res = await page.goto(path);
+    expect(res?.status()).toBe(404);
+    await expect(page.locator('h1')).toHaveText(heading);
+    await expect(page.getByRole('link', { name: /হোম পেজে যান|Go to the home page/ })).toBeVisible();
+  });
+}
 
 test('studio route loads without an application error', async ({ page }) => {
   const res = await page.goto('/studio');

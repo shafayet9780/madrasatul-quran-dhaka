@@ -1,50 +1,45 @@
-import { Metadata } from 'next';
-import { draftMode } from 'next/headers';
-import { getTranslations } from 'next-intl/server';
-import VirtualTourSection from '@/components/campus/virtual-tour-section';
-import FacilitiesShowcase from '@/components/campus/facilities-showcase';
-import SafetySecuritySection from '@/components/campus/safety-security-section';
+import type { Metadata } from 'next';
+import { notFound } from 'next/navigation';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
+import type { Locale } from '@/lib/i18n';
+import { pageMetadata } from '@/lib/page-seo';
 import { getContentService } from '@/lib/content-service';
-import { getPreviewContext } from '@/lib/preview';
-import { PreviewBanner } from '@/components/preview/preview-banner';
+import { isSectionVisible } from '@/lib/nav-visibility';
+import { contactDetails } from '@/lib/contact/details';
+import { urlFor } from '@/lib/sanity';
+import { campusStops } from '@/lib/campus/day';
+import { launchDay } from '@/lib/campus/launch-day';
+import { CampusTour } from '@/components/campus/campus-tour';
+import { CampusClose } from '@/components/campus/campus-close';
 
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ locale: string }>;
-}): Promise<Metadata> {
+type Props = { params: Promise<{ locale: Locale }> };
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'campus.meta' });
-
-  return {
-    title: t('title'),
-    description: t('description'),
-  };
+  return pageMetadata({ page: 'campus', title: t('title'), description: t('description'), locale, path: '/campus' });
 }
 
-export default async function CampusPage() {
-  const draft = await draftMode();
-  const isPreview = draft.isEnabled;
-  const contentService = getContentService(isPreview);
-  const previewContext = await getPreviewContext();
+/**
+ * Campus: one school day told as the reader scrolls, from the metro in the morning to home time at 8:30 at night
+ * (docs/campus-day.md). The stops come from Studio → Campus: a day; while it has none, the launch day. Shown while
+ * Pages on/off shows Campus. Then come and see: office hours, directions and a call.
+ */
+export default async function CampusPage({ params }: Props) {
+  const { locale } = await params;
+  setRequestLocale(locale);
+  const content = getContentService(false);
+  const [settings, studio, home] = await Promise.all([content.getSiteSettings(), content.getCampusDay(), content.getHomePage()]);
+  if (!isSectionVisible('campus', settings?.navigationVisibility)) notFound();
 
-  // Fetch facilities data from Sanity
-  const facilities = await contentService.getAllFacilities();
+  const stops = campusStops(studio.length ? studio : launchDay(home?.playSpaces), locale, (p) => (p.asset?._ref ? urlFor(p).width(1600).url() : undefined));
+  if (!stops.length) notFound();
 
+  const details = contactDetails(settings, locale);
   return (
-    <main className="min-h-screen bg-gradient-to-br from-sand-light via-white to-sand-light">
-      {previewContext.isPreview && (
-        <PreviewBanner exitUrl={previewContext.exitUrl} />
-      )}
-
-      {/* Virtual Campus Tour Section */}
-      <VirtualTourSection facilities={facilities} />
-
-      {/* Facilities Showcase Section */}
-      <FacilitiesShowcase facilities={facilities} />
-
-      {/* Safety and Security Section */}
-      <SafetySecuritySection />
-    </main>
+    <>
+      <CampusTour stops={stops} locale={locale} metro={details.metro} gettingHere={details.gettingHere} />
+      <CampusClose locale={locale} details={details} showGallery={isSectionVisible('gallery', settings?.navigationVisibility)} />
+    </>
   );
 }

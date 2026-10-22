@@ -3,23 +3,32 @@ import type { Locale } from './i18n';
 import { getSiteUrl } from './site-url';
 
 export const SOCIAL_IMAGE = '/images/social/school.jpg';
+/** The site's default description, until Studio → Search & sharing has one. */
+export const SITE_DESCRIPTION =
+  'At Madrasatul Quran in Uttara, Dhaka, Islamic and general education are given equal weight in one ten-year plan. Day-care hifz with general study alongside. Nursery to Class 11.';
 
 export function generatePageMetadata({
   title,
   description,
   locale,
   path = '',
+  share,
+  withSiteName = false,
 }: {
   title: string;
   description: string;
   locale: Locale;
   path?: string;
+  /** The picture link previews show (an album's cover); the school building when there is none. */
+  share?: { url: string; alt: string };
+  /** Add the school's name after the title (the layout's template); otherwise the title stands alone. */
+  withSiteName?: boolean;
 }): Metadata {
   const origin = getSiteUrl();
   const url = `${origin}/${locale}${path}`;
-  const image = `${origin}${SOCIAL_IMAGE}`;
+  const image = share?.url ?? `${origin}${SOCIAL_IMAGE}`;
   return {
-    title: { absolute: title },
+    title: withSiteName ? title : { absolute: title },
     description,
     alternates: {
       canonical: url,
@@ -43,9 +52,10 @@ export function generatePageMetadata({
           width: 1200,
           height: 630,
           alt:
-            locale === 'bengali'
+            share?.alt ??
+            (locale === 'bengali'
               ? 'মাদরাসাতুল কুরআনের ভবন'
-              : 'Madrasatul Quran school building',
+              : 'Madrasatul Quran school building'),
         },
       ],
     },

@@ -70,7 +70,7 @@ describe('tracker', () => {
   it('refuses a stale list', async () => {
     const data = await loadTracker(round.id);
     const ids = group(data!, 'কুরআন').batches.map((b) => b.id);
-    expect(await resolveDuplicate(round.id, [ids[0]], ids[0])).toBe('তালিকাটি বদলে গেছে; পাতাটি আবার লোড করুন।');
+    expect(await resolveDuplicate(round.id, [ids[0]], ids[0])).toBe('তালিকাটি বদলে গেছে; পেজটি আবার লোড করুন।');
   });
 
   it('keeps both batches: the decision sticks and the cell reads as submitted', async () => {

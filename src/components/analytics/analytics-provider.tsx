@@ -94,15 +94,9 @@ function AnalyticsTrackerBoundary() {
   );
 }
 
-export function AnalyticsRoot({
-  children,
-  countryCode,
-}: {
-  children: React.ReactNode;
-  countryCode: string | null;
-}) {
+export function AnalyticsRoot({ children }: { children: React.ReactNode }) {
   return (
-    <AnalyticsProvider countryCode={countryCode}>
+    <AnalyticsProvider>
       {children}
       <AnalyticsTrackerBoundary />
     </AnalyticsProvider>

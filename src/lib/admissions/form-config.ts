@@ -11,7 +11,7 @@ export type FieldType = (typeof FIELD_TYPES)[number];
 export const CHOICE_TYPES: readonly FieldType[] = ['select', 'radio', 'checkbox'];
 
 /**
- * Transport stop fields: the options are the stops of the routes in Fees & Discounts, filled in when
+ * Transport stop fields: the options are the stops of the routes in Fees, discounts & transport, filled in when
  * the snapshot is taken (value `<route key>:<stop key>`), plus this last one.
  */
 export const NO_ROUTE = 'none';
@@ -104,7 +104,7 @@ const field = z.object({
 
 const group = z.object({ key: z.string().regex(KEY), title: text, description: optionalText });
 
-/** Fees & Discounts → Transport, frozen with the form so the charge the guardian saw is kept. */
+/** Fees, discounts & transport → Transport, frozen with the form so the charge the guardian saw is kept. */
 const transport = z.object({
   /** Monthly charge per vehicle; none means "contact the office". */
   vehicles: z.array(z.object({ key: z.string().min(1), name: text, monthly: z.number().nonnegative().optional() })),

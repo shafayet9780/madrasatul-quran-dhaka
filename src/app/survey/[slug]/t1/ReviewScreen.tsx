@@ -143,14 +143,14 @@ export function ReviewScreen({
       {(failure === 'network' || failure === 'conflict') && (
         <div role="alert" className="sv-card is-attention">
           <div style={{ fontSize: 16, fontWeight: 600 }}>জমা হয়নি, নেটওয়ার্কে সমস্যা</div>
-          <div style={{ fontSize: 14.5, color: 'var(--sv-text-muted)', lineHeight: 1.55 }}>আপনার সব উত্তর সংরক্ষিত আছে। সংযোগ ঠিক হলে আবার চেষ্টা করুন।</div>
+          <div style={{ fontSize: 14.5, color: 'var(--sv-text-muted)', lineHeight: 1.55 }}>আপনার সব উত্তর সেভ করা আছে। ইন্টারনেট ঠিক হলে আবার চেষ্টা করুন।</div>
         </div>
       )}
       {failure === 'closed' && (
         <div role="alert" className="sv-card">
           <div style={{ fontSize: 15, fontWeight: 600 }}>এই রাউন্ড বন্ধ হয়ে গেছে</div>
           <div style={{ fontSize: 14.5, color: 'var(--sv-text-muted)', lineHeight: 1.55 }}>
-            আপনার খসড়া সংরক্ষিত আছে। অ্যাডমিন সময় বাড়ালে এই লিংক থেকেই জমা দিতে পারবেন।
+            আপনার খসড়া সেভ করা আছে। অ্যাডমিন সময় বাড়ালে এই লিংক থেকেই জমা দিতে পারবেন।
           </div>
         </div>
       )}
@@ -254,7 +254,7 @@ export function ReviewScreen({
             {Icon.warn()}
             <span>
               {bn(missing.length)}টি প্রশ্নে মোট <b>{bn(missingCount)}টি মার্ক</b> বাকি।{' '}
-              {byLevel ? 'যাদের মার্ক দিয়েছেন তাদের সব প্রশ্নের মার্ক দিলে' : 'সব মার্ক দিলে'} জমা দেওয়া যাবে। আপনার কাজ সংরক্ষিত আছে।
+              {byLevel ? 'যাদের মার্ক দিয়েছেন তাদের সব প্রশ্নের মার্ক দিলে' : 'সব মার্ক দিলে'} জমা দেওয়া যাবে। আপনার কাজ সেভ করা আছে।
             </span>
           </div>
           <div className="flex flex-col gap-2" style={{ padding: '14px 16px 16px' }}>
@@ -378,7 +378,7 @@ export function ReviewScreen({
         <div className="sv-footer is-white">
           {notices}
           {submitButton}
-          <div style={{ textAlign: 'center', fontSize: 13, color: 'var(--sv-text-muted)' }}>জমা দেওয়ার পরেও {editUntil} পর্যন্ত সংশোধন করা যাবে</div>
+          <div style={{ textAlign: 'center', fontSize: 13, color: 'var(--sv-text-muted)' }}>জমা দেওয়ার পরেও {editUntil} পর্যন্ত বদলানো যাবে</div>
         </div>
       </main>
       )}
@@ -486,7 +486,7 @@ export function ReviewScreen({
               {notices}
               {submitButton}
               <div style={{ fontSize: 13, color: 'var(--sv-text-muted)', lineHeight: 1.5 }}>
-                জমা দেওয়ার পরেও {editUntil} পর্যন্ত সংশোধন করা যাবে। কোনো মার্কে চাপ দিয়ে সেখানেই বদলান।
+                জমা দেওয়ার পরেও {editUntil} পর্যন্ত বদলানো যাবে। কোনো মার্কে চাপ দিয়ে সেখানেই বদলান।
               </div>
             </div>
             <div className="sv-panel flex flex-col gap-1.5" style={{ padding: '16px 18px', borderRadius: 18, fontSize: 13.5, lineHeight: 1.5, color: 'var(--sv-text-body)' }}>
@@ -636,7 +636,7 @@ function NoteSheet({
           বাতিল
         </button>
         <button type="button" className="sv-cta" style={{ minHeight: 52 }} onClick={() => onSave(text)}>
-          সংরক্ষণ
+          সেভ করুন
         </button>
       </div>
       {onClear && (
@@ -697,7 +697,7 @@ function DuplicateAtSubmitSheet({
         </div>
       ))}
       <p style={{ margin: 0, fontSize: 15, lineHeight: 1.6, color: 'var(--sv-text-muted)' }}>
-        আপনি সত্যিই এই ক্লাসে এই বিষয় পড়ালে জমা দিন। দুটি রিভিউই সংরক্ষিত থাকবে এবং অ্যাডমিনকে বিষয়টি জানানো হবে।
+        আপনি সত্যিই এই ক্লাসে এই বিষয় পড়ালে জমা দিন। দুটি রিভিউই রাখা থাকবে এবং অ্যাডমিনকে বিষয়টি জানানো হবে।
       </p>
       <div className="grid grid-cols-2 gap-2">
         <button type="button" className="sv-secondary" onClick={onKeepDraft}>
@@ -742,7 +742,7 @@ export function DuplicateSheet({
         </div>
       </div>
       <p style={{ margin: 0, fontSize: 15, lineHeight: 1.6, color: 'var(--sv-text-muted)' }}>
-        আপনি সত্যিই এই ক্লাসে এই বিষয় পড়ালে চালিয়ে যান। দুটি রিভিউই সংরক্ষিত থাকবে এবং অ্যাডমিনকে বিষয়টি জানানো হবে।
+        আপনি সত্যিই এই ক্লাসে এই বিষয় পড়ালে চালিয়ে যান। দুটি রিভিউই রাখা থাকবে এবং অ্যাডমিনকে বিষয়টি জানানো হবে।
       </p>
       <div className="flex flex-col gap-2.5" style={{ paddingTop: 4 }}>
         <button type="button" className="sv-cta" data-autofocus onClick={onChange}>

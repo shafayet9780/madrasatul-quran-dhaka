@@ -83,7 +83,7 @@ test.describe('phone', () => {
 
     await page.getByRole('button', { name: 'নোট যোগ করুন: Hafsa Akter' }).click();
     await page.getByRole('textbox', { name: 'নোট', exact: true }).fill('আরবি পড়ায় খুব আগ্রহী।');
-    await page.getByRole('button', { name: 'সংরক্ষণ' }).click();
+    await page.getByRole('button', { name: 'সেভ করুন' }).click();
     await expect(page.getByText('১টি নোট')).toBeVisible();
 
     await page.getByRole('button', { name: 'জমা দিন' }).click();
@@ -99,7 +99,7 @@ test.describe('phone', () => {
     await page.getByRole('button', { name: 'শুরু করুন' }).click();
     const first = page.getByRole('radiogroup').first();
     await first.getByRole('radio', { name: '৮ মার্ক' }).click();
-    await expect(page.getByText('● সংরক্ষিত')).toBeVisible();
+    await expect(page.getByText('● সেভ হয়েছে')).toBeVisible();
 
     await page.reload();
     await expect(page.getByRole('radiogroup').first().getByRole('radio', { name: '৮ মার্ক' })).toHaveAttribute('aria-checked', 'true');
@@ -156,9 +156,9 @@ test.describe('phone', () => {
     await expect(page).toHaveURL(/\/survey\/receipt\//);
     await expect(page.getByRole('heading', { name: 'রিভিউ জমা হয়েছে' })).toBeVisible();
     // The edit link goes through the class step, which greets the teacher by name first.
-    await page.getByRole('link', { name: /সংশোধন করুন/ }).click();
+    await page.getByRole('link', { name: /উত্তর বদলান/ }).click();
     await expect(page.getByRole('heading', { name: 'উস্তাদ আব্দুল্লাহ' })).toBeVisible();
-    await expect(page.getByRole('button', { name: 'জমা দেওয়া রিভিউ সংশোধন করুন' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'জমা দেওয়া রিভিউ বদলান' })).toBeVisible();
   });
 });
 

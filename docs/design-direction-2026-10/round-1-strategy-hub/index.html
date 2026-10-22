@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MQD Design Direction</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=Source+Sans+3:wght@400;500;600&family=Noto+Serif+Bengali:wght@500;700&family=Hind+Siliguri:wght@400;600&family=Amiri&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f7f1e8; --surface:#fffaf2; --surface-2:#efe4d3; --ink:#2a1d12; --ink-2:#5b4634; --muted:#8a735c;
+  --brand:#7a4a26; --brand-2:#a8713f; --line:#e2d3bd; --accent-ok:#3f7a52; --tag:#b5651d;
+  --shadow:0 1px 2px rgba(60,35,15,.06),0 8px 24px rgba(60,35,15,.06);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#16110c; --surface:#1f1812; --surface-2:#2a2018; --ink:#f3e8d8; --ink-2:#d4c1a8; --muted:#a48d74;
+    --brand:#d6a46f; --brand-2:#e8bf8c; --line:#3a2d22; --accent-ok:#7fbf92; --tag:#e8a15a;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.3);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#16110c; --surface:#1f1812; --surface-2:#2a2018; --ink:#f3e8d8; --ink-2:#d4c1a8; --muted:#a48d74;
+  --brand:#d6a46f; --brand-2:#e8bf8c; --line:#3a2d22; --accent-ok:#7fbf92; --tag:#e8a15a;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.3);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:72px}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.65 "Source Sans 3","Hind Siliguri",system-ui,sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+.bn{font-family:"Hind Siliguri","Noto Serif Bengali",sans-serif}
+.bn-d{font-family:"Noto Serif Bengali",serif;font-weight:700}
+.ar{font-family:Amiri,serif;direction:rtl}
+h1,h2,h3{font-family:"Source Serif 4","Noto Serif Bengali",serif;font-weight:600;line-height:1.15;letter-spacing:-.01em;color:var(--ink)}
+h1{font-size:clamp(2.2rem,6vw,4rem);margin:.2em 0 .3em}
+h2{font-size:clamp(1.6rem,3.6vw,2.4rem);margin:0 0 .6em}
+h3{font-size:1.2rem;margin:1.4em 0 .4em}
+p{margin:0 0 1em} a{color:var(--brand)}
+.wrap{max-width:1040px;margin:0 auto;padding:0 16px}
+@media(min-width:720px){.wrap{padding:0 32px}}
+nav.top{position:sticky;top:0;z-index:10;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+nav.top .wrap{display:flex;gap:6px;overflow-x:auto;white-space:nowrap;padding-top:10px;padding-bottom:10px;scrollbar-width:none}
+nav.top a{font-size:.82rem;text-decoration:none;color:var(--ink-2);padding:6px 10px;border-radius:999px}
+nav.top a:hover{background:var(--surface-2);color:var(--ink)}
+nav.top .mark{font-weight:600;color:var(--brand);margin-right:6px}
+header.hero{padding:72px 0 40px;border-bottom:1px solid var(--line)}
+.eyebrow{font-size:.78rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.lede{font-size:1.2rem;color:var(--ink-2);max-width:46ch}
+section{padding:64px 0;border-bottom:1px solid var(--line)}
+.num{font-family:"Source Serif 4",serif;color:var(--brand-2);font-size:.95rem;display:block;margin-bottom:6px}
+.grid{display:grid;gap:16px}
+@media(min-width:720px){.g2{grid-template-columns:1fr 1fr}.g3{grid-template-columns:repeat(3,1fr)}}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:20px 22px;box-shadow:var(--shadow);min-width:0}
+.card h3{margin-top:0}
+.card .k{font-size:.75rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.dir{display:block;text-decoration:none;color:inherit;transition:transform .25s cubic-bezier(.2,.7,.2,1),border-color .25s}
+.dir:hover{transform:translateY(-3px);border-color:var(--brand-2)}
+.dir .go{color:var(--brand);font-weight:600;font-size:.9rem}
+.draft{display:inline-block;font:600 .62rem/1 "Source Sans 3",sans-serif;letter-spacing:.08em;color:var(--tag);border:1px solid var(--tag);border-radius:4px;padding:3px 5px;vertical-align:middle;margin-left:4px}
+ul.clean{padding-left:1.1em;margin:.4em 0 1em} ul.clean li{margin:.3em 0}
+table{width:100%;border-collapse:collapse;font-size:.92rem}
+th,td{text-align:left;padding:10px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.tablewrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.beat{display:grid;grid-template-columns:44px 1fr;gap:14px;padding:18px 0;border-top:1px solid var(--line)}
+.beat .n{font-family:"Source Serif 4",serif;font-size:1.6rem;color:var(--brand-2);line-height:1}
+.beat h3{margin:0 0 .3em}
+.beat dl{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;margin:0;font-size:.94rem}
+.beat dt{color:var(--muted);font-weight:600;font-size:.75rem;letter-spacing:.06em;text-transform:uppercase;padding-top:3px}
+.beat dd{margin:0;color:var(--ink-2)}
+.pill{display:inline-block;background:var(--surface-2);border-radius:999px;padding:2px 10px;font-size:.8rem;margin:2px 2px 2px 0;color:var(--ink-2)}
+.quote{font-family:"Noto Serif Bengali","Source Serif 4",serif;font-size:clamp(1.3rem,3.2vw,1.9rem);line-height:1.45;color:var(--brand);margin:.4em 0 .6em}
+.bar{display:flex;height:14px;border-radius:999px;overflow:hidden;margin:6px 0 2px}
+.bar span{display:block} .b1{background:var(--brand)} .b2{background:var(--brand-2)} .b3{background:var(--line)}
+.legend{font-size:.78rem;color:var(--muted)}
+.ok{color:var(--accent-ok);font-weight:600}
+footer{padding:48px 0 80px;color:var(--muted);font-size:.9rem}
+.clock{display:flex;font-size:.75rem;color:var(--muted);justify-content:space-between;margin-top:4px}
+.track{position:relative;height:10px;background:var(--surface-2);border-radius:999px;overflow:hidden}
+.track i{position:absolute;top:0;bottom:0;background:var(--brand)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style>
+
+
+<nav class="top" aria-label="Sections"><div class="wrap">
+<a class="mark" href="#top">MQD · Direction</a>
+<a href="#directions">Directions</a><a href="#diagnosis">Diagnosis</a><a href="#north">North star</a><a href="#prospectus">Prospectus</a><a href="#ia">Architecture</a><a href="#home">Homepage</a><a href="#pages">Pages</a><a href="#system">Design system</a><a href="#bar">Performance &amp; trust</a><a href="#rollout">Rollout</a>
+</div></nav>
+
+<header class="hero" id="top"><div class="wrap">
+<div class="eyebrow">Madrasatul Quran, Uttara · Website redesign · Strategy hub</div>
+<h1>Build it like a world-class product launch, not a school brochure.</h1>
+<p class="lede">The site's job is to make an educated, sceptical Dhaka parent understand, on one phone screen at a time, that <span class="bn">মাদরাসাতুল কুরআন</span> gives equal weight to Islamic and general education in one 10-year plan, and runs a day-care hifz service they can trust.</p>
+<p class="quote bn-d">শিক্ষা পদ্ধতি (৫০-৫০ মডেল)</p>
+<p style="color:var(--muted);font-size:.9rem">Copy rule used in this document: school-approved words appear plain. Any sentence written fresh for the site is marked <span class="draft">DRAFT</span> and needs owner approval before it ships.</p>
+</div></header>
+
+<section id="directions"><div class="wrap">
+<span class="num">00</span>
+<h2>Recommended direction</h2>
+<a class="card dir" href="../round-2-blend/index.html" style="margin-bottom:24px">
+<div class="k">Round 2 · The blend</div>
+<h3>Ten Years, Every Day</h3>
+<p>This round adds the current website's content, real photographs and portraits, and the new prospectus. It joins A's metro line and B's routine board into one instrument. Pick a stage to see its years on the line, its hours on the 7:00–20:30 ruler and its subject balance. The page also includes the founder's letter, the eleven reasons and live Dhaka-time campus status.</p>
+<span class="go">Open the blend →</span>
+</a>
+<p>Round 1 explored two directions. Both follow this strategy (same content, same IA, same brown/sand rule) but differ in world: how loud the motion is, how the type behaves, and how much the page feels like a publication or a product launch.</p>
+<div class="grid g2">
+<a class="card dir" href="opus.html">
+<div class="k">Direction A · Opus 5.5</div>
+<h3>The Line</h3>
+<p>The 10-year plan drawn the way Dhaka parents already read their city: one metro line, five stations, 600 m from Uttara Center. Tap a station to see its subject balance, then send that exact station to the family WhatsApp group.</p>
+<span class="go">Open prototype →</span>
+</a>
+<a class="card dir" href="fable.html">
+<div class="k">Direction B · Fable</div>
+<h3>The Routine Board</h3>
+<p>The madrasa routine board brought to life: switch a stage and the child's day stretches or shrinks on a 7:00–20:30 ruler while Quran, Arabic and NCTB re-divide it. The 50-50 promise shown in hours, not slogans.</p>
+<span class="go">Open prototype →</span>
+</a>
+</div>
+<p style="margin-top:18px;color:var(--ink-2)">How to judge them: (1) Did you understand 50-50 within the first two screens? (2) Would you forward one moment of it to a family WhatsApp group? (3) Does it feel calm and dignified, or busy?</p>
+</div></section>
+
+<section id="diagnosis"><div class="wrap">
+<span class="num">01</span>
+<h2>The diagnosis</h2>
+<p>Most school sites feel dated for the same five reasons: they are organised around the institution's org-chart (About / Message from Chairman / Notice board) instead of the parent's questions; they say everything at the same volume; they use stock photos and carousels; their numbers sit in plain tables; and the decisive facts (fees, hours, transport, what my child will actually learn) are hidden in a PDF. World-class product sites do the opposite. Here are the ten moves we are borrowing, and what each one means for MQD.</p>
+<div class="grid g2">
+<div class="card"><div class="k">Apple — product pages</div><h3>Scroll-pinned storytelling</h3><p>One idea per screen, the section pins while the story advances. <b>For MQD:</b> the 10-year journey (Pre-Hifz → Hifz → After-Hifz → Dakhil → Mutawassita) pins on screen while the year counter and stage card advance with scroll.</p></div>
+<div class="card"><div class="k">Stripe</div><h3>Data made beautiful</h3><p>Numbers become crafted diagrams, not tables. <b>For MQD:</b> each stage's subject split (25/25/50, 70/15/15, 50/50) is a living balance bar; fees become a clean, comparable card, not a scanned notice.</p></div>
+<div class="card"><div class="k">Linear</div><h3>Restraint and motion timing</h3><p>Few colours, one weight of emphasis, motion of 200–400 ms on a single easing curve. <b>For MQD:</b> brown/sand only, one accent, no bouncing icons, nothing moves without a reason.</p></div>
+<div class="card"><div class="k">Aesop</div><h3>Tone and materiality</h3><p>Paper-like surfaces, long calm sentences, generous margins. <b>For MQD:</b> sand paper tones, serif Bengali display, the quiet confidence of a place of learning rather than an advert.</p></div>
+<div class="card"><div class="k">Airbnb</div><h3>Trust architecture</h3><p>Real faces, verified details, clear rules before you commit. <b>For MQD:</b> named advisors and directors with credentials, the 3-document checklist, a real map, real phone numbers one tap away.</p></div>
+<div class="card"><div class="k">Vercel / Arc</div><h3>Typography as the hero</h3><p>Big confident type carries the page when photos are absent. <b>For MQD:</b> a first-class Bengali display face sets "৫০-৫০" at poster scale — the type is the brand until the photo shoot lands.</p></div>
+<div class="card"><div class="k">Notion / Things</div><h3>Progressive disclosure</h3><p>Show the headline; the detail is one tap away. <b>For MQD:</b> every stage, fee and FAQ opens in place (accordions, bottom sheets on mobile) — parents never lose their place.</p></div>
+<div class="card"><div class="k">Monocle / FT Weekend</div><h3>Editorial rhythm</h3><p>Alternating scale — big statement, quiet paragraph, a striking number. <b>For MQD:</b> the home reads like a feature story about a curriculum, not a list of links.</p></div>
+<div class="card"><div class="k">Spotify Wrapped</div><h3>Shareable moments</h3><p>Designed, pre-cropped cards built for messaging apps. <b>For MQD:</b> "50-50 in one picture", "A hifz day 7:00–20:30", "Fees at a glance" — each with a 1080×1350 share card and a link preview made for WhatsApp.</p></div>
+<div class="card"><div class="k">Google Maps / Citymapper</div><h3>Place made concrete</h3><p>Distance and route, not just an address. <b>For MQD:</b> "600 m east of Uttara Center metro station; 2.5 km from Mirpur DOHS" drawn as a simple stylised map with the transport routes.</p></div>
+</div>
+</div></section>
+
+<section id="north"><div class="wrap">
+<span class="num">02</span>
+<h2>The north star</h2>
+<p class="quote">One plan, two complete educations, ten years — and a school that takes care of the whole day. <span class="draft">DRAFT</span></p>
+<p>Built only from approved facts: equal weight to Islamic and general education in curriculum, syllabus and routine, in one 10-year integrated plan, so at secondary level the child can go on to madrasa <b>or</b> college.</p>
+<h3>Three feelings a parent must leave with</h3>
+<div class="grid g3">
+<div class="card"><div class="k">Clarity</div><p>"I finally understand exactly what my child will learn, year by year, and why it doesn't close any door."</p></div>
+<div class="card"><div class="k">Trust</div><p>"Serious, educated people run this — I can see who they are, what it costs, and where it is."</p></div>
+<div class="card"><div class="k">Pride</div><p>"I'd be proud to send this link to my family group."</p></div>
+</div>
+<h3>The "mesmerise" mechanics</h3>
+<div class="grid g2">
+<div class="card"><h3>50-50 made visible</h3><p>Two columns (Islamic · General) fill to equal height as the page scrolls; the scale tips and settles at balance. Single SVG, no library.</p>
+<div class="bar" aria-hidden="true"><span class="b1" style="width:50%"></span><span class="b2" style="width:50%"></span></div><div class="legend">Arabic &amp; Islamic 50 · General 50 (After-Hifz)</div></div>
+<div class="card"><h3>The 10-year journey as a scroll narrative</h3><p>Pinned stage rail, Nursery → Class 11, each stage showing class range, hours and subject split. Ends on the fork: madrasa or college.</p></div>
+<div class="card"><h3>The hifz day-care clock</h3><p>A horizontal day from 7:00 to 20:30 that fills as you scroll: hifz sessions, meals, general classes, prayer, pick-up. Answers "what happens to my child all day?" in one picture.</p>
+<div class="track" aria-hidden="true"><i style="left:0;width:100%"></i></div><div class="clock"><span>7:00</span><span>13:00</span><span>20:30</span></div></div>
+<div class="card"><h3>Data-as-story</h3><p>Large counters, set once and never looping: <b>300+</b> hadith memorised · <b>90%+</b> Quran translation understood · Islamic studies <b>in Arabic</b> from Class 6.</p></div>
+<div class="card"><h3>People as proof</h3><p>Advisors and directors with real credentials (BUET civil engineer; Chairman, Tarbiyah Foundation; Principal, Darus Sunnah Mirpur-12) shown as calm portrait cards — not a "Message from the Chairman" wall of text.</p></div>
+<div class="card"><h3>Fee transparency + metro map</h3><p>Fees published openly by stage with the sibling discount noted. Location drawn relative to Uttara Center metro. Both are rare in this category and read as confidence.</p></div>
+</div>
+</div></section>
+
+<section id="prospectus"><div class="wrap">
+<span class="num">02·b</span>
+<h2>What the new prospectus adds</h2>
+<p>Page 3 of the printed prospectus answers the parent's real question, <b>কেন মাদরাসাতুল কুরআন?</b>, in eleven points, and lists six ten-year target abilities. These approved lines are the spine of the homepage proof beats and the Curriculum page. The prototypes do not carry them yet, because the agents could not render the PDF. Round 2 must include them. <i>Transcribed from a page render; check against the print before seeding Sanity.</i></p>
+<h3>কেন মাদরাসাতুল কুরআন? · the eleven reasons</h3>
+<div class="grid g2">
+<div class="card"><p>১. আরবি ভাষা ও ইসলামিক শিক্ষার সাথে জেনারেল শিক্ষার আদর্শ সমন্বয়।</p><p>২. ইংরেজি ও আরবি ভাষার ক্ষেত্রে ভাষার চারটি মৌলিক দক্ষতা অর্জন (শোনা, বলা, পড়া ও লেখা)।</p><p>৩. ৬ষ্ঠ শ্রেণি থেকে ইসলামিক শিক্ষা আরবি ভাষায় পাঠদান।</p><p>৪. ৮ম শ্রেণির পর এস.এস.সি/দাখিল/মাদ্রাসা শিক্ষার সুযোগ।</p><p>৫. ডে-কেয়ার হিফজের ব্যবস্থা।</p><p>৬. নিজস্ব যাতায়াত ব্যবস্থা।</p></div>
+<div class="card"><p>৭. নবম শ্রেণির মধ্যে ৩০০+ হাদিস মুখস্থ করা।</p><p>৮. এস.এস.সি/দাখিল লেভেলে কুরআনের ৯০%+ অনুবাদে সক্ষমতা অর্জন।</p><p>৯. ইসলামিক নৈতিকতা ও শিষ্টাচার শিক্ষায় সর্বোচ্চ গুরুত্ব প্রদান।</p><p>১০. ইসলামের ইতিহাস ও সীরাহ শিক্ষার উপর জোর।</p><p>১১. ছেলেদের ক্যাম্পাস সংলগ্ন মাঠে এবং মেয়েদের ছাদবাগানে খেলার সুযোগ।</p></div>
+</div>
+<h3>দশ বছরের ইসলাম শিক্ষা: উদ্দিষ্ট যোগ্যতা · what the child carries at the end</h3>
+<div class="grid g3">
+<div class="card"><div class="k">কুরআন</div><p>সামর্থ্য অনুযায়ী হিফজ ও কুরআন তর্জমা</p></div>
+<div class="card"><div class="k">আরবি ভাষা</div><p>আরবি বলতে পারা, শুনে বুঝতে পারা, ইবারত পড়তে পারা ও লিখতে পারা</p></div>
+<div class="card"><div class="k">আকিদাহ</div><p>ঈমান ও আকিদার বিষয়াবলি ও ইসলামিক মূল্যবোধ</p></div>
+<div class="card"><div class="k">ফিকহ</div><p>বেসিক মাসায়িল, আদাব-তারবিয়াহ ও মাসনুন দোয়া</p></div>
+<div class="card"><div class="k">হাদিস</div><p>নবম শ্রেণির মধ্যে বিষয়ভিত্তিক ৩০০+ হাদিস মুখস্থ করা</p></div>
+<div class="card"><div class="k">ইতিহাস</div><p>নবীদের ইতিহাস, কুরআনের বিভিন্ন ঘটনা, খিলাফতের ইতিহাস ও পরবর্তী ইতিহাস</p></div>
+</div>
+<h3>How the design should use them</h3>
+<div class="grid g2">
+<div class="card"><div class="k">Homepage</div><p>The six abilities become the "what your child carries after ten years" beat. Each one is a tile that opens the subject's stage-by-stage path. The eleven reasons are proof points, each placed next to the section that shows it: Arabic medium next to the journey, transport next to the route map, play spaces next to campus.</p></div>
+<div class="card"><div class="k">Service</div><p>The 2026 transport route map (Uttara and Mirpur routes) becomes two drawn route lines with stops. It works in either direction's map language: The Line's feeder lines, or the Routine Board's pickup times.</p></div>
+</div>
+</div></section>
+
+<section id="ia"><div class="wrap">
+<span class="num">03</span>
+<h2>New information architecture</h2>
+<p>Today there are 12 top-level routes organised around the institution. We reorganise around five parent questions. Primary nav: <b>6 items</b>.</p>
+<div class="tablewrap"><table>
+<thead><tr><th>Nav item</th><th>Parent question</th><th>Absorbs current routes</th></tr></thead>
+<tbody>
+<tr><td><b>শিক্ষা পদ্ধতি</b> Curriculum</td><td>What will my child learn?</td><td>curriculum + programs (merged)</td></tr>
+<tr><td><b>ভর্তি ও ফি</b> Admissions &amp; Fees</td><td>Can we join, and what does it cost?</td><td>admissions + downloads (prospectus) + pre-admission (waitlist state)</td></tr>
+<tr><td><b>সেবা</b> Day-care &amp; Campus</td><td>Is my child safe and cared for all day?</td><td>campus + transport/meals/safety content</td></tr>
+<tr><td><b>আমরা</b> People</td><td>Who is behind this?</td><td>about + advisors + directors + teachers (one page, anchored sections)</td></tr>
+<tr><td><b>খবর</b> News</td><td>Is it alive and active?</td><td>news (unchanged route)</td></tr>
+<tr><td><b>যোগাযোগ</b> Visit</td><td>How do I see it myself?</td><td>contact (becomes "Visit")</td></tr>
+</tbody></table></div>
+<p style="margin-top:14px"><b>Redirects:</b> /programs → /curriculum, /advisors /directors /teachers → /people#…, /downloads → /admissions#prospectus, /about → /people. Keep old URLs alive with 308s so shared links never break.</p>
+<h3>Conversion paths while the form is closed</h3>
+<div class="grid g2">
+<div class="card"><div class="k">Primary</div><p><b>Book a visit</b> (call or WhatsApp a pre-filled message) and <b>Download prospectus</b>. Sticky bottom bar on mobile: <span class="pill">Call</span><span class="pill">WhatsApp</span><span class="pill">Prospectus</span></p></div>
+<div class="card"><div class="k">Secondary</div><p><b>Join waitlist</b> (name, phone, child's class — 3 fields) and <b>Share this page</b>. Never "Apply now" until the pre-admission form reopens; the CTA label is a Sanity field so it flips without a deploy.</p></div>
+</div>
+</div></section>
+
+<section id="home"><div class="wrap">
+<span class="num">04</span>
+<h2>Homepage, beat by beat</h2>
+<p>Leads with curriculum uniqueness, then service quality. No photo-split hero, no generic pillars row. Ten beats, each one screen on a phone.</p>
+
+<div class="beat"><div class="n">1</div><div><h3>The statement</h3><dl><dt>Purpose</dt><dd>Name the model in the first second.</dd><dt>Content</dt><dd><span class="bn">শিক্ষা পদ্ধতি (৫০-৫০ মডেল)</span> at poster scale; one line: Islamic and general education, equal weight, one 10-year plan.</dd><dt>Interaction</dt><dd>Type sets in on load (300 ms stagger), a thin balance line draws beneath. Call + Prospectus buttons visible.</dd><dt>Emotion</dt><dd>"This is different."</dd></dl></div></div>
+
+<div class="beat"><div class="n">2</div><div><h3>The balance</h3><dl><dt>Purpose</dt><dd>Make 50-50 literal.</dd><dt>Content</dt><dd>Two equal columns: Islamic (Quran, Arabic, hifz, hadith) · General (NCTB: Bangla, English, Maths, Science).</dd><dt>Interaction</dt><dd>Columns fill to equal height on scroll; tap a column to expand subjects.</dd><dt>Emotion</dt><dd>"No compromise."</dd></dl></div></div>
+
+<div class="beat"><div class="n">3</div><div><h3>The 10-year journey</h3><dl><dt>Purpose</dt><dd>Show the integrated plan.</dd><dt>Content</dt><dd>Pre-Hifz (Nursery–1) → Hifz Day-care (2–5) → After-Hifz (6–8) → Dakhil (9–10) → Mutawassita (11).</dd><dt>Interaction</dt><dd>Pinned rail; stage card swaps with scroll; each shows hours + subject split bar.</dd><dt>Emotion</dt><dd>"There is a plan for every year."</dd></dl></div></div>
+
+<div class="beat"><div class="n">4</div><div><h3>The fork</h3><dl><dt>Purpose</dt><dd>Resolve the biggest fear (closed doors).</dd><dt>Content</dt><dd>After Dakhil: Mutawassita in-house, or Kafiya at a Qawmi madrasa, or SSC → college.</dd><dt>Interaction</dt><dd>Path diagram that splits into three lit routes.</dd><dt>Emotion</dt><dd>"Every door stays open."</dd></dl></div></div>
+
+<div class="beat"><div class="n">5</div><div><h3>Arabic as the language of learning</h3><dl><dt>Purpose</dt><dd>The owner's emphasis.</dd><dt>Content</dt><dd>Islamic studies taught in Arabic from Class 6; AQVI-authored Arabic &amp; Islamic studies Nursery–Class 8, aligned to Madrasa Board Mutawassita syllabus.</dd><dt>Interaction</dt><dd>A short Arabic line (non-Quranic, e.g. a lesson heading) beside its Bengali meaning. No decorative ayat.</dd><dt>Emotion</dt><dd>"Real depth, not rote."</dd></dl></div></div>
+
+<div class="beat"><div class="n">6</div><div><h3>Outcomes in numbers</h3><dl><dt>Purpose</dt><dd>Proof.</dd><dt>Content</dt><dd>300+ hadith · 90%+ Quran translation understood · Hifz + NCTB together.</dd><dt>Interaction</dt><dd>Counters run once, large Bengali numerals.</dd><dt>Emotion</dt><dd>"Measurable."</dd></dl></div></div>
+
+<div class="beat"><div class="n">7</div><div><h3>A day at hifz day-care</h3><dl><dt>Purpose</dt><dd>Lead the service story.</dd><dt>Content</dt><dd>7:00 am – 8:30 pm, meals included, hifz 70 / Arabic 15 / General 15.</dd><dt>Interaction</dt><dd>The day clock fills; tap a block for detail. Share-card button.</dd><dt>Emotion</dt><dd>"They take care of the whole day."</dd></dl></div></div>
+
+<div class="beat"><div class="n">8</div><div><h3>Getting here, safely</h3><dl><dt>Purpose</dt><dd>Logistics as care.</dd><dt>Content</dt><dd>Transport on Uttara &amp; Mirpur routes, "অভিজ্ঞ চালক ও দায়িত্বশীল সহকারী"; 600 m from Uttara Center metro.</dd><dt>Interaction</dt><dd>Stylised route map draws on scroll.</dd><dt>Emotion</dt><dd>"This works for our family."</dd></dl></div></div>
+
+<div class="beat"><div class="n">9</div><div><h3>The people</h3><dl><dt>Purpose</dt><dd>Trust.</dd><dt>Content</dt><dd>4 advisors + 4 founding directors, name + one credential each.</dd><dt>Interaction</dt><dd>Horizontal snap row on mobile; tap for full bio.</dd><dt>Emotion</dt><dd>"Serious people."</dd></dl></div></div>
+
+<div class="beat"><div class="n">10</div><div><h3>Visit us</h3><dl><dt>Purpose</dt><dd>Convert.</dd><dt>Content</dt><dd>Fees at a glance (Pre-Hifz / Hifz monthly), 3 documents, phones, visit + prospectus + waitlist.</dd><dt>Interaction</dt><dd>One-tap call/WhatsApp; prospectus download; 3-field waitlist.</dd><dt>Emotion</dt><dd>"Let's go and see it."</dd></dl></div></div>
+</div></section>
+
+<section id="pages"><div class="wrap">
+<span class="num">05</span>
+<h2>Page-by-page signature moments</h2>
+<div class="grid g2">
+<div class="card"><div class="k">Curriculum · শিক্ষা পদ্ধতি</div><h3>The stage explorer</h3><p>Five stage tabs. Each shows class range, hours, subject split as a bar, and what the child can do by the end. Compare mode puts two stages side by side.</p>
+<div class="bar"><span class="b1" style="width:25%"></span><span class="b2" style="width:25%"></span><span class="b3" style="width:50%"></span></div><div class="legend">Pre-Hifz: Quran 25 · Arabic 25 · General 50</div>
+<div class="bar"><span class="b1" style="width:70%"></span><span class="b2" style="width:15%"></span><span class="b3" style="width:15%"></span></div><div class="legend">Hifz Day-care: Hifz 70 · Arabic 15 · General 15</div></div>
+<div class="card"><div class="k">Admissions &amp; Fees · ভর্তি ও ফি</div><h3>The honest price card</h3><p>Stage toggle (Pre-Hifz / Hifz) shows admission, session, monthly (and meals for Hifz) in Bengali numerals, sibling discount noted. Below: the 3-document checklist as tickable items (<span class="ok">✓</span> is the only green). Status banner: "Pre-admission currently closed — join the waitlist".</p>
+<table><tr><th></th><th>Pre-Hifz</th><th>Hifz</th></tr><tr><td>Admission</td><td>২০,০০০</td><td>২৫,০০০</td></tr><tr><td>Session</td><td>১৫,০০০</td><td>২০,০০০</td></tr><tr><td>Monthly</td><td>৬,০০০</td><td>১০,০০০</td></tr><tr><td>Meals</td><td>—</td><td>৪,৫০০</td></tr></table></div>
+<div class="card"><div class="k">People · আমরা</div><h3>Faces with credentials</h3><p>Advisors and founding directors in a calm portrait grid; credential line first, role second. One editorial paragraph on why engineers and scholars built this school together <span class="draft">DRAFT</span>.</p></div>
+<div class="card"><div class="k">Campus &amp; Safety · সেবা</div><h3>The full day, the full route</h3><p>The 7:00→20:30 day clock in detail, meals, transport routes with the transport phone (01733-202368), safety and parent-communication practices — each as a short, verifiable promise.</p></div>
+<div class="card"><div class="k">Visit · যোগাযোগ</div><h3>Directions that feel like Citymapper</h3><p>Stylised map: Uttara Center metro → 600 m east → House 37, Road 2/A, Block-i, Sector-17. Tap-to-call for all four numbers, email office.mqd@gmail.com, "Open in Google Maps".</p></div>
+<div class="card"><div class="k">News · খবর</div><h3>A living journal</h3><p>Editorial cards with real photos, date in Bengali, category chips. Each article has a designed share preview (OG image generated from the title).</p></div>
+</div>
+</div></section>
+
+<section id="system"><div class="wrap">
+<span class="num">06</span>
+<h2>Design-system principles</h2>
+<div class="grid g2">
+<div class="card"><h3>Bengali-first type</h3><ul class="clean"><li>Bengali is designed first, English adapts. Bengali display: a serif with real character (e.g. Noto Serif Bengali / Tiro Bangla); body: Hind Siliguri or Noto Sans Bengali at ≥17px, line-height 1.7 (conjuncts need air).</li><li>Bengali numerals in Bengali UI (৫০-৫০, ২০,০০০).</li><li>Arabic in Amiri, used only for real content; Quranic text only in context, never as ornament or background texture.</li><li>Subset fonts by locale; max 2 families per page load.</li></ul></div>
+<div class="card"><h3>Brown/sand brand rule</h3><ul class="clean"><li>Brown is the brand: buttons, links, active states, data bars.</li><li>Sand/paper for surfaces; deep umber for text.</li><li>Green appears only as tiny status marks (<span class="ok">✓ open</span>, success toast). Never a green button or band.</li><li>Full dark theme derived from the same browns.</li></ul></div>
+<div class="card"><h3>Motion principles &amp; budget</h3><ul class="clean"><li>One easing curve, 200–400 ms UI, 600–900 ms storytelling reveals.</li><li>Motion explains (balance fills, day clock advances, path splits) — never decorates.</li><li>CSS + IntersectionObserver / scroll-driven animations; no heavy animation library on mobile. JS for motion ≤ 15 KB.</li><li><code>prefers-reduced-motion</code> shows the final state instantly.</li></ul></div>
+<div class="card"><h3>Imagery &amp; the photo shoot (#1 upgrade)</h3><p>Natural light, warm, documentary; hands and books more than posed faces; respect for privacy (no identifiable children without consent).</p><ul class="clean"><li>Hifz circle at dawn, 7:00 light</li><li>Close-up: mushaf, Arabic notebook, NCTB maths workbook side by side (the 50-50 shot)</li><li>Teacher listening to a recitation</li><li>Science/maths class in progress</li><li>Lunch/meal service, clean kitchen</li><li>Transport: van, driver and attendant at pick-up</li><li>Building exterior + street from metro direction</li><li>Classrooms, library, wudu area, prayer space</li><li>Portraits of advisors, directors, teachers</li><li>Evening: day-care children going home at 20:30</li></ul></div>
+<div class="card"><h3>Iconography</h3><p>One thin-stroke line set (1.5px), rounded joins, drawn in brown. No clip-art mosques, no stars-and-crescent decoration. Geometric pattern only as a subtle tile at 4–6% opacity, never behind text.</p></div>
+<div class="card"><h3>Core components</h3><p><span class="pill">Statement hero</span><span class="pill">Balance bar</span><span class="pill">Stage rail</span><span class="pill">Day clock</span><span class="pill">Stat counter</span><span class="pill">Person card</span><span class="pill">Fee card</span><span class="pill">Document checklist</span><span class="pill">Route map</span><span class="pill">Share card</span><span class="pill">Status banner</span><span class="pill">Sticky mobile CTA bar</span><span class="pill">FAQ disclosure</span></p></div>
+</div>
+</div></section>
+
+<section id="bar"><div class="wrap">
+<span class="num">07</span>
+<h2>Performance &amp; trust bar</h2>
+<div class="grid g2">
+<div class="card"><h3>Core Web Vitals (mid-range Android, 4G)</h3><ul class="clean"><li>LCP ≤ 2.0 s (hero is text, not an image)</li><li>INP ≤ 150 ms</li><li>CLS ≤ 0.05 (font metrics fallback for Bengali)</li><li>JS ≤ 120 KB gzipped per route; images AVIF/WebP via cdn.sanity.io</li><li>Lighthouse mobile ≥ 90 on every page</li></ul></div>
+<div class="card"><h3>Accessibility &amp; SEO</h3><ul class="clean"><li>WCAG 2.2 AA; brown on sand checked ≥ 4.5:1</li><li>Tap targets ≥ 44px; full keyboard paths</li><li>hreflang bn/en pairs on /bengali and /english; localised metadata and OG images per page</li><li>School + LocalBusiness JSON-LD with address, phones, geo</li></ul></div>
+</div>
+<h3>CMS-driven: every block maps to Sanity</h3>
+<div class="tablewrap"><table>
+<thead><tr><th>Block</th><th>Sanity document</th></tr></thead>
+<tbody>
+<tr><td>Statement, balance, outcomes counters</td><td><code>homePage</code> (new singleton) + <code>siteSettings</code></td></tr>
+<tr><td>Stage rail / stage explorer / day clock</td><td><code>academicProgram</code> (add: classRange, hours, subjectSplit[], schedule[])</td></tr>
+<tr><td>Fees, documents, admission status &amp; CTA label</td><td><code>feeSchedule</code> (existing fees model) + <code>preAdmissionForm</code> (isOpen, ctaLabel)</td></tr>
+<tr><td>Advisors, directors, teachers</td><td><code>staffMember</code> (role group: advisor / director / teacher)</td></tr>
+<tr><td>Campus, transport, safety</td><td><code>facility</code> + <code>page</code></td></tr>
+<tr><td>Prospectus download</td><td><code>prospectus</code></td></tr>
+<tr><td>News + share images</td><td><code>newsEvent</code></td></tr>
+<tr><td>Address, phones, map, footer</td><td><code>siteSettings</code> + <code>footer</code></td></tr>
+</tbody></table></div>
+</div></section>
+
+<section id="rollout"><div class="wrap">
+<span class="num">08</span>
+<h2>Phased rollout</h2>
+<div class="grid g2">
+<div class="card"><div class="k">Phase 1 · Decide</div><h3>Pick a direction</h3><p>Choose A or B (or a blend), approve the copy deck, lock the type pairing. Commission the photo shoot.</p></div>
+<div class="card"><div class="k">Phase 2 · Foundation</div><h3>Tokens + Home</h3><p>Design tokens, Bengali type system, new nav and redirects, the 10-beat homepage on existing Sanity content, sticky mobile CTA bar.</p></div>
+<div class="card"><div class="k">Phase 3 · Depth</div><h3>Curriculum, Admissions, Service</h3><p>Stage explorer, price card, day clock, route map, people page; Sanity schema extensions; share cards.</p></div>
+<div class="card"><div class="k">Phase 4 · Polish</div><h3>Photography, News, Measure</h3><p>Swap in real photography, journal-style news, performance and accessibility audit, analytics on visit/call/prospectus/waitlist.</p></div>
+</div>
+<h3>What the owner must decide or provide</h3>
+<ul class="clean">
+<li>Direction A or B, and approval of every <span class="draft">DRAFT</span> line.</li>
+<li>Photo-shoot date and consent policy for children's images.</li>
+<li>Portraits + one-line credentials for advisors and directors (confirm wording).</li>
+<li>The actual hifz day-care timetable (block by block, 7:00–20:30) for the day clock.</li>
+<li>Waitlist: which phone receives enquiries, and the WhatsApp number for pre-filled messages.</li>
+<li>Whether fees are shown publicly in full (recommended) and the sibling-discount wording.</li>
+<li>Transport route list (Uttara / Mirpur stops) for the map.</li>
+</ul>
+</div></section>
+
+<footer><div class="wrap">
+<p>Madrasatul Quran · House 37, Road 2/A, Block-i, Sector-17, Uttara, Dhaka · office.mqd@gmail.com · 01301-226644</p>
+<p>Strategy hub · October 2026 · Prototypes: <a href="opus.html">Direction A</a> · <a href="fable.html">Direction B</a></p>
+</div></footer>
+</html>

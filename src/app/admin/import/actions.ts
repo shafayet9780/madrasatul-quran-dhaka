@@ -83,6 +83,6 @@ export async function applyImportAction(form: FormData): Promise<ApplyResult> {
   const s = result.summary;
   return {
     ok: true,
-    message: `ইমপোর্ট সম্পন্ন: ${bn(s.adds)} জন নতুন, ${bn(s.updates)} জন হালনাগাদ, ${bn(s.deactivations)} জন নিষ্ক্রিয়, ${bn(s.skipped)}টি সারি বাদ।`,
+    message: `ইমপোর্ট সম্পন্ন: ${bn(s.adds)} জন নতুন, ${bn(s.updates)} জন আপডেট, ${bn(s.deactivations)} জন নিষ্ক্রিয়, ${bn(s.skipped)}টি সারি বাদ।`,
   };
 }

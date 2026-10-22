@@ -56,7 +56,7 @@ export default async function StudentProfilePage({ params, searchParams }: { par
     <>
       <PageTop
         crumbs={[{ label: 'ক্লাস ও শিক্ষার্থী', href: '/admin/reports' }, { label: student.label, href: classHref }, { label: student.name }]}
-        actions={<ReportTools exportHref={`/admin/reports/export?${new URLSearchParams({ kind: 'student', round: round.id, student: erpId })}`} printLabel="অভ্যন্তরীণ প্রিন্ট" printHref={`${base}/print?round=${round.id}`} />}
+        actions={<ReportTools exportHref={`/admin/reports/export?${new URLSearchParams({ kind: 'student', round: round.id, student: erpId })}`} printLabel="অফিসের প্রিন্ট" printHref={`${base}/print?round=${round.id}`} />}
       />
       <PageBody>
         <section className="flex flex-wrap items-center justify-between gap-4 rounded-xl border bg-card p-5">

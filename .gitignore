@@ -52,3 +52,7 @@ next-env.d.ts
 docs/*design/
 # pnpm admin:screenshots output
 /admin-screenshots/
+
+# Impeccable plugin: review screenshots and cache stay local (design.json + surfaces are kept)
+/.impeccable/review/
+/.impeccable/hook.cache.json

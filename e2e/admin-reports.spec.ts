@@ -87,10 +87,10 @@ test('student profile shows all three answer sets and prints a page for the guar
   await expectAccessible(page);
 
   await page.getByRole('link', { name: 'অভিভাবকের জন্য প্রিন্ট' }).click();
-  const sheet = page.getByRole('article', { name: 'অভিভাবকের জন্য প্রতিবেদন' });
+  const sheet = page.getByRole('article', { name: 'অভিভাবকের জন্য রিপোর্ট' });
   await expect(sheet.getByRole('heading', { name: 'Zayan Mahmud', level: 1 })).toBeVisible();
   await expect(sheet.getByRole('row', { name: /উপস্থিতি/ })).toBeVisible();
-  await expect(sheet.getByRole('heading', { name: 'শক্তির দিক' })).toBeVisible();
+  await expect(sheet.getByRole('heading', { name: 'ভালো দিক' })).toBeVisible();
   // The class-management review as the guardian's own average per subject.
   await expect(sheet.getByRole('heading', { name: 'ক্লাস পরিচালনা · আপনার মূল্যায়ন' })).toBeVisible();
   await expect(sheet.getByRole('columnheader', { name: 'বাংলা' })).toBeVisible();
@@ -109,8 +109,8 @@ test('the internal print has all three reviews, the notes and the history, withi
   await page.goto('/admin/reports');
   await page.getByLabel('নাম, আইডি বা রোল').fill('zayan');
   await page.getByRole('link', { name: /Zayan Mahmud/ }).click();
-  await page.getByRole('link', { name: 'অভ্যন্তরীণ প্রিন্ট' }).click();
-  const sheet = page.getByRole('article', { name: 'অভ্যন্তরীণ প্রতিবেদন' });
+  await page.getByRole('link', { name: 'অফিসের প্রিন্ট' }).click();
+  const sheet = page.getByRole('article', { name: 'অফিসের রিপোর্ট' });
   for (const name of ['শিক্ষকদের উত্তর', 'অভিভাবকের উত্তর · শিক্ষার্থী সম্পর্কে', 'অভিভাবকের উত্তর · ক্লাস পরিচালনা', 'সব জমা · ইতিহাস']) {
     await expect(sheet.getByRole('heading', { name, exact: true })).toBeVisible();
   }

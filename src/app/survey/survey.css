@@ -1,4 +1,10 @@
 /* Survey screens (T1/G1/G2 artboards). Mobile first; desktop layouts from 960px. Tokens: components/survey/tokens.css */
+/* The site's text font (--font-sans) needs Anek Latin, which the survey doesn't load (src/lib/fonts.ts is the public
+   site's): the page around the survey uses the survey's own text font. */
+html:has(.sv-survey) {
+  --font-anek-latin: var(--sv-font-body);
+}
+
 .sv-survey {
   min-height: 100vh;
   min-height: 100dvh;

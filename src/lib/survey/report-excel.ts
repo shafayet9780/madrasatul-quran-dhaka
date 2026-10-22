@@ -29,7 +29,7 @@ async function book(fileName: string, sheets: { name: string; columns: { header:
   return { fileName: safeName(fileName), buffer: (await workbook.xlsx.writeBuffer()) as ArrayBuffer };
 }
 
-const FORM_LABEL = { verified: 'যাচাইকৃত', unverified: 'অযাচাইকৃত', none: 'সাড়া নেই' } as const;
+const FORM_LABEL = { verified: 'যাচাইকৃত', unverified: 'যাচাই হয়নি', none: 'সাড়া নেই' } as const;
 
 export async function classWorkbook(round: Round, classKey: string, sectionKey: string, verifiedOnly = false): Promise<Book | null> {
   const [report, rounds] = await Promise.all([classReport(round, classKey, sectionKey), allReportRounds()]);
@@ -141,7 +141,7 @@ export async function studentWorkbook(round: Round, erpId: string): Promise<Book
       rows: [
         ...guardian.answers.map((a) => ({ ...a, mark: a.unscored ? 'মার্ক নেই' : a.mark })),
         ...(guardian.form
-          ? [{ label: 'জমা দিয়েছেন', answer: `${guardian.form.who}${guardian.form.relation ? ` (${guardian.form.relation})` : ''} · ${guardian.form.verified ? 'যাচাইকৃত' : 'অযাচাইকৃত'}`, mark: null }]
+          ? [{ label: 'জমা দিয়েছেন', answer: `${guardian.form.who}${guardian.form.relation ? ` (${guardian.form.relation})` : ''} · ${guardian.form.verified ? 'যাচাইকৃত' : 'যাচাই হয়নি'}`, mark: null }]
           : []),
         ...(guardian.form?.comment ? [{ label: 'মন্তব্য', answer: guardian.form.comment, mark: null }] : []),
       ],
@@ -199,7 +199,7 @@ export async function trackerWorkbook(roundId: string): Promise<Book | null> {
         { header: 'শিক্ষক', key: 'teacherName', width: 24 },
         { header: 'সম্পন্ন', key: 'done', width: 10 },
         { header: 'মোট', key: 'total', width: 8 },
-        { header: 'শেষ সম্পাদনা', key: 'when', width: 18 },
+        { header: 'শেষ এডিট', key: 'when', width: 18 },
         { header: 'ডিভাইস', key: 'device', width: 20 },
       ],
       rows: data.drafts.map((d) => ({ ...d, when: formatSheetTime(d.updatedAt) })),
@@ -227,11 +227,11 @@ export async function guardianTrackerWorkbook(roundId: string): Promise<Book | n
       ),
     },
     {
-      name: 'অযাচাইকৃত',
+      name: 'যাচাই হয়নি',
       columns: [
         { header: 'শ্রেণি', key: 'place', width: 16 },
         { header: 'শিক্ষার্থী', key: 'name', width: 28 },
-        { header: 'প্রদানকারী', key: 'who', width: 28 },
+        { header: 'জমা দিয়েছেন', key: 'who', width: 28 },
         { header: 'মোবাইল', key: 'mobile', width: 18 },
         { header: 'জমার সময়', key: 'when', width: 18 },
       ],
@@ -243,13 +243,13 @@ export async function guardianTrackerWorkbook(roundId: string): Promise<Book | n
         { header: 'শ্রেণি', key: 'place', width: 16 },
         { header: 'শিক্ষার্থী', key: 'name', width: 28 },
         { header: 'অবস্থা', key: 'status', width: 10 },
-        { header: 'প্রদানকারী', key: 'who', width: 28 },
+        { header: 'জমা দিয়েছেন', key: 'who', width: 28 },
         { header: 'মোবাইল', key: 'mobile', width: 16 },
         { header: 'যাচাই', key: 'verified', width: 12 },
         { header: 'জমার সময়', key: 'when', width: 18 },
       ],
       rows: data.multiple.flatMap((m) =>
-        m.forms.map((f) => ({ place: m.place, name: m.child.name, status: f.current ? 'গণ্য' : 'আগের', who: who(f), mobile: displayMobile(f.mobile, false), verified: f.verified ? 'যাচাইকৃত' : 'অযাচাইকৃত', when: formatSheetTime(f.submittedAt) }))
+        m.forms.map((f) => ({ place: m.place, name: m.child.name, status: f.current ? 'গণ্য' : 'আগের', who: who(f), mobile: displayMobile(f.mobile, false), verified: f.verified ? 'যাচাইকৃত' : 'যাচাই হয়নি', when: formatSheetTime(f.submittedAt) }))
       ),
     },
   ]);
@@ -341,7 +341,7 @@ export async function questionsWorkbook(roundId: string, placeKey: string, picke
         ...c,
         kind: KIND_LABEL[c.kind],
         who: `${c.who}${c.relation ? ` (${c.relation})` : ''}`,
-        verified: c.verified ? 'যাচাইকৃত' : 'অযাচাইকৃত',
+        verified: c.verified ? 'যাচাইকৃত' : 'যাচাই হয়নি',
         when: c.submittedAt ? formatSheetTime(c.submittedAt) : '',
       })),
     },

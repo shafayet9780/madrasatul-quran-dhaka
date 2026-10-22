@@ -21,17 +21,17 @@ beforeEach(() => {
 
 describe('generatePreviewUrl', () => {
   it('builds an /api/preview URL with secret, slug, type and lang', () => {
-    const url = generatePreviewUrl('newsEvent', 'big-news', 'english');
+    const url = generatePreviewUrl('album', 'big-day', 'english');
     const parsed = new URL(url);
     expect(parsed.pathname).toBe('/api/preview');
-    expect(parsed.searchParams.get('slug')).toBe('big-news');
-    expect(parsed.searchParams.get('type')).toBe('newsEvent');
+    expect(parsed.searchParams.get('slug')).toBe('big-day');
+    expect(parsed.searchParams.get('type')).toBe('album');
     expect(parsed.searchParams.get('lang')).toBe('english');
     expect(parsed.searchParams.get('secret')).toBe('test-secret');
   });
 
   it('defaults the language to bengali', () => {
-    const url = generatePreviewUrl('page', 'about');
+    const url = generatePreviewUrl('notice', 'about');
     expect(new URL(url).searchParams.get('lang')).toBe('bengali');
   });
 });

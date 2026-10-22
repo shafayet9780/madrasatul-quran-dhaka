@@ -49,8 +49,6 @@ export interface FeeSettings {
   paymentHeading: MultilingualText;
   paymentInstructions: MultilingualText;
   unavailableMessage: MultilingualText;
-  faqQuestion: MultilingualText;
-  faqAnswer: MultilingualText;
   fees: SchoolFee[];
   transport: TransportFee[];
   transportRoutes?: TransportRoute[];

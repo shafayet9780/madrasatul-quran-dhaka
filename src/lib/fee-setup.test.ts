@@ -5,7 +5,6 @@ it('preserves existing draft edits and contact destinations', () => {
     _id: 'drafts.siteSettings',
     title: 'Editor draft',
     contactInfo: {
-      admissionsPhone: '+441234567890',
       whatsappNumber: '+441234567891',
     },
   };
@@ -20,7 +19,7 @@ it('copies published settings into a draft without losing unrelated content', ()
     title: 'School',
     contactInfo: {
       address: { english: 'Dhaka' },
-      phone: [{ number: '01301226644', type: 'admission', isActive: true }],
+      phone: [{ number: '01301226644', usedFor: 'admissions', isActive: true }],
     },
   };
   const draft = prepareContactDraft(null, published);
@@ -29,7 +28,6 @@ it('copies published settings into a draft without losing unrelated content', ()
     title: 'School',
     contactInfo: {
       address: { english: 'Dhaka' },
-      admissionsPhone: '+8801301226644',
       whatsappNumber: '+8801301226644',
     },
   });

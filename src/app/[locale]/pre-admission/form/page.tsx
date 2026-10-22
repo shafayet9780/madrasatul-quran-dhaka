@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { getTranslations } from 'next-intl/server';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { ChevronRight, Circle, CircleCheck, Contrast, Lock } from 'lucide-react';
 import { CopyLink } from '@/components/pre-admission/copy-link';
 import { FlowShell } from '@/components/pre-admission/flow-shell';
@@ -21,6 +21,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function HubPage({ params }: Props) {
   const locale = asLocale((await params).locale);
+  setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: 'preAdmission' });
   const { app, snapshot } = await requireDraft(locale);
   const token = (await currentAccess())?.token;
@@ -141,7 +142,7 @@ export default async function HubPage({ params }: Props) {
           <div className="flex items-center justify-between gap-3 md:gap-4">
             <p className="text-[13.5px] leading-normal text-muted-foreground md:text-sm">
               {app.resumeEmailAt
-                ? t.rich('hub.resumeSent', { email: app.email, addr: (c) => <span className="text-foreground [font-family:var(--font-english)]">{c}</span> })
+                ? t.rich('hub.resumeSent', { email: app.email, addr: (c) => <span className="text-foreground">{c}</span> })
                 : t('hub.resumeNote')}
             </p>
             <CopyLink url={link} label={t('hub.copyLink')} done={t('hub.copied')} />

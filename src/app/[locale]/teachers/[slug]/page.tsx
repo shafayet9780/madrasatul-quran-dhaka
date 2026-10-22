@@ -7,26 +7,33 @@ import { isSectionVisible } from '@/lib/nav-visibility';
 import { TeacherDetail } from '@/components/teachers';
 import { generatePersonStructuredData, generateBreadcrumbStructuredData, serializeJsonLd } from '@/lib/seo';
 import { getLocalizedText, type Language } from '@/lib/sanity-utils';
+import { setRequestLocale } from 'next-intl/server';
 
 interface Props {
   params: Promise<{ locale: string; slug: string }>;
+}
+
+// Built on its first visit, then cached and refreshed from the CMS like the other pages.
+export function generateStaticParams() {
+  return [];
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale, slug } = await params;
   const language = locale as Language;
   const teacher = await getTeacherBySlug(slug, language);
-  if (!teacher || teacher.showDetailPage === false) return { title: 'Teacher Not Found' };
+  if (!teacher || teacher.showDetailPage === false) return {};
 
   const name = getLocalizedText(teacher.name, language);
   const description =
     getLocalizedText(teacher.summary, language) ||
     (teacher.designation ? getLocalizedText(teacher.designation, language) : name);
-  return { title: `${name} - Madrasatul Quran`, description };
+  return { title: name, description };
 }
 
 export default async function TeacherProfile({ params }: Props) {
   const { locale, slug } = await params;
+  setRequestLocale(locale);
   const language = locale as Language;
 
   const [teacher, { placeholders, visibility }] = await Promise.all([

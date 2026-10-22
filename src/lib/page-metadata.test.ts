@@ -54,6 +54,15 @@ describe('localized page metadata', () => {
       });
     }
   );
+  it('shows a page’s own picture in link previews when it has one', () => {
+    const metadata = generatePageMetadata({ title: 'Album', description: 'Photos', locale: 'english', path: '/gallery/a', share: { url: 'https://cdn.sanity.io/cover.jpg', alt: 'The stage' } });
+    expect(metadata.openGraph).toMatchObject({ images: [{ url: 'https://cdn.sanity.io/cover.jpg', width: 1200, height: 630, alt: 'The stage' }] });
+    expect(metadata.twitter).toMatchObject({ images: ['https://cdn.sanity.io/cover.jpg'] });
+  });
+  it('keeps the title whole, or lets the layout add the school’s name', () => {
+    expect(generatePageMetadata({ title: 'Admissions', description: 'x', locale: 'english' }).title).toEqual({ absolute: 'Admissions' });
+    expect(generatePageMetadata({ title: 'Pre-admission 2027', description: 'x', locale: 'english', withSiteName: true }).title).toBe('Pre-admission 2027');
+  });
   it('maps URL segment names to valid HTML language codes', () => {
     expect(languageTag('bengali')).toBe('bn');
     expect(languageTag('english')).toBe('en');

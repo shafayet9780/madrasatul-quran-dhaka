@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
-import { getTranslations } from 'next-intl/server';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { FlowShell } from '@/components/pre-admission/flow-shell';
 import { PledgeForm } from '@/components/pre-admission/pledge-form';
 import { asLocale, num, txt } from '@/lib/admissions/display';
@@ -16,6 +16,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 /** অঙ্গীকার: the parents' code of conduct and the two pledges, between the last chapter and the review. */
 export default async function PledgePage({ params }: Props) {
   const locale = asLocale((await params).locale);
+  setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: 'preAdmission' });
   const { app, snapshot } = await requireDraft(locale);
   const conduct = snapshot.settings.conduct;

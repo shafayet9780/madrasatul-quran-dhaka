@@ -9,7 +9,7 @@ import { EmptyState, LINK, PageBody } from '../../../../ui';
 import { studentPageData } from '../data';
 import { AttentionList, ClassManagementTable, CompareTable, FormLine, GuardianTable, History, MarkLegend, MUTED, Quote, TeacherTable } from '../parts';
 
-export const metadata: Metadata = { title: 'অভ্যন্তরীণ প্রতিবেদন' };
+export const metadata: Metadata = { title: 'অফিসের রিপোর্ট' };
 export const dynamic = 'force-dynamic';
 
 // The internal print (A4, portrait): all three reviews with teachers' names and notes, and every
@@ -53,19 +53,19 @@ export default async function InternalPrintPage({ params, searchParams }: { para
   return (
     <>
       <PageTop
-        crumbs={[{ label: 'ক্লাস ও শিক্ষার্থী', href: '/admin/reports' }, { label: student.name, href: `/admin/reports/student/${encodeURIComponent(erpId)}?round=${round.id}` }, { label: 'অভ্যন্তরীণ প্রিন্ট' }]}
+        crumbs={[{ label: 'ক্লাস ও শিক্ষার্থী', href: '/admin/reports' }, { label: student.name, href: `/admin/reports/student/${encodeURIComponent(erpId)}?round=${round.id}` }, { label: 'অফিসের প্রিন্ট' }]}
         actions={<ReportTools printLabel="প্রিন্ট / PDF" />}
       />
-      <article className="adm sv-print-sheet is-long flex flex-col gap-6 text-foreground" aria-label="অভ্যন্তরীণ প্রতিবেদন">
+      <article className="adm sv-print-sheet is-long flex flex-col gap-6 text-foreground" aria-label="অফিসের রিপোর্ট">
         <header className="flex items-start justify-between gap-4 border-b-2 border-foreground pb-3">
           <div className="flex flex-col">
             <span className="text-lg font-semibold [font-family:var(--sv-font-head)]">মাদরাসাতুল কুরআন, ঢাকা</span>
-            <span className="text-[13px] text-muted-foreground">শিক্ষার্থীর পূর্ণ প্রতিবেদন · অভ্যন্তরীণ, শুধু অফিসের জন্য</span>
+            <span className="text-[13px] text-muted-foreground">শিক্ষার্থীর পূর্ণ রিপোর্ট · শুধু অফিসের জন্য</span>
           </div>
           <div className="text-right text-[13px] text-muted-foreground">
             {round.label} রাউন্ড
             <br />
-            প্রস্তুত: {formatDate(new Date())}
+            তৈরি: {formatDate(new Date())}
           </div>
         </header>
 
@@ -134,7 +134,7 @@ export default async function InternalPrintPage({ params, searchParams }: { para
           <History data={data} />
         </Section>
 
-        <footer className="border-t pt-2 text-center text-[12px] text-muted-foreground">অভ্যন্তরীণ প্রতিবেদন: শিক্ষকদের নাম ও নোটসহ। অভিভাবককে দেওয়ার জন্য “অভিভাবকের জন্য প্রিন্ট” ব্যবহার করুন।</footer>
+        <footer className="border-t pt-2 text-center text-[12px] text-muted-foreground">অফিসের রিপোর্ট: শিক্ষকদের নাম ও নোটসহ। অভিভাবককে দেওয়ার জন্য “অভিভাবকের জন্য প্রিন্ট” ব্যবহার করুন।</footer>
       </article>
     </>
   );

@@ -6,6 +6,6 @@ test.describe('share-only downloads library', () => {
     await expect(page.getByRole('heading', { name: 'Link invalid or expired' })).toBeVisible()
 
     await page.goto('/bengali/downloads')
-    await expect(page.getByRole('heading', { name: 'লিংকটি অবৈধ অথবা মেয়াদ শেষ' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'লিংকটি কাজ করছে না বা মেয়াদ শেষ' })).toBeVisible()
   })
 })

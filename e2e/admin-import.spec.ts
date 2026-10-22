@@ -23,7 +23,7 @@ test('previews an ERP file, lists problems and imports the valid rows', async ({
   await page.getByRole('button', { name: 'যাচাই করুন' }).click();
 
   await expect(page.getByText('students.csv')).toBeVisible();
-  await expect(page.getByText(/Photo উপেক্ষিত/)).toBeVisible();
+  await expect(page.getByText(/Photo বাদ/)).toBeVisible();
   const problems = page.getByRole('region', { name: /সারিতে সমস্যা/ });
   await expect(problems.getByText('Class “Seven” · কোনো শ্রেণির সাথে ম্যাপ করা নেই')).toBeVisible();
   await expect(problems.getByText('Name ফাঁকা')).toBeVisible();

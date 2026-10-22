@@ -93,7 +93,7 @@ export default async function TeachingPage({ searchParams }: { searchParams: Pro
         {detail && cellAt && (
           <section id="detail" className="flex scroll-mt-20 flex-col gap-4 rounded-xl border bg-card p-5" aria-labelledby="detail-title">
             <div className="flex flex-col gap-0.5">
-              <span className="text-[13px] text-muted-foreground">নির্বাচিত ঘর</span>
+              <span className="text-[13px] text-muted-foreground">বাছাই করা ঘর</span>
               <h2 id="detail-title" className="m-0 text-lg font-semibold">
                 {classLabel(g1.snapshot, cellAt.classKey, cellAt.sectionKey)} · {subjectName(cellAt.subjectKey)}
               </h2>
@@ -147,7 +147,7 @@ export default async function TeachingPage({ searchParams }: { searchParams: Pro
                       {c.who} ({c.relation})
                     </b>
                     <span className="text-muted-foreground">{c.child}</span>
-                    <span className={c.verified ? 'text-success' : 'text-warning'}>{c.verified ? 'যাচাইকৃত' : 'অযাচাইকৃত'}</span>
+                    <span className={c.verified ? 'text-success' : 'text-warning'}>{c.verified ? 'যাচাইকৃত' : 'যাচাই হয়নি'}</span>
                     <span className="text-muted-foreground">{c.submittedAt ? formatDateTime(c.submittedAt) : ''}</span>
                   </div>
                   <div className="leading-relaxed">{c.text}</div>

@@ -10,7 +10,7 @@ export default function AdminError({ error, reset }: { error: Error & { digest?:
       <PageTop crumbs={[{ label: 'সমস্যা' }]} round={false} />
       <PageBody>
         <section className="flex flex-col gap-3 rounded-xl border bg-card p-5" role="alert">
-          <h1 className="m-0 text-lg font-semibold">পাতাটি খোলা যায়নি</h1>
+          <h1 className="m-0 text-lg font-semibold">পেজটি খোলা যায়নি</h1>
           <p className="m-0 text-sm text-muted-foreground">
             ডেটাবেস বা Studio থেকে তথ্য আনতে সমস্যা হয়েছে। আবার চেষ্টা করুন; বারবার হলে ডেভেলপারকে জানান
             {error.digest ? ` (কোড: ${error.digest})` : ''}।
