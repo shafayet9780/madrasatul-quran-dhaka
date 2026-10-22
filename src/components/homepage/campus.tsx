@@ -12,21 +12,46 @@ import { urlFor } from '@/lib/sanity';
 import type { HomePage, HomePhoto } from '@/types/home';
 import { homePhoto } from '@/lib/home/photos';
 
-type Spot = { line: string; dot: [number, number]; box: CSSProperties; tag: CSSProperties };
+type Spot = { line: string; dot: [number, number]; box: CSSProperties; tag: CSSProperties; bare: CSSProperties };
 type Collage = { ratio: string; photo: CSSProperties; roof: Spot; field: Spot };
 
 // Positions in % of the collage box. A line runs from each play space to where it is on the building photo.
+// `bare` places the label where the photo would be, while a space has no photo yet.
 const WIDE: Collage = {
   ratio: '1160 / 470',
   photo: { left: '31%', top: 0, width: '38%', height: '100%' },
-  roof: { line: '26,26 40,26 47.5,10', dot: [47.5, 10], box: { left: 0, top: '2%', width: '26%', height: '48%' }, tag: { left: 0, top: '54%', width: '26%' } },
-  field: { line: '74,66 62,66 60,88', dot: [60, 88], box: { right: 0, bottom: '2%', width: '26%', height: '48%' }, tag: { right: 0, bottom: '54%', width: '26%' } },
+  roof: {
+    line: '26,26 40,26 47.5,10',
+    dot: [47.5, 10],
+    box: { left: 0, top: '2%', width: '26%', height: '48%' },
+    tag: { left: 0, top: '54%', width: '26%' },
+    bare: { left: 0, top: '2%', width: '24%', height: '48%', justifyContent: 'center', alignItems: 'flex-end', textAlign: 'right' },
+  },
+  field: {
+    line: '74,66 62,66 60,88',
+    dot: [60, 88],
+    box: { right: 0, bottom: '2%', width: '26%', height: '48%' },
+    tag: { right: 0, bottom: '54%', width: '26%' },
+    bare: { right: 0, bottom: '2%', width: '24%', height: '48%', justifyContent: 'center' },
+  },
 };
 const TALL: Collage = {
   ratio: '358 / 700',
   photo: { left: '14%', top: '17%', width: '86%', height: '58%' },
-  roof: { line: '30,12 30,20 55,24', dot: [55, 24], box: { left: 0, top: 0, width: '60%', height: '15%' }, tag: { left: '63%', top: '2%', width: '37%' } },
-  field: { line: '70,84 70,77 72,71', dot: [72, 71], box: { right: 0, bottom: 0, width: '60%', height: '15%' }, tag: { left: 0, bottom: '2%', width: '37%' } },
+  roof: {
+    line: '30,12 30,20 55,24',
+    dot: [55, 24],
+    box: { left: 0, top: 0, width: '60%', height: '15%' },
+    tag: { left: '63%', top: '2%', width: '37%' },
+    bare: { left: 0, top: 0, width: '60%', height: '11%', justifyContent: 'flex-end', alignItems: 'center', textAlign: 'center' },
+  },
+  field: {
+    line: '70,84 70,77 72,71',
+    dot: [72, 71],
+    box: { right: 0, bottom: 0, width: '60%', height: '15%' },
+    tag: { left: 0, bottom: '2%', width: '37%' },
+    bare: { right: 0, bottom: 0, width: '60%', height: '15%', justifyContent: 'center', alignItems: 'center', textAlign: 'center' },
+  },
 };
 
 const PHOTOS = ['entrance', 'classroom'] as const; // in the order of home.campus.photos
@@ -63,25 +88,24 @@ function PlaySpaces({ layout, spaces, building, className }: { layout: Collage; 
           style={{ left: `${layout[k].dot[0]}%`, top: `${layout[k].dot[1]}%` }}
         />
       ))}
-      {(['roof', 'field'] as const).map((k) => (
-        <div key={k}>
-          {/* The space's photo from the CMS; until there is one, a marked placeholder. */}
-          <div className="absolute flex flex-col items-center justify-center gap-2 overflow-hidden rounded-photo bg-panel p-2.5 text-center text-on-dark-muted shadow-frame-dark" style={layout[k].box}>
-            {spaces[k].photo ? (
-              <Image src={spaces[k].photo.src} alt={spaces[k].photo.alt} fill sizes="(min-width: 760px) 320px, 60vw" className="object-cover" style={{ objectPosition: spaces[k].photo.position }} />
-            ) : (
-              <>
-                <Icon name="image" size={34} className="text-ink-faint" />
-                <span className="text-13 leading-[1.4]">{spaces[k].placeholder}</span>
-              </>
+      {(['roof', 'field'] as const).map((k) => {
+        const photo = spaces[k].photo;
+        return (
+          <div key={k}>
+            {/* The space's photo from the CMS; until there is one, its label stands in its place with a "photo soon" line. */}
+            {photo && (
+              <div className="absolute overflow-hidden rounded-photo bg-panel shadow-frame-dark" style={layout[k].box}>
+                <Image src={photo.src} alt={photo.alt} fill sizes="(min-width: 760px) 320px, 60vw" className="object-cover" style={{ objectPosition: photo.position }} />
+              </div>
             )}
+            <p className="absolute m-0 flex flex-col gap-0.5 leading-[1.3]" style={photo ? layout[k].tag : layout[k].bare}>
+              <strong className="text-[clamp(15px,1.5vw,18px)] font-bold">{spaces[k].title}</strong>
+              <span className="text-13 text-on-dark-muted">{spaces[k].sub}</span>
+              {!photo && <span className="text-13 text-bronze-light">{spaces[k].placeholder}</span>}
+            </p>
           </div>
-          <p className="absolute m-0 flex flex-col gap-0.5 leading-[1.3]" style={layout[k].tag}>
-            <strong className="text-[clamp(15px,1.5vw,18px)] font-bold">{spaces[k].title}</strong>
-            <span className="text-13 text-on-dark-muted">{spaces[k].sub}</span>
-          </p>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }

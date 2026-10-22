@@ -170,7 +170,7 @@ export const homePage = defineType({
       name: 'playSpaces',
       group: 'photos',
       title: 'Play spaces',
-      description: 'Shown beside the building photo in the campus section. Until a photo is added its frame shows a placeholder.',
+      description: 'Shown beside the building photo in the campus section. Until a photo is added, its name stands in its place with a line saying the photo is coming soon.',
       type: 'object',
       fields: [
         photo('roof', 'Girls: the rooftop garden', 'A landscape photo of the rooftop garden.'),
