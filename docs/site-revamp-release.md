@@ -60,3 +60,35 @@ Lighthouse on eight pages (phone and desktop) and a crawl of the sitemap and eve
   - The homepage's School data has the photo of the school's front, its place on the map, and the office hours from Site Settings (when written like "Sat - Thu: 8:00 AM - 5:00 PM").
 - **Still to do:**
   - Turn on Vercel Speed Insights (commented out in `src/app/[locale]/layout.tsx`) to see what parents' phones actually get.
+
+## 4. Audit of 2026-10-22 (after the photos and the gallery's albums)
+
+A local production build on `development`, after the new photos and the first 9 albums went in: a crawl of the sitemap and its links, then Lighthouse on eight pages (phone and desktop).
+
+- **Crawl:** the sitemap lists 40 pages, both languages of each, including the gallery and its 9 albums. Every page answers 200, with:
+  - a canonical link to itself
+  - hreflang for both languages plus x-default
+  - a title and a share picture
+  - exactly one h1
+  - `html lang` set
+
+  Pages switched off (Campus, Notices, Teachers) answer 404 and stay out of the sitemap. News and Programs redirect. The pre-admission steps are `noindex`.
+- **Structured data:**
+
+  | Page | Data |
+  |---|---|
+  | Homepage | School (address, map pin, office hours, phone, email, Facebook and YouTube) and FAQ |
+  | Admissions | FAQ |
+  | Each director | Person and breadcrumbs |
+  | Each album | Image gallery, with every photo's description, and breadcrumbs |
+- **Lighthouse:** SEO 100 on every page. Desktop performance 98 to 100. Phone 84 to 90, with LCP 3.6 to 4.5 s, the same as on 10-18. No layout shift.
+- **Fixed the same day (bc2f332):**
+  - Albums had the gallery's description. Each now describes itself.
+  - Album photos had empty alt text. They now carry their descriptions.
+  - Three descriptions were longer than a search result shows.
+  - The gallery's lead photo and the About portrait now ask for high priority.
+  - An album's first photos load at once, and its tiles are sized near their real width.
+- **Left as they are:**
+  - Lighthouse flags the homepage's outlined figure (sand fill with an ink outline) for contrast. Its checker cannot see the outline.
+  - The privacy and cookie pages are indexable but not in the sitemap.
+  - The Our campus and Quran class albums have short descriptions (57 to 69 characters). Text written in Studio → Gallery replaces them.
