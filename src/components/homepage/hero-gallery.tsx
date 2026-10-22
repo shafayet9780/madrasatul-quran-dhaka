@@ -9,11 +9,12 @@ export type HeroPhoto = { src: string; alt: string; position: string };
 
 const SPAN = ['row-span-2', '', ''];
 const SIZES = ['(min-width: 1024px) 34vw, 56vw', '(min-width: 1024px) 26vw, 44vw', '(min-width: 1024px) 26vw, 44vw'];
-const EVERY_MS = 3500;
+const EVERY_MS = 3000;
+const FIRST_MS = 1500; // the first turn after the page opens comes sooner
 
 /**
- * The hero photos: up to three tiles that take turns. Every 3.5 seconds one tile cross-fades to the next photo, the small
- * tiles first, so the first photo (the big tile) stays longest.
+ * The hero photos: up to three tiles that take turns. Every 3 seconds (the first time after 1.5) one tile cross-fades to
+ * the next photo, the small tiles first, so the first photo (the big tile) stays longest.
  * It pauses off-screen, on hover or focus, and with its pause button, and never moves under reduced motion.
  * The first photos load with the page; a later one loads when its turn comes and fades in once it has arrived.
  */
@@ -29,6 +30,7 @@ export function HeroGallery({ photos, label, pauseLabel }: { photos: HeroPhoto[]
   // The photos not on screen wait in a queue; a tile takes the first one and its old photo joins the back.
   const turn = useRef({
     tile: tiles > 1 ? 1 : 0,
+    turned: false,
     shown: Array.from({ length: tiles }, (_, i) => i),
     queue: Array.from({ length: Math.max(0, photos.length - tiles) }, (_, i) => tiles + i),
   });
@@ -49,15 +51,18 @@ export function HeroGallery({ photos, label, pauseLabel }: { photos: HeroPhoto[]
 
   useEffect(() => {
     if (!rotates || paused || hovered || offscreen) return;
-    const id = window.setInterval(() => {
+    const step = () => {
       const { tile, shown, queue } = turn.current;
       const incoming = queue.shift()!;
       queue.push(shown[tile]);
       shown[tile] = incoming;
       turn.current.tile = (tile + 1) % tiles;
+      turn.current.turned = true;
       setStacks((all) => all.map((stack, i) => (i === tile ? [stack[stack.length - 1], incoming] : stack)));
-    }, EVERY_MS);
-    return () => window.clearInterval(id);
+      id = window.setTimeout(step, EVERY_MS);
+    };
+    let id = window.setTimeout(step, turn.current.turned ? EVERY_MS : FIRST_MS);
+    return () => window.clearTimeout(id);
   }, [rotates, paused, hovered, offscreen, tiles]);
 
   const settle = (tile: number) => setStacks((all) => all.map((s, i) => (i === tile ? [s[s.length - 1]] : s)));
