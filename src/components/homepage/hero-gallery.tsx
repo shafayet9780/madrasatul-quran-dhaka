@@ -12,7 +12,8 @@ const SIZES = ['(min-width: 1024px) 34vw, 56vw', '(min-width: 1024px) 26vw, 44vw
 const EVERY_MS = 3500;
 
 /**
- * The hero photos: up to three tiles that take turns. Every five seconds one tile cross-fades to the next photo.
+ * The hero photos: up to three tiles that take turns. Every 3.5 seconds one tile cross-fades to the next photo, the small
+ * tiles first, so the first photo (the big tile) stays longest.
  * It pauses off-screen, on hover or focus, and with its pause button, and never moves under reduced motion.
  * The first photos load with the page; a later one loads when its turn comes and fades in once it has arrived.
  */
@@ -25,7 +26,12 @@ export function HeroGallery({ photos, label, pauseLabel }: { photos: HeroPhoto[]
   const [hovered, setHovered] = useState(false);
   const [offscreen, setOffscreen] = useState(false);
   const root = useRef<HTMLDivElement>(null);
-  const turn = useRef({ tile: 0, next: tiles });
+  // The photos not on screen wait in a queue; a tile takes the first one and its old photo joins the back.
+  const turn = useRef({
+    tile: tiles > 1 ? 1 : 0,
+    shown: Array.from({ length: tiles }, (_, i) => i),
+    queue: Array.from({ length: Math.max(0, photos.length - tiles) }, (_, i) => tiles + i),
+  });
   const rotates = photos.length > tiles && !reduced;
 
   useEffect(() => {
@@ -44,12 +50,15 @@ export function HeroGallery({ photos, label, pauseLabel }: { photos: HeroPhoto[]
   useEffect(() => {
     if (!rotates || paused || hovered || offscreen) return;
     const id = window.setInterval(() => {
-      const { tile, next } = turn.current;
-      turn.current = { tile: (tile + 1) % tiles, next: next + 1 };
-      setStacks((all) => all.map((stack, i) => (i === tile ? [stack[stack.length - 1], next % photos.length] : stack)));
+      const { tile, shown, queue } = turn.current;
+      const incoming = queue.shift()!;
+      queue.push(shown[tile]);
+      shown[tile] = incoming;
+      turn.current.tile = (tile + 1) % tiles;
+      setStacks((all) => all.map((stack, i) => (i === tile ? [stack[stack.length - 1], incoming] : stack)));
     }, EVERY_MS);
     return () => window.clearInterval(id);
-  }, [rotates, paused, hovered, offscreen, photos.length, tiles]);
+  }, [rotates, paused, hovered, offscreen, tiles]);
 
   const settle = (tile: number) => setStacks((all) => all.map((s, i) => (i === tile ? [s[s.length - 1]] : s)));
 
