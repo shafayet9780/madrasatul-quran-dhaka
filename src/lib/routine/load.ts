@@ -1,7 +1,7 @@
 import { minutesOf } from './days';
-import type { Assignment, Period, Teacher } from './types';
+import type { Assignment, Teacher } from './types';
 
-// Weekly load (docs/class-routine.md §4): every slot is one period whatever its length; a TA period
+// Weekly load (docs/class-routine.md §4): every lesson is one period whatever its length; a TA period
 // counts half towards the status. Under < 80 % of the target, over > 100 %.
 
 export const UNDER = 0.8;
@@ -32,15 +32,14 @@ export function loadStatus(weighted: number, target: number | null): { percent: 
 }
 
 /** Load of every teacher in the list (a teacher with no assignments has zeros). */
-export function teacherLoads(teachers: Pick<Teacher, 'id' | 'targetPeriods'>[], assignments: Assignment[], periods: Period[]): Map<string, Load> {
-  const minutes = new Map(periods.map((p) => [p.id, minutesOf(p)]));
+export function teacherLoads(teachers: Pick<Teacher, 'id' | 'targetPeriods'>[], assignments: Assignment[]): Map<string, Load> {
   const loads = new Map<string, Load>();
   for (const t of teachers) {
     loads.set(t.id, { main: 0, ta: 0, weighted: 0, target: t.targetPeriods, percent: null, status: 'none', minutesMain: 0, minutesTa: 0, perDay: [0, 0, 0, 0, 0, 0] });
   }
   for (const a of assignments) {
     const days = new Set(a.days);
-    const length = minutes.get(a.periodId) ?? 0;
+    const length = minutesOf(a);
     for (const [id, role] of [[a.teacherId, 'main'], [a.taId, 'ta']] as const) {
       const load = id ? loads.get(id) : undefined;
       if (!load) continue;

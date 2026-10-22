@@ -1,98 +1,145 @@
 import 'server-only';
 import { sql } from 'drizzle-orm';
-import { createRoutine, activateRoutine, listGroups, listSubjects, listTeachers, routineData, pickRoutine, saveAbsence, saveAssignment, saveGroup, savePeriod, saveRoom, saveSubject, saveTeacher, type TeacherInput } from '../data';
+import { activateRoutine, createRoutine, listGroups, listSubjects, listTeachers, listTypes, saveAbsence, saveAssignment, saveGroup, saveRoom, saveSubject, saveTeacher, type TeacherInput } from '../data';
 import { dayOfDate, dhakaToday } from '../days';
 import { getRoutineDb } from '../db';
 
 /**
  * A sample routine for the local preview (ADMISSIONS_LOCAL=1), shaped like the school's sheet:
- * class sections, Quran and Arabic level groups, a shared hall, day-split cells, a TA, a vacancy
- * and one teacher away today. Names are made up. Replaces every routine row it finds.
+ * Hifz and Najera groups in their own rooms, classes, Quran and Arabic groups seated in the classes'
+ * rooms (one moved to 11:00), a class on its own times (Six (F)), day-split cells, TAs, a vacancy and
+ * one teacher away today. Names are made up. Replaces every routine row it finds (the class types
+ * the migration seeded stay).
  */
 
-const SUBJECTS = ['Bangla', 'English', 'Math', 'Science', 'Islam', 'Arabic', 'Quran', 'Hifz', 'Arts'];
-const ROOMS: [string, boolean][] = [['201', false], ['202', false], ['203', false], ['402', false], ['403', false], ['501', false], ['502', false], ['Hall', true]];
+// type name (as seeded) → subjects
+const SUBJECTS: Record<string, string[]> = {
+  জেনারেল: ['Bangla', 'English', 'Math', 'Science', 'Islam'],
+  হিফয: ['Hifz'],
+  নাজেরা: ['Najera'],
+  কুরআন: ['Qaida', 'Ammapara'],
+  আরবি: ['RA-1', 'RA-2', 'BA-1', 'Islam'],
+};
 
-// name, section, room, gender rule, kind, band
-const GROUPS: [string, string, string | null, 'any' | 'male' | 'female', 'section' | 'level', string?][] = [
-  ['Nursery-A', 'জেনারেল', '402', 'any', 'section'],
-  ['Nursery-B', 'জেনারেল', '403', 'any', 'section'],
-  ['KG-A', 'জেনারেল', '201', 'any', 'section'],
-  ['One-A', 'জেনারেল', '501', 'any', 'section'],
-  ['Two (M)', 'জেনারেল', '203', 'male', 'section'],
-  ['Two (F)', 'জেনারেল', '502', 'female', 'section'],
-  ['Five (M)', 'জেনারেল', 'Hall', 'male', 'section'],
-  ['Five (F)', 'জেনারেল', 'Hall', 'female', 'section'],
-  ['Qaida-A', 'কুরআন', '402', 'any', 'level'],
-  ['Qaida-B', 'কুরআন', '403', 'any', 'level'],
-  ['Ammapara-1', 'কুরআন', '201', 'any', 'level'],
-  ['Hifz (M)', 'হিফয', '203', 'male', 'level'],
-  ['Hifz (F)', 'হিফয', '502', 'female', 'level'],
-  ['L-1 A', 'আরবি', '402', 'any', 'level', 'LEVEL-1'],
-  ['L-1 B', 'আরবি', '201', 'any', 'level', 'LEVEL-1'],
-  ['L-2', 'আরবি', '501', 'any', 'level', 'LEVEL-2'],
+// name, type, room (classes and own-room groups), gender rule
+const GROUPS: [string, string, string | null, 'any' | 'male' | 'female'][] = [
+  ['Hifz-1 (M)', 'হিফয', '301', 'male'],
+  ['Hifz-2 (M)', 'হিফয', '302', 'male'],
+  ['Hifz-1 (F)', 'হিফয', '601', 'female'],
+  ['Hifz-2 (F)', 'হিফয', '602', 'female'],
+  ['Najera-1 (M)', 'নাজেরা', '303', 'male'],
+  ['Najera-2 (M)', 'নাজেরা', '304', 'male'],
+  ['Najera-1 (F)', 'নাজেরা', '603', 'female'],
+  ['Najera-2 (F)', 'নাজেরা', '604', 'female'],
+  ['Nursery-A', 'জেনারেল', '402', 'any'],
+  ['Nursery-B', 'জেনারেল', '404', 'any'],
+  ['KG-A', 'জেনারেল', '201', 'any'],
+  ['KG-B', 'জেনারেল', '202', 'any'],
+  ['One-A', 'জেনারেল', '501', 'any'],
+  ['Two (M)', 'জেনারেল', '204', 'any'],
+  ['Two (F)', 'জেনারেল', '502', 'any'],
+  ['Three (M)', 'জেনারেল', '203', 'any'],
+  ['Six (F)', 'জেনারেল', '503', 'any'],
+  ['Qaida-A', 'কুরআন', null, 'any'],
+  ['Qaida-B', 'কুরআন', null, 'any'],
+  ['Qaida-C', 'কুরআন', null, 'any'],
+  ['Qaida-D', 'কুরআন', null, 'any'],
+  ['Ammapara-1', 'কুরআন', null, 'any'],
+  ['Ammapara-2', 'কুরআন', null, 'any'],
+  ['Ammapara-3', 'কুরআন', null, 'any'],
+  ['L-1 A', 'আরবি', null, 'any'],
+  ['L-1 B', 'আরবি', null, 'any'],
+  ['L-2 A', 'আরবি', null, 'any'],
+  ['L-2 B', 'আরবি', null, 'any'],
+  ['L-3', 'আরবি', null, 'any'],
 ];
 
-// short name, full name, gender, subjects, target, salary, vacancy
+// short name, full name, gender, subjects (by name, in every type that has them), target, salary, vacancy
 const TEACHERS: [string, string, 'male' | 'female', string[], number | null, number | null, boolean?][] = [
   ['Amina', 'আমিনা খাতুন', 'female', ['English', 'Math'], 18, 20000],
-  ['Bilal', 'হাফেজ বিলাল হোসেন', 'male', ['Quran', 'Arabic', 'Hifz'], 16, 25000],
-  ['Farzana', 'ফারজানা ইসলাম', 'female', ['Bangla', 'Islam'], 18, 18000],
-  ['Hasan', 'মাওলানা হাসান আলী', 'male', ['Quran', 'Arabic', 'Islam'], 16, 22000],
-  ['Jamila', 'জামিলা আক্তার', 'female', ['Math', 'Science'], 18, 20000],
-  ['Kamal', 'কামাল উদ্দিন', 'male', ['English', 'Bangla'], 18, 20000],
-  ['Lubna', 'লুবনা রহমান', 'female', ['Quran', 'Islam'], 14, 15000],
-  ['Maryam', 'মারইয়াম সুলতানা', 'female', ['Arabic', 'Bangla'], 16, 18000],
-  ['Nadia', 'নাদিয়া হক', 'female', ['English', 'Arts'], 14, 15000],
-  ['Omar', 'হাফেজ ওমর ফারুক', 'male', ['Hifz', 'Quran'], 12, 30000],
-  ['Sadia', 'হাফেজা সাদিয়া', 'female', ['Hifz', 'Quran'], 12, 20000],
+  ['Bilal', 'হাফেজ বিলাল হোসেন', 'male', ['Ammapara', 'RA-2', 'Islam'], 24, 25000],
+  ['Farzana', 'ফারজানা ইসলাম', 'female', ['Bangla', 'Islam', 'Ammapara'], 24, 18000],
+  ['Hasan', 'মাওলানা হাসান আলী', 'male', ['Qaida', 'RA-1', 'Islam'], 22, 22000],
+  ['Jamila', 'জামিলা আক্তার', 'female', ['Math', 'Science'], 24, 20000],
+  ['Kamal', 'কামাল উদ্দিন', 'male', ['English', 'Bangla', 'RA-2'], 28, 20000],
+  ['Lubna', 'লুবনা রহমান', 'female', ['Qaida', 'Islam'], 18, 15000],
+  ['Maryam', 'মারইয়াম সুলতানা', 'female', ['Qaida', 'RA-1', 'Bangla'], 30, 18000],
+  ['Nadia', 'নাদিয়া হক', 'female', ['English', 'Math', 'BA-1'], 24, 15000],
+  ['Omar', 'হাফেজ ওমর ফারুক', 'male', ['Hifz'], 18, 30000],
+  ['Rafiq', 'হাফেজ রফিকুল ইসলাম', 'male', ['Hifz', 'Najera'], 12, 22000],
+  ['Tariq', 'হাফেজ তারিক হাসান', 'male', ['Hifz'], 18, 24000],
+  ['Yusuf', 'ইউসুফ আলী', 'male', ['Najera'], 18, 18000],
+  ['Zaid', 'যায়েদ হোসেন', 'male', ['Najera'], 18, 18000],
+  ['Sadia', 'হাফেজা সাদিয়া', 'female', ['Hifz'], 18, 20000],
+  ['Hafsa', 'হাফেজা হাফসা', 'female', ['Hifz', 'Najera'], 12, 18000],
+  ['Ruqayya', 'হাফেজা রুকাইয়া', 'female', ['Hifz'], 18, 20000],
+  ['Sumaiya', 'সুমাইয়া আক্তার', 'female', ['Najera'], 18, 16000],
+  ['Zainab', 'যয়নব বেগম', 'female', ['Najera'], 18, 16000],
   ['Science-1', 'বিজ্ঞান শিক্ষক (নিয়োগ বাকি)', 'male', ['Science', 'Math'], 18, null, true],
 ];
 
-// group, period index, days, subject, teacher, TA
 const ALL = [0, 1, 2, 3, 4, 5];
-const ASSIGN: [string, number, number[], string, string, string?][] = [
-  ['Hifz (M)', 0, ALL, 'Hifz', 'Omar', 'Bilal'],
-  ['Hifz (F)', 0, ALL, 'Hifz', 'Sadia'],
-  ['Hifz (M)', 1, ALL, 'Hifz', 'Omar'],
-  ['Hifz (F)', 1, ALL, 'Hifz', 'Sadia'],
-  ['Qaida-A', 2, ALL, 'Quran', 'Lubna'],
-  ['Qaida-B', 2, ALL, 'Quran', 'Hasan'],
-  ['Ammapara-1', 2, ALL, 'Quran', 'Bilal'],
-  ['L-1 A', 3, [1, 2, 3], 'Arabic', 'Maryam'],
-  ['L-1 A', 3, [4, 5], 'Islam', 'Lubna'],
-  ['L-1 B', 3, ALL, 'Arabic', 'Hasan'],
-  ['L-2', 3, ALL, 'Arabic', 'Bilal'],
-  ['Nursery-A', 4, ALL, 'Math', 'Jamila'],
-  ['Nursery-A', 5, ALL, 'English', 'Amina'],
-  ['Nursery-A', 6, ALL, 'Bangla', 'Farzana'],
-  ['Nursery-B', 4, ALL, 'Bangla', 'Kamal'],
-  ['Nursery-B', 5, ALL, 'Math', 'Science-1'],
-  ['KG-A', 4, ALL, 'English', 'Nadia'],
-  ['KG-A', 5, ALL, 'Bangla', 'Maryam'],
-  ['One-A', 4, [0, 1, 2], 'Islam', 'Farzana'],
-  ['One-A', 4, [3, 4, 5], 'Science', 'Science-1'],
-  ['One-A', 5, ALL, 'English', 'Kamal'],
-  ['Two (M)', 5, ALL, 'Islam', 'Hasan'],
-  ['Two (M)', 6, ALL, 'Math', 'Science-1'],
-  ['Two (F)', 4, ALL, 'English', 'Amina', 'Maryam'],
-  ['Two (F)', 6, ALL, 'Islam', 'Lubna'],
-  ['Five (M)', 6, ALL, 'English', 'Kamal'],
-  ['Five (F)', 5, ALL, 'Science', 'Jamila'],
-  ['Hifz (M)', 7, [0, 1, 2, 3, 4], 'Hifz', 'Omar'],
-  ['Hifz (F)', 7, [0, 1, 2, 3, 4], 'Hifz', 'Sadia'],
+const SAT_WED = [0, 1, 2, 3, 4];
+// group, host class (seated groups), start, end, days, subject, teacher, TA
+type Row = [string, string | null, number, number, number[], string, string, string?];
+const HIFZ: [string, string, string, string?][] = [
+  ['Hifz-1 (M)', 'Hifz', 'Omar', 'Rafiq'],
+  ['Hifz-2 (M)', 'Hifz', 'Tariq'],
+  ['Najera-1 (M)', 'Najera', 'Zaid'],
+  ['Najera-2 (M)', 'Najera', 'Yusuf'],
+  ['Hifz-1 (F)', 'Hifz', 'Sadia', 'Hafsa'],
+  ['Hifz-2 (F)', 'Hifz', 'Ruqayya'],
+  ['Najera-1 (F)', 'Najera', 'Sumaiya'],
+  ['Najera-2 (F)', 'Najera', 'Zainab'],
 ];
-
-// start, end (minutes), label
-const PERIODS: [number, number, string][] = [
-  [420, 495, 'হিফয'],
-  [495, 540, 'হিফয'],
-  [540, 585, 'কুরআন'],
-  [600, 645, 'আরবি'],
-  [645, 690, ''],
-  [690, 735, ''],
-  [735, 780, ''],
-  [900, 1200, 'হিফয (বিকেল)'],
+const LESSONS: Row[] = [
+  // Morning Hifz with a breakfast break, and the afternoon.
+  ...HIFZ.flatMap(([g, s, t, ta]): Row[] => [
+    [g, null, 420, 495, ALL, s, t, ta],
+    [g, null, 510, 570, ALL, s, t, ta],
+    [g, null, 900, 1200, SAT_WED, s, t, ta],
+  ]),
+  ['Qaida-A', 'Nursery-A', 540, 585, ALL, 'Qaida', 'Lubna'],
+  ['Qaida-B', 'Nursery-B', 540, 585, ALL, 'Qaida', 'Hasan'],
+  ['Qaida-C', 'KG-A', 540, 585, ALL, 'Qaida', 'Maryam'],
+  ['Ammapara-1', 'KG-B', 540, 585, ALL, 'Ammapara', 'Bilal'],
+  ['Ammapara-2', 'One-A', 540, 585, ALL, 'Ammapara', 'Farzana'],
+  // A Quran group moved into a general time.
+  ['Qaida-D', 'Three (M)', 660, 705, ALL, 'Qaida', 'Lubna'],
+  ['L-1 A', 'Nursery-A', 600, 645, [0, 1, 2, 3], 'RA-1', 'Hasan'],
+  ['L-1 A', 'Nursery-A', 600, 645, [4, 5], 'Islam', 'Lubna'],
+  ['L-1 B', 'Nursery-B', 600, 645, ALL, 'RA-1', 'Maryam'],
+  ['L-2 A', 'KG-A', 600, 645, ALL, 'RA-2', 'Bilal'],
+  ['L-2 B', 'KG-B', 600, 645, ALL, 'RA-2', 'Kamal'],
+  ['L-3', 'One-A', 600, 645, ALL, 'BA-1', 'Nadia'],
+  ['Nursery-A', null, 645, 690, ALL, 'Math', 'Jamila'],
+  ['Nursery-A', null, 690, 735, ALL, 'English', 'Amina'],
+  ['Nursery-A', null, 735, 780, ALL, 'Bangla', 'Farzana'],
+  ['Nursery-B', null, 645, 690, ALL, 'Bangla', 'Kamal'],
+  ['Nursery-B', null, 690, 735, ALL, 'Math', 'Jamila'],
+  ['Nursery-B', null, 735, 780, ALL, 'English', 'Amina'],
+  ['KG-A', null, 645, 690, ALL, 'English', 'Nadia'],
+  ['KG-A', null, 690, 735, ALL, 'Bangla', 'Maryam'],
+  ['KG-A', null, 735, 780, ALL, 'Math', 'Jamila'],
+  ['KG-B', null, 645, 690, ALL, 'Math', 'Science-1'],
+  ['KG-B', null, 690, 735, ALL, 'English', 'Kamal'],
+  ['KG-B', null, 735, 780, ALL, 'Bangla', 'Maryam'],
+  ['One-A', null, 645, 690, ALL, 'English', 'Amina'],
+  ['One-A', null, 690, 735, ALL, 'Bangla', 'Farzana'],
+  ['One-A', null, 735, 780, ALL, 'Math', 'Science-1'],
+  ['Two (M)', null, 645, 690, ALL, 'Islam', 'Hasan'],
+  ['Two (M)', null, 690, 735, ALL, 'Math', 'Nadia'],
+  ['Two (M)', null, 735, 780, ALL, 'English', 'Kamal'],
+  ['Two (F)', null, 645, 690, ALL, 'Bangla', 'Maryam'],
+  ['Two (F)', null, 690, 735, ALL, 'Islam', 'Hasan'],
+  ['Two (F)', null, 735, 780, ALL, 'Math', 'Nadia', 'Lubna'],
+  // A general lesson in the old Arabic time.
+  ['Three (M)', null, 600, 645, ALL, 'Math', 'Jamila'],
+  ['Three (M)', null, 735, 780, ALL, 'Islam', 'Bilal'],
+  // A class on its own times.
+  ['Six (F)', null, 420, 480, ALL, 'Bangla', 'Farzana'],
+  ['Six (F)', null, 540, 600, ALL, 'English', 'Kamal'],
+  ['Six (F)', null, 690, 735, ALL, 'Science', 'Science-1'],
 ];
 
 const must = <T extends { ok: boolean }>(what: string, r: T) => {
@@ -103,13 +150,16 @@ const must = <T extends { ok: boolean }>(what: string, r: T) => {
 export async function loadRoutineFixtures(): Promise<string> {
   const db = getRoutineDb();
   await db.execute(sql`TRUNCATE routine_routines, routine_subjects, routine_rooms, routine_groups, routine_teachers, routine_absences, routine_proxies CASCADE`);
-  for (const [i, name] of SUBJECTS.entries()) must(name, await saveSubject({ name, sort: i * 10, active: true }));
-  const rooms = new Map<string, string>();
-  for (const [name, shared] of ROOMS) rooms.set(name, must(name, await saveRoom({ name, shared })).id);
-  for (const [i, [name, section, room, genderRule, kind, band = '']] of GROUPS.entries()) {
-    must(name, await saveGroup({ name, section, kind, band, sort: i * 10, defaultRoomId: room ? rooms.get(room)! : null, genderRule, active: true }));
+  const types = new Map((await listTypes()).map((t) => [t.name, t.id]));
+  for (const [type, names] of Object.entries(SUBJECTS)) {
+    for (const [i, name] of names.entries()) must(name, await saveSubject({ typeId: types.get(type)!, name, sort: i * 10, active: true }));
   }
-  const subjects = new Map((await listSubjects()).map((s) => [s.name, s.id]));
+  for (const name of new Set(GROUPS.flatMap(([, , room]) => (room ? [room] : [])))) must(name, await saveRoom({ name }));
+  const rooms = new Map((await db.execute<{ id: string; name: string }>(sql`select id, name from routine_rooms`)).rows.map((r) => [r.name, r.id]));
+  for (const [i, [name, type, room, genderRule]] of GROUPS.entries()) {
+    must(name, await saveGroup({ name, typeId: types.get(type)!, sort: i * 10, defaultRoomId: room ? rooms.get(room)! : null, genderRule, active: true }));
+  }
+  const subjects = await listSubjects();
   for (const [shortName, fullName, gender, subs, targetPeriods, salary, isVacancy] of TEACHERS) {
     const input: TeacherInput = {
       fullName,
@@ -126,24 +176,24 @@ export async function loadRoutineFixtures(): Promise<string> {
       erpId: null,
       isVacancy: !!isVacancy,
       active: true,
-      subjectIds: subs.map((s) => subjects.get(s)!),
+      subjectIds: subjects.filter((s) => subs.includes(s.name)).map((s) => s.id),
     };
     must(shortName, await saveTeacher(input));
   }
   const routineId = must('routine', await createRoutine('২০২৭')).id;
-  for (const [startsAt, endsAt, label] of PERIODS) must(label, await savePeriod(routineId, { label, startsAt, endsAt }));
   must('activate', await activateRoutine(routineId));
-  const data = await routineData((await pickRoutine(routineId))!);
-  const groups = new Map((await listGroups()).map((g) => [g.name, g.id]));
+  const groups = new Map((await listGroups()).map((g) => [g.name, g]));
   const teachers = new Map((await listTeachers()).map((t) => [t.shortName, t.id]));
-  for (const [group, period, days, subject, teacher, ta] of ASSIGN) {
-    must(`${group} ${period}`, await saveAssignment(
+  for (const [group, host, startsAt, endsAt, days, subject, teacher, ta] of LESSONS) {
+    const g = groups.get(group)!;
+    const subjectId = subjects.find((s) => s.typeId === g.typeId && s.name === subject)!.id;
+    must(`${group} ${startsAt}`, await saveAssignment(
       routineId,
-      { groupId: groups.get(group)!, periodId: data.periods[period].id, days, subjectId: subjects.get(subject)!, teacherId: teachers.get(teacher)!, taId: ta ? teachers.get(ta)! : null, roomId: null, note: '' },
+      { groupId: g.id, hostGroupId: host ? groups.get(host)!.id : null, startsAt, endsAt, days, subjectId, teacherId: teachers.get(teacher)!, taId: ta ? teachers.get(ta)! : null },
       true,
     ));
   }
   const today = dhakaToday();
   if (dayOfDate(today) !== null) must('absence', await saveAbsence(today, teachers.get('Jamila')!, null, 'ছুটি'));
-  return `sample routine loaded (${ASSIGN.length} classes, ${TEACHERS.length} teachers).`;
+  return `sample routine loaded (${LESSONS.length} classes, ${TEACHERS.length} teachers).`;
 }

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { dayRecords, listRoutines, pickRoutine, routineData } from '@/lib/routine/data';
-import { dayOfDate, dhakaToday } from '@/lib/routine/days';
+import { dayOfDate, distinctTimes, dhakaToday } from '@/lib/routine/days';
+import { toBengaliDigits as bn } from '@/lib/survey/normalise';
 import { PageTop } from '../AdminShell';
 import { PageBody, PageTitle } from '../ui';
 import { RoutinePicker } from './controls';
@@ -18,31 +19,25 @@ export default async function RoutinePage({ searchParams }: { searchParams: Prom
   // Today's absences and proxies show in the active routine when today is on screen.
   const [data, records] = await Promise.all([routine ? routineData(routine) : null, routine?.status === 'active' && weekday !== null ? dayRecords(date) : null]);
   const today = records && weekday !== null ? { day: weekday, ...records } : null;
+  const classes = data ? data.groups.filter((g) => g.active && data.types.find((t) => t.id === g.typeId)?.placement === 'class').length : 0;
   return (
     <>
       <PageTop crumbs={[{ label: 'রুটিন' }]} round={false} />
-      <PageBody className="rt-a3">
-        <div className="flex flex-wrap items-end justify-between gap-3">
-          <PageTitle
-            sub={
-              data && (
-                <>
-                  {routineSub(data.routine)}
-                  <span className="sv-no-print"> · যেকোনো ঘরে চাপ দিয়ে ক্লাস যোগ করুন বা বদলান</span>
-                </>
-              )
-            }
-          >
-            ক্লাস রুটিন
-          </PageTitle>
-          {data && <RoutinePicker routines={routines} current={data.routine.id} />}
-        </div>
+      <PageBody className="rt-print">
+        <p className="sv-print-only m-0 text-lg font-bold">মাদরাসাতুল কুরআন, ঢাকা · ক্লাস রুটিন {data?.routine.name}</p>
         {!data ? (
           <NoRoutine />
-        ) : !data.periods.length || !data.groups.length ? (
-          <NoRoutine>এই রুটিনে এখনো {data.periods.length ? 'কোনো গ্রুপ' : 'কোনো পিরিয়ড'} নেই।</NoRoutine>
         ) : (
-          <RoutineGrid data={data} today={today} />
+          <RoutineGrid
+            data={data}
+            today={today}
+            title={
+              <PageTitle key="title" sub={routineSub(data.routine, `${bn(classes)}টা ক্লাস · ${bn(data.groups.filter((g) => g.active).length - classes)}টা গ্রুপ · ${bn(distinctTimes(data.assignments).length)}টা সময়`)}>
+                ক্লাস রুটিন
+              </PageTitle>
+            }
+            picker={<RoutinePicker key="picker" routines={routines} current={data.routine.id} />}
+          />
         )}
       </PageBody>
     </>

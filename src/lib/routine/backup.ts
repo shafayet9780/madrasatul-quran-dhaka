@@ -4,8 +4,8 @@ import { getRoutineDb } from './db';
 import {
   routineAbsences,
   routineAssignments,
+  routineClassTypes,
   routineGroups,
-  routinePeriods,
   routineProxies,
   routineRooms,
   routineRoutines,
@@ -23,14 +23,14 @@ export async function backupRoutineTables(now = new Date()) {
   const token = process.env.PG_BACKUP_BLOB_READ_WRITE_TOKEN;
   if (!token) return { skipped: 'PG_BACKUP_BLOB_READ_WRITE_TOKEN is not set (private Blob store)' as const };
   const db = getRoutineDb();
-  const [subjects, rooms, teachers, teacherSubjects, groups, routines, periods, assignments, slots, absences, proxies] = await Promise.all([
+  const [types, subjects, rooms, teachers, teacherSubjects, groups, routines, assignments, slots, absences, proxies] = await Promise.all([
+    db.select().from(routineClassTypes),
     db.select().from(routineSubjects),
     db.select().from(routineRooms),
     db.select().from(routineTeachers),
     db.select().from(routineTeacherSubjects),
     db.select().from(routineGroups),
     db.select().from(routineRoutines),
-    db.select().from(routinePeriods),
     db.select().from(routineAssignments),
     db.select().from(routineSlots),
     db.select().from(routineAbsences),
@@ -39,13 +39,13 @@ export async function backupRoutineTables(now = new Date()) {
   return saveDailyBackup(
     'routine-backups/',
     {
+      routine_class_types: types,
       routine_subjects: subjects,
       routine_rooms: rooms,
       routine_teachers: teachers,
       routine_teacher_subjects: teacherSubjects,
       routine_groups: groups,
       routine_routines: routines,
-      routine_periods: periods,
       routine_assignments: assignments,
       routine_slots: slots,
       routine_absences: absences,

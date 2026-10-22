@@ -1,4 +1,5 @@
 import { PGlite } from '@electric-sql/pglite';
+import { btree_gist } from '@electric-sql/pglite/contrib/btree_gist';
 import { drizzle } from 'drizzle-orm/pglite';
 import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
@@ -14,7 +15,8 @@ import { setAdmissionsDbForTests, type AdmissionsDb } from '../db';
 const MIGRATIONS = join(process.cwd(), 'drizzle');
 
 export async function createPgliteDb(): Promise<{ db: AdmissionsDb; client: PGlite }> {
-  const client = new PGlite();
+  // btree_gist: the class routine's overlap guards (exclusion constraints).
+  const client = new PGlite({ extensions: { btree_gist } });
   for (const file of readdirSync(MIGRATIONS).filter((f) => f.endsWith('.sql')).sort()) {
     for (const stmt of readFileSync(join(MIGRATIONS, file), 'utf8').split('--> statement-breakpoint')) {
       if (stmt.trim()) await client.exec(stmt);
