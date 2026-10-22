@@ -30,10 +30,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const [settings, raw] = await Promise.all([content.getSiteSettings(), content.getAlbum(slug)]);
   const album = raw && isSectionVisible('gallery', settings?.navigationVisibility) ? albumIn(raw, locale) : null;
   if (!album) return {};
-  const { t } = await galleryWords(locale);
+  const { t, meta } = await galleryWords(locale);
   return pageMetadata({
     title: t('album.meta', { title: album.title }),
-    description: album.summary || t('meta.description'),
+    description: album.summary || t('album.description', { title: album.title, details: meta(album).join(', ') }),
     locale,
     path: `/gallery/${album.slug}`,
     share: shareImage(raw, album),

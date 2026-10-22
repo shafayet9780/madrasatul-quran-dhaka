@@ -48,7 +48,7 @@ export async function GalleryHero({ locale, latest, social, meta }: { locale: Lo
               {photos.map((p, i) => (
                 <div key={p.key} className={cn('relative overflow-hidden rounded-photo bg-sand-pale', i === 0 && 'shadow-photo', i === 0 && photos.length > 2 && 'col-span-2 sm:col-span-1 sm:row-span-2')}>
                   {i === 0 && <span className="absolute left-3.5 top-3.5 z-[2] inline-flex h-[30px] items-center rounded-full bg-dark px-3 text-13 font-strong text-cream">{t('latest')}</span>}
-                  <Image src={p.src} alt={i === 0 ? p.alt : ''} fill priority={i === 0} sizes={i === 0 ? '(min-width: 1024px) 460px, 100vw' : '(min-width: 1024px) 230px, 50vw'} className="object-cover" style={{ objectPosition: p.position }} />
+                  <Image src={p.src} alt={i === 0 ? p.alt : ''} fill priority={i === 0} fetchPriority={i === 0 ? 'high' : undefined} sizes={i === 0 ? '(min-width: 1024px) 460px, 100vw' : '(min-width: 1024px) 230px, 50vw'} className="object-cover" style={{ objectPosition: p.position }} />
                 </div>
               ))}
             </div>

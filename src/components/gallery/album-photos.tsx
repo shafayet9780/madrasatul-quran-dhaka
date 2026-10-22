@@ -106,7 +106,7 @@ export function AlbumPhotos({
               style={{ '--r': item.photo.ratio } as CSSProperties}
               className="group relative aspect-[var(--r)] grow-[var(--r)] basis-[calc(var(--r)*150px)] overflow-hidden rounded-[10px] bg-sand-pale p-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink sm:basis-[calc(var(--r)*290px)] sm:rounded-[12px]"
             >
-              <Image src={item.photo.src} alt="" fill sizes="(min-width: 640px) 50vw, 100vw" className="object-cover motion-safe:transition-transform motion-safe:duration-500 group-hover:scale-[1.03]" style={{ objectPosition: item.photo.position }} />
+              <Image src={item.photo.src} alt={item.photo.alt} fill sizes="(min-width: 640px) 420px, 60vw" loading={item.i < 4 ? 'eager' : undefined} fetchPriority={item.i === 0 ? 'high' : undefined} className="object-cover motion-safe:transition-transform motion-safe:duration-500 group-hover:scale-[1.03]" style={{ objectPosition: item.photo.position }} />
               <span aria-hidden="true" className="absolute right-2.5 top-2.5 hidden size-10 items-center justify-center rounded-full bg-surface/95 text-ink group-hover:flex group-focus-visible:flex">
                 <Icon name="arrows-out-simple" size={16} />
               </span>

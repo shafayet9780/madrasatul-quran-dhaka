@@ -31,9 +31,10 @@ export function PersonBand({
           <div className="relative aspect-[4/5] min-w-0 max-w-[420px] flex-[1_1_280px] overflow-hidden rounded-card shadow-frame-dark">
             <Image
               src={urlFor(photo).width(840).height(1050).fit('crop').url()}
-              alt=""
+              alt={name}
               fill
               priority={priority}
+              fetchPriority={priority ? 'high' : undefined}
               sizes="(min-width: 900px) 420px, 100vw"
               className="object-cover"
             />

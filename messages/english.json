@@ -36,7 +36,7 @@
   "home": {
     "meta": {
       "title": "Madrasatul Quran, Uttara | Islamic and general education",
-      "description": "At Madrasatul Quran in Uttara, Dhaka, Islamic and general education are given equal weight in one ten-year plan. Day-care hifz with general study alongside. Nursery to Class 11."
+      "description": "Madrasatul Quran in Uttara, Dhaka gives Islamic and general education equal weight in one ten-year plan, with day-care hifz. Nursery to Class 11."
     },
     "hero": {
       "name": "Madrasatul Quran",
@@ -420,7 +420,7 @@
   "curriculum": {
     "meta": {
       "title": "Curriculum | Madrasatul Quran",
-      "description": "Bangla-medium NCTB (Dakhil) curriculum with our own Islamic studies curriculum: the 50-50 model, three stages, the ten-year study plan, books by class and higher education after Dakhil. Madrasatul Quran, Uttara, Dhaka."
+      "description": "Bangla-medium NCTB (Dakhil) curriculum with our own Islamic studies: the 50-50 model, three stages, books by class and the path after Dakhil."
     },
     "hero": {
       "title": "Curriculum",
@@ -1082,6 +1082,7 @@
     },
     "album": {
       "meta": "{title}: photos and videos | Madrasatul Quran",
+      "description": "{title} at Madrasatul Quran, Uttara, Dhaka: {details}.",
       "crumbs": "You are here",
       "share": "Send on WhatsApp",
       "copy": "Copy the link",
