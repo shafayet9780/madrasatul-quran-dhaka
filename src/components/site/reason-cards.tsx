@@ -26,8 +26,8 @@ const REASONS: { look: keyof typeof LOOK; photo?: FixedPhoto; icon?: IconName; g
   { look: 'light', icon: 'book-open-text' },
   { look: 'light', icon: 'signpost' },
   { look: 'dark', goal: true },
-  { look: 'light', photo: 'whyTeachers' },
   { look: 'sand', icon: 'scroll' },
+  { look: 'light', photo: 'whyTeachers' },
 ];
 
 type Reason = { title: string; text: string; figure?: string; alt?: string };

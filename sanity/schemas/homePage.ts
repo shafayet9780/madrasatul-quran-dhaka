@@ -163,7 +163,7 @@ export const homePage = defineType({
         photo('classroom', 'A classroom (campus section)'),
         photo('van', 'The school van (the day)'),
         photo('whyBooks', 'Books (first “why us” card)'),
-        photo('whyTeachers', 'Teachers (seventh “why us” card)'),
+        photo('whyTeachers', 'Ethics and adab (last “why us” card)'),
       ],
     }),
     defineField({

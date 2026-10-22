@@ -9,7 +9,7 @@ export type HeroPhoto = { src: string; alt: string; position: string };
 
 const SPAN = ['row-span-2', '', ''];
 const SIZES = ['(min-width: 1024px) 34vw, 56vw', '(min-width: 1024px) 26vw, 44vw', '(min-width: 1024px) 26vw, 44vw'];
-const EVERY_MS = 5000;
+const EVERY_MS = 3500;
 
 /**
  * The hero photos: up to three tiles that take turns. Every five seconds one tile cross-fades to the next photo.

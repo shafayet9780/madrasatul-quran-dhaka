@@ -258,7 +258,7 @@ Pill links (`ButtonLink`, `src/components/site/button.tsx`): `primary` (rust) is
 The homepage opener (`Hero`, `src/components/homepage/hero.tsx`): the H1 (name in `rust`, the promise in `ink`, `text-hero`), two buttons only (apply, prospectus download), the photo mosaic and the three HeroChips.
 
 - Photos: `siteSettings.heroImages` from the CMS; alt text is the image title in the page language, else its CMS alt. Three tiles (1.3fr / 1fr, the first spans two rows, `rounded-card`), `clamp(300px, 38vw, 540px)` tall.
-- Tiles take turns (`HeroGallery`): every 5 seconds one tile cross-fades to the next photo (`animate-tile-in`, after it has loaded). Paused off-screen, on hover or focus, by its pause button; still under reduced motion. Only with more photos than tiles.
+- Tiles take turns (`HeroGallery`): every 3.5 seconds one tile cross-fades to the next photo (`animate-tile-in`, after it has loaded). Paused off-screen, on hover or focus, by its pause button; still under reduced motion. Only with more photos than tiles.
 - The H1, the buttons and the first photo never animate; tiles 2 and 3 settle in (`animate-settle`).
 - Marked `data-hero`: the phone ApplyBar waits until it has scrolled away.
 
