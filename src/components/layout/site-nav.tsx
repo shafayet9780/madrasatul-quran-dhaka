@@ -1,6 +1,6 @@
 'use client';
 
-import Link from 'next/link';
+import Link from '@/components/site/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
 import { Icon } from '@/components/site/icon';

@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import Link from 'next/link';
+import Link from '@/components/site/link';
 import type { SanityImage } from '@/types/sanity';
 import { urlFor } from '@/lib/sanity';
 import { Icon } from '@/components/site/icon';

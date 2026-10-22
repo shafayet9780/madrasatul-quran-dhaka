@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import Link from '@/components/site/link';
 import type { Locale } from '@/lib/i18n';
 import type { NoticeIn } from '@/lib/notices/notices';
 import { noticesIn, noticeWords } from './notice-data';

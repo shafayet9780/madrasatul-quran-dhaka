@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import Link from '@/components/site/link';
 import { getTranslations } from 'next-intl/server';
 import type { Locale } from '@/lib/i18n';
 import { ReasonCards } from '@/components/site/reason-cards';

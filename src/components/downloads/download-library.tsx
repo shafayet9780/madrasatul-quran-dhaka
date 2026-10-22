@@ -1,4 +1,4 @@
-import Link from 'next/link'
+import Link from '@/components/site/link';
 import { Info } from 'lucide-react'
 import { PageHero } from '@/components/ui/page-hero'
 import type { DownloadCategory, Downloadable } from '@/lib/downloads/types'

@@ -1,6 +1,6 @@
 'use client';
 
-import Link from 'next/link';
+import Link from '@/components/site/link';
 import { ChevronRight } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { getLocalizedText, getLocalizedArray, getFontClass, type Language } from '@/lib/sanity-utils';

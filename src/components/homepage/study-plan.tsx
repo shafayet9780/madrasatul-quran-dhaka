@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import Link from '@/components/site/link';
 import type { CSSProperties } from 'react';
 import { getTranslations } from 'next-intl/server';
 import type { Locale } from '@/lib/i18n';

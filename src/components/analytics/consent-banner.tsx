@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Link from 'next/link';
+import Link from '@/components/site/link';
 import { useLocale, useTranslations } from 'next-intl';
 import { useAnalytics } from './analytics-context';
 import { readStoredConsent } from '@/lib/analytics/consent';

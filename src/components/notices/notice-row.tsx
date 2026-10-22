@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import Link from '@/components/site/link';
 import type { Locale } from '@/lib/i18n';
 import type { Notice, NoticeType } from '@/lib/notices/notices';
 import { Icon } from '@/components/site/icon';

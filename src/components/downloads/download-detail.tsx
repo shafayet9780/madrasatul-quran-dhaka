@@ -1,5 +1,5 @@
 import Image from 'next/image'
-import Link from 'next/link'
+import Link from '@/components/site/link';
 import { PortableText } from '@portabletext/react'
 import { CalendarDays, Download, FileText, FolderOpen, LockKeyhole } from 'lucide-react'
 import { urlFor } from '@/lib/sanity'

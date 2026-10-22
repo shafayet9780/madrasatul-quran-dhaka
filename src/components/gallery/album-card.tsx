@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import Link from 'next/link';
+import Link from '@/components/site/link';
 import type { Album } from '@/lib/gallery/albums';
 import { Icon } from '@/components/site/icon';
 
