@@ -2,6 +2,36 @@
 
 Steps to take when the redesigned site goes live, after every page is redesigned. Agreed with the owner on 2026-10-15.
 
+## Release day: the checklist (prepared 2026-10-22)
+
+One list, in order. It draws on the Studio runbook (`docs/studio-cleanup.md`, "Release-day runbook") and on sections 1 and 2 below.
+
+**State on 2026-10-22:**
+- `design-revamp` has `main` merged in (6466093). Typecheck, unit tests (693) and a clean build pass.
+- On `development`, dry runs of both data scripts show the expected list. The Homepage (hero, numbers) and Pages on/off already exist, so the clean-up script keeps them as they are. The coverage seed has nothing to do.
+- Pages on/off on `development`: Gallery **on** (9 albums), Campus, Notices and Teachers **off**.
+
+| # | Step | Who |
+|---|---|---|
+| 1 | Pull request `design-revamp` → `dev`. Its last commit removes `design-revamp` from `vercel.json`. Merge once its checks pass. | Claude |
+| 2 | Freeze Studio edits until step 9. | Office |
+| 3 | Export `development` to `../sanity-backups/development-<date>.tar.gz`. This file is the backup and the rollback. | Claude |
+| 4 | Delete and recreate `production` (public), then import the export into it (Studio runbook, step 3). | Claude, after the owner's yes |
+| 5 | `scripts/studio-cleanup.ts --dataset production`: dry run, read it, then run it. Then `scripts/cms-coverage-seed.ts` the same way (expect "nothing to do"). | Claude |
+| 6 | Check locally with `NEXT_PUBLIC_SANITY_DATASET=production`: `pnpm build`, `pnpm test:e2e`, and the Studio (sidebar, every one-off document, drag ordering). Expected failures:<br>• Campus and Teachers specs (both pages switched off)<br>• the Studio route (needs the login)<br>• the survey DB specs (`pnpm survey:fixtures` no longer matches the test branch's students)<br>On `development` on 2026-10-22: 41 passed, 12 failed, all with these causes. | Claude |
+| 7 | **Vercel → Settings → Environment Variables** (the build reads them, so set them before step 8):<br>• `NEXT_PUBLIC_SANITY_DATASET`: `production` for Production, `development` for Preview.<br>• `NEXT_PUBLIC_SITE_URL`: `https://www.madrasatulquranbd.com` for Production (section 1). | Owner |
+| 7b | **sanity.io/manage → API → Webhooks:** point "Downloads Blob cleanup" at the `production` dataset (`docs/downloads-library.md`). | Owner |
+| 8 | Pull request `dev` → `main`, merge. Vercel deploys the new site. | Claude, after the owner's yes |
+| 9 | Smoke test on the live site:<br>• the main pages, the gallery and an album<br>• pre-admission, downloads, `/studio`, a survey link, the routine admin<br>• canonical and robots.txt on www, the 307/308 from the bare domain (section 1)<br>• the cache check, twice (section 2)<br>Then lift the Studio freeze. | Claude + owner |
+| 10 | Google Search Console: submit `https://www.madrasatulquranbd.com/sitemap.xml`. | Owner |
+| 11 | Afterwards: refresh `development` from `production`, then remove the stand-ins (Studio runbook, steps 8 and 9). | Claude |
+
+**Rollback:**
+1. Set Production's `NEXT_PUBLIC_SANITY_DATASET` back to `development`.
+2. Redeploy the previous production build from Vercel's Deployments page.
+
+`development` is not touched until step 11.
+
 ## 1. One main address: www.madrasatulquranbd.com
 
 **Now (found in the audit of 2026-10-14):** pages are served from `https://www.madrasatulquranbd.com`, but the canonical links, sitemap, robots.txt, share links and the homepage's School data all point to `https://madrasatulquranbd.com`. That address answers with a **307 (temporary)** redirect back to www, so Google is told the main address is one that redirects away.
