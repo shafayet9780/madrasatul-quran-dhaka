@@ -18,17 +18,22 @@ export function ApplyBar() {
   const cta = useAdmissionCta();
   const locale = useLocale() as Language;
   const t = useTranslations('admissionCta');
-  // Starts hidden on the hero page, so the server render does not show a bar that slides away on load.
+  // The hero counts as in view until observed, so the server render does not show a bar that slides away on load.
+  // The bar lives in the layout: it watches the hero again whenever the page changes.
   const pathname = usePathname();
-  const [shown, setShown] = useState(!HERO_PAGE.test(pathname));
+  const [heroInView, setHeroInView] = useState(true);
+  const shown = !HERO_PAGE.test(pathname) || !heroInView;
 
   useEffect(() => {
     const hero = document.querySelector('[data-hero]');
-    if (!hero) return; // pages without a hero start with the bar shown
-    const io = new IntersectionObserver(([entry]) => setShown(!entry.isIntersecting));
+    if (!hero) return; // pages without a hero show the bar from the start
+    const io = new IntersectionObserver(([entry]) => setHeroInView(entry.isIntersecting));
     io.observe(hero);
-    return () => io.disconnect();
-  }, []);
+    return () => {
+      io.disconnect();
+      setHeroInView(true); // so a return to the homepage starts with the bar down
+    };
+  }, [pathname]);
 
   if (!cta) return null;
   const open = cta.state === 'open';

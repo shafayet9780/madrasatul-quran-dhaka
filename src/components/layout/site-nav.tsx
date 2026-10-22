@@ -132,7 +132,7 @@ export function SiteNav({
         <Icon name={mobileOpen ? 'x' : 'list'} size={18} />
         {menuLabel}
       </button>
-      <div id={`${id}-mobile`} hidden={!mobileOpen} className="absolute inset-x-0 top-full z-30 max-h-[calc(100dvh-72px)] overflow-y-auto border-b border-line bg-paper shadow-photo min-[1180px]:hidden">
+      <div id={`${id}-mobile`} hidden={!mobileOpen} className="absolute inset-x-0 top-full z-30 max-h-[calc(100dvh-60px)] sm:max-h-[calc(100dvh-72px)] overflow-y-auto border-b border-line bg-paper shadow-photo min-[1180px]:hidden">
         <nav aria-label={label} className="page-wrap pb-4 pt-2">
           <div className="pb-2 pt-1 min-[480px]:hidden">{language}</div>
           <ul className="m-0 list-none p-0">

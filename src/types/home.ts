@@ -12,7 +12,7 @@ export type HomeChip = { figure?: string; title?: Bilingual; note?: Bilingual };
 export type FixedPhoto = 'building' | 'entrance' | 'classroom' | 'van' | 'whyBooks' | 'whyTeachers';
 
 export interface HomePage {
-  hero?: { line?: Bilingual; chip1?: HomeChip; chip2?: HomeChip; chip3?: HomeChip };
+  hero?: { line?: Bilingual; chip1?: HomeChip; chip2?: HomeChip; chip3?: HomeChip; chip4?: HomeChip };
   photos?: Partial<Record<FixedPhoto, HomePhoto>>;
   heroImages?: { image: SanityImage; alt: string; title?: Bilingual }[];
   statistics?: SchoolStatistics;

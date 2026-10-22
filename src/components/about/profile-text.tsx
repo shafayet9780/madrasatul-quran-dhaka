@@ -37,7 +37,7 @@ const components: PortableTextComponents = {
 /** A profile's message or biography from Studio, in a reading column (about 40em) of 18px `ink-body` text. */
 export function ProfileText({ value, className }: { value: PortableTextBlock[]; className?: string }) {
   return (
-    <div className={cn('flex max-w-[40em] flex-col gap-4 whitespace-pre-line text-18 leading-[1.75] text-ink-body', className)}>
+    <div className={cn('flex max-w-[40em] flex-col gap-4 whitespace-pre-line text-18 leading-[1.75] text-ink-body max-sm:text-17', className)}>
       <PortableText value={value} components={components} />
     </div>
   );

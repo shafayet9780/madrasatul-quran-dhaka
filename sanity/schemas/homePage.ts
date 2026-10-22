@@ -60,12 +60,16 @@ export const homePage = defineType({
       group: 'top',
       type: 'object',
       options: { collapsible: false },
-      description: 'Under the school’s name at the top of the homepage, and the three boxes under the photos (their icons stay).',
+      description: 'Under the school’s name at the top of the homepage, and the four boxes under the photos (their icons stay).',
       fields: [
-        mlString('line', 'The promise (one line)', { required: true }),
+        {
+          ...mlText('line', 'The promise', { rows: 2, required: true }),
+          description: 'Press Enter where the line should break on phones; computers keep it on one line and wrap it themselves.',
+        },
         chip('chip1', 'Box 1 (dark, with a figure)', true),
         chip('chip2', 'Box 2'),
         chip('chip3', 'Box 3'),
+        chip('chip4', 'Box 4'),
       ],
     }),
     defineField({

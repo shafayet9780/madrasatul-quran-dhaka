@@ -20,13 +20,13 @@ export async function PreAdmissionCard({ locale, cta, docs, showVisit }: { local
       <div className="page-wrap pb-section pt-[clamp(48px,6vw,80px)]">
         <div className="flex flex-wrap items-center gap-x-16 gap-y-8 rounded-panel bg-rust p-[clamp(24px,4vw,56px)] text-surface">
           <div className="flex min-w-0 flex-[3_1_420px] flex-col gap-4">
-            <h2 className="m-0 text-[clamp(2rem,3.6vw,3rem)] leading-[1.1] font-extrabold text-balance">{cta ? c('title', { session: cta.session }) : c('fallbackTitle')}</h2>
+            <h2 className="m-0 text-[clamp(2rem,3.6vw,3rem)] max-sm:text-[1.75rem] leading-[1.1] font-extrabold text-balance">{cta ? c('title', { session: cta.session }) : c('fallbackTitle')}</h2>
             <p className="m-0 text-19 text-on-rust-soft">{cta ? t(open ? 'ledeOpen' : 'ledeNotOpen', { status: cta.status }) : c('fallbackLead')}</p>
             <div className="mt-1.5 flex flex-wrap items-center gap-x-6 gap-y-3">
               <ButtonLink
                 href={cta ? `/${locale}/pre-admission` : `/${locale}/admissions`}
                 variant="light"
-                className="min-h-[54px] gap-2.5 bg-paper px-7 text-17 font-bold text-rust-deep hover:bg-surface focus-visible:outline-surface"
+                className="min-h-[54px] gap-2.5 bg-paper px-7 text-17 font-bold text-rust-deep hover:bg-surface focus-visible:outline-surface max-sm:min-h-12 max-sm:gap-2 max-sm:px-5 max-sm:text-16"
               >
                 {cta ? (open ? c('apply') : c('details')) : c('fallbackButton')}
                 <Icon name="arrow-right" size={20} />
