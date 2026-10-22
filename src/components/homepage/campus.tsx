@@ -56,7 +56,7 @@ const TALL: Collage = {
 
 const PHOTOS = ['entrance', 'classroom'] as const; // in the order of home.campus.photos
 
-type Space = { title: string; sub: string; placeholder: string; photo?: { src: string; alt: string; position: string } };
+type Space = { title: string; sub: string; photo?: { src: string; alt: string; position: string } };
 
 /** A play space's photo from the CMS (Studio → Homepage → Play spaces), framed on its hotspot. */
 function spacePhoto(photo: HomePhoto | undefined, locale: Locale): Space['photo'] {
@@ -92,7 +92,7 @@ function PlaySpaces({ layout, spaces, building, className }: { layout: Collage; 
         const photo = spaces[k].photo;
         return (
           <div key={k}>
-            {/* The space's photo from the CMS; until there is one, its label stands in its place with a "photo soon" line. */}
+            {/* The space's photo from the CMS; until there is one, its label stands in its place. */}
             {photo && (
               <div className="absolute overflow-hidden rounded-photo bg-panel shadow-frame-dark" style={layout[k].box}>
                 <Image src={photo.src} alt={photo.alt} fill sizes="(min-width: 760px) 320px, 60vw" className="object-cover" style={{ objectPosition: photo.position }} />
@@ -101,7 +101,6 @@ function PlaySpaces({ layout, spaces, building, className }: { layout: Collage; 
             <p className="absolute m-0 flex flex-col gap-0.5 leading-[1.3]" style={photo ? layout[k].tag : layout[k].bare}>
               <strong className="text-[clamp(15px,1.5vw,18px)] font-bold">{spaces[k].title}</strong>
               <span className="text-13 text-on-dark-muted">{spaces[k].sub}</span>
-              {!photo && <span className="text-13 text-bronze-light">{spaces[k].placeholder}</span>}
             </p>
           </div>
         );

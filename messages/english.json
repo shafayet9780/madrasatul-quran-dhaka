@@ -199,13 +199,11 @@
       "buildingAlt": "The eight-storey building with a red MQD sign on the roof",
       "roof": {
         "title": "Girls: the rooftop garden",
-        "sub": "On the roof of the madrasa building",
-        "placeholder": "Being planted; photo coming soon"
+        "sub": "On the roof of the madrasa building"
       },
       "field": {
         "title": "Boys: the field next door",
-        "sub": "Beside the madrasa building",
-        "placeholder": "Photo coming soon"
+        "sub": "Beside the madrasa building"
       },
       "photos": [
         {
