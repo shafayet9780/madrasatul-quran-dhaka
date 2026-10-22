@@ -7,6 +7,7 @@ import { AdmissionCtaProvider } from './admission-cta-context';
 import { StickyHeader } from './sticky-header';
 import { WhatsAppButton } from './whatsapp-button';
 import type { AdmissionCta } from '@/lib/admissions/intake';
+import type { WhatsAppChooser } from '@/lib/site/whatsapp';
 
 const FOCUSED_FLOW = /^\/(bengali|english)\/pre-admission\/(start|form|pledge|review|status|find)(\/|$)/;
 
@@ -17,7 +18,7 @@ interface MainLayoutProps {
   footer: React.ReactNode;
   skipLabel: string;
   admissionCta: AdmissionCta | null;
-  whatsapp: { href: string; label: string } | null;
+  whatsapp: WhatsAppChooser | null;
 }
 
 export default function MainLayout({ children, header, footer, skipLabel, admissionCta, whatsapp }: MainLayoutProps) {

@@ -21,7 +21,7 @@ import { PageErrorBoundary } from '@/components/error-boundary';
 import { getContentService } from '@/lib/content-service';
 import { getAdmissionCta } from '@/lib/admissions/pages';
 import { asLocale } from '@/lib/admissions/display';
-import { getAdmissionsContact } from '@/lib/admissions-contact';
+import { whatsAppChooser } from '@/lib/site/whatsapp';
 import '../globals.css';
 
 // The public site's root layout: the page's language sets <html lang>, and pages are built ahead of time and refreshed
@@ -100,9 +100,7 @@ export default async function LocaleLayout({ children, params }: { children: Rea
     getAdmissionCta(asLocale(locale)),
     getTranslations({ locale, namespace: 'site' }),
   ]);
-  // The WhatsApp button in the corner: the number from School details, the greeting typed in.
-  const wa = getAdmissionsContact(siteSettings?.contactInfo).whatsapp;
-  const whatsapp = wa ? { href: `https://wa.me/${wa.slice(1)}?text=${encodeURIComponent(t('whatsapp.greeting'))}`, label: t('whatsapp.label') } : null;
+  const whatsapp = await whatsAppChooser(asLocale(locale), siteSettings?.contactInfo);
 
   return (
     <html lang={languageTag(locale)} className={siteFontVariables}>
