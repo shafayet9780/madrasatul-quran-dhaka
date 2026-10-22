@@ -190,7 +190,7 @@ Example, the hero: **মাদরাসাতুল কুরআন** / ইস�
 - `bronze` is decoration: rules and subject fills. It is never text on a light section.
 - Green appears in two places only: the `open` dot that says the office is open now, and WhatsApp's own green (`whatsapp-brand`) on WhatsApp's logo and buttons, so a guardian knows it at a glance. No other green buttons, and never a green band, card or text (owner, 2026-10-15: a whole green section looked wrong).
 
-**Type.** Anek for everything: Latin from Anek Latin, Bengali from Anek Bangla, through one stack (`sans`). Tiro Bangla (`quote`) is only for Bengali quotations; English quotations stay in sans. In a Tiro quotation, set the danda (।) in Anek. Weights: 400 text, 650 links, buttons and labels, 700 card titles, 750 headings, 800 figures. The fonts load without the width axis, so never use `font-stretch`. Headings, the lead and figures are fluid between phone and desktop; text steps (`text-11` to `text-19`) are fixed. Bengali running text keeps a line height of at least 1.5. Nothing is set below 11px.
+**Type.** Anek for everything: Latin from Anek Latin, Bengali from Anek Bangla, through one stack (`sans`). Tiro Bangla (`quote`) is only for Bengali quotations; English quotations stay in sans. In a Tiro quotation, set the danda (।) in Anek. Weights: 400 text, 650 links, buttons and labels, 700 card titles, 750 headings, 800 figures. The fonts load without the width axis, so never use `font-stretch`. Headings, the lead and figures are fluid from 640px to desktop; text steps (`text-11` to `text-19`) are fixed. Phones (below 640px) have their own smaller sizes, because Anek Bangla reads large: hero 32 (English 30), h2 24, h3 20, h4 18, lead and `text-19` 17, figures 32 to 36, the ৫০ mark 80, quotes 20 and 18, the founder's letter and profile text 17 (`tokens.css`, the phone block). Bengali running text keeps a line height of at least 1.5. Nothing is set below 11px.
 
 **Layout.** Every section is full-bleed colour with its content in `page-wrap`: up to `page` (1240px) of content with the `gutter` (16px phone to 40px desktop) outside it on each side; vertical padding `section` (64px to 112px). Section openings (the H2 and its lead) sit in `narrow` (820px); running text stays under about 40em. Design for a 390px phone first: the curriculum map runs top to bottom below 1200px and as 13 class columns by four subject rows from 1200px.
 
@@ -230,7 +230,7 @@ The homepage, top to bottom, then the site chrome. Each has a preview in the Cla
 
 The header on every public page (`src/components/layout/site-header.tsx`, a server component, with the menu in `site-nav.tsx`): the logo and name, the main menu, the language switch. It scrolls away with the page.
 
-- Logo: `siteSettings.logo` at 42px. Name `text-18` 700, place `text-13` `ink-muted`. The logo is the link home.
+- Logo: `siteSettings.logo` at 42px (36px on phones). Name `text-18` 700 (`text-16` on phones), place `text-13` `ink-muted`. The logo is the link home. 72px tall, 60px on phones.
 - Menu: আমাদের সম্পর্কে (the board and advisors; it replaced the আমাদের সদস্যবৃন্দ dropdown in October 2026), কারিকুলাম, ক্যাম্পাস, গ্যালারি, ভর্তি, যোগাযোগ, আমাদের বইসমূহ ↗ (opens alquranervasha.com in a new tab). Labels: `messages` `site.nav`.
 - Site Settings → Navigation decides what shows (`siteNav` in `src/lib/site/nav.ts`): আমাদের সম্পর্কে follows Our people and shows while the directors or the advisors do; ক্যাম্পাস follows Campus (`showCampus`); গ্যালারি shows only once Gallery (`showGallery`) is switched on, so the menu never links to an empty gallery; নোটিশ (before যোগাযোগ) likewise once the notice board (`showNotices`) is. The footer's Pages list follows the same switches.
 - From 1180px: one row of links. The menu can still hold a dropdown group (none today): it opens on hover or click, Escape or a click elsewhere closes it; its panel is `surface`, `line` border, `radius-card`, `shadow-photo`.
@@ -240,7 +240,7 @@ The header on every public page (`src/components/layout/site-header.tsx`, a serv
 
 ### AdmissionBanner
 
-The site-wide pre-admission strip above the header (`src/components/layout/admission-banner.tsx`): shown while the form is open or announced, hidden otherwise.
+The site-wide pre-admission strip above the header (`src/components/layout/admission-banner.tsx`): shown while the form is open or announced, hidden otherwise. Not on phones (below 640px): the ApplyBar carries the intake there.
 
 - Data: the intake from the pre-admission form in the CMS (`getAdmissionCta`): the session and the real status line ("আবেদন চলছে, শেষ সময় …"); never a placeholder date.
 - An `open` dot when open, `on-dark-faint` when announced; a `light` `sm` button (apply, or details when not open yet). No close button.
@@ -249,13 +249,13 @@ The site-wide pre-admission strip above the header (`src/components/layout/admis
 
 Pill links (`ButtonLink`, `src/components/site/button.tsx`): `primary` (rust) is the apply action and nothing else; `outline` is the second action on light sections; `light` and `outline-dark` sit on dark sections and bars; `quiet` is the language switch; `whatsapp` (WhatsApp's green, `ink` text) is for WhatsApp links only.
 
-- Props: `href` (pages go through next/link; `/api/…` files, downloads and other sites are plain links), `variant`, `size` (`lg` 56px / 18px, `md` 44px / 15px, `sm` 34px / 14px), children (text, an optional icon after for "go", before for "download").
+- Props: `href` (pages go through next/link; `/api/…` files, downloads and other sites are plain links), `variant`, `size` (`lg` 56px / 18px, 48px / 16px on phones; `md` 44px / 15px; `sm` 34px / 14px), children (text, an optional icon after for "go", before for "download").
 - One `primary` per view. Never a rust chip or a rust section beside it.
 - Focus: a 2px outline offset 2px, `ink` on light, `bronze-light` on dark.
 
 ### Hero
 
-The homepage opener (`Hero`, `src/components/homepage/hero.tsx`): the H1 (name in `rust`, the promise in `ink`, `text-hero`), two buttons only (apply, prospectus download), the photo mosaic and the three HeroChips.
+The homepage opener (`Hero`, `src/components/homepage/hero.tsx`): the H1 (name in `rust`, the promise in `ink`, `text-hero-tagline`: the name's size from 640px; on phones 22 under a 32 name, so its first line is as wide as the name, and it breaks where Studio has a line break, ইসলামিক ও জেনারেল শিক্ষার / একটি আদর্শ সমন্বয়), two buttons only (apply, prospectus download; on phones the download is `md` sized, so the two fit one row from about 400px), the photo mosaic and the HeroChips (three, a fourth on phones).
 
 - Photos: `siteSettings.heroImages` from the CMS; alt text is the image title in the page language, else its CMS alt. Three tiles (1.3fr / 1fr, the first spans two rows, `rounded-card`), `clamp(300px, 38vw, 540px)` tall.
 - Tiles take turns (`HeroGallery`): every 3 seconds (the first time 1.5 seconds after the page opens) one tile cross-fades to the next photo, the small tiles first so the first photo (the big tile) stays about 7.5 seconds; a photo on screen never comes up twice (`animate-tile-in`, after it has loaded). Paused off-screen, on hover or focus, by its pause button; still under reduced motion. Only with more photos than tiles.
@@ -264,11 +264,11 @@ The homepage opener (`Hero`, `src/components/homepage/hero.tsx`): the H1 (name i
 
 ### HeroChip
 
-The three chips under the hero photos, overlapping them by 40px: the dark ৫০/৫০ chip, then sand (ডে-কেয়ার হিফজ) and paper (আরবি মিডিয়াম) with a rust Phosphor icon.
+The chips under the hero photos, overlapping them by 40px: three in a row from 640px; on phones a fourth makes them two by two: the dark ৫০/৫০ chip, then sand (ডে-কেয়ার হিফজ), paper (আরবি ভাষা) and sand (৩০০+ হাদিস মুখস্থ, a goal, so its second line says লক্ষ্য; the scroll) with a rust Phosphor icon. Their text is in Studio → Homepage → Hero text; an empty box is left out (without Box 4, phones show the three as before).
 
 - Each chip: a short first line (`text-15`, 650) and a quieter second line (`text-13`). Copy lives in `messages/*.json` under `home.hero`.
 - Never a rust chip: rust is the apply button.
-- On load they rise one after another (`animate-rise`, 240 / 320 / 400ms delays) behind `motion-safe:`.
+- On load they rise one after another (`animate-rise`, 240 / 320 / 400 / 480ms delays) behind `motion-safe:`.
 
 ### NumbersBand
 
@@ -387,7 +387,7 @@ The footer on every public page (`src/components/layout/site-footer.tsx`, a serv
 
 Phones only (below 640px): the pre-admission bar fixed to the foot of the screen (`src/components/layout/apply-bar.tsx`), with a spacer of the same height after the footer so it never covers it.
 
-- On a page with a hero (`data-hero`) it slides up (`translate-y`, `ease-out-expo`) once the hero has scrolled away; on other pages it is there from the start. Hidden and inert while it is down.
+- On a page with a hero (`data-hero`) it slides up (`translate-y`, `ease-out-expo`) once the hero has scrolled away; on other pages it is there from the start. Hidden and inert while it is down. It watches the hero again on every page change, also when the site moves between pages without a reload.
 - Shows only while the intake is open or announced: the session title (`text-16` 700), the status line (`text-13` `on-dark-muted`), a `light` button.
 
 ## Admissions page

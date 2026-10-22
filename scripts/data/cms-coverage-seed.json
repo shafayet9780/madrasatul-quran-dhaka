@@ -140,8 +140,8 @@
   "homePage": {
     "hero": {
       "line": {
-        "bengali": "ইসলামি ও সাধারণ শিক্ষার আদর্শ সমন্বয়",
-        "english": "An ideal combination of Islamic and general education"
+        "bengali": "ইসলামি ও সাধারণ শিক্ষার\nআদর্শ সমন্বয়",
+        "english": "An ideal combination of\nIslamic and general education"
       },
       "chip1": {
         "figure": "50/50",
@@ -172,6 +172,16 @@
         "note": {
           "bengali": "৬ষ্ঠ শ্রেণি থেকে ইসলাম শিক্ষা",
           "english": "Islamic studies from Class 6"
+        }
+      },
+      "chip4": {
+        "title": {
+          "bengali": "৩০০+ হাদিস মুখস্থ",
+          "english": "300+ hadith by heart"
+        },
+        "note": {
+          "bengali": "লক্ষ্য: নবম শ্রেণির মধ্যে",
+          "english": "goal: by Class 9"
         }
       }
     }

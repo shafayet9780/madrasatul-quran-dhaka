@@ -19,10 +19,10 @@ export async function SiteHeader({ locale, siteSettings }: { locale: Locale; sit
   return (
     <header className="relative border-b border-line bg-paper text-ink">
       <div className="page-wrap flex items-center gap-x-3 min-[1180px]:gap-x-9">
-        <Link href={`/${locale}`} className="flex min-h-[72px] shrink-0 items-center gap-3 text-ink no-underline">
-          {logo && <Image src={logo} alt="" width={42} height={42} priority />}
+        <Link href={`/${locale}`} className="flex min-h-[60px] shrink-0 items-center gap-2.5 text-ink no-underline sm:min-h-[72px] sm:gap-3">
+          {logo && <Image src={logo} alt="" width={42} height={42} priority className="size-9 sm:size-[42px]" />}
           <span className="flex flex-col leading-[1.15]">
-            <span className="text-18 font-bold leading-[1.15]">{t('schoolName')}</span>
+            <span className="text-16 font-bold leading-[1.15] sm:text-18">{t('schoolName')}</span>
             <span className="text-13 leading-[1.15] text-ink-muted">{t('place')}</span>
           </span>
         </Link>
