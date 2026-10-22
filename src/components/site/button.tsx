@@ -16,7 +16,7 @@ const VARIANTS = {
 } as const;
 
 const SIZES = {
-  lg: 'min-h-14 gap-2.5 px-7 text-18 font-strong',
+  lg: 'min-h-14 gap-2.5 px-7 text-18 font-strong max-sm:min-h-12 max-sm:gap-2 max-sm:px-5 max-sm:text-16', // 48px / 16px on phones
   md: 'min-h-11 gap-2 px-4 text-15 font-strong',
   sm: 'min-h-[34px] gap-2 px-4 text-14 font-strong',
 } as const;
