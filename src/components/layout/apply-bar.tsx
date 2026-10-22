@@ -14,15 +14,13 @@ import { trackAdmissionCta, useAdmissionCta } from './admission-cta-context';
  */
 const HERO_PAGE = /^\/(bengali|english)\/?$/; // the homepage, whose hero has the apply button
 
-export function ApplyBar() {
+/** Whether the phone apply bar is up (the WhatsApp button sits above it then). */
+export function useApplyBarShown() {
   const cta = useAdmissionCta();
-  const locale = useLocale() as Language;
-  const t = useTranslations('admissionCta');
   // The hero counts as in view until observed, so the server render does not show a bar that slides away on load.
   // The bar lives in the layout: it watches the hero again whenever the page changes.
   const pathname = usePathname();
   const [heroInView, setHeroInView] = useState(true);
-  const shown = !HERO_PAGE.test(pathname) || !heroInView;
 
   useEffect(() => {
     const hero = document.querySelector('[data-hero]');
@@ -34,6 +32,15 @@ export function ApplyBar() {
       setHeroInView(true); // so a return to the homepage starts with the bar down
     };
   }, [pathname]);
+
+  return !!cta && (!HERO_PAGE.test(pathname) || !heroInView);
+}
+
+export function ApplyBar() {
+  const cta = useAdmissionCta();
+  const locale = useLocale() as Language;
+  const t = useTranslations('admissionCta');
+  const shown = useApplyBarShown();
 
   if (!cta) return null;
   const open = cta.state === 'open';

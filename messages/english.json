@@ -984,6 +984,10 @@
   },
   "site": {
     "skip": "Skip to the content",
+    "whatsapp": {
+      "label": "Message us on WhatsApp",
+      "greeting": "Assalamu Alaikum! I would like to know more about Madrasatul Quran."
+    },
     "notFound": {
       "title": "This page isn't here",
       "lead": "The link may be old, or the address may have a typo. The home page has everything on the site.",
