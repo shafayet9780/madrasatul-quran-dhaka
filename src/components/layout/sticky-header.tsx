@@ -23,7 +23,10 @@ export function StickyHeader({ children }: { children: React.ReactNode }) {
       const y = Math.min(Math.max(window.scrollY, 0), root.scrollHeight - root.clientHeight);
       const top = mark.current?.offsetTop ?? 0;
       setStuck(y > top);
-      if (y <= top + (bar.current?.offsetHeight ?? 0)) {
+      // A menu is open: the page under it moving does not count, or the header would leave as the menu closes.
+      if (bar.current?.querySelector('[aria-expanded="true"]')) {
+        last = y;
+      } else if (y <= top + (bar.current?.offsetHeight ?? 0)) {
         setHidden(false);
         last = y;
       } else if (Math.abs(y - last) >= MOVE) {
@@ -42,7 +45,7 @@ export function StickyHeader({ children }: { children: React.ReactNode }) {
       <div
         ref={bar}
         className={cn(
-          'sticky top-0 z-[45] motion-safe:transition-[translate,box-shadow] motion-safe:duration-300 motion-safe:ease-out-expo',
+          'sticky top-0 z-[45] motion-safe:transition-[translate,box-shadow] motion-safe:duration-300 motion-safe:ease-out-expo print:translate-y-0 print:shadow-none',
           stuck && 'shadow-[0_10px_24px_-20px_rgb(44_31_21_/0.6)]',
           hidden && '-translate-y-full shadow-none has-[:focus-visible]:translate-y-0 has-[[aria-expanded=true]]:translate-y-0',
         )}

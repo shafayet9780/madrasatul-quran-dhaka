@@ -27,7 +27,7 @@ export function WhatsAppButton({ href, label }: { href: string; label: string })
       aria-label={label}
       onClick={() => trackClickToWhatsapp({ ctaLocation: 'floating_support', locale })}
       className={cn(
-        'group fixed bottom-[calc(16px+env(safe-area-inset-bottom))] right-4 z-30 flex items-center rounded-full text-ink no-underline shadow-raise motion-safe:animate-rise motion-safe:transition-[translate,background-color,border-color] motion-safe:duration-300 motion-safe:ease-out-expo focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink sm:bottom-6 sm:right-6',
+        'group fixed bottom-[calc(16px+env(safe-area-inset-bottom))] right-4 z-30 flex items-center rounded-full text-ink no-underline shadow-raise motion-safe:animate-rise motion-safe:transition-[translate,background-color,border-color] motion-safe:duration-300 motion-safe:ease-out-expo focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink sm:bottom-6 sm:right-6 print:hidden',
         'size-14 justify-center bg-whatsapp-brand ring-[3px] ring-paper hover:bg-whatsapp-brand-deep',
         'min-[1180px]:size-auto min-[1180px]:gap-3 min-[1180px]:border min-[1180px]:border-line min-[1180px]:bg-surface min-[1180px]:py-1.5 min-[1180px]:pl-1.5 min-[1180px]:pr-5 min-[1180px]:ring-0 min-[1180px]:hover:-translate-y-0.5 min-[1180px]:hover:border-line-strong min-[1180px]:hover:bg-surface',
         lifted && 'max-sm:-translate-y-[68px]',
