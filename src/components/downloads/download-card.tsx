@@ -1,4 +1,4 @@
-import Link from 'next/link'
+import Link from '@/components/site/link';
 import { ArrowRight, CalendarDays, FileText, FolderOpen } from 'lucide-react'
 import { fileTypeLabel, formatFileSize } from '@/lib/downloads/format'
 import type { Downloadable } from '@/lib/downloads/types'

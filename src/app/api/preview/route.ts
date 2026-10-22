@@ -10,7 +10,6 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const secret = searchParams.get('secret');
   const slug = searchParams.get('slug');
-  const type = searchParams.get('type');
   const lang = searchParams.get('lang') || 'bengali';
 
   // Check for secret
@@ -34,25 +33,8 @@ export async function GET(request: NextRequest) {
     const draft = await draftMode();
     draft.enable();
 
-    // Construct the preview URL based on content type
-    let previewUrl = `/${lang}`;
-    
-    switch (type) {
-      case 'page':
-        previewUrl += `/${slug}`;
-        break;
-      case 'newsEvent':
-        previewUrl += `/news/${slug}`;
-        break;
-      case 'academicProgram':
-        previewUrl += `/programs/${slug}`;
-        break;
-      case 'facility':
-        previewUrl += `/campus/${slug}`;
-        break;
-      default:
-        previewUrl += `/${slug}`;
-    }
+    // The preview URL: the page at that path
+    const previewUrl = `/${lang}/${slug}`;
 
     // Redirect to the preview URL
     redirect(previewUrl);

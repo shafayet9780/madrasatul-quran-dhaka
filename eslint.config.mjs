@@ -1,13 +1,5 @@
-import { dirname } from 'path';
-import { fileURLToPath } from 'url';
-import { FlatCompat } from '@eslint/eslintrc';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-const compat = new FlatCompat({
-  baseDirectory: __dirname,
-});
+import nextVitals from 'eslint-config-next/core-web-vitals';
+import nextTypescript from 'eslint-config-next/typescript';
 
 const eslintConfig = [
   {
@@ -24,13 +16,23 @@ const eslintConfig = [
       'next-env.d.ts',
       // Standalone Node (CommonJS) tooling scripts — not part of the app build.
       'scripts/**',
+      // Design prototypes and their render scripts.
+      'docs/**',
     ],
   },
-  ...compat.extends('next/core-web-vitals', 'next/typescript'),
+  ...nextVitals,
+  ...nextTypescript,
   {
     rules: {
       '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/no-unused-vars': 'warn',
+      // React Compiler rules that eslint-config-next 16 turned on. Older components (admin, surveys, pre-admission,
+      // pages not yet redesigned) break them; warnings until those are reworked.
+      'react-hooks/set-state-in-effect': 'warn',
+      'react-hooks/refs': 'warn',
+      'react-hooks/purity': 'warn',
+      'react-hooks/immutability': 'warn',
+      'react-hooks/preserve-manual-memoization': 'warn',
     },
   },
 ];

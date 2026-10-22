@@ -11,7 +11,7 @@ export type SheetStatus = 'current' | 'superseded' | 'set-aside' | 'duplicate';
 
 const STATUS_LABEL: Record<SheetStatus, string> = {
   current: 'বর্তমান',
-  superseded: 'পুরনো (সংশোধিত)',
+  superseded: 'পুরনো (বদলানো)',
   'set-aside': 'বাদ (অ্যাডমিন সিদ্ধান্ত)',
   duplicate: 'ডুপ্লিকেট',
 };
@@ -87,7 +87,7 @@ export function guardianSheetHeader(snapshot: RoundSnapshot): string[] {
     'রোল',
     'শিক্ষার্থী ID',
     'শিক্ষার্থী',
-    'প্রদানকারী',
+    'জমা দিয়েছেন',
     'সম্পর্ক',
     'মোবাইল',
     'যাচাই',
@@ -129,7 +129,7 @@ export function guardianSheetRows(
     submission.submitterName ?? '',
     submission.submitterRelation ?? '',
     submission.submitterMobile ? `+${submission.submitterMobile}` : '',
-    submission.verified ? 'যাচাইকৃত' : 'অযাচাইকৃত',
+    submission.verified ? 'যাচাইকৃত' : 'যাচাই হয়নি',
   ];
   const comment = submission.comment ?? '';
   if (template.kind !== 'G1') {

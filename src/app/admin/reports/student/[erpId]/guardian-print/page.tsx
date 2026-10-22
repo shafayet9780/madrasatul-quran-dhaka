@@ -13,7 +13,7 @@ import { ReportTools } from '../../../ReportTools';
 import { PageTop } from '../../../../AdminShell';
 import { EmptyState, LINK, PageBody } from '../../../../ui';
 
-export const metadata: Metadata = { title: 'অভিভাবকের জন্য প্রতিবেদন' };
+export const metadata: Metadata = { title: 'অভিভাবকের জন্য রিপোর্ট' };
 export const dynamic = 'force-dynamic';
 
 // R4-Print-Guardian: one A4 page for the guardian meeting. Marks only; no teacher names or notes.
@@ -63,7 +63,7 @@ export default async function GuardianPrintPage({ params, searchParams }: { para
   return (
     <>
       <PageTop crumbs={[{ label: 'ক্লাস ও শিক্ষার্থী', href: '/admin/reports' }, { label: student.name, href: `/admin/reports/student/${encodeURIComponent(erpId)}?round=${round.id}` }, { label: 'অভিভাবকের প্রিন্ট' }]} actions={<ReportTools printLabel="প্রিন্ট / PDF" />} />
-      <article className="sv-print-sheet flex flex-col" style={{ gap: 18, color: ink }} aria-label="অভিভাবকের জন্য প্রতিবেদন">
+      <article className="sv-print-sheet flex flex-col" style={{ gap: 18, color: ink }} aria-label="অভিভাবকের জন্য রিপোর্ট">
         <header className="flex items-center justify-between" style={{ paddingBottom: 14, borderBottom: '2px solid var(--sv-bronze)' }}>
           <div className="flex items-center gap-3">
             <div
@@ -77,13 +77,13 @@ export default async function GuardianPrintPage({ params, searchParams }: { para
               <span className="sv-head" style={{ fontSize: 20 }}>
                 মাদরাসাতুল কুরআন, ঢাকা
               </span>
-              <span style={{ fontSize: 13, color: 'var(--sv-text-muted)' }}>শিক্ষার্থীর অগ্রগতি প্রতিবেদন · অভিভাবক সভা</span>
+              <span style={{ fontSize: 13, color: 'var(--sv-text-muted)' }}>শিক্ষার্থীর অগ্রগতি রিপোর্ট · অভিভাবক সভা</span>
             </div>
           </div>
           <div style={{ textAlign: 'right', fontSize: 13, color: 'var(--sv-text-muted)' }}>
             {round.label} রাউন্ড
             <br />
-            প্রস্তুত: {formatDate(new Date())}
+            তৈরি: {formatDate(new Date())}
           </div>
         </header>
 
@@ -147,7 +147,7 @@ export default async function GuardianPrintPage({ params, searchParams }: { para
 
         <div className="flex flex-wrap" style={{ gap: 24 }}>
           {[
-            ['শক্তির দিক', strengths],
+            ['ভালো দিক', strengths],
             ['একসাথে যেখানে কাজ দরকার', work],
           ].map(([title, list]) => (
             <section key={title as string} className="flex flex-col gap-2" style={{ flex: '1 1 260px' }}>
@@ -200,7 +200,7 @@ export default async function GuardianPrintPage({ params, searchParams }: { para
             </div>
           ))}
         </div>
-        <footer style={{ fontSize: 12, color: 'var(--sv-text-muted)', textAlign: 'center' }}>এই প্রতিবেদনে শিক্ষকদের নাম ও ব্যক্তিগত নোট অন্তর্ভুক্ত নয়।</footer>
+        <footer style={{ fontSize: 12, color: 'var(--sv-text-muted)', textAlign: 'center' }}>এই রিপোর্টে শিক্ষকদের নাম ও ব্যক্তিগত নোট রাখা হয়নি।</footer>
       </article>
     </>
   );

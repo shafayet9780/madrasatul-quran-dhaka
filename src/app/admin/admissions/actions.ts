@@ -19,7 +19,7 @@ import { assertAdmin, requestOrigin } from '@/lib/survey/admin-auth';
 // Admissions admin changes. Every action checks the admin login first (the proxy also gates /admin).
 
 type Result = { ok: true; message?: string } | { ok: false; error: string };
-const BAD_REQUEST: Result = { ok: false, error: 'অনুরোধটি সঠিক নয়; পাতাটি আবার লোড করুন।' };
+const BAD_REQUEST: Result = { ok: false, error: 'কিছু একটা গোলমাল হয়েছে; পেজটি আবার লোড করুন।' };
 
 const id = z.uuid();
 const status = z.enum(OFFICE_STATUSES as [string, ...string[]]);
@@ -65,7 +65,7 @@ export async function deleteUnpaidAction(appId: string, back?: 'list'): Promise<
   if (!id.safeParse(appId).success) return BAD_REQUEST;
   const result = await deleteUnpaid(appId);
   if (result === 'paid') return { ok: false, error: 'পরিশোধিত (বা যাচাইয়ের অপেক্ষায় থাকা) আবেদন মুছে ফেলা যায় না।' };
-  if (result === 'paying') return { ok: false, error: 'অভিভাবক এখন পেমেন্ট পাতায় আছেন। দুই ঘণ্টা পরে আবার চেষ্টা করুন।' };
+  if (result === 'paying') return { ok: false, error: 'অভিভাবক এখন পেমেন্ট পেজে আছেন। দুই ঘণ্টা পরে আবার চেষ্টা করুন।' };
   revalidatePath('/admin/admissions', 'layout');
   if (back === 'list') return { ok: true, message: 'আবেদনটি মুছে ফেলা হয়েছে।' };
   redirect('/admin/admissions/unpaid?deleted=1');
@@ -87,7 +87,7 @@ export async function acceptHeldAction(appId: string, paymentId: string): Promis
   await assertAdmin();
   if (!id.safeParse(appId).success || !id.safeParse(paymentId).success) return BAD_REQUEST;
   const result = await acceptHeldPayment(paymentId, appId);
-  if (result.outcome !== 'paid') return { ok: false, error: 'পেমেন্টটি আর যাচাইয়ের অপেক্ষায় নেই, অথবা আইডি দেওয়া যায়নি। কার্যক্রম দেখুন।' };
+  if (result.outcome !== 'paid') return { ok: false, error: 'পেমেন্টটি আর যাচাইয়ের অপেক্ষায় নেই, অথবা আইডি দেওয়া যায়নি। ইতিহাস দেখুন।' };
   afterPaid(appId, await requestOrigin());
   refresh(appId);
   return { ok: true, message: `আইডি ${result.publicRef} দেওয়া হয়েছে।` };

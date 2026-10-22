@@ -54,7 +54,7 @@ export function DuplicateResolver({
       )}
       <div>
         <Button type="button" className="h-9" disabled={!choice || pending} onClick={apply}>
-          {pending ? 'অপেক্ষা করুন…' : 'সিদ্ধান্ত সংরক্ষণ করুন'}
+          {pending ? 'অপেক্ষা করুন…' : 'সিদ্ধান্ত সেভ করুন'}
         </Button>
       </div>
     </fieldset>

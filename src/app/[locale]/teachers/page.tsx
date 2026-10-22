@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { getTranslations } from 'next-intl/server';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { TeachersList } from '@/components/teachers';
 import { getTeachers } from '@/lib/queries/teachers';
 import { getPeoplePageData } from '@/lib/queries/site';
@@ -14,12 +14,14 @@ export async function generateMetadata({
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'teachers' });
   return {
-    title: t('meta.title'),
+    // The title already ends with the school's name.
+    title: { absolute: t('meta.title') },
     description: t('meta.description'),
   };
 }
 
-export default async function TeachersPage() {
+export default async function TeachersPage({ params }: { params: Promise<{ locale: string }> }) {
+  setRequestLocale((await params).locale);
   const [teachers, { placeholders, visibility }] = await Promise.all([
     getTeachers(),
     getPeoplePageData(),

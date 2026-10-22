@@ -4,11 +4,11 @@
 
 Run `pnpm setup:fees` with the existing `.env.local` Sanity credentials. This creates **drafts only**. It preserves existing fee documents and editorial changes, and only fills missing contact settings. Rerunning is safe. A concurrent Site Settings edit causes setup to fail rather than overwrite it; rerun after reviewing the draft.
 
-In `/studio`, review **Fees & Discounts**, then publish. Also review and publish **Site Settings → Contact Information** for the admissions phone and WhatsApp number. Do this before deploying the page changes when possible. Until financial settings are published, visitors see a contact-office message, never old code-defined prices.
+In `/studio`, review **Fees, discounts & transport**, then publish. Also review and publish **Site Settings → Contact Information** for the admissions phone and WhatsApp number. Do this before deploying the page changes when possible. Until financial settings are published, visitors see a contact-office message, never old code-defined prices.
 
 ## Editing financial information
 
-- Both Admissions and Curriculum read the same Fees & Discounts document.
+- Both Admissions and Curriculum read the same Fees, discounts & transport document.
 - Complete Bengali and English text. Program identities remain Pre-Hifz and Hifz; their display names are editable.
 - Add, hide, remove, or drag fee rows. Monthly fees appear first, one-time/annual second, and custom frequencies last. Drag order is preserved within each group.
 - Each program price is **Priced**, **Not applicable**, or **Contact office**. A priced value of zero explicitly means **Free**; do not use zero for an unknown amount.

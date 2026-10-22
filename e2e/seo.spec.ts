@@ -13,8 +13,8 @@ test.describe('Studio document language', () => {
     expect(response.status()).toBe(200);
     expect(await response.text()).toMatch(/<html[^>]*lang="en"/);
     await page.goto('/studio/structure');
+    // Studio has its own root layout (src/app/studio/layout.tsx), without the public site's fonts.
     await expect(page.locator('html')).toHaveAttribute('lang', 'en');
-    await expect(page.locator('body')).toHaveClass(/font-english/);
   });
 });
 
@@ -68,9 +68,10 @@ for (const locale of ['bengali', 'english']) {
         'content',
         title
       );
+      // Studio → Search & sharing → Share picture (cut to 1200 × 630), else the school building on the site itself.
       await expect(page.locator('meta[property="og:image"]')).toHaveAttribute(
         'content',
-        `${DEFAULT_SITE_URL}/images/social/school.jpg`
+        new RegExp(`^(https://cdn\\.sanity\\.io/images/.+w=1200&h=630&fit=crop|${DEFAULT_SITE_URL.replace(/\./g, '\\.')}/images/social/school\\.jpg)$`)
       );
       await expect(
         page.locator('meta[name="google-site-verification"][content^="your-"]')

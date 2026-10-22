@@ -1,52 +1,31 @@
 import { Metadata } from 'next';
-import { getTranslations } from 'next-intl/server';
+import { notFound } from 'next/navigation';
+import { setRequestLocale } from 'next-intl/server';
+import type { Locale } from '@/lib/i18n';
+import { pageMetadata } from '@/lib/page-seo';
+import { getContentService } from '@/lib/content-service';
+import { policyView } from '@/lib/policies';
+import { PolicyArticle } from '@/components/policies/policy-article';
 
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ locale: string }>;
-}): Promise<Metadata> {
-  const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: 'analytics.policy' });
-
-  return {
-    title: t('privacyTitle'),
-    description: t('privacyIntro'),
-  };
+/** The privacy policy, from Studio → Privacy & cookie policies. */
+async function policy(locale: Locale) {
+  const service = getContentService(false);
+  const [doc, settings] = await Promise.all([service.getPolicies(), service.getSiteSettings()]);
+  return policyView(doc, 'privacy', locale, settings);
 }
 
-export default async function PrivacyPolicyPage({
-  params,
-}: {
-  params: Promise<{ locale: string }>;
-}) {
-  const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: 'analytics.policy' });
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const locale = (await params).locale as Locale;
+  const view = await policy(locale);
+  if (!view) return {};
+  // The shared helper adds the canonical link and hreflang; the title keeps the site's ending (the school's name).
+  return pageMetadata({ title: view.title, description: view.intro, locale, path: '/privacy-policy', withSiteName: true });
+}
 
-  const sections = [
-    { title: t('dataCollectedTitle'), body: t('dataCollectedBody') },
-    { title: t('analyticsToolsTitle'), body: t('analyticsToolsBody') },
-    { title: t('childrenTitle'), body: t('childrenBody') },
-    { title: t('contactTitle'), body: t('contactBody') },
-  ];
-
-  return (
-    <div className="container-custom py-12 md:py-16">
-      <div className="mx-auto max-w-3xl">
-        <h1 className="text-3xl font-bold text-gray-900 md:text-4xl">{t('privacyTitle')}</h1>
-        <p className="mt-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-          {t('legalReviewNotice')}
-        </p>
-        <p className="mt-6 text-lg text-gray-700">{t('privacyIntro')}</p>
-        <div className="mt-10 space-y-8">
-          {sections.map((section) => (
-            <section key={section.title}>
-              <h2 className="text-xl font-semibold text-gray-900">{section.title}</h2>
-              <p className="mt-3 leading-relaxed text-gray-700">{section.body}</p>
-            </section>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
+export default async function PrivacyPolicyPage({ params }: { params: Promise<{ locale: string }> }) {
+  const locale = (await params).locale as Locale;
+  setRequestLocale(locale);
+  const view = await policy(locale);
+  if (!view) notFound();
+  return <PolicyArticle policy={view} locale={locale} />;
 }

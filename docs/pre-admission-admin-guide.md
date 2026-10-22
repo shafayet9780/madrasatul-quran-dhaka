@@ -35,7 +35,7 @@ At the bottom of the overview. **এই ডিভাইসে ফর্ম খ�
 - All answers, grouped as in the form, with the documents. Documents are private: they open only from the admin.
   - A document the guardian ticked "don't have it now" for (birth certificate, result card) shows **জমা দেওয়া হয়নি, সঙ্গে আনবেন**: collect it on assessment day.
   - Transport shows the stop, the route, the vehicle and the monthly charge the guardian saw when applying, or the area they typed if their area is not on any route.
-- **অবস্থা**: change and **সংরক্ষণ**.
+- **অবস্থা**: change and **সেভ করুন**.
 - **অ্যাসেসমেন্টের দিন**: switch on **উপস্থিত** when the child arrives, and **অ্যাসেসমেন্ট ফি গৃহীত** when the ৳500 cash fee is paid (type the receipt number first, if there is one). Both can be switched off again if pressed by mistake; every change is logged.
 - **পেমেন্ট**: every attempt with its SSLCommerz transaction IDs. *যাচাই দরকার* means SSLCommerz flagged the payment as risky or the amount did not match: check the transaction in the SSLCommerz merchant panel, then tick the box and press **পেমেন্ট গ্রহণ করে আইডি দিন**. If the payment was not genuine, refund it from the SSLCommerz panel and leave the application unpaid.
 - **ইমেইল আবার পাঠান**: sends the confirmation email with the PDF again (e.g. the guardian deleted it).
@@ -89,7 +89,7 @@ Publish a change and the website uses it within about a minute. Applications alr
   - A checkbox option: **Only this choice** (e.g. "none of the above" clears the other choices).
   - A class option: **Requirements (all must be met)**. Each one names a question by its key, the answers that meet it and a short message (2027: class 7 takes girls only, `student_gender` = `female`, who know nahw and sarf, `arabic_level` = `knows_nahw_sarf`). The messages show beside the class on the website, the intro page and the paper form. A class whose requirement fails on an earlier question (gender) cannot be chosen; a later question (Arabic level) shows the message and the form cannot be submitted until the answer or the class changes. The question must be shown for that class (its "show only when" must include it).
   - A class option: **Closed for this session** (under *Class field only*). See *Closing a class for a session* below.
-  - **Fees & Discounts → Transport**: vehicles with their monthly charge (none means "contact the office") and routes with their stops in order. A change here also makes a new form version, so guardians who already applied keep the charge they saw.
+  - **Fees, discounts & transport → Transport**: vehicles with their monthly charge (none means "contact the office") and routes with their stops in order. A change here also makes a new form version, so guardians who already applied keep the charge they saw.
 
 The full rules are in [`pre-admission-2027-updates.md`](pre-admission-2027-updates.md), section 2.
 

@@ -53,7 +53,7 @@ function RowActions({ row, selected, onSelect, onPanel }: { row: BoardRow; selec
         </Button>
         <Button asChild variant="outline" className={OUTLINE}>
           <Link href={row.studioHref} target="_blank" rel="noreferrer">
-            Studio-তে সম্পাদনা
+            Studio-তে এডিট
           </Link>
         </Button>
       </div>
@@ -79,7 +79,7 @@ function RowActions({ row, selected, onSelect, onPanel }: { row: BoardRow; selec
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="adm min-w-44" onCloseAutoFocus={(e) => e.preventDefault()}>
           <DropdownMenuItem onSelect={() => onPanel('extend', row)}>মেয়াদ বাড়ান</DropdownMenuItem>
-          <DropdownMenuItem onSelect={() => onPanel('refresh', row)}>তালিকা হালনাগাদ</DropdownMenuItem>
+          <DropdownMenuItem onSelect={() => onPanel('refresh', row)}>তালিকা আপডেট</DropdownMenuItem>
           <DropdownMenuItem onSelect={() => onPanel('close', row)} className="text-destructive focus:text-destructive">
             এখনই বন্ধ
           </DropdownMenuItem>
@@ -161,17 +161,17 @@ function ActionPanel({ panel, pending, onCancel, run }: { panel: NonNullable<Pan
       action: () => closeRoundAction(row.roundId),
     },
     refresh: {
-      title: `${rowName(row)}: তালিকা হালনাগাদ করবেন?`,
+      title: `${rowName(row)}: তালিকা আপডেট করবেন?`,
       body: 'Studio থেকে শ্রেণি, শাখা, বিষয় ও শিক্ষক তালিকা আবার নেওয়া হবে। প্রশ্ন ও আগের জমা বদলাবে না।',
       cancel: 'বাতিল',
-      confirm: 'হালনাগাদ করুন',
+      confirm: 'আপডেট করুন',
       action: () => refreshListsAction(row.roundId),
     },
     extend: {
       title: `${rowName(row)}: নতুন বন্ধের সময়`,
       body: row.status === 'closed' ? 'মেয়াদ বাড়ালে রাউন্ডটি আবার খুলবে এবং রেখে দেওয়া খসড়া জমা দেওয়া যাবে।' : 'লিংক একই থাকবে।',
       cancel: 'বাতিল',
-      confirm: 'সংরক্ষণ করুন',
+      confirm: 'সেভ করুন',
       action: () => extendRoundAction(row.roundId, closesAt),
     },
   }[panel.type];
@@ -239,7 +239,7 @@ export function RoundsBoard({ rows }: { rows: BoardRow[] }) {
         // The panel that had focus may be gone; keep keyboard users at the result.
         requestAnimationFrame(() => statusRef.current?.focus());
       } catch {
-        setMessage({ ok: false, lines: ['কাজটি সম্পন্ন হয়নি। ইন্টারনেট সংযোগ দেখে আবার চেষ্টা করুন।'] });
+        setMessage({ ok: false, lines: ['কাজটি সম্পন্ন হয়নি। ইন্টারনেট কানেকশন দেখে আবার চেষ্টা করুন।'] });
         requestAnimationFrame(() => statusRef.current?.focus());
       }
     });

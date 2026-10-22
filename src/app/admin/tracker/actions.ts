@@ -10,7 +10,7 @@ const input = z.object({ roundId: z.uuid(), batchIds: z.array(z.uuid()).min(2).m
 export async function resolveDuplicateAction(roundId: string, batchIds: string[], keepId: string | null) {
   await assertAdmin();
   const parsed = input.safeParse({ roundId, batchIds, keepId });
-  if (!parsed.success) return { ok: false as const, error: 'অনুরোধটি সঠিক নয়; পাতাটি আবার লোড করুন।' };
+  if (!parsed.success) return { ok: false as const, error: 'কিছু একটা গোলমাল হয়েছে; পেজটি আবার লোড করুন।' };
   const error = await resolveDuplicate(roundId, batchIds, keepId);
   if (error) return { ok: false as const, error };
   revalidatePath('/admin/tracker');

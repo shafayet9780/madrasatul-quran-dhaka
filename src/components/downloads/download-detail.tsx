@@ -1,5 +1,5 @@
 import Image from 'next/image'
-import Link from 'next/link'
+import Link from '@/components/site/link';
 import { PortableText } from '@portabletext/react'
 import { CalendarDays, Download, FileText, FolderOpen, LockKeyhole } from 'lucide-react'
 import { urlFor } from '@/lib/sanity'
@@ -79,7 +79,7 @@ export function DownloadDetail({ item, locale }: { item: Downloadable; locale: s
               </a>
               <span className="inline-flex items-center gap-2 text-sm text-gray-600">
                 <LockKeyhole aria-hidden="true" className="h-4 w-4 text-primary-700" />
-                {bengali ? 'আপনার শেয়ার করা লিংকের মাধ্যমে উপলব্ধ।' : 'Available through your shared link.'}
+                {bengali ? 'আপনাকে পাঠানো লিংক দিয়ে পাওয়া যাচ্ছে।' : 'Available through your shared link.'}
               </span>
             </div>
 

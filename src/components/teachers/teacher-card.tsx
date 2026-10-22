@@ -1,6 +1,6 @@
 'use client';
 
-import Link from 'next/link';
+import Link from '@/components/site/link';
 import { useLocale, useTranslations } from 'next-intl';
 import { ProfileAvatar } from '@/components/people/profile-avatar';
 import { ProfileBadge } from '@/components/people/profile-sections';

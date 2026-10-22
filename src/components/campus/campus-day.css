@@ -1,0 +1,1201 @@
+/*
+ * The Campus page: a day on campus (docs/campus-day.md). The steps are ordinary text; the stage beside them (on top on
+ * phones) plays the day. Two layers of motion:
+ * 1. Which stop and which moment: the driver (tour-driver.tsx) sets data-pos (next | now | past) on everything that
+ *    follows the day, and data-sky, data-groups, data-lift, --sun and --lift on the stage; transitions do the rest.
+ * 2. Motion inside a stop follows the scroll itself: each step is a view timeline (--tl: --t0 …, timeline-scope on the
+ *    tour) that its stage layer's pieces run on. Base styles are the end states, so browsers without scroll timelines
+ *    still show every stop, just without that motion.
+ * Transforms, opacity and clip-path only. Reduced motion (and no script): no stage, each step shows its own photos.
+ */
+
+/* ── The tour: steps and stage ───────────────────────────────────────────── */
+
+.cd-tour {
+  display: flex;
+  flex-direction: column-reverse; /* phones: the stage on top, the steps (first in the HTML) under it */
+}
+.cd-steps {
+  position: relative;
+  min-width: 0;
+  view-timeline: --day block;
+  view-timeline-inset: 50svh 0;
+}
+@media (min-width: 1024px) {
+  .cd-tour {
+    flex-direction: row;
+    gap: clamp(32px, 4vw, 64px);
+  }
+  .cd-steps {
+    flex: 1 1 0;
+    view-timeline-inset: 0 0;
+  }
+  .cd-stage {
+    flex: 1.3 1 0;
+  }
+}
+
+/* The rail: fills as the day goes by. */
+.cd-rail {
+  position: absolute;
+  left: 10px;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  border-radius: 2px;
+  background: var(--color-line);
+}
+.cd-rail i {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--color-rust);
+  transform-origin: top;
+}
+
+.cd-step {
+  position: relative;
+  min-height: calc(var(--hp) * 1svh);
+  view-timeline-name: var(--tl);
+  view-timeline-axis: block;
+  view-timeline-inset: 50svh 0; /* phones: the stage covers the top half */
+}
+/* The words hold still while their stop plays (the step's height is how long it plays), then the next step takes over. */
+.cd-step-body {
+  position: sticky;
+  top: calc(50svh + 20px);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 0 0 32px 48px;
+}
+.cd-rail + .cd-step .cd-step-body {
+  padding-top: clamp(24px, 6vh, 64px);
+}
+@media (min-width: 1024px) {
+  .cd-step {
+    min-height: calc(var(--h) * 1vh);
+    view-timeline-inset: 0 0;
+  }
+  .cd-step-body {
+    top: 30vh;
+  }
+  .cd-rail + .cd-step .cd-step-body {
+    padding-top: clamp(40px, 14vh, 140px);
+  }
+}
+.cd-dot {
+  position: absolute;
+  left: 2px;
+  top: 3px;
+  width: 19px;
+  height: 19px;
+  border-radius: 50%;
+  border: 3px solid var(--color-rust);
+  background: var(--color-paper);
+  transition: transform 0.45s var(--ease-out-expo);
+}
+.cd-dot::after {
+  content: '';
+  position: absolute;
+  inset: 1px;
+  border-radius: 50%;
+  background: var(--color-rust);
+  transform: scale(0);
+  transition: transform 0.45s var(--ease-out-expo);
+}
+.cd-step:not([data-pos='next']) .cd-dot::after {
+  transform: none;
+}
+.cd-step[data-pos='now'] .cd-dot {
+  transform: scale(1.25);
+}
+
+/* A step's own photos: shown instead of the stage (reduced motion, no script). */
+.cd-still {
+  display: none;
+}
+
+/* ── The stage ───────────────────────────────────────────────────────────── */
+
+.cd-stage {
+  /* Light skies */
+  --fg: var(--color-ink);
+  --fg-on: var(--color-cream); /* text on a lit chip */
+  --accent: var(--color-rust);
+  --stroke: var(--color-ink);
+  --win: var(--color-line-strong);
+  --van: var(--color-surface);
+  --glass: var(--color-on-dark-faint);
+  --lit: 0; /* share of windows lit */
+  --row: 30px; /* a lift row */
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  height: 50svh;
+  display: flex;
+  align-items: center;
+  background: var(--color-paper);
+}
+.cd-stage[data-sky='dawn'] {
+  --lit: 0.22;
+}
+.cd-stage[data-sky='late'] {
+  --lit: 0.12;
+}
+.cd-stage:is([data-sky='dusk'], [data-sky='night']) {
+  --fg: var(--color-on-dark);
+  --fg-on: var(--color-dark);
+  --accent: var(--color-bronze-light);
+  --stroke: var(--color-on-dark-faint);
+  --win: var(--color-line-dark);
+  --van: var(--color-on-dark);
+  --glass: var(--color-line-dark-strong);
+  --lit: 0.62;
+}
+.cd-stage[data-sky='night'] {
+  --lit: 0.9;
+}
+@media (min-width: 1024px) {
+  .cd-stage {
+    --row: 36px;
+    height: 100vh;
+  }
+}
+
+.cd-screen {
+  position: relative;
+  isolation: isolate;
+  width: 100%;
+  height: calc(100% - 12px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: var(--radius-panel);
+  box-shadow: 0 0 0 1px var(--color-line);
+  color: var(--fg);
+  transition: color 0.9s var(--ease-standard);
+}
+@media (min-width: 1024px) {
+  .cd-screen {
+    height: calc(100% - 48px);
+  }
+}
+
+/* The sky: one layer per part of the day, cross-fading (brown palette only). */
+.cd-sky {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 1.2s var(--ease-standard);
+}
+.cd-sky[data-sky='dawn'] {
+  background: linear-gradient(180deg, var(--color-sand-deep) 0%, var(--color-sand) 60%, var(--color-cream) 100%);
+}
+.cd-sky[data-sky='morning'] {
+  background: linear-gradient(180deg, var(--color-cream) 0%, var(--color-paper) 100%);
+}
+.cd-sky[data-sky='day'] {
+  background: linear-gradient(180deg, var(--color-sand-pale) 0%, var(--color-cream) 100%);
+}
+.cd-sky[data-sky='afternoon'] {
+  background: linear-gradient(180deg, var(--color-sand) 0%, var(--color-sand-pale) 100%);
+}
+.cd-sky[data-sky='late'] {
+  background: linear-gradient(180deg, var(--color-sand-deep) 0%, var(--color-sand) 70%, var(--color-line-sand) 100%);
+}
+.cd-sky[data-sky='dusk'] {
+  background:
+    radial-gradient(120% 60% at 50% 110%, rgb(226 168 103 / 0.32), transparent 70%),
+    linear-gradient(180deg, var(--color-panel) 0%, var(--color-line-dark) 100%);
+}
+.cd-sky[data-sky='night'] {
+  background: linear-gradient(180deg, var(--color-dark) 0%, var(--color-panel) 100%);
+}
+.cd-stage[data-sky='dawn'] .cd-sky[data-sky='dawn'],
+.cd-stage[data-sky='morning'] .cd-sky[data-sky='morning'],
+.cd-stage[data-sky='day'] .cd-sky[data-sky='day'],
+.cd-stage[data-sky='afternoon'] .cd-sky[data-sky='afternoon'],
+.cd-stage[data-sky='late'] .cd-sky[data-sky='late'],
+.cd-stage[data-sky='dusk'] .cd-sky[data-sky='dusk'],
+.cd-stage[data-sky='night'] .cd-sky[data-sky='night'] {
+  opacity: 1;
+}
+.cd-star {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  border-radius: 50%;
+  background: var(--color-on-dark);
+  opacity: 0.55;
+}
+
+/* ── The heads-up line: the clock, the sun crossing the day, who is in school ── */
+
+.cd-hud {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 18px;
+  padding: 10px 12px 8px;
+}
+@media (min-width: 1024px) {
+  .cd-hud {
+    flex-wrap: nowrap;
+    padding: 18px 22px 16px;
+  }
+}
+
+/* Every clock reading sits in the same cell; the current one rolls in from below, the last one out above. */
+.cd-clock {
+  display: grid;
+  min-width: 0;
+}
+.cd-reading {
+  grid-area: 1 / 1;
+  display: flex;
+  flex-direction: column;
+  transition:
+    opacity 0.45s var(--ease-standard),
+    transform 0.7s var(--ease-out-expo);
+}
+.cd-reading[data-pos='next'] {
+  opacity: 0;
+  transform: translateY(45%);
+}
+.cd-reading[data-pos='past'] {
+  opacity: 0;
+  transform: translateY(-45%);
+}
+.cd-reading > span {
+  font-size: 0.8125rem;
+  font-weight: var(--font-weight-strong);
+  line-height: 1.3;
+  color: var(--accent);
+  transition: color 0.9s var(--ease-standard);
+}
+.cd-reading > strong {
+  font-size: 1.625rem;
+  font-weight: 800;
+  line-height: 1.05;
+  white-space: nowrap;
+}
+@media (min-width: 1024px) {
+  .cd-reading > strong {
+    font-size: 2.25rem;
+  }
+}
+
+/* The sun's track: dashed for the day ahead, solid behind the sun. Desktop only. */
+.cd-track {
+  display: none;
+  position: relative;
+  flex: 1 1 auto;
+  min-width: 100px;
+  height: 34px;
+  container-type: inline-size;
+}
+@media (min-width: 1024px) {
+  .cd-track {
+    display: block;
+  }
+}
+.cd-track::before,
+.cd-track > i {
+  content: '';
+  position: absolute;
+  left: 15px;
+  right: 15px;
+  top: 50%;
+}
+.cd-track::before {
+  border-top: 2px dashed var(--stroke);
+  opacity: 0.4;
+}
+.cd-track > i {
+  height: 2px;
+  background: var(--accent);
+  transform-origin: left;
+  transform: scaleX(var(--sun));
+  transition: transform 0.9s var(--ease-out-expo);
+}
+.cd-sun {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 30px;
+  height: 30px;
+  margin-top: -14px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--accent);
+  color: var(--fg-on);
+  box-shadow: 0 0 0 5px rgb(226 168 103 / 0.22);
+  transform: translateX(calc(var(--sun) * (100cqw - 30px)));
+  transition: transform 0.9s var(--ease-out-expo);
+}
+.cd-sun svg {
+  grid-area: 1 / 1;
+  transition:
+    opacity 0.6s var(--ease-standard),
+    transform 0.8s var(--ease-out-expo);
+}
+.cd-sun .cd-moon,
+.cd-stage:is([data-sky='dusk'], [data-sky='night']) .cd-sun .cd-sun-icon {
+  opacity: 0;
+  transform: rotate(-90deg) scale(0.6);
+}
+.cd-stage:is([data-sky='dusk'], [data-sky='night']) .cd-sun .cd-moon {
+  opacity: 1;
+  transform: none;
+}
+
+/* Who is in school: lit when present. The fill grows in behind the name. */
+.cd-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+.cd-chip {
+  position: relative;
+  isolation: isolate;
+  display: inline-flex;
+  align-items: center;
+  height: 28px;
+  padding: 0 11px;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: var(--font-weight-strong);
+  white-space: nowrap;
+  box-shadow: inset 0 0 0 1px var(--stroke);
+  opacity: 0.5;
+  transition:
+    opacity 0.5s var(--ease-standard),
+    color 0.5s var(--ease-standard),
+    box-shadow 0.9s var(--ease-standard);
+}
+.cd-chip::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: var(--fg);
+  opacity: 0;
+  transform: scale(0.5);
+  transition:
+    opacity 0.4s var(--ease-standard),
+    transform 0.6s var(--ease-out-expo);
+}
+@media (min-width: 1024px) {
+  .cd-chip {
+    height: 30px;
+    padding: 0 12px;
+    font-size: 0.8125rem;
+  }
+  .cd-chips {
+    flex-wrap: nowrap;
+    gap: 6px;
+  }
+}
+.cd-stage[data-groups~='preHifz'] .cd-chip[data-group='preHifz'],
+.cd-stage[data-groups~='hifz'] .cd-chip[data-group='hifz'],
+.cd-stage[data-groups~='afterHifz'] .cd-chip[data-group='afterHifz'] {
+  opacity: 1;
+  color: var(--fg-on);
+  box-shadow: inset 0 0 0 1px transparent;
+}
+.cd-stage[data-groups~='preHifz'] .cd-chip[data-group='preHifz']::before,
+.cd-stage[data-groups~='hifz'] .cd-chip[data-group='hifz']::before,
+.cd-stage[data-groups~='afterHifz'] .cd-chip[data-group='afterHifz']::before {
+  opacity: 1;
+  transform: none;
+}
+
+/* ── The view: one layer per stop ─────────────────────────────────────────── */
+
+.cd-view {
+  position: relative;
+  flex: 1 1 0;
+  min-height: 0;
+  margin: 0 10px 10px;
+  border-radius: var(--radius-photo);
+  overflow: hidden;
+  container-type: size;
+}
+@media (min-width: 1024px) {
+  .cd-view {
+    margin: 0 14px 14px;
+  }
+}
+.cd-layer {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.7s var(--ease-standard);
+}
+.cd-layer[data-pos='now'] {
+  opacity: 1;
+}
+/* Only the stops beside the current one are laid out, so photos further on load as the day comes to them. */
+.cd-layer:not([data-near]) {
+  display: none;
+}
+@starting-style {
+  .cd-layer[data-pos='now'] {
+    opacity: 0;
+  }
+}
+
+.cd-fill {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.cd-photo {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+/* A photo's name, on the photo. */
+.cd-name {
+  position: absolute;
+  left: 12px;
+  bottom: 12px;
+  max-width: calc(100% - 24px);
+  padding: 7px 14px;
+  border-radius: 9999px;
+  background: rgb(44 31 21 / 0.88);
+  color: var(--color-on-dark);
+  font-size: 0.875rem;
+  font-weight: var(--font-weight-strong);
+  line-height: 1.3;
+}
+
+/* The drawn building: a grid of windows that light up one by one as it gets dark. */
+.cd-building {
+  position: absolute;
+  display: grid;
+  grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
+  grid-template-rows: repeat(var(--rows), minmax(0, 1fr));
+  gap: 1.3cqh 1.8cqw;
+  padding: 2cqh 2cqw;
+  border: 3px solid var(--stroke);
+  border-bottom: 0;
+  border-radius: 3px 3px 0 0;
+  transition: border-color 0.9s var(--ease-standard);
+}
+.cd-win {
+  position: relative;
+  border-radius: 2px;
+  background: var(--win);
+  transition: background-color 0.9s var(--ease-standard);
+}
+.cd-win i {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--color-bronze-light);
+  box-shadow: 0 0 10px rgb(226 168 103 / 0.55);
+  opacity: clamp(0, (var(--lit) - var(--r)) * 40, 1);
+  transition: opacity 0.5s var(--ease-standard) calc(var(--r) * 1.6s);
+}
+/* The red sign on the real roof, in the site's rust. */
+.cd-sign {
+  position: absolute;
+  right: -3px;
+  bottom: 100%;
+  padding: 0.4cqh 1.2cqw;
+  margin-bottom: 1cqh;
+  border-radius: 2px;
+  background: var(--color-rust);
+  color: var(--color-cream);
+  font-size: clamp(9px, 2.4cqw, 15px);
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  line-height: 1.2;
+}
+.cd-ground {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--stroke);
+  transition: background-color 0.9s var(--ease-standard);
+}
+
+/* From the metro: the distance, and the walk drawing itself from the station to the school. */
+.cd-walk {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: clamp(14px, 5cqh, 30px);
+  padding: 0 8cqw;
+}
+.cd-walk-figure {
+  animation: cd-rise 0.9s var(--ease-out-expo) 0.15s both;
+  font-size: clamp(3rem, 17cqw, 7.5rem);
+  font-weight: 800;
+  line-height: 0.95;
+  letter-spacing: -0.02em;
+  color: var(--accent);
+}
+.cd-walk-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  font-size: clamp(0.8125rem, 2.6cqw, 1rem);
+  font-weight: var(--font-weight-strong);
+}
+.cd-walk-end {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+.cd-walk-station {
+  display: grid;
+  place-items: center;
+  width: clamp(30px, 8cqw, 44px);
+  height: clamp(30px, 8cqw, 44px);
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--fg-on);
+}
+.cd-walk-school {
+  position: relative;
+  width: clamp(26px, 6.5cqw, 38px);
+  height: clamp(40px, 11cqw, 62px);
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(4, 1fr);
+  gap: 3px;
+  padding: 4px;
+  border: 2px solid var(--stroke);
+  border-bottom: 0;
+}
+.cd-walk-school i {
+  border-radius: 1px;
+  background: var(--win);
+}
+.cd-walk-path {
+  position: relative;
+  flex: 1;
+  height: 0;
+  margin-bottom: clamp(15px, 4cqw, 22px);
+  container-type: inline-size;
+}
+.cd-walk-path > i {
+  position: absolute;
+  inset: -1.5px 0 auto;
+  border-top: 3px dashed var(--stroke);
+  transform-origin: left;
+}
+.cd-walker {
+  position: absolute;
+  left: -7px;
+  top: -8px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 4px rgb(138 63 10 / 0.18);
+  transform: translateX(100cqw);
+}
+.cd-walk-note {
+  font-size: clamp(0.875rem, 2.6cqw, 1rem);
+  opacity: 0.85;
+}
+
+/* The road: the van comes to the door in the morning and drives away at one. */
+.cd-road .cd-building {
+  right: 7%;
+  bottom: 22%;
+  width: 26%;
+  height: 62%;
+}
+.cd-road .cd-ground {
+  bottom: 22%;
+}
+.cd-lane {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 13%;
+  border-top: 2px dashed var(--stroke);
+  opacity: 0.35;
+}
+.cd-track-road {
+  --van-w: clamp(96px, 34cqw, 176px);
+  position: absolute;
+  left: 4%;
+  right: 33%;
+  bottom: calc(22% + 1px);
+  container-type: inline-size;
+}
+.cd-van {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: var(--van-w);
+  transform: translateX(calc(100cqw - var(--van-w)));
+}
+.cd-van[data-away] {
+  transform: translateX(calc(-1 * var(--van-w) - 12cqw));
+}
+.cd-van[data-away] svg {
+  transform: scaleX(-1);
+}
+.cd-van svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+.cd-van-body {
+  fill: var(--van);
+  stroke: var(--stroke);
+  stroke-width: 2;
+  transition:
+    fill 0.9s var(--ease-standard),
+    stroke 0.9s var(--ease-standard);
+}
+.cd-van-glass {
+  fill: var(--glass);
+}
+.cd-wheel {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.cd-beam {
+  fill: var(--color-bronze-light);
+  opacity: calc(var(--lit) * 1.1);
+}
+/* The van's photo, pinned up like a print. */
+.cd-print {
+  position: absolute;
+  left: 6%;
+  top: 7%;
+  width: clamp(104px, 24cqw, 190px);
+  margin: 0;
+  padding: 7px 7px 9px;
+  border-radius: 6px;
+  background: var(--color-surface);
+  box-shadow: 0 18px 30px -18px rgb(0 0 0 / 0.6);
+  transform: rotate(-4deg);
+}
+.cd-print > div {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  border-radius: 3px;
+}
+.cd-print figcaption {
+  padding-top: 6px;
+  font-size: 0.75rem;
+  font-weight: var(--font-weight-strong);
+  line-height: 1.3;
+  color: var(--color-ink-body);
+}
+
+/* The entrance: the building, its door, and the photo seen through the door. */
+.cd-entrance .cd-building {
+  left: 30%;
+  right: 30%;
+  top: 7%;
+  bottom: 10%;
+  padding-bottom: 32cqh;
+}
+.cd-entrance .cd-ground {
+  bottom: 10%;
+}
+.cd-door {
+  position: absolute;
+  opacity: 0; /* the photo has come through it */
+  left: 44%;
+  right: 44%;
+  top: 64%;
+  bottom: 10%;
+  display: flex;
+  overflow: hidden;
+  border: 2px solid var(--stroke);
+  border-bottom: 0;
+  border-radius: 6px 6px 0 0;
+}
+.cd-door i {
+  flex: 1;
+  background: var(--color-line-dark);
+  box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.25);
+  transform: scaleX(0);
+}
+.cd-door i:first-child {
+  transform-origin: left;
+}
+.cd-door i:last-child {
+  transform-origin: right;
+}
+.cd-through {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+/* Moments: lit in turn, joined by a line that fills as the stop goes on. */
+.cd-moments {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6cqh 4cqw;
+}
+.cd-moments[data-photo] {
+  align-items: flex-end;
+  padding: 0;
+}
+.cd-moments[data-photo]::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(180deg, transparent 35%, rgb(44 31 21 / 0.88) 100%);
+}
+.cd-moments[data-photo] .cd-tiles {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  padding: 0 4cqw 6cqh;
+  color: var(--color-on-dark);
+  --stroke: var(--color-on-dark-faint);
+  --fg: var(--color-on-dark);
+}
+.cd-tiles {
+  --size: clamp(54px, 15cqw, 96px);
+  width: min(100%, 640px);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.cd-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(6px, 2cqh, 12px);
+  width: calc(var(--size) + 2.5cqw);
+  text-align: center;
+  opacity: 0.5;
+  transition: opacity 0.5s var(--ease-standard);
+}
+.cd-tile:not([data-pos='next']) {
+  opacity: 1;
+}
+.cd-tile-icon {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  place-items: center;
+  width: var(--size);
+  height: var(--size);
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 1.5px var(--stroke);
+  transition:
+    transform 0.6s var(--ease-out-expo),
+    color 0.4s var(--ease-standard);
+}
+.cd-tile-icon svg {
+  width: 46%;
+  height: 46%;
+}
+.cd-tile-icon::before,
+.cd-tile-icon::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: 50%;
+}
+.cd-tile-icon::before {
+  background: var(--color-bronze-light);
+  opacity: 0;
+  transform: scale(0.4);
+  transition:
+    opacity 0.4s var(--ease-standard),
+    transform 0.6s var(--ease-out-expo);
+}
+.cd-tile[data-pos='past'] .cd-tile-icon::before {
+  opacity: 0.35;
+  transform: none;
+}
+.cd-tile[data-pos='now'] .cd-tile-icon {
+  color: var(--color-dark);
+  transform: scale(1.08);
+}
+.cd-tile[data-pos='now'] .cd-tile-icon::before {
+  opacity: 1;
+  transform: none;
+}
+/* A ring goes out once as a moment begins. */
+.cd-tile-icon::after {
+  box-shadow: 0 0 0 2px var(--color-bronze-light);
+  opacity: 0;
+}
+.cd-tile[data-pos='now'] .cd-tile-icon::after {
+  animation: cd-ring 1.3s var(--ease-out-expo) 0.15s;
+}
+@keyframes cd-ring {
+  from {
+    opacity: 0.8;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(1.45);
+  }
+}
+.cd-tile > span:last-child {
+  font-size: clamp(0.8125rem, 2.8cqw, 1rem);
+  font-weight: var(--font-weight-strong);
+  line-height: 1.3;
+}
+.cd-link {
+  position: relative;
+  flex: 1 1 0;
+  max-width: 64px;
+  min-width: 8px;
+  height: 2px;
+  margin-top: calc(var(--size) / 2 - 1px);
+  background: var(--stroke);
+  opacity: 0.5;
+}
+.cd-link::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--color-bronze-light);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.6s var(--ease-out-expo);
+}
+.cd-link:not([data-pos='next']) {
+  opacity: 1;
+}
+.cd-link:not([data-pos='next'])::after {
+  transform: none;
+}
+
+/* Several rooms, one after another as the reader scrolls. */
+.cd-room {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transform: scale(1.06);
+  transition:
+    opacity 0.8s var(--ease-standard),
+    transform 1.4s var(--ease-out-expo);
+}
+.cd-room[data-pos='now'] {
+  opacity: 1;
+  transform: none;
+}
+.cd-room .cd-name {
+  opacity: 0;
+  transform: translateY(10px);
+  transition:
+    opacity 0.5s var(--ease-standard) 0.2s,
+    transform 0.6s var(--ease-out-expo) 0.2s;
+}
+.cd-room[data-pos='now'] .cd-name {
+  opacity: 1;
+  transform: none;
+}
+
+/* The lift: which floor we are on. */
+.cd-lift {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  z-index: 3;
+  padding: 6px;
+  border-radius: 12px;
+  background: rgb(44 31 21 / 0.9);
+  color: var(--color-on-dark-faint);
+  opacity: 0;
+  transform: translateX(10px);
+  transition:
+    opacity 0.5s var(--ease-standard),
+    transform 0.6s var(--ease-out-expo);
+}
+.cd-stage[data-lift='on'] .cd-lift {
+  opacity: 1;
+  transform: none;
+}
+.cd-lift > div {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+.cd-lift-mark {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: var(--row);
+  border-radius: 9999px;
+  background: var(--color-bronze-light);
+  transform: translateY(calc(var(--lift) * var(--row)));
+  transition: transform 0.8s cubic-bezier(0.3, 0.8, 0.2, 1);
+}
+.cd-lift-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: var(--row);
+  padding: 0 12px;
+  font-size: 0.75rem;
+  font-weight: var(--font-weight-strong);
+  white-space: nowrap;
+  transition: color 0.4s var(--ease-standard);
+}
+.cd-lift-row[data-pos='now'] {
+  color: var(--color-dark);
+}
+@media (min-width: 1024px) {
+  .cd-lift {
+    right: 14px;
+    top: 14px;
+    padding: 8px;
+    border-radius: 14px;
+  }
+  .cd-lift-row {
+    padding: 0 14px;
+    font-size: 0.8125rem;
+  }
+}
+
+/* ── Motion inside a stop: it follows the scroll (view timelines) ─────────── */
+
+@keyframes cd-grow-y {
+  from {
+    transform: scaleY(0);
+  }
+}
+@keyframes cd-grow-x {
+  from {
+    transform: scaleX(0);
+  }
+}
+@keyframes cd-walk {
+  from {
+    transform: translateX(0);
+  }
+}
+@keyframes cd-rise {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+}
+@keyframes cd-fade-out {
+  from {
+    opacity: 1;
+  }
+}
+@keyframes cd-drive-in {
+  from {
+    transform: translateX(calc(-1 * var(--van-w) - 12cqw));
+  }
+}
+@keyframes cd-drive-away {
+  from {
+    transform: translateX(calc(100cqw - var(--van-w)));
+  }
+}
+@keyframes cd-spin {
+  from {
+    transform: rotate(-900deg);
+  }
+}
+@keyframes cd-pop {
+  from {
+    opacity: 0;
+    transform: translateY(18px) rotate(2deg) scale(0.9);
+  }
+  60% {
+    opacity: 1;
+    transform: rotate(-5deg) scale(1.03);
+  }
+}
+@keyframes cd-open-leaf {
+  from {
+    transform: none;
+  }
+}
+@keyframes cd-door-through {
+  from {
+    clip-path: inset(64% 44% 10% 44% round 6px 6px 0 0);
+  }
+}
+@keyframes cd-zoom-through {
+  from {
+    transform: scale(1.3);
+  }
+}
+@keyframes cd-settle {
+  from {
+    clip-path: inset(7% 7% round 14px);
+    transform: scale(1.12);
+  }
+}
+@keyframes cd-from-sky {
+  from {
+    clip-path: inset(0 0 100% 0);
+  }
+}
+@keyframes cd-drop {
+  from {
+    transform: translateY(-8%) scale(1.08);
+  }
+}
+@keyframes cd-from-side {
+  from {
+    clip-path: inset(0 0 0 100%);
+  }
+}
+@keyframes cd-slide {
+  from {
+    transform: translateX(22%);
+  }
+}
+@keyframes cd-pull {
+  from {
+    transform: scale(1.4);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .cd-rail i {
+      animation: cd-grow-y auto linear both;
+      animation-timeline: --day;
+      animation-range: contain 0% contain 100%;
+    }
+  }
+  @supports (timeline-scope: none) {
+    /* A step's pieces run on its timeline: --tl is set on the step and on its stage layer. */
+    .cd-door {
+      animation: cd-fade-out auto linear both;
+      animation-timeline: var(--tl);
+      animation-range: cover 34% cover 44%;
+    }
+    .cd-walk-path > i {
+      animation: cd-grow-x auto linear both;
+      animation-timeline: var(--tl);
+      animation-range: exit 0% exit 35%;
+    }
+    .cd-walker {
+      animation: cd-walk auto linear both;
+      animation-timeline: var(--tl);
+      animation-range: exit 0% exit 35%;
+    }
+    .cd-van {
+      animation: cd-drive-in auto cubic-bezier(0.2, 0.6, 0.3, 1) both;
+      animation-timeline: var(--tl);
+      animation-range: cover 24% cover 60%;
+    }
+    .cd-van[data-away] {
+      animation-name: cd-drive-away;
+      animation-timing-function: cubic-bezier(0.6, 0, 0.8, 0.5);
+      animation-range: cover 30% cover 66%;
+    }
+    .cd-wheel {
+      animation: cd-spin auto cubic-bezier(0.2, 0.6, 0.3, 1) both;
+      animation-timeline: var(--tl);
+      animation-range: cover 24% cover 60%;
+    }
+    .cd-van[data-away] .cd-wheel {
+      animation-timing-function: cubic-bezier(0.6, 0, 0.8, 0.5);
+      animation-range: cover 30% cover 66%;
+    }
+    .cd-print {
+      animation: cd-pop auto var(--ease-out-expo) both;
+      animation-timeline: var(--tl);
+      animation-range: cover 46% cover 60%;
+    }
+    .cd-door i {
+      animation: cd-open-leaf auto var(--ease-standard) both;
+      animation-timeline: var(--tl);
+      animation-range: cover 24% cover 34%;
+    }
+    .cd-through {
+      animation: cd-door-through auto var(--ease-standard) both;
+      animation-timeline: var(--tl);
+      animation-range: cover 33% cover 60%;
+    }
+    .cd-through > img {
+      animation: cd-zoom-through auto var(--ease-standard) both;
+      animation-timeline: var(--tl);
+      animation-range: cover 33% cover 66%;
+    }
+    [data-kind='floor'] .cd-photo,
+    [data-kind='other'] .cd-photo,
+    [data-kind='rooms'] .cd-rooms,
+    .cd-moments[data-photo] > .cd-photo {
+      animation: cd-settle auto var(--ease-out-expo) both;
+      animation-timeline: var(--tl);
+      animation-range: cover 20% cover 52%;
+    }
+    [data-kind='roof'] .cd-photo {
+      animation: cd-from-sky auto var(--ease-standard) both;
+      animation-timeline: var(--tl);
+      animation-range: cover 24% cover 56%;
+    }
+    [data-kind='roof'] .cd-photo > img {
+      animation: cd-drop auto var(--ease-standard) both;
+      animation-timeline: var(--tl);
+      animation-range: cover 24% cover 62%;
+    }
+    [data-kind='field'] .cd-photo {
+      animation: cd-from-side auto var(--ease-standard) both;
+      animation-timeline: var(--tl);
+      animation-range: cover 24% cover 56%;
+    }
+    [data-kind='field'] .cd-photo > img {
+      animation: cd-slide auto var(--ease-out-expo) both;
+      animation-timeline: var(--tl);
+      animation-range: cover 24% cover 62%;
+    }
+    [data-kind='exit'] .cd-photo > img {
+      animation: cd-pull auto var(--ease-out-expo) both;
+      animation-timeline: var(--tl);
+      animation-range: cover 22% cover 70%;
+    }
+  }
+}
+
+/* Reduced motion: no stage; each step shows its own photos. (No script: the same, from a <noscript> style.) */
+@media (prefers-reduced-motion: reduce) {
+  .cd-stage {
+    display: none;
+  }
+  .cd-still {
+    display: grid;
+  }
+  .cd-step {
+    min-height: 0;
+  }
+  .cd-step-body {
+    position: static;
+    padding-block: 32px;
+  }
+}

@@ -261,10 +261,10 @@ export function Sheet({ labelledBy, onClose, children }: { labelledBy: string; o
 export type SaveState = 'idle' | 'saving' | 'saved' | 'offline' | 'error';
 
 export function SaveChip({ state }: { state: SaveState }) {
-  if (state === 'saving') return <span style={{ fontSize: 12.5, color: 'var(--sv-info)', fontWeight: 600 }}>সংরক্ষণ হচ্ছে…</span>;
+  if (state === 'saving') return <span style={{ fontSize: 12.5, color: 'var(--sv-info)', fontWeight: 600 }}>সেভ হচ্ছে…</span>;
   if (state === 'offline') return <span style={{ fontSize: 12.5, color: 'var(--sv-warn)', fontWeight: 600 }}>অফলাইন · এই ফোনে রাখা আছে</span>;
-  if (state === 'error') return <span style={{ fontSize: 12.5, color: 'var(--sv-error)', fontWeight: 600 }}>সংরক্ষণ হয়নি · আবার চেষ্টা হচ্ছে</span>;
-  if (state === 'saved') return <span style={{ fontSize: 12.5, color: 'var(--sv-ok)', fontWeight: 600 }}>● সংরক্ষিত</span>;
+  if (state === 'error') return <span style={{ fontSize: 12.5, color: 'var(--sv-error)', fontWeight: 600 }}>সেভ হয়নি · আবার চেষ্টা হচ্ছে</span>;
+  if (state === 'saved') return <span style={{ fontSize: 12.5, color: 'var(--sv-ok)', fontWeight: 600 }}>● সেভ হয়েছে</span>;
   return null;
 }
 

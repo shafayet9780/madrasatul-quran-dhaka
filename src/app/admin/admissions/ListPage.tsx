@@ -67,7 +67,7 @@ function progress(status: ApplicationStatus, snapshot: FormSnapshot | null, answ
   if (!snapshot) return '';
   const chapters = guardianSections(snapshot).map((s) => chapterStatus(s, answers as never, allFields(snapshot)));
   if (chapters.every((c) => c.answered === 0)) return 'শুধু শুরু';
-  return `${bn(chapters.length)}টির মধ্যে ${bn(chapters.filter((c) => c.status === 'done').length)}টি অধ্যায়`;
+  return `${bn(chapters.length)}টির মধ্যে ${bn(chapters.filter((c) => c.status === 'done').length)}টি ধাপ`;
 }
 
 export async function ListPage({ tab, search }: { tab: ListTab; search: ListSearch }) {
@@ -197,7 +197,7 @@ async function UnpaidTable({ cycle, rows, classLabel }: { cycle: AdminCycle; row
             <th>শ্রেণী</th>
             <th>অভিভাবকের মোবাইল</th>
             <th>অগ্রগতি</th>
-            <th>শেষ সক্রিয়</th>
+            <th>শেষ আপডেট</th>
             <th>পেমেন্ট চেষ্টা</th>
             <th>
               <span className="sr-only">কাজ</span>

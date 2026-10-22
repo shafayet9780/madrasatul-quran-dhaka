@@ -14,7 +14,7 @@ import {
 type Bi = { bengali?: string; english?: string };
 type Keyed<T> = T & { _key?: string };
 
-/** Fees & Discounts → Transport (published document `feeSettings`). */
+/** Fees, discounts & transport → Transport (published document `feeSettings`). */
 export type FeeDocument = {
   _rev?: string;
   transport?: Keyed<{ name?: Bi; visible?: boolean; price?: { status?: string; amount?: number } }>[];
@@ -109,9 +109,9 @@ export function buildSnapshot(doc: FormDocument, takenAt: Date = new Date()): Fo
   const stopFields = (doc.sections ?? []).flatMap((s) => s.fields ?? []).filter((f) => f.type === 'transportStop');
   const transport = stopFields.length ? buildTransport(doc.fees) : undefined;
   if (transport) {
-    if (!transport.routes.length) problems.push('Fees & Discounts → Transport: add at least one route with stops (the form asks for the nearest stop).');
+    if (!transport.routes.length) problems.push('Fees, discounts & transport → Transport: add at least one route with stops (the form asks for the nearest stop).');
     const vehicles = new Set(transport.vehicles.map((v) => v.key));
-    for (const r of transport.routes) if (!vehicles.has(r.vehicle)) problems.push(`Fees & Discounts → Transport → ${r.name?.bengali ?? r.key}: choose a vehicle.`);
+    for (const r of transport.routes) if (!vehicles.has(r.vehicle)) problems.push(`Fees, discounts & transport → Transport → ${r.name?.bengali ?? r.key}: choose a vehicle.`);
   }
   if (problems.length) throw new FormConfigError(problems);
 

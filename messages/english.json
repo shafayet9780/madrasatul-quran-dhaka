@@ -1,44 +1,7 @@
 {
-  "navigation": {
-    "home": "Home",
-    "curriculum": "Curriculum",
-    "about": "About Us",
-    "programs": "Academic Programs",
-    "admissions": "Admissions",
-    "campus": "Campus & Facilities",
-    "news": "News & Events",
-    "contact": "Contact",
-    "books": "Our Books",
-    "academics": "Academics",
-    "ourStory": "Our Story",
-    "people": "Our People",
-    "directors": "Directors",
-    "teachers": "Teachers",
-    "allDirectors": "All Directors",
-    "allTeachers": "All Teachers",
-    "byDepartment": "By department",
-    "advisors": "Advisors",
-    "allAdvisors": "All Advisors"
-  },
-  "advisors": {
-    "meta": {
-      "title": "Advisors - Madrasatul Quran",
-      "description": "Meet the advisors supporting Madrasatul Quran with their guidance, wisdom, and experience."
-    },
-    "title": "Our Advisors",
-    "subtitle": "Experienced guides supporting our mission with wisdom and counsel."
-  },
-  "directors": {
-    "meta": {
-      "title": "Directors - Madrasatul Quran",
-      "description": "Meet the directors guiding Madrasatul Quran — their vision, leadership, and dedication to Islamic and modern education."
-    },
-    "title": "Our Directors",
-    "subtitle": "The leadership steering our mission of excellence in Islamic and modern education."
-  },
   "teachers": {
     "meta": {
-      "title": "Teachers - Madrasatul Quran",
+      "title": "Teachers | Madrasatul Quran",
       "description": "Meet our dedicated teachers across departments — scholars and educators nurturing every student at Madrasatul Quran."
     },
     "title": "Our Teachers",
@@ -72,642 +35,600 @@
   },
   "home": {
     "meta": {
-      "title": "Madrasatul Quran - Excellence in Islamic Education & Modern Learning",
-      "description": "Combining traditional Islamic values with contemporary education for holistic development of mind, body, and soul. Join our community of learners."
-    }
-  },
-  "common": {
-    "loading": "Loading...",
-    "error": "An error occurred",
-    "readMore": "Read More",
-    "learnMore": "Learn More",
-    "contactUs": "Contact Us",
-    "apply": "Apply Now",
-    "close": "Close",
-    "open": "Open",
-    "menu": "Menu",
-    "search": "Search",
-    "submit": "Submit",
-    "cancel": "Cancel",
-    "save": "Save",
-    "edit": "Edit",
-    "delete": "Delete",
-    "confirm": "Confirm",
-    "back": "Back",
-    "next": "Next",
-    "previous": "Previous"
-  },
-  "language": {
-    "bengali": "বাংলা",
-    "english": "English",
-    "changeLanguage": "Change Language",
-    "currentLanguage": "Current Language"
-  },
-  "homepage": {
+      "title": "Madrasatul Quran, Uttara | Islamic and general education",
+      "description": "Madrasatul Quran in Uttara, Dhaka gives Islamic and general education equal weight in one ten-year plan, with day-care hifz. Nursery to Class 11."
+    },
     "hero": {
-      "title": "Madrasatul Quran",
-      "subtitle": "Excellence in Islamic Education & Modern Learning",
-      "description": "Combining traditional Islamic values with contemporary education for holistic development of mind, body, and soul"
+      "name": "Madrasatul Quran",
+      "apply": "Apply now",
+      "prospectus": "Download the prospectus",
+      "gallery": "Photos of Madrasatul Quran",
+      "pause": "Pause the photos"
     },
-    "mission": {
-      "title": "Our Mission",
-      "description": "Character building of students in the light of Quran and Sunnah and achieving excellence in modern education"
-    },
-    "statistics": {
+    "stats": {
+      "label": "The madrasa in numbers",
       "students": "Students",
       "teachers": "Teachers",
-      "years": "Years of Experience",
-      "graduates": "Graduates",
-      "successRate": "Success Rate"
+      "ratio": "Teachers to students, roughly"
+    },
+    "model": {
+      "title": "The education model",
+      "fifty": "50",
+      "fiftySr": "50-50: Islamic and general education, given equal weight",
+      "strandA": "Islamic education",
+      "strandAText": "Quran, Arabic, Aqidah, Fiqh, Hadith, Seerah",
+      "strandB": "General education",
+      "strandBText": "Bangla-medium NCTB, through Dakhil",
+      "lede": "An education where the curriculum, syllabus and daily routine give Islamic and general education equal weight.",
+      "balanceTitle": "How the balance shifts by stage",
+      "hoursLabel": "Madrasa day",
+      "balanceNote": "50-50 is the madrasa’s overall philosophy, not every class’s timetable.",
+      "subjects": {
+        "quran": "Quran",
+        "arabic": "Arabic",
+        "arabicIslam": "Arabic and Islamic",
+        "general": "General"
+      }
+    },
+    "plan": {
+      "title": "Nursery to Class 11, in three stages",
+      "lede": "Our main aim is a strong foundation by secondary level, so a student is fully prepared to succeed at a madrasa or at college.",
+      "mapTitle": "The 10-year study plan",
+      "mapSub": "Class 1 to Dakhil, with full or partial hifz. Nursery, KG and Class 11 are shown too.",
+      "exitsLabel": "After Dakhil:",
+      "exits": [
+        "Mutawassita",
+        "College"
+      ],
+      "note": "Arabic and Islamic studies books from Nursery to Class 8 are written by Al Quraner Vasha Institute (AQVI). Islamic studies are taught in Arabic from Class 6.",
+      "fullPlan": "The full class-by-class plan",
+      "strands": {
+        "quran": "Quran",
+        "arabic": "Arabic",
+        "islam": "Islam",
+        "general": "General"
+      },
+      "segments": {
+        "arabic": "Arabic language",
+        "islam": "Islamic studies",
+        "islamInArabic": "Islamic studies, in Arabic",
+        "general": "Bangla, English, Maths",
+        "science": "+ Science",
+        "bgs": "+ BGS"
+      },
+      "blocks": [
+        {
+          "name": "Dakhil",
+          "note": "Board syllabus"
+        },
+        {
+          "name": "Mutawassita",
+          "note": "One year after Dakhil"
+        }
+      ],
+      "ageFirst": "{age}+ yrs",
+      "age": "{age}+"
+    },
+    "day": {
+      "title": "A day in hifz day-care",
+      "lede": "From 7:00 am to 8:30 pm, meals included, under full-day supervision. Alongside the Quran: Arabic, Islamic studies and general classes every day, a midday rest, and play after Asr.",
+      "note": "Morning times stay the same all year. Afternoon and evening study follows the salat times, so in winter some afternoon study moves to the evening. Home time is always 8:30 pm.",
+      "hoursTitle": "Madrasa hours by stage",
+      "parts": [
+        {
+          "name": "Morning",
+          "steps": [
+            {
+              "time": "7:00",
+              "title": "Sabaq and sat sabaq",
+              "gloss": "Sabaq: the new lesson. Sat sabaq: the last few days’ lessons."
+            },
+            {
+              "time": "8:30",
+              "title": "Breakfast"
+            },
+            {
+              "time": "9:00",
+              "title": "Sat sabaq, amukhta preparation and mashq",
+              "gloss": "Amukhta: revising earlier lessons."
+            }
+          ]
+        },
+        {
+          "name": "Midday",
+          "steps": [
+            {
+              "time": "10:00",
+              "title": "Arabic, Islamic studies and general classes",
+              "gloss": "Two and a half hours, every day"
+            },
+            {
+              "time": "12:30",
+              "title": "Salat, shower, lunch and a nap",
+              "gloss": "Until 2:45"
+            }
+          ]
+        },
+        {
+          "name": "Afternoon",
+          "steps": [
+            {
+              "time": "3:00",
+              "title": "Amukhta, tilawat and nazera of the new sabaq",
+              "gloss": "Until Asr"
+            },
+            {
+              "time": "After Asr",
+              "title": "Play"
+            }
+          ]
+        },
+        {
+          "name": "Evening and night",
+          "steps": [
+            {
+              "time": "Evening",
+              "title": "Adhkar and Maghrib salat"
+            },
+            {
+              "time": "After Maghrib",
+              "title": "Memorising the new sabaq"
+            },
+            {
+              "time": "8:20",
+              "title": "Isha salat"
+            },
+            {
+              "time": "8:30",
+              "title": "Home time"
+            }
+          ]
+        }
+      ],
+      "transport": {
+        "title": "Madrasa transport",
+        "lede": "Experienced drivers and a responsible attendant on every ride.",
+        "vanAlt": "The madrasa van with Madrasatul Quran livery, the building behind",
+        "vanCaption": "The madrasa’s own van."
+      }
+    },
+    "campus": {
+      "title": "The campus",
+      "lede": "One building in Sector 17, Uttara. Boys play on the field next door, girls in the rooftop garden.",
+      "playTitle": "Room to play",
+      "buildingAlt": "The eight-storey building with a red MQD sign on the roof",
+      "roof": {
+        "title": "Girls: the rooftop garden",
+        "sub": "On the roof of the madrasa building"
+      },
+      "field": {
+        "title": "Boys: the field next door",
+        "sub": "Beside the madrasa building"
+      },
+      "photos": [
+        {
+          "caption": "The entrance at dusk.",
+          "alt": "Madrasa entrance at dusk with its lit signboard"
+        },
+        {
+          "caption": "A winter morning in class.",
+          "alt": "Girls at the back and boys in front in a classroom"
+        }
+      ],
+      "sketch": {
+        "alt": "Sketch: {station} metro station, then {walk} east on foot to the madrasa",
+        "school": "Madrasatul Quran",
+        "notToScale": "Not to scale"
+      },
+      "where": {
+        "map": "Open in Google Maps",
+        "visit": "Visit the campus",
+        "landmark": "{distance} from {name}",
+        "title": "Where to find us"
+      },
+      "gallery": "More photos and videos in the gallery"
+    },
+    "why": {
+      "title": "Why Madrasatul Quran?",
+      "quote": "“With so many good Islamic schools, why did we think of Madrasatul Quran? A big reason: we could not find a Bangla-medium school that stressed Arabic and Islamic studies the way we wanted, alongside general education.”",
+      "source": "From the prospectus",
+      "goalTag": "Goal",
+      "reasons": [
+        {
+          "title": "An ideal integration",
+          "text": "Arabic and Islamic studies combined with general education.",
+          "alt": "New Arabic and general textbooks stacked on one table"
+        },
+        {
+          "title": "Four language skills",
+          "text": "Listening, speaking, reading and writing, in English and Arabic."
+        },
+        {
+          "title": "Hadith by heart",
+          "text": "300+ hadith memorised by Class 9.",
+          "figure": "300+"
+        },
+        {
+          "title": "Islamic studies in Arabic",
+          "text": "Taught in Arabic from Class 6."
+        },
+        {
+          "title": "Every door open",
+          "text": "Dakhil after Class 8, then college or Mutawassita."
+        },
+        {
+          "title": "Quran translation",
+          "text": "The ability to translate 90%+ of the Quran by Dakhil.",
+          "figure": "90%+"
+        },
+        {
+          "title": "Islamic history",
+          "text": "Emphasis on the history of Islam and the Seerah."
+        },
+        {
+          "title": "Ethics and adab",
+          "text": "The highest priority on Islamic ethics and manners.",
+          "alt": "Teachers at a staff meeting, one speaking at the microphone"
+        }
+      ]
+    },
+    "founder": {
+      "title": "From the founder",
+      "quote": "“Seeking knowledge is not optional. For success in this world and the Hereafter we must learn the Quran, Hadith and Islamic Shari’ah, and the knowledge of modern civilisation too.”",
+      "aim": "The main aim of this school is to give students the right knowledge of the Quran and Sunnah together with a modern education, so that each of our children grows up to be an exemplary person.",
+      "name": "S M Nahid Hasan",
+      "role": "Founding Chairman and Principal. Civil engineer, BUET. Chairman, Al Quraner Vasha Institute. Author of the Bidayatul Arabiya series, used in the syllabus of 200+ institutions."
+    },
+    "reviews": {
+      "title": "What guardians say",
+      "note": "Shared with each guardian’s permission, in their own words.",
+      "translated": "(translated)"
+    },
+    "faq": {
+      "title": "Questions parents ask",
+      "lede": "Anything else? Call the office:",
+      "items": [
+        {
+          "q": "At what age can a child start?",
+          "a": "Nursery takes children from age 5, then one year per class: KG at 6+, Class 1 at 7+. The ten-year plan above lists every class."
+        },
+        {
+          "q": "How long is the hifz day-care day?",
+          "a": "From 7:00 am to 8:30 pm, meals included, under full-day supervision. It covers Classes 2 to 5."
+        },
+        {
+          "q": "Does general study stop during hifz?",
+          "a": "No. Bangla, English and maths continue through hifz, and science is added in Class 5. The balance is Quran 70%, Arabic 15%, general 15%."
+        },
+        {
+          "q": "What comes after hifz?",
+          "a": "After Hifz runs from Class 6 to Mutawassita, with Dakhil in Classes 9 and 10. After Dakhil: Mutawassita or college."
+        },
+        {
+          "q": "Does the madrasa run its own transport?",
+          "a": "Yes. Madrasa vans run on the Uttara and Mirpur routes."
+        },
+        {
+          "q": "What are the fees?",
+          "a": "The full fee list is on the Admissions and fees page and in the prospectus."
+        }
+      ]
+    },
+    "preAdmission": {
+      "ledeOpen": "{status}. The form takes about 15 minutes.",
+      "ledeNotOpen": "{status}.",
+      "visit": "Visit the campus",
+      "docsTitle": "What you will need"
     }
   },
   "about": {
     "meta": {
-      "title": "About Us",
-      "description": "Learn about Madrasatul Quran's history, vision, leadership team, and educational philosophy."
+      "title": "About us | Madrasatul Quran",
+      "description": "The founder, board of directors and advisors of Madrasatul Quran Dhaka, an ideal blend of Islamic and general education."
     },
-    "history": {
-      "title": "Our History"
+    "hero": {
+      "title": "About us",
+      "lede": "An ideal blend of Islamic and general education"
     },
-    "vision": {
-      "title": "Our Vision & Mission",
-      "subtitle": "Vision"
+    "chairman": {
+      "role": "Founder and principal",
+      "more": "Full message and profile"
     },
-    "mission": {
-      "subtitle": "Mission"
+    "board": {
+      "title": "Board of directors",
+      "members": "Other members of the board"
     },
-    "leadership": {
-      "title": "Leadership Team",
-      "viewProfile": "View Profile",
-      "experience": "Years of Experience",
-      "qualifications": "Qualifications",
-      "specializations": "Specializations",
-      "education": "Educational Background",
-      "biography": "Biography"
+    "advisors": {
+      "title": "Advisors"
     },
-    "philosophy": {
-      "title": "Educational Philosophy & Accreditation",
-      "islamicIntegration": "Islamic Education Integration",
-      "nctbCurriculum": "NCTB Curriculum",
-      "accreditation": "Accreditation & Approvals"
-    }
-  },
-  "programs": {
-    "meta": {
-      "title": "Academic Programs",
-      "description": "Detailed information about Islamic Studies, NCTB curriculum, and co-curricular activities."
+    "more": {
+      "title": "More",
+      "curriculum": "Curriculum",
+      "admissions": "Admissions and fees",
+      "contact": "Contact"
+    },
+    "profile": {
+      "back": "About us",
+      "board": "Board of directors",
+      "education": "Education",
+      "qualifications": "At a glance",
+      "links": "Links",
+      "message": "Message",
+      "bio": "Biography",
+      "all": "The whole board and advisors",
+      "home": "Home",
+      "platform": {
+        "facebook": "Facebook",
+        "website": "Website",
+        "linkedin": "LinkedIn",
+        "twitter": "X",
+        "email": "Email"
+      },
+      "title": "{name}, {role} | Madrasatul Quran",
+      "description": "{name}, {role} of Madrasatul Quran in Uttara, Dhaka."
     }
   },
   "admissions": {
     "meta": {
-      "title": "Admissions - Madrasatul Quran",
-      "description": "Admission steps, Pre-Hifz and Hifz fees, optional transport, discounts and payment policies at Madrasatul Quran in Uttara, Dhaka."
+      "title": "Admissions and fees | Madrasatul Quran",
+      "description": "Admission at Madrasatul Quran in Uttara, Dhaka: classes and ages, how to apply, tuition and fees, discounts and the madrasa’s own transport."
     },
-    "requirements": {
-      "title": "Admission Requirements & Application Process",
-      "subtitle": "Everything you need to know about joining our school community",
-      "academic": {
-        "title": "Academic Requirements",
-        "requirement1": "Minimum 60% marks in previous class examination",
-        "requirement2": "Age appropriate for the applying class level",
-        "requirement3": "Basic proficiency in Bengali and English languages",
-        "requirement4": "Good conduct certificate from previous institution"
+    "page": {
+      "title": "Admissions and fees",
+      "onThisPage": "On this page",
+      "nav": {
+        "classes": "Classes and ages",
+        "steps": "How admission works",
+        "fees": "Fees",
+        "transport": "Transport",
+        "faq": "Questions"
       },
-      "islamic": {
-        "title": "Islamic Knowledge Assessment",
-        "requirement1": "Basic knowledge of Arabic alphabet and pronunciation",
-        "requirement2": "Familiarity with essential Islamic prayers (Salah)",
-        "requirement3": "Basic understanding of Islamic etiquette and values",
-        "requirement4": "Willingness to follow Islamic dress code and conduct"
+      "contactAdmissions": "Contact admissions",
+      "classesTitle": "Classes open for admission",
+      "ageNote": "Age is counted on 1 January {year}.",
+      "ageOne": "Age {age}",
+      "ageRange": "Age {from} to {to}",
+      "closed": "Closed this session",
+      "special": "By special consideration",
+      "feesFallback": "Fee information",
+      "fee": "Fee",
+      "groups": {
+        "monthly": "Monthly fees",
+        "admission": "One-time and annual fees",
+        "custom": "Other fees"
       },
-      "process": {
-        "title": "Step-by-Step Application Process"
+      "frequency": {
+        "monthly": "Monthly",
+        "oneTime": "One-time",
+        "annual": "Annual"
       },
-      "steps": {
-        "step1": {
-          "title": "Submit Application",
-          "description": "Complete and submit the admission application form along with all required documents. Applications can be submitted online or in person at our admission office."
-        },
-        "step2": {
-          "title": "Entrance Assessment",
-          "description": "Attend the entrance examination covering academic subjects and basic Islamic knowledge. The assessment is designed to evaluate the student's readiness for our integrated curriculum."
-        },
-        "step3": {
-          "title": "Interview Process",
-          "description": "Participate in a brief interview with our admission committee. This includes both student and parent/guardian interaction to ensure alignment with our educational philosophy."
-        },
-        "step4": {
-          "title": "Admission Confirmation",
-          "description": "Receive admission decision and complete enrollment formalities including fee payment and document verification. Welcome to the Madrasatul Quran family!"
-        }
+      "price": {
+        "notApplicable": "Not applicable",
+        "contactOffice": "Contact the office",
+        "free": "Free"
       },
-      "documents": {
-        "title": "Required Documents Checklist",
-        "document1": "Completed admission application form",
-        "document2": "Birth certificate or age verification document",
-        "document3": "Academic transcripts from previous institution",
-        "document4": "Transfer certificate (if applicable)",
-        "document5": "Medical fitness certificate",
-        "document6": "Recent passport-size photographs (4 copies)"
-      },
-      "forms": {
-        "title": "Downloadable Forms & Documents",
-        "applicationForm": "Admission Application Form",
-        "medicalForm": "Medical Certificate Form",
-        "guardianForm": "Guardian Consent Form",
-        "download": "Download PDF"
+      "currency": "All amounts in Bangladeshi taka",
+      "dayCare": "Day⁠-⁠care: Class 2 to Class 5",
+      "appliesTo": "Applies to: {fees}",
+      "closeTitle": "Talk to the admissions office",
+      "call": "Call admissions",
+      "whatsapp": "WhatsApp",
+      "officeHours": "Office hours: {hours}",
+      "whyMore": "See all"
+    }
+  },
+  "curriculum": {
+    "meta": {
+      "title": "Curriculum | Madrasatul Quran",
+      "description": "Bangla-medium NCTB (Dakhil) curriculum with our own Islamic studies: the 50-50 model, three stages, books by class and the path after Dakhil."
+    },
+    "hero": {
+      "title": "Curriculum",
+      "lead": "Bangla-medium NCTB (Dakhil) curriculum with our own Islamic studies curriculum. Nursery to Mutawassita, in three stages.",
+      "curriculumPdf": "Detailed curriculum (PDF)",
+      "glanceTitle": "At a glance",
+      "nav": {
+        "model": "Teaching model",
+        "strands": "Four strands",
+        "goals": "Ten-year goals",
+        "plan": "Study plan",
+        "after": "Higher education"
       }
     },
-    "feeStructure": {
-      "title": "Fee Structure & Financial Information",
-      "subtitle": "Transparent pricing and financial assistance options for all families",
-      "structure": {
-        "title": "Annual Fee Structure",
-        "feeType": "Fee Type",
-        "amount": "Amount (BDT)",
-        "admissionFee": "Admission Fee (One-time)",
-        "monthlyTuition": "Monthly Tuition (12 months)",
-        "examFee": "Examination Fee (Annual)",
-        "developmentFee": "Development Fee (Annual)",
-        "total": "Total Annual Cost"
-      },
-      "programs": {
-        "primary": {
-          "name": "Primary Level (Class I-V)"
-        },
-        "secondary": {
-          "name": "Secondary Level (Class VI-X)"
-        },
-        "higher": {
-          "name": "Higher Secondary (Class XI-XII)"
-        }
-      },
-      "calculator": {
-        "title": "Financial Aid Calculator",
-        "program": "Select Program Level",
-        "siblings": "Number of Siblings in School",
-        "scholarship": "Eligible for Merit Scholarship",
-        "estimated": "Estimated Annual Cost",
-        "note": "This is an estimate. Final fees may vary based on additional factors."
-      },
-      "scholarships": {
-        "title": "Scholarship & Financial Aid Programs",
-        "criteria": "Eligibility Criteria",
-        "merit": {
-          "name": "Merit-Based Scholarship",
-          "description": "Awarded to students with exceptional academic performance",
-          "criteria": "Minimum 85% marks in previous examination and entrance test"
-        },
-        "need": {
-          "name": "Need-Based Financial Aid",
-          "description": "Support for families facing financial hardship",
-          "criteria": "Family income verification and recommendation from local community"
-        },
-        "sibling": {
-          "name": "Sibling Discount",
-          "description": "Discount for families with multiple children enrolled",
-          "criteria": "Automatic discount for 2nd child onwards (10% per additional child)"
-        },
-        "orphan": {
-          "name": "Orphan Support Program",
-          "description": "Special assistance for orphaned students",
-          "criteria": "Valid orphan certificate and community recommendation"
-        }
-      },
-      "payment": {
-        "title": "Payment Methods & Policies",
-        "bank": {
-          "name": "Bank Transfer",
-          "description": "Direct bank transfer to school account",
-          "details": "Account: Madrasatul Quran, Bank: Islami Bank Bangladesh, A/C: 20501234567890"
-        },
-        "mobile": {
-          "name": "Mobile Banking",
-          "description": "bKash, Nagad, Rocket payments accepted",
-          "details": "bKash: 01712345678, Nagad: 01812345678 (Merchant payments)"
-        },
-        "cash": {
-          "name": "Cash Payment",
-          "description": "Direct payment at school office",
-          "details": "Office hours: Saturday-Thursday, 9:00 AM - 4:00 PM"
-        },
-        "policies": {
-          "title": "Payment Policies",
-          "policy1": "Tuition fees must be paid by the 10th of each month",
-          "policy2": "Late payment incurs a 5% penalty after 15 days",
-          "policy3": "Annual fees are non-refundable after admission confirmation",
-          "policy4": "Scholarship applications must be submitted before admission"
-        }
+    "model": {
+      "title": "Teaching model",
+      "mark": "The 50-50 model",
+      "points": [
+        "An ideal blend of Islamic and general education, which we call the “50-50 model”.",
+        "A system in which the madrasa's curriculum, syllabus and routine give Islamic and general education equal weight.",
+        "Where most Islamic schools follow an “80-20 model”, our main aim is a strong foundation by secondary level, so a student is fully prepared to succeed at a madrasa or at college."
+      ],
+      "stagesTitle": "Quran, Arabic and general education at each stage",
+      "stageTag": "Stage {n}",
+      "classesLabel": "Classes",
+      "hoursLabel": "Hours",
+      "subjects": {
+        "quran": "Quran",
+        "arabic": "Arabic",
+        "arabicIslam": "Arabic and Islam",
+        "general": "General"
       }
     },
-    "importantDates": {
-      "title": "Important Dates & Inquiry System",
-      "subtitle": "Stay informed about admission deadlines and get your questions answered",
-      "contact": {
-        "cta": {
-          "title": "Want to know more?",
-          "subtitle": "Contact us for detailed information about Madrasatul Quran",
-          "button": "Contact Us",
-          "response": "We're ready to help you"
+    "strands": {
+      "title": "Four strands, one plan",
+      "lead": "Bangla-medium NCTB (Dakhil) curriculum with our own Islamic studies curriculum.",
+      "quote": "Alongside our own Arabic, Islamic studies and hifz, we chose the NCTB (Bangla) curriculum. Arabic and Islamic studies are taught so that students can go on to a madrasa, and anyone who wishes can continue in general education.",
+      "quoteBy": "Chairman, Madrasatul Quran (translated)",
+      "cards": [
+        {
+          "title": "Quran",
+          "text": "Qaida, Ammapara, Nazera, and hifz (hifz up to Class 5)."
+        },
+        {
+          "title": "Arabic",
+          "text": "Our own curriculum by AQVI, from Nursery to Class 8."
+        },
+        {
+          "title": "Islamic studies",
+          "text": "A curriculum by AQVI from Nursery to Class 8 that puts the madrasa board's Mutawassita syllabus first, so students can sit the Mutawassita exam the year after Dakhil."
+        },
+        {
+          "title": "General education",
+          "text": "General education up to Dakhil (secondary) level."
         }
-      },
-      "calendar": {
-        "title": "Admission Calendar 2025",
-        "application": "Application",
-        "deadline": "Deadline",
-        "exam": "Examination",
-        "interview": "Interview",
-        "result": "Result",
-        "confirmation": "Confirmation"
-      },
-      "dates": {
-        "applicationOpen": "Application Period Opens",
-        "applicationOpenDesc": "Online and offline admission applications begin for all programs",
-        "applicationDeadline": "Application Deadline",
-        "applicationDeadlineDesc": "Last date to submit completed admission applications",
-        "entranceExam": "Entrance Examination",
-        "entranceExamDesc": "Written test covering academic subjects and Islamic knowledge",
-        "interview": "Student & Parent Interview",
-        "interviewDesc": "Personal interview with admission committee and school leadership",
-        "resultPublication": "Admission Results",
-        "resultPublicationDesc": "Publication of admission results and merit list",
-        "admissionConfirmation": "Admission Confirmation",
-        "admissionConfirmationDesc": "Final deadline for fee payment and admission confirmation"
-      },
-      "inquiry": {
-        "title": "Admission Inquiry Form",
-        "form": {
-          "name": "Parent/Guardian Name",
-          "namePlaceholder": "Enter your full name",
-          "email": "Email Address",
-          "emailPlaceholder": "your.email@example.com",
-          "phone": "Phone Number",
-          "phonePlaceholder": "+880 1XXX-XXXXXX",
-          "studentAge": "Student Age",
-          "studentAgePlaceholder": "Age in years",
-          "program": "Interested Program",
-          "programPlaceholder": "Select program level",
-          "programs": {
-            "primary": "Primary Level (Class I-V)",
-            "secondary": "Secondary Level (Class VI-X)",
-            "higher": "Higher Secondary (Class XI-XII)"
-          },
-          "subject": "Inquiry Subject",
-          "subjectPlaceholder": "Select inquiry topic",
-          "subjects": {
-            "admission": "Admission Process",
-            "curriculum": "Academic Programs",
-            "fees": "Fee Structure",
-            "facilities": "Campus Facilities",
-            "other": "Other Questions"
-          },
-          "message": "Your Message",
-          "messagePlaceholder": "Please describe your inquiry in detail...",
-          "note": "We will respond within 24 hours during business days",
-          "submit": "Send Inquiry",
-          "submitting": "Sending..."
-        },
-        "success": {
-          "title": "Inquiry Sent Successfully!",
-          "message": "Thank you for your interest in Madrasatul Quran. Our admission team will contact you within 24 hours.",
-          "newInquiry": "Send Another Inquiry"
-        }
-      },
-      "faq": {
-        "title": "Frequently Asked Questions",
-        "q1": {
-          "question": "What is the minimum age requirement for admission?",
-          "answer": "Students must be at least 5 years old for Class I admission. Age requirements vary by class level, and we follow the national education board guidelines for age-appropriate enrollment."
-        },
-        "q2": {
-          "question": "Is there an entrance examination for all classes?",
-          "answer": "Yes, all students must take an entrance examination covering basic academic subjects and Islamic knowledge appropriate to their applying class level. The exam helps us assess the student's readiness for our integrated curriculum."
-        },
-        "q3": {
-          "question": "What documents are required for the admission process?",
-          "answer": "Required documents include: completed application form, birth certificate, academic transcripts, transfer certificate (if applicable), medical certificate, and recent photographs. All documents must be original with photocopies."
-        },
-        "q4": {
-          "question": "Are scholarships available for deserving students?",
-          "answer": "Yes, we offer merit-based scholarships (up to 25% discount), need-based financial aid (up to 50% discount), sibling discounts (10% per additional child), and special support for orphaned students (up to 75% discount)."
-        },
-        "q5": {
-          "question": "Can I visit the campus before applying?",
-          "answer": "Absolutely! We encourage prospective families to visit our campus. Please contact our admission office to schedule a guided tour. Campus visits are available Saturday through Thursday from 9:00 AM to 4:00 PM."
-        },
-        "q6": {
-          "question": "What is the medium of instruction?",
-          "answer": "Our primary medium of instruction is Bengali, following the NCTB curriculum. English is taught as a subject, and Islamic studies are conducted in Arabic with Bengali explanations. We ensure students develop proficiency in all three languages."
-        }
-      }
+      ],
+      "range": "{from} to {to}",
+      "inArabicFrom": ", in Arabic from {class}"
     },
-    "contact": {
-      "cta": {
-        "title": "Want to know more?",
-        "subtitle": "Contact us for more information about Madrasatul Quran",
-        "button": "Contact Us",
-        "response": "We are ready to help you"
-      }
+    "goals": {
+      "title": "Ten-year goals in Islamic studies",
+      "goalTag": "Goal"
+    },
+    "plan": {
+      "title": "The ten-year study plan",
+      "lead": "With full or partial hifz, Nursery to Dakhil. For each class: the Quran portion, the Arabic and Islamic studies level, and the general subjects.",
+      "caption": "The ten-year study plan, class by class",
+      "cols": {
+        "class": "Class",
+        "quran": "Quran",
+        "arabic": "Arabic",
+        "islam": "Islam",
+        "general": "General"
+      },
+      "arabicCode": "Arabic-{level}",
+      "islamCode": "Islam-{level}",
+      "age": "{age}+ yrs",
+      "subjects": {
+        "bangla": "Bangla",
+        "english": "English",
+        "maths": "Maths",
+        "science": "Science",
+        "bgs": "BGS"
+      },
+      "limited": "During hifz: limited, on a special syllabus",
+      "dakhil": "Dakhil",
+      "mutawassita": "Mutawassita",
+      "orCollege": "or college",
+      "note": "Arabic and Islamic studies books for every class, and the general books for Nursery and KG, are by AQVI."
+    },
+    "books": {
+      "title": "Books and topics by class",
+      "lead": "Choose a class.",
+      "pick": "Choose a class",
+      "classTitle": "{name}",
+      "dakhilTab": "Classes 9 and 10",
+      "dakhilTitle": "Classes 9 and 10",
+      "dakhilAge": "{from}+ and {to}+ yrs",
+      "dakhilText": "Two years of preparation for the Dakhil exam, on the madrasa board's syllabus.",
+      "mutawassitaAge": "After Dakhil",
+      "mutawassitaText": "After the Dakhil exam, students study the Talimi board's Mutawassita syllabus here for one year, then sit the Mutawassita exam.",
+      "quran": "Quran",
+      "arabic": "Arabic",
+      "islam": "Islamic studies",
+      "general": "General",
+      "aqviBooks": "Books by AQVI",
+      "nctb": "NCTB"
+    },
+    "after": {
+      "title": "Higher education after school",
+      "lead": "Three ways after the Dakhil exam.",
+      "items": [
+        {
+          "tag": "Class 11",
+          "title": "Mutawassita",
+          "text": "After the Dakhil exam, students study the Talimi board's Mutawassita syllabus here for one year, then sit the Mutawassita exam."
+        },
+        {
+          "tag": "At a Qawmi madrasa",
+          "title": "Kafiya jamat",
+          "text": "Students who wish can also join the Kafiya jamat at a Qawmi madrasa after the Dakhil exam."
+        },
+        {
+          "tag": "In general education",
+          "title": "College",
+          "text": "Or, after Dakhil, students can go to college and continue in general education."
+        }
+      ]
+    },
+    "close": {
+      "title": "Ages, admission steps and fees",
+      "text": "Which class at which age, how to apply, fees and transport: all on the Admissions and fees page.",
+      "admissions": "Admissions and fees"
     }
   },
   "campus": {
     "meta": {
-      "title": "Campus & Facilities - Madrasatul Quran",
-      "description": "Explore our modern Islamic educational facilities including classrooms, prayer halls, library, science labs, and sports facilities."
+      "title": "A day on campus | Madrasatul Quran",
+      "description": "A day on the Madrasatul Quran campus, 600 metres east of Uttara Center metro station: the madrasa van at 7:00 am, the entrance, classes, salat, lunch, play and home time at 8:30 pm."
     },
-    "virtualTour": {
-      "title": "Virtual Campus Tour",
-      "subtitle": "Explore our beautiful campus and world-class facilities",
-      "description": "Take a comprehensive virtual tour of our campus featuring modern classrooms, dedicated Islamic facilities, and state-of-the-art amenities designed for holistic education.",
-      "categories": {
-        "all": "All Facilities",
-        "academic": "Academic Facilities",
-        "islamic": "Islamic Facilities",
-        "recreational": "Recreational Facilities",
-        "administrative": "Administrative Areas"
+    "stage": {
+      "groups": {
+        "preHifz": "Pre-Hifz",
+        "hifz": "Hifz",
+        "afterHifz": "After-Hifz"
       },
-      "viewGallery": "View Photo Gallery",
-      "startTour": "Start Virtual Tour"
-    },
-    "facilities": {
-      "title": "Our Facilities",
-      "subtitle": "Modern amenities supporting Islamic education and holistic development",
-      "islamic": {
-        "title": "Islamic Facilities",
-        "subtitle": "Dedicated spaces for spiritual growth and Islamic learning"
+      "lift": {
+        "roof": "Roof",
+        "ground": "Ground"
       },
-      "modern": {
-        "title": "Modern Amenities",
-        "subtitle": "Contemporary facilities for comprehensive education"
-      },
-      "filterBy": "Filter by Category",
-      "searchPlaceholder": "Search facilities..."
-    },
-    "safety": {
-      "title": "Safety & Security",
-      "subtitle": "Ensuring a safe and secure learning environment for all students",
-      "measures": {
-        "title": "Safety Measures",
-        "security": "Security Systems",
-        "medical": "Medical Facilities",
-        "emergency": "Emergency Protocols"
-      },
-      "policies": {
-        "title": "Student Welfare Policies"
-      },
-      "emergency": {
-        "title": "Emergency Contacts",
-        "subtitle": "24/7 emergency support for students and parents"
-      }
-    }
-  },
-  "news": {
-    "meta": {
-      "title": "News & Events - Madrasatul Quran",
-      "description": "Stay updated with the latest news, events, achievements, and announcements from Madrasatul Quran."
-    },
-    "title": "News & Events",
-    "subtitle": "Stay connected with our school community and latest updates",
-    "loading": "Loading news and events...",
-    "noResults": "No news or events found matching your criteria.",
-    "tabs": {
-      "list": "News List",
-      "calendar": "Events Calendar",
-      "gallery": "Photo Gallery"
-    },
-    "filters": {
-      "filterBy": "Filter by",
-      "all": "All",
-      "achievements": "Achievements",
-      "news": "News",
-      "events": "Events",
-      "announcements": "Announcements"
-    },
-    "search": {
-      "placeholder": "Search news and events..."
-    },
-    "card": {
-      "readMore": "Read More",
-      "categories": {
-        "achievement": "Achievement",
-        "news": "News",
-        "event": "Event",
-        "announcement": "Announcement"
+      "walk": {
+        "station": "Station",
+        "school": "Madrasa"
       }
     },
-    "calendar": {
-      "upcomingEvents": "Upcoming Events",
-      "noUpcomingEvents": "No upcoming events scheduled.",
-      "more": "more",
-      "rsvp": "RSVP"
-    },
-    "rsvp": {
-      "title": "Event Registration",
-      "form": {
-        "name": "Full Name",
-        "namePlaceholder": "Enter your full name",
-        "email": "Email Address",
-        "emailPlaceholder": "your.email@example.com",
-        "phone": "Phone Number",
-        "phonePlaceholder": "+880 1XXX-XXXXXX",
-        "attendees": "Number of Attendees",
-        "person": "person",
-        "people": "people",
-        "message": "Additional Message",
-        "messagePlaceholder": "Any special requirements or questions...",
-        "cancel": "Cancel",
-        "submit": "Register",
-        "submitting": "Registering..."
-      },
-      "success": {
-        "title": "Registration Successful!",
-        "message": "Thank you for registering. We will contact you with event details soon.",
-        "close": "Close"
-      }
-    },
-    "gallery": {
-      "categories": {
-        "all": "All Photos",
-        "achievement": "Achievements",
-        "news": "News",
-        "event": "Events",
-        "announcement": "Announcements"
-      },
-      "noImages": "No photos available for the selected category.",
-      "share": "Share Photo",
-      "featured": "Featured Media",
-      "allPhotos": "All Photos"
-    },
-    "slideshow": {
-      "noImages": "No images available for slideshow."
+    "close": {
+      "title": "Come and see for yourself",
+      "hours": "Office hours: {hours}",
+      "directions": "Directions",
+      "call": "Call",
+      "gallery": "See photos and videos"
     }
   },
   "contact": {
     "meta": {
-      "title": "Contact Us - Madrasatul Quran",
-      "description": "Get in touch with Madrasatul Quran. Find our contact information, location, and send us your inquiries."
+      "title": "Contact | Madrasatul Quran",
+      "description": "Phone, WhatsApp, email, office hours and address of Madrasatul Quran, 600 metres east of Uttara Center metro station."
     },
-    "title": "Contact Us",
-    "subtitle": "We're here to help and answer any questions you may have",
-    "contactInfo": {
-      "title": "Contact Information",
-      "subtitle": "Reach out to us through any of the following channels",
-      "mainOffice": {
-        "title": "Main Office",
-        "phone": "+880 2-9876543",
-        "email": "info@madrasatulquran.edu.bd",
-        "hours": "Saturday - Thursday: 9:00 AM - 4:00 PM",
-        "address": "123 Islamic Education Street, Dhanmondi, Dhaka-1205, Bangladesh"
-      },
-      "admissionOffice": {
-        "title": "Admission Office",
-        "phone": "+880 2-9876544",
-        "email": "admission@madrasatulquran.edu.bd",
-        "hours": "Saturday - Thursday: 9:00 AM - 5:00 PM",
-        "address": "Ground Floor, Main Building"
-      },
-      "principal": {
-        "title": "Principal's Office",
-        "phone": "+880 2-9876545",
-        "email": "principal@madrasatulquran.edu.bd",
-        "hours": "Saturday - Thursday: 10:00 AM - 3:00 PM"
-      }
+    "hero": {
+      "title": "Contact",
+      "lede": "Call or WhatsApp us about admissions, fees, transport or your child, or visit the office during office hours.",
+      "call": "Call",
+      "whatsapp": "WhatsApp",
+      "hours": "Office hours",
+      "address": "Address",
+      "howToGet": "How to get here"
     },
-    "departments": {
-      "title": "Department Contacts",
-      "subtitle": "Connect with specific departments for specialized assistance",
-      "academic": {
-        "title": "Academic Affairs",
-        "head": "Dr. Mohammad Rahman",
-        "phone": "+880 2-9876546",
-        "email": "academic@madrasatulquran.edu.bd"
-      },
-      "islamic": {
-        "title": "Islamic Studies Department",
-        "head": "Maulana Abdul Karim",
-        "phone": "+880 2-9876547",
-        "email": "islamic@madrasatulquran.edu.bd"
-      },
-      "student": {
-        "title": "Student Affairs",
-        "head": "Mrs. Fatima Begum",
-        "phone": "+880 2-9876548",
-        "email": "students@madrasatulquran.edu.bd"
-      },
-      "finance": {
-        "title": "Finance Office",
-        "head": "Mr. Ahmed Hassan",
-        "phone": "+880 2-9876549",
-        "email": "finance@madrasatulquran.edu.bd"
-      }
+    "reach": {
+      "title": "Phone and WhatsApp",
+      "waTitle": "Message us on WhatsApp",
+      "waText": "Admissions, fees, transport, any question.",
+      "waButton": "Start a chat",
+      "callTitle": "Call us",
+      "callLabel": "Call {desk}, {number}",
+      "hours": "Office hours: {hours}",
+      "emailTitle": "Email"
     },
-    "location": {
-      "title": "Our Location",
-      "subtitle": "Visit us at our campus in the heart of Dhaka",
-      "address": "123 Islamic Education Street, Dhanmondi, Dhaka-1205, Bangladesh",
-      "interactiveMap": "Interactive Map",
-      "getDirections": "Get Directions",
-      "viewOnGoogleMaps": "View on Google Maps",
-      "completeAddress": "Complete Address",
-      "landmarks": {
-        "title": "Nearby Landmarks",
-        "landmark1": "Dhanmondi Lake (5 minutes walk)",
-        "landmark2": "Dhaka University (10 minutes drive)",
-        "landmark3": "Dhanmondi 27 Bus Stop (2 minutes walk)",
-        "landmark4": "Islami Bank Hospital (3 minutes walk)"
-      },
-      "transportation": {
-        "title": "Public Transportation",
-        "bus": "Bus Routes: 7, 9, 25, 49 (Dhanmondi 27 Stop)",
-        "rickshaw": "Auto-rickshaw and CNG available",
-        "uber": "Uber and Pathao services available",
-        "parking": "Limited parking available on campus"
-      },
-      "directions": {
-        "title": "Directions",
-        "fromAirport": "From Hazrat Shahjalal International Airport: 45 minutes by car",
-        "fromStation": "From Kamalapur Railway Station: 30 minutes by car",
-        "fromBusTerminal": "From Gabtali Bus Terminal: 40 minutes by car"
-      }
+    "find": {
+      "landmarks": "Nearby",
+      "showMap": "Show the map",
+      "mapNote": "Tapping loads Google Maps.",
+      "mapTitle": "Map: Madrasatul Quran",
+      "directions": "Directions"
     },
-    "forms": {
-      "general": {
-        "title": "General Inquiry Form",
-        "subtitle": "Send us your questions and we'll get back to you soon"
-      },
-      "admission": {
-        "title": "Admission Inquiry",
-        "subtitle": "Get information about our admission process"
-      },
-      "feedback": {
-        "title": "Feedback Form",
-        "subtitle": "Share your thoughts and suggestions with us"
-      },
-      "fields": {
-        "name": "Full Name",
-        "namePlaceholder": "Enter your full name",
-        "email": "Email Address",
-        "emailPlaceholder": "your.email@example.com",
-        "phone": "Phone Number",
-        "phonePlaceholder": "+880 1XXX-XXXXXX",
-        "subject": "Subject",
-        "subjectPlaceholder": "What is this regarding?",
-        "category": "Inquiry Category",
-        "categoryPlaceholder": "Select category",
-        "categories": {
-          "general": "General Information",
-          "admission": "Admission Process",
-          "academic": "Academic Programs",
-          "facilities": "Campus Facilities",
-          "fees": "Fee Structure",
-          "events": "Events & Activities",
-          "other": "Other"
-        },
-        "message": "Your Message",
-        "messagePlaceholder": "Please describe your inquiry in detail...",
-        "submit": "Send Message",
-        "submitting": "Sending...",
-        "required": "This field is required"
-      },
-      "success": {
-        "title": "Message Sent Successfully!",
-        "message": "Thank you for contacting us. We will respond within 24 hours during business days.",
-        "newMessage": "Send Another Message"
-      }
-    },
-    "emergency": {
-      "title": "Emergency Contacts",
-      "subtitle": "24/7 emergency support for urgent matters",
-      "security": {
-        "title": "Campus Security",
-        "phone": "+880 1712-345678",
-        "available": "24/7 Available"
-      },
-      "medical": {
-        "title": "Medical Emergency",
-        "phone": "+880 1812-345679",
-        "available": "During School Hours"
-      },
-      "principal": {
-        "title": "Principal (Emergency)",
-        "phone": "+880 1912-345680",
-        "available": "After Hours Only"
-      }
+    "more": {
+      "title": "More",
+      "admissions": "Admissions and fees",
+      "curriculum": "Curriculum",
+      "prospectus": "Download the prospectus",
+      "newsTitle": "Madrasa news",
+      "newsText": "Everyday news and events of the madrasa, on Facebook and YouTube."
     }
-  },
-  "footer": {
-    "quickLinks": "Quick Links",
-    "contactInfo": "Contact Information",
-    "followUs": "Follow Us",
-    "copyright": "© 2025 Madrasatul Quran. All rights reserved.",
-    "cookiePolicy": "Cookie Policy",
-    "privacyPolicy": "Privacy Policy"
   },
   "analytics": {
     "consent": {
       "noticeMessage": "We use cookies and similar technologies for analytics and advertising to improve your experience.",
       "regulatedMessage": "We use cookies for analytics, advertising, and site improvement. Please choose your preferences.",
-      "learnMore": "Learn more",
+      "learnMore": "Read the cookie policy",
       "acceptAll": "Accept all",
       "rejectNonEssential": "Reject non-essential",
       "managePreferences": "Manage preferences",
@@ -722,25 +643,7 @@
       "cancel": "Cancel"
     },
     "policy": {
-      "privacyTitle": "Privacy Policy",
-      "cookieTitle": "Cookie Policy",
-      "legalReviewNotice": "This draft should be reviewed by legal counsel before production use.",
-      "privacyIntro": "Madrasatul Quran respects your privacy. This policy explains what information we collect, how we use analytics tools, and how to contact us about privacy requests.",
-      "dataCollectedTitle": "Information we collect",
-      "dataCollectedBody": "We collect information you voluntarily submit through forms (such as pre-admission inquiries), basic technical data needed to operate the website, and aggregated analytics events that do not include names, email addresses, phone numbers, or message content.",
-      "analyticsToolsTitle": "Analytics and advertising tools",
-      "analyticsToolsBody": "We use Google Tag Manager to load analytics and advertising tags, including Google Analytics 4, Meta Pixel, and Microsoft Clarity. These tools help us understand site usage and measure campaigns. We do not send personally identifiable information in analytics payloads.",
-      "childrenTitle": "Children's data",
-      "childrenBody": "Our website may be used by parents and guardians submitting information on behalf of students. We handle student-related form data securely and limit analytics to non-identifying events. Contact us to request access or deletion of submitted data.",
-      "contactTitle": "Privacy requests",
-      "contactBody": "For privacy questions or requests, contact us at info@madrasatul-quran.edu.bd or through the contact page on this website.",
-      "cookieIntro": "This policy explains how Madrasatul Quran uses cookies and similar technologies for analytics, advertising, and site improvement.",
-      "toolsTitle": "Tools we use",
-      "toolsBody": "Google Tag Manager, Google Analytics 4, Meta Pixel, and Microsoft Clarity may set cookies or use similar storage when you consent. Configuration is managed in Google Tag Manager.",
-      "retentionTitle": "Retention",
-      "retentionBody": "Cookie and analytics retention periods are configured in each vendor platform and Google Tag Manager. Session attribution data is stored in your browser session only when consent allows.",
-      "preferencesTitle": "Changing your preferences",
-      "preferencesBody": "You can reopen cookie preferences from the website footer at any time to accept or reject non-essential analytics and advertising cookies."
+      "updated": "Last updated: {date}"
     }
   },
   "preview": {
@@ -751,93 +654,10 @@
       "hideButton": "Hide banner"
     }
   },
-  "translation": {
-    "dashboard": {
-      "title": "Translation Dashboard",
-      "description": "Monitor and manage multilingual content translations"
-    },
-    "stats": {
-      "total": "Total Tasks",
-      "completed": "Completed",
-      "inProgress": "In Progress",
-      "pending": "Pending",
-      "bengali": "Bengali Translations",
-      "english": "English Translations"
-    },
-    "workflow": {
-      "title": "Translation Workflow",
-      "description": "Content items requiring translation attention",
-      "noItems": "All translations complete!",
-      "noItemsDescription": "All content has been translated to both languages."
-    },
-    "documentTypes": {
-      "newsEvent": "News & Events",
-      "page": "Page",
-      "academicProgram": "Academic Program",
-      "staffMember": "Staff Member",
-      "facility": "Facility"
-    },
-    "languages": {
-      "bengali": "Bengali",
-      "english": "English"
-    },
-    "actions": {
-      "createTask": "Create Task"
-    },
-    "bulkActions": {
-      "selected": "{count} items selected",
-      "createTasks": "Create Tasks",
-      "clear": "Clear Selection"
-    },
-    "filters": {
-      "title": "Filters",
-      "clear": "Clear all",
-      "documentType": "Document Type",
-      "language": "Language",
-      "priority": "Priority",
-      "status": "Status",
-      "all": "All"
-    },
-    "priority": {
-      "high": "High",
-      "medium": "Medium",
-      "low": "Low"
-    },
-    "status": {
-      "complete": "Complete",
-      "incomplete": "Incomplete"
-    }
-  },
-  "admissionsExperience": {
-  "navigation": "On this page",
-  "stepsHeading": "How to apply",
-  "faq": "FAQ",
-  "contact": "Contact",
-  "features": "School features",
-  "studyPlan": "Study plan",
-  "outcomes": "Learning outcomes",
-  "applyStep": "Submit the pre-admission form to begin your inquiry.",
-  "contactStep": "Contact the admissions office to discuss your child’s application.",
-  "guidanceStep": "Await guidance from the school about the next steps.",
-  "confirmationStep": "After selection, confirm admission and complete payment at the campus.",
-  "higherEducation": "Higher Education After School",
-  "alimPath": "Students aiming to become Alim after Class Eight will be prepared for the Ta’lim Board and will take Dakhil/SSC exams.",
-  "collegePath": "Students who wish to pursue college education will focus on general education and take SSC exams.",
-  "islamicSubjects": "Islamic studies",
-  "generalSubjects": "General subjects",
-  "age": "Age",
-  "period": "Period",
-  "periodGrid": "Study plan by class and period",
-  "swipePeriods": "Swipe horizontally to view all periods. The class column stays visible.",
-  "emptyPeriod": "No subject assigned",
-  "illustrativeImages": "Illustrative images of learning themes."
-},
   "admissionCta": {
     "title": "Pre-admission {session}",
-    "notOpenShort": "Opening soon",
     "apply": "Apply now",
     "details": "See details",
-    "dismiss": "Dismiss banner",
     "fallbackTitle": "Admissions",
     "fallbackLead": "Contact the office about admission dates, fees, or your child’s next steps.",
     "fallbackButton": "See admissions"
@@ -859,7 +679,7 @@
     "closed": "Applications have closed, so this form can no longer be submitted. Please contact the office if you need help.",
     "intro": {
       "metaTitle": "Pre-admission application {session}",
-      "metaDescription": "Apply online for pre-admission to Madrasatul Quran for the {session} session.",
+      "metaDescription": "Apply online for the {session} pre-admission at Madrasatul Quran, Uttara, Dhaka: the form takes about 15 minutes, and the fee is paid by bKash, Nagad or card.",
       "statusOpen": "Applications open until {deadline}",
       "statusOpenNoDeadline": "Applications are open",
       "statusClosingSoon": "{days} days left, closes {deadline}",
@@ -912,8 +732,7 @@
       "faqPaymentQ": "Is the payment secure?",
       "faqPaymentA": "Payment is made through SSLCommerz. Your card or bKash details never reach us.",
       "moreQuestions": "More questions?",
-      "contactUs": "Contact us",
-      "campusPhoto": "The Madrasatul Quran campus"
+      "contactUs": "Contact us"
     },
     "start": {
       "title": "Start your application",
@@ -1161,6 +980,189 @@
       "edit": "View or change details",
       "continue": "Continue the application",
       "draftNote": "The form is not finished yet."
+    }
+  },
+  "site": {
+    "skip": "Skip to the content",
+    "notFound": {
+      "title": "This page isn't here",
+      "lead": "The link may be old, or the address may have a typo. The home page has everything on the site.",
+      "home": "Go to the home page",
+      "contact": "Contact us"
+    },
+    "schoolName": "Madrasatul Quran",
+    "place": "Uttara, Dhaka",
+    "navLabel": "Main",
+    "nav": {
+      "about": "About us",
+      "curriculum": "Curriculum",
+      "campus": "Campus",
+      "gallery": "Gallery",
+      "admissions": "Admissions",
+      "notices": "Notices",
+      "contact": "Contact",
+      "books": "Our books",
+      "menu": "Menu"
+    },
+    "switchLang": "বাংলা",
+    "switchLangLabel": "এই পেজটি বাংলায় পড়ুন",
+    "footer": {
+      "label": "Footer",
+      "pages": "Pages",
+      "contact": "Contact",
+      "visit": "Visit",
+      "whatsapp": "WhatsApp {number}",
+      "map": "Open in Google Maps",
+      "appTitle": "Parent app",
+      "appText": "For parents of Madrasatul Quran students: the EximusEdu app.",
+      "preAdmission": "Pre-admission",
+      "prospectus": "Prospectus",
+      "parentLogin": "Parent login",
+      "books": "Our books",
+      "privacy": "Privacy policy",
+      "cookies": "Cookie policy",
+      "copyright": "© {year} Madrasatul Quran. All rights reserved."
+    }
+  },
+  "gallery": {
+    "meta": {
+      "title": "Gallery: photos and videos | Madrasatul Quran",
+      "description": "Photos and videos of classes, events and days on campus at Madrasatul Quran, kept album by album."
+    },
+    "hero": {
+      "eyebrow": "Gallery · Photos and videos",
+      "title": "Our madrasa diary",
+      "lead": "From the morning lesson to the home-time bell. Classes, events and days on campus, kept album by album.",
+      "facebook": "Facebook page",
+      "youtube": "YouTube channel",
+      "latest": "Latest album",
+      "open": "See the album"
+    },
+    "topics": {
+      "all": "All",
+      "quran": "Quran and Hifz",
+      "classes": "Classes",
+      "events": "Events",
+      "sports": "Sports and trips",
+      "campus": "Campus",
+      "video": "Videos"
+    },
+    "filter": {
+      "label": "Choose albums",
+      "year": "Year",
+      "topic": "Topic"
+    },
+    "rows": {
+      "title": "Albums from {year}",
+      "empty": "No albums on this topic this year.",
+      "showAll": "See all albums"
+    },
+    "count": {
+      "photos": "{count, plural, one {{shown} photo} other {{shown} photos}}",
+      "videos": "{count, plural, one {{shown} video} other {{shown} videos}}"
+    },
+    "watch": {
+      "title": "Watch",
+      "lead": "Events, classes and days on campus, on video.",
+      "shorts": "Short videos",
+      "video": "Video",
+      "play": "Play the video: {title}",
+      "close": "Close",
+      "onYoutube": "Watch on YouTube"
+    },
+    "ever": {
+      "title": "All-time albums",
+      "lead": "Photos that belong to no single day: the campus, the Quran classes and the play spaces. New photos are added here."
+    },
+    "close": {
+      "title": "Seen the photos? Come and see for yourself",
+      "lead": "Office hours and the address are on the contact page.",
+      "visit": "Visit the campus",
+      "apply": "Apply"
+    },
+    "album": {
+      "meta": "{title}: photos and videos | Madrasatul Quran",
+      "description": "{title} at Madrasatul Quran, Uttara, Dhaka: {details}.",
+      "crumbs": "You are here",
+      "share": "Send on WhatsApp",
+      "copy": "Copy the link",
+      "copied": "Link copied",
+      "all": "All the photos in this album",
+      "tapHint": "Tap a photo to see it larger",
+      "older": "Earlier album",
+      "newer": "Later album",
+      "back": "Back to the gallery",
+      "ever": "All-time album"
+    },
+    "viewer": {
+      "label": "Photo viewer",
+      "counter": "{at} of {total}",
+      "prev": "Previous photo",
+      "next": "Next photo",
+      "close": "Close",
+      "send": "Send this photo",
+      "copy": "Copy link",
+      "copied": "Copied",
+      "swipe": "Swipe left or right",
+      "thumbs": "All photos",
+      "open": "See it larger: {alt}"
+    }
+  },
+  "notices": {
+    "meta": {
+      "title": "Notice board | Madrasatul Quran",
+      "description": "Madrasatul Quran’s official notices: admissions, holidays, exams, results and events, each with its number and date.",
+      "notice": "Notice {number}: {title} | Madrasatul Quran",
+      "noticeDescription": "{date}: {text}"
+    },
+    "board": {
+      "title": "Notice board",
+      "lead": "The madrasa’s official notices: admissions, holidays, exams and events. Each notice has a number and its own link, to send on WhatsApp.",
+      "pinned": "Important",
+      "pinnedTitle": "Important notices",
+      "types": "Type of notice",
+      "all": "All",
+      "year": "Year",
+      "yearNotices": "Notices of {year}",
+      "more": "Earlier notices ({month})",
+      "none": "No notices of this type this year.",
+      "empty": "No notices yet.",
+      "ask": "Questions about a notice? Call the office:"
+    },
+    "number": "No. {number}",
+    "new": "New",
+    "pdf": "PDF",
+    "picture": "Picture",
+    "types": {
+      "admission": "Admission",
+      "holiday": "Holidays and closures",
+      "exam": "Exams and results",
+      "general": "Events and general"
+    },
+    "notice": {
+      "back": "Notice board",
+      "print": "Print",
+      "numberLabel": "Notice no.",
+      "attachments": "Attachments",
+      "view": "View",
+      "download": "Download",
+      "zoom": "See it larger",
+      "tapHint": "Tap the picture to see it larger.",
+      "pictureAlt": "Picture of the notice",
+      "share": "Send to a parents’ group",
+      "whatsapp": "Send on WhatsApp",
+      "copy": "Copy the link",
+      "copied": "Link copied",
+      "older": "Earlier notice",
+      "newer": "Later notice",
+      "neighbours": "Earlier and later notices",
+      "onlyBengali": "This notice is in Bengali only.",
+      "onlyBengaliCall": "This notice is in Bengali only. For help with it, call the office on {phone}."
+    },
+    "home": {
+      "title": "Notice board",
+      "lead": "The madrasa’s latest official notices: admissions, holidays, exams and events.",
+      "all": "See all notices"
     }
   }
 }

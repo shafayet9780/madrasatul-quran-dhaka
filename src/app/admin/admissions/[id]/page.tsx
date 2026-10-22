@@ -21,7 +21,7 @@ import { isOwnKey } from '@/lib/admissions/files';
 export const metadata: Metadata = { title: 'আবেদন' };
 export const dynamic = 'force-dynamic';
 
-const LABELS = { yes: 'হ্যাঁ', no: 'না', notGiven: 'দেওয়া হয়নি', fileAttached: (type: string) => `${type} সংযুক্ত`, fileMissing: 'জমা দেওয়া হয়নি, সঙ্গে আনবেন' };
+const LABELS = { yes: 'হ্যাঁ', no: 'না', notGiven: 'দেওয়া হয়নি', fileAttached: (type: string) => `${type} যুক্ত`, fileMissing: 'জমা দেওয়া হয়নি, সঙ্গে আনবেন' };
 const when = (d: Date) => dateTime(d.toISOString(), 'bengali');
 /** "৮ অক্টো, সকাল ৬:০৬" for the activity log. */
 const logWhen = (d: Date) => `${shortDate(d)}, ${when(d).split(', ')[1]}`;
@@ -159,7 +159,7 @@ export default async function ApplicationPage({ params, searchParams }: Props) {
                   attended={!!app.attendedAt}
                   evalFee={!!app.evalFeeReceivedAt}
                   fee={fee}
-                  attendedNote={app.attendedAt ? `চিহ্নিত, ${when(app.attendedAt)}` : 'আবেদনপত্রের QR স্ক্যান করলে এই পাতা খোলে'}
+                  attendedNote={app.attendedAt ? `চিহ্নিত, ${when(app.attendedAt)}` : 'আবেদনপত্রের QR স্ক্যান করলে এই পেজ খোলে'}
                   feeNote={app.evalFeeReceivedAt ? `চিহ্নিত, ${when(app.evalFeeReceivedAt)}` : 'এখনো গৃহীত হয়নি'}
                 />
               </Card>
@@ -252,7 +252,7 @@ export default async function ApplicationPage({ params, searchParams }: Props) {
               ))}
             </Card>
 
-            <Card title="কার্যক্রম">
+            <Card title="ইতিহাস">
               <ol className="m-0 list-none p-0">
                 {log.map((l) => (
                   <li key={l.id} className="grid grid-cols-[auto_1fr] gap-3 border-t py-2 text-[13.5px]">

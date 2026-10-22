@@ -268,7 +268,7 @@ export function ChapterForm({ locale, applicationId, session, section, otherFiel
                   {title}
                   {optional && <span className="text-sm font-normal text-muted-foreground"> {t('chapter.ifApplicable')}</span>}
                 </h2>
-                {description && <p className="mt-1 text-[13px] leading-normal text-muted-foreground">{description}</p>}
+                {description && <p className="mt-1 text-[14px] font-[450] leading-normal text-muted-foreground">{description}</p>}
               </div>
             );
             // The transport group: the route cards under the group's heading, then its questions.

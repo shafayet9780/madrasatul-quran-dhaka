@@ -1,214 +1,61 @@
-import type { StructureResolver } from 'sanity/structure'
+import type { ListItem, ListItemBuilder, StructureResolver } from 'sanity/structure'
+import { orderableDocumentListDeskItem } from '@sanity/orderable-document-list'
 
-export const structure: StructureResolver = (S) =>
-  S.list()
+/** The one-off documents: fixed sidebar entries whose id is their type; never created from "+" or duplicated (sanity.config.ts). */
+export const SINGLETONS = ['homePage', 'campusDay', 'preAdmissionForm', 'feeSettings', 'publicDownloadSettings', 'siteSettings', 'pagesOnOff', 'seoSettings', 'policies', 'curriculum']
+
+/**
+ * The Studio sidebar, by how often each part is touched: the weekly updates first, then the pages, people and
+ * downloads, then the school's own settings, then the surveys. Plan: docs/studio-cleanup.md.
+ */
+export const structure: StructureResolver = (S, context) => {
+  const single = (type: string, title: string) =>
+    S.listItem().title(title).id(type).schemaType(type).child(S.document().schemaType(type).documentId(type).title(title))
+  const ordered = (type: string, title: string) => orderableDocumentListDeskItem({ type, title, S, context })
+  const group = (id: string, title: string, items: (ListItem | ListItemBuilder)[]) =>
+    S.listItem().title(title).id(id).child(S.list().title(title).items(items))
+
+  return S.list()
     .title('Content')
     .items([
-      S.listItem().title('Fees & Discounts').id('feeSettings').child(S.document().schemaType('feeSettings').documentId('feeSettings')),
-      // Site Settings (Singleton)
       S.listItem()
-        .title('Site Settings')
-        .id('siteSettings')
-        .child(
-          S.document()
-            .schemaType('siteSettings')
-            .documentId('siteSettings')
-        ),
-      
-      // Footer Settings
-      S.listItem()
-        .title('Footer Settings')
-        .id('footer')
-        .child(S.documentTypeList('footer').title('Footer Settings')),
-
-      // Pre-Admission Form Configuration
-      S.listItem()
-        .title('Pre-Admission Form')
-        .id('preAdmissionForm')
-        .child(S.documentTypeList('preAdmissionForm').title('Pre-Admission Form Configuration')),
-
+        .title('Notices')
+        .schemaType('notice')
+        .child(S.documentTypeList('notice').title('Notices').defaultOrdering([{ field: 'number.year', direction: 'desc' }, { field: 'number.serial', direction: 'desc' }])),
+      S.listItem().title('Gallery').schemaType('album').child(S.documentTypeList('album').title('Gallery: albums').defaultOrdering([{ field: 'date', direction: 'desc' }])),
+      ordered('testimonial', 'Guardian reviews'),
       S.divider(),
 
-      S.listItem()
-        .title('Downloads Library')
-        .id('downloadsLibrary')
-        .child(
-          S.list()
-            .title('Downloads Library')
-            .items([
-              S.listItem()
-                .title('Downloadable Items')
-                .schemaType('downloadable')
-                .child(S.documentTypeList('downloadable').title('Downloadable Items')),
-              S.listItem()
-                .title('Categories')
-                .schemaType('downloadCategory')
-                .child(S.documentTypeList('downloadCategory').title('Download Categories')),
-              S.divider(),
-              S.listItem()
-                .title('Public Download Files')
-                .id('publicDownloadSettings')
-                .child(
-                  S.document()
-                    .schemaType('publicDownloadSettings')
-                    .documentId('publicDownloadSettings')
-                ),
-            ])
-        ),
-
-      S.divider(),
-      
-      // Pages
-      S.listItem()
-        .title('Pages')
-        .schemaType('page')
-        .child(S.documentTypeList('page').title('Pages')),
-      
-      // News & Events
-      S.listItem()
-        .title('News & Events')
-        .schemaType('newsEvent')
-        .child(
-          S.list()
-            .title('News & Events')
-            .items([
-              S.listItem()
-                .title('All News & Events')
-                .child(S.documentTypeList('newsEvent').title('All News & Events')),
-              S.listItem()
-                .title('News')
-                .child(
-                  S.documentTypeList('newsEvent')
-                    .title('News')
-                    .filter('_type == "newsEvent" && category == "news"')
-                ),
-              S.listItem()
-                .title('Events')
-                .child(
-                  S.documentTypeList('newsEvent')
-                    .title('Events')
-                    .filter('_type == "newsEvent" && category == "event"')
-                ),
-              S.listItem()
-                .title('Achievements')
-                .child(
-                  S.documentTypeList('newsEvent')
-                    .title('Achievements')
-                    .filter('_type == "newsEvent" && category == "achievement"')
-                ),
-              S.listItem()
-                .title('Featured Items')
-                .child(
-                  S.documentTypeList('newsEvent')
-                    .title('Featured Items')
-                    .filter('_type == "newsEvent" && featured == true')
-                ),
-            ])
-        ),
-      
-      // Academic Programs
-      S.listItem()
-        .title('Academic Programs')
-        .schemaType('academicProgram')
-        .child(S.documentTypeList('academicProgram').title('Academic Programs')),
-
+      single('homePage', 'Homepage'),
+      single('campusDay', 'Campus: a day'),
+      single('curriculum', 'Curriculum'),
+      group('admissions', 'Admissions', [
+        // A list, not the fixed id, until the clean-up script has moved the form there (docs/studio-cleanup.md); it can't be created from "+".
+        S.listItem().title('Pre-admission form').id('preAdmissionForm').schemaType('preAdmissionForm').child(S.documentTypeList('preAdmissionForm').title('Pre-admission form')),
+        single('feeSettings', 'Fees, discounts & transport'),
+      ]),
       S.divider(),
 
-      // Directors
-      S.listItem()
-        .title('Directors')
-        .schemaType('director')
-        .child(S.documentTypeList('director').title('Directors')),
-
-      // Advisors
-      S.listItem()
-        .title('Advisors')
-        .schemaType('advisor')
-        .child(S.documentTypeList('advisor').title('Advisors')),
-
-      // Teachers
-      S.listItem()
-        .title('Teachers')
-        .schemaType('teacher')
-        .child(
-          S.list()
-            .title('Teachers')
-            .items([
-              S.listItem()
-                .title('All Teachers')
-                .child(S.documentTypeList('teacher').title('All Teachers')),
-              S.listItem()
-                .title('Featured Teachers')
-                .child(
-                  S.documentTypeList('teacher')
-                    .title('Featured Teachers')
-                    .filter('_type == "teacher" && featured == true')
-                ),
-            ])
-        ),
-
-      // Departments
-      S.listItem()
-        .title('Departments')
-        .schemaType('department')
-        .child(S.documentTypeList('department').title('Departments')),
-      
-      // Facilities
-      S.listItem()
-        .title('Facilities')
-        .schemaType('facility')
-        .child(
-          S.list()
-            .title('Facilities')
-            .items([
-              S.listItem()
-                .title('All Facilities')
-                .child(S.documentTypeList('facility').title('All Facilities')),
-              S.listItem()
-                .title('Featured Facilities')
-                .child(
-                  S.documentTypeList('facility')
-                    .title('Featured Facilities')
-                    .filter('_type == "facility" && featured == true')
-                ),
-              S.listItem()
-                .title('Academic Facilities')
-                .child(
-                  S.documentTypeList('facility')
-                    .title('Academic Facilities')
-                    .filter('_type == "facility" && category == "academic"')
-                ),
-              S.listItem()
-                .title('Islamic Facilities')
-                .child(
-                  S.documentTypeList('facility')
-                    .title('Islamic Facilities')
-                    .filter('_type == "facility" && category == "islamic"')
-                ),
-              S.listItem()
-                .title('Recreational Facilities')
-                .child(
-                  S.documentTypeList('facility')
-                    .title('Recreational Facilities')
-                    .filter('_type == "facility" && category == "recreational"')
-                ),
-            ])
-        ),
-
+      group('people', 'People', [ordered('director', 'Directors'), ordered('advisor', 'Advisors'), ordered('teacher', 'Teachers'), ordered('department', 'Departments')]),
+      group('downloadsLibrary', 'Downloads', [
+        S.listItem().title('Library items').schemaType('downloadable').child(S.documentTypeList('downloadable').title('Library items')),
+        S.listItem().title('Categories').schemaType('downloadCategory').child(S.documentTypeList('downloadCategory').title('Categories')),
+        single('publicDownloadSettings', 'Public PDFs'),
+      ]),
       S.divider(),
 
-      S.listItem()
-        .title('Surveys')
-        .id('surveys')
-        .child(
-          S.list()
-            .title('Surveys')
-            .items([
-              S.documentTypeListItem('surveyRound').title('Rounds'),
-              S.documentTypeListItem('surveyTemplate').title('Templates'),
-              S.documentTypeListItem('surveyClass').title('Classes & Subjects'),
-              S.documentTypeListItem('surveyTeacher').title('Teachers (survey)'),
-              S.documentTypeListItem('surveyArea').title('Areas'),
-            ])
-        ),
+      single('siteSettings', 'School details'),
+      single('pagesOnOff', 'Pages on/off'),
+      single('seoSettings', 'Search & sharing'),
+      single('policies', 'Privacy & cookie policies'),
+      S.divider(),
+
+      group('surveys', 'Surveys', [
+        S.documentTypeListItem('surveyRound').title('Rounds'),
+        S.documentTypeListItem('surveyTemplate').title('Templates'),
+        S.documentTypeListItem('surveyClass').title('Classes & Subjects'),
+        S.documentTypeListItem('surveyTeacher').title('Teachers (survey)'),
+        S.documentTypeListItem('surveyArea').title('Areas'),
+      ]),
     ])
+}

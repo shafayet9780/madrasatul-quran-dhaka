@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { Suspense, useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
 import { PeopleHero } from '@/components/people/people-hero';
@@ -10,11 +10,26 @@ import { getDepartments, filterTeachers, groupByDepartment } from '@/lib/teacher
 import { sortBySeniority } from '@/lib/seniority';
 import { getLocalizedText, getFontClass, type Language } from '@/lib/sanity-utils';
 import type { AvatarPlaceholders } from '@/lib/profile-avatar';
-import type { Teacher } from '@/types/sanity';
+import type { Department, Teacher } from '@/types/sanity';
 
 interface TeachersListProps {
   teachers: Teacher[];
   placeholders?: AvatarPlaceholders;
+}
+
+/**
+ * Preselects the department of a `?department=<slug>` link. Alone in its Suspense boundary, so reading the address
+ * keeps only this (empty) part out of the cached page, not the list.
+ */
+function DepartmentFromLink({ departments, onSelect }: { departments: Department[]; onSelect: (id: string) => void }) {
+  const searchParams = useSearchParams();
+  useEffect(() => {
+    const slug = searchParams.get('department');
+    if (!slug) return;
+    const match = departments.find((d) => d.slug?.bengali?.current === slug || d.slug?.english?.current === slug);
+    if (match) onSelect(match._id);
+  }, [searchParams, departments, onSelect]);
+  return null;
 }
 
 export function TeachersList({ teachers, placeholders }: TeachersListProps) {
@@ -23,21 +38,11 @@ export function TeachersList({ teachers, placeholders }: TeachersListProps) {
   const tp = useTranslations('people');
   const font = getFontClass(locale);
 
-  const searchParams = useSearchParams();
   const [query, setQuery] = useState('');
   const [activeDepartment, setActiveDepartment] = useState<string | null>(null);
 
   const departments = useMemo(() => getDepartments(teachers), [teachers]);
 
-  // Preselect department from a `?department=<slug>` deep link (e.g. from the nav mega-menu).
-  useEffect(() => {
-    const slug = searchParams.get('department');
-    if (!slug) return;
-    const match = departments.find(
-      (d) => d.slug?.bengali?.current === slug || d.slug?.english?.current === slug
-    );
-    if (match) setActiveDepartment(match._id);
-  }, [searchParams, departments]);
   const groups = useMemo(() => {
     const filtered = filterTeachers(teachers, { query, departmentId: activeDepartment, language: locale });
     return groupByDepartment(filtered).map((g) => ({ ...g, teachers: sortBySeniority(g.teachers) }));
@@ -46,6 +51,9 @@ export function TeachersList({ teachers, placeholders }: TeachersListProps) {
   return (
     <div className="min-h-screen bg-gray-50">
       <PeopleHero title={t('title')} subtitle={t('subtitle')} language={locale} />
+      <Suspense fallback={null}>
+        <DepartmentFromLink departments={departments} onSelect={setActiveDepartment} />
+      </Suspense>
 
       <section className="container-custom py-12 md:py-16">
         <TeacherFilterBar

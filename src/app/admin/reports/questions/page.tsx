@@ -110,7 +110,7 @@ export default async function QuestionsPage({ searchParams }: { searchParams: Pr
           <EmptyState>
             এখনো কোনো শিক্ষক রিভিউ রাউন্ড খোলা হয়নি।{' '}
             <Link href="/admin/rounds" className={LINK}>
-              রাউন্ড পাতা
+              রাউন্ড পেজ
             </Link>
           </EmptyState>
         </PageBody>

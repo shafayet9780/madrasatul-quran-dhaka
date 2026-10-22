@@ -190,7 +190,7 @@ export function G1RateScreen({
             <span>
               {bn(perScreen)}টি {bySubject ? 'প্রশ্ন' : 'বিষয়'} · {bn(perScreen - left)}টি সম্পন্ন
             </span>
-            <span style={{ color: 'var(--sv-ok)', fontWeight: 600 }}>এই ফোনে সংরক্ষিত</span>
+            <span style={{ color: 'var(--sv-ok)', fontWeight: 600 }}>এই ফোনে সেভ হয়েছে</span>
           </div>
         </div>
       </div>
@@ -333,7 +333,7 @@ export function G1ReviewScreen({
         <button type="button" className="sv-cta" disabled={missing > 0 || busy} aria-busy={busy || undefined} onClick={() => void submit()}>
           {busy ? 'জমা হচ্ছে…' : 'জমা দিন'}
         </button>
-        <div style={{ textAlign: 'center', fontSize: 13, color: 'var(--sv-text-muted)' }}>{dayMonth.format(new Date(config.closesAt))} পর্যন্ত সংশোধন করা যাবে</div>
+        <div style={{ textAlign: 'center', fontSize: 13, color: 'var(--sv-text-muted)' }}>{dayMonth.format(new Date(config.closesAt))} পর্যন্ত উত্তর বদলানো যাবে</div>
       </div>
     </main>
   );

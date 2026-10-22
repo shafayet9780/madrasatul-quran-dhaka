@@ -72,11 +72,11 @@ test('overview, module switcher and the paid list with search and filters', asyn
 
 test('bulk status change on selected rows', async ({ page }) => {
   await page.goto('/admin/admissions/applications');
-  await page.getByRole('checkbox', { name: /নির্বাচন$/ }).nth(1).check();
-  await page.getByRole('checkbox', { name: /নির্বাচন$/ }).nth(2).check();
-  await expect(page.getByText('২টি নির্বাচিত')).toBeVisible();
+  await page.getByRole('checkbox', { name: /সিলেক্ট$/ }).nth(1).check();
+  await page.getByRole('checkbox', { name: /সিলেক্ট$/ }).nth(2).check();
+  await expect(page.getByText('২টি সিলেক্ট করা')).toBeVisible();
   await page.getByRole('combobox', { name: 'নতুন অবস্থা' }).selectOption({ label: 'অ্যাসেসমেন্ট নির্ধারিত' });
-  await page.getByRole('button', { name: 'প্রয়োগ করুন' }).click();
+  await page.getByRole('button', { name: 'বদলান', exact: true }).click();
   await expect(page.getByRole('status')).toHaveText('২টি আবেদনের অবস্থা বদলানো হয়েছে।');
   await expect(page.locator('tbody').getByText('অ্যাসেসমেন্ট নির্ধারিত')).toHaveCount(2);
 
@@ -105,7 +105,7 @@ test('detail: answers, documents, notes, status, evaluation day, PDF and Excel',
   await expect(page.locator('p', { hasText: 'পরিবহন দরকার, মিরপুর রুট' }).first()).toBeVisible();
 
   await page.getByRole('combobox', { name: 'অবস্থা' }).selectOption({ label: 'অপেক্ষমাণ' });
-  await page.getByRole('button', { name: 'সংরক্ষণ' }).click();
+  await page.getByRole('button', { name: 'সেভ করুন' }).click();
   await expect(page.getByText('অবস্থা বদলেছে: অপেক্ষমাণ').first()).toBeVisible();
 
   // The switches start off on a fresh preview; setChecked keeps a rerun on the same server working.

@@ -6,11 +6,6 @@ const multilingualTextFields = `
   english
 `;
 
-const multilingualSlugFields = `
-  bengali { current },
-  english { current }
-`;
-
 const imageFields = `
   ...,
   alt,
@@ -19,49 +14,26 @@ const imageFields = `
   }
 `;
 
-const seoFields = `
-  metaTitle {
-    ${multilingualTextFields}
-  },
-  metaDescription {
-    ${multilingualTextFields}
-  },
-  ogImage {
-    ${imageFields}
-  }
-`;
+// Studio → Pages on/off: the switches, read with the site settings as `navigationVisibility`.
+export const pagesOnOffProjection = `*[_id == "pagesOnOff"][0]{
+  showPeople, showDirectors, showTeachers, showAdvisors, showCampus, showGallery, showNotices,
+  showCurriculum, showAdmissions, showContact, showBooks
+}`;
 
-// Site Settings Query
+// Site Settings Query (Studio → School details)
 export const siteSettingsQuery = groq`
   *[_type == "siteSettings"][0] {
     _id,
-    title {
-      ${multilingualTextFields}
-    },
-    description {
-      ${multilingualTextFields}
-    },
     logo {
       ${imageFields}
-    },
-    heroImages[] {
-      image {
-        ${imageFields}
-      },
-      alt,
-      title {
-        ${multilingualTextFields}
-      },
-      description {
-        ${multilingualTextFields}
-      },
-      order
     },
     favicon {
       ${imageFields}
     },
+    "tagline": coalesce(tagline, *[_type == "footer" && isActive == true][0].subtitle),
+    "mission": coalesce(mission, *[_type == "footer" && isActive == true][0].description),
     contactInfo {
-      admissionsPhone,
+      admissionsPhone, // stand-in until the clean-up script (docs/studio-cleanup.md)
       whatsappNumber,
       address {
         ${multilingualTextFields}
@@ -71,17 +43,12 @@ export const siteSettingsQuery = groq`
           ${multilingualTextFields}
         },
         number,
-        type,
-        isPrimary,
+        usedFor,
+        type, // stand-in until the clean-up script
         isActive
       },
       email[] {
-        label {
-          ${multilingualTextFields}
-        },
         address,
-        type,
-        isPrimary,
         isActive
       },
       officeHours {
@@ -95,635 +62,53 @@ export const siteSettingsQuery = groq`
       isActive,
       order
     },
-    "officeContacts": coalesce(officeContacts, departments)[] {
-      name {
-        ${multilingualTextFields}
-      },
-      head {
-        ${multilingualTextFields}
-      },
-      phone,
-      email,
-      type,
-      isActive
-    },
-    admissionInfo {
-      admissionPhone,
-      admissionEmail,
-      admissionHours {
-        ${multilingualTextFields}
-      }
-    },
-    seo {
-      ${seoFields}
-    },
-    statistics {
-      yearsOfService,
-      totalStudents,
-      graduationRate,
-      teacherCount,
-      achievements[] {
-        title {
-          ${multilingualTextFields}
-        },
-        value
-      }
-    },
-    admissionBanner {
-      isEnabled,
-      title {
-        ${multilingualTextFields}
-      },
-      subtitle {
-        ${multilingualTextFields}
-      },
-      buttonText {
-        ${multilingualTextFields}
-      },
-      buttonLink,
-      backgroundColor,
-      customGradient {
-        from,
-        to
-      },
-      showCloseButton,
-      autoHide
-    },
+    links,
     locationInfo {
+      gettingHere,
+      metroStation,
+      metroWalk,
       mapEmbedUrl,
       googleMapsUrl,
       landmarks[] {
         name {
           ${multilingualTextFields}
         },
-        description {
-          ${multilingualTextFields}
-        },
-        distance,
-        icon
-      },
-      transportation {
-        busRoutes {
-          ${multilingualTextFields}
-        },
-        rickshawInfo {
-          ${multilingualTextFields}
-        },
-        rideSharing {
-          ${multilingualTextFields}
-        },
-        parking {
-          ${multilingualTextFields}
-        }
-      },
-      directions[] {
-        from {
-          ${multilingualTextFields}
-        },
-        description {
-          ${multilingualTextFields}
-        },
-        estimatedTime
+        distance
       }
     },
-    navigationVisibility {
-      showPeople,
-      showAbout,
-      showAcademics,
-      showDirectors,
-      showTeachers,
-      showAdvisors,
-      showOurStory,
-      showCampus,
-      showNews,
-      showCurriculum,
-      showPrograms,
-      showAdmissions,
-      showContact,
-      showBooks
-    }
+    // The old switches stand in until the clean-up script has made Pages on/off (docs/studio-cleanup.md).
+    "navigationVisibility": coalesce(${pagesOnOffProjection}, navigationVisibility)
   }
 `;
 
-// Pages Queries
-export const allPagesQuery = groq`
-  *[_type == "page"] | order(publishedAt desc) {
-    _id,
-    title {
-      ${multilingualTextFields}
-    },
-    slug {
-      ${multilingualSlugFields}
-    },
-    featuredImage {
-      ${imageFields}
-    },
-    publishedAt
-  }
-`;
-
-export const pageBySlugQuery = groq`
-  *[_type == "page" && (slug.bengali.current == $slug || slug.english.current == $slug)][0] {
-    _id,
-    title {
-      ${multilingualTextFields}
-    },
-    slug {
-      ${multilingualSlugFields}
-    },
-    content {
-      bengali,
-      english
-    },
-    featuredImage {
-      ${imageFields}
-    },
-    seo {
-      ${seoFields}
-    },
-    publishedAt
-  }
-`;
-
-// News & Events Queries
-export const allNewsEventsQuery = groq`
-  *[_type == "newsEvent"] | order(publishedAt desc) {
-    _id,
-    title {
-      ${multilingualTextFields}
-    },
-    slug {
-      ${multilingualSlugFields}
-    },
-    excerpt {
-      ${multilingualTextFields}
-    },
-    featuredImage {
-      ${imageFields}
-    },
-    eventDate,
-    category,
-    featured,
-    publishedAt
-  }
-`;
-
-export const featuredNewsEventsQuery = groq`
-  *[_type == "newsEvent" && featured == true] | order(publishedAt desc) [0...6] {
-    _id,
-    title {
-      ${multilingualTextFields}
-    },
-    slug {
-      ${multilingualSlugFields}
-    },
-    excerpt {
-      ${multilingualTextFields}
-    },
-    featuredImage {
-      ${imageFields}
-    },
-    eventDate,
-    category,
-    publishedAt
-  }
-`;
-
-export const newsEventBySlugQuery = groq`
-  *[_type == "newsEvent" && (slug.bengali.current == $slug || slug.english.current == $slug)][0] {
-    _id,
-    title {
-      ${multilingualTextFields}
-    },
-    slug {
-      ${multilingualSlugFields}
-    },
-    excerpt {
-      ${multilingualTextFields}
-    },
-    content {
-      bengali,
-      english
-    },
-    featuredImage {
-      ${imageFields}
-    },
-    gallery[] {
-      ${imageFields}
-    },
-    eventDate,
-    category,
-    featured,
-    publishedAt
-  }
-`;
-
-// Academic Programs Queries
-export const allAcademicProgramsQuery = groq`
-  *[_type == "academicProgram"] | order(order asc) {
-    _id,
-    title {
-      ${multilingualTextFields}
-    },
-    slug {
-      ${multilingualSlugFields}
-    },
-    description {
-      ${multilingualTextFields}
-    },
-    ageRange,
-    duration,
-    islamicCurriculum {
-      subjects[] {
-        name {
-          ${multilingualTextFields}
-        },
-        description {
-          ${multilingualTextFields}
-        },
-        hoursPerWeek
-      }
-    },
-    nctbCurriculum {
-      subjects[] {
-        name {
-          ${multilingualTextFields}
-        },
-        description {
-          ${multilingualTextFields}
-        },
-        hoursPerWeek
-      }
-    },
-    coCurricularActivities[] {
-      name {
-        ${multilingualTextFields}
-      },
-      description {
-        ${multilingualTextFields}
-      },
-      category
-    },
-    prerequisites {
-      ${multilingualTextFields}
-    },
-    outcomes {
-      bengali,
-      english
-    },
-    featuredImage {
-      ${imageFields}
-    },
-    order
-  }
-`;
-
-export const academicProgramBySlugQuery = groq`
-  *[_type == "academicProgram" && (slug.bengali.current == $slug || slug.english.current == $slug)][0] {
-    _id,
-    title {
-      ${multilingualTextFields}
-    },
-    slug {
-      ${multilingualSlugFields}
-    },
-    description {
-      ${multilingualTextFields}
-    },
-    ageRange,
-    duration,
-    islamicCurriculum {
-      subjects[] {
-        name {
-          ${multilingualTextFields}
-        },
-        description {
-          ${multilingualTextFields}
-        },
-        hoursPerWeek
-      }
-    },
-    nctbCurriculum {
-      subjects[] {
-        name {
-          ${multilingualTextFields}
-        },
-        description {
-          ${multilingualTextFields}
-        },
-        hoursPerWeek
-      }
-    },
-    coCurricularActivities[] {
-      name {
-        ${multilingualTextFields}
-      },
-      description {
-        ${multilingualTextFields}
-      },
-      category
-    },
-    prerequisites {
-      ${multilingualTextFields}
-    },
-    outcomes {
-      bengali,
-      english
-    },
-    featuredImage {
-      ${imageFields}
-    },
-    order
-  }
-`;
-
-// Facilities Queries
-export const allFacilitiesQuery = groq`
-  *[_type == "facility"] | order(displayOrder asc) {
-    _id,
-    name {
-      ${multilingualTextFields}
-    },
-    slug {
-      ${multilingualSlugFields}
-    },
-    description {
-      ${multilingualTextFields}
-    },
-    category,
-    images[] {
-      ${imageFields}
-    },
-    capacity,
-    displayOrder,
-    featured
-  }
-`;
-
-export const featuredFacilitiesQuery = groq`
-  *[_type == "facility" && featured == true] | order(displayOrder asc) {
-    _id,
-    name {
-      ${multilingualTextFields}
-    },
-    slug {
-      ${multilingualSlugFields}
-    },
-    description {
-      ${multilingualTextFields}
-    },
-    category,
-    images[] {
-      ${imageFields}
-    },
-    capacity,
-    displayOrder
-  }
-`;
-
-export const facilityBySlugQuery = groq`
-  *[_type == "facility" && (slug.bengali.current == $slug || slug.english.current == $slug)][0] {
-    _id,
-    name {
-      ${multilingualTextFields}
-    },
-    slug {
-      ${multilingualSlugFields}
-    },
-    description {
-      ${multilingualTextFields}
-    },
-    category,
-    images[] {
-      ${imageFields}
-    },
-    capacity,
-    features {
-      bengali,
-      english
-    },
-    specifications {
-      area,
-      equipment {
-        bengali,
-        english
-      },
-      accessibility {
-        bengali,
-        english
-      }
-    },
-    safetyFeatures {
-      bengali,
-      english
-    },
-    usageSchedule {
-      ${multilingualTextFields}
-    },
-    displayOrder,
-    featured
-  }
-`;
-
-// Footer Query
-export const footerQuery = groq`
-  *[_type == "footer" && isActive == true][0] {
-    _id,
-    title {
-      ${multilingualTextFields}
-    },
-    subtitle {
-      ${multilingualTextFields}
-    },
-    description {
-      ${multilingualTextFields}
-    },
-    useGlobalContactInfo,
-    useGlobalSocialLinks,
-    quickLinks[] {
-      label {
-        ${multilingualTextFields}
-      },
-      url,
-      isActive,
-      order
-    },
-    legalLinks[] {
-      label {
-        ${multilingualTextFields}
-      },
-      url,
-      isActive
-    },
-    copyright {
-      ${multilingualTextFields}
-    },
-    isActive
-  }
-`;
-
-// Pre-Admission Form Query
-export const preAdmissionFormQuery = groq`
-  *[_type == "preAdmissionForm"][0] {
-    _id,
-    formSettings {
-      isEnabled,
-      formTitle {
-        ${multilingualTextFields}
-      },
-      formDescription {
-        ${multilingualTextFields}
-      },
-      submissionDate,
-      googleSheetsId
-    },
-    generalQuestions[] {
-      question {
-        ${multilingualTextFields}
-      },
-      fieldType,
-      options[] {
-        label {
-          ${multilingualTextFields}
-        },
-        value
-      },
-      isRequired,
-      placeholder {
-        ${multilingualTextFields}
-      },
-      helpText {
-        ${multilingualTextFields}
-      }
-    },
-    studentInfoFields[] {
-      fieldName,
-      label {
-        ${multilingualTextFields}
-      },
-      fieldType,
-      fileType,
-      options[] {
-        label {
-          ${multilingualTextFields}
-        },
-        value
-      },
-      isRequired,
-      placeholder {
-        ${multilingualTextFields}
-      },
-      helpText {
-        ${multilingualTextFields}
-      }
-    },
-    studentAssessmentFields[] {
-      fieldName,
-      label {
-        ${multilingualTextFields}
-      },
-      fieldType,
-      fileType,
-      options[] {
-        label {
-          ${multilingualTextFields}
-        },
-        value
-      },
-      isRequired,
-      placeholder {
-        ${multilingualTextFields}
-      },
-      helpText {
-        ${multilingualTextFields}
-      }
-    },
-    parentInfoFields {
-      fatherFields[] {
-        fieldName,
-        label {
-          ${multilingualTextFields}
-        },
-        fieldType,
-        fileType,
-        options[] {
-          label {
-            ${multilingualTextFields}
-          },
-          value
-        },
-        isRequired,
-        placeholder {
-          ${multilingualTextFields}
-        },
-        helpText {
-          ${multilingualTextFields}
-        }
-      },
-      motherFields[] {
-        fieldName,
-        label {
-          ${multilingualTextFields}
-        },
-        fieldType,
-        fileType,
-        options[] {
-          label {
-            ${multilingualTextFields}
-          },
-          value
-        },
-        isRequired,
-        placeholder {
-          ${multilingualTextFields}
-        },
-        helpText {
-          ${multilingualTextFields}
-        }
-      }
-    },
-    additionalQuestions[] {
-      fieldName,
-      question {
-        ${multilingualTextFields}
-      },
-      fieldType,
-      fileType,
-      options[] {
-        label {
-          ${multilingualTextFields}
-        },
-        value
-      },
-      isRequired,
-      placeholder {
-        ${multilingualTextFields}
-      },
-      helpText {
-        ${multilingualTextFields}
-      }
-    },
-    contactInfoFields[] {
-      fieldName,
-      label {
-        ${multilingualTextFields}
-      },
-      fieldType,
-      isRequired,
-      placeholder {
-        ${multilingualTextFields}
-      },
-      helpText {
-        ${multilingualTextFields}
-      }
-    },
-    declarationText {
-      ${multilingualTextFields}
-    },
-    successMessage {
-      ${multilingualTextFields}
-    }
-  }
-`;
 
 export const feeSettingsQuery = groq`*[_type == "feeSettings" && _id == "feeSettings"][0]`;
+
+// The old School details fields stand in until the clean-up script has moved them (docs/studio-cleanup.md).
+const oldSite = `*[_id == "siteSettings"][0]`;
+export const homePageQuery = groq`{
+  "home": *[_type == "homePage" && _id == "homePage"][0]{ hero, routine, photos, playSpaces, faq, heroImages, statistics },
+  "old": ${oldSite}{ heroImages, statistics }
+}{ ...home, "heroImages": coalesce(home.heroImages, old.heroImages)[]{ image{ ${imageFields} }, alt, title }, "statistics": coalesce(home.statistics, old.statistics) }`;
+
+export const seoSettingsQuery = groq`*[_id == "seoSettings"][0]{ description, shareImage, pages }`;
+
+export const curriculumQuery = groq`*[_id == "curriculum"][0]{ stages, classes, goals, glance }`;
+
+export const policiesQuery = groq`*[_id == "policies"][0]{ updatedAt, privacy, cookies }`;
+
+export const campusDayQuery = groq`*[_type == "campusDay" && _id == "campusDay"][0].stops`;
+
+// The gallery: every album shown, with its first photos (the cards and the hero), the count and the videos; one album whole.
+const albumFields = `_id, "slug": slug.current, title, evergreen, date, topic, videos[]{ _key, url, title, upright, length }`;
+const albumPhotoFields = `_key, asset, hotspot, alt, caption, "ratio": asset->metadata.dimensions.aspectRatio`;
+export const galleryAlbumsQuery = groq`*[_type == "album" && show != false && defined(slug.current)] | order(select(evergreen == true => "", date) desc, _createdAt asc){ ${albumFields}, "photoCount": count(photos), "photos": photos[0...3]{ ${albumPhotoFields} } }`;
+export const albumBySlugQuery = groq`*[_type == "album" && show != false && slug.current == $slug][0]{ ${albumFields}, summary, story, quote, photos[]{ ${albumPhotoFields} } }`;
+
+// The notice board: every notice shown, newest first, with its attachments (a PDF's address and size); one by its number.
+const noticeFields = `_id, number, title, date, type, body, pinnedUntil, attachments[]{ _type, _key, asset, name, alt, "url": asset->url, "size": asset->size, "ratio": asset->metadata.dimensions.aspectRatio }`;
+export const noticesQuery = groq`*[_type == "notice" && show != false && defined(number.serial)] | order(date desc, number.serial desc){ ${noticeFields} }`;
+export const noticeByNumberQuery = groq`*[_type == "notice" && show != false && number.year == $year && number.serial == $serial][0]{ ${noticeFields} }`;
+
+// Only reviews whose consent is recorded; the homepage shows the first three.
+export const homeTestimonialsQuery = groq`*[_type == "testimonial" && consent == true && show != false] | order(orderRank asc, _createdAt asc)[0...3]{ _id, originalLanguage, quote, who, classLine, consent, show }`;

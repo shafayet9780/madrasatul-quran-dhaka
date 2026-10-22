@@ -1,0 +1,488 @@
+<!doctype html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<title>ক্যাম্পাসে একটি দিন</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anek+Bangla:wght@400;650;700;750;800&amp;family=Anek+Latin:wght@400;650;700;750;800&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#8a3f0a}a:hover{color:#5c2a08}
+.wrap{max-width:1240px;margin:0 auto;padding-left:clamp(16px,4vw,40px);padding-right:clamp(16px,4vw,40px);box-sizing:content-box}
+.pill{display:inline-flex;align-items:center;justify-content:center;gap:10px;border-radius:9999px;font-weight:650;text-decoration:none;line-height:1.2}
+
+/* Steps: ordinary text, always in the page. */
+.tour{view-timeline:--day block;display:flex;gap:clamp(24px,4vw,64px)}
+.steps{position:relative;min-width:0}
+.rail{position:absolute;left:10px;top:0;bottom:0;width:3px;background:#e4d5bc;border-radius:2px}
+.rail i{position:absolute;inset:0;background:#8a3f0a;border-radius:2px;transform-origin:top;animation:grow-y linear both;animation-timeline:--day;animation-range:contain 0% contain 100%}
+.step{position:relative;display:flex;flex-direction:column;justify-content:center;gap:10px;padding-left:48px;box-sizing:border-box;view-timeline-axis:block}
+.dot{position:absolute;left:2px;top:calc(50% - 10px);width:19px;height:19px;border-radius:50%;border:3px solid #8a3f0a;box-sizing:border-box;transition:background-color .4s ease,transform .4s ease}
+
+/* Stage: pictures only. Which stop shows, the sky, the clock and the lift follow the step in view (state);
+   the motion inside a stop follows the scroll itself (view timelines), so it moves exactly with the reader. */
+.stage{position:sticky;top:0;display:flex;align-items:center;z-index:1}
+.screen{position:relative;width:100%;border-radius:20px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 0 0 1px #e4d5bc;transition:background-color .9s ease,color .9s ease}
+.view{position:relative;flex:1;margin:0 14px 14px;border-radius:14px;overflow:hidden}
+.layer{position:absolute;inset:0;transition:opacity .7s ease}
+.fill{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.fade{transition:opacity .6s ease}
+.win{border-radius:3px;transition:background-color .9s ease}
+.chip{display:inline-flex;align-items:center;height:30px;padding:0 12px;border-radius:9999px;font-size:13px;font-weight:650;white-space:nowrap;transition:background-color .5s ease,color .5s ease,opacity .5s ease,box-shadow .5s ease}
+.sun{position:absolute;top:50%;width:30px;height:30px;margin:-15px 0 0 -15px;border-radius:50%;display:flex;align-items:center;justify-content:center;transition:left .8s cubic-bezier(.2,.7,.2,1),background-color .9s ease}
+.lift{position:absolute;right:14px;top:14px;padding:8px;border-radius:14px;background:rgba(44,31,21,.9);color:#f4ecdd;transition:opacity .5s ease}
+.lift-mark{position:absolute;left:8px;right:8px;top:8px;height:36px;border-radius:9999px;background:#e2a867;transition:transform .7s cubic-bezier(.3,.8,.2,1)}
+.tile{display:flex;flex-direction:column;align-items:center;gap:10px;transition:opacity .5s ease,transform .5s ease}
+.tile span:first-child{width:92px;height:92px;border-radius:50%;display:flex;align-items:center;justify-content:center;transition:background-color .5s ease,color .5s ease}
+
+.path{transform-origin:left;animation:grow-x linear both;animation-range:exit 0% exit 55%}
+.track{container-type:inline-size}
+.van{position:absolute;left:0;bottom:0;transform:translateX(calc(100cqw - 150px));animation:drive linear both;animation-range:cover 28% cover 62%}
+.van.away{transform:translateX(-170px);animation-name:drive-away}
+.pop{animation:pop linear both;animation-range:cover 42% cover 56%}
+.door{animation:door linear both;animation-range:cover 30% cover 58%}
+.settle{animation:settle linear both;animation-range:cover 20% cover 55%}
+.roof{animation:sky linear both;animation-range:cover 28% cover 58%}
+.field{animation:beside linear both;animation-range:cover 28% cover 58%}
+.pull{animation:pull linear both;animation-range:cover 25% cover 70%}
+
+@keyframes grow-y{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+@keyframes grow-x{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@keyframes drive{from{transform:translateX(0)}to{transform:translateX(calc(100cqw - 150px))}}
+@keyframes drive-away{from{transform:translateX(calc(100cqw - 150px))}to{transform:translateX(-170px)}}
+@keyframes pop{from{opacity:0;transform:translateY(16px) rotate(-4deg)}to{opacity:1;transform:rotate(-4deg)}}
+@keyframes door{from{clip-path:inset(64% 44% 10% 44% round 8px 8px 0 0)}to{clip-path:inset(0 0 0 0 round 0)}}
+@keyframes settle{from{transform:scale(1.12)}to{transform:scale(1)}}
+@keyframes sky{from{clip-path:inset(0 0 100% 0)}to{clip-path:inset(0 0 0 0)}}
+@keyframes beside{from{transform:translateX(40%)}to{transform:none}}
+@keyframes pull{from{transform:scale(1.4)}to{transform:scale(1)}}
+
+/* Reduced motion: no stage; each stop shows its own picture beside its text. */
+.still{display:none}
+@media (prefers-reduced-motion: reduce){.stage{display:none}.still{display:block}.step{min-height:0 !important;padding-top:32px;padding-bottom:32px}.rail i{animation:none}}
+</style>
+</helmet>
+<div onScroll="{{onScroll}}" style="height: 100vh; overflow-y: auto; overflow-x: hidden; background: #fbf7ef; color: #2b1608; font-family: 'Anek Latin','Anek Bangla',system-ui,sans-serif; -webkit-font-smoothing: antialiased">
+
+  <header style="border-bottom: 1px solid #e4d5bc">
+    <div class="wrap" style="min-height: 72px; display: flex; align-items: center; gap: 28px">
+      <div style="display: flex; align-items: center; gap: 10px; flex-shrink: 0">
+        <span style="width: 40px; height: 40px; border-radius: 50%; background: #efe3cf; border: 1px solid #d9c3a0"></span>
+        <span style="display: flex; flex-direction: column; line-height: 1.2"><strong style="font-size: 17px; font-weight: 750">মাদরাসাতুল কুরআন</strong><span style="font-size: 12px; color: #6b4526">উত্তরা, ঢাকা</span></span>
+      </div>
+      <sc-if value="{{wide}}" hint-placeholder-val="{{true}}">
+        <nav aria-label="প্রধান মেনু" style="display: flex; gap: 24px; font-size: 16px; flex: 1; white-space: nowrap">
+          <a href="#" style="color: #2b1608; text-decoration: none">আমাদের সম্পর্কে</a>
+          <a href="#" style="color: #2b1608; text-decoration: none">কারিকুলাম</a>
+          <a href="#" aria-current="page" style="color: #8a3f0a; text-decoration: underline; text-underline-offset: 6px">ক্যাম্পাস</a>
+          <a href="#" style="color: #2b1608; text-decoration: none">ভর্তি</a>
+          <a href="#" style="color: #2b1608; text-decoration: none">যোগাযোগ</a>
+        </nav>
+      </sc-if>
+      <sc-if value="{{phone}}" hint-placeholder-val="{{false}}">
+        <span style="flex: 1"></span>
+        <button type="button" class="pill" style="min-height: 44px; padding: 0 16px; border: 1px solid #d9c3a0; background: transparent; font: inherit; font-size: 15px; font-weight: 650; color: #2b1608">মেনু</button>
+      </sc-if>
+    </div>
+  </header>
+
+  <div class="wrap tour" style="flex-direction: {{dir}}; timeline-scope: {{scope}}">
+
+    <!-- The day, stop by stop -->
+    <div class="steps" style="flex: 1 1 0">
+      <span class="rail" aria-hidden="true"><i></i></span>
+      <sc-for list="{{steps}}" as="s" hint-placeholder-count="15">
+        <section class="step" data-step="1" style="min-height: {{s.h}}; view-timeline-name: {{s.tl}}; view-timeline-inset: {{inset}}">
+          <span class="dot" aria-hidden="true" style="background: {{s.dotBg}}; transform: scale({{s.dotScale}})"></span>
+          <span style="display: inline-flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 650; color: #8a3f0a">
+            <svg aria-hidden="true" width="18" height="18" viewBox="0 0 256 256" fill="currentColor"><path d="{{ic.clock}}"></path></svg>{{s.timeText}}
+          </span>
+          <span style="font-size: 14px; font-weight: 650; color: #6b4526">{{s.place}}</span>
+          <sc-if value="{{s.h1}}" hint-placeholder-val="{{false}}">
+            <h1 style="margin: 0; font-size: {{t.h1}}; line-height: 1.1; font-weight: 800; text-wrap: balance">{{s.title}}</h1>
+          </sc-if>
+          <sc-if value="{{s.h2}}" hint-placeholder-val="{{true}}">
+            <h2 style="margin: 0; font-size: {{t.h2}}; line-height: 1.18; font-weight: 750; text-wrap: balance">{{s.title}}</h2>
+          </sc-if>
+          <p style="margin: 0; font-size: {{t.body}}; line-height: 1.6; color: #4a2810; max-width: 26em">{{s.text}}</p>
+          <sc-if value="{{s.stillSrc}}" hint-placeholder-val="{{false}}">
+            <img class="still" src="{{s.stillSrc}}" alt="{{s.alt}}" style="width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 14px; margin-top: 10px">
+          </sc-if>
+        </section>
+      </sc-for>
+    </div>
+
+    <!-- The stage -->
+    <div class="stage" aria-hidden="true" style="flex: {{stageFlex}}; height: {{stageH}}; background: #fbf7ef">
+      <div class="screen" style="height: {{screenH}}; background: {{sky.bg}}; color: {{sky.fg}}">
+
+        <!-- the clock, the sun (or moon) crossing the day, who is in school -->
+        <div style="display: flex; align-items: center; gap: 18px; padding: {{hudPad}}; flex-wrap: wrap">
+          <div style="display: flex; flex-direction: column; min-width: 128px">
+            <span style="font-size: 13px; font-weight: 650; color: {{sky.accent}}">{{hud.part}}</span>
+            <strong style="font-size: {{t.clock}}; line-height: 1.05; font-weight: 800; white-space: nowrap">{{hud.time}}</strong>
+          </div>
+          <sc-if value="{{wide}}" hint-placeholder-val="{{true}}">
+            <div style="position: relative; flex: 1; min-width: 120px; height: 34px">
+              <span style="position: absolute; left: 0; right: 0; top: 50%; height: 0; border-top: 2px dashed {{sky.line}}; opacity: .5"></span>
+              <span class="sun" style="left: {{hud.sun}}%; background: {{sky.accent}}; color: {{sky.bg}}">
+                <svg width="20" height="20" viewBox="0 0 256 256" fill="currentColor"><path d="{{hud.icon}}"></path></svg>
+              </span>
+            </div>
+          </sc-if>
+          <div style="display: flex; gap: 6px; flex-wrap: wrap">
+            <sc-for list="{{hud.groups}}" as="g" hint-placeholder-count="3">
+              <span class="chip" style="background: {{g.bg}}; color: {{g.fg}}; box-shadow: inset 0 0 0 1px {{g.ring}}; opacity: {{g.op}}">{{g.name}}</span>
+            </sc-for>
+          </div>
+        </div>
+
+        <div class="view">
+          <sc-for list="{{layers}}" as="l" hint-placeholder-count="15">
+            <div class="layer" style="opacity: {{l.op}}">
+
+              <!-- the station and the walk -->
+              <sc-if value="{{l.approach}}" hint-placeholder-val="{{false}}">
+                <div style="position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; gap: 26px; padding: 8%">
+                  <strong style="font-size: {{t.figure}}; line-height: 1; font-weight: 800; color: {{sky.accent}}">৬০০ মি.</strong>
+                  <div style="display: flex; align-items: center; gap: 14px">
+                    <span style="display: inline-flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 650; white-space: nowrap"><span style="width: 16px; height: 16px; border-radius: 50%; background: {{sky.accent}}"></span>স্টেশন</span>
+                    <span class="path" style="flex: 1; height: 0; border-top: 3px dashed {{sky.line}}; animation-timeline: {{l.tl}}"></span>
+                    <span style="display: inline-flex; align-items: flex-end; gap: 8px; font-size: 15px; font-weight: 650; white-space: nowrap">স্কুল<span style="width: 24px; height: 34px; border-radius: 3px 3px 0 0; border: 2px solid {{sky.line}}"></span></span>
+                  </div>
+                  <span style="font-size: 15px; opacity: .8">উত্তরা সেন্টার মেট্রো স্টেশন থেকে পূর্বে</span>
+                </div>
+              </sc-if>
+
+              <!-- the road: the van comes in (morning) or goes away (noon) -->
+              <sc-if value="{{l.road}}" hint-placeholder-val="{{false}}">
+                <div style="position: absolute; right: 8%; bottom: 20%; width: 24%; height: 64%; border: 3px solid {{sky.line}}; border-bottom: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); grid-template-rows: repeat(7, minmax(0, 1fr)); gap: 8px 10px; padding: 12px; box-sizing: border-box">
+                  <sc-for list="{{wins21}}" as="w" hint-placeholder-count="21"><span class="win" style="background: {{w.fill}}"></span></sc-for>
+                </div>
+                <div style="position: absolute; left: 0; right: 0; bottom: 20%; height: 3px; background: {{sky.line}}"></div>
+                <div class="track" style="position: absolute; left: 4%; right: 30%; bottom: calc(20% + 3px); height: 70px">
+                  <div class="van {{l.dir}}" style="animation-timeline: {{l.tl}}">
+                    <div style="position: relative; width: 140px; height: 66px; transform: scaleX({{l.flip}})">
+                      <div style="position: absolute; left: 0; right: 0; bottom: 12px; height: 50px; border-radius: 10px 26px 6px 6px; background: {{sky.van}}; box-shadow: inset 0 0 0 2px {{sky.line}}; display: flex; gap: 6px; padding: 8px 12px; box-sizing: border-box">
+                        <span style="width: 26px; height: 16px; border-radius: 3px; background: {{sky.glass}}"></span>
+                        <span style="width: 26px; height: 16px; border-radius: 3px; background: {{sky.glass}}"></span>
+                        <span style="width: 30px; height: 16px; border-radius: 3px 12px 3px 3px; background: {{sky.glass}}"></span>
+                      </div>
+                      <span style="position: absolute; left: 20px; bottom: 0; width: 22px; height: 22px; border-radius: 50%; background: #2b1608; box-shadow: 0 0 0 3px {{sky.van}}"></span>
+                      <span style="position: absolute; right: 22px; bottom: 0; width: 22px; height: 22px; border-radius: 50%; background: #2b1608; box-shadow: 0 0 0 3px {{sky.van}}"></span>
+                    </div>
+                  </div>
+                </div>
+                <sc-if value="{{l.vanPhoto}}" hint-placeholder-val="{{false}}">
+                  <figure class="pop" style="position: absolute; left: 6%; top: 8%; width: 24%; margin: 0; padding: 8px 8px 10px; background: #fffdf8; border-radius: 6px; box-shadow: 0 18px 30px -18px rgba(0,0,0,.6); animation-timeline: {{l.tl}}">
+                    <img src="/_blob/63c143d622d9fffdea114b0e405c3037" alt="" style="display: block; width: 100%; aspect-ratio: 3 / 4; object-fit: cover; border-radius: 3px">
+                    <figcaption style="padding-top: 6px; font-size: 12px; font-weight: 650; color: #4a2810">স্কুলের নিজস্ব গাড়ি</figcaption>
+                  </figure>
+                </sc-if>
+              </sc-if>
+
+              <!-- the building, drawn; its door opens into the entrance -->
+              <sc-if value="{{l.entrance}}" hint-placeholder-val="{{false}}">
+                <div style="position: absolute; left: 30%; right: 30%; top: 6%; bottom: 10%; border: 3px solid {{sky.line}}; border-bottom: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); grid-template-rows: repeat(8, minmax(0, 1fr)); gap: 8px 12px; padding: 12px 12px 30% 12px; box-sizing: border-box">
+                  <sc-for list="{{wins32}}" as="w" hint-placeholder-count="32"><span class="win" style="background: {{w.fill}}"></span></sc-for>
+                </div>
+                <div style="position: absolute; left: 0; right: 0; bottom: 10%; height: 3px; background: {{sky.line}}"></div>
+                <img class="fill door" src="/_blob/095c43441e5d46b4cf707cf312b73b87" alt="" style="animation-timeline: {{l.tl}}">
+              </sc-if>
+
+              <!-- a photo of the place (a floor, a class) -->
+              <sc-if value="{{l.photo}}" hint-placeholder-val="{{false}}">
+                <img class="fill settle" src="{{l.src}}" alt="" style="animation-timeline: {{l.tl}}">
+                <sc-if value="{{l.sample}}" hint-placeholder-val="{{false}}">
+                  <span style="position: absolute; left: 14px; bottom: 14px; padding: 6px 12px; border-radius: 9999px; background: rgba(44,31,21,.88); color: #f4ecdd; font-size: 13px; font-weight: 650">নমুনা ছবি · আপনার ছবি এখানে বসবে</span>
+                </sc-if>
+              </sc-if>
+
+              <!-- a place still waiting for its photo -->
+              <sc-if value="{{l.ph}}" hint-placeholder-val="{{false}}">
+                <div class="settle" style="position: absolute; inset: 0; background: {{sky.panel}}; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; color: {{sky.muted}}; font-size: 17px; animation-timeline: {{l.tl}}">
+                  <svg width="44" height="44" viewBox="0 0 256 256" fill="currentColor"><path d="{{ic.image}}"></path></svg>{{l.phText}}
+                </div>
+              </sc-if>
+
+              <!-- the office and the other rooms, one after another -->
+              <sc-if value="{{l.rooms}}" hint-placeholder-val="{{false}}">
+                <sc-for list="{{l.pics}}" as="p" hint-placeholder-count="3">
+                  <img class="fill fade" src="{{p.src}}" alt="" style="opacity: {{p.op}}">
+                </sc-for>
+                <span style="position: absolute; left: 14px; bottom: 14px; padding: 8px 14px; border-radius: 9999px; background: rgba(44,31,21,.88); color: #f4ecdd; font-size: 15px; font-weight: 650">{{l.roomName}}</span>
+              </sc-if>
+
+              <!-- what happens, shown as a row of moments -->
+              <sc-if value="{{l.moments}}" hint-placeholder-val="{{false}}">
+                <div style="position: absolute; inset: 0; background: {{sky.panel}}; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 28px; padding: 6%">
+                  <div style="display: flex; gap: clamp(14px,3vw,36px); flex-wrap: wrap; justify-content: center">
+                    <sc-for list="{{l.tiles}}" as="m" hint-placeholder-count="3">
+                      <div class="tile" style="opacity: {{m.op}}; transform: scale({{m.scale}})">
+                        <span style="background: {{m.bg}}; color: {{m.fg}}"><svg width="44" height="44" viewBox="0 0 256 256" fill="currentColor"><path d="{{m.path}}"></path></svg></span>
+                        <span style="font-size: 16px; font-weight: 650">{{m.label}}</span>
+                      </div>
+                    </sc-for>
+                  </div>
+                  <span style="font-size: 14px; color: {{sky.muted}}">{{l.phText}}</span>
+                </div>
+              </sc-if>
+
+              <!-- the roof opens from the sky down -->
+              <sc-if value="{{l.roof}}" hint-placeholder-val="{{false}}">
+                <div class="roof" style="position: absolute; inset: 0; background: #efe3cf; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; color: #6b4526; font-size: 17px; animation-timeline: {{l.tl}}">
+                  <svg width="44" height="44" viewBox="0 0 256 256" fill="currentColor"><path d="{{ic.image}}"></path></svg>{{l.phText}}
+                </div>
+              </sc-if>
+
+              <!-- the field comes in from beside the building -->
+              <sc-if value="{{l.field}}" hint-placeholder-val="{{false}}">
+                <div class="field" style="position: absolute; inset: 0; background: #efe3cf; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; color: #6b4526; font-size: 17px; animation-timeline: {{l.tl}}">
+                  <svg width="44" height="44" viewBox="0 0 256 256" fill="currentColor"><path d="{{ic.ball}}"></path></svg>{{l.phText}}
+                </div>
+              </sc-if>
+
+              <!-- out of the door at night -->
+              <sc-if value="{{l.exit}}" hint-placeholder-val="{{false}}">
+                <img class="fill pull" src="/_blob/ae88965c1bc0ca84678333b52987adf7" alt="" style="animation-timeline: {{l.tl}}">
+              </sc-if>
+            </div>
+          </sc-for>
+
+          <!-- the lift: which floor we are on -->
+          <div class="lift" style="opacity: {{lift.op}}">
+            <div style="position: relative; display: flex; flex-direction: column">
+              <span class="lift-mark" style="transform: translateY({{lift.y}})"></span>
+              <sc-for list="{{lift.rows}}" as="r" hint-placeholder-count="6">
+                <span style="position: relative; height: 36px; display: flex; align-items: center; padding: 0 14px; font-size: 13px; font-weight: 650; color: {{r.fg}}; transition: color .5s ease">{{r.name}}</span>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <section style="background: #2c1f15; color: #f4ecdd">
+    <div class="wrap" style="padding-top: 64px; padding-bottom: 64px; display: flex; flex-wrap: wrap; align-items: center; gap: 16px 40px">
+      <div style="flex: 1 1 320px; display: flex; flex-direction: column; gap: 8px">
+        <h2 style="margin: 0; font-size: clamp(1.75rem,3vw,2.5rem); font-weight: 750">নিজে এসে দেখুন</h2>
+        <p style="margin: 0; font-size: 17px; color: #e3d3b8">অফিস সময়: শনি - বৃহস্পতি, সকাল ৮টা - বিকাল ৫টা</p>
+      </div>
+      <a href="#" class="pill" style="min-height: 52px; padding: 0 24px; background: #f4ecdd; color: #2c1f15; font-size: 17px">দিকনির্দেশনা</a>
+      <a href="#" class="pill" style="min-height: 52px; padding: 0 24px; border: 1.5px solid #68503e; color: #f4ecdd; font-size: 17px">কল করুন</a>
+    </div>
+  </section>
+  <footer style="background: #2c1f15; color: #cdb99a; border-top: 1px solid #4b372a"><div class="wrap" style="padding-top: 32px; padding-bottom: 32px; font-size: 15px">ফুটার, অন্য সব পাতার মতো</div></footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"phone":{"editor":"boolean","default":false},"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { i: 0, sub: 0 };
+    this.subs = [];
+    // The stop in view: the last whose top has passed the reading line. Its progress picks the moment inside it.
+    this.onScroll = (e) => {
+      const root = e.currentTarget;
+      if (this.raf) return;
+      this.raf = requestAnimationFrame(() => {
+        this.raf = 0;
+        const r = root.getBoundingClientRect();
+        const line = r.top + root.clientHeight * (this.props.phone ? 0.74 : 0.55);
+        let i = 0, p = 0;
+        root.querySelectorAll('[data-step]').forEach((el, k) => {
+          const b = el.getBoundingClientRect();
+          if (b.top <= line) { i = k; p = (line - b.top) / b.height; }
+        });
+        const n = this.subs[i] || 1;
+        const sub = Math.min(n - 1, Math.floor(Math.max(0, Math.min(0.999, p)) * n));
+        if (i !== this.state.i || sub !== this.state.sub) this.setState({ i, sub });
+      });
+    };
+  }
+
+  renderVals() {
+    const phone = !!this.props.phone;
+    const IC = {
+      clock: 'M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm64-88a8,8,0,0,1-8,8H128a8,8,0,0,1-8-8V72a8,8,0,0,1,16,0v48h48A8,8,0,0,1,192,128Z',
+      sun: 'M120,40V16a8,8,0,0,1,16,0V40a8,8,0,0,1-16,0Zm72,88a64,64,0,1,1-64-64A64.07,64.07,0,0,1,192,128Zm-16,0a48,48,0,1,0-48,48A48.05,48.05,0,0,0,176,128ZM58.34,69.66A8,8,0,0,0,69.66,58.34l-16-16A8,8,0,0,0,42.34,53.66Zm0,116.68-16,16a8,8,0,0,0,11.32,11.32l16-16a8,8,0,0,0-11.32-11.32ZM192,72a8,8,0,0,0,5.66-2.34l16-16a8,8,0,0,0-11.32-11.32l-16,16A8,8,0,0,0,192,72Zm5.66,114.34a8,8,0,0,0-11.32,11.32l16,16a8,8,0,0,0,11.32-11.32ZM48,128a8,8,0,0,0-8-8H16a8,8,0,0,0,0,16H40A8,8,0,0,0,48,128Zm80,80a8,8,0,0,0-8,8v24a8,8,0,0,0,16,0V216A8,8,0,0,0,128,208Zm112-88H216a8,8,0,0,0,0,16h24a8,8,0,0,0,0-16Z',
+      moon: 'M240,96a8,8,0,0,1-8,8H216v16a8,8,0,0,1-16,0V104H184a8,8,0,0,1,0-16h16V72a8,8,0,0,1,16,0V88h16A8,8,0,0,1,240,96ZM144,56h8v8a8,8,0,0,0,16,0V56h8a8,8,0,0,0,0-16h-8V32a8,8,0,0,0-16,0v8h-8a8,8,0,0,0,0,16Zm72.77,97a8,8,0,0,1,1.43,8A96,96,0,1,1,95.07,37.8a8,8,0,0,1,10.6,9.06A88.07,88.07,0,0,0,209.14,150.33,8,8,0,0,1,216.77,153Zm-19.39,14.88c-1.79.09-3.59.14-5.380.14A104.11,104.11,0,0,1,88,64c0-1.79,0-3.59.14-5.38A80,80,0,1,0,197.38,167.86Z',
+      mosque: 'M224,128a23.84,23.84,0,0,0-8,1.38V128c0-41.78-31.07-62.46-53.76-77.56C148.16,41.06,136,33,136,24a8,8,0,0,0-16,0c0,9-12.16,17.06-26.24,26.44C71.07,65.54,40,86.22,40,128v1.38A24,24,0,0,0,8,152v56a8,8,0,0,0,8,8H80a8,8,0,0,0,8-8V176a8,8,0,0,1,16,0v32a8,8,0,0,0,8,8h32a8,8,0,0,0,8-8V176a8,8,0,0,1,16,0v32a8,8,0,0,0,8,8h64a8,8,0,0,0,8-8V152A24,24,0,0,0,224,128ZM102.63,63.76c9.67-6.44,19-12.68,25.37-20,6.34,7.35,15.7,13.59,25.37,20,20,13.32,42.48,28.29,46.11,56.24h-143C60.15,92.05,82.6,77.08,102.63,63.76ZM24,152a8,8,0,0,1,16,0v48H24Zm136,0a24,24,0,0,0-24,24v24H120V176a24,24,0,0,0-48,0v24H56V136H200v64H184V176A24,24,0,0,0,160,152Zm72,48H216V152a8,8,0,0,1,16,0Z',
+      meal: 'M72,88V40a8,8,0,0,1,16,0V88a8,8,0,0,1-16,0ZM216,40V224a8,8,0,0,1-16,0V176H152a8,8,0,0,1-8-8,268.75,268.75,0,0,1,7.22-56.88c9.78-40.49,28.32-67.630,53.63-78.47A8,8,0,0,1,216,40ZM200,53.9c-32.17,24.57-38.47,84.42-39.7,106.1H200ZM119.89,38.69a8,8,0,1,0-15.78,2.63L112,88.63a32,32,0,0,1-64,0l7.88-47.31a8,8,0,1,0-15.78-2.63l-8,48A8.17,8.17,0,0,0,32,88a48.07,48.07,0,0,0,40,47.32V224a8,8,0,0,0,16,0V135.32A48.07,48.07,0,0,0,128,88a8.17,8.17,0,0,0-.11-1.31Z',
+      bed: 'M216,72H32V48a8,8,0,0,0-16,0V208a8,8,0,0,0,16,0V176H240v32a8,8,0,0,0,16,0V112A40,40,0,0,0,216,72ZM32,88h72v72H32Zm88,72V88h96a24,24,0,0,1,24,24v48Z',
+      book: 'M232,48H160a40,40,0,0,0-32,16A40,40,0,0,0,96,48H24a8,8,0,0,0-8,8V200a8,8,0,0,0,8,8H96a24,24,0,0,1,24,24,8,8,0,0,0,16,0,24,24,0,0,1,24-24h72a8,8,0,0,0,8-8V56A8,8,0,0,0,232,48ZM96,192H32V64H96a24,24,0,0,1,24,24V200A39.81,39.81,0,0,0,96,192Zm128,0H160a39.81,39.81,0,0,0-24,8V88a24,24,0,0,1,24-24h64ZM160,88h40a8,8,0,0,1,0,16H160a8,8,0,0,1,0-16Zm48,40a8,8,0,0,1-8,8H160a8,8,0,0,1,0-16h40A8,8,0,0,1,208,128Zm0,32a8,8,0,0,1-8,8H160a8,8,0,0,1,0-16h40A8,8,0,0,1,208,160Z',
+      image: 'M216,40H40A16,16,0,0,0,24,56V200a16,16,0,0,0,16,16H216a16,16,0,0,0,16-16V56A16,16,0,0,0,216,40Zm0,16V158.75l-26.07-26.06a16,16,0,0,0-22.63,0l-20,20-44-44a16,16,0,0,0-22.62,0L40,149.37V56ZM40,172l52-52,80,80H40Zm176,28H194.63l-36-36,20-20L216,181.38V200ZM144,100a12,12,0,1,1,12,12A12,12,0,0,1,144,100Z',
+      ball: 'M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm76.52,147.42H170.9l-9.26-12.76,12.63-36.78,15-4.89,26.24,20.13A87.38,87.38,0,0,1,204.52,171.42Zm-164-34.3L66.71,117l15,4.89,12.63,36.78L85.1,171.42H51.48A87.38,87.38,0,0,1,40.47,137.12Zm10-50.64,5.51,18.6L40.71,116.77A87.33,87.33,0,0,1,50.43,86.48ZM109,152,97.54,118.65,128,97.71l30.46,20.94L147,152Zm91.07-46.92,5.51-18.6a87.33,87.33,0,0,1,9.72,30.29Zm-6.2-35.38-9.51,32.08-15.07,4.89L136,83.79V68.21l29.09-20A88.58,88.58,0,0,1,193.86,69.7ZM146.07,41.87,128,54.29,109.93,41.87a88.24,88.24,0,0,1,36.14,0ZM90.91,48.21l29.09,20V83.79L86.72,106.67l-15.07-4.89L62.14,69.7A88.58,88.58,0,0,1,90.91,48.21ZM63.15,187.42H83.52l7.17,20.27A88.4,88.4,0,0,1,63.15,187.42ZM110,214.13,98.12,180.71,107.35,168h41.3l9.23,12.71-11.83,33.42a88,88,0,0,1-36.1,0Zm55.36-6.44,7.17-20.27h20.37A88.4,88.4,0,0,1,165.31,207.69Z'
+    };
+    const P = {
+      entranceDay: '/_blob/095c43441e5d46b4cf707cf312b73b87',
+      classroom: '/_blob/4948200f969483d065ad1d350416266f',
+      drawings: '/_blob/04001b2bc9662f47c5a6bcce91a09961',
+      early: '/_blob/9e308cfc48dd37c63b9e4cb62f066b95',
+      office: '/_blob/12e1210f221684e686be4a6426fa4a69',
+      meeting: '/_blob/1ae0c317a42cc1d2db1b0f88731fd308',
+      books: '/_blob/09ecc1fb6cf34a0d1fb4d0a1da6a8b8a',
+      evening: '/_blob/ae88965c1bc0ca84678333b52987adf7',
+      van: '/_blob/63c143d622d9fffdea114b0e405c3037',
+      building: '/_blob/1b20c7bbc9676d7541f9983276ee5b85'
+    };
+    // Sky tones, brown palette only: sand at dawn, cream and paper by day, panel at dusk, dark at night.
+    const SKY = {
+      dawn: { bg: '#e3c9a6', fg: '#2b1608', muted: '#4a2810', accent: '#8a3f0a', line: '#2b1608', panel: '#efe3cf', van: '#fffdf8', glass: '#a8916f', lit: 0.2 },
+      morning: { bg: '#f4ecdd', fg: '#2b1608', muted: '#4a2810', accent: '#8a3f0a', line: '#2b1608', panel: '#efe3cf', van: '#fffdf8', glass: '#a8916f', lit: 0 },
+      day: { bg: '#efe3cf', fg: '#2b1608', muted: '#4a2810', accent: '#8a3f0a', line: '#2b1608', panel: '#f4ecdd', van: '#fffdf8', glass: '#a8916f', lit: 0 },
+      afternoon: { bg: '#ebd5b3', fg: '#2b1608', muted: '#4a2810', accent: '#8a3f0a', line: '#2b1608', panel: '#f4ecdd', van: '#fffdf8', glass: '#a8916f', lit: 0 },
+      late: { bg: '#e3c9a6', fg: '#2b1608', muted: '#4a2810', accent: '#8a3f0a', line: '#2b1608', panel: '#efe3cf', van: '#fffdf8', glass: '#a8916f', lit: 0.1 },
+      dusk: { bg: '#3a2a1e', fg: '#f4ecdd', muted: '#e3d3b8', accent: '#e2a867', line: '#a8916f', panel: '#4b372a', van: '#f4ecdd', glass: '#68503e', lit: 0.6 },
+      night: { bg: '#2c1f15', fg: '#f4ecdd', muted: '#e3d3b8', accent: '#e2a867', line: '#a8916f', panel: '#3a2a1e', van: '#f4ecdd', glass: '#68503e', lit: 0.9 }
+    };
+    // The day. Times and the order are the school's (prospectus, hifz routine); [brackets] are still to come.
+    // groups: h = হিফজ, a = আফটার হিফজ, p = প্রি-হিফজ. lift: 0 = roof … 5 = ground.
+    const STEPS = [
+      { kind: 'approach', label: 'ভোরে', time: ['সকাল'], part: ['ভোর'], sky: ['dawn'], groups: [''], h1: true, place: 'উত্তরা সেন্টার মেট্রো স্টেশন',
+        title: 'মাদরাসাতুল কুরআনে একটি দিন', text: 'স্টেশন থেকে পূর্বে ৬০০ মিটার। চলুন, সকাল থেকে রাত পর্যন্ত ক্যাম্পাসের একটি দিন দেখি।', still: P.building },
+      { kind: 'road', label: 'সকাল ৭:০০', dir: '', time: ['৭:০০'], part: ['সকাল'], sky: ['dawn'], groups: ['h'], vanPhoto: true, place: 'পথে',
+        title: 'স্কুলের গাড়ি আসছে', text: 'হিফজের ছাত্রছাত্রীদের দিন শুরু সকাল ৭টায়। উত্তরা ও মিরপুর থেকে স্কুলের নিজস্ব মাইক্রো ও অটো আসে।', still: P.van },
+      { kind: 'entrance', label: 'সকাল ৭:০০', time: ['৭:০০'], part: ['সকাল'], sky: ['morning'], groups: ['h'], lift: 5, place: 'নিচতলা',
+        title: 'প্রবেশপথ', text: '[প্রবেশপথে কী হয়, এক লাইনে]', still: P.entranceDay },
+      { kind: 'photo', label: 'সকাল ৭:০০', ph: '[ছবি: হিফজের ক্লাস]', time: ['৭:০০'], part: ['সকাল'], sky: ['morning'], groups: ['h'], lift: 4, place: '[১ম তলা]', short: true,
+        title: 'হিফজ: সবক ও সাত সবক', text: 'সবক: নতুন পড়া। সাত সবক: গত কয়েক দিনের পড়া।' },
+      { kind: 'photo', label: 'সকাল ৮:০০', src: P.classroom, sample: true, time: ['৮:০০'], part: ['সকাল'], sky: ['morning'], groups: ['ha'], lift: 3, place: '[২য় তলা]', short: true,
+        title: 'আফটার হিফজ: ষষ্ঠ শ্রেণি থেকে মুতাওয়াসসিতা', text: 'ক্লাস সকাল ৮টা থেকে দুপুর ১টা।', still: P.classroom },
+      { kind: 'photo', label: 'সকাল ৯:০০', src: P.early, sample: true, time: ['৯:০০'], part: ['সকাল'], sky: ['day'], groups: ['hap'], lift: 2, place: '[৩য় তলা]', short: true,
+        title: 'প্রি-হিফজ: নার্সারি থেকে প্রথম শ্রেণি', text: 'ক্লাস সকাল ৯টা থেকে দুপুর ১টা।', still: P.early },
+      { kind: 'photo', label: 'সকাল ১০:০০', src: P.drawings, sample: true, time: ['১০:০০'], part: ['সকাল'], sky: ['day'], groups: ['hap'], lift: 1, place: '[৪র্থ তলা]', short: true,
+        title: 'হিফজের ছাত্রছাত্রীদের আরবি, ইসলাম ও সাধারণ ক্লাস', text: 'প্রতিদিন আড়াই ঘণ্টা।', still: P.drawings },
+      { kind: 'rooms', label: 'সকাল', time: ['১০:০০'], part: ['সকাল'], sky: ['day'], groups: ['hap'], place: '[তলা]',
+        rooms: [{ src: P.office, name: 'অধ্যক্ষের কক্ষ' }, { src: P.meeting, name: 'সভাকক্ষ' }, { src: P.books, name: 'নতুন বছরের বই' }],
+        title: 'অফিস ও অন্য কক্ষ', text: 'অধ্যক্ষের কক্ষ, সভাকক্ষ [আর যা দেখানোর মতো]।', still: P.office },
+      { kind: 'road', label: 'দুপুর ১:০০', dir: 'away', time: ['১:০০', '১:০০'], part: ['দুপুর', 'দুপুর'], sky: ['day', 'day'], groups: ['hap', 'h'], place: 'প্রবেশপথ',
+        title: 'প্রি-হিফজ ও আফটার হিফজের ছুটি', text: 'দুপুর ১টায় তাদের দিন শেষ। হিফজের ছাত্রছাত্রীরা থাকে রাত পর্যন্ত।', still: P.van },
+      { kind: 'moments', label: 'একই সময়ে, ১২:৩০ থেকে পৌনে ৩টা', time: ['দুপুর', 'দুপুর', 'দুপুর'], part: ['১২:৩০ থেকে', '১২:৩০ থেকে', 'পৌনে ৩টা পর্যন্ত'], sky: ['day', 'day', 'afternoon'], groups: ['h'], place: '[খাবার ও বিশ্রামের জায়গা]',
+        tiles: [{ path: IC.mosque, label: 'সালাত' }, { path: IC.meal, label: 'খাবার' }, { path: IC.bed, label: 'ঘুম' }], ph: '[ছবি: খাবার ও বিশ্রামের জায়গা]',
+        title: 'সালাত, গোসল, খাবার ও ঘুম', text: 'হিফজ ডে-কেয়ারে দুপুরের খাবার স্কুলেই। ঘুম পৌনে ৩টা পর্যন্ত।' },
+      { kind: 'moments', label: 'বিকাল ৩:০০', time: ['৩:০০'], part: ['বিকাল'], sky: ['afternoon'], groups: ['h'], place: '[হিফজের কক্ষ]',
+        tiles: [{ path: IC.book, label: 'আমুখতা ও তিলাওয়াত' }], ph: '[ছবি: হিফজের কক্ষে বিকাল]',
+        title: 'আমুখতা, তিলাওয়াত ও নাজেরা', text: 'আসর পর্যন্ত। আমুখতা: পুরোনো পড়ার পুনরাবৃত্তি।' },
+      { kind: 'roof', label: 'আসরের পর', ph: '[ছবি: ছাদবাগানে খেলা]', time: ['আসরের পর'], part: ['বিকাল'], sky: ['late'], groups: ['h'], lift: 0, place: 'ছাদ',
+        title: 'মেয়েরা ছাদবাগানে', text: 'খেলার সময়। মেয়েদের খেলা ভবনের ছাদের বাগানে।' },
+      { kind: 'field', label: 'আসরের পর', ph: '[ছবি: মাঠে খেলা]', time: ['আসরের পর'], part: ['বিকাল'], sky: ['late'], groups: ['h'], place: 'ভবনের পাশে',
+        title: 'ছেলেরা মাঠে', text: 'ছেলেদের খেলা ক্যাম্পাস সংলগ্ন মাঠে।' },
+      { kind: 'moments', label: 'সন্ধ্যা থেকে রাত ৮:২০', time: ['মাগরিব', 'মাগরিবের পর', '৮:২০'], part: ['সন্ধ্যা', 'রাত', 'রাত'], sky: ['dusk', 'night', 'night'], groups: ['h'], place: '[সালাতের জায়গা ও হিফজের কক্ষ]',
+        tiles: [{ path: IC.mosque, label: 'মাগরিব' }, { path: IC.book, label: 'নতুন সবক' }, { path: IC.mosque, label: 'ইশা' }], ph: '[ছবি: সন্ধ্যার সালাত ও পড়া]',
+        title: 'মাগরিব, নতুন সবক, ইশা', text: 'আজকার ও মাগরিবের সালাত, তারপর নতুন সবক মুখস্থ। ৮:২০-এ ইশার সালাত।' },
+      { kind: 'exit', label: 'রাত ৮:৩০', time: ['৮:৩০', '৮:৩০'], part: ['রাত', 'রাত'], sky: ['night', 'night'], groups: ['h', ''], lift: 5, place: 'প্রবেশপথ', last: true,
+        title: 'বাড়ি ফেরা', text: 'হিফজ ডে-কেয়ারের ছুটি সবসময় রাত ৮:৩০-এ।', still: P.evening }
+    ];
+
+    const n = STEPS.length;
+    this.subs = STEPS.map((s) => Math.max(s.time.length, s.sky.length, s.groups.length, s.tiles ? s.tiles.length : 1, s.rooms ? s.rooms.length : 1));
+    const i = Math.min(this.state.i, n - 1);
+    const sub = Math.min(this.state.sub, this.subs[i] - 1);
+    const at = (arr) => arr[Math.min(sub, arr.length - 1)];
+    const cur = STEPS[i];
+    const sky = SKY[at(cur.sky)];
+    const dark = sky.fg === '#f4ecdd';
+    const tl = (k) => '--t' + k;
+
+    const groupsNow = at(cur.groups);
+    const G = [['p', 'প্রি-হিফজ'], ['h', 'হিফজ'], ['a', 'আফটার হিফজ']];
+    const groups = G.map(([key, name]) => {
+      const on = groupsNow.includes(key);
+      return { name, op: on ? 1 : 0.4, bg: on ? (dark ? '#f4ecdd' : '#2b1608') : 'transparent', fg: on ? (dark ? '#2c1f15' : '#f4ecdd') : sky.fg, ring: on ? 'transparent' : sky.line };
+    });
+
+    const LIFT = ['ছাদ', '[৪র্থ]', '[৩য়]', '[২য়]', '[১ম]', 'নিচতলা'];
+    const liftAt = cur.lift;
+    const lit = (k) => (((k * 7) % 32) / 32 < sky.lit ? '#e2a867' : dark ? '#4b372a' : 'transparent');
+
+    return {
+      phone,
+      wide: !phone,
+      onScroll: this.onScroll,
+      ic: IC,
+      sky,
+      dir: phone ? 'column-reverse' : 'row',
+      scope: STEPS.map((_, k) => tl(k)).join(','),
+      stageFlex: phone ? '0 0 auto' : '1.3 1 0',
+      stageH: phone ? '50vh' : '100vh',
+      screenH: phone ? 'calc(50vh - 12px)' : 'calc(100vh - 48px)',
+      hudPad: phone ? '12px 14px 10px' : '18px 22px 16px',
+      inset: phone ? '50vh 0' : '0 0',
+      t: {
+        h1: phone ? '2.125rem' : 'clamp(2.5rem,4.6vw,4rem)',
+        h2: phone ? '1.625rem' : 'clamp(1.75rem,3vw,2.5rem)',
+        body: phone ? '1.0625rem' : '1.1875rem',
+        clock: phone ? '1.75rem' : '2.25rem',
+        figure: phone ? '3.25rem' : 'clamp(4rem,8vw,7rem)'
+      },
+      hud: {
+        time: at(cur.time),
+        part: at(cur.part),
+        sun: Math.round(((i + (sub + 0.5) / this.subs[i]) / n) * 100),
+        icon: dark ? IC.moon : IC.sun,
+        groups
+      },
+      lift: {
+        op: liftAt === undefined ? 0 : 1,
+        y: (liftAt === undefined ? 5 : liftAt) * 36 + 'px',
+        rows: LIFT.map((name, k) => ({ name, fg: k === liftAt ? '#2c1f15' : '#a8916f' }))
+      },
+      wins21: Array.from({ length: 21 }, (_, k) => ({ fill: lit(k) === 'transparent' ? (dark ? '#4b372a' : '#d9c3a0') : lit(k) })),
+      wins32: Array.from({ length: 32 }, (_, k) => ({ fill: lit(k) === 'transparent' ? (dark ? '#4b372a' : '#d9c3a0') : lit(k) })),
+      steps: STEPS.map((s, k) => ({
+        tl: tl(k),
+        h: s.h1 ? (phone ? '70vh' : '100vh') : s.last ? (phone ? '90vh' : '100vh') : s.short ? (phone ? '70vh' : '72vh') : (phone ? '80vh' : '95vh'),
+        h1: !!s.h1,
+        h2: !s.h1,
+        timeText: s.label,
+        place: s.place,
+        title: s.title,
+        text: s.text,
+        stillSrc: s.still || null,
+        alt: s.title,
+        dotBg: k < i ? '#8a3f0a' : k === i ? '#8a3f0a' : '#fbf7ef',
+        dotScale: k === i ? 1.25 : 1
+      })),
+      layers: STEPS.map((s, k) => {
+        const on = k === i;
+        const sb = on ? sub : 0;
+        return {
+          op: on ? 1 : 0,
+          tl: tl(k),
+          approach: s.kind === 'approach',
+          road: s.kind === 'road',
+          dir: s.dir || '',
+          flip: s.dir === 'away' ? -1 : 1,
+          vanPhoto: !!s.vanPhoto,
+          entrance: s.kind === 'entrance',
+          photo: s.kind === 'photo' && !!s.src,
+          src: s.src || '',
+          sample: !!s.sample,
+          ph: (s.kind === 'photo' && !s.src),
+          phText: s.ph || '',
+          rooms: s.kind === 'rooms',
+          pics: (s.rooms || []).map((r, j) => ({ src: r.src, op: j === sb ? 1 : 0 })),
+          roomName: s.rooms ? s.rooms[Math.min(sb, s.rooms.length - 1)].name : '',
+          moments: s.kind === 'moments',
+          tiles: (s.tiles || []).map((m, j) => {
+            const active = j === Math.min(sb, s.tiles.length - 1);
+            return { ...m, op: active ? 1 : 0.45, scale: active ? 1.08 : 1, bg: active ? '#e2a867' : (dark ? '#3a2a1e' : '#fbf7ef'), fg: active ? '#2c1f15' : sky.fg };
+          }),
+          roof: s.kind === 'roof',
+          field: s.kind === 'field',
+          exit: s.kind === 'exit'
+        };
+      })
+    };
+  }
+}
+</script>
+</body>
+</html>

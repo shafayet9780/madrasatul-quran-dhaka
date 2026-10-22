@@ -1,5 +1,6 @@
 import { defineType } from 'sanity'
-import { mlString, mlText, profilePhoto, genderField, displayOrderField, featuredField } from './shared'
+import { orderRankField, orderRankOrdering } from '@sanity/orderable-document-list'
+import { mlString, mlText, profilePhoto } from './shared'
 
 export const advisor = defineType({
   name: 'advisor',
@@ -7,16 +8,12 @@ export const advisor = defineType({
   type: 'document',
   fields: [
     mlString('name', 'Name', { required: true }),
-    genderField(),
     profilePhoto(),
     mlText('summary', 'Short Description', { rows: 3, required: true }),
-    displayOrderField(),
-    featuredField('Show this advisor in the navigation mega-menu'),
+    orderRankField({ type: 'advisor', newItemPosition: 'after' }),
   ],
   preview: {
     select: { title: 'name.english', subtitle: 'summary.english', media: 'photo' },
   },
-  orderings: [
-    { title: 'Display Order', name: 'displayOrderAsc', by: [{ field: 'displayOrder', direction: 'asc' }] },
-  ],
+  orderings: [orderRankOrdering],
 })

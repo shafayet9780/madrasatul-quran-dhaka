@@ -1,12 +1,13 @@
 import { feeSettings } from './feeSettings'
-import { page } from './page'
-import { newsEvent } from './newsEvent'
-import { academicProgram } from './academicProgram'
-import { facility } from './facility'
+import { homePage } from './homePage'
+import { campusDay } from './campusDay'
+import { album } from './album'
+import { notice } from './notice'
+import { testimonial } from './testimonial'
 import { siteSettings } from './siteSettings'
-import { footer } from './footer'
+import { pagesOnOff } from './pagesOnOff'
+import { seoSettings } from './seoSettings'
 import { preAdmissionForm } from './preAdmissionForm'
-import prospectus from './prospectus'
 import { department } from './department'
 import { director } from './director'
 import { teacher } from './teacher'
@@ -21,17 +22,22 @@ import { surveyTeacher } from './surveyTeacher'
 import { surveyTemplate } from './surveyTemplate'
 import { surveyRound } from './surveyRound'
 import { admissionFormTypes } from './admissionForm'
+import { policies } from './policies'
+import { curriculum } from './curriculum'
 
 export const schemaTypes = [
   feeSettings,
-  page,
-  newsEvent,
-  academicProgram,
-  facility,
+  homePage,
+  campusDay,
+  album,
+  notice,
+  testimonial,
   siteSettings,
-  footer,
+  pagesOnOff,
+  seoSettings,
+  policies,
+  curriculum,
   preAdmissionForm,
-  prospectus,
   department,
   director,
   teacher,

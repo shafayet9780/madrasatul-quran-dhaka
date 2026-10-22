@@ -1,10 +1,11 @@
 import type { Metadata } from 'next';
-import { getTranslations } from 'next-intl/server';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { CircleAlert } from 'lucide-react';
 import { FindForm } from '@/components/pre-admission/find-form';
 import { FlowShell } from '@/components/pre-admission/flow-shell';
 import { asLocale, dateTime, taka } from '@/lib/admissions/display';
 import { flowPath, safeCurrentCycle } from '@/lib/admissions/pages';
+import { sessionOrNext } from '@/lib/admissions/intake';
 
 type Props = { params: Promise<{ locale: string }>; searchParams: Promise<{ link?: string }> };
 
@@ -15,11 +16,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function FindPage({ params, searchParams }: Props) {
   const locale = asLocale((await params).locale);
+  setRequestLocale(locale);
   const { link } = await searchParams;
   const t = await getTranslations({ locale, namespace: 'preAdmission' });
   const cycle = await safeCurrentCycle();
   const settings = cycle?.snapshot.settings;
-  const session = settings?.session ?? '2027';
+  const session = sessionOrNext(settings?.session);
   const year = Number(/^\d{4}/.exec(session)?.[0] ?? new Date().getFullYear() + 1);
 
   return (

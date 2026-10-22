@@ -1,6 +1,11 @@
-export { default as HeroSection } from './hero-section';
-export { default as MissionStatisticsSection } from './mission-statistics-section';
-export { default as FeaturedContentSection } from './featured-content-section';
-export { default as CurriculumSection } from './curriculum-section';
-export { default as UniqueFeaturesShowcase } from './unique-features-showcase';
-export { default as CurriculumShowcase } from './curriculum-showcase';
+export { Hero } from './hero';
+export { NumbersBand } from './numbers-band';
+export { EducationModel } from './education-model';
+export { StudyPlan } from './study-plan';
+export { SchoolDay } from './school-day';
+export { Campus } from './campus';
+export { Why } from './why';
+export { Founder } from './founder';
+export { Reviews } from '@/components/site/reviews';
+export { Faq } from './faq';
+export { PreAdmissionCard } from './pre-admission-card';

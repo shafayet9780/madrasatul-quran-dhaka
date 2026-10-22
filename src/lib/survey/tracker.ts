@@ -130,7 +130,7 @@ export async function resolveDuplicate(roundId: string, batchIds: string[], keep
     );
   const sameBatch = group.every((g) => g.classKey === group[0]?.classKey && g.sectionKey === group[0].sectionKey && g.subjectKey === group[0].subjectKey);
   if (group.length !== batchIds.length || group.length < 2 || !sameBatch || (keepId && !batchIds.includes(keepId))) {
-    return 'তালিকাটি বদলে গেছে; পাতাটি আবার লোড করুন।';
+    return 'তালিকাটি বদলে গেছে; পেজটি আবার লোড করুন।';
   }
   const now = new Date();
   if (!keepId) {
@@ -156,7 +156,7 @@ export async function resolveDuplicate(roundId: string, batchIds: string[], keep
   ];
   await db.batch(statements as [BatchItem<'pg'>, ...BatchItem<'pg'>[]]);
   const after = await db.select({ supersededBy: submissions.supersededBy }).from(submissions).where(inArray(submissions.id, dropped));
-  return after.every((row) => row.supersededBy === keepId) ? null : 'অন্য কেউ এইমাত্র সিদ্ধান্ত নিয়েছেন; পাতাটি আবার লোড করুন।';
+  return after.every((row) => row.supersededBy === keepId) ? null : 'অন্য কেউ এইমাত্র সিদ্ধান্ত নিয়েছেন; পেজটি আবার লোড করুন।';
 }
 
 export type GuardianChild = { erpId: string; name: string; roll: number | null; fatherMobile: string | null; motherMobile: string | null };

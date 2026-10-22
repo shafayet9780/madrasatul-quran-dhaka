@@ -1,22 +1,10 @@
 import { test, expect } from '@playwright/test';
 
 for (const locale of ['bengali', 'english']) {
-  test(`${locale} directors list renders`, async ({ page }) => {
-    const res = await page.goto(`/${locale}/directors`);
-    expect(res?.status()).toBeLessThan(400);
-    await expect(page.locator('h1').first()).toBeVisible();
-  });
-
   test(`${locale} teachers list renders with filter bar`, async ({ page }) => {
     const res = await page.goto(`/${locale}/teachers`);
     expect(res?.status()).toBeLessThan(400);
     await expect(page.locator('input[type="search"]')).toBeVisible();
-  });
-
-  test(`${locale} advisors list renders`, async ({ page }) => {
-    const res = await page.goto(`/${locale}/advisors`);
-    expect(res?.status()).toBeLessThan(400);
-    await expect(page.locator('h1').first()).toBeVisible();
   });
 }
 

@@ -11,7 +11,6 @@ const categoryProjection = `{
   _id,
   _type,
   name,
-  description,
   slug,
   "displayOrder": coalesce(displayOrder, 0),
   "shareVersion": coalesce(shareVersion, 1)
@@ -143,72 +142,93 @@ export function getPublicDownloadSettings(): Promise<PublicDownloadSettings | nu
   })
 }
 
+/** The files published documents use, in every dataset (they share one Blob store; see BLOB_REFERENCE_DATASETS). */
 export async function getPublishedBlobReferences(): Promise<Set<string>> {
-  const result = await client.withConfig({ useCdn: false, perspective: 'published' }).fetch<{
-    downloadables: Array<{ pathname?: string }>
-    settings: Array<{
-      prospectus?: { pathname?: string }
-      curriculum?: { pathname?: string }
-      codeOfConduct?: { pathname?: string }
-    }>
-  }>(
-    `{
-      "downloadables": *[_type == "downloadable" && ${published}]{ "pathname": file.pathname },
-      "settings": *[_type == "publicDownloadSettings" && ${published}]{
-        prospectus,
-        curriculum,
-        codeOfConduct
-      }
-    }`,
-    {},
-    { cache: 'no-store' },
+  const datasets = [...new Set([process.env.NEXT_PUBLIC_SANITY_DATASET!, ...BLOB_REFERENCE_DATASETS])]
+  const results = await Promise.all(
+    datasets.map((dataset) =>
+      client.withConfig({ dataset, useCdn: false, perspective: 'published' }).fetch<{
+        downloadables: Array<{ pathname?: string }>
+        settings: Array<{
+          prospectus?: { pathname?: string }
+          curriculum?: { pathname?: string }
+          codeOfConduct?: { pathname?: string }
+        }>
+      }>(
+        `{
+          "downloadables": *[_type == "downloadable" && ${published}]{ "pathname": file.pathname },
+          "settings": *[_type == "publicDownloadSettings" && ${published}]{
+            prospectus,
+            curriculum,
+            codeOfConduct
+          }
+        }`,
+        {},
+        { cache: 'no-store' },
+      ),
+    ),
   )
 
   return new Set(
-    [
-      ...result.downloadables.map((entry) => entry.pathname),
-      ...result.settings.flatMap((entry) => [
-        entry.prospectus?.pathname,
-        entry.curriculum?.pathname,
-        entry.codeOfConduct?.pathname,
-      ]),
-    ].filter((pathname): pathname is string => Boolean(pathname)),
+    results
+      .flatMap((result) => [
+        ...result.downloadables.map((entry) => entry.pathname),
+        ...result.settings.flatMap((entry) => [
+          entry.prospectus?.pathname,
+          entry.curriculum?.pathname,
+          entry.codeOfConduct?.pathname,
+        ]),
+      ])
+      .filter((pathname): pathname is string => Boolean(pathname)),
   )
 }
+
+/**
+ * Both datasets (the live site's and the previews') share one Blob store, so a file stays while either references
+ * it. Any failed read throws, so the cleanup stops before deleting anything.
+ */
+export const BLOB_REFERENCE_DATASETS = ['production', 'development']
 
 export async function getAllBlobReferences(): Promise<Set<string>> {
   if (!process.env.SANITY_API_TOKEN) {
     throw new Error('SANITY_API_TOKEN is required for orphan cleanup')
   }
 
-  const result = await previewClient.withConfig({ perspective: 'raw' }).fetch<{
-    downloadables: Array<{ pathname?: string }>
-    settings: Array<{
-      prospectus?: { pathname?: string }
-      curriculum?: { pathname?: string }
-      codeOfConduct?: { pathname?: string }
-    }>
-  }>(
-    `{
-      "downloadables": *[_type == "downloadable"]{ "pathname": file.pathname },
-      "settings": *[_type == "publicDownloadSettings"]{
-        prospectus,
-        curriculum,
-        codeOfConduct
-      }
-    }`,
-    {},
-    { cache: 'no-store' },
+  const datasets = [...new Set([process.env.NEXT_PUBLIC_SANITY_DATASET!, ...BLOB_REFERENCE_DATASETS])]
+  const results = await Promise.all(
+    datasets.map((dataset) =>
+      previewClient.withConfig({ dataset, perspective: 'raw' }).fetch<{
+        downloadables: Array<{ pathname?: string }>
+        settings: Array<{
+          prospectus?: { pathname?: string }
+          curriculum?: { pathname?: string }
+          codeOfConduct?: { pathname?: string }
+        }>
+      }>(
+        `{
+          "downloadables": *[_type == "downloadable"]{ "pathname": file.pathname },
+          "settings": *[_type == "publicDownloadSettings"]{
+            prospectus,
+            curriculum,
+            codeOfConduct
+          }
+        }`,
+        {},
+        { cache: 'no-store' },
+      ),
+    ),
   )
 
   return new Set(
-    [
-      ...result.downloadables.map((entry) => entry.pathname),
-      ...result.settings.flatMap((entry) => [
-        entry.prospectus?.pathname,
-        entry.curriculum?.pathname,
-        entry.codeOfConduct?.pathname,
-      ]),
-    ].filter((pathname): pathname is string => Boolean(pathname)),
+    results
+      .flatMap((result) => [
+        ...result.downloadables.map((entry) => entry.pathname),
+        ...result.settings.flatMap((entry) => [
+          entry.prospectus?.pathname,
+          entry.curriculum?.pathname,
+          entry.codeOfConduct?.pathname,
+        ]),
+      ])
+      .filter((pathname): pathname is string => Boolean(pathname)),
   )
 }

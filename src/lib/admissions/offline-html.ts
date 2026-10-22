@@ -11,7 +11,7 @@ import { CHOICE_TYPES, NO_ROUTE, allFields, type FormField, type FormSection, ty
 
 export type OfflineData = {
   snapshot: FormSnapshot;
-  /** `phones`: every active number with its label (Site Settings), printed on the guardian's copy. */
+  /** `phones`: every active number with its label (School details), printed on the guardian's copy. */
   school: { name: string; line: string; logo: string | null; phone: string; website: string; phones?: { label: string; number: string }[] };
   whatsappQrSvg: string | null;
   fontCss: string;
@@ -125,7 +125,7 @@ function answer(f: FormField, snapshot: FormSnapshot, dependents: FormField[]): 
         'c',
       );
     case 'file':
-      return options(['ফটোকপি সংযুক্ত করেছি', ...(f.allowMissing ? [esc(txt(f.missingLabel, 'bengali'))] : [])], f.allowMissing ? 'o' : 'c');
+      return options(['ফটোকপি সঙ্গে দিয়েছি', ...(f.allowMissing ? [esc(txt(f.missingLabel, 'bengali'))] : [])], f.allowMissing ? 'o' : 'c');
     case 'transportStop': {
       // The routes as a table with a tick box beside each stop; "not on a route" asks for the area.
       const t = snapshot.transport;
@@ -148,7 +148,7 @@ function answer(f: FormField, snapshot: FormSnapshot, dependents: FormField[]): 
         )
         .join('');
       const area = dependents.find((d) => d.showWhen?.values.includes(NO_ROUTE));
-      return `<table class="routes"><thead><tr><th>রুট</th><th>স্টপ (শুরু থেকে মাদরাসা)</th></tr></thead><tbody>${rows}</tbody></table><div class="small muted" style="margin-top:3px">আসন সীমিত। ভর্তি নিশ্চিত হওয়ার পর পরিবহন বরাদ্দ জানানো হবে।</div>${
+      return `<table class="routes"><thead><tr><th>রুট</th><th>স্টপ (শুরু থেকে মাদরাসা)</th></tr></thead><tbody>${rows}</tbody></table><div class="small muted" style="margin-top:3px">সিট সীমিত। ভর্তি নিশ্চিত হওয়ার পর গাড়ির সিটের কথা জানানো হবে।</div>${
         area ? `<div style="margin-top:5px">কোনো রুটে না থাকলে, ${label(area)}:</div><i class="ans"></i>` : ''
       }`;
     }

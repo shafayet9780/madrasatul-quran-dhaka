@@ -26,7 +26,7 @@ type SortKey = 'roll' | 'name' | 'mean' | 'flags' | 'guardian' | 'gap';
 
 const FORM = {
   verified: { label: 'যাচাইকৃত', tone: 'ok' },
-  unverified: { label: 'অযাচাইকৃত', tone: 'warn' },
+  unverified: { label: 'যাচাই হয়নি', tone: 'warn' },
   none: { label: 'সাড়া নেই', tone: 'muted' },
 } as const;
 

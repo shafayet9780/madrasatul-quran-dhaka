@@ -79,7 +79,7 @@ export function RoundClosed({ label, closesAt, phone }: { label: string; closesA
   return (
     <StatePage icon={clockIcon} title="এই রাউন্ডের সময় শেষ হয়েছে">
       <p style={text}>
-        {label} রাউন্ড {formatDateTime(closesAt)}-এ বন্ধ হয়েছে। খসড়া সংরক্ষিত আছে; অ্যাডমিন সময় বাড়ালে এই লিংক থেকেই জমা দিতে পারবেন। পরবর্তী রাউন্ডের লিংক মাদরাসা থেকে পাঠানো হবে।
+        {label} রাউন্ড {formatDateTime(closesAt)}-এ বন্ধ হয়েছে। খসড়া সেভ করা আছে; অ্যাডমিন সময় বাড়ালে এই লিংক থেকেই জমা দিতে পারবেন। পরবর্তী রাউন্ডের লিংক মাদরাসা থেকে পাঠানো হবে।
       </p>
       <OfficeContact phone={phone} prefix="জরুরি প্রয়োজনে অফিসে যোগাযোগ করুন" />
     </StatePage>

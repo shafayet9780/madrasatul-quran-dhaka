@@ -1,0 +1,53 @@
+/*
+ * The Bengali fonts, served from public/fonts (made by scripts/trim-fonts.py; their licences sit beside them).
+ * Anek Latin comes from next/font (src/lib/fonts.ts). Anek Bangla is preloaded on Bengali pages only
+ * (src/app/[locale]/layout.tsx); an English page fetches it only if Bengali text shows. The files are cached for a
+ * year: a new file needs a new name (FONT_VERSION in the script). The family names carry "MQ" so they never mix with
+ * the admin and survey's own Anek Bangla (src/components/survey/fonts.ts).
+ */
+@font-face {
+  font-family: 'MQ Anek Bangla';
+  src: url('/fonts/anek-bangla-v1.woff2') format('woff2');
+  font-weight: 400 800;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0951-0952, U+0964-0965, U+0980-09FE, U+1CD0, U+1CD2, U+1CD5-1CD6, U+1CD8, U+1CE1, U+1CEA, U+1CED,
+    U+1CF2, U+1CF5-1CF7, U+200C-200D, U+20B9, U+25CC, U+A8F1;
+}
+
+/* Quotations only. Its spaces and punctuation are in the same file, so a quotation needs no second one. */
+@font-face {
+  font-family: 'MQ Tiro Bangla';
+  src: url('/fonts/tiro-bangla-v1.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0020-0022, U+0027-0029, U+002C-002E, U+003A-003B, U+003F, U+00A0, U+0951-0952, U+0964-0965,
+    U+0980-09FE, U+1CD0, U+1CD2, U+1CD5-1CD6, U+1CD8, U+1CE1, U+1CEA, U+1CED, U+1CF2, U+1CF5-1CF7, U+200C-200D,
+    U+2010-2027, U+20B9, U+25CC, U+A8F1;
+}
+
+/* Stand-ins sized like the real fonts while they load (the values next/font worked out for them). Tiro's covers only
+   Tiro's characters, or it would set a quotation's Latin letters and digits in Times instead of Anek Latin. */
+@font-face {
+  font-family: 'MQ Anek Bangla Fallback';
+  src: local('Arial');
+  ascent-override: 134.44%;
+  descent-override: 66.25%;
+  line-gap-override: 0%;
+  size-adjust: 92.98%;
+}
+@font-face {
+  font-family: 'MQ Tiro Bangla Fallback';
+  src: local('Times New Roman');
+  ascent-override: 67.12%;
+  descent-override: 21.78%;
+  line-gap-override: 29.34%;
+  size-adjust: 112.49%;
+  unicode-range: U+0020-0022, U+0027-0029, U+002C-002E, U+003A-003B, U+003F, U+00A0, U+2010-2027;
+}
+
+:root {
+  --font-anek-bangla: 'MQ Anek Bangla', 'MQ Anek Bangla Fallback';
+  --font-tiro-bangla: 'MQ Tiro Bangla', 'MQ Tiro Bangla Fallback';
+}

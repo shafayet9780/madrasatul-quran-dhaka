@@ -67,7 +67,7 @@ test('a guardian finds siblings by mobile, picks one and is verified', async ({ 
   await expect(page.getByLabel('আপনার নাম')).toHaveValue('রহিম উদ্দিন');
 
   await page.getByLabel('আপনার মোবাইল নম্বর').fill('01811111111');
-  await expect(page.getByText(/অযাচাইকৃত/)).toBeVisible();
+  await expect(page.getByText(/যাচাই হয়নি/)).toBeVisible();
   await page.getByRole('radio', { name: 'অন্যান্য' }).click();
   await expect(page.getByRole('button', { name: /শুরু করুন/ })).toBeDisabled();
   await page.getByLabel(/সম্পর্ক লিখুন/).fill('মামা');
@@ -179,7 +179,7 @@ test.describe('G2 questions', () => {
     await page.getByRole('button', { name: 'জমা দিন' }).click();
     await expect(page).toHaveURL(/\/survey\/receipt\//);
     await page.goto(firstReceipt);
-    await expect(page.getByText('এই রিভিউ পরে সংশোধন করা হয়েছে।')).toBeVisible();
+    await expect(page.getByText('এই রিভিউ পরে বদলানো হয়েছে।')).toBeVisible();
   });
 
   test('desktop shows the questions beside their list', async ({ page }) => {

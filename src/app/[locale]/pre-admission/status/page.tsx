@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import { getTranslations } from 'next-intl/server';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { CircleAlert, CircleCheck, Clock, ShieldCheck, Square } from 'lucide-react';
 import { ConfirmationTasks, CopyId } from '@/components/pre-admission/confirmation-tasks';
 import { FlowShell } from '@/components/pre-admission/flow-shell';
@@ -36,6 +36,7 @@ const methodName = (cardType: string | null) => (cardType ? (cardType.split('-')
 
 export default async function StatusPage({ params, searchParams }: Props) {
   const locale = asLocale((await params).locale);
+  setRequestLocale(locale);
   const { payment: notice } = await searchParams;
   const t = await getTranslations({ locale, namespace: 'preAdmission' });
   const current = await currentApplication().catch(() => null);
@@ -157,7 +158,7 @@ async function Confirmation({ app, snapshot, payment, locale, fee }: { app: Appl
       <div className="flex items-center justify-between gap-3 rounded-xl border bg-card py-3.5 pl-4 pr-3.5 md:max-w-[500px]">
         <div className="flex flex-col gap-0.5">
           <span className="text-[13px] text-muted-foreground">{t('applicationId')}</span>
-          <span className="font-[family-name:var(--font-english)] text-[32px] font-bold leading-[1.15] tracking-[0.02em]">{app.publicRef}</span>
+          <span className="text-[32px] font-bold leading-[1.15] tracking-[0.02em]">{app.publicRef}</span>
           <span className="text-[13.5px] text-muted-foreground">{studentLine(app, snapshot, locale)}</span>
         </div>
         <CopyId value={app.publicRef ?? ''} label={t('copyId')} />
@@ -205,7 +206,7 @@ async function Confirmation({ app, snapshot, payment, locale, fee }: { app: Appl
                 </>
               )}
               <dt className="text-muted-foreground">{t('transactionId')}</dt>
-              <dd className="break-all font-[family-name:var(--font-english)]">{paid.bankTranId || paid.tranId}</dd>
+              <dd className="break-all">{paid.bankTranId || paid.tranId}</dd>
               {paid.completedAt && (
                 <>
                   <dt className="text-muted-foreground">{t('time')}</dt>

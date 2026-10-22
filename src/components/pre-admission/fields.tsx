@@ -69,19 +69,19 @@ export function FieldBlock(props: FieldProps) {
   // "don't have it now" tick box; the stop list and the chosen route under it).
   const helpFirst = field.type === 'file' || field.type === 'transportStop';
   const helpAbove = help && (
-    <p id={helpId} className="-mt-1.5 mb-2 text-[13px] leading-normal text-muted-foreground">
+    <p id={helpId} className="-mt-1.5 mb-2 text-[14px] font-[450] leading-normal text-muted-foreground">
       {help}
     </p>
   );
   const footer = (
     <>
       {help && !helpFirst && (
-        <p id={helpId} className="mt-1.5 text-[13px] leading-normal text-muted-foreground">
+        <p id={helpId} className="mt-1.5 text-[14px] font-[450] leading-normal text-muted-foreground">
           {help}
         </p>
       )}
       {error && (
-        <p id={errorId} className="mt-1.5 text-[13px] leading-normal text-destructive">
+        <p id={errorId} className="mt-1.5 text-[14px] font-[450] leading-normal text-destructive">
           {error}
         </p>
       )}
@@ -249,7 +249,7 @@ function Checkboxes({ id, field, value, locale, error, onChange, onBlur }: { id:
   const exclusive = field.options.some((o) => o.exclusive);
   return (
     <>
-      {exclusive && <p className="mb-1 text-[13px] leading-normal text-muted-foreground">{t('several')}</p>}
+      {exclusive && <p className="mb-1 text-[14px] font-[450] leading-normal text-muted-foreground">{t('several')}</p>}
       <div className={cn('flex flex-wrap gap-x-[22px]', exclusive && 'flex-col')}>
         {field.options.map((o, i) => (
           <label key={o.value} className="inline-flex min-h-10 cursor-pointer items-center gap-2.5 text-[15px] md:min-h-[34px] md:text-[14.5px]">

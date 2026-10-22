@@ -1,4 +1,5 @@
 import { defineType, defineField } from 'sanity'
+import { orderRankField, orderRankOrdering } from '@sanity/orderable-document-list'
 import {
   mlString,
   mlText,
@@ -6,10 +7,7 @@ import {
   mlPortable,
   mlStringArray,
   profilePhoto,
-  genderField,
   educationField,
-  displayOrderField,
-  featuredField,
 } from './shared'
 
 export const director = defineType({
@@ -20,7 +18,6 @@ export const director = defineType({
     mlString('name', 'Name', { required: true }),
     mlSlug(),
     mlString('designation', 'Designation', { required: true }),
-    genderField(),
     profilePhoto(),
     mlText('summary', 'Short Summary', { rows: 2 }),
     mlPortable('message', "Director's Message", 'A welcome / vision message shown prominently on the profile.'),
@@ -56,14 +53,7 @@ export const director = defineType({
         },
       ],
     }),
-    defineField({
-      name: 'signatureName',
-      title: 'Signature Name',
-      type: 'string',
-      description: 'Optional name shown under the message.',
-    }),
-    displayOrderField(),
-    featuredField('Highlight in the navigation mega-menu'),
+    orderRankField({ type: 'director', newItemPosition: 'after' }),
     defineField({
       name: 'showDetailPage',
       title: 'Enable Detail Page',
@@ -75,7 +65,5 @@ export const director = defineType({
   preview: {
     select: { title: 'name.english', subtitle: 'designation.english', media: 'photo' },
   },
-  orderings: [
-    { title: 'Display Order', name: 'displayOrderAsc', by: [{ field: 'displayOrder', direction: 'asc' }] },
-  ],
+  orderings: [orderRankOrdering],
 })

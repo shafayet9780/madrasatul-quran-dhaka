@@ -795,6 +795,12 @@
   }
 }
 
+/* The site's text font (--font-sans) needs Anek Latin, which the admin doesn't load (src/lib/fonts.ts is the public
+   site's): Latin text outside .sv-admin, in dialogs, menus and tooltips, is set in the admin's Inter instead. */
+html:has(.sv-admin) {
+  --font-anek-latin: var(--font-english);
+}
+
 /* The site's html/body overflow-x: hidden makes body a scroll container, which stops the sidebar
    and top bar from sticking; clip keeps horizontal scroll away without that. Admin pages only. */
 html:has(.sv-admin),

@@ -1,5 +1,5 @@
 import type { FeeSettings } from '@/types/fees';
-import { DEFAULT_WHATSAPP, getAdmissionsContact } from './admissions-contact';
+import { DEFAULT_WHATSAPP } from './admissions-contact';
 const text = (english: string, bengali: string) => ({ english, bengali });
 const priced = (amount: number) => ({ status: 'priced' as const, amount });
 export const initialFeeSettings: FeeSettings = {
@@ -26,14 +26,6 @@ export const initialFeeSettings: FeeSettings = {
   unavailableMessage: text(
     'Please contact the office for current fee information.',
     'বর্তমান ফি জানতে অফিসে যোগাযোগ করুন।'
-  ),
-  faqQuestion: text(
-    'What discounts are available?',
-    'কী ধরনের ছাড় পাওয়া যায়?'
-  ),
-  faqAnswer: text(
-    'Please review the current discount information below and contact the office to confirm eligibility and terms.',
-    'বর্তমান ছাড়ের তথ্য দেখুন এবং যোগ্যতা ও শর্তাবলী নিশ্চিত করতে অফিসে যোগাযোগ করুন।'
   ),
   fees: [
     {
@@ -128,19 +120,8 @@ export function prepareContactDraft(draft: any, published: any) {
   const source = draft || published;
   if (!source) return null;
   const contact = { ...source.contactInfo };
-  let changed = false;
-  if (!contact.admissionsPhone) {
-    const phone = getAdmissionsContact(contact).phone;
-    if (phone) {
-      contact.admissionsPhone = phone;
-      changed = true;
-    }
-  }
-  if (!contact.whatsappNumber) {
-    contact.whatsappNumber = DEFAULT_WHATSAPP;
-    changed = true;
-  }
-  if (!changed) return null;
+  if (contact.whatsappNumber) return null;
+  contact.whatsappNumber = DEFAULT_WHATSAPP;
   const document = { ...source };
   for (const key of ['_rev', '_createdAt', '_updatedAt']) delete document[key];
   return {
