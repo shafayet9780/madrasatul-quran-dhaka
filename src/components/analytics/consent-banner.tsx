@@ -107,14 +107,15 @@ export function ConsentBanner() {
 
   return (
     <div className="fixed inset-x-0 bottom-0 z-[9998] border-t border-line-dark bg-dark py-4 text-on-dark shadow-bar">
-      <div className="page-wrap flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <p className="m-0 text-15 text-on-dark-body">
+      <div className="page-wrap flex flex-col gap-4 lg:flex-row lg:items-center lg:gap-8">
+        <p className="m-0 text-15 text-on-dark-body lg:min-w-0 lg:flex-1">
           {consent.requiresOptIn ? t('regulatedMessage') : t('noticeMessage')}{' '}
           <Link href={`${policyBase}/cookie-policy`} className="font-strong text-on-dark underline underline-offset-4">
             {t('learnMore')}
           </Link>
         </p>
-        <div className="flex flex-wrap gap-2">
+        {/* The buttons keep one row beside the text on wide screens: the text takes what is left. */}
+        <div className="flex flex-wrap gap-2 lg:shrink-0 lg:flex-nowrap">
           <button
             type="button"
             onClick={() => {

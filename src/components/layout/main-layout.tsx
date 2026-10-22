@@ -4,7 +4,10 @@ import { usePathname } from 'next/navigation';
 import AdmissionBanner from './admission-banner';
 import { ApplyBar } from './apply-bar';
 import { AdmissionCtaProvider } from './admission-cta-context';
+import { StickyHeader } from './sticky-header';
+import { WhatsAppButton } from './whatsapp-button';
 import type { AdmissionCta } from '@/lib/admissions/intake';
+import type { WhatsAppChooser } from '@/lib/site/whatsapp';
 
 const FOCUSED_FLOW = /^\/(bengali|english)\/pre-admission\/(start|form|pledge|review|status|find)(\/|$)/;
 
@@ -15,9 +18,10 @@ interface MainLayoutProps {
   footer: React.ReactNode;
   skipLabel: string;
   admissionCta: AdmissionCta | null;
+  whatsapp: WhatsAppChooser | null;
 }
 
-export default function MainLayout({ children, header, footer, skipLabel, admissionCta }: MainLayoutProps) {
+export default function MainLayout({ children, header, footer, skipLabel, admissionCta, whatsapp }: MainLayoutProps) {
   const pathname = usePathname();
 
   // The application flow has its own focused header and no footer.
@@ -33,12 +37,13 @@ export default function MainLayout({ children, header, footer, skipLabel, admiss
       </a>
       <div className="flex min-h-screen flex-col">
         <AdmissionBanner />
-        {header}
+        <StickyHeader>{header}</StickyHeader>
         <main id="main" className="flex-1">
           {children}
         </main>
         {footer}
         <ApplyBar />
+        {whatsapp && <WhatsAppButton {...whatsapp} />}
       </div>
     </AdmissionCtaProvider>
   );

@@ -984,6 +984,30 @@
   },
   "site": {
     "skip": "Skip to the content",
+    "whatsapp": {
+      "label": "Message us on WhatsApp",
+      "close": "Close",
+      "title": "What would you like to ask about?",
+      "replies": "The office replies during office hours",
+      "topics": {
+        "admissions": {
+          "label": "Admissions and fees",
+          "message": "Assalamu Alaikum. I would like to know about admissions and fees."
+        },
+        "curriculum": {
+          "label": "Classes and curriculum",
+          "message": "Assalamu Alaikum. I would like to know about the classes and curriculum."
+        },
+        "visit": {
+          "label": "Visit the campus",
+          "message": "Assalamu Alaikum. I would like to visit the campus. When can I come?"
+        },
+        "other": {
+          "label": "Something else",
+          "message": "Assalamu Alaikum! I would like to know more about Madrasatul Quran."
+        }
+      }
+    },
     "notFound": {
       "title": "This page isn't here",
       "lead": "The link may be old, or the address may have a typo. The home page has everything on the site.",
