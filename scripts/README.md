@@ -21,7 +21,7 @@ Scripts that write to Sanity use `NEXT_PUBLIC_SANITY_DATASET` from `.env.local`,
 | `extract-form-questions.js` | Exported the old form's questions to `docs/pre-admission-form/` (the test fixtures read that file) | Done; the old form is gone |
 | `populate-faculty-data.js` | Seeded directors, advisors, teachers and departments | Done (2025) |
 | `clean-director-bios.ts` | Tidied the directors' biographies | Done (October 2026) |
-| `migrate-public-download-settings.ts` | Moved the public PDFs into Public PDFs | Done |
+| `migrate-public-download-settings.ts` | Drafts Public PDFs from the three fixed files, only while it is empty (`pnpm migrate:public-downloads`; dataset from `.env.local`) | Draft in `development` (2026-10-25); `production` pending; publish in the Studio |
 
 ## Other scripts
 

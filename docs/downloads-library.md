@@ -33,7 +33,7 @@ Production Studio and its administrative actions fail closed when Basic Auth is 
 
 Revoking a category link invalidates current links to that category but does not revoke separately generated item links. Revoking an item link affects only that item. Older version-1 links generated before this feature cannot be individually revoked, but they retain their original maximum 30-day expiry.
 
-Uploads modify only the current draft. The live file remains unchanged until the document is published. Public prospectus, curriculum, and parents’ code-of-conduct files are maintained in **Downloads Library → Public Download Files** and also require publication.
+Uploads modify only the current draft. The live file remains unchanged until the document is published. Public prospectus, curriculum, and parents’ code-of-conduct files are maintained in **Downloads → Public PDFs** and also require publication.
 
 ## Sanity webhook
 
@@ -109,10 +109,11 @@ This is a real cleanup, not a dry run. Use it only when local environment variab
 The three existing public endpoints use their canonical Blob objects under `prospectus/` and `curriculum/` whenever no CMS file is published. After deploying the schemas and environment variables, run this explicitly from an authorized environment:
 
 ```bash
-pnpm migrate:public-downloads
+pnpm migrate:public-downloads                                    # the dataset in .env.local (development)
+NEXT_PUBLIC_SANITY_DATASET=production pnpm migrate:public-downloads
 ```
 
-The script loads the local project environment from `.env.local` and creates a draft. Review the generated `publicDownloadSettings` document in Studio and publish it. Then confirm:
+The script loads the local project environment from `.env.local` and creates a draft, only while Public PDFs has neither a draft nor a published document. Review the generated `publicDownloadSettings` document in Studio and publish it. Then confirm:
 
 - `/api/download-prospectus`
 - `/api/download-curriculum`
@@ -123,6 +124,8 @@ Do not remove these canonical public paths. They are permanent defaults even aft
 ## Maintenance
 
 - Replace a file by uploading to the draft and publishing it.
+- Public PDFs: name the file with its year before uploading (e.g. `Prospectus-2027.pdf`). Visitors get that name, so a phone does not save the new copy as "Prospectus (1).pdf" beside the old one. Browsers never keep a public download (`no-store`), so the next click after publishing gets the new file.
+- Upload public PDFs in the live Studio. Both datasets share one Blob store and the weekly cleanup checks only the live dataset's references, so a file uploaded in the preview Studio is removed after the grace period.
 - Use the document's **Revoke existing share links** action to revoke its newly generated category/item links. Rotate the link-signing secret only when every link and cookie must be invalidated.
 - Publishing a replacement triggers immediate cleanup of the previous file when no published record still references it and its pathname is under `downloads/`.
 - Only objects under `downloads/` are eligible for automatic cleanup. Every other Blob pathname is treated as public/unmanaged and is never removed by either cleanup mechanism.

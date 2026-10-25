@@ -34,6 +34,7 @@ it('includes Admissions, Curriculum, About us and Campus in both languages on th
         alternates: {
           languages: {
             'bn-BD': `${DEFAULT_SITE_URL}/bengali/${route}`,
+            'en-BD': `${DEFAULT_SITE_URL}/bengali/${route}`,
             en: `${DEFAULT_SITE_URL}/english/${route}`,
           },
         },

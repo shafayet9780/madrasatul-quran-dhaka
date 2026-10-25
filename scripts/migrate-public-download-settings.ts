@@ -22,6 +22,8 @@ const client = createClient({
   token,
   apiVersion: '2024-01-01',
   useCdn: false,
+  // Drafts too, so an existing draft is seen.
+  perspective: 'raw',
 })
 
 const files = {
@@ -35,7 +37,7 @@ const files = {
   },
   codeOfConduct: {
     url: `${baseUrl}/prospectus/parents_code_of_conduct_mqd.pdf`,
-    originalFilename: 'Parents-Code-of-Conduct-MQD.pdf',
+    originalFilename: 'Madrasatul-Quran-Parents-Code-of-Conduct.pdf',
   },
 }
 
@@ -54,18 +56,33 @@ async function metadata(url: string, originalFilename: string) {
   }
 }
 
-const [prospectus, curriculum, codeOfConduct] = await Promise.all([
-  metadata(files.prospectus.url, files.prospectus.originalFilename),
-  metadata(files.curriculum.url, files.curriculum.originalFilename),
-  metadata(files.codeOfConduct.url, files.codeOfConduct.originalFilename),
-])
+async function main() {
+  console.log(`Project ${projectId}, dataset ${dataset}`)
+  // Only into an empty Studio: a draft or a published document may hold an editor's uploads.
+  const existing = await client.fetch<string[]>(`*[_id in ["publicDownloadSettings", "drafts.publicDownloadSettings"]]._id`)
+  if (existing.length) {
+    console.log(`Public PDFs already exists (${existing.join(', ')}): nothing to do.`)
+    return
+  }
 
-await client.createOrReplace({
-  _id: 'drafts.publicDownloadSettings',
-  _type: 'publicDownloadSettings',
-  prospectus,
-  curriculum,
-  codeOfConduct,
+  const [prospectus, curriculum, codeOfConduct] = await Promise.all([
+    metadata(files.prospectus.url, files.prospectus.originalFilename),
+    metadata(files.curriculum.url, files.curriculum.originalFilename),
+    metadata(files.codeOfConduct.url, files.codeOfConduct.originalFilename),
+  ])
+
+  await client.create({
+    _id: 'drafts.publicDownloadSettings',
+    _type: 'publicDownloadSettings',
+    prospectus,
+    curriculum,
+    codeOfConduct,
+  })
+
+  console.log('Initialized publicDownloadSettings. Review and publish it in Sanity Studio.')
+}
+
+main().catch((error) => {
+  console.error(error)
+  process.exit(1)
 })
-
-console.log('Initialized publicDownloadSettings. Review and publish it in Sanity Studio.')

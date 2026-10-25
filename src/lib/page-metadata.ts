@@ -34,6 +34,8 @@ export function generatePageMetadata({
       canonical: url,
       languages: {
         'bn-BD': `${origin}/bengali${path}`,
+        // Most people in Bangladesh use Google in English: en-BD sends them to the Bengali page, English stays for elsewhere.
+        'en-BD': `${origin}/bengali${path}`,
         en: `${origin}/english${path}`,
         'x-default': `${origin}/bengali${path}`,
       },

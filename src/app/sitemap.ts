@@ -20,6 +20,8 @@ function bilingual(
   const alternates = {
     languages: {
       'bn-BD': `${baseUrl}/bengali${path}`,
+      // Most people in Bangladesh use Google in English: en-BD sends them to the Bengali page, English stays for elsewhere.
+      'en-BD': `${baseUrl}/bengali${path}`,
       en: `${baseUrl}/english${path}`,
       'x-default': `${baseUrl}/bengali${path}`,
     },
@@ -39,8 +41,11 @@ function bilingualSlug(
 ): MetadataRoute.Sitemap {
   const baseUrl = getSiteUrl();
   const languages: Record<string, string> = {};
-  if (bengaliSlug)
+  if (bengaliSlug) {
     languages['bn-BD'] = `${baseUrl}/bengali${base}/${bengaliSlug}`;
+    // English searchers in Bangladesh get the Bengali page too (see bilingual).
+    languages['en-BD'] = languages['bn-BD'];
+  }
   if (englishSlug) languages['en'] = `${baseUrl}/english${base}/${englishSlug}`;
   const entries: MetadataRoute.Sitemap = [];
   if (bengaliSlug)
