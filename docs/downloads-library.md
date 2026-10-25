@@ -125,7 +125,6 @@ Do not remove these canonical public paths. They are permanent defaults even aft
 
 - Replace a file by uploading to the draft and publishing it.
 - Public PDFs: name the file with its year before uploading (e.g. `Prospectus-2027.pdf`). Visitors get that name, so a phone does not save the new copy as "Prospectus (1).pdf" beside the old one. Browsers never keep a public download (`no-store`), so the next click after publishing gets the new file.
-- Upload public PDFs in the live Studio. Both datasets share one Blob store and the weekly cleanup checks only the live dataset's references, so a file uploaded in the preview Studio is removed after the grace period.
 - Use the document's **Revoke existing share links** action to revoke its newly generated category/item links. Rotate the link-signing secret only when every link and cookie must be invalidated.
 - Publishing a replacement triggers immediate cleanup of the previous file when no published record still references it and its pathname is under `downloads/`.
 - Only objects under `downloads/` are eligible for automatic cleanup. Every other Blob pathname is treated as public/unmanaged and is never removed by either cleanup mechanism.
