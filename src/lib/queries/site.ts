@@ -4,9 +4,9 @@ import type { AvatarPlaceholders } from '@/lib/profile-avatar';
 import type { NavigationVisibility } from '@/lib/nav-visibility';
 import type { SanityImage } from '@/types/sanity';
 
-/** Studio → Pages on/off. */
+/** Studio → Menu and pages. */
 export async function getNavigationVisibility(): Promise<NavigationVisibility> {
-  // The old switches stand in until the clean-up script has made Pages on/off (docs/studio-cleanup.md).
+  // The old switches stand in until the clean-up script has made Menu and pages (docs/studio-cleanup.md).
   const query = `coalesce(${pagesOnOffProjection}, *[_type == "siteSettings"][0].navigationVisibility)`;
   const result = await sanityFetch<NavigationVisibility | null>({ query, tags: ['pagesOnOff'] });
   return result ?? {};

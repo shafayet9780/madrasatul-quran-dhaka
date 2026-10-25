@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { MENU_ITEMS } from '@/lib/nav-visibility';
 import { navPages, siteNav } from './nav';
 
 const BOOKS_URL = 'https://books.example/downloads';
@@ -14,7 +15,7 @@ describe('siteNav', () => {
     expect(items[5]).toEqual({ key: 'books', href: BOOKS_URL, external: true });
   });
 
-  it('follows the Pages on/off switches', () => {
+  it('follows the Menu and pages switches', () => {
     // The live switches in October 2026 (Teachers off).
     const live = { showPeople: true, showDirectors: true, showAdvisors: true, showTeachers: false, showCurriculum: true, showAdmissions: true, showContact: true, showBooks: true };
     expect(keys(siteNav('english', live, BOOKS_URL))).toEqual(['about', 'curriculum', 'campus', 'admissions', 'contact', 'books']);
@@ -40,6 +41,18 @@ describe('siteNav', () => {
     expect(keys(siteNav('english', { showDirectors: false }, BOOKS_URL))).toContain('about');
     expect(keys(siteNav('english', { showDirectors: false, showAdvisors: false }, BOOKS_URL))).not.toContain('about');
     expect(keys(siteNav('english', { showPeople: false }, BOOKS_URL))).not.toContain('about');
+  });
+
+  it('follows Menu order, with any item it leaves out after the listed ones', () => {
+    const all = { showGallery: true, showNotices: true };
+    expect(keys(siteNav('english', { ...all, menuOrder: ['admissions', 'contact', 'about', 'notices', 'curriculum', 'campus', 'gallery', 'books'] }, BOOKS_URL))).toEqual(['admissions', 'contact', 'about', 'notices', 'curriculum', 'campus', 'gallery', 'books']);
+    expect(keys(siteNav('english', { ...all, menuOrder: ['contact', 'admissions'] }, BOOKS_URL))).toEqual(['contact', 'admissions', 'about', 'curriculum', 'campus', 'gallery', 'notices', 'books']);
+    expect(keys(siteNav('english', { menuOrder: ['contact', 'gallery', 'admissions'] }, BOOKS_URL))).toEqual(['contact', 'admissions', 'about', 'curriculum', 'campus', 'books']);
+    expect(navPages(siteNav('english', { menuOrder: ['books', 'contact'] }, BOOKS_URL)).map((l) => l.key)).toEqual(['contact', 'about', 'curriculum', 'campus', 'admissions']);
+  });
+
+  it('lists the Studio’s menu items in the usual order (the Menu order seed writes it)', () => {
+    expect(keys(siteNav('english', { showCampus: true, showGallery: true, showNotices: true }, BOOKS_URL))).toEqual(MENU_ITEMS.map((i) => i.value));
   });
 
   it('gives the footer the pages only, in menu order', () => {

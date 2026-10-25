@@ -12,6 +12,7 @@ Scripts that write to Sanity use `NEXT_PUBLIC_SANITY_DATASET` from `.env.local`,
 |---|---|---|
 | `studio-cleanup.ts` | Moves and removes Studio data for the new arrangement; `--dataset` required, `--dry-run` lists every change | Run at release (`docs/studio-cleanup.md`) |
 | `cms-coverage-seed.ts` | Fills the Studio fields of `docs/cms-coverage.md` (Curriculum, policies, hero text, getting here, outside links) from `data/cms-coverage-seed.json`, only where empty; `--dataset` required, `--dry-run` | Run at release, after `studio-cleanup.ts` |
+| `menu-order-seed.ts` | Fills Menu and pages → Menu order with the usual order where it is empty; `--dataset` required, `--dry-run` | Done in `development` and `production` (October 2026) |
 | `survey-seed.ts` | Survey areas, templates, classes and teachers into Sanity | Done; rerun only for a new dataset |
 | `survey-dev-fixtures.ts` | Sample survey data in the database of `.env.local` (`pnpm survey:fixtures [--remove]`) | Any time, dev branch only |
 | `setup-fees.ts` | The first Fees document, and the WhatsApp number when missing | Done (2026) |
@@ -21,7 +22,7 @@ Scripts that write to Sanity use `NEXT_PUBLIC_SANITY_DATASET` from `.env.local`,
 | `extract-form-questions.js` | Exported the old form's questions to `docs/pre-admission-form/` (the test fixtures read that file) | Done; the old form is gone |
 | `populate-faculty-data.js` | Seeded directors, advisors, teachers and departments | Done (2025) |
 | `clean-director-bios.ts` | Tidied the directors' biographies | Done (October 2026) |
-| `migrate-public-download-settings.ts` | Moved the public PDFs into Public PDFs | Done |
+| `migrate-public-download-settings.ts` | Drafts Public PDFs from the three fixed files, only while it is empty (`pnpm migrate:public-downloads`; dataset from `.env.local`) | Drafts made in `development` and `production` (2026-10-25); publish them in the Studio |
 
 ## Other scripts
 

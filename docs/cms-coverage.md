@@ -6,7 +6,7 @@ Goal (owner, 20 October 2026): the moving parts of the site are edited in the St
 
 ## 1. Already in the Studio
 
-Contacts, emails, WhatsApp, hours, address, map and social links (School details); fees, discounts, payment policies, vehicles and van routes (Fees, discounts & transport); the intake's session, dates, fees, classes with their ages and requirements, and the bring list (Pre-admission form); hero photos, numbers, the day routine, play-space photos and the FAQ (Homepage); guardian reviews, directors, advisors, teachers, notices, albums, the campus tour; each page's title and description and the share picture (Search & sharing); which pages show (Pages on/off); the prospectus, curriculum and code-of-conduct PDFs (Downloads → Public PDFs).
+Contacts, emails, WhatsApp, hours, address, map and social links (School details); fees, discounts, payment policies, vehicles and van routes (Fees, discounts & transport); the intake's session, dates, fees, classes with their ages and requirements, and the bring list (Pre-admission form); hero photos, numbers, the day routine, play-space photos and the FAQ (Homepage); guardian reviews, directors, advisors, teachers, notices, albums, the campus tour; each page's title and description and the share picture (Search & sharing); which pages show (Menu and pages); the prospectus, curriculum and code-of-conduct PDFs (Downloads → Public PDFs).
 
 ## 2. Moving facts still in code (proposed to move)
 

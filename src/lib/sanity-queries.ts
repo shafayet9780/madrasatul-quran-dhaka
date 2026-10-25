@@ -14,10 +14,11 @@ const imageFields = `
   }
 `;
 
-// Studio → Pages on/off: the switches, read with the site settings as `navigationVisibility`.
+// Studio → Menu and pages: the switches and the menu order, read with the site settings as `navigationVisibility`.
 export const pagesOnOffProjection = `*[_id == "pagesOnOff"][0]{
   showPeople, showDirectors, showTeachers, showAdvisors, showCampus, showGallery, showNotices,
-  showCurriculum, showAdmissions, showContact, showBooks
+  showCurriculum, showAdmissions, showContact, showBooks,
+  "menuOrder": menuOrder[].page
 }`;
 
 // Site Settings Query (Studio → School details)
@@ -76,7 +77,7 @@ export const siteSettingsQuery = groq`
         distance
       }
     },
-    // The old switches stand in until the clean-up script has made Pages on/off (docs/studio-cleanup.md).
+    // The old switches stand in until the clean-up script has made Menu and pages (docs/studio-cleanup.md).
     "navigationVisibility": coalesce(${pagesOnOffProjection}, navigationVisibility)
   }
 `;

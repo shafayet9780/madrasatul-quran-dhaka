@@ -37,6 +37,7 @@ describe('localized page metadata', () => {
         canonical: `${DEFAULT_SITE_URL}/${locale}/admissions`,
         languages: {
           'bn-BD': `${DEFAULT_SITE_URL}/bengali/admissions`,
+          'en-BD': `${DEFAULT_SITE_URL}/bengali/admissions`,
           en: `${DEFAULT_SITE_URL}/english/admissions`,
           'x-default': `${DEFAULT_SITE_URL}/bengali/admissions`,
         },

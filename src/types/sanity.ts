@@ -160,7 +160,7 @@ export interface SchoolStatistics {
   }>
 }
 
-/** Studio → School details. `navigationVisibility` is Studio → Pages on/off, joined in by the query. */
+/** Studio → School details. `navigationVisibility` is Studio → Menu and pages, joined in by the query. */
 export interface SiteSettings {
   _id: string
   _type: 'siteSettings'
