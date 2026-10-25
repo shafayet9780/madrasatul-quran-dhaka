@@ -27,7 +27,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 /**
  * About us: the chairman alone at the top (his rule), then the board's portraits in Studio's order and the members
  * without a photo by name, then the advisors. People, roles and photos come from Studio (Directors, Advisors); the
- * chairman's words are the homepage founder quote. Shown while Pages on/off shows Our people and the board or the
+ * chairman's words are the homepage founder quote. Shown while Menu and pages shows Our people and the board or the
  * advisors; each section follows its own switch.
  */
 export default async function AboutPage({ params }: Props) {

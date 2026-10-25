@@ -8,7 +8,7 @@ import { isMenu, siteNav, type NavLink } from '@/lib/site/nav';
 import { LanguageSwitch } from './language-switch';
 import { SiteNav } from './site-nav';
 
-/** The site header: logo and name, the main menu (Pages on/off decides which sections show), the language switch. */
+/** The site header: logo and name, the main menu (Menu and pages decides which sections show), the language switch. */
 export async function SiteHeader({ locale, siteSettings }: { locale: Locale; siteSettings: SiteSettings | null }) {
   const t = await getTranslations({ locale, namespace: 'site' });
   const logo = siteSettings?.logo?.asset ? urlFor(siteSettings.logo).width(96).height(96).url() : null;

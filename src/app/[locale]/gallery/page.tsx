@@ -23,7 +23,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 /**
  * The gallery (docs/gallery.md): the latest album, the dated albums month by month under a filter bar, the videos on
- * dark, the all-time albums, then come and see. Albums come from Studio → Gallery; the page shows once Pages on/off
+ * dark, the all-time albums, then come and see. Albums come from Studio → Gallery; the page shows once Menu and pages
  * switches the gallery on.
  */
 export default async function GalleryPage({ params }: Props) {

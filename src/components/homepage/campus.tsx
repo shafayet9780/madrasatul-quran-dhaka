@@ -111,7 +111,7 @@ function PlaySpaces({ layout, spaces, building, className }: { layout: Collage; 
 
 /**
  * The campus: where the students play, two photos of the school (and the gallery, once it is on), and how to get there
- * from the metro; the Campus page while Pages on/off shows it.
+ * from the metro; the Campus page while Menu and pages shows it.
  */
 export async function Campus({ locale, where, home, showVisit, showGallery }: { locale: Locale; where: ReturnType<typeof contactDetails>; home: HomePage | null; showVisit: boolean; showGallery: boolean }) {
   const playSpaces = home?.playSpaces;
