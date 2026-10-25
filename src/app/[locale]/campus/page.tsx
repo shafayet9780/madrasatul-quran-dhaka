@@ -23,7 +23,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 /**
  * Campus: one school day told as the reader scrolls, from the metro in the morning to home time at 8:30 at night
  * (docs/campus-day.md). The stops come from Studio → Campus: a day; while it has none, the launch day. Shown while
- * Pages on/off shows Campus. Then come and see: office hours, directions and a call.
+ * Menu and pages shows Campus. Then come and see: office hours, directions and a call.
  */
 export default async function CampusPage({ params }: Props) {
   const { locale } = await params;

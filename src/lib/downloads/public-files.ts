@@ -90,7 +90,8 @@ export async function servePublicDownload(kind: PublicDownloadKind): Promise<Nex
     const headers = new Headers({
         'Content-Type': file.contentType || response.headers.get('content-type') || 'application/octet-stream',
         'Content-Disposition': contentDisposition(file.originalFilename),
-        'Cache-Control': 'public, max-age=3600',
+        // Never kept: a replaced PDF must reach the next click (an hour's cache served the old one).
+        'Cache-Control': 'no-store',
         'X-Content-Type-Options': 'nosniff',
     })
     const length = response.headers.get('content-length') || (file.size ? String(file.size) : '')

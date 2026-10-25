@@ -17,7 +17,7 @@ The Studio is served by the site at `/studio` (`sanity.config.ts`). The sidebar 
 | People | `director`, `advisor`, `teacher`, `department` | Profiles; drag to order |
 | Downloads | `downloadable`, `downloadCategory`, `publicDownloadSettings` | The library and the public PDFs (`docs/downloads-library.md`) |
 | School details | `siteSettings` | Logo, tagline, mission, phones (each with what it is used for), emails, WhatsApp, hours, address, how to get here and the walk from the metro, map, landmarks, social and outside links |
-| Pages on/off | `pagesOnOff` | Which pages exist and which menu links show |
+| Menu and pages | `pagesOnOff` | Which pages exist, which menu links show, and the menu's order |
 | Search & sharing | `seoSettings` | Default description, share picture, and each main page's title and description |
 | Privacy & cookie policies | `policies` | The two policy pages and their last-updated date |
 | Surveys | `survey*` | Rounds, templates, classes, teachers and areas (`docs/survey-admin-guide.md`) |
