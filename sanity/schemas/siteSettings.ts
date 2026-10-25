@@ -187,7 +187,7 @@ export const siteSettings = defineType({
       options: { collapsible: false },
       description: 'An empty link hides its button.',
       fields: [
-        defineField({ name: 'books', title: 'Our Books (the bookshop)', type: 'url', description: 'In the menu and the footer, while Pages on/off shows Our Books.' }),
+        defineField({ name: 'books', title: 'Our Books (the bookshop)', type: 'url', description: 'In the menu and the footer, while Menu and pages shows Our Books.' }),
         defineField({ name: 'parentLogin', title: 'Parent login', type: 'url', description: 'The parent app’s web login, in the footer.' }),
         defineField({ name: 'googlePlay', title: 'Parent app on Google Play', type: 'url' }),
         defineField({ name: 'appStore', title: 'Parent app on the App Store', type: 'url' }),

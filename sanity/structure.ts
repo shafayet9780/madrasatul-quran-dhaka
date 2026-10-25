@@ -45,7 +45,7 @@ export const structure: StructureResolver = (S, context) => {
       S.divider(),
 
       single('siteSettings', 'School details'),
-      single('pagesOnOff', 'Pages on/off'),
+      single('pagesOnOff', 'Menu and pages'),
       single('seoSettings', 'Search & sharing'),
       single('policies', 'Privacy & cookie policies'),
       S.divider(),
