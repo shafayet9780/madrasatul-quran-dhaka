@@ -3,8 +3,9 @@ import type { SiteSettings } from '@/types/sanity';
 import { getAdmissionsContact } from '@/lib/admissions-contact';
 import { num, txt } from '@/lib/admissions/display';
 import { sitePhone } from '@/lib/site/phone';
+import { directionsUrl } from './directions';
 
-export const DIRECTIONS_URL = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent('Madrasatul Quran Dhaka')}`;
+export const DIRECTIONS_URL = directionsUrl();
 
 const UNITS: Record<Locale, { m: string; km: string }> = {
   bengali: { m: 'মি.', km: 'কিমি' },

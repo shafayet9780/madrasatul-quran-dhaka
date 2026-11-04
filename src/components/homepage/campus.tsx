@@ -5,7 +5,7 @@ import { getTranslations } from 'next-intl/server';
 import type { Locale } from '@/lib/i18n';
 import { ButtonLink } from '@/components/site/button';
 import { Icon } from '@/components/site/icon';
-import { WalkSketch, sketchCopy } from '@/components/site/walk-sketch';
+import { RouteMap } from '@/components/site/route-map';
 import type { contactDetails } from '@/lib/contact/details';
 import { cn } from '@/lib/utils';
 import { urlFor } from '@/lib/sanity';
@@ -111,11 +111,25 @@ function PlaySpaces({ layout, spaces, building, className }: { layout: Collage; 
 
 /**
  * The campus: where the students play, two photos of the school (and the gallery, once it is on), and how to get there
- * from the metro; the Campus page while Menu and pages shows it.
+ * on foot from the metro or by car (the route map); the Campus page while Menu and pages shows it.
  */
-export async function Campus({ locale, where, home, showVisit, showGallery }: { locale: Locale; where: ReturnType<typeof contactDetails>; home: HomePage | null; showVisit: boolean; showGallery: boolean }) {
+export async function Campus({
+  locale,
+  where,
+  logo,
+  home,
+  showVisit,
+  showGallery,
+}: {
+  locale: Locale;
+  where: ReturnType<typeof contactDetails>;
+  logo: string | null;
+  home: HomePage | null;
+  showVisit: boolean;
+  showGallery: boolean;
+}) {
   const playSpaces = home?.playSpaces;
-  const { gettingHere, address, metro, landmarks, mapUrl } = where;
+  const { gettingHere, address, mapUrl } = where;
   const t = await getTranslations({ locale, namespace: 'home.campus' });
   const spaces: Record<'roof' | 'field', Space> = {
     roof: { ...t.raw('roof'), photo: spacePhoto(playSpaces?.roof, locale) },
@@ -157,33 +171,29 @@ export async function Campus({ locale, where, home, showVisit, showGallery }: { 
           </Link>
         )}
 
-        <div className="flex flex-wrap items-center gap-x-12 gap-y-7 rounded-panel bg-panel p-[clamp(18px,3vw,36px)]">
-          {metro && (
-            <div className="min-w-0 max-w-[560px] flex-[1_1_320px]">
-              <WalkSketch c={sketchCopy(t.raw('sketch'), metro)} />
-            </div>
-          )}
-          <div className="flex min-w-0 flex-[1_1_320px] flex-col gap-3">
+        <div className="rounded-panel bg-panel p-[clamp(18px,3vw,36px)]">
+          <RouteMap
+            copy={t.raw('route')}
+            locale={locale}
+            logo={logo}
+            actions={
+              <>
+                {mapUrl && (
+                  <ButtonLink href={mapUrl} target="_blank" rel="noopener noreferrer" variant="outline-dark" className="min-h-12 border-[1.5px] px-[22px] text-16">
+                    {t('where.map')}
+                  </ButtonLink>
+                )}
+                {showVisit && (
+                  <ButtonLink href={`/${locale}/campus`} variant="outline-dark" className="min-h-12 border-[1.5px] px-[22px] text-16">
+                    {t('where.visit')}
+                  </ButtonLink>
+                )}
+              </>
+            }
+          >
             <h3 className="m-0 text-h3">{gettingHere || t('where.title')}</h3>
             {address && <p className="m-0 text-17 text-on-dark-body">{address}</p>}
-            {landmarks.length > 0 && (
-              <p className="m-0 text-15 text-on-dark-muted">
-                {landmarks.map((l) => (l.distance ? t('where.landmark', { name: l.name, distance: l.distance }) : l.name)).join(' · ')}
-              </p>
-            )}
-            <div className="mt-1.5 flex flex-wrap gap-2.5">
-              {mapUrl && (
-                <ButtonLink href={mapUrl} variant="light" className="min-h-12 px-[22px] text-16">
-                  {t('where.map')}
-                </ButtonLink>
-              )}
-              {showVisit && (
-                <ButtonLink href={`/${locale}/campus`} variant="outline-dark" className="min-h-12 border-[1.5px] px-[22px] text-16">
-                  {t('where.visit')}
-                </ButtonLink>
-              )}
-            </div>
-          </div>
+          </RouteMap>
         </div>
       </div>
     </section>

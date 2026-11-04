@@ -35,8 +35,8 @@ export const LAUNCH_DAY: CampusStopIn[] = [
     place: bi('উত্তরা সেন্টার মেট্রো স্টেশন', 'Uttara Center metro station'),
     title: bi('মাদরাসাতুল কুরআনে একটি দিন', 'A day at Madrasatul Quran'),
     text: bi(
-      'স্টেশন থেকে পূর্বে ৬০০ মিটার। চলুন, সকাল থেকে রাত পর্যন্ত ক্যাম্পাসের একটি দিন দেখি।',
-      '600 metres east of the station. Come and see a day on campus, from morning to night.',
+      'স্টেশন থেকে হেঁটে ৩–৪ মিনিট। চলুন, সকাল থেকে রাত পর্যন্ত ক্যাম্পাসের একটি দিন দেখি।',
+      'A 3–4 minute walk from the station. Come and see a day on campus, from morning to night.',
     ),
     clock: [beat('সকাল', 'Morning', 'ভোর', 'Dawn', 'dawn', [])],
     photos: [PHOTO.building],
