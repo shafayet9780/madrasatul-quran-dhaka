@@ -50,7 +50,9 @@ body{padding:0 0.6mm}
 .ch span{flex:none;display:inline-flex;align-items:center;justify-content:center;width:23px;height:23px;border-radius:50%;background:#7a4d32;color:#fff;font-size:12px;line-height:1}
 .q{break-inside:avoid;padding:5px 2px 7px;border-bottom:1px solid #e6dfd9}.q .lbl{font-weight:600}
 .q.row{display:flex;flex-wrap:wrap;align-items:center;gap:5px 22px}.q.row .opts{margin-top:0}
+.q.yn{display:block}.q.yn .lbl{display:inline}.q.yn .opts{display:inline-flex;margin:0 0 0 18px;vertical-align:-2px}
 .pair{display:grid;grid-template-columns:1fr 1fr;gap:0 22px;break-inside:avoid;border-bottom:1px solid #e6dfd9}.pair .q{border-bottom:0}.pair .q.row{display:block}.pair .q.row .opts{margin-top:6px}
+.follow{display:flex;align-items:center;gap:10px;margin-top:5px;font-weight:600;white-space:nowrap}.follow .ans{flex:1;margin-top:0}
 .ans{display:block;height:9mm;border:1px solid #8c8c8c;border-radius:5px;margin-top:5px}.ans.tall{height:16mm}
 .opts{display:flex;flex-wrap:wrap;gap:5px 22px;margin-top:6px}.opt{display:inline-flex;align-items:center;gap:7px}
 .o{flex:none;display:inline-block;width:13px;height:13px;border:1.3px solid #000;border-radius:50%}.c{flex:none;display:inline-block;width:13px;height:13px;border:1.3px solid #000;border-radius:2px}
@@ -101,6 +103,18 @@ const isWriteIn = (f: FormField, parent: FormField | undefined, section: FormSec
   section.fields.includes(parent) &&
   parent.options.some((o) => o.value === f.showWhen!.values[0]);
 
+/**
+ * The only question shown for "yes" to a yes/no in the same chapter (the health details): printed under the yes/no's
+ * choices as "‘হ্যাঁ’ হলে, …" with its answer box, not as a numbered question, so it takes one line less.
+ */
+const isFollowUp = (f: FormField, parent: FormField | undefined, section: FormSection) =>
+  (f.type === 'text' || f.type === 'textarea') &&
+  parent?.type === 'yesno' &&
+  f.showWhen?.values.length === 1 &&
+  f.showWhen.values[0] === 'yes' &&
+  section.fields.includes(parent) &&
+  section.fields.filter((d) => d.showWhen?.field === parent.key).length === 1;
+
 /** Their choices follow the question on the same line when they fit, else wrap below it. */
 const ROW_TYPES: readonly FormField['type'][] = ['yesno', 'radio', 'select', 'checkbox', 'file'];
 
@@ -121,8 +135,13 @@ function answer(f: FormField, snapshot: FormSnapshot, dependents: FormField[], s
       return '<i class="ans tall"></i>';
     case 'date':
       return `<div class="date"><span><i style="width:16mm"></i>দিন</span><span><i style="width:16mm"></i>মাস</span><span><i style="width:24mm"></i>বছর</span></div>`;
-    case 'yesno':
-      return options(['হ্যাঁ', 'না'], 'o');
+    case 'yesno': {
+      const follow = dependents.find((d) => isFollowUp(d, f, section));
+      return (
+        options(['হ্যাঁ', 'না'], 'o') +
+        (follow ? `<div class="follow"><span>‘হ্যাঁ’ হলে, ${label(follow)}${star(follow)}</span><i class="ans"></i></div>` : '')
+      );
+    }
     case 'select':
     case 'radio':
       // A class's requirements are printed beside it ("শুধু মেয়েদের জন্য; …").
@@ -177,11 +196,12 @@ function chapterHtml(section: FormSection, n: number, snapshot: FormSnapshot, fi
   // Photos go in the frames on page 1; a question shown only for "not on any route" is part of the stop question.
   const stopKeys = new Set(section.fields.filter((f) => f.type === 'transportStop').map((f) => f.key));
   const shown = section.fields.filter(
-    (f) => !isPhoto(f) && !(f.showWhen && stopKeys.has(f.showWhen.field)) && !isWriteIn(f, fields.get(f.showWhen?.field ?? ''), section),
+    (f) => !isPhoto(f) && !(f.showWhen && stopKeys.has(f.showWhen.field)) && !isWriteIn(f, fields.get(f.showWhen?.field ?? ''), section) &&
+      !isFollowUp(f, fields.get(f.showWhen?.field ?? ''), section),
   );
   const numbers = new Map(shown.map((f, i) => [f.key, i + 1]));
   const q = (g: FormField) =>
-    `<div class="q${ROW_TYPES.includes(g.type) ? ' row' : ''}"><div class="lbl">${bn(numbers.get(g.key)!)}. ${label(g)}${star(g)}${conditionHint(g, numbers, fields)}</div>${answer(
+    `<div class="q${g.type === 'yesno' ? ' yn' : ROW_TYPES.includes(g.type) ? ' row' : ''}"><div class="lbl">${bn(numbers.get(g.key)!)}. ${label(g)}${star(g)}${conditionHint(g, numbers, fields)}</div>${answer(
       g,
       snapshot,
       section.fields.filter((d) => d.showWhen?.field === g.key),
