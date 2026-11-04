@@ -15,8 +15,29 @@ const section = (key: string) => snap.sections.find((s) => s.key === key)!;
 const file = { key: 'drafts/abc/card.pdf', name: 'card.pdf', size: 84000, type: 'application/pdf' };
 
 describe('the updated published form', () => {
+  it('asks how they heard as multiple choice, with a line for “other”, keeping the key and role', () => {
+    const heard = field('heard_from');
+    expect(heard).toMatchObject({ type: 'checkbox', role: 'heardFrom', required: true, group: 'heard' });
+    expect(heard.options.map((o) => o.value)).toEqual(['website', 'facebook', 'youtube', 'google', 'ai', 'print', 'guardian', 'staff', 'friends', 'walk_in', 'other']);
+    expect(heard.placeholder).toBeUndefined();
+    expect(field('heard_from_other')).toMatchObject({ type: 'text', required: false, group: 'heard', showWhen: { field: 'heard_from', values: ['other'] } });
+    const fields = section('additional').fields.map((f) => f.key);
+    expect(fields.indexOf('heard_from_other')).toBe(fields.indexOf('heard_from') + 1);
+  });
+
+  it('asks about the child’s health before the documents, the details only for “yes”', () => {
+    const student = section('student');
+    const keys = student.fields.map((f) => f.key);
+    expect(keys.indexOf('health_details')).toBe(keys.indexOf('health_concern') + 1);
+    expect(keys.indexOf('health_details') + 1).toBe(keys.indexOf('student_birth_registration'));
+    expect(field('health_concern')).toMatchObject({ type: 'yesno', required: true, group: 'health' });
+    expect(field('health_details')).toMatchObject({ type: 'textarea', required: true, showWhen: { field: 'health_concern', values: ['yes'] } });
+    const groups = student.groups.map((g) => g.key);
+    expect(groups.indexOf('health')).toBe(groups.indexOf('documents') - 1);
+  });
+
   it('lists every change once', () => {
-    expect(changed).toHaveLength(17);
+    expect(changed).toHaveLength(20);
   });
 
   it('is a valid form with the transport routes frozen in', () => {
@@ -65,10 +86,10 @@ describe('the updated published form', () => {
 
   it('asks for a stop, then the area when no route fits', () => {
     const additional = section('additional');
-    expect(additional.fields.map((f) => f.key)).toEqual(['heard_from', 'transport_interest', 'transport_stop', 'transport_area', 'comments']);
+    expect(additional.fields.map((f) => f.key)).toEqual(['heard_from', 'heard_from_other', 'transport_interest', 'transport_stop', 'transport_area', 'comments']);
     expect(additional.groups.map((g) => g.key)).toEqual(['heard', 'transport', 'comments']);
-    expect(additional.fields.map((f) => f.group)).toEqual(['heard', 'transport', 'transport', 'transport', 'comments']);
-    const base = { heard_from: 'friends_family' };
+    expect(additional.fields.map((f) => f.group)).toEqual(['heard', 'heard', 'transport', 'transport', 'transport', 'comments']);
+    const base = { heard_from: ['facebook', 'friends'] };
     expect(Object.keys(checkSection(additional, { ...base, transport_interest: 'no' }).errors)).toEqual([]);
     expect(checkSection(additional, { ...base, transport_interest: 'yes' }).errors).toEqual({ transport_stop: 'required' });
     expect(checkSection(additional, { ...base, transport_interest: 'yes', transport_stop: 'uttara_auto:uttara_auto_1' }).errors).toEqual({});

@@ -169,6 +169,22 @@ describe('admin queries', () => {
     expect(o.recent).toHaveLength(2);
   });
 
+  it('counts each ticked way they heard, and single answers from before it was multiple choice', async () => {
+    const ids: string[] = [];
+    for (const [name, mobile] of [['আব্দুল্লাহ', '01712345678'], ['আয়েশা', '01812345678'], ['উমর', '01912345678'], ['খাদিজা', '01612345678']])
+      ids.push((await application({ name, mobile, pay: 'pay' })).id);
+    const answers = [['facebook', 'friends'], ['facebook'], 'friends_family', null];
+    for (const [i, heard] of answers.entries())
+      await db.execute(sql`UPDATE applications SET answers = answers || jsonb_build_object('heard_from', ${JSON.stringify(heard)}::jsonb) WHERE id = ${ids[i]}`);
+    const o = await overview(cycle.cycleId, 'heard_from');
+    expect(o.heardFrom).toEqual([
+      { value: 'facebook', count: 2 },
+      { value: 'friends', count: 1 },
+      { value: 'friends_family', count: 1 },
+      { value: '', count: 1 },
+    ]);
+  });
+
   it('keeps a class taken out of the form for filters and IDs while an application chose it', async () => {
     await application({ name: 'আয়েশা', mobile: '01812345678', classValue: 'nursery', pay: 'pay' });
     await application({ name: 'উমর', mobile: '01912345678', submit: false });

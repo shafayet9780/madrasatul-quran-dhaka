@@ -90,6 +90,9 @@ function conditionHint(f: FormField, numbers: Map<string, number>, fields: Map<s
   return ` <span class="hint">(${where} ‘${esc(f.showWhen.values.map(labelOf).join('/'))}’ হলে)</span>`;
 }
 
+/** A short text asked for one choice of a checkbox question ("অন্যান্য হলে লিখুন"): printed as a line beside that choice. */
+const isWriteIn = (f: FormField, parent: FormField | undefined) => f.type === 'text' && parent?.type === 'checkbox' && f.showWhen?.values.length === 1;
+
 /** Their choices follow the question on the same line when they fit, else wrap below it. */
 const ROW_TYPES: readonly FormField['type'][] = ['yesno', 'radio', 'select', 'checkbox', 'file'];
 
@@ -121,7 +124,12 @@ function answer(f: FormField, snapshot: FormSnapshot, dependents: FormField[]): 
       );
     case 'checkbox':
       return options(
-        f.options.map((o) => `${esc(txt(o.label, 'bengali'))}${o.exclusive ? ' <span class="hint">(এটি বাছলে অন্যগুলো নয়)</span>' : ''}`),
+        f.options.map(
+          (o) =>
+            `${esc(txt(o.label, 'bengali'))}${o.exclusive ? ' <span class="hint">(এটি বাছলে অন্যগুলো নয়)</span>' : ''}${
+              dependents.some((d) => isWriteIn(d, f) && d.showWhen!.values[0] === o.value) ? ': <i class="line" style="min-width:60mm"></i>' : ''
+            }`,
+        ),
         'c',
       );
     case 'file':
@@ -160,7 +168,9 @@ function answer(f: FormField, snapshot: FormSnapshot, dependents: FormField[]): 
 function chapterHtml(section: FormSection, n: number, snapshot: FormSnapshot, fields: Map<string, FormField>, photosHtml = ''): string {
   // Photos go in the frames on page 1; a question shown only for "not on any route" is part of the stop question.
   const stopKeys = new Set(section.fields.filter((f) => f.type === 'transportStop').map((f) => f.key));
-  const shown = section.fields.filter((f) => !isPhoto(f) && !(f.showWhen && stopKeys.has(f.showWhen.field)));
+  const shown = section.fields.filter(
+    (f) => !isPhoto(f) && !(f.showWhen && stopKeys.has(f.showWhen.field)) && !isWriteIn(f, fields.get(f.showWhen?.field ?? '')),
+  );
   const numbers = new Map(shown.map((f, i) => [f.key, i + 1]));
   const q = (g: FormField) =>
     `<div class="q${ROW_TYPES.includes(g.type) ? ' row' : ''}"><div class="lbl">${bn(numbers.get(g.key)!)}. ${label(g)}${star(g)}${conditionHint(g, numbers, fields)}</div>${answer(

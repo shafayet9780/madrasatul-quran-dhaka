@@ -19,6 +19,14 @@ The form has **not opened yet**, so questions and field keys can still be rename
 | 8 | **Printable offline form** for 2027, generated from the Sanity form | Intro page, admin |
 | 9 | **Paper forms stay on paper**: not entered into the system; the guardian keeps a receipt + WhatsApp page | Offline form |
 | 10 | **"None of the above"** in a checkbox question clears the other choices, and the reverse | Form (Father: ইসলামী পোশাক) |
+| 11 | **How they heard** becomes multiple choice (11 options, online then offline) with a line for "অন্যান্য" (added 2026-11-04) | Additional chapter, offline form, admin overview |
+| 12 | **Health** question about the child (ADHD, autism, …), details when "yes" (added 2026-11-04) | Student chapter, PDF, offline form, Sheet |
+
+### 11–12 (2026-11-04)
+- **How they heard** (`heard_from`, same key and role): checkbox, required, "একাধিক বাছাই করা যাবে।" Options: website, facebook, youtube, google, ai, print, guardian, staff, friends, walk_in, other. No অনলাইন/অফলাইন headings (the order keeps them together). "অন্যান্য" asks `heard_from_other` (optional text); on paper it is a line beside the tick box. The admin overview counts each ticked option against paid applications; answers given before the change still count under their old value.
+- **Health** (group **স্বাস্থ্য**, before the documents): `health_concern` yes/no, required, the examples in the question; `health_details` textarea, required when "yes". The promise of confidentiality is in the help text and the details label: a group note would push the offline form to a fifth page. Shown everywhere, the Sheet included (owner, 2026-11-04).
+- Fit, checked by printing the published form with the updates: offline form still 4 pages to hand in (6 in all), application PDF still 4 pages.
+- Applied by `pnpm setup:admissions-updates` (Studio drafts) like the other steps.
 
 ---
 

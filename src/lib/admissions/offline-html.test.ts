@@ -62,6 +62,13 @@ describe('offline form (HTML)', () => {
     expect(missingGlyphs(guardianCopyHtml(data))).toEqual([]);
   });
 
+  it('prints the line for “other” beside its tick box, not as a question of its own', () => {
+    expect(html).toContain('অন্যান্য: <i class="line"');
+    expect(html).not.toContain('কোথায় জেনেছেন লিখুন');
+    expect(html).toContain('ADHD');
+    expect(html).toContain('তথ্যটি গোপন রাখা হবে');
+  });
+
   it("prints a class's requirements beside it", () => {
     const withRules = structuredClone(snapshot);
     const classField = withRules.sections.flatMap((s) => s.fields).find((f) => f.role === 'classApplied')!;

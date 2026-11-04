@@ -229,6 +229,16 @@ export type Overview = {
   recent: { id: string; publicRef: string | null; studentNameBn: string | null; paidAt: Date | null }[];
 };
 
+/** How many applications chose each value, most first; a multiple-choice answer counts once per ticked option, no answer as ''. */
+export function tallyAnswers(answers: unknown[]): { value: string; count: number }[] {
+  const counts = new Map<string, number>();
+  for (const answer of answers) {
+    const values = Array.isArray(answer) ? answer.map(String) : typeof answer === 'string' && answer ? [answer] : [];
+    for (const value of values.length ? values : ['']) counts.set(value, (counts.get(value) ?? 0) + 1);
+  }
+  return [...counts].map(([value, count]) => ({ value, count })).sort((a, b) => b.count - a.count);
+}
+
 export async function overview(cycleId: string, heardFromKey: string | null): Promise<Overview> {
   const db = getAdmissionsDb();
   const inCycle = eq(applications.cycleId, cycleId);
@@ -257,11 +267,10 @@ export async function overview(cycleId: string, heardFromKey: string | null): Pr
       .orderBy(sql`1`),
     heardFromKey
       ? db
-          .select({ value: sql<string>`coalesce(${applications.answers} ->> ${heardFromKey}, '')`, count: sql<number>`count(*)::int` })
+          .select({ answer: sql<unknown>`${applications.answers} -> ${heardFromKey}` })
           .from(applications)
           .where(paid)
-          .groupBy(sql`1`)
-          .orderBy(sql`2 DESC`)
+          .then((rows) => tallyAnswers(rows.map((r) => r.answer)))
       : Promise.resolve([]),
     db
       .select({ id: applications.id, publicRef: applications.publicRef, studentNameBn: applications.studentNameBn, paidAt: applications.paidAt })
