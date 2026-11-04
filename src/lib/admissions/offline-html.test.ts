@@ -69,6 +69,13 @@ describe('offline form (HTML)', () => {
     expect(html).not.toContain('গোপন');
   });
 
+  it('prints the health details under the yes/no, not as a question of its own', () => {
+    expect(html).toContain('<div class="follow"><span>‘হ্যাঁ’ হলে, সমস্যাটি সম্পর্কে সংক্ষেপে লিখুন');
+    expect(html).not.toMatch(/<div class="lbl">[০-৯]+\. সমস্যাটি/);
+    // Choices of a yes/no follow its question on the same line.
+    expect(html).toMatch(/<div class="q yn"><div class="lbl">[০-৯]+\. শিক্ষার্থীর কি ADHD/);
+  });
+
   it('prints a write-in as its own question when its choice is gone', () => {
     const renamed = structuredClone(snapshot);
     const heard = renamed.sections.flatMap((s) => s.fields).find((f) => f.key === 'heard_from')!;
