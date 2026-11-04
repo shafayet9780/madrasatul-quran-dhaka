@@ -129,17 +129,14 @@ export const HEALTH_GROUP = {
   title: bi('স্বাস্থ্য', 'Health'),
 };
 
-/**
- * The examples and the promise of confidentiality are in the labels: the offline form prints
- * neither help text nor (without an extra page) a group note.
- */
+/** The examples are in the question itself: the offline form prints no help text. */
 export const HEALTH_FIELDS = [
   field({
     key: 'health_concern',
     label: bi('শিক্ষার্থীর কি ADHD, অটিজম, খিঁচুনি, অ্যাজমা বা অন্য কোনো বড় স্বাস্থ্যগত সমস্যা আছে?', 'Does the child have ADHD, autism, seizures, asthma or any other major health condition?'),
     help: bi(
-      'যেমন হৃদরোগ, গুরুতর অ্যালার্জি, দেখা বা শোনার সমস্যা, বা নিয়মিত কোনো ওষুধ খায়। এই তথ্য গোপন রাখা হবে এবং শুধু আপনার সন্তানের সঠিক যত্নের জন্য ব্যবহার করা হবে।',
-      'For example heart disease, a serious allergy, a sight or hearing problem, or regular medicine. This is kept confidential and used only to care for your child properly.',
+      'যেমন হৃদরোগ, গুরুতর অ্যালার্জি, দেখা বা শোনার সমস্যা, বা নিয়মিত কোনো ওষুধ খায়। এই তথ্য শুধু আপনার সন্তানের সঠিক যত্নের জন্য ব্যবহার করা হবে।',
+      'For example heart disease, a serious allergy, a sight or hearing problem, or regular medicine. We use this only to care for your child properly.',
     ),
     type: 'yesno',
     required: true,
@@ -147,7 +144,7 @@ export const HEALTH_FIELDS = [
   }),
   field({
     key: 'health_details',
-    label: bi('সমস্যাটি সম্পর্কে সংক্ষেপে লিখুন (তথ্যটি গোপন রাখা হবে)', 'Tell us about it briefly (kept confidential)'),
+    label: bi('সমস্যাটি সম্পর্কে সংক্ষেপে লিখুন', 'Tell us about it briefly'),
     help: bi('কী সমস্যা, কবে থেকে, চিকিৎসা চলছে কি না, নিয়মিত কোনো ওষুধ খায় কি না।', 'What it is, since when, whether it is being treated, and any regular medicine.'),
     type: 'textarea',
     required: true,

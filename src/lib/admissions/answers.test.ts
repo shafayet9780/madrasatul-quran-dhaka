@@ -158,3 +158,12 @@ describe('closed class', () => {
     expect(checkField(f, 'kg')).toEqual({ value: 'kg' });
   });
 });
+
+describe('a question that became multiple choice', () => {
+  it('asks a draft that answered it as one choice again', () => {
+    const f = { key: 'heard', label: { bengali: 'জেনেছেন' }, type: 'checkbox' as const, required: true, options: [{ value: 'facebook', label: { bengali: 'ফেসবুক' } }] };
+    expect(checkField(f, 'friends_family')).toEqual({ error: 'required' });
+    expect(checkField({ ...f, required: false }, 'friends_family')).toEqual({});
+    expect(checkField(f, ['facebook'])).toEqual({ value: ['facebook'] });
+  });
+});

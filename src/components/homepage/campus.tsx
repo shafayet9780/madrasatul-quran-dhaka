@@ -129,7 +129,7 @@ export async function Campus({
   showGallery: boolean;
 }) {
   const playSpaces = home?.playSpaces;
-  const { gettingHere, address, mapUrl } = where;
+  const { address, landmarks, mapUrl } = where;
   const t = await getTranslations({ locale, namespace: 'home.campus' });
   const spaces: Record<'roof' | 'field', Space> = {
     roof: { ...t.raw('roof'), photo: spacePhoto(playSpaces?.roof, locale) },
@@ -191,8 +191,13 @@ export async function Campus({
               </>
             }
           >
-            <h3 className="m-0 text-h3">{gettingHere || t('where.title')}</h3>
+            <h3 className="m-0 text-h3">{t('where.title')}</h3>
             {address && <p className="m-0 text-17 text-on-dark-body">{address}</p>}
+            {landmarks.length > 0 && (
+              <p className="m-0 text-15 text-on-dark-muted">
+                {landmarks.map((l) => (l.distance ? t('where.landmark', { name: l.name, distance: l.distance }) : l.name)).join(' · ')}
+              </p>
+            )}
           </RouteMap>
         </div>
       </div>

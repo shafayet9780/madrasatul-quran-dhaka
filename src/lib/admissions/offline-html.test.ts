@@ -66,7 +66,16 @@ describe('offline form (HTML)', () => {
     expect(html).toContain('অন্যান্য: <i class="line"');
     expect(html).not.toContain('কোথায় জেনেছেন লিখুন');
     expect(html).toContain('ADHD');
-    expect(html).toContain('তথ্যটি গোপন রাখা হবে');
+    expect(html).not.toContain('গোপন');
+  });
+
+  it('prints a write-in as its own question when its choice is gone', () => {
+    const renamed = structuredClone(snapshot);
+    const heard = renamed.sections.flatMap((s) => s.fields).find((f) => f.key === 'heard_from')!;
+    heard.options = heard.options.filter((o) => o.value !== 'other');
+    const paper = offlineFormHtml({ ...data, snapshot: renamed });
+    expect(paper).not.toContain('অন্যান্য: <i class="line"');
+    expect(paper).toContain('কোথায় জেনেছেন লিখুন');
   });
 
   it("prints a class's requirements beside it", () => {

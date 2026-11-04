@@ -15,12 +15,13 @@ type Details = ReturnType<typeof contactDetails>;
 export async function ContactFind({ locale, details, logo }: { locale: Locale; details: Details; logo: string | null }) {
   const t = await getTranslations({ locale, namespace: 'contact.find' });
   const campus = await getTranslations({ locale, namespace: 'home.campus' });
-  const { gettingHere, landmarks, mapEmbed, mapUrl } = details;
+  const { landmarks, mapEmbed, mapUrl } = details;
   return (
     <section id="find" className="bg-dark text-on-dark">
       <div className="page-wrap flex flex-col gap-9 py-section">
         {/* The address is in the page's hero. */}
-        <h2 className="m-0 max-w-[820px] text-h2 text-balance">{gettingHere || campus('where.title')}</h2>
+        {/* Not School details → Getting here: how to walk or drive here is in the route map below. */}
+        <h2 className="m-0 max-w-[820px] text-h2 text-balance">{campus('where.title')}</h2>
         <div className="flex flex-wrap items-stretch gap-x-10 gap-y-5">
           <div className="flex min-w-0 flex-[1_1_380px] flex-col gap-5">
             <div className="rounded-panel bg-panel p-[clamp(18px,3vw,32px)]">

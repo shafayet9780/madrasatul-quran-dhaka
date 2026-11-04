@@ -229,14 +229,22 @@ export type Overview = {
   recent: { id: string; publicRef: string | null; studentNameBn: string | null; paidAt: Date | null }[];
 };
 
-/** How many applications chose each value, most first; a multiple-choice answer counts once per ticked option, no answer as ''. */
-export function tallyAnswers(answers: unknown[]): { value: string; count: number }[] {
-  const counts = new Map<string, number>();
-  for (const answer of answers) {
-    const values = Array.isArray(answer) ? answer.map(String) : typeof answer === 'string' && answer ? [answer] : [];
-    for (const value of values.length ? values : ['']) counts.set(value, (counts.get(value) ?? 0) + 1);
-  }
-  return [...counts].map(([value, count]) => ({ value, count })).sort((a, b) => b.count - a.count);
+/**
+ * How many paid applications chose each way they heard, most first. A multiple-choice answer counts once per ticked
+ * option; a single answer from before the question allowed several counts as itself; no answer counts as '' (last of
+ * its count).
+ */
+function heardFromCounts(paid: SQL, key: string) {
+  const db = getAdmissionsDb();
+  const answer = sql`${applications.answers} -> ${key}`;
+  const each = db
+    .select({
+      value: sql<string>`jsonb_array_elements_text(CASE jsonb_typeof(${answer}) WHEN 'array' THEN ${answer} WHEN 'string' THEN jsonb_build_array(${answer}) ELSE '[""]'::jsonb END)`.as('value'),
+    })
+    .from(applications)
+    .where(paid)
+    .as('each');
+  return db.select({ value: each.value, count: sql<number>`count(*)::int` }).from(each).groupBy(each.value).orderBy(sql`2 DESC`, sql`${each.value} = ''`, each.value);
 }
 
 export async function overview(cycleId: string, heardFromKey: string | null): Promise<Overview> {
@@ -265,13 +273,7 @@ export async function overview(cycleId: string, heardFromKey: string | null): Pr
       .where(paid)
       .groupBy(sql`1`)
       .orderBy(sql`1`),
-    heardFromKey
-      ? db
-          .select({ answer: sql<unknown>`${applications.answers} -> ${heardFromKey}` })
-          .from(applications)
-          .where(paid)
-          .then((rows) => tallyAnswers(rows.map((r) => r.answer)))
-      : Promise.resolve([]),
+    heardFromKey ? heardFromCounts(paid!, heardFromKey) : Promise.resolve([]),
     db
       .select({ id: applications.id, publicRef: applications.publicRef, studentNameBn: applications.studentNameBn, paidAt: applications.paidAt })
       .from(applications)

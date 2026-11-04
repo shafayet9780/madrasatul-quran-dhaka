@@ -90,8 +90,16 @@ function conditionHint(f: FormField, numbers: Map<string, number>, fields: Map<s
   return ` <span class="hint">(${where} ‘${esc(f.showWhen.values.map(labelOf).join('/'))}’ হলে)</span>`;
 }
 
-/** A short text asked for one choice of a checkbox question ("অন্যান্য হলে লিখুন"): printed as a line beside that choice. */
-const isWriteIn = (f: FormField, parent: FormField | undefined) => f.type === 'text' && parent?.type === 'checkbox' && f.showWhen?.values.length === 1;
+/**
+ * A short text asked for one choice of a checkbox question in the same chapter ("অন্যান্য হলে লিখুন"): printed as a
+ * line beside that choice instead of as a question. Anything else (another chapter, a choice since removed) stays a question.
+ */
+const isWriteIn = (f: FormField, parent: FormField | undefined, section: FormSection) =>
+  f.type === 'text' &&
+  parent?.type === 'checkbox' &&
+  f.showWhen?.values.length === 1 &&
+  section.fields.includes(parent) &&
+  parent.options.some((o) => o.value === f.showWhen!.values[0]);
 
 /** Their choices follow the question on the same line when they fit, else wrap below it. */
 const ROW_TYPES: readonly FormField['type'][] = ['yesno', 'radio', 'select', 'checkbox', 'file'];
@@ -107,7 +115,7 @@ function compact(f: FormField): boolean {
 const options = (items: string[], mark: 'o' | 'c') => `<div class="opts">${items.map((t) => `<span class="opt"><i class="${mark}"></i>${t}</span>`).join('')}</div>`;
 
 /** The answer space for one question. */
-function answer(f: FormField, snapshot: FormSnapshot, dependents: FormField[]): string {
+function answer(f: FormField, snapshot: FormSnapshot, dependents: FormField[], section: FormSection): string {
   switch (f.type) {
     case 'textarea':
       return '<i class="ans tall"></i>';
@@ -127,7 +135,7 @@ function answer(f: FormField, snapshot: FormSnapshot, dependents: FormField[]): 
         f.options.map(
           (o) =>
             `${esc(txt(o.label, 'bengali'))}${o.exclusive ? ' <span class="hint">(এটি বাছলে অন্যগুলো নয়)</span>' : ''}${
-              dependents.some((d) => isWriteIn(d, f) && d.showWhen!.values[0] === o.value) ? ': <i class="line" style="min-width:60mm"></i>' : ''
+              dependents.some((d) => isWriteIn(d, f, section) && d.showWhen!.values[0] === o.value) ? ': <i class="line" style="min-width:60mm"></i>' : ''
             }`,
         ),
         'c',
@@ -169,7 +177,7 @@ function chapterHtml(section: FormSection, n: number, snapshot: FormSnapshot, fi
   // Photos go in the frames on page 1; a question shown only for "not on any route" is part of the stop question.
   const stopKeys = new Set(section.fields.filter((f) => f.type === 'transportStop').map((f) => f.key));
   const shown = section.fields.filter(
-    (f) => !isPhoto(f) && !(f.showWhen && stopKeys.has(f.showWhen.field)) && !isWriteIn(f, fields.get(f.showWhen?.field ?? '')),
+    (f) => !isPhoto(f) && !(f.showWhen && stopKeys.has(f.showWhen.field)) && !isWriteIn(f, fields.get(f.showWhen?.field ?? ''), section),
   );
   const numbers = new Map(shown.map((f, i) => [f.key, i + 1]));
   const q = (g: FormField) =>
@@ -177,6 +185,7 @@ function chapterHtml(section: FormSection, n: number, snapshot: FormSnapshot, fi
       g,
       snapshot,
       section.fields.filter((d) => d.showWhen?.field === g.key),
+      section,
     )}</div>`;
   // Beside the photo frames: the leading text and date answers (the names), one per row so long names fit.
   let i = 0;
