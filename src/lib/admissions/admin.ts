@@ -229,6 +229,24 @@ export type Overview = {
   recent: { id: string; publicRef: string | null; studentNameBn: string | null; paidAt: Date | null }[];
 };
 
+/**
+ * How many paid applications chose each way they heard, most first. A multiple-choice answer counts once per ticked
+ * option; a single answer from before the question allowed several counts as itself; no answer counts as '' (last of
+ * its count).
+ */
+function heardFromCounts(paid: SQL, key: string) {
+  const db = getAdmissionsDb();
+  const answer = sql`${applications.answers} -> ${key}`;
+  const each = db
+    .select({
+      value: sql<string>`jsonb_array_elements_text(CASE jsonb_typeof(${answer}) WHEN 'array' THEN ${answer} WHEN 'string' THEN jsonb_build_array(${answer}) ELSE '[""]'::jsonb END)`.as('value'),
+    })
+    .from(applications)
+    .where(paid)
+    .as('each');
+  return db.select({ value: each.value, count: sql<number>`count(*)::int` }).from(each).groupBy(each.value).orderBy(sql`2 DESC`, sql`${each.value} = ''`, each.value);
+}
+
 export async function overview(cycleId: string, heardFromKey: string | null): Promise<Overview> {
   const db = getAdmissionsDb();
   const inCycle = eq(applications.cycleId, cycleId);
@@ -255,14 +273,7 @@ export async function overview(cycleId: string, heardFromKey: string | null): Pr
       .where(paid)
       .groupBy(sql`1`)
       .orderBy(sql`1`),
-    heardFromKey
-      ? db
-          .select({ value: sql<string>`coalesce(${applications.answers} ->> ${heardFromKey}, '')`, count: sql<number>`count(*)::int` })
-          .from(applications)
-          .where(paid)
-          .groupBy(sql`1`)
-          .orderBy(sql`2 DESC`)
-      : Promise.resolve([]),
+    heardFromKey ? heardFromCounts(paid!, heardFromKey) : Promise.resolve([]),
     db
       .select({ id: applications.id, publicRef: applications.publicRef, studentNameBn: applications.studentNameBn, paidAt: applications.paidAt })
       .from(applications)

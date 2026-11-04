@@ -38,7 +38,7 @@ export const ROLE_SPECS = {
   secondaryMobile: { title: 'Second mobile', types: ['tel'], required: false },
   email: { title: 'Guardian email (asked on the start page)', types: ['email'], required: true },
   address: { title: 'Address', types: ['text', 'textarea'], required: false },
-  heardFrom: { title: 'How they heard about us', types: ['select', 'radio'], required: false },
+  heardFrom: { title: 'How they heard about us', types: ['select', 'radio', 'checkbox'], required: false },
 } as const satisfies Record<string, { title: string; types: readonly FieldType[]; required: boolean }>;
 
 export type Role = keyof typeof ROLE_SPECS;

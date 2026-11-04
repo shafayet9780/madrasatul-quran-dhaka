@@ -91,6 +91,68 @@ const AROUND_TRANSPORT = [
   { field: 'comments', group: { _key: 'comments', _type: 'admissionGroup', key: 'comments', title: bi('মন্তব্য ও পরামর্শ', 'Comments and suggestions') }, before: false },
 ];
 
+const heardOption = (value: string, bengali: string, english: string) => ({ _key: value, _type: 'admissionOption', value, label: bi(bengali, english) });
+
+/** Online first (website to AI), then offline, in the order the office gave. */
+export const HEARD_FROM = {
+  type: 'checkbox',
+  required: true,
+  label: bi('মাদরাসা সম্পর্কে আপনি কোন মাধ্যমে জানতে পেরেছেন?', 'How did you come to know about the madrasa?'),
+  help: bi('একাধিক বাছাই করা যাবে।', 'You can choose more than one.'),
+  options: [
+    heardOption('website', 'মাদরাসার ওয়েবসাইট', "The madrasa's website"),
+    heardOption('facebook', 'ফেসবুক', 'Facebook'),
+    heardOption('youtube', 'ইউটিউব', 'YouTube'),
+    heardOption('google', 'গুগল সার্চ', 'Google search'),
+    heardOption('ai', 'AI (ChatGPT, Gemini, Claude ইত্যাদি)', 'AI (ChatGPT, Gemini, Claude, etc.)'),
+    heardOption('print', 'ব্যানার, পোস্টার, লিফলেট বা সাইনবোর্ড', 'Banner, poster, leaflet or signboard'),
+    heardOption('guardian', 'মাদরাসার অভিভাবক', 'A guardian at the madrasa'),
+    heardOption('staff', 'মাদরাসার শিক্ষক বা কর্মকর্তা', 'A teacher or staff member of the madrasa'),
+    heardOption('friends', 'বন্ধু, আত্মীয় বা পরিচিতজন', 'Friends, relatives or acquaintances'),
+    heardOption('walk_in', 'সরাসরি মাদরাসায় এসে', 'Visited the madrasa in person'),
+    heardOption('other', 'অন্যান্য', 'Other'),
+  ],
+};
+
+export const HEARD_FROM_OTHER = field({
+  key: 'heard_from_other',
+  label: bi('কোথায় জেনেছেন লিখুন', 'Where did you hear about us?'),
+  type: 'text',
+  required: false,
+  showWhen: { field: 'heard_from', values: ['other'] },
+});
+
+export const HEALTH_GROUP = {
+  _key: 'health',
+  _type: 'admissionGroup',
+  key: 'health',
+  title: bi('স্বাস্থ্য', 'Health'),
+};
+
+/** The examples are in the question itself: the offline form prints no help text. */
+export const HEALTH_FIELDS = [
+  field({
+    key: 'health_concern',
+    label: bi('শিক্ষার্থীর কি ADHD, অটিজম, খিঁচুনি, অ্যাজমা বা অন্য কোনো বড় স্বাস্থ্যগত সমস্যা আছে?', 'Does the child have ADHD, autism, seizures, asthma or any other major health condition?'),
+    help: bi(
+      'যেমন হৃদরোগ, গুরুতর অ্যালার্জি, দেখা বা শোনার সমস্যা, বা নিয়মিত কোনো ওষুধ খায়। এই তথ্য শুধু আপনার সন্তানের সঠিক যত্নের জন্য ব্যবহার করা হবে।',
+      'For example heart disease, a serious allergy, a sight or hearing problem, or regular medicine. We use this only to care for your child properly.',
+    ),
+    type: 'yesno',
+    required: true,
+    group: 'health',
+  }),
+  field({
+    key: 'health_details',
+    label: bi('সমস্যাটি সম্পর্কে সংক্ষেপে লিখুন', 'Tell us about it briefly'),
+    help: bi('কী সমস্যা, কবে থেকে, চিকিৎসা চলছে কি না, নিয়মিত কোনো ওষুধ খায় কি না।', 'What it is, since when, whether it is being treated, and any regular medicine.'),
+    type: 'textarea',
+    required: true,
+    group: 'health',
+    showWhen: { field: 'health_concern', values: ['yes'] },
+  }),
+];
+
 export const DECLARATION = bi(
   'মাদরাসাতুল কুরআন একটি সম্পূর্ণ ইসলামিক শিক্ষা প্রতিষ্ঠান। আমি স্বীকৃতি প্রদান করছি যে, উপরে প্রদত্ত সকল তথ্য সঠিক ও সত্য। কোন তথ্য ভুল প্রমাণিত হলে কর্তৃপক্ষ ভর্তি বাতিল করতে পারবে।',
   'Madrasatul Quran is a fully Islamic educational institution. I confirm that all the information given above is correct and true. If any information is found to be false, the authority may cancel the admission.',
@@ -293,6 +355,31 @@ export function applyFormUpdates(doc: Doc): { sections: Doc[]; cycle: Doc; decla
       additional.groups.splice(before ? at : at + 1, 0, structuredClone(group));
       changed.push(`Additional: “${key}” gets its own heading (${group.title.bengali}), apart from transport.`);
     }
+  }
+
+  // 2026-11-04: how they heard about us becomes multiple choice; the student chapter asks about health.
+  const heard = additional?.fields.find((f: Doc) => f.key === 'heard_from');
+  if (additional && heard && heard.type !== 'checkbox') {
+    // Same key and role: the admin overview counts old single answers and new lists together.
+    delete heard.placeholder;
+    Object.assign(heard, structuredClone(HEARD_FROM));
+    changed.push('Additional: “heard_from” is now multiple choice with 11 options.');
+  }
+  if (additional && heard && !additional.fields.some((f: Doc) => f.key === 'heard_from_other')) {
+    const at = additional.fields.findIndex((f: Doc) => f.key === 'heard_from');
+    additional.fields.splice(at + 1, 0, { ...structuredClone(HEARD_FROM_OTHER), ...(additional.fields[at].group && { group: additional.fields[at].group }) });
+    changed.push('Additional: new question “where did you hear” for “অন্যান্য” (optional).');
+  }
+  if (student && !student.fields.some((f: Doc) => f.key === 'health_concern')) {
+    const fields: Doc[] = student.fields;
+    const birth = fields.findIndex((f) => f.role === 'birthCertificate');
+    fields.splice(birth < 0 ? fields.length : birth, 0, ...structuredClone(HEALTH_FIELDS));
+    const groups: Doc[] = (student.groups ??= []);
+    if (!groups.some((g) => g.key === 'health')) {
+      const documents = groups.findIndex((g) => g.key === 'documents');
+      groups.splice(documents < 0 ? groups.length : documents, 0, structuredClone(HEALTH_GROUP));
+    }
+    changed.push('Student: new questions on health (yes/no, then details), group “স্বাস্থ্য”.');
   }
 
   if (!declarationText.bengali || declarationText.bengali.startsWith(OLD_DECLARATION_START)) {

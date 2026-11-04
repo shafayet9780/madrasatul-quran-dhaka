@@ -7,6 +7,7 @@ import { contactDetails } from '@/lib/contact/details';
 import { ContactHero } from '@/components/contact/contact-hero';
 import { ContactReach } from '@/components/contact/contact-reach';
 import { ContactFind } from '@/components/contact/contact-find';
+import { urlFor } from '@/lib/sanity';
 import { ContactMore } from '@/components/contact/contact-more';
 
 type Props = { params: Promise<{ locale: Locale }> };
@@ -32,7 +33,7 @@ export default async function ContactPage({ params }: Props) {
     <>
       <ContactHero locale={locale} details={details} />
       <ContactReach locale={locale} details={details} />
-      <ContactFind locale={locale} details={details} />
+      <ContactFind locale={locale} details={details} logo={settings?.logo?.asset ? urlFor(settings.logo).width(160).height(160).url() : null} />
       <ContactMore locale={locale} social={social} />
     </>
   );

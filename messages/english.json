@@ -215,10 +215,72 @@
           "alt": "Girls at the back and boys in front in a classroom"
         }
       ],
-      "sketch": {
-        "alt": "Sketch: {station} metro station, then {walk} east on foot to the madrasa",
-        "school": "Madrasatul Quran",
-        "notToScale": "Not to scale"
+      "route": {
+        "label": "Sector 17, Uttara: the walk and the drive from Uttara Center metro station to Madrasatul Quran",
+        "tabs": {
+          "label": "How to come",
+          "walk": "On foot",
+          "drive": "By car or rickshaw"
+        },
+        "walk": {
+          "title": "3–4 minutes on foot from the metro",
+          "steps": [
+            "From Uttara Center station, walk south on the east side of Ahmed Sofa Sarani.",
+            "Turn left into the road by Water Park Restaurant. At the restaurant's corner turn left, then right onto Road 11.",
+            "Go east on Road 11 and take the first right. The madrasa gate is on your right."
+          ]
+        },
+        "drive": [
+          {
+            "title": "Via Avenue 1",
+            "from": "from Uttara North and Sector 15",
+            "steps": [
+              "From the roundabout on Ahmed Sofa Sarani, go east on Avenue 1.",
+              "Turn right onto Road 8 and go south to Baitul Aman Mosque.",
+              "Turn right onto Road 11, then take the first left. The madrasa gate is on your right."
+            ]
+          },
+          {
+            "title": "Via Avenue 7",
+            "from": "from Mirpur DOHS and Mirpur 12",
+            "steps": [
+              "From Ahmed Sofa Sarani, go east on Avenue 7.",
+              "Just past Bali Restaurant, turn left onto Road 8 and go north.",
+              "Turn left at the road just before Road 11, then take the first right. The madrasa gate is on your left."
+            ]
+          }
+        ],
+        "directions": "Directions",
+        "hint": {
+          "walk": "“Directions” opens the walking route from where you are in Google Maps.",
+          "drive": "“Directions” opens the driving route in Google Maps; Google's route may differ from the two above."
+        },
+        "map": {
+          "station": "Uttara Center",
+          "stationSub": "metro station",
+          "sector": "Sector 17",
+          "lake": "Lake",
+          "mainRoad": "Ahmed Sofa Sarani",
+          "avenue1": "Avenue 1",
+          "avenue7": "Avenue 7",
+          "road8": "Road 8",
+          "road11": "Road 11",
+          "waterPark": [
+            "Water Park",
+            "Restaurant"
+          ],
+          "bali": "Bali Restaurant",
+          "mosque": "Baitul Aman Mosque",
+          "school": "Madrasatul Quran",
+          "north": "N",
+          "toNorth": "Uttara North metro",
+          "toEast": "Sector 15",
+          "toWest": [
+            "Sector 18",
+            "(RUAP)"
+          ],
+          "toSouth": "Mirpur DOHS, Mirpur 12"
+        }
       },
       "where": {
         "map": "Open in Google Maps",
@@ -559,7 +621,7 @@
   "campus": {
     "meta": {
       "title": "A day on campus | Madrasatul Quran",
-      "description": "A day on the Madrasatul Quran campus, 600 metres east of Uttara Center metro station: the madrasa van at 7:00 am, the entrance, classes, salat, lunch, play and home time at 8:30 pm."
+      "description": "A day on the Madrasatul Quran campus, a 3–4 minute walk from Uttara Center metro station: the madrasa van at 7:00 am, the entrance, classes, salat, lunch, play and home time at 8:30 pm."
     },
     "stage": {
       "groups": {
@@ -587,7 +649,7 @@
   "contact": {
     "meta": {
       "title": "Contact | Madrasatul Quran",
-      "description": "Phone, WhatsApp, email, office hours and address of Madrasatul Quran, 600 metres east of Uttara Center metro station."
+      "description": "Phone, WhatsApp, email, office hours and address of Madrasatul Quran, a 3–4 minute walk from Uttara Center metro station."
     },
     "hero": {
       "title": "Contact",
@@ -612,8 +674,7 @@
       "landmarks": "Nearby",
       "showMap": "Show the map",
       "mapNote": "Tapping loads Google Maps.",
-      "mapTitle": "Map: Madrasatul Quran",
-      "directions": "Directions"
+      "mapTitle": "Map: Madrasatul Quran"
     },
     "more": {
       "title": "More",

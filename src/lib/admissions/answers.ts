@@ -122,8 +122,10 @@ export function checkField(f: FormField, v: AnswerValue | undefined): { value?: 
       // A class closed after the draft chose it: the guardian is asked to choose another.
       return f.closedOptions?.some((o) => o.value === v) ? { error: 'class_closed' } : { error: 'invalid_option' };
     case 'checkbox': {
+      // A draft saved while the question allowed one answer (a string) is asked again, not refused.
+      if (!Array.isArray(v)) return f.required ? { error: 'required' } : {};
       const allowed = optionValues(f);
-      if (!Array.isArray(v) || !v.every((x) => allowed.has(x))) return { error: 'invalid_option' };
+      if (!v.every((x) => allowed.has(x))) return { error: 'invalid_option' };
       // An "only this choice" option cannot be combined with others.
       const exclusive = f.options.filter((o) => o.exclusive).map((o) => o.value);
       return v.length > 1 && v.some((x) => exclusive.includes(x)) ? { error: 'invalid_option' } : { value: v };

@@ -49,6 +49,12 @@
   --color-line-dark: #4b372a;
   --color-line-dark-strong: #68503e;
 
+  /* The route map (how to get here), on dark: roads, the lake and the walking route. */
+  --color-map-road: #5c4535;
+  --color-map-road-major: #6e5541;
+  --color-map-water: #2f4446;
+  --color-map-walk: #8fc7a2;
+
   /* Type: Latin from Anek Latin, Bengali from Anek Bangla; Tiro Bangla for Bengali quotations only.
      Weights only, never font-stretch (the fonts load without the width axis). */
   --font-sans: var(--font-anek-latin), var(--font-anek-bangla), system-ui, sans-serif;

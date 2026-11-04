@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { adminCycle, overview } from '@/lib/admissions/admin';
+import { loadAnsweredSnapshots } from '@/lib/admissions/cycle';
 import { shortDate } from '@/lib/admissions/admin-labels';
 import { dateTime, taka, txt } from '@/lib/admissions/display';
 import { fieldWithRole } from '@/lib/admissions/form-config';
@@ -110,7 +111,7 @@ export default async function AdmissionsOverview() {
     );
   const { snapshot } = cycle;
   const heard = fieldWithRole(snapshot, 'heardFrom');
-  const [o, classes] = await Promise.all([overview(cycle.cycleId, heard?.key ?? null), classOptions(cycle)]);
+  const [o, classes, versions] = await Promise.all([overview(cycle.cycleId, heard?.key ?? null), classOptions(cycle), loadAnsweredSnapshots(cycle.cycleId)]);
   const now = new Date();
   const days = dailySeries(o.byDay, now);
   const today = days.at(-1)?.count ?? 0;
@@ -118,8 +119,10 @@ export default async function AdmissionsOverview() {
   const maxDay = Math.max(1, ...days.map((d) => d.count));
   // Each class opens the paid list filtered to it.
   const byClass = classes.map((c) => ({ label: c.label, count: o.byClass.find((b) => b.classCode === c.value)?.count ?? 0, href: `/admin/admissions/applications?class=${c.value}` }));
+  // Answers given before an option was renamed or removed keep the label of the version they answered.
+  const heardOptions = [heard, ...[...versions.values()].map((v) => fieldWithRole(v, 'heardFrom'))].flatMap((f) => f?.options ?? []);
   const heardRows = heard
-    ? o.heardFrom.map((h) => ({ label: h.value ? txt(heard.options.find((x) => x.value === h.value)?.label, 'bengali') || h.value : 'উত্তর নেই', count: h.count }))
+    ? o.heardFrom.map((h) => ({ label: h.value ? txt(heardOptions.find((x) => x.value === h.value)?.label, 'bengali') || h.value : 'উত্তর নেই', count: h.count }))
     : [];
 
   const closesAt = snapshot.settings.closesAt ? new Date(snapshot.settings.closesAt) : null;

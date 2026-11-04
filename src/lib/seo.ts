@@ -1,8 +1,9 @@
 import { getSiteUrl } from './site-url';
 import { SOCIAL_IMAGE } from './page-metadata';
+import { SCHOOL_LOCATION } from './contact/directions';
 
 // The school's pin on Google Maps (School details → Location → Google Maps Link).
-const SCHOOL_GEO = { '@type': 'GeoCoordinates', latitude: 23.8563215, longitude: 90.3682335 } as const;
+const SCHOOL_GEO = { '@type': 'GeoCoordinates', ...SCHOOL_LOCATION } as const;
 
 const DAYS = ['Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
 
