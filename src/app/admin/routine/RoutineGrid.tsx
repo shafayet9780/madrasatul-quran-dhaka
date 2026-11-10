@@ -278,7 +278,7 @@ function Grid({
           {sections.map((s) => {
             const closed = folded.includes(s.key);
             const ids = new Set(s.groups.map((g) => g.id));
-            const teachers = new Set(data.assignments.filter((a) => ids.has(by === 'room' ? (a.hostGroupId ?? a.groupId) : a.groupId)).flatMap((a) => [a.teacherId, a.taId ?? a.teacherId]));
+            const teachers = new Set(data.assignments.filter((a) => ids.has(by === 'room' ? (a.hostGroupId ?? a.groupId) : a.groupId)).flatMap((a) => [a.teacherId, a.taId]).filter(Boolean));
             const isClasses = s.groups.every((g) => names.types.get(g.typeId)?.placement === 'class');
             return (
               <Fragment key={s.key}>

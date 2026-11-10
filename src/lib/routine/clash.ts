@@ -29,7 +29,7 @@ export function occupancy(a: Draft): Occupancy[] {
   return [...new Set(a.days)].flatMap((day) => [
     { kind: 'group' as const, refId: a.groupId, day },
     { kind: 'room' as const, refId: rowOf(a), day },
-    { kind: 'teacher' as const, refId: a.teacherId, day },
+    ...(a.teacherId ? [{ kind: 'teacher' as const, refId: a.teacherId, day }] : []),
     ...(a.taId ? [{ kind: 'teacher' as const, refId: a.taId, day }] : []),
   ]);
 }
@@ -74,7 +74,7 @@ export function assignmentWarnings(a: Draft, names: Lookup): string[] {
   const warnings: string[] = [];
   const group = names.groups.get(a.groupId);
   const subject = names.subjects.get(a.subjectId);
-  const main = names.teachers.get(a.teacherId);
+  const main = a.teacherId ? names.teachers.get(a.teacherId) : undefined;
   if (main && subject && !main.subjectIds.includes(subject.id)) warnings.push(`${main.shortName}-এর সাবজেক্টের লিস্টে ${subject.name} নেই।`);
   for (const t of [main, a.taId ? names.teachers.get(a.taId) : undefined]) {
     if (t?.gender && group && group.genderRule !== 'any' && group.genderRule !== t.gender) {

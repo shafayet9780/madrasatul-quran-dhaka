@@ -63,7 +63,7 @@ const assignment = z.object({
   endsAt: minute,
   days: z.array(z.number().int().min(0).max(5)).min(1).max(6),
   subjectId: id,
-  teacherId: id,
+  teacherId: optionalId,
   taId: optionalId,
 });
 

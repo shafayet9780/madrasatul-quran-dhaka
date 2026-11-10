@@ -1,0 +1,1 @@
+ALTER TABLE "routine_assignments" ALTER COLUMN "teacher_id" DROP NOT NULL;

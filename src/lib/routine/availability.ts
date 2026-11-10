@@ -41,7 +41,7 @@ export function proxyChoices<T extends Teacher>(
   const classIn = new Map<string, Assignment>();
   for (const a of ctx.assignments) {
     if (!overlaps(a, span) || !a.days.includes(ctx.day)) continue;
-    classIn.set(a.teacherId, a);
+    if (a.teacherId) classIn.set(a.teacherId, a);
     if (a.taId) classIn.set(a.taId, a);
   }
   const free = new Set(ranked.map((c) => c.teacher.id));

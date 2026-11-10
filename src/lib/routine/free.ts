@@ -8,7 +8,7 @@ export function busyTeachers(assignments: Assignment[], day: number, span: TimeS
   const busy = new Set<string>();
   for (const a of assignments) {
     if (!a.days.includes(day) || !overlaps(a, span)) continue;
-    busy.add(a.teacherId);
+    if (a.teacherId) busy.add(a.teacherId);
     if (a.taId) busy.add(a.taId);
   }
   return busy;

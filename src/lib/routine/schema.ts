@@ -132,9 +132,7 @@ export const routineAssignments = pgTable(
     subjectId: uuid('subject_id')
       .notNull()
       .references(() => routineSubjects.id),
-    teacherId: uuid('teacher_id')
-      .notNull()
-      .references(() => routineTeachers.id),
+    teacherId: uuid('teacher_id').references(() => routineTeachers.id),
     taId: uuid('ta_id').references(() => routineTeachers.id),
   },
   (t) => [

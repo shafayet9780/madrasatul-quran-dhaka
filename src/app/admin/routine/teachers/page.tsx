@@ -20,7 +20,7 @@ export default async function TeachersPage({ searchParams }: { searchParams: Pro
     const group = new Map(data.groups.map((g) => [g.id, g.name]));
     const subject = new Map(data.subjects.map((s) => [s.id, s.name]));
     for (const a of [...data.assignments].sort((x, y) => x.startsAt - y.startsAt)) {
-      (lessonsOf[a.teacherId] ??= []).push(`${group.get(a.groupId)} · ${subject.get(a.subjectId)} · ${daysText(a.days)} ${spanText(a)}`);
+      if (a.teacherId) (lessonsOf[a.teacherId] ??= []).push(`${group.get(a.groupId)} · ${subject.get(a.subjectId)} · ${daysText(a.days)} ${spanText(a)}`);
     }
   }
   return (

@@ -117,6 +117,20 @@ describe('clashes', () => {
     ]);
   });
 
+  it('takes no teacher slot for a lesson with no teacher yet', () => {
+    const open = { ...qaida, days: [0], teacherId: null };
+    expect(occupancy(open)).toEqual([
+      { kind: 'group', refId: 'qaida-a', day: 0 },
+      { kind: 'room', refId: 'nursery-a', day: 0 },
+    ]);
+    // Two teacher-less lessons at the same time in different rooms don't clash.
+    const other = assignment({ groupId: 'one-a', teacherId: null, days: [0] });
+    expect(findClashes(other, [{ ...qaida, teacherId: null }])).toEqual([]);
+    // The group and room still clash.
+    expect(findClashes(assignment({ groupId: 'nursery-a', teacherId: null, days: [0] }), [{ ...qaida, teacherId: null }]).map((c) => c.kind)).toEqual(['room']);
+    expect(assignmentWarnings(open, names)).toEqual([]);
+  });
+
   it('wants a host class for a seated group and none for the rest', () => {
     expect(hostProblem(qaida, names)).toBeNull();
     expect(hostProblem({ ...qaida, hostGroupId: null }, names)).toBe('কোন ক্লাসের রুমে বসে, সেটা সিলেক্ট করুন।');

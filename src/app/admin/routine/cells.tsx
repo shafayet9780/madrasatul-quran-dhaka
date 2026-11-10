@@ -56,6 +56,11 @@ export function TimeTh({ time, className }: { time: TimeSpan; className?: string
   );
 }
 
+/** In place of the name on a lesson with no main teacher yet. */
+export function NoTeacher() {
+  return <span className="rounded border border-dashed border-[#a8a29e] px-1 text-[11.5px] text-muted-foreground">টিচার নেই</span>;
+}
+
 /** Whether the teacher looked for is in this lesson: main, TA, or covering it today. */
 export function involves(a: Assignment, ctx: CellCtx) {
   const id = ctx.teacherId;
@@ -115,7 +120,7 @@ export function Entry({ a, ctx, by }: { a: Assignment; ctx: CellCtx; by: 'room' 
       )}
       {seated && group?.name.startsWith(subject) && day === 'all' && a.days.length < DAYS.length && <span className="rt-days">{daysText(a.days)}</span>}
       <span className="flex flex-wrap gap-x-2">
-        {person(a.teacherId, 'main')}
+        {a.teacherId ? person(a.teacherId, 'main') : <NoTeacher />}
         {a.taId && person(a.taId, 'ta')}
       </span>
       {host && (

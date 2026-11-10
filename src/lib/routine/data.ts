@@ -414,9 +414,10 @@ export async function saveAssignment(routineId: string, input: Draft, confirm: b
     const t = names.teachers.get(id);
     return !!t && (t.active || id === current);
   };
-  if (!usable(input.teacherId, existing?.teacherId)) return fail('এই টিচার এখন চালু নেই।');
+  if (input.teacherId && !usable(input.teacherId, existing?.teacherId)) return fail('এই টিচার এখন চালু নেই।');
+  if (input.taId && !input.teacherId) return fail('মেইন টিচার ছাড়া টিএ রাখা যায় না।');
   if (input.taId && !usable(input.taId, existing?.taId)) return fail('এই টিএ এখন চালু নেই।');
-  if (input.taId === input.teacherId) return fail('একই জন মেইন টিচার আর টিএ দুটোই হতে পারেন না।');
+  if (input.taId && input.taId === input.teacherId) return fail('একই জন মেইন টিচার আর টিএ দুটোই হতে পারেন না।');
 
   const draft: Draft = { ...input, days };
   const clashes = findClashes(draft, data.assignments);
