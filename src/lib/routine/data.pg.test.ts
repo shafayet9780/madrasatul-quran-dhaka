@@ -124,6 +124,19 @@ describe('lessons', () => {
     expect(await assign({ ...hifz, teacherId: id('nasreen') })).toMatchObject({ ok: false, warnings: expect.arrayContaining(['hifz-1 (M)-এ শুধু পুরুষ টিচার পড়ান, কিন্তু Nasreen মহিলা।']) });
   });
 
+  it('saves a lesson with no teacher, and takes the teacher off a lesson, freeing their time', async () => {
+    const { id: open } = ok(await assign({ teacherId: null }));
+    ok(await math({ teacherId: null, startsAt: 600, endsAt: 645 }));
+    const { id: qaida } = ok(await assign({ groupId: id('kg'), hostGroupId: null, subjectId: id('Math'), teacherId: id('dolon'), days: [0] }));
+    ok(await assign({ id: qaida, groupId: id('kg'), hostGroupId: null, subjectId: id('Math'), teacherId: null, days: [0] }));
+    const data = await routineData((await pickRoutine())!);
+    expect(data.assignments.map((a) => a.teacherId)).toEqual([null, null, null]);
+    expect(await db.select().from(schema.routineSlots).where(sql`${schema.routineSlots.kind} = 'teacher'`)).toEqual([]);
+    // Dolon is free at 9:00 on Saturday again.
+    ok(await assign({ id: open, teacherId: id('dolon'), days: [0] }, true));
+    expect(await assign({ teacherId: null, taId: id('nasreen'), groupId: id('hifz'), hostGroupId: null, subjectId: id('Hifz'), startsAt: 420, endsAt: 495 }, true)).toMatchObject({ ok: false, error: 'মেইন টিচার ছাড়া টিএ রাখা যায় না।' });
+  });
+
   it('sets a weekly target on its own', async () => {
     ok(await setTeacherTarget(id('dolon'), 21));
     expect((await db.select().from(schema.routineTeachers)).find((t) => t.id === id('dolon'))).toMatchObject({ targetPeriods: 21, shortName: 'Dolon' });

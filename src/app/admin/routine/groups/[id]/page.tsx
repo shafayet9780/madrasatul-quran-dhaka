@@ -7,6 +7,7 @@ import { distinctTimes, sameTime } from '@/lib/routine/days';
 import { PageTop } from '../../../AdminShell';
 import { ReportTools } from '../../../reports/ReportTools';
 import { EmptyState, PageBody, PageTitle } from '../../../ui';
+import { NoTeacher } from '../../cells';
 import { RoutinePicker } from '../../controls';
 import { NoRoutine, routineSub } from '../../ui';
 import { WeekTable } from '../../WeekTable';
@@ -79,9 +80,13 @@ export default async function GroupPage({ params, searchParams }: { params: Prom
                       )}
                       <span className="font-medium">{subjects.get(a.subjectId)}</span>
                       <span>
-                        <Link href={`/admin/routine/teachers/${a.teacherId}${q}`} className="no-underline hover:underline">
-                          {teachers.get(a.teacherId)}
-                        </Link>
+                        {a.teacherId ? (
+                          <Link href={`/admin/routine/teachers/${a.teacherId}${q}`} className="no-underline hover:underline">
+                            {teachers.get(a.teacherId)}
+                          </Link>
+                        ) : (
+                          <NoTeacher />
+                        )}
                         {a.taId && (
                           <>
                             {' + '}

@@ -53,7 +53,7 @@ export type Assignment = TimeSpan & {
   hostGroupId: string | null;
   days: number[];
   subjectId: string;
-  teacherId: string;
+  teacherId: string | null;
   taId: string | null;
 };
 

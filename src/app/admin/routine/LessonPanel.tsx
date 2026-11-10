@@ -15,7 +15,8 @@ import { TeacherPicker } from './TeacherPicker';
 
 // The add / edit form for one lesson (docs/class-routine.md §5): class or group, its name, the
 // subject, a typed time (an existing column or a new one), the days, where a seated group sits, and
-// the teacher from the picker (free ones green, those who teach the subject first).
+// the teacher from the picker (free ones green, those who teach the subject first; it may be left
+// blank and added later).
 
 /** What opens the panel: a lesson to edit, or a new one, maybe from a cell (its row and time). */
 export type PanelStart = { edit: Assignment } | { rowId?: string; time?: { startsAt: number; endsAt: number }; day?: number | null };
@@ -49,7 +50,7 @@ export function LessonPanel({ data, names, start, onDone }: { data: RoutineData;
     endsAt: span.endsAt,
     days: form.days,
     subjectId: form.subjectId,
-    teacherId: form.teacherId || '-',
+    teacherId: form.teacherId || null,
     taId: form.taId || null,
   };
   const clashes = draft && form.groupId && form.days.length ? findClashes(draft, others) : [];
@@ -65,7 +66,7 @@ export function LessonPanel({ data, names, start, onDone }: { data: RoutineData;
   const ta = names.teachers.get(form.taId);
   const usedRows = seated && form.groupId ? [...new Set(others.filter((a) => a.groupId === form.groupId && a.hostGroupId).map((a) => names.groups.get(a.hostGroupId!)?.name ?? ''))] : [];
   const times = distinctTimes(data.assignments);
-  const ready = !!draft && !!form.groupId && !!form.subjectId && !!form.teacherId && form.days.length > 0 && !host && clashes.length === 0;
+  const ready = !!draft && !!form.groupId && !!form.subjectId && form.days.length > 0 && !host && clashes.length === 0;
 
   const timeNote = !span
     ? form.start || form.end
@@ -87,9 +88,8 @@ export function LessonPanel({ data, names, start, onDone }: { data: RoutineData;
     set({ groupId, hostGroupId: form.hostGroupId || last });
   };
 
-  const values = () => draft && { ...draft, teacherId: form.teacherId };
   const save = (confirm: boolean, again: boolean) => {
-    const lesson = values();
+    const lesson = draft;
     if (!lesson) return;
     setAgain(again);
     setSaved('');
@@ -238,7 +238,13 @@ export function LessonPanel({ data, names, start, onDone }: { data: RoutineData;
         {!span || !form.days.length ? (
           <p className="m-0 text-[13px] text-muted-foreground">সময় আর দিন দিলে কে ফ্রি তা দেখাবে।</p>
         ) : (
-          <TeacherPicker choices={choices} subjectName={subjectName} selected={form.teacherId} onPick={(id) => set({ teacherId: id === form.teacherId ? '' : id, taId: form.taId === id ? '' : form.taId })} foldBusy />
+          <TeacherPicker choices={choices} subjectName={subjectName} selected={form.teacherId} onPick={(id) => (id === form.teacherId ? set({ teacherId: '', taId: '', taOpen: false }) : set({ teacherId: id, taId: form.taId === id ? '' : form.taId }))} foldBusy />
+        )}
+        {span && form.days.length > 0 && !form.teacherId && <p className="m-0 text-[12.5px] text-muted-foreground">টিচার ছাড়াও সেভ করা যাবে, পরে যোগ করতে পারবেন।</p>}
+        {form.teacherId && (
+          <button type="button" className="self-start text-[13px] text-destructive underline-offset-4 hover:underline" onClick={() => set({ teacherId: '', taId: '', taOpen: false })}>
+            টিচার বাদ দিন
+          </button>
         )}
         {form.teacherId &&
           (ta && !form.taOpen ? (
@@ -290,7 +296,7 @@ function initial(data: RoutineData, names: Lookup, start: PanelStart): Form {
   if ('edit' in start) {
     const a = start.edit;
     const typeId = names.groups.get(a.groupId)?.typeId ?? firstClassType;
-    return { id: a.id, typeId, groupId: a.groupId, hostGroupId: a.hostGroupId ?? '', subjectId: a.subjectId, start: inputTime(a.startsAt), end: inputTime(a.endsAt), days: a.days, teacherId: a.teacherId, taId: a.taId ?? '', taOpen: false };
+    return { id: a.id, typeId, groupId: a.groupId, hostGroupId: a.hostGroupId ?? '', subjectId: a.subjectId, start: inputTime(a.startsAt), end: inputTime(a.endsAt), days: a.days, teacherId: a.teacherId ?? '', taId: a.taId ?? '', taOpen: false };
   }
   const row = start.rowId ? names.groups.get(start.rowId) : undefined;
   const typeId = row?.typeId ?? firstClassType;

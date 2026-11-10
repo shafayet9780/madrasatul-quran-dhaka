@@ -12,13 +12,13 @@ import { toBengaliDigits as bn } from '@/lib/survey/normalise';
 import { cn } from '@/lib/utils';
 import { LINK } from '../../ui';
 import { deleteTeacherAction, teacherFootprintAction } from '../actions';
-import { INPUT, OUTLINE, RoutineDialog, Segmented, useAction, useUndo } from '../controls';
+import { INPUT, OUTLINE, RoutineDialog, Segmented, SELECT, useAction, useUndo } from '../controls';
 import { LoadBadge } from '../ui';
 import { TeacherPanel } from './TeacherForm';
 
-// The teacher list (docs/class-routine.md §4): search by name or subject, filter by load, edit in
-// the side panel, delete with a confirm that lists the classes it takes with it. A teacher with
-// absences or proxies on record is hidden instead ("সরান"), so the register keeps their name.
+// The teacher list (docs/class-routine.md §4): search by name or subject, pick a subject, filter by
+// load, edit in the side panel, delete with a confirm that lists the classes it takes with it. A
+// teacher with absences or proxies on record is hidden instead ("সরান"), so the register keeps their name.
 
 type Filter = 'all' | 'over' | 'under' | 'vacancy';
 type Confirm = { teacher: Teacher; lessons: number; taLessons: number; history: boolean };
@@ -27,6 +27,7 @@ export function TeacherList({ teachers, subjects, types, loads, lessonsOf, showA
   const router = useRouter();
   const [q, setQ] = useState('');
   const [filter, setFilter] = useState<Filter>('all');
+  const [subjectId, setSubjectId] = useState('');
   const [panel, setPanel] = useState<{ teacher: Teacher | null } | null>(() => {
     const asked = start && start !== 'new' ? teachers.find((t) => t.id === start) : undefined;
     return start === 'new' ? { teacher: null } : asked ? { teacher: asked } : null;
@@ -38,8 +39,11 @@ export function TeacherList({ teachers, subjects, types, loads, lessonsOf, showA
   const twice = new Set(subjects.filter((s, i) => subjects.findIndex((x) => x.name === s.name) !== i).map((s) => s.name));
   const subjectName = new Map(subjects.map((s) => [s.id, twice.has(s.name) ? `${s.name} (${types.find((t) => t.id === s.typeId)?.name ?? ''})` : s.name]));
   const needle = q.trim().toLowerCase();
-  const shown = teachers.filter((t) => {
-    if (!showAll && !t.active) return false;
+  const listed = teachers.filter((t) => showAll || t.active);
+  // The active subjects someone in the list teaches.
+  const taught = subjects.filter((s) => s.active && listed.some((t) => t.subjectIds.includes(s.id))).sort((a, b) => subjectName.get(a.id)!.localeCompare(subjectName.get(b.id)!));
+  const shown = listed.filter((t) => {
+    if (subjectId && !t.subjectIds.includes(subjectId)) return false;
     const load = loads?.[t.id];
     if (filter === 'vacancy' && !t.isVacancy) return false;
     if (filter === 'over' && load?.status !== 'over') return false;
@@ -87,6 +91,14 @@ export function TeacherList({ teachers, subjects, types, loads, lessonsOf, showA
           <Search aria-hidden className="pointer-events-none absolute left-2.5 size-4 text-muted-foreground" />
           <input className={cn(INPUT, 'w-64 pl-8')} value={q} onChange={(e) => setQ(e.target.value)} placeholder="নাম বা সাবজেক্ট খুঁজুন" aria-label="নাম বা সাবজেক্ট খুঁজুন" />
         </label>
+        <select className={cn(SELECT, 'min-w-36')} value={subjectId} onChange={(e) => setSubjectId(e.target.value)} aria-label="সাবজেক্ট">
+          <option value="">সব সাবজেক্ট</option>
+          {taught.map((s) => (
+            <option key={s.id} value={s.id}>
+              {subjectName.get(s.id)}
+            </option>
+          ))}
+        </select>
         <Segmented
           label="ফিল্টার"
           value={filter}
@@ -104,8 +116,8 @@ export function TeacherList({ teachers, subjects, types, loads, lessonsOf, showA
       {shown.length === 0 ? (
         <p className="m-0 rounded-xl border border-dashed p-6 text-center text-sm text-muted-foreground">
           {teachers.length === 0 ? 'এখনো কোনো টিচার যোগ করা হয়নি।' : 'এই খোঁজে কোনো টিচার নেই।'}{' '}
-          {(q || filter !== 'all') && (
-            <button type="button" className="text-foreground underline underline-offset-4" onClick={() => (setQ(''), setFilter('all'))}>
+          {(q || filter !== 'all' || subjectId) && (
+            <button type="button" className="text-foreground underline underline-offset-4" onClick={() => (setQ(''), setFilter('all'), setSubjectId(''))}>
               খোঁজ মুছুন
             </button>
           )}
