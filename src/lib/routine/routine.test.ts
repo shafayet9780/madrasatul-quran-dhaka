@@ -2,9 +2,10 @@ import { describe, expect, it } from 'vitest';
 import { assignmentWarnings, clashText, findClashes, hostProblem, lookup, occupancy } from './clash';
 import { dayOfDate, daysText, distinctTimes, inputTime, overlaps, parseSpan, parseTime, spanText, timeText } from './days';
 import { atSchool, busyTeachers, sittingOf } from './free';
-import { cellLessons, groupSections, tableSections } from './layout';
+import { cellLessons, groupSections, nameColumnAt, tableSections } from './layout';
 import { busiestDays, loadStatus, salaryPerPeriod, teacherLoads } from './load';
 import { needsFor, proxyDayText, rankCandidates } from './proxy';
+import { subjectLabels, subjectsByType } from './subjects';
 import { assignment, group, subject, teacher, TYPES } from './testing/sample';
 
 describe('days and times', () => {
@@ -302,5 +303,46 @@ describe('routine table layout', () => {
     expect(cellLessons(all, 'nursery-a', { startsAt: 540, endsAt: 585 }, 'room', 2).map((a) => a.id)).toEqual([qaida.id]);
     expect(cellLessons(all, 'qaida-a', { startsAt: 660, endsAt: 705 }, 'group').map((a) => a.id)).toEqual([qaidaLate.id]);
     expect(cellLessons(all, 'two-m', { startsAt: 660, endsAt: 705 }, 'room').map((a) => a.id)).toEqual([qaidaLate.id]);
+  });
+  it('places the class / group column after its time, or where that time would sort once it is gone', () => {
+    const times = distinctTimes([
+      { startsAt: 420, endsAt: 495 },
+      { startsAt: 540, endsAt: 585 },
+      { startsAt: 540, endsAt: 600 },
+      { startsAt: 600, endsAt: 645 },
+    ]);
+    expect(nameColumnAt(times, null)).toBe(0);
+    expect(nameColumnAt(times, { startsAt: 420, endsAt: 495 })).toBe(1);
+    expect(nameColumnAt(times, { startsAt: 540, endsAt: 600 })).toBe(3);
+    // 9:00–9:50 no longer exists: it would sort between 9:00–9:45 and 9:00–10:00.
+    expect(nameColumnAt(times, { startsAt: 540, endsAt: 590 })).toBe(2);
+    expect(nameColumnAt(times, { startsAt: 400, endsAt: 410 })).toBe(0);
+    expect(nameColumnAt(times, { startsAt: 1200, endsAt: 1260 })).toBe(4);
+  });
+});
+
+describe('subjects and their teachers', () => {
+  const subjects = [subject('math'), { ...subject('islam'), sort: -1 }, subject('islam-ar', 'arabic', 'islam'), { ...subject('old'), active: false }, subject('qaida', 'quran')];
+  const teachers = [teacher('nadia', { subjectIds: ['math'] }), teacher('jamila', { subjectIds: ['math', 'islam'] }), teacher('science-1', { isVacancy: true, subjectIds: ['math'] }), teacher('gone', { active: false, subjectIds: ['math'] })];
+  const assignments = [assignment({ groupId: 'one-a', teacherId: 'jamila', days: [0, 1, 2] }), assignment({ groupId: 'two-a', teacherId: null, startsAt: 600, endsAt: 645 }), assignment({ groupId: 'l-1', teacherId: null, subjectId: 'islam-ar', days: [4] })];
+
+  it('names a subject in two types with its type', () => {
+    const labels = subjectLabels(subjects, TYPES);
+    expect([labels.get('math'), labels.get('islam'), labels.get('islam-ar')]).toEqual(['math', 'islam (জেনারেল)', 'islam (আরবি)']);
+  });
+
+  it('lists the active subjects by type with their active teachers and lessons a week', () => {
+    const grouped = subjectsByType({ types: TYPES, subjects, teachers, assignments });
+    expect(grouped.map((g) => [g.type.id, g.subjects.map((s) => [s.subject.id, s.teachers.map((t) => t.id), s.lessons])])).toEqual([
+      [
+        'general',
+        [
+          ['islam', ['jamila'], 0],
+          ['math', ['jamila', 'nadia', 'science-1'], 9],
+        ],
+      ],
+      ['quran', [['qaida', [], 0]]],
+      ['arabic', [['islam-ar', [], 1]]],
+    ]);
   });
 });

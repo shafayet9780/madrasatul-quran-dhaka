@@ -58,5 +58,15 @@ export function cellLessons(assignments: Assignment[], groupId: string, time: Ti
     .sort((a, b) => Math.min(...a.days) - Math.min(...b.days));
 }
 
+/**
+ * টেবিল: how many time columns come before the class / group column, which follows `after`. Counts
+ * the columns that sort at or before it (distinctTimes' order), so a time since deleted or edited
+ * still leaves it in about the same place; null puts it first.
+ */
+export function nameColumnAt(times: TimeSpan[], after: TimeSpan | null): number {
+  if (!after) return 0;
+  return times.filter((t) => t.startsAt < after.startsAt || (t.startsAt === after.startsAt && t.endsAt <= after.endsAt)).length;
+}
+
 /** The table's columns: every distinct lesson time of the routine. */
 export const columns = (assignments: Assignment[]) => distinctTimes(assignments);

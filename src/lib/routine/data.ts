@@ -58,13 +58,18 @@ function slotRows(routineId: string, a: Draft & { id: string }): (typeof routine
 
 export type RoutineSummary = RoutineInfo & { assignments: number };
 
+function routineInfo(r: typeof routineRoutines.$inferSelect): RoutineInfo {
+  const nameAfter = r.nameAfterStart !== null && r.nameAfterEnd !== null ? { startsAt: r.nameAfterStart, endsAt: r.nameAfterEnd } : null;
+  return { id: r.id, name: r.name, status: r.status, createdAt: r.createdAt.toISOString(), nameAfter };
+}
+
 export async function listRoutines(): Promise<RoutineSummary[]> {
   const db = getRoutineDb();
   const [rows, assignments] = await Promise.all([
     db.select().from(routineRoutines).orderBy(sql`${routineRoutines.createdAt} desc`),
     db.select({ id: routineAssignments.routineId, n: sql<number>`count(*)::int` }).from(routineAssignments).groupBy(routineAssignments.routineId),
   ]);
-  return rows.map((r) => ({ id: r.id, name: r.name, status: r.status, createdAt: r.createdAt.toISOString(), assignments: assignments.find((x) => x.id === r.id)?.n ?? 0 }));
+  return rows.map((r) => ({ ...routineInfo(r), assignments: assignments.find((x) => x.id === r.id)?.n ?? 0 }));
 }
 
 /** The routine asked for, else the active one, else the newest draft. */
@@ -330,13 +335,14 @@ export async function deleteTeacher(id: string): Promise<Outcome> {
 
 // ── Routines ───────────────────────────────────────────────────────────────────────────────────
 
-/** A new empty routine, or a copy of another one (its lessons). */
+/** A new empty routine, or a copy of another one (its lessons and where its class / group column sits). */
 export async function createRoutine(name: string, copyFromId?: string | null): Promise<Outcome> {
   const db = getRoutineDb();
   const id = crypto.randomUUID();
-  const statements: BatchItem<'pg'>[] = [db.insert(routineRoutines).values({ id, name, copiedFromId: copyFromId ?? null })];
+  const [source] = copyFromId ? await db.select().from(routineRoutines).where(eq(routineRoutines.id, copyFromId)) : [];
+  if (copyFromId && !source) return fail('যে রুটিন কপি করবেন সেটা পাওয়া যায়নি।');
+  const statements: BatchItem<'pg'>[] = [db.insert(routineRoutines).values({ id, name, copiedFromId: copyFromId ?? null, nameAfterStart: source?.nameAfterStart ?? null, nameAfterEnd: source?.nameAfterEnd ?? null })];
   if (copyFromId) {
-    if (!(await db.select({ id: routineRoutines.id }).from(routineRoutines).where(eq(routineRoutines.id, copyFromId))).length) return fail('যে রুটিন কপি করবেন সেটা পাওয়া যায়নি।');
     const [assignments, slots] = await Promise.all([
       db.select().from(routineAssignments).where(eq(routineAssignments.routineId, copyFromId)),
       db.select().from(routineSlots).where(eq(routineSlots.routineId, copyFromId)),
@@ -362,6 +368,16 @@ export async function renameRoutine(id: string, name: string): Promise<Outcome> 
     throw e;
   }
   return { ok: true };
+}
+
+/** Puts the টেবিল's class / group column after this time column (null: first). */
+export async function setNameColumn(id: string, after: TimeSpan | null): Promise<Outcome> {
+  const rows = await getRoutineDb()
+    .update(routineRoutines)
+    .set({ nameAfterStart: after?.startsAt ?? null, nameAfterEnd: after?.endsAt ?? null })
+    .where(eq(routineRoutines.id, id))
+    .returning({ id: routineRoutines.id });
+  return rows.length ? { ok: true } : fail(RACE);
 }
 
 /** Makes this routine the active one; the previously active one becomes a draft. */
@@ -397,7 +413,7 @@ export async function saveAssignment(routineId: string, input: Draft, confirm: b
   const db = getRoutineDb();
   const [routine] = await db.select().from(routineRoutines).where(eq(routineRoutines.id, routineId));
   if (!routine) return fail(RACE);
-  const data = await routineData({ ...routine, createdAt: '' });
+  const data = await routineData(routineInfo(routine));
   const names = lookup(data);
   const existing = input.id ? data.assignments.find((a) => a.id === input.id) : undefined;
   if (input.id && !existing) return fail(RACE);

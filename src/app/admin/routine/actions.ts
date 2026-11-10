@@ -22,6 +22,7 @@ import {
   saveSubject,
   saveTeacher,
   saveType,
+  setNameColumn,
   setProxy,
   setTeacherTarget,
   teacherFootprint,
@@ -181,6 +182,11 @@ export async function activateRoutineAction(routineId: string): Promise<Result> 
 
 export async function deleteRoutineAction(routineId: string): Promise<Result> {
   return act(id, routineId, deleteRoutine);
+}
+
+/** Where the টেবিল's class / group column sits: after this time column (null: first). */
+export async function setNameColumnAction(routineId: string, after: { startsAt: number; endsAt: number } | null): Promise<Result> {
+  return act(z.object({ id, after: span.nullable() }), { id: routineId, after }, (v) => setNameColumn(v.id, v.after));
 }
 
 // ── Absences and proxies ──

@@ -23,6 +23,7 @@ import {
   saveSubject,
   saveTeacher,
   saveType,
+  setNameColumn,
   setProxy,
   setTeacherTarget,
   teacherFootprint,
@@ -239,6 +240,18 @@ describe('routines', () => {
     // Same teacher, same time, other routine: no clash; inside the copy: clash.
     expect(await assign({ groupId: id('kg'), hostGroupId: null, subjectId: id('Math') }, true, copy)).toMatchObject({ ok: false });
     ok(await assign({ groupId: id('kg'), hostGroupId: null, subjectId: id('Math'), startsAt: 600, endsAt: 645 }, true, copy));
+  });
+
+  it('saves where the class / group column sits, and a copy keeps it', async () => {
+    expect((await pickRoutine(id('routine')))?.nameAfter).toBeNull();
+    ok(await setNameColumn(id('routine'), { startsAt: 600, endsAt: 645 }));
+    expect((await pickRoutine(id('routine')))?.nameAfter).toEqual({ startsAt: 600, endsAt: 645 });
+    const copy = ok(await createRoutine('২০২৮', id('routine'))).id;
+    expect((await pickRoutine(copy))?.nameAfter).toEqual({ startsAt: 600, endsAt: 645 });
+    ok(await setNameColumn(copy, null));
+    expect((await pickRoutine(copy))?.nameAfter).toBeNull();
+    expect((await pickRoutine(id('routine')))?.nameAfter).toEqual({ startsAt: 600, endsAt: 645 });
+    expect(await setNameColumn(crypto.randomUUID(), null)).toMatchObject({ ok: false });
   });
 
   it('keeps one active routine', async () => {
