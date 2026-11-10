@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext } from 'react';
+import { createContext, useContext, type ComponentProps } from 'react';
 import { rowOf, type Lookup } from '@/lib/routine/clash';
 import { DAYS, daysText, durationText, minutesOf, spanText } from '@/lib/routine/days';
 import type { Assignment, ClassType, Role, TimeSpan } from '@/lib/routine/types';
@@ -37,18 +37,21 @@ export type Changes = {
   proxy: (assignmentId: string, role: Role) => { id: string; name: string } | null;
 };
 
-/** What every cell needs: names, room names, the day shown, the teacher looked for, today's changes, the fills. */
-export type CellCtx = { names: Lookup; rooms: Map<string, string>; day: 'all' | number; teacherId: string; changes: Changes | null; fills: Map<string, Fill> };
+/**
+ * What every cell needs: names, room names, the day shown, the teacher looked for (or `noTeacher`:
+ * the lessons with no teacher), today's changes, the fills.
+ */
+export type CellCtx = { names: Lookup; rooms: Map<string, string>; day: 'all' | number; teacherId: string; noTeacher: boolean; changes: Changes | null; fills: Map<string, Fill> };
 
 /** The time running now ("startsAt-endsAt"), or null. */
 export const NowContext = createContext<string | null>(null);
 export const timeKey = (t: TimeSpan) => `${t.startsAt}-${t.endsAt}`;
 
 /** A time's column head; the running one is tinted and marked "এখন". */
-export function TimeTh({ time, className }: { time: TimeSpan; className?: string }) {
+export function TimeTh({ time, className, ...props }: { time: TimeSpan } & ComponentProps<'th'>) {
   const now = useContext(NowContext) === timeKey(time);
   return (
-    <th scope="col" className={cn('text-left', now && 'rt-now', className)} data-now={now || undefined}>
+    <th scope="col" className={cn('text-left', now && 'rt-now', className)} data-now={now || undefined} {...props}>
       <span className="whitespace-nowrap">{spanText(time)}</span>
       {now && <span className="ml-1.5 rounded-full bg-primary px-1.5 py-px text-[11px] font-medium text-primary-foreground sv-no-print">এখন</span>}
       <div className="whitespace-nowrap text-[11.5px] font-normal text-muted-foreground">{durationText(minutesOf(time))}</div>
@@ -58,11 +61,12 @@ export function TimeTh({ time, className }: { time: TimeSpan; className?: string
 
 /** In place of the name on a lesson with no main teacher yet. */
 export function NoTeacher() {
-  return <span className="rounded border border-dashed border-[#a8a29e] px-1 text-[11.5px] text-muted-foreground">টিচার নেই</span>;
+  return <span className="rt-none">টিচার নেই</span>;
 }
 
-/** Whether the teacher looked for is in this lesson: main, TA, or covering it today. */
+/** Whether the teacher looked for is in this lesson: main, TA, or covering it today (or, with `noTeacher`, it has none). */
 export function involves(a: Assignment, ctx: CellCtx) {
+  if (ctx.noTeacher) return !a.teacherId;
   const id = ctx.teacherId;
   return !!id && (a.teacherId === id || a.taId === id || ctx.changes?.proxy(a.id, 'main')?.id === id || ctx.changes?.proxy(a.id, 'ta')?.id === id);
 }
@@ -78,6 +82,8 @@ export function Entry({ a, ctx, by }: { a: Assignment; ctx: CellCtx; by: 'room' 
   const seated = by === 'room' && rowOf(a) !== a.groupId;
   const host = by === 'group' && a.hostGroupId ? names.groups.get(a.hostGroupId) : undefined;
   const subject = names.subjects.get(a.subjectId)?.name ?? '';
+  // The subject a seated group's or own-room group's name already says (Qaida-A's Qaida, Hifz-1's Hifz).
+  const redundant = (seated || (by === 'room' && !!group && names.types.get(group.typeId)?.placement === 'own_room')) && !!group?.name.startsWith(subject);
   const person = (id: string, role: Role) => {
     const t = names.teachers.get(id);
     const away = !!changes?.absent(id, a);
@@ -112,13 +118,13 @@ export function Entry({ a, ctx, by }: { a: Assignment; ctx: CellCtx; by: 'room' 
           {group?.name}
         </span>
       )}
-      {(!seated || !group?.name.startsWith(subject)) && (
+      {!redundant && (
         <span className="font-semibold text-foreground">
           {subject}
           {day === 'all' && a.days.length < DAYS.length && <span className="rt-days"> ({daysText(a.days)})</span>}
         </span>
       )}
-      {seated && group?.name.startsWith(subject) && day === 'all' && a.days.length < DAYS.length && <span className="rt-days">{daysText(a.days)}</span>}
+      {redundant && day === 'all' && a.days.length < DAYS.length && <span className="rt-days">{daysText(a.days)}</span>}
       <span className="flex flex-wrap gap-x-2">
         {a.teacherId ? person(a.teacherId, 'main') : <NoTeacher />}
         {a.taId && person(a.taId, 'ta')}

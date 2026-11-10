@@ -44,7 +44,8 @@ export type Teacher = {
   subjectIds: string[];
 };
 
-export type RoutineInfo = { id: string; name: string; status: 'draft' | 'active'; createdAt: string };
+/** nameAfter: the time column the টেবিল's class / group column follows (null: it comes first). */
+export type RoutineInfo = { id: string; name: string; status: 'draft' | 'active'; createdAt: string; nameAfter: TimeSpan | null };
 
 /** One lesson: a class or group at a time on some days. A seated group names its host class. */
 export type Assignment = TimeSpan & {

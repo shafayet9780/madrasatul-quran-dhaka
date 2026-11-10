@@ -106,6 +106,9 @@ export const routineRoutines = pgTable(
     name: text('name').notNull().unique(),
     status: routineStatus('status').notNull().default('draft'),
     copiedFromId: uuid('copied_from_id'),
+    // টেবিল: the time column the class / group column follows (both NULL: it comes first).
+    nameAfterStart: smallint('name_after_start'),
+    nameAfterEnd: smallint('name_after_end'),
     createdAt: ts('created_at').notNull().defaultNow(),
   },
   (t) => [uniqueIndex('routine_routines_one_active_uq').on(t.status).where(sql`${t.status} = 'active'`)],

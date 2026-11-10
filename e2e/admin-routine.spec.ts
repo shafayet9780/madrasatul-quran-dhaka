@@ -70,8 +70,49 @@ test('the group view puts every class and group under its type; the teacher view
   await page.getByRole('radio', { name: 'টিচার', exact: true }).click();
   const bilal = page.getByRole('row', { name: /^Bilal/ });
   await expect(bilal).toContainText('Ammapara-1');
-  await expect(bilal).toContainText('মেইন ১৮ / ২৪');
-  await expect(bilal.getByText('কম', { exact: true })).toBeVisible();
+  await expect(bilal).toContainText('Ammapara · RA-2');
+  await expect(bilal).toContainText('১৮ / ২৪ · কম');
+  // The sample has no lesson without a teacher: no "টিচার নেই" row or button.
+  await expect(page.getByRole('row', { name: /^টিচার নেই/ })).toHaveCount(0);
+  await page.getByRole('radio', { name: 'টেবিল', exact: true }).click();
+  await expect(page.getByRole('button', { name: /ক্লাসে টিচার নেই$/ })).toHaveCount(0);
+});
+
+test('the table: the class / group column moves and stays moved', async ({ page }) => {
+  await page.goto('/admin/routine');
+  const position = () => page.locator('thead tr > th').evaluateAll((ths) => ths.findIndex((th) => th.classList.contains('rt-name')));
+  expect(await position()).toBe(0);
+  await expect(page.getByRole('button', { name: 'বাঁয়ে সরান' })).toBeDisabled();
+  await page.getByRole('button', { name: 'ডানে সরান' }).click();
+  await expect.poll(position).toBe(1);
+  await page.waitForLoadState('networkidle');
+  await page.reload();
+  await expect.poll(position).toBe(1);
+  // Every row follows: Nursery-A's name comes after its first time cell.
+  expect(await page.getByRole('row', { name: /Nursery-A/ }).first().locator('> *').evaluateAll((cells) => cells.findIndex((c) => c.classList.contains('rt-name')))).toBe(1);
+  await page.getByRole('button', { name: 'বাঁয়ে সরান' }).click();
+  await expect.poll(position).toBe(0);
+  await page.waitForLoadState('networkidle');
+  await page.reload();
+  await expect.poll(position).toBe(0);
+});
+
+test('the subject teachers panel: a teacher tapped there is looked for in the routine', async ({ page }) => {
+  await page.goto('/admin/routine');
+  const toggle = page.getByRole('button', { name: 'সাবজেক্টের টিচার' });
+  await toggle.click();
+  await expect(toggle).toHaveAttribute('aria-pressed', 'true');
+  const panel = page.getByRole('complementary', { name: 'সাবজেক্টের টিচার' });
+  await panel.getByRole('button', { name: 'জেনারেল', exact: true }).click();
+  await panel.getByRole('button', { name: /^Math/ }).click();
+  const jamila = panel.getByRole('button', { name: /^Jamila/ });
+  await jamila.click();
+  await expect(jamila).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.getByRole('combobox', { name: /^টিচার খুঁজুন/ })).toHaveValue(/.+/);
+  await expect(page.getByText(/^\S+টা ক্লাস \(সপ্তাহে\)$/)).toBeVisible();
+  await expect(page.locator('td.rt-found').first()).toContainText('Jamila');
+  await panel.getByRole('button', { name: 'বন্ধ করুন' }).click();
+  await expect(panel).toBeHidden();
 });
 
 test('the proxy screen: an absent teacher, their classes, a proxy from the green list; the list shows it', async ({ page }) => {
