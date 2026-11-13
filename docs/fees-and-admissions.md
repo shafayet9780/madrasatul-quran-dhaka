@@ -28,7 +28,7 @@ The existing **Pre-Admission Form → Form Settings → Enabled** control determ
 
 ## Publication and cache
 
-Public pages use published content only. Production uses the existing 60-second revalidation policy; changes appear eventually and can take longer because of caching. There is no new instant-publish webhook or visual draft-preview workflow. Cached published content can remain visible during a temporary fetch failure.
+Public pages use published content only. Pages keep published content for an hour; a publish refreshes them at once through the Sanity webhook (`docs/vercel-usage.md`). There is no visual draft-preview workflow. Cached published content can remain visible during a temporary fetch failure.
 
 The financial settings do not regenerate prospectus/curriculum PDFs. Replace those separately under **Downloads Library → Public Download Files** when needed.
 

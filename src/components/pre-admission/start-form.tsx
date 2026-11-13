@@ -127,7 +127,7 @@ export function StartForm({ locale }: { locale: string }) {
           {t('start.submit')}
         </Button>
         <p className="py-2 text-center text-sm md:hidden">
-          <Link href={`/${locale}/pre-admission/find`} className="underline underline-offset-[3px]">
+          <Link prefetch={false} href={`/${locale}/pre-admission/find`} className="underline underline-offset-[3px]">
             {t('start.findPrompt')} {t('start.findLink')}
           </Link>
         </p>

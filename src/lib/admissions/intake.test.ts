@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { intakeFrom, intakeStatus, sessionOrNext, type Intake } from './intake';
+import { intakeFrom, intakeStatus, nextChange, sessionOrNext, type Intake } from './intake';
 import type { FormDocument } from './snapshot';
 import { liveFormDocument } from './testing/live-form';
 
@@ -59,5 +59,19 @@ describe('sessionOrNext', () => {
   it('keeps the form’s session, else names the coming school year', () => {
     expect(sessionOrNext('2027-28', now)).toBe('2027-28');
     expect(sessionOrNext(undefined, now)).toBe('2027');
+  });
+});
+
+describe('nextChange', () => {
+  const at = (iso: string) => new Date(iso);
+  it('is the opening time before the form opens, then the closing time', () => {
+    const intake: Intake = { state: 'not_open', opensAt: '2026-11-05T00:00:00Z', closesAt: '2026-12-01T00:00:00Z' };
+    expect(nextChange(intake, now)).toEqual(at('2026-11-05T00:00:00Z'));
+    expect(nextChange(intake, at('2026-11-06T00:00:00Z'))).toEqual(at('2026-12-01T00:00:00Z'));
+  });
+  it('is nothing once both have passed, or without dates', () => {
+    expect(nextChange({ state: 'closed', opensAt: '2026-01-01T00:00:00Z', closesAt: '2026-02-01T00:00:00Z' }, now)).toBeUndefined();
+    expect(nextChange({ state: 'open' }, now)).toBeUndefined();
+    expect(nextChange({ state: 'open', closesAt: 'not a date' }, now)).toBeUndefined();
   });
 });

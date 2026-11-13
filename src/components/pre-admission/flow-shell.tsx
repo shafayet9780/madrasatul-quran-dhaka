@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import { ChevronLeft } from 'lucide-react';
 import { getTranslations } from 'next-intl/server';
 import { getContentService } from '@/lib/content-service';
+import { urlFor } from '@/lib/sanity';
 import { num, type Locale } from '@/lib/admissions/display';
 import { LanguageLink } from './language-link';
 import { SaveIndicator, SaveStatusProvider } from './save-status';
@@ -22,7 +23,7 @@ type Props = {
 export async function FlowShell({ locale, session, title, back, saving, children }: Props) {
   const t = await getTranslations('preAdmission');
   const site = await getContentService(false).getSiteSettings().catch(() => null);
-  const logo = site?.logo?.asset?._ref ? `/api/image/${site.logo.asset._ref}?w=80&h=80` : null;
+  const logo = site?.logo?.asset?._ref ? urlFor(site.logo).width(80).height(80).quality(80).format('webp').url() : null;
   const sessionTitle = t('title', { session: num(session, locale) });
   const intro = `/${locale}/pre-admission`;
 
@@ -31,7 +32,7 @@ export async function FlowShell({ locale, session, title, back, saving, children
       <header className="sticky top-0 z-30 border-b bg-card">
         <div className="grid h-14 grid-cols-[48px_1fr_48px] items-center px-1 md:hidden">
           {back ? (
-            <Link href={back.href} aria-label={back.label} className="inline-flex size-10 items-center justify-center rounded-lg hover:bg-muted">
+            <Link prefetch={false} href={back.href} aria-label={back.label} className="inline-flex size-10 items-center justify-center rounded-lg hover:bg-muted">
               <ChevronLeft className="size-5" aria-hidden />
             </Link>
           ) : (
@@ -41,7 +42,7 @@ export async function FlowShell({ locale, session, title, back, saving, children
           <LanguageLink locale={locale} short={t('otherLanguageShort')} long={t('otherLanguage')} />
         </div>
         <div className="mx-auto hidden h-16 max-w-[1240px] items-center justify-between px-8 md:flex">
-          <Link href={intro} className="flex items-center gap-3">
+          <Link prefetch={false} href={intro} className="flex items-center gap-3">
             {logo ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={logo} alt="" className="size-9 rounded-lg object-cover" />

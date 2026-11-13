@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import createMiddleware from 'next-intl/middleware'
 import { COUNTRY_COOKIE } from '@/lib/analytics/country'
+import { PERSONAL_ADMISSION_COOKIES } from '@/lib/admissions/cookies'
 import {
   isValidStudioAuthorization,
   studioAuthConfigured,
@@ -37,6 +38,20 @@ function basicAuthResponse(request: NextRequest): NextResponse | null {
   return null
 }
 
+// The pre-admission page is cached; a device with an application or a test pass sees its own copy (mine/page.tsx)
+// at the same address.
+const PRE_ADMISSION_PAGE = /^\/(bengali|english)\/pre-admission\/?$/
+
+function personalPreAdmission(request: NextRequest): NextResponse | null {
+  const match = PRE_ADMISSION_PAGE.exec(request.nextUrl.pathname)
+  if (!match || !PERSONAL_ADMISSION_COOKIES.some((name) => request.cookies.has(name))) return null
+  const url = request.nextUrl.clone()
+  url.pathname = `/${match[1]}/pre-admission/mine`
+  const headers = new Headers(request.headers)
+  headers.set('X-NEXT-INTL-LOCALE', match[1])
+  return NextResponse.rewrite(url, { request: { headers } })
+}
+
 function withLocale(request: NextRequest, locale: 'bengali' | 'english') {
   const headers = new Headers(request.headers)
   headers.set('X-NEXT-INTL-LOCALE', locale)
@@ -64,7 +79,7 @@ export function proxy(request: NextRequest) {
 
   // Handle internationalization for all other routes. The visitor's country goes into a cookie for the consent
   // defaults, read in the browser, so the pages themselves stay cacheable.
-  const response = intlMiddleware(request)
+  const response = personalPreAdmission(request) ?? intlMiddleware(request)
   const country = request.headers.get('x-vercel-ip-country')
   if (country && request.cookies.get(COUNTRY_COOKIE)?.value !== country) {
     response.cookies.set(COUNTRY_COOKIE, country, { path: '/', sameSite: 'lax', maxAge: 60 * 60 * 24 * 30 })

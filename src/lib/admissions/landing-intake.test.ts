@@ -6,7 +6,7 @@ import { liveFormDocument } from './testing/live-form';
 const state = vi.hoisted(() => ({ doc: null as unknown, testPass: false, preview: false, cycle: null as unknown }));
 const getCurrentCycle = vi.hoisted(() => vi.fn(async () => state.cycle));
 
-vi.mock('@/lib/sanity-fetch', () => ({ sanityFetch: async () => state.doc }));
+vi.mock('@/lib/sanity-fetch', () => ({ sanityFetch: async () => state.doc, refreshBy: async () => {} }));
 vi.mock('./local', () => ({ localOverrides: () => null }));
 vi.mock('./test-pass', () => ({ hasTestPass: async () => state.testPass }));
 vi.mock('./session', () => ({ currentApplication: async () => null }));
@@ -38,7 +38,7 @@ describe('getLandingIntake', () => {
   });
 
   it('reads the published form in season, without the database', async () => {
-    const { intake, snapshot } = await getLandingIntake();
+    const { intake, snapshot } = await getLandingIntake(true);
     expect(intake).toMatchObject({ state: 'open', session: '2027' });
     expect(snapshot?.settings.applicationFee).toBeGreaterThan(0);
     expect(getCurrentCycle).not.toHaveBeenCalled();
@@ -46,7 +46,7 @@ describe('getLandingIntake', () => {
 
   it("uses the database's cycle when the form is switched off, keeping its fees", async () => {
     Object.assign(state, { doc: doc(false), cycle: cycle({ enabled: false }) });
-    const { intake, snapshot } = await getLandingIntake();
+    const { intake, snapshot } = await getLandingIntake(true);
     expect(intake.state).toBe('off');
     expect(snapshot?.settings.applicationFee).toBeGreaterThan(0);
     expect(getCurrentCycle).toHaveBeenCalledOnce();
@@ -54,17 +54,25 @@ describe('getLandingIntake', () => {
 
   it('uses the cycle for a test pass and a draft preview, which open a closed form', async () => {
     Object.assign(state, { doc: closed(), testPass: false });
-    expect((await getLandingIntake()).intake.state).toBe('closed');
+    expect((await getLandingIntake(true)).intake.state).toBe('closed');
     expect(getCurrentCycle).not.toHaveBeenCalled();
     Object.assign(state, { testPass: true, cycle: cycle({ testPass: true }) });
-    expect((await getLandingIntake()).intake.state).toBe('open');
+    expect((await getLandingIntake(true)).intake.state).toBe('open');
     Object.assign(state, { testPass: false, preview: true });
-    expect((await getLandingIntake()).intake.state).toBe('open');
+    expect((await getLandingIntake(true)).intake.state).toBe('open');
     expect(getCurrentCycle).toHaveBeenCalledTimes(2);
+  });
+
+  it("the cached page (not personal) reads no test pass: the visitor's own page has it", async () => {
+    Object.assign(state, { doc: closed(), testPass: true });
+    expect((await getLandingIntake(false)).intake.state).toBe('closed');
+    Object.assign(state, { doc: doc(false), cycle: cycle({ enabled: false }) });
+    await getLandingIntake(false);
+    expect(getCurrentCycle).toHaveBeenLastCalledWith({ testPass: false });
   });
 
   it('is off with no cycle at all', async () => {
     Object.assign(state, { doc: null, cycle: null });
-    expect(await getLandingIntake()).toEqual({ intake: { state: 'off' } });
+    expect(await getLandingIntake(true)).toEqual({ intake: { state: 'off' } });
   });
 });

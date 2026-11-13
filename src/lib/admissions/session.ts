@@ -5,13 +5,14 @@ import { getAdmissionsDb } from './db';
 import { loadById, loadWithSnapshot } from './drafts';
 import { signValue, signingKey, verifySignedValue } from './signed';
 import { cleanToken } from './tokens';
+import { GRANT_COOKIE, SESSION_COOKIE } from './cookies';
 import { allow } from '@/lib/survey/rate-limit';
 
 // The guardian's draft is identified by a random resume token: in an httpOnly cookie on this
 // device, and in the resume link (emailed, copyable from the hub) for other devices. "Find my
 // application" gives a device a signed, 7-day grant to one application instead.
 
-export const SESSION_COOKIE = 'mq_admission';
+export { GRANT_COOKIE, SESSION_COOKIE };
 const SIXTY_DAYS = 60 * 24 * 60 * 60;
 
 /** This device now works on the application of this token (a Find grant for another one ends). */
@@ -31,7 +32,6 @@ export async function sessionToken(): Promise<string | null> {
   return cleanToken((await cookies()).get(SESSION_COOKIE)?.value);
 }
 
-export const GRANT_COOKIE = 'mq_admission_grant';
 const FOUND_COOKIE = 'mq_admission_found';
 const cookieOptions = (maxAge: number) => ({ httpOnly: true, sameSite: 'lax' as const, secure: process.env.NODE_ENV === 'production', path: '/', maxAge });
 
