@@ -8,6 +8,9 @@ import { allFields, guardianSections } from '@/lib/admissions/form-config';
 import { flowPath, guardianSteps, requireDraft } from '@/lib/admissions/pages';
 import { currentApplication } from '@/lib/admissions/session';
 
+// Reads the guardian's application (a cookie): rendered on each visit, never cached.
+export const dynamic = 'force-dynamic';
+
 type Props = { params: Promise<{ locale: string; chapter: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

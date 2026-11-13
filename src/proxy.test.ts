@@ -96,3 +96,25 @@ describe('public image routes', () => {
       expect(unstable_doesMiddlewareMatch({ config, url })).toBe(true);
   });
 });
+
+describe('pre-admission page', () => {
+  const rewrite = (response: Response) => response.headers.get('x-middleware-rewrite');
+
+  // Left to the locale middleware (mocked here: undefined).
+  it('serves the cached page to a visitor without an application', () => {
+    for (const url of ['http://localhost/bengali/pre-admission', 'http://localhost/english/pre-admission/']) {
+      expect(proxy(new NextRequest(url, { headers: { cookie: 'NEXT_LOCALE=bengali' } }))).toBeUndefined();
+    }
+  });
+  it('shows a device with an application, a Find grant or a test pass its own page at the same address', () => {
+    for (const cookie of ['mq_admission=abc', 'mq_admission_grant=x', 'mq_admission_test=y']) {
+      const response = proxy(new NextRequest('http://localhost/english/pre-admission', { headers: { cookie } }));
+      expect(rewrite(response)).toBe('http://localhost/english/pre-admission/mine');
+      expect(response.headers.get('x-middleware-request-x-next-intl-locale')).toBe('english');
+    }
+  });
+  it('leaves the flow pages alone', () => {
+    const request = new NextRequest('http://localhost/bengali/pre-admission/start', { headers: { cookie: 'mq_admission=abc' } });
+    expect(proxy(request)).toBeUndefined();
+  });
+});

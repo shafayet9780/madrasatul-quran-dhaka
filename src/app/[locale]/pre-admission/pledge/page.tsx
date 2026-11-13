@@ -6,6 +6,9 @@ import { PledgeForm } from '@/components/pre-admission/pledge-form';
 import { asLocale, num, txt } from '@/lib/admissions/display';
 import { flowPath, guardianSteps, requireDraft } from '@/lib/admissions/pages';
 
+// Reads the guardian's application (a cookie): rendered on each visit, never cached.
+export const dynamic = 'force-dynamic';
+
 type Props = { params: Promise<{ locale: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

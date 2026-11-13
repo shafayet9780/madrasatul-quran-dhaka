@@ -8,7 +8,7 @@ import { num, txt, type Locale } from './display';
 import type { Application } from './drafts';
 import { allFields, guardianSections, type FormSnapshot } from './form-config';
 import { PLEDGE_STEP, pledgeStatus } from './pledge';
-import { intakeStatus, publishedIntake, type AdmissionCta, type Intake } from './intake';
+import { intakeStatus, nextChange, publishedIntake, type AdmissionCta, type Intake } from './intake';
 import { localOverrides } from './local';
 import { currentApplication } from './session';
 import { hasTestPass } from './test-pass';
@@ -17,9 +17,9 @@ import type { FormDocument } from './snapshot';
 // Shared loading for the guardian pages.
 
 /** The open cycle, or null when the form is not published, broken, or the database is unreachable. */
-export async function safeCurrentCycle(): Promise<CycleState | null> {
+export async function safeCurrentCycle(opts?: { testPass?: boolean }): Promise<CycleState | null> {
   try {
-    return await getCurrentCycle();
+    return await getCurrentCycle(opts);
   } catch (e) {
     console.error('Admissions: could not load the current cycle', e);
     return null;
@@ -39,8 +39,11 @@ export async function getPublishedIntake(): Promise<ReturnType<typeof publishedI
   try {
     const local = localOverrides();
     if (local) return publishedIntake(local.form);
-    const { sanityFetch } = await import('@/lib/sanity-fetch');
-    return publishedIntake(await sanityFetch<FormDocument | null>({ query: FORM_QUERY, tags: ['preAdmissionForm'] }));
+    const { sanityFetch, refreshBy } = await import('@/lib/sanity-fetch');
+    const published = publishedIntake(await sanityFetch<FormDocument | null>({ query: FORM_QUERY, tags: ['preAdmissionForm'] }));
+    // The banner and the calls to action change when the form opens or closes: the pages refresh then.
+    await refreshBy(nextChange(published.intake));
+    return published;
   } catch (e) {
     console.error('Admissions: could not load the intake', e);
     return { intake: { state: 'off' } };
@@ -52,13 +55,15 @@ export async function getPublishedIntake(): Promise<ReturnType<typeof publishedI
  * like the Admissions page, so a visitor's page needs no database. The database's cycle stays the source when the two
  * can differ: a test pass, a draft preview, and a form switched off or not building (the cycle keeps its last good
  * version, and its fees still show). Once per request: the title reads it too.
+ * `personal` (a visitor with an application or a test pass, not cached) counts this device's test pass; the cached
+ * page reads no cookie.
  */
-export const getLandingIntake = cache(async (): Promise<{ intake: Intake; snapshot?: FormSnapshot }> => {
-  if (!previewDraftMode() && !(await hasTestPass())) {
+export const getLandingIntake = cache(async (personal: boolean): Promise<{ intake: Intake; snapshot?: FormSnapshot }> => {
+  if (!previewDraftMode() && !(personal && (await hasTestPass()))) {
     const published = await getPublishedIntake();
     if (published.intake.state !== 'off') return published;
   }
-  const cycle = await safeCurrentCycle();
+  const cycle = await safeCurrentCycle({ testPass: personal });
   if (!cycle) return { intake: { state: 'off' } };
   const { opensAt, closesAt } = cycle.snapshot.settings;
   return { intake: { state: cycle.enabled ? cycle.window : 'off', session: cycle.session, opensAt, closesAt }, snapshot: cycle.snapshot };

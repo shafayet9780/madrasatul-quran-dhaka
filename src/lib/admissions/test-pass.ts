@@ -1,12 +1,12 @@
 import 'server-only';
 import { cookies } from 'next/headers';
 import { signValue, signingKey, verifySignedValue } from './signed';
+import { TEST_PASS_COOKIE } from './cookies';
 
 // The office's test pass (admin → ভর্তি → ওভারভিউ): the published form opens on this device only,
 // even while it is switched off or outside its dates, so the live payment can be tried before
 // launch. Applications started with it are tests (applications.is_test).
 
-const TEST_PASS_COOKIE = 'mq_admission_test';
 const TWELVE_HOURS = 12 * 60 * 60;
 
 /** False when there is no signing key (ADMISSIONS_SECRET or CRON_SECRET). */

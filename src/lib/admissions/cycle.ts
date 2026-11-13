@@ -163,10 +163,13 @@ export function previewDraftMode(env: Record<string, string | undefined> = proce
   return env.ADMISSIONS_PREVIEW_DRAFT === '1' && env.VERCEL_ENV === 'preview';
 }
 
-/** Current cycle from the published form (Sanity, cached like the rest of the site). */
-export async function getCurrentCycle(): Promise<CycleState | null> {
+/**
+ * Current cycle from the published form (Sanity, cached like the rest of the site). `testPass: false` leaves out this
+ * device's test pass, so a cached page can read it (no cookie).
+ */
+export async function getCurrentCycle({ testPass = true }: { testPass?: boolean } = {}): Promise<CycleState | null> {
   const state = await loadCurrentCycle();
-  return state && (await hasTestPass()) ? { ...state, enabled: true, window: 'open', testPass: true } : state;
+  return state && testPass && (await hasTestPass()) ? { ...state, enabled: true, window: 'open', testPass: true } : state;
 }
 
 async function loadCurrentCycle(): Promise<CycleState | null> {
@@ -179,6 +182,8 @@ async function loadCurrentCycle(): Promise<CycleState | null> {
     return state && { ...state, enabled: true, window: 'open' };
   }
   const { sanityFetch } = await import('@/lib/sanity-fetch');
-  const doc = await sanityFetch<FormDocument | null>({ query: FORM_QUERY, tags: ['preAdmissionForm', 'feeSettings'] });
+  // A minute, not the site's hour: the applications follow a form switched off or a fee changed even if the publish
+  // webhook did not reach the site.
+  const doc = await sanityFetch<FormDocument | null>({ query: FORM_QUERY, tags: ['preAdmissionForm', 'feeSettings'], revalidate: 60 });
   return syncCycle(doc);
 }
