@@ -30,6 +30,14 @@ export function publishedIntake(doc: FormDocument | null | undefined, now: Date 
   }
 }
 
+/** When the intake next opens or closes on its own (its dates), if it still will. */
+export function nextChange(intake: Intake, now: Date = new Date()): Date | undefined {
+  const times = [intake.opensAt, intake.closesAt]
+    .map((at) => (at ? new Date(at) : null))
+    .filter((at): at is Date => !!at && !Number.isNaN(at.getTime()) && at > now);
+  return times.sort((a, b) => a.getTime() - b.getTime())[0];
+}
+
 /** Off when the form is switched off in the Studio, not published, or incomplete. */
 export function intakeFrom(doc: FormDocument | null | undefined, now: Date = new Date()): Intake {
   return publishedIntake(doc, now).intake;

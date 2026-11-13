@@ -18,6 +18,9 @@ import { currentApplication, siteOrigin } from '@/lib/admissions/session';
 import { afterPaid } from '@/lib/admissions/after-paid';
 import { whatsappQrSvg } from '@/lib/admissions/whatsapp-qr';
 
+// Reads the guardian's application (a cookie): rendered on each visit, never cached.
+export const dynamic = 'force-dynamic';
+
 type Props = { params: Promise<{ locale: string }>; searchParams: Promise<{ payment?: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

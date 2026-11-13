@@ -15,19 +15,19 @@ export async function GET(request: NextRequest) {
       
       // Add cache control headers for favicon
       const response = NextResponse.redirect(new URL(faviconUrl, request.url));
-      response.headers.set('Cache-Control', 'public, max-age=86400'); // Cache for 24 hours
+      response.headers.set('Cache-Control', 'public, max-age=86400, s-maxage=86400'); // Cache for 24 hours
       response.headers.set('Vary', 'Accept');
       return response;
     }
     
     // Fallback: serve default favicon
     const response = NextResponse.redirect(new URL('/favicon.ico', request.url));
-    response.headers.set('Cache-Control', 'public, max-age=86400');
+    response.headers.set('Cache-Control', 'public, max-age=86400, s-maxage=86400');
     return response;
   } catch {
     // Fallback to default favicon on error
     const response = NextResponse.redirect(new URL('/favicon.ico', request.url));
-    response.headers.set('Cache-Control', 'public, max-age=86400');
+    response.headers.set('Cache-Control', 'public, max-age=86400, s-maxage=86400');
     return response;
   }
 }

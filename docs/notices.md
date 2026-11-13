@@ -46,7 +46,7 @@ coloured tags, chips or photos, unlike the gallery.
   - a notice needs a text or an attachment, or both
   - the link is made automatically; nobody types it
 - **English pages:** a notice without English shows in Bengali (marked `lang="bn"`) with a short note that it is in Bengali only.
-- **Caching:** like the other pages, built ahead of time and refreshed from Studio every 60 s, so a published notice is on the board within a minute. A notice's own page is built on its first visit.
+- **Caching:** like the other pages, built ahead of time and refreshed when the Studio publishes (the Sanity webhook, `docs/vercel-usage.md`; within the hour without it). A notice's own page is built on its first visit.
 - **Search:** the board and every notice are in the sitemap and open to search engines.
 
 ## Rules for the content (proposed)

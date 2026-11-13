@@ -32,8 +32,11 @@ export async function GET(
 
     const imageUrl = urlBuilder.url();
 
-    // Redirect to the Sanity CDN URL
-    return NextResponse.redirect(imageUrl);
+    // Redirect to the Sanity CDN URL. Browsers and Vercel's CDN keep the redirect for a day, so the function runs about
+    // once a day per image and size, not on every view (the target names the dataset, so not for longer).
+    const response = NextResponse.redirect(imageUrl);
+    response.headers.set('Cache-Control', 'public, max-age=86400, s-maxage=86400');
+    return response;
   } catch (error) {
     console.error('Error processing image:', error);
     

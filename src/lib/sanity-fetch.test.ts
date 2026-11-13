@@ -6,7 +6,7 @@ const { fetchMock, previewFetchMock } = vi.hoisted(() => ({
 }));
 
 vi.mock('./sanity', () => {
-  const client = { fetch: fetchMock };
+  const client = { fetch: fetchMock, withConfig: () => client };
   const previewClient = { fetch: previewFetchMock };
   return {
     client,
@@ -16,7 +16,9 @@ vi.mock('./sanity', () => {
   };
 });
 
-import { sanityFetch, sanityFetchWithPreview } from './sanity-fetch';
+import { CONTENT_REVALIDATE, refreshBy, SANITY_TAG, sanityFetch, sanityFetchWithPreview } from './sanity-fetch';
+
+vi.mock('./admissions/local', () => ({ localOverrides: () => null }));
 
 beforeEach(() => {
   fetchMock.mockReset();
@@ -60,5 +62,27 @@ describe('sanityFetchWithPreview (contract)', () => {
     await sanityFetchWithPreview({ query: 'Q', preview: false });
     expect(fetchMock).toHaveBeenCalledTimes(1);
     expect(previewFetchMock).not.toHaveBeenCalled();
+  });
+});
+
+describe('cache lifetime', () => {
+  it('keeps published content for an hour, refreshable by the Sanity webhook', async () => {
+    fetchMock.mockResolvedValue(null);
+    await sanityFetch({ query: 'Q', tags: ['homePage'] });
+    expect(fetchMock.mock.calls[0][2]).toEqual({ next: { revalidate: CONTENT_REVALIDATE, tags: ['homePage', SANITY_TAG] } });
+  });
+
+  it('refreshes the page by an opening or closing time within the hour', async () => {
+    fetchMock.mockResolvedValue(true);
+    const now = new Date('2026-11-01T06:00:00Z');
+    await refreshBy(new Date('2026-11-01T06:10:00Z'), now);
+    expect(fetchMock.mock.calls[0][2]).toEqual({ next: { revalidate: 600 } });
+    await refreshBy(new Date('2026-11-01T06:00:20Z'), now);
+    expect(fetchMock.mock.calls[1][2]).toEqual({ next: { revalidate: 60 } });
+    // Past, more than an hour away, or none: the hour stands.
+    await refreshBy(new Date('2026-11-01T05:00:00Z'), now);
+    await refreshBy(new Date('2026-11-01T08:00:00Z'), now);
+    await refreshBy(undefined, now);
+    expect(fetchMock).toHaveBeenCalledTimes(2);
   });
 });

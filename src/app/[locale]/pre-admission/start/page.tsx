@@ -9,6 +9,9 @@ import { flowPath, safeCurrentCycle } from '@/lib/admissions/pages';
 import { currentApplication } from '@/lib/admissions/session';
 import { sessionOrNext } from '@/lib/admissions/intake';
 
+// Reads the guardian's application (a cookie): rendered on each visit, never cached.
+export const dynamic = 'force-dynamic';
+
 type Props = { params: Promise<{ locale: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -51,7 +54,7 @@ export default async function StartPage({ params }: Props) {
 
         <p className="hidden text-sm text-muted-foreground md:block">
           {t('start.findPrompt')}{' '}
-          <Link href={flowPath(locale, '/find')} className="font-medium text-foreground underline underline-offset-[3px]">
+          <Link prefetch={false} href={flowPath(locale, '/find')} className="font-medium text-foreground underline underline-offset-[3px]">
             {t('start.findLink')}
           </Link>
         </p>
