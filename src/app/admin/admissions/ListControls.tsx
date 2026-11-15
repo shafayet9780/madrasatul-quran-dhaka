@@ -108,6 +108,8 @@ export type PaidRow = {
   publicRef: string;
   name: string;
   dob: string;
+  /** Age on 1 January of the session. */
+  age: string;
   classLabel: string;
   mobile: string;
   status: ApplicationStatus;
@@ -213,7 +215,12 @@ export function PaidTable({ rows }: { rows: PaidRow[] }) {
                 <td>
                   <div className="flex flex-col">
                     <span>{r.name}</span>
-                    {r.dob && <span className="text-[12.5px] text-muted-foreground">জন্ম {r.dob}</span>}
+                    {r.dob && (
+                      <span className="text-[12.5px] text-muted-foreground">
+                        জন্ম {r.dob}
+                        {r.age && ` · বয়স ${r.age}`}
+                      </span>
+                    )}
                   </div>
                 </td>
                 <td>{r.classLabel}</td>

@@ -1,8 +1,9 @@
+import { ageDateText, sessionAgeText } from './age';
 import type { AnswerValue, Answers } from './answers';
 import { STATUS_LABEL, type ApplicationStatus } from './admin-labels';
 import { txt } from './display';
 import { FILE_MISSING, NO_ROUTE, NO_ROUTE_LABEL, allFields, type FormField, type FormSnapshot, type Role } from './form-config';
-import { normaliseMobile } from './normalise';
+import { normaliseMobile, toAsciiDigits } from './normalise';
 import { findStop } from './transport';
 
 // One row per paid application for the Excel export and the Google Sheet copy (ERP-ready: one
@@ -32,12 +33,16 @@ export type ExportPayment = { amount: number; tranId: string; bankTranId: string
 /** Answered in the fixed columns, so not repeated among the field columns. */
 const FIXED_ROLES: readonly Role[] = ['studentNameBn', 'studentNameEn', 'dateOfBirth', 'primaryMobile', 'email'];
 
+/** Stands for "বয়স (১ জানুয়ারি ২০২৭)", the session's year filled in by exportHeader. */
+const AGE_COLUMN = 'বয়স';
+
 const FIXED_HEADER = [
   'আবেদন আইডি',
   'অবস্থা',
   'শিক্ষার্থীর নাম',
   'Student name',
   'জন্ম তারিখ',
+  AGE_COLUMN,
   'অভিভাবকের মোবাইল',
   'ইমেইল',
   'আবেদন ফি (৳)',
@@ -129,7 +134,9 @@ export function exportHeader(form: ExportForm): string[] {
   // Still the same (a question deleted and added again under a new key): the key tells them apart.
   const seen = new Map<string, number>();
   for (const { name } of named) seen.set(name, (seen.get(name) ?? 0) + 1);
-  return [...FIXED_HEADER, ...named.map(({ name, key }) => ((seen.get(name) ?? 0) > 1 ? `${name} [${key}]` : name))];
+  // The age on 1 January of the session, beside the date of birth.
+  const header = FIXED_HEADER.map((h) => (h === AGE_COLUMN ? `বয়স (${ageDateText(form.latest.settings.session, 'bengali')})` : h));
+  return [...header, ...named.map(({ name, key }) => ((seen.get(name) ?? 0) > 1 ? `${name} [${key}]` : name))];
 }
 
 export function exportRow(form: ExportForm, app: ExportApplication, payment: ExportPayment): string[] {
@@ -141,6 +148,8 @@ export function exportRow(form: ExportForm, app: ExportApplication, payment: Exp
     app.studentNameBn ?? '',
     app.studentNameEn ?? '',
     app.dateOfBirth ?? '',
+    // ASCII digits, like the rest of the export: "7 বছর 9 মাস".
+    toAsciiDigits(sessionAgeText(app.dateOfBirth, form.latest.settings.session, 'bengali')),
     plainMobile(app.primaryMobile),
     app.email,
     payment ? String(payment.amount) : '',

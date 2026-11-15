@@ -1,4 +1,4 @@
-import { ageOn, sessionStart } from './age';
+import { ageDateText, ageText, sessionAge } from './age';
 import { answerText } from './answer-text';
 import { isVisible, type Answers } from './answers';
 import { bringItems } from './bring-list';
@@ -93,15 +93,19 @@ export function applicationHtml(d: PdfData, tight = false): string {
   const classField = allFields.find((f) => f.role === 'classApplied');
   const classLabel = classField ? answerText(classField, answers[classField.key], 'bengali', LABELS) : '';
   const dobField = allFields.find((f) => f.role === 'dateOfBirth');
-  const age = dobField && typeof answers[dobField.key] === 'string' ? ageOn(answers[dobField.key] as string, sessionStart(s.session)) : null;
+  const age = dobField ? sessionAge(answers[dobField.key], s.session) : null;
 
-  // The student chapter, with the age at the session start after the date of birth.
+  // The student chapter; the age on 1 January of the session sits beside the date of birth (no extra row).
   const studentRows = first.fields
     .filter((f) => !isPhoto(f))
-    .flatMap((f) => {
-      const r = fieldRows(f, answers, snapshot);
-      return f.role === 'dateOfBirth' && age ? [r, row('বয়স (শিক্ষাবর্ষের শুরুতে)', `<td>${bn(age.years)} বছর ${bn(age.months)} মাস</td>`)] : [r];
-    })
+    .map((f) =>
+      f.role === 'dateOfBirth' && age
+        ? row(
+            txt(f.label, 'bengali'),
+            `<td>${esc(answerText(f, answers[f.key], 'bengali', LABELS))} <span class="age">(${esc(ageDateText(s.session, 'bengali'))}-এ বয়স ${esc(ageText(age, 'bengali'))})</span></td>`,
+          )
+        : fieldRows(f, answers, snapshot),
+    )
     .join('');
 
   const chapterHtml = (sec: (typeof rest)[number], n: number) => {
@@ -161,7 +165,7 @@ ${d.fontCss}
 /* An inset so borders at the right edge are not clipped by the printable area. */
 body{padding:0 0.6mm}
 html,body{margin:0;background:#fff;color:#171717;font-family:'Inter','Noto Sans Bengali',sans-serif;font-size:12.5px;line-height:1.45;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-.lat{font-family:'Inter',sans-serif}.muted{color:#525252}.ink{color:#171717;font-weight:600}.small{font-size:11.5px}.strong{font-size:14px;font-weight:700}.right{text-align:right}
+.lat{font-family:'Inter',sans-serif}.age{font-weight:400;color:#525252}.muted{color:#525252}.ink{color:#171717;font-weight:600}.small{font-size:11.5px}.strong{font-size:14px;font-weight:700}.right{text-align:right}
 .top{display:flex;justify-content:space-between;align-items:center;gap:16px;padding-bottom:10px;border-bottom:2px solid #7a4d32}
 .brand{display:flex;align-items:center;gap:12px;min-width:0}.brand img{flex:none;width:50px;height:50px;border-radius:50%;object-fit:cover}
 .brand .name{font-size:20px;font-weight:700;line-height:1.3}

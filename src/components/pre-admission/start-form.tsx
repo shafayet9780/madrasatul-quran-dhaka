@@ -8,16 +8,23 @@ import { Button } from '@/components/shadcn/button';
 import { Input } from '@/components/shadcn/input';
 import { Label } from '@/components/shadcn/label';
 import { startApplication, type StartState } from '@/app/[locale]/pre-admission/actions';
+import { checkField, isVisible, type AnswerValue, type Answers } from '@/lib/admissions/answers';
+import type { FormField } from '@/lib/admissions/form-config';
 import { emailSuggestion, normaliseEmail, normaliseMobile } from '@/lib/admissions/normalise';
+import { asLocale } from '@/lib/admissions/display';
+import { FieldBlock } from './fields';
 import { cn } from '@/lib/utils';
 
-export function StartForm({ locale }: { locale: string }) {
+/** `questions`: how they heard about us and its write-in (startQuestions), asked here so every start is counted. */
+export function StartForm({ locale, questions }: { locale: string; questions: FormField[] }) {
   const t = useTranslations('preAdmission');
   const [state, action, pending] = useActionState<StartState, FormData>(startApplication.bind(null, locale), {});
   const [mobile, setMobile] = useState('');
   const [email, setEmail] = useState('');
   const [touched, setTouched] = useState({ mobile: false, email: false });
   const [attribution, setAttribution] = useState<Record<string, string>>({});
+  const [answers, setAnswers] = useState<Answers>({});
+  const [touchedQ, setTouchedQ] = useState<Set<string>>(new Set());
   const errorRef = useRef<HTMLParagraphElement>(null);
 
   useEffect(() => {
@@ -30,18 +37,36 @@ export function StartForm({ locale }: { locale: string }) {
 
   useEffect(() => {
     if (state.message) errorRef.current?.focus();
-  }, [state]);
+    // An unanswered start question sits below the fields; bring it into view (on phones the button bar covers the bottom).
+    const missing = questions.find((f) => state.errors?.start?.[f.key]);
+    if (missing) document.getElementById(`f-${missing.key}-group`)?.scrollIntoView({ block: 'center', behavior: 'smooth' });
+  }, [state, questions]);
 
   const mobileOk = normaliseMobile(mobile) !== null;
   const mobileError = (touched.mobile && mobile && !mobileOk) || state.errors?.mobile ? t('start.invalid_mobile') : null;
   const emailError = (touched.email && email && !normaliseEmail(email)) || state.errors?.email ? t('start.invalid_email') : null;
   const suggestion = touched.email ? emailSuggestion(email) : null;
+  const shown = questions.filter((f) => isVisible(f, answers));
+  const questionError = (f: FormField) => {
+    // The server's verdict until the guardian changes the answer, then the same check in the browser.
+    const e = touchedQ.has(f.key) ? checkField(f, answers[f.key]).error : state.errors?.start?.[f.key];
+    return e ? t(`chapter.errors.${e}`) : null;
+  };
+  const posted = JSON.stringify(Object.fromEntries(shown.filter((f) => answers[f.key] !== undefined).map((f) => [f.key, answers[f.key]])));
+  const change = (f: FormField, v: AnswerValue | '') =>
+    setAnswers((a) => {
+      const next = { ...a };
+      if (v === '' || (Array.isArray(v) && v.length === 0)) delete next[f.key];
+      else next[f.key] = v;
+      return next;
+    });
 
   return (
     <form action={action} noValidate className="flex flex-col gap-6 md:gap-5 md:rounded-xl md:border md:bg-card md:p-6">
       {Object.entries(attribution).map(([k, v]) => (
         <input key={k} type="hidden" name={k} value={v} />
       ))}
+      <input type="hidden" name="start" value={posted} />
       {state.message && (
         <p ref={errorRef} tabIndex={-1} role="alert" className="rounded-lg border bg-card px-3 py-2.5 text-[13.5px] leading-normal text-destructive outline-none">
           {state.message === 'closed' ? t('start.closed') : t(state.message)}
@@ -120,6 +145,21 @@ export function StartForm({ locale }: { locale: string }) {
           </div>
         )}
       </div>
+
+      {shown.map((f) => (
+        <FieldBlock
+          key={f.key}
+          field={f}
+          value={answers[f.key]}
+          locale={asLocale(locale)}
+          error={questionError(f)}
+          onChange={(v) => {
+            change(f, v);
+            setTouchedQ((s) => (s.has(f.key) ? s : new Set(s).add(f.key)));
+          }}
+          onBlur={() => setTouchedQ((s) => (s.has(f.key) ? s : new Set(s).add(f.key)))}
+        />
+      ))}
 
       <div className="fixed inset-x-0 bottom-0 z-20 flex flex-col gap-1.5 border-t bg-card px-4 pb-5 pt-3 md:static md:border-0 md:p-0">
         <Button type="submit" disabled={pending} className="h-11 w-full text-[15px]">

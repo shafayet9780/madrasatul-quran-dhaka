@@ -1,7 +1,7 @@
 // @vitest-environment node
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { eq, sql } from 'drizzle-orm';
-import { addNote, adminCycle, applicationCounts, applicationDetail, deleteUnpaid, listApplications, overview, setEvaluationDay, setStatuses } from './admin';
+import { addNote, adminCycle, applicationCounts, applicationDetail, deleteUnpaid, listApplications, overview, setEvaluationDay, setStatuses, transportAreas, transportCounts } from './admin';
 import { cycleClasses, idClassCodes, syncCycle, type CycleState } from './cycle';
 import { createDraft, getByToken, saveDraft, submitDraft, type Application } from './drafts';
 import { acceptHeldPayment, confirmPayment, latestPayment, startPayment } from './payments';
@@ -173,16 +173,45 @@ describe('admin queries', () => {
     const ids: string[] = [];
     for (const [name, mobile] of [['আব্দুল্লাহ', '01712345678'], ['আয়েশা', '01812345678'], ['উমর', '01912345678'], ['খাদিজা', '01612345678']])
       ids.push((await application({ name, mobile, pay: 'pay' })).id);
-    const answers = [['facebook', 'friends'], ['facebook'], 'friends_family', null];
+    // A draft (started, not paid) counts as started only.
+    ids.push((await application({ name: 'যায়েদ', mobile: '01512345678', submit: false })).id);
+    const answers = [['facebook', 'friends'], ['facebook'], 'friends_family', null, ['facebook']];
     for (const [i, heard] of answers.entries())
       await db.execute(sql`UPDATE applications SET answers = answers || jsonb_build_object('heard_from', ${JSON.stringify(heard)}::jsonb) WHERE id = ${ids[i]}`);
     const o = await overview(cycle.cycleId, 'heard_from');
     expect(o.heardFrom).toEqual([
-      { value: 'facebook', count: 2 },
-      { value: 'friends', count: 1 },
-      { value: 'friends_family', count: 1 },
-      { value: '', count: 1 },
+      { value: 'facebook', started: 3, paid: 2 },
+      { value: 'friends', started: 1, paid: 1 },
+      { value: 'friends_family', started: 1, paid: 1 },
+      { value: '', started: 1, paid: 1 },
     ]);
+  });
+
+  it('filters and counts by transport stop, booked once admitted', async () => {
+    const ids: string[] = [];
+    for (const [name, mobile] of [['আব্দুল্লাহ', '01712345678'], ['আয়েশা', '01812345678'], ['উমর', '01912345678'], ['খাদিজা', '01612345678']])
+      ids.push((await application({ name, mobile, pay: 'pay' })).id);
+    const stops = [{ transport_stop: 'mirpur_micro:m10' }, { transport_stop: 'uttara_auto:s18' }, { transport_stop: 'none', transport_area: ' বনানী ' }, {}];
+    for (const [i, extra] of stops.entries())
+      await db.execute(sql`UPDATE applications SET answers = answers || ${JSON.stringify(extra)}::jsonb WHERE id = ${ids[i]}`);
+    await setStatuses([ids[0]], 'admitted');
+    const list = async (filter: { routes: string[] } | { kind: 'none' | 'no' }) =>
+      (await listApplications(cycle.cycleId, { tab: 'paid', transport: { key: 'transport_stop', filter } })).rows.map((r) => r.id).sort();
+    expect(await list({ routes: ['mirpur_micro', 'uttara_auto'] })).toEqual([ids[0], ids[1]].sort());
+    expect(await list({ routes: ['uttara_auto'] })).toEqual([ids[1]]);
+    expect(await list({ routes: [] })).toEqual([]);
+    expect(await list({ kind: 'none' })).toEqual([ids[2]]);
+    expect(await list({ kind: 'no' })).toEqual([ids[3]]);
+    const counts = await transportCounts(cycle.cycleId, 'transport_stop');
+    expect(counts).toEqual(
+      expect.arrayContaining([
+        { value: 'mirpur_micro:m10', status: 'admitted', count: 1 },
+        { value: 'uttara_auto:s18', status: 'paid', count: 1 },
+        { value: 'none', status: 'paid', count: 1 },
+        { value: null, status: 'paid', count: 1 },
+      ]),
+    );
+    expect(await transportAreas(cycle.cycleId, 'transport_stop', 'transport_area')).toEqual([{ area: 'বনানী', count: 1 }]);
   });
 
   it('keeps a class taken out of the form for filters and IDs while an application chose it', async () => {

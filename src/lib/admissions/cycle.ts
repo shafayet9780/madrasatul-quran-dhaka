@@ -30,6 +30,23 @@ export const FORM_QUERY = `*[_type == "preAdmissionForm" && !(_id in path("draft
 }`;
 
 /**
+ * Seats per route (Fees, discounts & transport → Routes → Seats), read from Sanity for the admin's
+ * transport counts (refreshed on publish): office data, so it is not frozen with the form, and a
+ * hidden route keeps its seats.
+ */
+export async function routeSeats(): Promise<Record<string, number>> {
+  type Route = { _key?: string; seats?: number };
+  const local = localOverrides();
+  let routes: Route[] | null | undefined;
+  if (local) routes = (local.form.fees?.transportRoutes as Route[] | undefined) ?? [];
+  else {
+    const { sanityFetch } = await import('@/lib/sanity-fetch');
+    routes = await sanityFetch<Route[] | null>({ query: `*[_id == "feeSettings"][0].transportRoutes[]{ _key, seats }`, tags: ['feeSettings'] });
+  }
+  return Object.fromEntries((routes ?? []).filter((r) => r._key && Number.isInteger(r.seats) && r.seats! > 0).map((r) => [r._key!, r.seats!]));
+}
+
+/**
  * Class codes that read an application ID: the current form's (closed classes included) and every
  * code that has given an ID this cycle, so a class since taken out of the form still works.
  */
@@ -42,8 +59,8 @@ export async function idClassCodes(cycleId: string, current: FormSnapshot): Prom
  * Every class of the cycle with its label: the current form's, then a class since taken out of the
  * form that gave an ID, labelled as in the newest version that had it. For the admin filters and chart.
  */
-export async function cycleClasses(cycleId: string, current: FormSnapshot): Promise<FormOption[]> {
-  const [codes, answered] = await Promise.all([idClassCodes(cycleId, current), loadAnsweredSnapshots(cycleId)]);
+export async function cycleClasses(cycleId: string, current: FormSnapshot, versions?: Map<number, FormSnapshot> | Promise<Map<number, FormSnapshot>>): Promise<FormOption[]> {
+  const [codes, answered] = await Promise.all([idClassCodes(cycleId, current), versions ?? loadAnsweredSnapshots(cycleId)]);
   const older = [...answered].sort(([a], [b]) => b - a).map(([, snapshot]) => snapshot);
   const keep = new Set(codes);
   return classesAcrossVersions([current, ...older]).filter((o) => keep.has(o.code!));
@@ -123,15 +140,18 @@ export async function loadSnapshot(cycleId: string, version: number): Promise<Fo
   return row?.snapshot ?? null;
 }
 
-/** The current version and every version a submitted application was answered against (export columns). */
-export async function loadAnsweredSnapshots(cycleId: string): Promise<Map<number, FormSnapshot>> {
+/**
+ * The current version and every version a submitted application was answered against (export
+ * columns); with `drafts`, also those of applications not yet paid (labels for answers counted from the start page).
+ */
+export async function loadAnsweredSnapshots(cycleId: string, { drafts = false }: { drafts?: boolean } = {}): Promise<Map<number, FormSnapshot>> {
   const db = getAdmissionsDb();
   const [cycle, used] = await Promise.all([
     db.select({ version: admissionCycles.currentVersion }).from(admissionCycles).where(eq(admissionCycles.id, cycleId)),
     db
       .selectDistinct({ version: applications.snapshotVersion })
       .from(applications)
-      .where(and(eq(applications.cycleId, cycleId), isNotNull(applications.publicRef))),
+      .where(and(eq(applications.cycleId, cycleId), drafts ? undefined : isNotNull(applications.publicRef))),
   ]);
   const versions = [...new Set([...cycle, ...used].map((r) => r.version))];
   if (!versions.length) return new Map();

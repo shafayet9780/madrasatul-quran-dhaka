@@ -8,7 +8,8 @@ import { answerText } from '@/lib/admissions/answer-text';
 import { chapterStatus, isVisible, type FileAnswer } from '@/lib/admissions/answers';
 import { asLocale, num, taka, txt } from '@/lib/admissions/display';
 import { countOtherApplications } from '@/lib/admissions/drafts';
-import { allFields, guardianSections, type FormField } from '@/lib/admissions/form-config';
+import { allFields, type FormField } from '@/lib/admissions/form-config';
+import { guardianSections } from '@/lib/admissions/answers';
 import { flowPath, requireDraft } from '@/lib/admissions/pages';
 import { pledgeStatus } from '@/lib/admissions/pledge';
 import { applicationFee } from '@/lib/admissions/payments';
@@ -31,7 +32,7 @@ export default async function ReviewPage({ params }: Props) {
   const t = await getTranslations({ locale, namespace: 'preAdmission' });
   const { app, snapshot } = await requireDraft(locale);
   const { settings } = snapshot;
-  const chapters = guardianSections(snapshot);
+  const chapters = guardianSections(snapshot, app.answers);
   const pledge = pledgeStatus(snapshot, app);
   const incomplete = [
     ...chapters.filter((s) => chapterStatus(s, app.answers, allFields(snapshot)).status !== 'done').map((s) => ({ key: s.key, title: txt(s.title, locale), href: flowPath(locale, `/form/${s.key}`) })),

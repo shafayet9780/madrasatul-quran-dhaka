@@ -1,4 +1,5 @@
 import type { FormOption } from './form-config';
+import { num, type Locale } from './display';
 
 export type Age = { years: number; months: number };
 
@@ -41,4 +42,26 @@ export function classesForAge(options: FormOption[], age: Age | null): string[] 
     .filter((o) => o.ageMin != null || o.ageMax != null)
     .filter((o) => (o.ageMin == null || age.years >= o.ageMin) && (o.ageMax == null || age.years < o.ageMax))
     .map((o) => o.value);
+}
+
+/** "১ জানুয়ারি ২০২৭" / "1 January 2027": the day ages are counted on. */
+export function ageDateText(session: string, locale: Locale): string {
+  const year = sessionStart(session).slice(0, 4);
+  return locale === 'bengali' ? `১ জানুয়ারি ${num(year, locale)}` : `1 January ${year}`;
+}
+
+/** The age at the session start from a date of birth answer, or null. */
+export function sessionAge(dateOfBirth: unknown, session: string): Age | null {
+  return typeof dateOfBirth === 'string' ? ageOn(dateOfBirth, sessionStart(session)) : null;
+}
+
+/** "৭ বছর ৯ মাস" / "7 years 9 months". */
+export function ageText(age: Age, locale: Locale): string {
+  return locale === 'bengali' ? `${num(age.years, locale)} বছর ${num(age.months, locale)} মাস` : `${age.years} years ${age.months} months`;
+}
+
+/** The age on 1 January of the session as text ("৫ বছর ৯ মাস"), or '' when the date of birth is missing or invalid. */
+export function sessionAgeText(dateOfBirth: unknown, session: string, locale: Locale): string {
+  const age = sessionAge(dateOfBirth, session);
+  return age ? ageText(age, locale) : '';
 }
