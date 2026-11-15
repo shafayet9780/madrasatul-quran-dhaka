@@ -33,12 +33,16 @@ export type ExportPayment = { amount: number; tranId: string; bankTranId: string
 /** Answered in the fixed columns, so not repeated among the field columns. */
 const FIXED_ROLES: readonly Role[] = ['studentNameBn', 'studentNameEn', 'dateOfBirth', 'primaryMobile', 'email'];
 
+/** Stands for "বয়স (১ জানুয়ারি ২০২৭)", the session's year filled in by exportHeader. */
+const AGE_COLUMN = 'বয়স';
+
 const FIXED_HEADER = [
   'আবেদন আইডি',
   'অবস্থা',
   'শিক্ষার্থীর নাম',
   'Student name',
   'জন্ম তারিখ',
+  AGE_COLUMN,
   'অভিভাবকের মোবাইল',
   'ইমেইল',
   'আবেদন ফি (৳)',
@@ -130,9 +134,8 @@ export function exportHeader(form: ExportForm): string[] {
   // Still the same (a question deleted and added again under a new key): the key tells them apart.
   const seen = new Map<string, number>();
   for (const { name } of named) seen.set(name, (seen.get(name) ?? 0) + 1);
-  const header = [...FIXED_HEADER];
   // The age on 1 January of the session, beside the date of birth.
-  header.splice(header.indexOf('জন্ম তারিখ') + 1, 0, `বয়স (${ageDateText(form.latest.settings.session, 'bengali')})`);
+  const header = FIXED_HEADER.map((h) => (h === AGE_COLUMN ? `বয়স (${ageDateText(form.latest.settings.session, 'bengali')})` : h));
   return [...header, ...named.map(({ name, key }) => ((seen.get(name) ?? 0) > 1 ? `${name} [${key}]` : name))];
 }
 

@@ -30,10 +30,10 @@ describe('how they heard, on the start page', () => {
     expect(keysIn({ heard_from: 'facebook' })).toContain('heard_from');
   });
 
-  it('keeps them in the chapter while the answer is not valid or “other” has no line yet', () => {
+  it('keeps them in the chapter while the answer is not valid, not for an empty optional “other” line', () => {
     // An option the office removed since: the guardian must be able to choose again.
     expect(keysIn({ heard_from: ['gone'] })).toContain('heard_from');
-    expect(keysIn({ heard_from: ['other'] })).toEqual(expect.arrayContaining(['heard_from', 'heard_from_other']));
+    expect(keysIn({ heard_from: ['other'] })).not.toContain('heard_from_other');
     expect(keysIn({ heard_from: ['other'], heard_from_other: 'মসজিদ' })).not.toContain('heard_from');
   });
 

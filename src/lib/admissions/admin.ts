@@ -5,7 +5,7 @@ import type { FileAnswer } from './answers';
 import { loadSnapshot } from './cycle';
 import { getAdmissionsDb } from './db';
 import { label, logEvent, type Application } from './drafts';
-import type { FormSnapshot } from './form-config';
+import { NO_ROUTE, type FormSnapshot } from './form-config';
 import { parseApplicationId } from './ids';
 import { normaliseMobile, toAsciiDigits } from './normalise';
 import { admissionCycles, applicationEvents, applications, payments } from './schema';
@@ -83,7 +83,7 @@ function searchCondition(q: string, classCodes: string[]): SQL | undefined {
  */
 function transportCondition(key: string, filter: NonNullable<ListParams['transport']>['filter']): SQL | undefined {
   const stop = sql`${applications.answers} ->> ${key}`;
-  if ('kind' in filter) return filter.kind === 'none' ? sql`${stop} = 'none'` : sql`${stop} IS NULL`;
+  if ('kind' in filter) return filter.kind === 'none' ? sql`${stop} = ${NO_ROUTE}` : sql`${stop} IS NULL`;
   return filter.routes.length ? and(sql`${stop} LIKE '%:%'`, inArray(sql`split_part(${stop}, ':', 1)`, filter.routes)) : sql`false`;
 }
 
@@ -353,7 +353,7 @@ export async function transportAreas(cycleId: string, stopKey: string, areaKey: 
   return getAdmissionsDb()
     .select({ area, count: sql<number>`count(*)::int` })
     .from(applications)
-    .where(and(eq(applications.cycleId, cycleId), isNotNull(applications.publicRef), sql`${applications.answers} ->> ${stopKey} = 'none'`))
+    .where(and(eq(applications.cycleId, cycleId), isNotNull(applications.publicRef), sql`${applications.answers} ->> ${stopKey} = ${NO_ROUTE}`))
     .groupBy(sql`1`)
     .orderBy(sql`2 DESC`, sql`1`);
 }

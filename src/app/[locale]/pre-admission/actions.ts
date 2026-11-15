@@ -27,7 +27,8 @@ export async function startApplication(localeParam: string, _prev: StartState, f
   try {
     if (!(await withinLimit('start'))) return { message: 'rateLimited' };
     const cycle = await getCurrentCycle();
-    if (!cycle) return { message: 'closed' };
+    // Closed (or past the deadline) is said before any field error.
+    if (!cycle || !cycle.enabled || cycle.window !== 'open') return { message: 'closed' };
     const attribution = Object.fromEntries(
       ATTRIBUTION_KEYS.map((k) => [k, String(form.get(k) ?? '').slice(0, 200)]).filter(([, v]) => v),
     );

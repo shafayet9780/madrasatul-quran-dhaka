@@ -80,7 +80,7 @@ const LIST = '/admin/admissions/applications';
  * Transport: per route, paid applications that asked for it and the seats booked (admitted), with
  * the seats set in the Studio; each route opens its stops. The requests open the list they count.
  */
-function TransportCard({ summary, areas }: { summary: TransportSummary; areas: { area: string; count: number }[] }) {
+function TransportCard({ summary, current, areas }: { summary: TransportSummary; current: Set<string>; areas: { area: string; count: number }[] }) {
   const num = (n: number, href: string) =>
     n ? (
       <Link href={href} className={LINK}>
@@ -110,7 +110,8 @@ function TransportCard({ summary, areas }: { summary: TransportSummary; areas: {
             </tr>
           </thead>
           <tbody>
-            {summary.routes.map((r) => {
+            {/* A route no longer in the form shows only while applications chose it. */}
+            {summary.routes.filter((r) => current.has(r.route.key) || r.requested > 0).map((r) => {
               const href = `${LIST}?transport=route:${encodeURIComponent(r.route.key)}`;
               return (
                 <tr key={r.route.key} className="align-top [&>td]:border-t [&>td]:py-2">
@@ -206,15 +207,18 @@ export default async function AdmissionsOverview() {
   const { snapshot } = cycle;
   const heard = fieldWithRole(snapshot, 'heardFrom');
   const stop = transportFields(snapshot);
-  const [o, versions, stopCounts, areas, seats] = await Promise.all([
+  // Drafts' versions too: how they heard counts started applications, so their labels are needed.
+  const loading = loadAnsweredSnapshots(cycle.cycleId, { drafts: true });
+  const [o, versions, classes, stopCounts, areas, seats] = await Promise.all([
     overview(cycle.cycleId, heard?.key ?? null),
-    loadAnsweredSnapshots(cycle.cycleId),
+    loading,
+    classOptions(cycle, loading),
     stop ? transportCounts(cycle.cycleId, stop.field.key) : [],
     stop?.area ? transportAreas(cycle.cycleId, stop.field.key, stop.area.key) : [],
     // Seats are office data from the Studio; without them the card still shows requests and bookings.
     stop ? routeSeats().catch(() => ({})) : {},
   ]);
-  const [classes, transport] = [await classOptions(cycle, versions), adminTransport(cycle, versions)];
+  const transport = adminTransport(cycle, versions);
   const now = new Date();
   const days = dailySeries(o.byDay, now);
   const today = days.at(-1)?.count ?? 0;
@@ -353,7 +357,13 @@ export default async function AdmissionsOverview() {
           </Card>
         </div>
 
-        {transport && <TransportCard summary={transportSummary(transport.transport, stopCounts, seats)} areas={areas} />}
+        {transport && (
+          <TransportCard
+            summary={transportSummary(transport.transport, stopCounts, seats)}
+            current={new Set((snapshot.transport?.routes ?? []).map((r) => r.key))}
+            areas={areas}
+          />
+        )}
 
         <TestPassCard />
       </PageBody>

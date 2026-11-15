@@ -211,17 +211,13 @@ export function chapterStatus(section: FormSection, answers: Answers, fields?: F
 
 /**
  * The chapters the guardian fills in: mobile and email (start page) left out, empty chapters
- * dropped. How they heard (start page too) is left out once it is answered in full, its write-in
- * included; a draft started before it moved there, or whose answer the office's form changes made
- * invalid, finds it in its chapter.
+ * dropped. How they heard (start page too) is left out once its answer is valid; a draft started
+ * before it moved there, or whose answer the office's form changes made invalid, finds it in its chapter.
  */
 export function guardianSections(snapshot: Pick<FormSnapshot, 'sections'>, answers: Answers): FormSection[] {
   const start = startQuestions(snapshot);
-  const done =
-    start.length > 0 &&
-    !isEmpty(answers[start[0].key]) &&
-    Object.keys(checkSection({ fields: start } as FormSection, answers).errors).length === 0 &&
-    start.slice(1).every((f) => !isVisible(f, answers) || !isEmpty(answers[f.key]));
+  // Accepted as the start page accepts it (an optional "other" line may stay empty).
+  const done = start.length > 0 && !isEmpty(answers[start[0].key]) && Object.keys(checkSection({ fields: start } as FormSection, answers).errors).length === 0;
   const moved = new Set(done ? start.map((f) => f.key) : []);
   return snapshot.sections
     .map((s) => ({ ...s, fields: s.fields.filter((f) => !moved.has(f.key) && !(f.role && START_ROLES.includes(f.role))) }))

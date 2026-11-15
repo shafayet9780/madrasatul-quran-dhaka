@@ -22,7 +22,7 @@ export type ListSearch = { q?: string; class?: string; status?: string; eval?: s
 const PAGE_SIZE = 25;
 
 /** Every class of the cycle, a class since taken out of the form included (cycleClasses). */
-export const classOptions = async (cycle: AdminCycle, versions?: Map<number, FormSnapshot>) =>
+export const classOptions = async (cycle: AdminCycle, versions?: Map<number, FormSnapshot> | Promise<Map<number, FormSnapshot>>) =>
   (await cycleClasses(cycle.cycleId, cycle.snapshot, versions)).map((o) => ({ value: o.code!, label: txt(o.label, 'bengali'), optionValue: o.value }));
 
 /**
@@ -95,8 +95,8 @@ export async function ListPage({ tab, search }: { tab: ListTab; search: ListSear
   const cycle = await adminCycle();
   if (!cycle) return <NoCycle />;
   // The form versions answered: read once, for the class filter and the transport routes.
-  const versions = await loadAnsweredSnapshots(cycle.cycleId);
-  const classes = await classOptions(cycle, versions);
+  const loading = loadAnsweredSnapshots(cycle.cycleId);
+  const [versions, classes] = await Promise.all([loading, classOptions(cycle, loading)]);
   const transport = tab === 'paid' ? adminTransport(cycle, versions) : null;
   const transportChoice = transport ? transportFilter(transport.transport, search.transport) : null;
   const page = Math.max(1, Number(search.page) || 1);
