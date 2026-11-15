@@ -59,3 +59,9 @@ export function sessionAge(dateOfBirth: unknown, session: string): Age | null {
 export function ageText(age: Age, locale: Locale): string {
   return locale === 'bengali' ? `${num(age.years, locale)} বছর ${num(age.months, locale)} মাস` : `${age.years} years ${age.months} months`;
 }
+
+/** The age on 1 January of the session as text ("৫ বছর ৯ মাস"), or '' when the date of birth is missing or invalid. */
+export function sessionAgeText(dateOfBirth: unknown, session: string, locale: Locale): string {
+  const age = sessionAge(dateOfBirth, session);
+  return age ? ageText(age, locale) : '';
+}

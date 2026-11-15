@@ -9,7 +9,7 @@ const transport: Transport = {
     { key: 'auto', name: bi('অটো'), monthly: 2500 },
   ],
   routes: [
-    { key: 'mirpur_micro', name: bi('মিরপুর মাইক্রো'), area: bi('মিরপুর'), vehicle: 'micro', seats: 10, stops: [{ key: 'm10', name: bi('মিরপুর ১০') }, { key: 'm13', name: bi('মিরপুর ১৩') }] },
+    { key: 'mirpur_micro', name: bi('মিরপুর মাইক্রো'), area: bi('মিরপুর'), vehicle: 'micro', stops: [{ key: 'm10', name: bi('মিরপুর ১০') }, { key: 'm13', name: bi('মিরপুর ১৩') }] },
     { key: 'uttara_auto', name: bi('উত্তরা অটো'), area: bi('উত্তরা'), vehicle: 'auto', stops: [{ key: 's18', name: bi('সেক্টর ১৮') }] },
   ],
 };
@@ -25,7 +25,7 @@ describe('transport summary', () => {
       { value: 'none', status: 'paid', count: 2 },
       { value: null, status: 'admitted', count: 5 },
       { value: 'gone:x', status: 'paid', count: 1 },
-    ]);
+    ], { mirpur_micro: 10 });
     const [mirpur, uttara] = s.routes;
     expect(mirpur).toMatchObject({ requested: 10, booked: 4, left: 6 });
     expect(mirpur.stops.map((x) => [x.stop.key, x.requested, x.booked])).toEqual([
@@ -47,12 +47,18 @@ describe('transport summary', () => {
     expect(transportFilterOptions(transport, 'bengali').map((o) => o.value)).toEqual(['any', 'route:mirpur_micro', 'route:uttara_auto', 'vehicle:micro', 'vehicle:auto', 'none', 'no']);
   });
 
-  it('keeps a route hidden since guardians chose it, the newest version winning', () => {
-    const newer: Transport = { ...transport, routes: [{ ...transport.routes[0], seats: 12 }] };
+  it('keeps a route or stop hidden since guardians chose it, the newest wording winning', () => {
+    // Newer: Mirpur renamed, its first stop (m10) deleted and a new one added; Uttara hidden.
+    const newer: Transport = {
+      ...transport,
+      routes: [{ ...transport.routes[0], name: bi('মিরপুর মাইক্রো (নতুন)'), stops: [{ key: 'm13', name: bi('মিরপুর ১৩') }, { key: 'm11', name: bi('মিরপুর ১১') }] }],
+    };
     const merged = transportAcrossVersions([{ transport: newer }, { transport }])!;
-    expect(merged.routes.map((r) => [r.key, r.seats])).toEqual([
-      ['mirpur_micro', 12],
-      ['uttara_auto', undefined],
+    expect(merged.routes.map((r) => [r.key, r.name.bengali, r.stops.map((x) => x.key)])).toEqual([
+      ['mirpur_micro', 'মিরপুর মাইক্রো (নতুন)', ['m10', 'm13', 'm11']],
+      ['uttara_auto', 'উত্তরা অটো', ['s18']],
     ]);
+    // Bookings at the deleted stop still count on the route.
+    expect(transportSummary(merged, [{ value: 'mirpur_micro:m10', status: 'admitted', count: 4 }], { mirpur_micro: 10 }).routes[0]).toMatchObject({ booked: 4, left: 6 });
   });
 });

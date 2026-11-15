@@ -116,8 +116,6 @@ const transport = z.object({
       area: text,
       vehicle: z.string().min(1),
       stops: z.array(z.object({ key: z.string().min(1), name: text })).min(1),
-      /** For the office: seats on the route's vehicle (admin transport counts); never shown to guardians. */
-      seats: z.number().int().positive().optional(),
     }),
   ),
 });
@@ -397,20 +395,4 @@ export function classesAcrossVersions(snapshots: Pick<FormSnapshot, 'sections'>[
 export function startQuestions(snapshot: Pick<FormSnapshot, 'sections'>): FormField[] {
   const heard = fieldWithRole(snapshot, 'heardFrom');
   return heard ? [heard, ...allFields(snapshot).filter((f) => f.showWhen?.field === heard.key)] : [];
-}
-
-/** A choice answer the start page would accept the way it is (a one-choice answer to a multiple-choice question is asked again). */
-const hasChoice = (f: FormField, v: unknown) =>
-  f.type === 'checkbox' ? Array.isArray(v) && v.length > 0 : typeof v === 'string' && v !== '';
-
-/**
- * The chapters the guardian fills in: start-page questions left out, empty chapters dropped. A
- * draft started before how they heard moved to the start page (no answer yet) still finds it in its chapter.
- */
-export function guardianSections(snapshot: Pick<FormSnapshot, 'sections'>, answers: Record<string, unknown>): FormSection[] {
-  const start = startQuestions(snapshot);
-  const moved = start.length && hasChoice(start[0], answers[start[0].key]) ? new Set(start.map((f) => f.key)) : new Set<string>();
-  return snapshot.sections
-    .map((s) => ({ ...s, fields: s.fields.filter((f) => !moved.has(f.key) && !(f.role && START_ROLES.includes(f.role))) }))
-    .filter((s) => s.fields.length > 0);
 }

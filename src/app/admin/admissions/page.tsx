@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { adminCycle, overview, transportAreas, transportCounts } from '@/lib/admissions/admin';
-import { loadAnsweredSnapshots } from '@/lib/admissions/cycle';
+import { loadAnsweredSnapshots, routeSeats } from '@/lib/admissions/cycle';
 import { STATUS_LABEL, shortDate } from '@/lib/admissions/admin-labels';
 import { transportSummary, type TransportSummary } from '@/lib/admissions/transport';
 import { dateTime, taka, txt } from '@/lib/admissions/display';
@@ -11,9 +11,9 @@ import { TEST_FEE } from '@/lib/admissions/payments';
 import { hasTestPass } from '@/lib/admissions/test-pass';
 import { cn } from '@/lib/utils';
 import { PageTop } from '../AdminShell';
-import { ExportButton, NoCycle, OfflineFormButton, adminTransport, classOptions } from './ListPage';
+import { ExportButton, NoCycle, OfflineFormButton, adminTransport, classOptions, transportFields } from './ListPage';
 import { TestPass } from './DetailControls';
-import { Card, LAT, PageBody, PageTitle, StatTile, StatTiles } from '../ui';
+import { Card, LAT, LINK, PageBody, PageTitle, StatTile, StatTiles } from '../ui';
 
 export const metadata: Metadata = { title: 'ভর্তি ওভারভিউ' };
 export const dynamic = 'force-dynamic';
@@ -83,7 +83,7 @@ const LIST = '/admin/admissions/applications';
 function TransportCard({ summary, areas }: { summary: TransportSummary; areas: { area: string; count: number }[] }) {
   const num = (n: number, href: string) =>
     n ? (
-      <Link href={href} className="text-foreground underline decoration-muted-foreground/50 underline-offset-4 hover:decoration-foreground">
+      <Link href={href} className={LINK}>
         {n}
       </Link>
     ) : (
@@ -93,9 +93,8 @@ function TransportCard({ summary, areas }: { summary: TransportSummary; areas: {
   const booked = summary.routes.reduce((n, r) => n + r.booked, 0);
   const typed = areas.filter((a) => a.area);
   return (
-    <Card>
-      <h2 className="m-0 text-[15px] font-semibold">পরিবহন</h2>
-      <p className="m-0 mt-0.5 text-[13px] text-muted-foreground">
+    <Card title="পরিবহন">
+      <p className="-mt-2 mb-0 text-[13px] text-muted-foreground">
         চেয়েছেন: পরিশোধিত আবেদনে রুট বাছাই করেছেন · বুকড: অবস্থা ‘{STATUS_LABEL.admitted}’ বা ‘{STATUS_LABEL.sent_to_erp}’ · আসন সংখ্যা স্টুডিওতে (ফি ও পরিবহন → রুট)
       </p>
       <div className="mt-3 overflow-x-auto">
@@ -135,7 +134,7 @@ function TransportCard({ summary, areas }: { summary: TransportSummary; areas: {
                   <td>{txt(r.vehicle?.name, 'bengali')}</td>
                   <td className={cn(LAT, 'text-right')}>{num(r.requested, href)}</td>
                   <td className={cn(LAT, 'text-right font-medium')}>{r.booked}</td>
-                  <td className={cn(LAT, 'text-right')}>{r.route.seats ?? <span className="text-muted-foreground">–</span>}</td>
+                  <td className={cn(LAT, 'text-right')}>{r.seats ?? <span className="text-muted-foreground">–</span>}</td>
                   <td className={cn(LAT, 'text-right', r.left != null && r.left < 0 && 'font-medium text-destructive')}>{r.left ?? <span className="text-muted-foreground">–</span>}</td>
                 </tr>
               );
@@ -206,15 +205,16 @@ export default async function AdmissionsOverview() {
     );
   const { snapshot } = cycle;
   const heard = fieldWithRole(snapshot, 'heardFrom');
-  const [o, classes, versions, transport] = await Promise.all([
+  const stop = transportFields(snapshot);
+  const [o, versions, stopCounts, areas, seats] = await Promise.all([
     overview(cycle.cycleId, heard?.key ?? null),
-    classOptions(cycle),
     loadAnsweredSnapshots(cycle.cycleId),
-    adminTransport(cycle),
+    stop ? transportCounts(cycle.cycleId, stop.field.key) : [],
+    stop?.area ? transportAreas(cycle.cycleId, stop.field.key, stop.area.key) : [],
+    // Seats are office data from the Studio; without them the card still shows requests and bookings.
+    stop ? routeSeats().catch(() => ({})) : {},
   ]);
-  const [stopCounts, areas] = transport
-    ? await Promise.all([transportCounts(cycle.cycleId, transport.field.key), transport.area ? transportAreas(cycle.cycleId, transport.field.key, transport.area.key) : []])
-    : [[], []];
+  const [classes, transport] = [await classOptions(cycle, versions), adminTransport(cycle, versions)];
   const now = new Date();
   const days = dailySeries(o.byDay, now);
   const today = days.at(-1)?.count ?? 0;
@@ -225,7 +225,7 @@ export default async function AdmissionsOverview() {
   // Answers given before an option was renamed or removed keep the label of the version they answered.
   const heardOptions = [heard, ...[...versions.values()].map((v) => fieldWithRole(v, 'heardFrom'))].flatMap((f) => f?.options ?? []);
   const heardRows = heard
-    ? o.heardFrom.map((h) => ({ label: h.value ? txt(heardOptions.find((x) => x.value === h.value)?.label, 'bengali') || h.value : 'উত্তর নেই', count: h.paid, started: h.started }))
+    ? o.heardFrom.map((h) => ({ label: h.value ? txt(heardOptions.find((x) => x.value === h.value)?.label, 'bengali') || h.value : 'উত্তর নেই', count: h.paid, started: h.started, value: h.value }))
     : [];
 
   const closesAt = snapshot.settings.closesAt ? new Date(snapshot.settings.closesAt) : null;
@@ -311,7 +311,7 @@ export default async function AdmissionsOverview() {
                     </thead>
                     <tbody>
                       {heardRows.map((r) => (
-                        <tr key={r.label} className="[&>td]:border-t [&>td]:py-1.5">
+                        <tr key={r.value} className="[&>td]:border-t [&>td]:py-1.5">
                           <td>{r.label}</td>
                           <td className={cn(LAT, 'text-right')}>{r.started}</td>
                           <td className={cn(LAT, 'text-right font-medium')}>{r.count}</td>
@@ -353,7 +353,7 @@ export default async function AdmissionsOverview() {
           </Card>
         </div>
 
-        {transport && <TransportCard summary={transportSummary(transport.transport, stopCounts)} areas={areas} />}
+        {transport && <TransportCard summary={transportSummary(transport.transport, stopCounts, seats)} areas={areas} />}
 
         <TestPassCard />
       </PageBody>

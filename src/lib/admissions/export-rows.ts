@@ -1,9 +1,9 @@
-import { ageDateText, sessionAge } from './age';
+import { ageDateText, sessionAgeText } from './age';
 import type { AnswerValue, Answers } from './answers';
 import { STATUS_LABEL, type ApplicationStatus } from './admin-labels';
 import { txt } from './display';
 import { FILE_MISSING, NO_ROUTE, NO_ROUTE_LABEL, allFields, type FormField, type FormSnapshot, type Role } from './form-config';
-import { normaliseMobile } from './normalise';
+import { normaliseMobile, toAsciiDigits } from './normalise';
 import { findStop } from './transport';
 
 // One row per paid application for the Excel export and the Google Sheet copy (ERP-ready: one
@@ -136,12 +136,6 @@ export function exportHeader(form: ExportForm): string[] {
   return [...header, ...named.map(({ name, key }) => ((seen.get(name) ?? 0) > 1 ? `${name} [${key}]` : name))];
 }
 
-/** "7 বছর 9 মাস" (ASCII digits, like the rest of the export). */
-function ageCell(dateOfBirth: string | null, session: string): string {
-  const age = sessionAge(dateOfBirth, session);
-  return age ? `${age.years} বছর ${age.months} মাস` : '';
-}
-
 export function exportRow(form: ExportForm, app: ExportApplication, payment: ExportPayment): string[] {
   const own = form.versions.get(app.snapshotVersion) ?? form.latest;
   const ownFields = new Map(allFields(own).map((f) => [f.key, f]));
@@ -151,7 +145,8 @@ export function exportRow(form: ExportForm, app: ExportApplication, payment: Exp
     app.studentNameBn ?? '',
     app.studentNameEn ?? '',
     app.dateOfBirth ?? '',
-    ageCell(app.dateOfBirth, form.latest.settings.session),
+    // ASCII digits, like the rest of the export: "7 বছর 9 মাস".
+    toAsciiDigits(sessionAgeText(app.dateOfBirth, form.latest.settings.session, 'bengali')),
     plainMobile(app.primaryMobile),
     app.email,
     payment ? String(payment.amount) : '',

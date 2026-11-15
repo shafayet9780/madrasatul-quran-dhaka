@@ -1,5 +1,5 @@
 import { parseIsoDate } from './age';
-import { FILE_MISSING, allFields, startQuestions, type FormField, type FormSection, type FormSnapshot } from './form-config';
+import { FILE_MISSING, START_ROLES, allFields, startQuestions, type FormField, type FormSection, type FormSnapshot } from './form-config';
 import { normaliseEmail, normaliseMobile, toAsciiDigits } from './normalise';
 
 // Answers are stored per field key. The same rules run in the browser (inline errors, chapter
@@ -207,6 +207,25 @@ export function chapterStatus(section: FormSection, answers: Answers, fields?: F
   const touched = section.fields.some((f) => !isEmpty(answers[f.key]));
   const status: ChapterStatus = Object.keys(check.errors).length === 0 ? 'done' : touched ? 'in_progress' : 'not_started';
   return { status, required: check.required, answered: check.answered };
+}
+
+/**
+ * The chapters the guardian fills in: mobile and email (start page) left out, empty chapters
+ * dropped. How they heard (start page too) is left out once it is answered in full, its write-in
+ * included; a draft started before it moved there, or whose answer the office's form changes made
+ * invalid, finds it in its chapter.
+ */
+export function guardianSections(snapshot: Pick<FormSnapshot, 'sections'>, answers: Answers): FormSection[] {
+  const start = startQuestions(snapshot);
+  const done =
+    start.length > 0 &&
+    !isEmpty(answers[start[0].key]) &&
+    Object.keys(checkSection({ fields: start } as FormSection, answers).errors).length === 0 &&
+    start.slice(1).every((f) => !isVisible(f, answers) || !isEmpty(answers[f.key]));
+  const moved = new Set(done ? start.map((f) => f.key) : []);
+  return snapshot.sections
+    .map((s) => ({ ...s, fields: s.fields.filter((f) => !moved.has(f.key) && !(f.role && START_ROLES.includes(f.role))) }))
+    .filter((s) => s.fields.length > 0);
 }
 
 /** Start page: how they heard (and its write-in) checked like a chapter, from the posted answers. */

@@ -42,7 +42,8 @@ export type RouteSummary = {
   vehicle?: Transport['vehicles'][number];
   requested: number;
   booked: number;
-  /** Seats left (seats less booked), when the route has seats set; can go below zero. */
+  /** Seats set in the Studio (routeSeats), and those left (seats less booked; can go below zero). */
+  seats: number | null;
   left: number | null;
   stops: { stop: TransportRoute['stops'][number]; requested: number; booked: number }[];
 };
@@ -64,12 +65,13 @@ const isBooked = (status: string) => (BOOKED_STATUSES as readonly string[]).incl
  * against the current routes. A submitted application keeps only the answers it showed, so a stop
  * answer always means the guardian asked for transport. Pure.
  */
-export function transportSummary(transport: Transport | undefined, counts: StopCount[]): TransportSummary {
+export function transportSummary(transport: Transport | undefined, counts: StopCount[], seats: Record<string, number> = {}): TransportSummary {
   const routes: RouteSummary[] = (transport?.routes ?? []).map((route) => ({
     route,
     vehicle: transport!.vehicles.find((v) => v.key === route.vehicle),
     requested: 0,
     booked: 0,
+    seats: seats[route.key] ?? null,
     left: null,
     stops: route.stops.map((stop) => ({ stop, requested: 0, booked: 0 })),
   }));
@@ -94,7 +96,7 @@ export function transportSummary(transport: Transport | undefined, counts: StopC
       }
     }
   }
-  for (const r of routes) r.left = r.route.seats != null ? r.route.seats - r.booked : null;
+  for (const r of routes) r.left = r.seats != null ? r.seats - r.booked : null;
   return summary;
 }
 
@@ -122,14 +124,27 @@ export function transportFilter(transport: Transport | undefined, choice: string
 }
 
 /**
- * The routes and vehicles of several form versions, newest first: a route hidden or deleted since
- * guardians chose it still counts. The newest version's wording and seats win.
+ * The routes and vehicles of several form versions, newest first: a route or stop hidden or deleted
+ * since guardians chose it still counts (an old stop goes after the stop it followed). The newest
+ * version's wording wins.
  */
 export function transportAcrossVersions(snapshots: { transport?: Transport }[]): Transport | undefined {
   const routes = new Map<string, TransportRoute>();
   const vehicles = new Map<string, Transport['vehicles'][number]>();
   for (const s of snapshots) {
-    for (const r of s.transport?.routes ?? []) if (!routes.has(r.key)) routes.set(r.key, r);
+    for (const r of s.transport?.routes ?? []) {
+      const known = routes.get(r.key);
+      if (!known) {
+        routes.set(r.key, { ...r, stops: [...r.stops] });
+        continue;
+      }
+      let at = 0;
+      for (const stop of r.stops) {
+        const i = known.stops.findIndex((x) => x.key === stop.key);
+        if (i >= 0) at = i + 1;
+        else known.stops.splice(at++, 0, stop);
+      }
+    }
     for (const v of s.transport?.vehicles ?? []) if (!vehicles.has(v.key)) vehicles.set(v.key, v);
   }
   return routes.size ? { routes: [...routes.values()], vehicles: [...vehicles.values()] } : undefined;

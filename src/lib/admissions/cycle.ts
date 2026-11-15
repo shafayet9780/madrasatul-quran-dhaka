@@ -30,6 +30,22 @@ export const FORM_QUERY = `*[_type == "preAdmissionForm" && !(_id in path("draft
 }`;
 
 /**
+ * Seats per route (Fees, discounts & transport → Routes → Seats), read live for the admin's
+ * transport counts: office data, so it is not frozen with the form, and a hidden route keeps its seats.
+ */
+export async function routeSeats(): Promise<Record<string, number>> {
+  type Route = { _key?: string; seats?: number };
+  const local = localOverrides();
+  let routes: Route[] | null | undefined;
+  if (local) routes = (local.form.fees?.transportRoutes as Route[] | undefined) ?? [];
+  else {
+    const { sanityFetch } = await import('@/lib/sanity-fetch');
+    routes = await sanityFetch<Route[] | null>({ query: `*[_id == "feeSettings"][0].transportRoutes[]{ _key, seats }`, tags: ['feeSettings'], revalidate: 60 });
+  }
+  return Object.fromEntries((routes ?? []).filter((r) => r._key && Number.isInteger(r.seats) && r.seats! > 0).map((r) => [r._key!, r.seats!]));
+}
+
+/**
  * Class codes that read an application ID: the current form's (closed classes included) and every
  * code that has given an ID this cycle, so a class since taken out of the form still works.
  */
@@ -42,8 +58,8 @@ export async function idClassCodes(cycleId: string, current: FormSnapshot): Prom
  * Every class of the cycle with its label: the current form's, then a class since taken out of the
  * form that gave an ID, labelled as in the newest version that had it. For the admin filters and chart.
  */
-export async function cycleClasses(cycleId: string, current: FormSnapshot): Promise<FormOption[]> {
-  const [codes, answered] = await Promise.all([idClassCodes(cycleId, current), loadAnsweredSnapshots(cycleId)]);
+export async function cycleClasses(cycleId: string, current: FormSnapshot, versions?: Map<number, FormSnapshot>): Promise<FormOption[]> {
+  const [codes, answered] = await Promise.all([idClassCodes(cycleId, current), versions ?? loadAnsweredSnapshots(cycleId)]);
   const older = [...answered].sort(([a], [b]) => b - a).map(([, snapshot]) => snapshot);
   const keep = new Set(codes);
   return classesAcrossVersions([current, ...older]).filter((o) => keep.has(o.code!));

@@ -7,7 +7,7 @@ import { applicationDetail } from '@/lib/admissions/admin';
 import { PAYMENT_STATUS_LABEL, eventText, shortDate } from '@/lib/admissions/admin-labels';
 import { answerText } from '@/lib/admissions/answer-text';
 import { isMissingFile, isVisible, type FileAnswer } from '@/lib/admissions/answers';
-import { ageDateText, ageText, sessionAge } from '@/lib/admissions/age';
+import { ageDateText, sessionAgeText } from '@/lib/admissions/age';
 import { dateTime, longDate, taka, txt } from '@/lib/admissions/display';
 import { fieldWithRole } from '@/lib/admissions/form-config';
 import { formatMobile, toBengaliDigits as bn } from '@/lib/admissions/normalise';
@@ -44,8 +44,8 @@ export default async function ApplicationPage({ params, searchParams }: Props) {
   const photoField = fieldWithRole(snapshot, 'studentPhoto');
   const photo = photoField ? (app.answers[photoField.key] as FileAnswer | undefined) : undefined;
   const name = app.studentNameBn || 'নাম দেওয়া হয়নি';
-  const age = sessionAge(app.dateOfBirth, snapshot.settings.session);
-  const ageNote = age ? `${ageDateText(snapshot.settings.session, 'bengali')}-এ বয়স ${ageText(age, 'bengali')}` : '';
+  const age = sessionAgeText(app.dateOfBirth, snapshot.settings.session, 'bengali');
+  const ageNote = age ? `${ageDateText(snapshot.settings.session, 'bengali')}-এ বয়স ${age}` : '';
 
   const sections = snapshot.sections
     .map((section) => ({

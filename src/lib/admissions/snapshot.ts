@@ -18,7 +18,7 @@ type Keyed<T> = T & { _key?: string };
 export type FeeDocument = {
   _rev?: string;
   transport?: Keyed<{ name?: Bi; visible?: boolean; price?: { status?: string; amount?: number } }>[];
-  transportRoutes?: Keyed<{ name?: Bi; area?: Bi; vehicle?: string; visible?: boolean; seats?: number; stops?: Keyed<{ name?: Bi }>[] }>[];
+  transportRoutes?: Keyed<{ name?: Bi; area?: Bi; vehicle?: string; visible?: boolean; stops?: Keyed<{ name?: Bi }>[] }>[];
 };
 
 /** The parts of the Sanity `preAdmissionForm` document the 2027 flow reads (published version). */
@@ -82,7 +82,6 @@ export function buildTransport(fees: FeeDocument | null | undefined): Transport 
       area: r.area,
       vehicle: r.vehicle!,
       stops: r.stops!.filter((s) => s._key).map((s) => ({ key: s._key!, name: s.name })),
-      ...(Number.isInteger(r.seats) && r.seats! > 0 && { seats: r.seats }),
     }));
   const used = new Set(routes.map((r) => r.vehicle));
   const vehicles = (fees?.transport ?? [])

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { ageDateText, ageText, sessionAge } from './age';
-import { checkStart } from './answers';
-import { allFields, guardianSections, startQuestions } from './form-config';
+import { checkStart, guardianSections, type Answers } from './answers';
+import { allFields, startQuestions } from './form-config';
 import { buildSnapshot, type FormDocument } from './snapshot';
 import published from './testing/published-form.json';
 import { liveFeeDocument } from './testing/live-form';
@@ -10,7 +10,7 @@ import { applyFormUpdates } from './updates-2027';
 const { changed, ...updates } = applyFormUpdates(published);
 void changed;
 const snap = buildSnapshot({ ...published, ...updates, fees: liveFeeDocument() } as FormDocument, new Date('2026-10-20T00:00:00Z'));
-const keysIn = (answers: Record<string, unknown>) => guardianSections(snap, answers).flatMap((s) => s.fields.map((f) => f.key));
+const keysIn = (answers: Answers) => guardianSections(snap, answers).flatMap((s) => s.fields.map((f) => f.key));
 
 describe('how they heard, on the start page', () => {
   it('asks the question and its write-in', () => {
@@ -28,6 +28,13 @@ describe('how they heard, on the start page', () => {
   it('keeps them in the chapter for a draft started before the move (no answer, or a single one)', () => {
     expect(keysIn({})).toEqual(expect.arrayContaining(['heard_from', 'heard_from_other']));
     expect(keysIn({ heard_from: 'facebook' })).toContain('heard_from');
+  });
+
+  it('keeps them in the chapter while the answer is not valid or “other” has no line yet', () => {
+    // An option the office removed since: the guardian must be able to choose again.
+    expect(keysIn({ heard_from: ['gone'] })).toContain('heard_from');
+    expect(keysIn({ heard_from: ['other'] })).toEqual(expect.arrayContaining(['heard_from', 'heard_from_other']));
+    expect(keysIn({ heard_from: ['other'], heard_from_other: 'মসজিদ' })).not.toContain('heard_from');
   });
 
   it('requires an answer, and takes the write-in only for “other”', () => {
