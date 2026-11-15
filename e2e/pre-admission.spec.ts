@@ -24,6 +24,7 @@ async function start(page: Page, mobile = '০১৭১২-৩৪৫৬৭৮') 
   await dismissConsent(page);
   await page.getByLabel(/অভিভাবকের মোবাইল নম্বর/).fill(mobile);
   await page.getByLabel(/^ইমেইল/).fill('rafiq@gmail.com');
+  await page.locator('#f-heard_from-group').getByRole('checkbox').first().click();
   await page.getByRole('button', { name: 'শুরু করুন' }).click();
   await expect(page).toHaveURL(/\/pre-admission\/form$/);
 }
@@ -90,6 +91,11 @@ test('a guardian fills in every chapter, takes the pledges, reviews, declares, p
   await page.getByLabel(/^ইমেইল/).blur();
   await page.getByRole('button', { name: 'ঠিক করুন' }).click();
   await expect(page.getByLabel(/^ইমেইল/)).toHaveValue('rafiq@gmail.com');
+  // How they heard is asked here, before anything is created, and must be answered.
+  await page.getByRole('button', { name: 'শুরু করুন' }).click();
+  await expect(page.locator('#f-heard_from-error')).toBeVisible();
+  await expect(page).toHaveURL(/\/pre-admission\/start$/);
+  await page.locator('#f-heard_from-group').getByRole('checkbox').first().click();
   await page.getByRole('button', { name: 'শুরু করুন' }).click();
 
   await expect(page.getByRole('heading', { name: 'আপনার আবেদন' })).toBeVisible();

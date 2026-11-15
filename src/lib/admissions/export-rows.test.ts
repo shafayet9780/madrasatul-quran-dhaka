@@ -38,6 +38,8 @@ describe('export rows', () => {
     const at = (name: string) => row[header.indexOf(name)];
     expect(at('আবেদন আইডি')).toBe('KG-017');
     expect(at('অভিভাবকের মোবাইল')).toBe('01712345678');
+    expect(header[header.indexOf('জন্ম তারিখ') + 1]).toMatch(/^বয়স \(১ জানুয়ারি ২০\S+\)$/);
+    expect(row[header.indexOf('জন্ম তারিখ') + 1]).toMatch(/^\d+ বছর \d+ মাস$/);
     expect(at('অবস্থা')).toBe('অ্যাসেসমেন্ট নির্ধারিত');
     expect(at('পরিশোধের সময়')).toBe('2026-09-29 20:42');
     expect(at('শিক্ষার্থীর ছবি')).toBe('আছে');

@@ -44,7 +44,7 @@ export const ROLE_SPECS = {
 export type Role = keyof typeof ROLE_SPECS;
 export const ROLES = Object.keys(ROLE_SPECS) as Role[];
 
-/** Roles answered on the start page, before the chapters. */
+/** Roles answered on the start page, before the chapters (how they heard is there too: startQuestions). */
 export const START_ROLES: readonly Role[] = ['primaryMobile', 'email'];
 
 const KEY = /^[a-z][a-z0-9_]*$/;
@@ -388,9 +388,11 @@ export function classesAcrossVersions(snapshots: Pick<FormSnapshot, 'sections'>[
   return [...byCode.values()];
 }
 
-/** The chapters the guardian fills in: start-page fields (mobile, email) left out, empty chapters dropped. */
-export function guardianSections(snapshot: Pick<FormSnapshot, 'sections'>): FormSection[] {
-  return snapshot.sections
-    .map((s) => ({ ...s, fields: s.fields.filter((f) => !f.role || !START_ROLES.includes(f.role)) }))
-    .filter((s) => s.fields.length > 0);
+/**
+ * The questions asked on the start page besides mobile and email: how they heard about us, with the
+ * questions shown only for one of its answers (the "অন্যান্য" write-in).
+ */
+export function startQuestions(snapshot: Pick<FormSnapshot, 'sections'>): FormField[] {
+  const heard = fieldWithRole(snapshot, 'heardFrom');
+  return heard ? [heard, ...allFields(snapshot).filter((f) => f.showWhen?.field === heard.key)] : [];
 }

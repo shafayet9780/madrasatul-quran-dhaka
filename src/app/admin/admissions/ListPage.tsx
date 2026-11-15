@@ -4,10 +4,12 @@ import { Download, Printer } from 'lucide-react';
 import { Button } from '@/components/shadcn/button';
 import { adminCycle, applicationCounts, listApplications, type AdminCycle, type ListTab } from '@/lib/admissions/admin';
 import { OFFICE_STATUSES, STATUS_LABEL, attemptsText, lastActive, shortDate, type ApplicationStatus } from '@/lib/admissions/admin-labels';
-import { chapterStatus } from '@/lib/admissions/answers';
-import { cycleClasses, loadSnapshot } from '@/lib/admissions/cycle';
+import { chapterStatus, guardianSections } from '@/lib/admissions/answers';
+import { cycleClasses, loadAnsweredSnapshots, loadSnapshot } from '@/lib/admissions/cycle';
+import { sessionAgeText } from '@/lib/admissions/age';
 import { longDate, txt } from '@/lib/admissions/display';
-import { allFields, guardianSections, type FormSnapshot } from '@/lib/admissions/form-config';
+import { NO_ROUTE, allFields, type FormField, type FormSnapshot, type Transport } from '@/lib/admissions/form-config';
+import { transportAcrossVersions, transportFilter, transportFilterOptions } from '@/lib/admissions/transport';
 import { formatMobile, toBengaliDigits as bn } from '@/lib/admissions/normalise';
 import { cn } from '@/lib/utils';
 import { PageTop } from '../AdminShell';
@@ -15,13 +17,32 @@ import { DeleteUnpaid, ListFilters, PaidTable, type PaidRow } from './ListContro
 import { EmptyState, LAT, PageBody, PageTitle } from '../ui';
 import { ListTabs } from './ui';
 
-export type ListSearch = { q?: string; class?: string; status?: string; eval?: string; page?: string; deleted?: string };
+export type ListSearch = { q?: string; class?: string; status?: string; eval?: string; transport?: string; page?: string; deleted?: string };
 
 const PAGE_SIZE = 25;
 
 /** Every class of the cycle, a class since taken out of the form included (cycleClasses). */
-export const classOptions = async (cycle: AdminCycle) =>
-  (await cycleClasses(cycle.cycleId, cycle.snapshot)).map((o) => ({ value: o.code!, label: txt(o.label, 'bengali'), optionValue: o.value }));
+export const classOptions = async (cycle: AdminCycle, versions?: Map<number, FormSnapshot> | Promise<Map<number, FormSnapshot>>) =>
+  (await cycleClasses(cycle.cycleId, cycle.snapshot, versions)).map((o) => ({ value: o.code!, label: txt(o.label, 'bengali'), optionValue: o.value }));
+
+/**
+ * The transport stop question of the current form and the routes of every version answered (a
+ * route hidden since guardians chose it still counts), for the list filter and the overview.
+ */
+export function adminTransport(cycle: AdminCycle, versions: Map<number, FormSnapshot>): { field: FormField; area?: FormField; transport: Transport } | null {
+  const fields = transportFields(cycle.snapshot);
+  if (!fields) return null;
+  const newestFirst = [cycle.snapshot, ...[...versions.entries()].sort(([a], [b]) => b - a).map(([, v]) => v)];
+  const transport = transportAcrossVersions(newestFirst);
+  return transport ? { ...fields, transport } : null;
+}
+
+/** The transport stop question and the area typed in when not on any route. */
+export function transportFields(snapshot: FormSnapshot): { field: FormField; area?: FormField } | null {
+  const field = allFields(snapshot).find((f) => f.type === 'transportStop');
+  if (!field) return null;
+  return { field, area: allFields(snapshot).find((f) => f.showWhen?.field === field.key && f.showWhen.values.includes(NO_ROUTE)) };
+}
 
 export function NoCycle({ children }: { children?: ReactNode }) {
   return (
@@ -65,7 +86,7 @@ export function OfflineFormButton() {
 function progress(status: ApplicationStatus, snapshot: FormSnapshot | null, answers: Record<string, unknown>): string {
   if (status === 'unpaid') return 'ফর্ম সম্পূর্ণ';
   if (!snapshot) return '';
-  const chapters = guardianSections(snapshot).map((s) => chapterStatus(s, answers as never, allFields(snapshot)));
+  const chapters = guardianSections(snapshot, answers as never).map((s) => chapterStatus(s, answers as never, allFields(snapshot)));
   if (chapters.every((c) => c.answered === 0)) return 'শুধু শুরু';
   return `${bn(chapters.length)}টির মধ্যে ${bn(chapters.filter((c) => c.status === 'done').length)}টি ধাপ`;
 }
@@ -73,7 +94,11 @@ function progress(status: ApplicationStatus, snapshot: FormSnapshot | null, answ
 export async function ListPage({ tab, search }: { tab: ListTab; search: ListSearch }) {
   const cycle = await adminCycle();
   if (!cycle) return <NoCycle />;
-  const classes = await classOptions(cycle);
+  // The form versions answered: read once, for the class filter and the transport routes.
+  const loading = loadAnsweredSnapshots(cycle.cycleId);
+  const [versions, classes] = await Promise.all([loading, classOptions(cycle, loading)]);
+  const transport = tab === 'paid' ? adminTransport(cycle, versions) : null;
+  const transportChoice = transport ? transportFilter(transport.transport, search.transport) : null;
   const page = Math.max(1, Number(search.page) || 1);
   const statuses: ApplicationStatus[] = tab === 'paid' ? OFFICE_STATUSES : ['draft', 'unpaid'];
   const status = statuses.find((s) => s === search.status);
@@ -88,10 +113,11 @@ export async function ListPage({ tab, search }: { tab: ListTab; search: ListSear
       page,
       pageSize: PAGE_SIZE,
       classCodes: classes.map((c) => c.value),
+      transport: transport && transportChoice ? { key: transport.field.key, filter: transportChoice } : undefined,
     }),
   ]);
   const classLabel = (value: string | null) => classes.find((c) => c.optionValue === value)?.label ?? '';
-  const filtered = Boolean(search.q || search.class || status || search.eval);
+  const filtered = Boolean(search.q || search.class || status || search.eval || transportChoice);
   const title = tab === 'paid' ? 'আবেদন' : 'ফি বাকি';
 
   const filters = [
@@ -107,6 +133,7 @@ export async function ListPage({ tab, search }: { tab: ListTab; search: ListSear
     ...(tab === 'paid'
       ? [{ key: 'eval', label: 'অ্যাসেসমেন্ট ফি', options: [{ value: 'yes', label: 'গৃহীত' }, { value: 'no', label: 'বাকি' }] }]
       : []),
+    ...(transport ? [{ key: 'transport', label: 'পরিবহন', options: transportFilterOptions(transport.transport, 'bengali') }] : []),
   ];
 
   const from = total ? (page - 1) * PAGE_SIZE + 1 : 0;
@@ -143,6 +170,7 @@ export async function ListPage({ tab, search }: { tab: ListTab; search: ListSear
                 publicRef: r.publicRef ?? '',
                 name: r.studentNameBn ?? '',
                 dob: r.dateOfBirth ? longDate(r.dateOfBirth, 'bengali') : '',
+                age: sessionAgeText(r.dateOfBirth, cycle.session, 'bengali'),
                 classLabel: classLabel(r.classValue),
                 mobile: formatMobile(r.primaryMobile),
                 status: r.status,

@@ -17,7 +17,7 @@ Only a fee confirmed by SSLCommerz's validation service gives an ID. IDs count u
 
 ## ওভারভিউ
 
-Totals (paid, fee pending, new today, অ্যাসেসমেন্ট ফি গৃহীত), paid applications per day, per class, how guardians heard about the school, and the latest applications. Tiles open the matching list. **Excel এক্সপোর্ট** downloads every paid application (see below). **অফলাইন ফর্ম** downloads the printable paper form (see *Paper applications*).
+Totals (paid, fee pending, new today, অ্যাসেসমেন্ট ফি গৃহীত), paid applications per day, per class, how guardians heard about the school, and the latest applications. **How they heard** is asked on the start page (from 2026-11-15), so it counts every application started, not only the paid ones: per answer, how many started, how many paid and the rate (drafts started before the move count as *উত্তর নেই* until they answer it in the last chapter). **পরিবহন** lists each route with its vehicle, how many paid applications asked for it (*চেয়েছেন*, a link to the list), how many seats are booked (*বুকড*: status ভর্তি or ERP-তে পাঠানো) and, when the route has seats set in the Studio, how many are left (red when over). Tap a route to see its stops. Below: "not on any route" with the areas typed in, and the applications that did not ask for transport. A seat is booked by changing the application's status to ভর্তি; changing it back frees the seat. Tiles open the matching list. **Excel এক্সপোর্ট** downloads every paid application (see below). **অফলাইন ফর্ম** downloads the printable paper form (see *Paper applications*).
 
 ### Testing the form before launch (ফর্ম পরীক্ষা, শুধু এই ডিভাইসে)
 
@@ -26,7 +26,7 @@ At the bottom of the overview. **এই ডিভাইসে ফর্ম খ�
 ## আবেদন (paid) and ফি বাকি (fee pending)
 
 - **Search** by ID (typed any way: `kg 17`, `KG-017`), the child's name in Bengali or English, or any part of the guardian's mobile.
-- **Filters**: শ্রেণী, অবস্থা, অ্যাসেসমেন্ট ফি (paid list); শ্রেণী and ধাপ (fee pending). Filters and search are in the address, so a filtered list can be bookmarked or shared with a colleague.
+- **Filters**: শ্রেণী, অবস্থা, অ্যাসেসমেন্ট ফি, পরিবহন (any route, one route, every micro or auto, not on any route, no transport; paid list); শ্রেণী and ধাপ (fee pending). Filters and search are in the address, so a filtered list can be bookmarked or shared with a colleague.
 - **Bulk change** (paid list): tick rows, choose the new status, **প্রয়োগ করুন**. **আবেদনপত্র PDF** downloads the ticked applications' PDFs as one file for printing (up to 25 at a time). If it says the PDFs are still being made, wait a minute and press it again.
 - **Fee pending**: shows how far each form got, when the guardian was last active, and the payment attempts (*ব্যর্থ, ১ বার* = one failed attempt). Tap the mobile number to call. **মুছুন** deletes an application that was never paid, with its uploaded documents; this cannot be undone, and the activity log keeps a record that it was deleted. A paid application, or one whose payment is waiting for review, can never be deleted; while the guardian is on the payment page (an attempt less than two hours old), deleting waits.
 
@@ -54,7 +54,7 @@ Assessment dates and times are announced only in the **WhatsApp group**. The suc
 
 ## Excel export and the Google Sheet
 
-- **Excel এক্সপোর্ট** (overview and the paid list): one row per paid application, one column per form field, plus status, payment and assessment-day columns. Dates are `YYYY-MM-DD`, mobiles `01XXXXXXXXX`, ready for the ERP import.
+- **Excel এক্সপোর্ট** (overview and the paid list): one row per paid application, one column per form field, plus status, payment and assessment-day columns, and the child's age on 1 January of the session (*বয়স (১ জানুয়ারি ২০২৭)*, e.g. `5 বছর 9 মাস`) beside the date of birth. Dates are `YYYY-MM-DD`, mobiles `01XXXXXXXXX`, ready for the ERP import.
   - Columns come from **every version** of the form that applications were filled in with, so a question deleted in the Studio keeps its column (blank for later applicants). Each row uses the wording its guardian saw.
   - Transport fills four columns: **পরিবহন: রুট, গাড়ি, স্টপ, মাসিক ভাড়া (৳)**; the area typed in ("not on any route") has its own column.
 - **Google Sheet**: every paid application is copied to the tab **ভর্তি ২০২৭** of the pre-admission spreadsheet (`FORM_GOOGLE_SHEETS_ID`), with the same columns. A status or evaluation-day change rewrites that application's row. If Google is unreachable, the daily job copies what was missed. Edit applications in the admin, not in the Sheet: the next change overwrites the row.
@@ -89,7 +89,7 @@ Publish a change and the website uses it within about a minute. Applications alr
   - A checkbox option: **Only this choice** (e.g. "none of the above" clears the other choices).
   - A class option: **Requirements (all must be met)**. Each one names a question by its key, the answers that meet it and a short message (2027: class 7 takes girls only, `student_gender` = `female`, who know nahw and sarf, `arabic_level` = `knows_nahw_sarf`). The messages show beside the class on the website, the intro page and the paper form. A class whose requirement fails on an earlier question (gender) cannot be chosen; a later question (Arabic level) shows the message and the form cannot be submitted until the answer or the class changes. The question must be shown for that class (its "show only when" must include it).
   - A class option: **Closed for this session** (under *Class field only*). See *Closing a class for a session* below.
-  - **Fees, discounts & transport → Transport**: vehicles with their monthly charge (none means "contact the office") and routes with their stops in order. A change here also makes a new form version, so guardians who already applied keep the charge they saw.
+  - **Fees, discounts & transport → Transport**: vehicles with their monthly charge (none means "contact the office") and routes with their stops in order, and each route's **Seats (for the office)**, used only in the admin's transport counts (updated when you publish; changing seats does not make a new form version). Any other change here makes a new form version, so guardians who already applied keep the charge they saw.
 
 The full rules are in [`pre-admission-2027-updates.md`](pre-admission-2027-updates.md), section 2.
 

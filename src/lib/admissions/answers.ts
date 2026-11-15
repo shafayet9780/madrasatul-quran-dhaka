@@ -1,5 +1,5 @@
 import { parseIsoDate } from './age';
-import { FILE_MISSING, allFields, type FormField, type FormSection, type FormSnapshot } from './form-config';
+import { FILE_MISSING, START_ROLES, allFields, startQuestions, type FormField, type FormSection, type FormSnapshot } from './form-config';
 import { normaliseEmail, normaliseMobile, toAsciiDigits } from './normalise';
 
 // Answers are stored per field key. The same rules run in the browser (inline errors, chapter
@@ -207,6 +207,30 @@ export function chapterStatus(section: FormSection, answers: Answers, fields?: F
   const touched = section.fields.some((f) => !isEmpty(answers[f.key]));
   const status: ChapterStatus = Object.keys(check.errors).length === 0 ? 'done' : touched ? 'in_progress' : 'not_started';
   return { status, required: check.required, answered: check.answered };
+}
+
+/**
+ * The chapters the guardian fills in: mobile and email (start page) left out, empty chapters
+ * dropped. How they heard (start page too) is left out once its answer is valid; a draft started
+ * before it moved there, or whose answer the office's form changes made invalid, finds it in its chapter.
+ */
+export function guardianSections(snapshot: Pick<FormSnapshot, 'sections'>, answers: Answers): FormSection[] {
+  const start = startQuestions(snapshot);
+  // Accepted as the start page accepts it (an optional "other" line may stay empty).
+  const done = start.length > 0 && !isEmpty(answers[start[0].key]) && Object.keys(checkSection({ fields: start } as FormSection, answers).errors).length === 0;
+  const moved = new Set(done ? start.map((f) => f.key) : []);
+  return snapshot.sections
+    .map((s) => ({ ...s, fields: s.fields.filter((f) => !moved.has(f.key) && !(f.role && START_ROLES.includes(f.role))) }))
+    .filter((s) => s.fields.length > 0);
+}
+
+/** Start page: how they heard (and its write-in) checked like a chapter, from the posted answers. */
+export function checkStart(snapshot: FormSnapshot, input: Record<string, unknown>): { errors: Record<string, AnswerError>; values: Answers } {
+  const fields = startQuestions(snapshot);
+  const keys = new Set(fields.map((f) => f.key));
+  const answers = Object.fromEntries(Object.entries(sanitizeDraft(snapshot, input)).filter(([k]) => keys.has(k)));
+  const { errors, values } = checkSection({ fields } as FormSection, answers);
+  return { errors, values };
 }
 
 /** Submit: every chapter checked; returns all errors and the clean answers that will be stored. */

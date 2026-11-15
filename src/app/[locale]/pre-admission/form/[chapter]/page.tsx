@@ -4,7 +4,8 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { ChapterForm } from '@/components/pre-admission/chapter-form';
 import { FlowShell } from '@/components/pre-admission/flow-shell';
 import { asLocale, txt } from '@/lib/admissions/display';
-import { allFields, guardianSections } from '@/lib/admissions/form-config';
+import { allFields } from '@/lib/admissions/form-config';
+import { guardianSections } from '@/lib/admissions/answers';
 import { flowPath, guardianSteps, requireDraft } from '@/lib/admissions/pages';
 import { currentApplication } from '@/lib/admissions/session';
 
@@ -26,7 +27,7 @@ export default async function ChapterPage({ params }: Props) {
   const locale = asLocale(localeParam);
   const t = await getTranslations({ locale, namespace: 'preAdmission' });
   const { app, snapshot } = await requireDraft(locale);
-  const sections = guardianSections(snapshot);
+  const sections = guardianSections(snapshot, app.answers);
   const index = sections.findIndex((s) => s.key === chapter);
   if (index < 0) notFound();
   const section = sections[index];

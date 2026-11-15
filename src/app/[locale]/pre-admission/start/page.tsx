@@ -5,6 +5,7 @@ import { FlowShell } from '@/components/pre-admission/flow-shell';
 import { StartForm } from '@/components/pre-admission/start-form';
 import { Button } from '@/components/shadcn/button';
 import { asLocale } from '@/lib/admissions/display';
+import { startQuestions } from '@/lib/admissions/form-config';
 import { flowPath, safeCurrentCycle } from '@/lib/admissions/pages';
 import { currentApplication } from '@/lib/admissions/session';
 import { sessionOrNext } from '@/lib/admissions/intake';
@@ -45,7 +46,7 @@ export default async function StartPage({ params }: Props) {
         )}
 
         {open ? (
-          <StartForm locale={locale} />
+          <StartForm locale={locale} questions={cycle ? startQuestions(cycle.snapshot) : []} />
         ) : (
           <p role="status" className="rounded-xl border bg-card p-4 text-[15px]">
             {t('start.closed')}

@@ -30,3 +30,122 @@ export function stopText(transport: Transport | undefined, value: unknown, local
   const route = locale === 'bengali' ? `${txt(chosen.route.name, locale)} রুট` : `${txt(chosen.route.name, locale)} route`;
   return `${txt(chosen.stop.name, locale)}, ${route}${details ? ` (${details})` : ''}`;
 }
+
+/** Statuses whose transport seat is booked: the child is admitted (or already sent to the ERP). */
+export const BOOKED_STATUSES = ['admitted', 'sent_to_erp'] as const;
+
+/** One count from the database: paid applications by transport stop answer and status. */
+export type StopCount = { value: string | null; status: string; count: number };
+
+export type RouteSummary = {
+  route: TransportRoute;
+  vehicle?: Transport['vehicles'][number];
+  requested: number;
+  booked: number;
+  /** Seats set in the Studio (routeSeats), and those left (seats less booked; can go below zero). */
+  seats: number | null;
+  left: number | null;
+  stops: { stop: TransportRoute['stops'][number]; requested: number; booked: number }[];
+};
+
+export type TransportSummary = {
+  routes: RouteSummary[];
+  /** Answered "my area is not on any route". */
+  noRoute: { requested: number; booked: number };
+  /** Paid applications that did not ask for transport. */
+  notWanted: { requested: number; booked: number };
+  /** A stop no longer in the form (route or stop deleted in the Studio). */
+  unknown: { requested: number; booked: number };
+};
+
+const isBooked = (status: string) => (BOOKED_STATUSES as readonly string[]).includes(status);
+
+/**
+ * Transport requests (paid applications) and booked seats (admitted) per route and stop, read
+ * against the current routes. A submitted application keeps only the answers it showed, so a stop
+ * answer always means the guardian asked for transport. Pure.
+ */
+export function transportSummary(transport: Transport | undefined, counts: StopCount[], seats: Record<string, number> = {}): TransportSummary {
+  const routes: RouteSummary[] = (transport?.routes ?? []).map((route) => ({
+    route,
+    vehicle: transport!.vehicles.find((v) => v.key === route.vehicle),
+    requested: 0,
+    booked: 0,
+    seats: seats[route.key] ?? null,
+    left: null,
+    stops: route.stops.map((stop) => ({ stop, requested: 0, booked: 0 })),
+  }));
+  const zero = () => ({ requested: 0, booked: 0 });
+  const summary: TransportSummary = { routes, noRoute: zero(), notWanted: zero(), unknown: zero() };
+  for (const c of counts) {
+    const booked = isBooked(c.status) ? c.count : 0;
+    const add = (t: { requested: number; booked: number }) => {
+      t.requested += c.count;
+      t.booked += booked;
+    };
+    if (!c.value) add(summary.notWanted);
+    else if (c.value === NO_ROUTE) add(summary.noRoute);
+    else {
+      const [routeKey, stopKey] = c.value.split(':');
+      const r = routes.find((x) => x.route.key === routeKey);
+      const s = r?.stops.find((x) => x.stop.key === stopKey);
+      if (!r || !s) add(summary.unknown);
+      else {
+        add(r);
+        add(s);
+      }
+    }
+  }
+  for (const r of routes) r.left = r.seats != null ? r.seats - r.booked : null;
+  return summary;
+}
+
+/** The list filter's choices: any route, each route, each vehicle, not on a route, not wanted. */
+export function transportFilterOptions(transport: Transport | undefined, locale: Locale): { value: string; label: string }[] {
+  if (!transport) return [];
+  return [
+    { value: 'any', label: locale === 'bengali' ? 'যেকোনো রুট' : 'Any route' },
+    ...transport.routes.map((r) => ({ value: `route:${r.key}`, label: locale === 'bengali' ? `${txt(r.name, locale)} রুট` : `${txt(r.name, locale)} route` })),
+    ...transport.vehicles.map((v) => ({ value: `vehicle:${v.key}`, label: locale === 'bengali' ? `সব ${txt(v.name, locale)}` : `Every ${txt(v.name, locale)}` })),
+    { value: 'none', label: txt(NO_ROUTE_LABEL, locale) },
+    { value: 'no', label: locale === 'bengali' ? 'পরিবহন নেবেন না' : 'No transport' },
+  ];
+}
+
+/** A filter choice as route keys (any route, a route, a vehicle's routes) or a kind, or null when unknown. */
+export function transportFilter(transport: Transport | undefined, choice: string | undefined): { routes: string[] } | { kind: 'none' | 'no' } | null {
+  if (!transport || !choice) return null;
+  if (choice === 'none' || choice === 'no') return { kind: choice };
+  if (choice === 'any') return { routes: transport.routes.map((r) => r.key) };
+  const [type, key] = choice.split(':');
+  if (type === 'route' && transport.routes.some((r) => r.key === key)) return { routes: [key] };
+  if (type === 'vehicle' && transport.vehicles.some((v) => v.key === key)) return { routes: transport.routes.filter((r) => r.vehicle === key).map((r) => r.key) };
+  return null;
+}
+
+/**
+ * The routes and vehicles of several form versions, newest first: a route or stop hidden or deleted
+ * since guardians chose it still counts (an old stop goes after the stop it followed). The newest
+ * version's wording wins.
+ */
+export function transportAcrossVersions(snapshots: { transport?: Transport }[]): Transport | undefined {
+  const routes = new Map<string, TransportRoute>();
+  const vehicles = new Map<string, Transport['vehicles'][number]>();
+  for (const s of snapshots) {
+    for (const r of s.transport?.routes ?? []) {
+      const known = routes.get(r.key);
+      if (!known) {
+        routes.set(r.key, { ...r, stops: [...r.stops] });
+        continue;
+      }
+      let at = 0;
+      for (const stop of r.stops) {
+        const i = known.stops.findIndex((x) => x.key === stop.key);
+        if (i >= 0) at = i + 1;
+        else known.stops.splice(at++, 0, stop);
+      }
+    }
+    for (const v of s.transport?.vehicles ?? []) if (!vehicles.has(v.key)) vehicles.set(v.key, v);
+  }
+  return routes.size ? { routes: [...routes.values()], vehicles: [...vehicles.values()] } : undefined;
+}

@@ -6,7 +6,8 @@ import { chapterStatus, type ChapterStatus } from './answers';
 import { FORM_QUERY, getCurrentCycle, previewDraftMode, type CycleState } from './cycle';
 import { num, txt, type Locale } from './display';
 import type { Application } from './drafts';
-import { allFields, guardianSections, type FormSnapshot } from './form-config';
+import { allFields, type FormSnapshot } from './form-config';
+import { guardianSections } from './answers';
 import { PLEDGE_STEP, pledgeStatus } from './pledge';
 import { intakeStatus, nextChange, publishedIntake, type AdmissionCta, type Intake } from './intake';
 import { localOverrides } from './local';
@@ -93,7 +94,7 @@ export type Step = { key: string; title: string; status: ChapterStatus; href: st
 
 /** The guardian's steps in order: each chapter, then the অঙ্গীকার step when the form has one. */
 export async function guardianSteps(locale: Locale, snapshot: FormSnapshot, app: Application): Promise<Step[]> {
-  const steps: Step[] = guardianSections(snapshot).map((s) => ({
+  const steps: Step[] = guardianSections(snapshot, app.answers).map((s) => ({
     key: s.key,
     title: txt(s.title, locale),
     status: chapterStatus(s, app.answers, allFields(snapshot)).status,

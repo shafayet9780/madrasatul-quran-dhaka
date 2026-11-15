@@ -225,6 +225,14 @@ export const feeSettings = defineType({
               ],
               validation: r => r.required().min(1),
             }),
+            defineField({
+              name: 'seats',
+              title: 'Seats (for the office)',
+              description:
+                'How many children this route’s vehicle can take. The admin shows how many are booked (admitted) and how many seats are left; it is not shown to guardians. Leave empty if not decided.',
+              type: 'number',
+              validation: r => r.integer().min(1),
+            }),
           ],
           preview: {
             select: { title: 'name.bengali', area: 'area.bengali', stops: 'stops', visible: 'visible' },
