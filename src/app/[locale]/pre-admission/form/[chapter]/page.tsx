@@ -26,7 +26,7 @@ export default async function ChapterPage({ params }: Props) {
   const locale = asLocale(localeParam);
   const t = await getTranslations({ locale, namespace: 'preAdmission' });
   const { app, snapshot } = await requireDraft(locale);
-  const sections = guardianSections(snapshot);
+  const sections = guardianSections(snapshot, app.answers);
   const index = sections.findIndex((s) => s.key === chapter);
   if (index < 0) notFound();
   const section = sections[index];

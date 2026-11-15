@@ -1,8 +1,9 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { adminCycle, overview } from '@/lib/admissions/admin';
+import { adminCycle, overview, transportAreas, transportCounts } from '@/lib/admissions/admin';
 import { loadAnsweredSnapshots } from '@/lib/admissions/cycle';
-import { shortDate } from '@/lib/admissions/admin-labels';
+import { STATUS_LABEL, shortDate } from '@/lib/admissions/admin-labels';
+import { transportSummary, type TransportSummary } from '@/lib/admissions/transport';
 import { dateTime, taka, txt } from '@/lib/admissions/display';
 import { fieldWithRole } from '@/lib/admissions/form-config';
 import { toBengaliDigits as bn } from '@/lib/admissions/normalise';
@@ -10,7 +11,7 @@ import { TEST_FEE } from '@/lib/admissions/payments';
 import { hasTestPass } from '@/lib/admissions/test-pass';
 import { cn } from '@/lib/utils';
 import { PageTop } from '../AdminShell';
-import { ExportButton, NoCycle, OfflineFormButton, classOptions } from './ListPage';
+import { ExportButton, NoCycle, OfflineFormButton, adminTransport, classOptions } from './ListPage';
 import { TestPass } from './DetailControls';
 import { Card, LAT, PageBody, PageTitle, StatTile, StatTiles } from '../ui';
 
@@ -73,6 +74,100 @@ function HBars({ rows, total }: { rows: { label: string; count: number; href?: s
   );
 }
 
+const LIST = '/admin/admissions/applications';
+
+/**
+ * Transport: per route, paid applications that asked for it and the seats booked (admitted), with
+ * the seats set in the Studio; each route opens its stops. The requests open the list they count.
+ */
+function TransportCard({ summary, areas }: { summary: TransportSummary; areas: { area: string; count: number }[] }) {
+  const num = (n: number, href: string) =>
+    n ? (
+      <Link href={href} className="text-foreground underline decoration-muted-foreground/50 underline-offset-4 hover:decoration-foreground">
+        {n}
+      </Link>
+    ) : (
+      <span className="text-muted-foreground">0</span>
+    );
+  const requested = summary.routes.reduce((n, r) => n + r.requested, 0);
+  const booked = summary.routes.reduce((n, r) => n + r.booked, 0);
+  const typed = areas.filter((a) => a.area);
+  return (
+    <Card>
+      <h2 className="m-0 text-[15px] font-semibold">পরিবহন</h2>
+      <p className="m-0 mt-0.5 text-[13px] text-muted-foreground">
+        চেয়েছেন: পরিশোধিত আবেদনে রুট বাছাই করেছেন · বুকড: অবস্থা ‘{STATUS_LABEL.admitted}’ বা ‘{STATUS_LABEL.sent_to_erp}’ · আসন সংখ্যা স্টুডিওতে (ফি ও পরিবহন → রুট)
+      </p>
+      <div className="mt-3 overflow-x-auto">
+        <table className="w-full min-w-[560px] border-collapse text-[13.5px]">
+          <thead>
+            <tr className="text-left text-[12.5px] text-muted-foreground [&>th]:pb-1.5 [&>th]:font-normal">
+              <th>রুট</th>
+              <th>গাড়ি</th>
+              <th className="text-right">চেয়েছেন</th>
+              <th className="text-right">বুকড</th>
+              <th className="text-right">আসন</th>
+              <th className="text-right">খালি</th>
+            </tr>
+          </thead>
+          <tbody>
+            {summary.routes.map((r) => {
+              const href = `${LIST}?transport=route:${encodeURIComponent(r.route.key)}`;
+              return (
+                <tr key={r.route.key} className="align-top [&>td]:border-t [&>td]:py-2">
+                  <td>
+                    <details className="group">
+                      <summary className="cursor-pointer list-none font-medium [&::-webkit-details-marker]:hidden">
+                        {txt(r.route.name, 'bengali')} <span className="text-[12.5px] font-normal text-muted-foreground group-open:hidden">· স্টপ দেখুন</span>
+                      </summary>
+                      <ul className="m-0 mt-1.5 flex list-none flex-col gap-0.5 p-0 text-[13px] text-muted-foreground">
+                        {r.stops.map((st) => (
+                          <li key={st.stop.key} className="flex justify-between gap-4">
+                            <span>{txt(st.stop.name, 'bengali')}</span>
+                            <span className={LAT}>
+                              {st.requested} চেয়েছেন · {st.booked} বুকড
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                    </details>
+                  </td>
+                  <td>{txt(r.vehicle?.name, 'bengali')}</td>
+                  <td className={cn(LAT, 'text-right')}>{num(r.requested, href)}</td>
+                  <td className={cn(LAT, 'text-right font-medium')}>{r.booked}</td>
+                  <td className={cn(LAT, 'text-right')}>{r.route.seats ?? <span className="text-muted-foreground">–</span>}</td>
+                  <td className={cn(LAT, 'text-right', r.left != null && r.left < 0 && 'font-medium text-destructive')}>{r.left ?? <span className="text-muted-foreground">–</span>}</td>
+                </tr>
+              );
+            })}
+            <tr className="font-medium [&>td]:border-t [&>td]:py-2">
+              <td colSpan={2}>সব রুট</td>
+              <td className={cn(LAT, 'text-right')}>{num(requested, `${LIST}?transport=any`)}</td>
+              <td className={cn(LAT, 'text-right')}>{booked}</td>
+              <td colSpan={2} />
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div className="mt-3 flex flex-col gap-1 text-[13.5px]">
+        <p className="m-0">
+          কোনো রুটে নেই: <span className={LAT}>{num(summary.noRoute.requested, `${LIST}?transport=none`)}</span>
+          {typed.length > 0 && (
+            <span className="text-muted-foreground">
+              {' '}
+              ({typed.map((a) => `${a.area} ${bn(a.count)}`).join(', ')})
+            </span>
+          )}
+        </p>
+        <p className="m-0">
+          পরিবহন নেবেন না: <span className={LAT}>{num(summary.notWanted.requested, `${LIST}?transport=no`)}</span>
+        </p>
+        {summary.unknown.requested > 0 && <p className="m-0 text-muted-foreground">ফর্ম থেকে মুছে ফেলা রুট বা স্টপ: {bn(summary.unknown.requested)}টি</p>}
+      </div>
+    </Card>
+  );
+}
+
 /** The office's test pass: the form opens on this device only, before launch or while closed. */
 async function TestPassCard() {
   const active = await hasTestPass();
@@ -111,7 +206,15 @@ export default async function AdmissionsOverview() {
     );
   const { snapshot } = cycle;
   const heard = fieldWithRole(snapshot, 'heardFrom');
-  const [o, classes, versions] = await Promise.all([overview(cycle.cycleId, heard?.key ?? null), classOptions(cycle), loadAnsweredSnapshots(cycle.cycleId)]);
+  const [o, classes, versions, transport] = await Promise.all([
+    overview(cycle.cycleId, heard?.key ?? null),
+    classOptions(cycle),
+    loadAnsweredSnapshots(cycle.cycleId),
+    adminTransport(cycle),
+  ]);
+  const [stopCounts, areas] = transport
+    ? await Promise.all([transportCounts(cycle.cycleId, transport.field.key), transport.area ? transportAreas(cycle.cycleId, transport.field.key, transport.area.key) : []])
+    : [[], []];
   const now = new Date();
   const days = dailySeries(o.byDay, now);
   const today = days.at(-1)?.count ?? 0;
@@ -122,7 +225,7 @@ export default async function AdmissionsOverview() {
   // Answers given before an option was renamed or removed keep the label of the version they answered.
   const heardOptions = [heard, ...[...versions.values()].map((v) => fieldWithRole(v, 'heardFrom'))].flatMap((f) => f?.options ?? []);
   const heardRows = heard
-    ? o.heardFrom.map((h) => ({ label: h.value ? txt(heardOptions.find((x) => x.value === h.value)?.label, 'bengali') || h.value : 'উত্তর নেই', count: h.count }))
+    ? o.heardFrom.map((h) => ({ label: h.value ? txt(heardOptions.find((x) => x.value === h.value)?.label, 'bengali') || h.value : 'উত্তর নেই', count: h.paid, started: h.started }))
     : [];
 
   const closesAt = snapshot.settings.closesAt ? new Date(snapshot.settings.closesAt) : null;
@@ -195,8 +298,31 @@ export default async function AdmissionsOverview() {
             {heard && (
               <>
                 <h2 className="m-0 text-[15px] font-semibold">কিভাবে জেনেছেন</h2>
-                <p className="m-0 mt-0.5 text-[13px] text-muted-foreground">পরিশোধিত আবেদন</p>
-                {heardRows.length ? <HBars rows={heardRows} total={o.paid} /> : <p className="m-0 mt-4 text-sm text-muted-foreground">এখনো কোনো উত্তর নেই।</p>}
+                <p className="m-0 mt-0.5 text-[13px] text-muted-foreground">ফর্ম শুরুতেই জিজ্ঞেস করা হয়, তাই অসম্পূর্ণ আবেদনও গোনা হয়। একাধিক উত্তর হলে প্রতিটি আলাদা।</p>
+                {heardRows.length ? (
+                  <table className="mt-3 w-full border-collapse text-[13.5px]">
+                    <thead>
+                      <tr className="text-left text-[12.5px] text-muted-foreground [&>th]:pb-1.5 [&>th]:font-normal">
+                        <th>উৎস</th>
+                        <th className="text-right">শুরু</th>
+                        <th className="text-right">পরিশোধিত</th>
+                        <th className="text-right">হার</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {heardRows.map((r) => (
+                        <tr key={r.label} className="[&>td]:border-t [&>td]:py-1.5">
+                          <td>{r.label}</td>
+                          <td className={cn(LAT, 'text-right')}>{r.started}</td>
+                          <td className={cn(LAT, 'text-right font-medium')}>{r.count}</td>
+                          <td className={cn(LAT, 'text-right text-muted-foreground')}>{r.started ? `${Math.round((r.count / r.started) * 100)}%` : ''}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                ) : (
+                  <p className="m-0 mt-4 text-sm text-muted-foreground">এখনো কোনো উত্তর নেই।</p>
+                )}
               </>
             )}
             <div className={cn('flex items-baseline justify-between', heard && 'mt-6')}>
@@ -226,6 +352,8 @@ export default async function AdmissionsOverview() {
             )}
           </Card>
         </div>
+
+        {transport && <TransportCard summary={transportSummary(transport.transport, stopCounts)} areas={areas} />}
 
         <TestPassCard />
       </PageBody>

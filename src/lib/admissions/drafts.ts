@@ -23,10 +23,10 @@ export type StartResult =
   | { ok: true; id: string; token: string }
   | { ok: false; reason: 'closed' } | { ok: false; reason: 'invalid'; errors: { mobile?: 'invalid_mobile'; email?: 'invalid_email' } };
 
-/** Start page: mobile + email create the draft and its resume token. */
+/** Start page: mobile + email create the draft and its resume token; `start` holds the other start-page answers, already checked (checkStart). */
 export async function createDraft(
   cycle: CycleState,
-  input: { mobile: string; email: string; locale: 'bengali' | 'english'; attribution?: Record<string, unknown> },
+  input: { mobile: string; email: string; locale: 'bengali' | 'english'; attribution?: Record<string, unknown>; start?: Answers },
 ): Promise<StartResult> {
   if (!cycle.enabled || cycle.window !== 'open') return { ok: false, reason: 'closed' };
   const mobile = normaliseMobile(input.mobile);
@@ -35,6 +35,7 @@ export async function createDraft(
     return { ok: false, reason: 'invalid', errors: { ...(!mobile && { mobile: 'invalid_mobile' as const }), ...(!email && { email: 'invalid_email' as const }) } };
   }
   const answers: Answers = {
+    ...input.start,
     [fieldWithRole(cycle.snapshot, 'primaryMobile')!.key]: mobile,
     [fieldWithRole(cycle.snapshot, 'email')!.key]: email,
   };

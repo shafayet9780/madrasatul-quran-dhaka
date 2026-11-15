@@ -5,17 +5,18 @@ import { after } from 'next/server';
 import { cycleClasses, getCurrentCycle, idClassCodes } from '@/lib/admissions/cycle';
 import { createHash } from 'node:crypto';
 import { parseIsoDate } from '@/lib/admissions/age';
+import { checkStart, type AnswerError } from '@/lib/admissions/answers';
 import { createDraft, findApplications, getByToken, loadById, saveDraft, savePledge, submitDraft } from '@/lib/admissions/drafts';
 import { sendResumeEmail } from '@/lib/admissions/mail';
 import { asLocale, txt } from '@/lib/admissions/display';
 import { parseApplicationId } from '@/lib/admissions/ids';
-import { normaliseMobile } from '@/lib/admissions/normalise';
+import { normaliseEmail, normaliseMobile } from '@/lib/admissions/normalise';
 import { flowPath } from '@/lib/admissions/pages';
 import { afterPaid } from '@/lib/admissions/after-paid';
 import { completeAfterResubmit, startPayment } from '@/lib/admissions/payments';
 import { currentApplication, foundIds, grantApplication, rememberFound, setSessionToken, siteOrigin, withinLimit } from '@/lib/admissions/session';
 
-export type StartState = { errors?: { mobile?: 'invalid_mobile'; email?: 'invalid_email' }; message?: 'closed' | 'rateLimited' | 'failed' };
+export type StartState = { errors?: { mobile?: 'invalid_mobile'; email?: 'invalid_email'; start?: Record<string, AnswerError> }; message?: 'closed' | 'rateLimited' | 'failed' };
 
 const ATTRIBUTION_KEYS = ['utm_source', 'utm_medium', 'utm_campaign', 'referrer'] as const;
 
@@ -30,12 +31,21 @@ export async function startApplication(localeParam: string, _prev: StartState, f
     const attribution = Object.fromEntries(
       ATTRIBUTION_KEYS.map((k) => [k, String(form.get(k) ?? '').slice(0, 200)]).filter(([, v]) => v),
     );
-    const result = await createDraft(cycle, {
-      mobile: String(form.get('mobile') ?? ''),
-      email: String(form.get('email') ?? ''),
-      locale,
-      attribution,
-    });
+    // How they heard (and its write-in), posted as JSON by the start form.
+    let posted: unknown = {};
+    try {
+      posted = JSON.parse(String(form.get('start') ?? '{}'));
+    } catch {}
+    const start = checkStart(cycle.snapshot, posted && typeof posted === 'object' && !Array.isArray(posted) ? (posted as Record<string, unknown>) : {});
+    const mobile = String(form.get('mobile') ?? '');
+    const email = String(form.get('email') ?? '');
+    // Nothing is created until every start-page answer is right; the errors show together.
+    if (Object.keys(start.errors).length) {
+      return {
+        errors: { ...(!normaliseMobile(mobile) && { mobile: 'invalid_mobile' as const }), ...(!normaliseEmail(email) && { email: 'invalid_email' as const }), start: start.errors },
+      };
+    }
+    const result = await createDraft(cycle, { mobile, email, locale, attribution, start: start.values });
     if (!result.ok) return result.reason === 'closed' ? { message: 'closed' } : { errors: result.errors };
     token = result.token;
     await setSessionToken(token);

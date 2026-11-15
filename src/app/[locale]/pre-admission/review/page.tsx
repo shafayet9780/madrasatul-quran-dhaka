@@ -31,7 +31,7 @@ export default async function ReviewPage({ params }: Props) {
   const t = await getTranslations({ locale, namespace: 'preAdmission' });
   const { app, snapshot } = await requireDraft(locale);
   const { settings } = snapshot;
-  const chapters = guardianSections(snapshot);
+  const chapters = guardianSections(snapshot, app.answers);
   const pledge = pledgeStatus(snapshot, app);
   const incomplete = [
     ...chapters.filter((s) => chapterStatus(s, app.answers, allFields(snapshot)).status !== 'done').map((s) => ({ key: s.key, title: txt(s.title, locale), href: flowPath(locale, `/form/${s.key}`) })),

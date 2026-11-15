@@ -36,7 +36,7 @@ export default async function HubPage({ params }: Props) {
       : s.status === 'in_progress'
         ? t('hub.statusProgress', { answered: num(s.answered, locale), total: num(s.required, locale) })
         : t('hub.statusTodo', { minutes: num(minutes, locale) });
-  const chapters = guardianSections(snapshot).map((section) => {
+  const chapters = guardianSections(snapshot, app.answers).map((section) => {
     const s = chapterStatus(section, app.answers, allFields(snapshot));
     return {
       key: section.key,

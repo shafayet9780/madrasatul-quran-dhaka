@@ -1,5 +1,5 @@
 import { parseIsoDate } from './age';
-import { FILE_MISSING, allFields, type FormField, type FormSection, type FormSnapshot } from './form-config';
+import { FILE_MISSING, allFields, startQuestions, type FormField, type FormSection, type FormSnapshot } from './form-config';
 import { normaliseEmail, normaliseMobile, toAsciiDigits } from './normalise';
 
 // Answers are stored per field key. The same rules run in the browser (inline errors, chapter
@@ -207,6 +207,15 @@ export function chapterStatus(section: FormSection, answers: Answers, fields?: F
   const touched = section.fields.some((f) => !isEmpty(answers[f.key]));
   const status: ChapterStatus = Object.keys(check.errors).length === 0 ? 'done' : touched ? 'in_progress' : 'not_started';
   return { status, required: check.required, answered: check.answered };
+}
+
+/** Start page: how they heard (and its write-in) checked like a chapter, from the posted answers. */
+export function checkStart(snapshot: FormSnapshot, input: Record<string, unknown>): { errors: Record<string, AnswerError>; values: Answers } {
+  const fields = startQuestions(snapshot);
+  const keys = new Set(fields.map((f) => f.key));
+  const answers = Object.fromEntries(Object.entries(sanitizeDraft(snapshot, input)).filter(([k]) => keys.has(k)));
+  const { errors, values } = checkSection({ fields } as FormSection, answers);
+  return { errors, values };
 }
 
 /** Submit: every chapter checked; returns all errors and the clean answers that will be stored. */

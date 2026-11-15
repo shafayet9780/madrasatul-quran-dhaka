@@ -7,7 +7,7 @@ import { ChevronRight, CircleAlert } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/shadcn/button';
 import { saveAnswers } from '@/app/[locale]/pre-admission/actions';
-import { ageOn, classesForAge, sessionStart } from '@/lib/admissions/age';
+import { ageDateText, ageOn, classesForAge, sessionStart } from '@/lib/admissions/age';
 import { blockedClasses, checkField, checkSection, classRequirementErrors, isVisible, type AnswerError, type Answers, type AnswerValue } from '@/lib/admissions/answers';
 import { num, txt, type Locale } from '@/lib/admissions/display';
 import type { FormField, FormSection, Transport } from '@/lib/admissions/form-config';
@@ -316,6 +316,7 @@ export function ChapterForm({ locale, applicationId, session, section, otherFiel
                         {row.some((f) => f.role === 'dateOfBirth') && age && (
                           <p className="mt-1.5 text-[13px] text-muted-foreground">
                             {t.rich('chapter.ageAt', {
+                              date: ageDateText(session, locale),
                               age: t('chapter.age', { years: num(age.years, locale), months: num(age.months, locale) }),
                               b: (c) => <b className="font-semibold text-foreground">{c}</b>,
                             })}

@@ -11,6 +11,7 @@ import { normaliseMobile, toAsciiDigits } from './normalise';
 import { admissionCycles, applicationEvents, applications, payments } from './schema';
 import { blobStore, type BlobStore } from './uploads';
 import { isOwnKey } from './files';
+import type { StopCount } from './transport';
 
 // Admin queries and changes for /admin/admissions. Every server action that calls a change here
 // first calls assertAdmin() (src/app/admin/admissions/actions.ts).
@@ -36,6 +37,8 @@ export type ListParams = {
   page?: number;
   pageSize?: number;
   classCodes?: string[];
+  /** Transport: the stop question's key and the chosen filter (transportFilter). */
+  transport?: { key: string; filter: { routes: string[] } | { kind: 'none' | 'no' } };
 };
 export type ListRow = Pick<
   Application,
@@ -74,6 +77,16 @@ function searchCondition(q: string, classCodes: string[]): SQL | undefined {
   );
 }
 
+/**
+ * A submitted application keeps only the answers it showed, so the stop answer alone tells: a
+ * `route:stop` value, "none" (not on any route), or nothing (no transport).
+ */
+function transportCondition(key: string, filter: NonNullable<ListParams['transport']>['filter']): SQL | undefined {
+  const stop = sql`${applications.answers} ->> ${key}`;
+  if ('kind' in filter) return filter.kind === 'none' ? sql`${stop} = 'none'` : sql`${stop} IS NULL`;
+  return filter.routes.length ? and(sql`${stop} LIKE '%:%'`, inArray(sql`split_part(${stop}, ':', 1)`, filter.routes)) : sql`false`;
+}
+
 export async function listApplications(cycleId: string, params: ListParams): Promise<{ rows: ListRow[]; total: number }> {
   const db = getAdmissionsDb();
   const pageSize = params.pageSize ?? 25;
@@ -85,6 +98,7 @@ export async function listApplications(cycleId: string, params: ListParams): Pro
     params.status ? eq(applications.status, params.status) : undefined,
     params.evalFee === 'yes' ? isNotNull(applications.evalFeeReceivedAt) : params.evalFee === 'no' ? isNull(applications.evalFeeReceivedAt) : undefined,
     params.q ? searchCondition(params.q, params.classCodes ?? []) : undefined,
+    params.transport ? transportCondition(params.transport.key, params.transport.filter) : undefined,
   );
   const [{ total }] = await db.select({ total: sql<number>`count(*)::int` }).from(applications).where(where);
   const rows = await db
@@ -225,26 +239,32 @@ export type Overview = {
   evalFees: number;
   byClass: { classCode: string; count: number }[];
   byDay: { day: string; count: number }[];
-  heardFrom: { value: string; count: number }[];
+  /** Per way they heard: applications started (any status) and paid. */
+  heardFrom: { value: string; started: number; paid: number }[];
   recent: { id: string; publicRef: string | null; studentNameBn: string | null; paidAt: Date | null }[];
 };
 
 /**
- * How many paid applications chose each way they heard, most first. A multiple-choice answer counts once per ticked
- * option; a single answer from before the question allowed several counts as itself; no answer counts as '' (last of
- * its count).
+ * How many applications chose each way they heard (asked on the start page, so drafts count too), and how many of
+ * them paid; most paid first. A multiple-choice answer counts once per ticked option; a single answer from before the
+ * question allowed several counts as itself; no answer counts as '' (last of its count).
  */
-function heardFromCounts(paid: SQL, key: string) {
+function heardFromCounts(inCycle: SQL, key: string) {
   const db = getAdmissionsDb();
   const answer = sql`${applications.answers} -> ${key}`;
   const each = db
     .select({
+      paid: sql<boolean>`${applications.publicRef} IS NOT NULL`.as('paid'),
       value: sql<string>`jsonb_array_elements_text(CASE jsonb_typeof(${answer}) WHEN 'array' THEN ${answer} WHEN 'string' THEN jsonb_build_array(${answer}) ELSE '[""]'::jsonb END)`.as('value'),
     })
     .from(applications)
-    .where(paid)
+    .where(inCycle)
     .as('each');
-  return db.select({ value: each.value, count: sql<number>`count(*)::int` }).from(each).groupBy(each.value).orderBy(sql`2 DESC`, sql`${each.value} = ''`, each.value);
+  return db
+    .select({ value: each.value, started: sql<number>`count(*)::int`, paid: sql<number>`count(*) FILTER (WHERE ${each.paid})::int` })
+    .from(each)
+    .groupBy(each.value)
+    .orderBy(sql`3 DESC`, sql`2 DESC`, sql`${each.value} = ''`, each.value);
 }
 
 export async function overview(cycleId: string, heardFromKey: string | null): Promise<Overview> {
@@ -273,7 +293,7 @@ export async function overview(cycleId: string, heardFromKey: string | null): Pr
       .where(paid)
       .groupBy(sql`1`)
       .orderBy(sql`1`),
-    heardFromKey ? heardFromCounts(paid!, heardFromKey) : Promise.resolve([]),
+    heardFromKey ? heardFromCounts(inCycle, heardFromKey) : Promise.resolve([]),
     db
       .select({ id: applications.id, publicRef: applications.publicRef, studentNameBn: applications.studentNameBn, paidAt: applications.paidAt })
       .from(applications)
@@ -315,4 +335,25 @@ export async function admissionsNav(): Promise<AdmissionsNav> {
     console.error('Admissions sidebar data failed', error);
     return null;
   }
+}
+
+/** Paid applications by transport stop answer and status, for the overview (transportSummary). */
+export async function transportCounts(cycleId: string, key: string): Promise<StopCount[]> {
+  const value = sql<string | null>`${applications.answers} ->> ${key}`;
+  return getAdmissionsDb()
+    .select({ value, status: sql<string>`${applications.status}::text`, count: sql<number>`count(*)::int` })
+    .from(applications)
+    .where(and(eq(applications.cycleId, cycleId), isNotNull(applications.publicRef)))
+    .groupBy(sql`1`, sql`2`);
+}
+
+/** The areas typed in by guardians not on any route, most asked first (trimmed, case kept). */
+export async function transportAreas(cycleId: string, stopKey: string, areaKey: string): Promise<{ area: string; count: number }[]> {
+  const area = sql<string>`trim(${applications.answers} ->> ${areaKey})`;
+  return getAdmissionsDb()
+    .select({ area, count: sql<number>`count(*)::int` })
+    .from(applications)
+    .where(and(eq(applications.cycleId, cycleId), isNotNull(applications.publicRef), sql`${applications.answers} ->> ${stopKey} = 'none'`))
+    .groupBy(sql`1`)
+    .orderBy(sql`2 DESC`, sql`1`);
 }

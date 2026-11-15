@@ -7,6 +7,7 @@ import { applicationDetail } from '@/lib/admissions/admin';
 import { PAYMENT_STATUS_LABEL, eventText, shortDate } from '@/lib/admissions/admin-labels';
 import { answerText } from '@/lib/admissions/answer-text';
 import { isMissingFile, isVisible, type FileAnswer } from '@/lib/admissions/answers';
+import { ageDateText, ageText, sessionAge } from '@/lib/admissions/age';
 import { dateTime, longDate, taka, txt } from '@/lib/admissions/display';
 import { fieldWithRole } from '@/lib/admissions/form-config';
 import { formatMobile, toBengaliDigits as bn } from '@/lib/admissions/normalise';
@@ -43,6 +44,8 @@ export default async function ApplicationPage({ params, searchParams }: Props) {
   const photoField = fieldWithRole(snapshot, 'studentPhoto');
   const photo = photoField ? (app.answers[photoField.key] as FileAnswer | undefined) : undefined;
   const name = app.studentNameBn || 'নাম দেওয়া হয়নি';
+  const age = sessionAge(app.dateOfBirth, snapshot.settings.session);
+  const ageNote = age ? `${ageDateText(snapshot.settings.session, 'bengali')}-এ বয়স ${ageText(age, 'bengali')}` : '';
 
   const sections = snapshot.sections
     .map((section) => ({
@@ -50,7 +53,10 @@ export default async function ApplicationPage({ params, searchParams }: Props) {
       title: txt(section.title, 'bengali'),
       rows: section.fields
         .filter((f) => f.type !== 'file' && isVisible(f, app.answers))
-        .map((f) => ({ key: f.key, label: txt(f.label, 'bengali'), value: answerText(f, app.answers[f.key], 'bengali', LABELS, snapshot.transport), lat: f.type === 'email' || f.role === 'studentNameEn' })),
+        .map((f) => {
+          const value = answerText(f, app.answers[f.key], 'bengali', LABELS, snapshot.transport);
+          return { key: f.key, label: txt(f.label, 'bengali'), value: f.role === 'dateOfBirth' && ageNote ? `${value} (${ageNote})` : value, lat: f.type === 'email' || f.role === 'studentNameEn' };
+        }),
     }))
     .filter((s) => s.rows.length);
   const documents = snapshot.sections
@@ -73,7 +79,7 @@ export default async function ApplicationPage({ params, searchParams }: Props) {
         ? { label: 'আবেদন', href: '/admin/admissions/applications' }
         : { label: 'ফি বাকি', href: '/admin/admissions/unpaid' };
 
-  const sub = [classLabel, app.dateOfBirth && `জন্ম ${longDate(app.dateOfBirth, 'bengali')}`].filter(Boolean).join(', ');
+  const sub = [classLabel, app.dateOfBirth && `জন্ম ${longDate(app.dateOfBirth, 'bengali')}`, ageNote].filter(Boolean).join(', ');
 
   return (
     <>
