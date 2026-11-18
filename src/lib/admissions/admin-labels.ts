@@ -79,6 +79,9 @@ export function lastActive(d: Date, now: Date = new Date()): string {
   return shortDate(d);
 }
 
+/** Receipts printed at once (the bulk receipt page; one A4 sheet each). */
+export const MAX_RECEIPTS = 200;
+
 /** The assessment fee receipt number: "2027/001" (the cycle's session and the receipt's serial). */
 export function evalReceiptRef(session: string, no: number): string {
   return `${session}/${String(no).padStart(3, '0')}`;

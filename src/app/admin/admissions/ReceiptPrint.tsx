@@ -4,15 +4,17 @@ import { createContext, useContext, useEffect, useRef, useState, type ReactNode 
 import { flushSync } from 'react-dom';
 import { Printer } from 'lucide-react';
 import { Button } from '@/components/shadcn/button';
-import { receiptPrintAction } from '../../actions';
+import { receiptPrintAction } from './actions';
 
-// The receipt's first print is the original; every later one (the button, Ctrl+P or a reload) is
-// marked ডুপ্লিকেট. Each print is recorded before the print dialog opens.
+// The receipt's first print is the original; every later one (the button, Ctrl+P, a reload, or the
+// same application in another bulk print) is marked ডুপ্লিকেট. Each print is recorded before the
+// print dialog opens.
 
-const Duplicate = createContext<{ duplicate: boolean; print: () => void; busy: boolean; error: string }>({ duplicate: false, print: () => {}, busy: false, error: '' });
+type State = { duplicates: Set<string>; print: () => void; busy: boolean; error: string };
+const Duplicates = createContext<State>({ duplicates: new Set(), print: () => {}, busy: false, error: '' });
 
-export function ReceiptPrint({ id, duplicate: printedBefore, children }: { id: string; duplicate: boolean; children: ReactNode }) {
-  const [duplicate, setDuplicate] = useState(printedBefore);
+export function ReceiptPrint({ ids, printed, children }: { ids: string[]; printed: string[]; children: ReactNode }) {
+  const [duplicates, setDuplicates] = useState(() => new Set(printed));
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   // Set when the button has already recorded this print, so beforeprint does not record it again.
@@ -20,25 +22,25 @@ export function ReceiptPrint({ id, duplicate: printedBefore, children }: { id: s
 
   useEffect(() => {
     const before = () => {
-      if (!recorded.current) void receiptPrintAction(id).catch(() => undefined);
+      if (!recorded.current) void receiptPrintAction(ids).catch(() => undefined);
       recorded.current = false;
     };
-    const after = () => setDuplicate(true);
+    const after = () => setDuplicates(new Set(ids));
     window.addEventListener('beforeprint', before);
     window.addEventListener('afterprint', after);
     return () => {
       window.removeEventListener('beforeprint', before);
       window.removeEventListener('afterprint', after);
     };
-  }, [id]);
+  }, [ids]);
 
   const print = async () => {
     setBusy(true);
     setError('');
     try {
-      const result = await receiptPrintAction(id);
+      const result = await receiptPrintAction(ids);
       if (!result.ok) return setError(result.error);
-      flushSync(() => setDuplicate(result.duplicate));
+      flushSync(() => setDuplicates(new Set(result.duplicates)));
       recorded.current = true;
       window.print();
     } catch {
@@ -48,11 +50,11 @@ export function ReceiptPrint({ id, duplicate: printedBefore, children }: { id: s
     }
   };
 
-  return <Duplicate.Provider value={{ duplicate, print, busy, error }}>{children}</Duplicate.Provider>;
+  return <Duplicates.Provider value={{ duplicates, print, busy, error }}>{children}</Duplicates.Provider>;
 }
 
-export function PrintReceiptButton() {
-  const { print, busy, error } = useContext(Duplicate);
+export function PrintReceiptButton({ label = 'রসিদ প্রিন্ট করুন' }: { label?: string }) {
+  const { print, busy, error } = useContext(Duplicates);
   return (
     <span className="flex items-center gap-3">
       {error && (
@@ -62,15 +64,15 @@ export function PrintReceiptButton() {
       )}
       <Button className="h-9" disabled={busy} onClick={print}>
         <Printer aria-hidden />
-        রসিদ প্রিন্ট করুন
+        {label}
       </Button>
     </span>
   );
 }
 
 /** "ডুপ্লিকেট কপি" on a reprint (nothing on the original). */
-export function DuplicateMark({ on }: { on: string }) {
-  const { duplicate } = useContext(Duplicate);
-  if (!duplicate) return null;
+export function DuplicateMark({ id, on }: { id: string; on: string }) {
+  const { duplicates } = useContext(Duplicates);
+  if (!duplicates.has(id)) return null;
   return <span className="adm-receipt-dup">ডুপ্লিকেট কপি · প্রিন্ট {on}</span>;
 }

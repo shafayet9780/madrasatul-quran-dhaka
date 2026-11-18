@@ -4,8 +4,8 @@ import { revalidatePath } from 'next/cache';
 import { after } from 'next/server';
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
-import { addNote, adminCycle, byPublicRef, deleteUnpaid, recordReceiptPrint, setEvaluationDay, setStatuses } from '@/lib/admissions/admin';
-import { OFFICE_STATUSES } from '@/lib/admissions/admin-labels';
+import { addNote, adminCycle, byPublicRef, deleteUnpaid, recordReceiptPrints, setEvaluationDay, setStatuses } from '@/lib/admissions/admin';
+import { MAX_RECEIPTS, OFFICE_STATUSES } from '@/lib/admissions/admin-labels';
 import { parseApplicationId } from '@/lib/admissions/ids';
 import { toBengaliDigits } from '@/lib/admissions/normalise';
 import { sendConfirmationEmail } from '@/lib/admissions/mail';
@@ -50,14 +50,14 @@ export async function evaluationDayAction(appId: string, field: 'attended' | 'ev
   return { ok: true };
 }
 
-/** Records a print of the assessment fee receipt; later prints are duplicates. */
-export async function receiptPrintAction(appId: string): Promise<{ ok: true; duplicate: boolean } | { ok: false; error: string }> {
+/** Records prints of assessment fee receipts; returns the ones printed before (duplicates). */
+export async function receiptPrintAction(appIds: string[]): Promise<{ ok: true; duplicates: string[] } | { ok: false; error: string }> {
   await assertAdmin();
-  if (!id.safeParse(appId).success) return BAD_REQUEST as { ok: false; error: string };
-  const printed = await recordReceiptPrint(appId);
-  if (!printed) return { ok: false, error: 'অ্যাসেসমেন্ট ফি গৃহীত চিহ্নিত হলে রসিদ প্রিন্ট করা যায়।' };
-  revalidatePath(`/admin/admissions/${appId}`);
-  return { ok: true, duplicate: printed.duplicate };
+  if (!z.array(id).min(1).max(MAX_RECEIPTS).safeParse(appIds).success) return BAD_REQUEST as { ok: false; error: string };
+  const { printed, duplicates } = await recordReceiptPrints(appIds);
+  if (!printed.length) return { ok: false, error: 'অ্যাসেসমেন্ট ফি গৃহীত চিহ্নিত হলে রসিদ প্রিন্ট করা যায়।' };
+  revalidatePath('/admin/admissions', 'layout');
+  return { ok: true, duplicates };
 }
 
 export async function addNoteAction(appId: string, text: string): Promise<Result> {

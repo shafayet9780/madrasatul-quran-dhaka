@@ -897,9 +897,18 @@ html:has(.sv-admin) body[data-scroll-locked] {
   border-bottom: 2px solid #7a4d32;
 }
 .sv-admin .adm-receipt-logo {
+  flex: none;
   width: 44px;
   height: 44px;
-  object-fit: contain;
+  background: center / contain no-repeat;
+}
+.sv-admin .adm-receipt-line {
+  display: inline-block;
+  width: 150px;
+  border-bottom: 1px solid #1f2a2e;
+}
+.sv-admin .adm-receipt + .adm-receipt {
+  margin-top: 24px;
 }
 .sv-admin .adm-receipt-school {
   font-size: 19px;
@@ -1019,6 +1028,15 @@ html:has(.sv-admin) body[data-scroll-locked] {
     margin: 0;
     border: 0;
     border-radius: 0;
+  }
+  /* One application per A4 sheet. */
+  .sv-admin .adm-receipt + .adm-receipt {
+    margin-top: 0;
+    break-before: page;
+  }
+  .sv-admin .adm-receipt-logo {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
   }
   .sv-admin .adm-receipt-half {
     box-sizing: border-box;

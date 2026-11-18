@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import Link from 'next/link';
 import { Download, Printer } from 'lucide-react';
 import { Button } from '@/components/shadcn/button';
-import { adminCycle, applicationCounts, listApplications, type AdminCycle, type ListTab } from '@/lib/admissions/admin';
+import { adminCycle, applicationCounts, listApplications, type AdminCycle, type ListParams, type ListTab } from '@/lib/admissions/admin';
 import { OFFICE_STATUSES, STATUS_LABEL, attemptsText, lastActive, shortDate, type ApplicationStatus } from '@/lib/admissions/admin-labels';
 import { chapterStatus, guardianSections } from '@/lib/admissions/answers';
 import { cycleClasses, loadAnsweredSnapshots, loadSnapshot } from '@/lib/admissions/cycle';
@@ -91,31 +91,33 @@ function progress(status: ApplicationStatus, snapshot: FormSnapshot | null, answ
   return `${bn(chapters.length)}টির মধ্যে ${bn(chapters.filter((c) => c.status === 'done').length)}টি ধাপ`;
 }
 
-export async function ListPage({ tab, search }: { tab: ListTab; search: ListSearch }) {
-  const cycle = await adminCycle();
-  if (!cycle) return <NoCycle />;
+/** The list's filters read from the address: shared by the list and the bulk receipts. */
+export async function listQuery(cycle: AdminCycle, tab: ListTab, search: ListSearch) {
   // The form versions answered: read once, for the class filter and the transport routes.
   const loading = loadAnsweredSnapshots(cycle.cycleId);
   const [versions, classes] = await Promise.all([loading, classOptions(cycle, loading)]);
   const transport = tab === 'paid' ? adminTransport(cycle, versions) : null;
   const transportChoice = transport ? transportFilter(transport.transport, search.transport) : null;
-  const page = Math.max(1, Number(search.page) || 1);
   const statuses: ApplicationStatus[] = tab === 'paid' ? OFFICE_STATUSES : ['draft', 'unpaid'];
   const status = statuses.find((s) => s === search.status);
-  const [counts, { rows, total }] = await Promise.all([
-    applicationCounts(cycle.cycleId),
-    listApplications(cycle.cycleId, {
-      tab,
-      q: search.q?.slice(0, 80),
-      classCode: classes.find((c) => c.value === search.class)?.value,
-      status,
-      evalFee: search.eval === 'yes' || search.eval === 'no' ? search.eval : undefined,
-      page,
-      pageSize: PAGE_SIZE,
-      classCodes: classes.map((c) => c.value),
-      transport: transport && transportChoice ? { key: transport.field.key, filter: transportChoice } : undefined,
-    }),
-  ]);
+  const params: ListParams = {
+    tab,
+    q: search.q?.slice(0, 80),
+    classCode: classes.find((c) => c.value === search.class)?.value,
+    status,
+    evalFee: search.eval === 'yes' || search.eval === 'no' ? search.eval : undefined,
+    classCodes: classes.map((c) => c.value),
+    transport: transport && transportChoice ? { key: transport.field.key, filter: transportChoice } : undefined,
+  };
+  return { classes, transport, transportChoice, statuses, status, params };
+}
+
+export async function ListPage({ tab, search }: { tab: ListTab; search: ListSearch }) {
+  const cycle = await adminCycle();
+  if (!cycle) return <NoCycle />;
+  const { classes, transport, transportChoice, statuses, status, params } = await listQuery(cycle, tab, search);
+  const page = Math.max(1, Number(search.page) || 1);
+  const [counts, { rows, total }] = await Promise.all([applicationCounts(cycle.cycleId), listApplications(cycle.cycleId, { ...params, page, pageSize: PAGE_SIZE })]);
   const classLabel = (value: string | null) => classes.find((c) => c.optionValue === value)?.label ?? '';
   const filtered = Boolean(search.q || search.class || status || search.eval || transportChoice);
   const title = tab === 'paid' ? 'আবেদন' : 'ফি বাকি';
@@ -164,6 +166,7 @@ export async function ListPage({ tab, search }: { tab: ListTab; search: ListSear
           <EmptyState>{filtered ? 'এই খোঁজ বা ফিল্টারে কোনো আবেদন নেই।' : tab === 'paid' ? 'এখনো কোনো আবেদনের ফি পরিশোধ হয়নি।' : 'ফি বাকি থাকা কোনো আবেদন নেই।'}</EmptyState>
         ) : tab === 'paid' ? (
           <PaidTable
+            receipts={{ query: pageHref(1).slice(1), total }}
             rows={rows.map(
               (r): PaidRow => ({
                 id: r.id,

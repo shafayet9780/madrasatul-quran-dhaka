@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useRef, useState, useTransition } from 'react';
-import { CirclePlus, Download, Search, Trash2, X } from 'lucide-react';
+import { CirclePlus, Download, Printer, Search, Trash2, X } from 'lucide-react';
 import { Button } from '@/components/shadcn/button';
 import { Checkbox } from '@/components/shadcn/checkbox';
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/shadcn/dialog';
@@ -16,7 +16,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/shadcn/dropdown-menu';
-import { OFFICE_STATUSES, STATUS_LABEL, statusTone, type ApplicationStatus } from '@/lib/admissions/admin-labels';
+import { MAX_RECEIPTS, OFFICE_STATUSES, STATUS_LABEL, statusTone, type ApplicationStatus } from '@/lib/admissions/admin-labels';
 import { toBengaliDigits as bn } from '@/lib/admissions/normalise';
 import { cn } from '@/lib/utils';
 import { changeStatusAction, deleteUnpaidAction } from './actions';
@@ -119,8 +119,12 @@ export type PaidRow = {
 
 const MAX_PDFS = 25;
 
-/** The paid list: select rows, then change their status or download their application PDFs. */
-export function PaidTable({ rows }: { rows: PaidRow[] }) {
+/**
+ * The paid list: select rows, then change their status, download their application PDFs or print
+ * their assessment fee receipts. With nothing selected, the receipts are every application the
+ * filters show (`receipts`: the filters in the address and how many match).
+ */
+export function PaidTable({ rows, receipts }: { rows: PaidRow[]; receipts: { query: string; total: number } }) {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [next, setNext] = useState('');
   const [message, setMessage] = useState<{ ok: boolean; text: string } | null>(null);
@@ -147,7 +151,7 @@ export function PaidTable({ rows }: { rows: PaidRow[] }) {
     <>
       <div className="flex flex-wrap items-center gap-2 rounded-lg border py-2 pl-3.5 pr-2">
         <span className="mr-auto text-sm" aria-live="polite">
-          {ids.length ? `${bn(ids.length)}টি সিলেক্ট করা` : 'সারি সিলেক্ট করে অবস্থা বদলান বা আবেদনপত্র নিন'}
+          {ids.length ? `${bn(ids.length)}টি সিলেক্ট করা` : 'সারি সিলেক্ট করে অবস্থা বদলান, আবেদনপত্র বা রসিদ নিন'}
         </span>
         <select
           aria-label="নতুন অবস্থা"
@@ -177,6 +181,19 @@ export function PaidTable({ rows }: { rows: PaidRow[] }) {
           <Button variant="outline" className="h-9 bg-white shadow-none" disabled title={ids.length > MAX_PDFS ? `একসাথে সর্বোচ্চ ${bn(MAX_PDFS)}টি` : undefined}>
             <Download aria-hidden />
             আবেদনপত্র PDF
+          </Button>
+        )}
+        {ids.length || receipts.total <= MAX_RECEIPTS ? (
+          <Button asChild variant="outline" className="h-9 bg-white shadow-none">
+            <a href={`/admin/admissions/receipts?${ids.length ? `ids=${ids.join(',')}` : receipts.query}`}>
+              <Printer aria-hidden />
+              {ids.length ? 'ফি-র রসিদ' : `সব ফি-র রসিদ (${bn(receipts.total)}টি)`}
+            </a>
+          </Button>
+        ) : (
+          <Button variant="outline" className="h-9 bg-white shadow-none" disabled title={`একসাথে সর্বোচ্চ ${bn(MAX_RECEIPTS)}টি: শ্রেণী বা অবস্থা দিয়ে ফিল্টার করুন`}>
+            <Printer aria-hidden />
+            সব ফি-র রসিদ ({bn(receipts.total)}টি)
           </Button>
         )}
       </div>

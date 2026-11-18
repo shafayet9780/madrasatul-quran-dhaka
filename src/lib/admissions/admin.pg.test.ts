@@ -1,7 +1,7 @@
 // @vitest-environment node
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { eq, sql } from 'drizzle-orm';
-import { addNote, adminCycle, applicationCounts, applicationDetail, deleteUnpaid, listApplications, overview, recordReceiptPrint, setEvaluationDay, setStatuses, transportAreas, transportCounts } from './admin';
+import { addNote, adminCycle, applicationCounts, applicationDetail, deleteUnpaid, listApplications, overview, assignEvalReceipts, recordReceiptPrints, receiptApplications, setEvaluationDay, setStatuses, transportAreas, transportCounts } from './admin';
 import { cycleClasses, idClassCodes, syncCycle, type CycleState } from './cycle';
 import { createDraft, getByToken, saveDraft, submitDraft, type Application } from './drafts';
 import { acceptHeldPayment, confirmPayment, latestPayment, startPayment } from './payments';
@@ -118,7 +118,7 @@ describe('admin queries', () => {
     await db.update(applications).set({ isTest: true }).where(eq(applications.id, test.id));
     const receiptNo = async (id: string) => (await applicationDetail(id))!.app.evalReceiptNo;
 
-    expect(await recordReceiptPrint(a.id)).toBeNull(); // fee not received yet
+    expect(await recordReceiptPrints([a.id])).toEqual({ printed: [], duplicates: [] }); // no fee, no number
     await setEvaluationDay(b.id, 'evalFee', true);
     await setEvaluationDay(a.id, 'evalFee', true);
     await setEvaluationDay(test.id, 'evalFee', true);
@@ -126,18 +126,50 @@ describe('admin queries', () => {
 
     // Switched off and on again: the same number, none skipped.
     await setEvaluationDay(a.id, 'evalFee', false);
-    expect(await recordReceiptPrint(a.id)).toBeNull();
     await setEvaluationDay(a.id, 'evalFee', true);
     expect(await receiptNo(a.id)).toBe(2);
 
-    expect(await recordReceiptPrint(a.id)).toEqual({ duplicate: false });
-    expect(await recordReceiptPrint(a.id)).toEqual({ duplicate: true });
+    expect(await recordReceiptPrints([a.id])).toEqual({ printed: [a.id], duplicates: [] });
+    expect(await recordReceiptPrints([a.id])).toEqual({ printed: [a.id], duplicates: [a.id] });
     const printed = (await applicationDetail(a.id))!.events.filter((e) => e.kind === 'eval_receipt_printed').map((e) => e.detail);
     expect(printed).toEqual([
       { duplicate: true, receiptNo: '2027/002' },
       { duplicate: false, receiptNo: '2027/002' },
     ]);
-    expect(await recordReceiptPrint(test.id)).toEqual({ duplicate: false });
+    expect(await recordReceiptPrints([test.id])).toEqual({ printed: [test.id], duplicates: [] });
+  });
+
+  it('numbers receipts printed in advance in class and ID order, and keeps them when the fee is received', async () => {
+    const one = await application({ name: 'ক', mobile: '01712345601', classValue: 'class_1', pay: 'pay' });
+    const kg1 = await application({ name: 'খ', mobile: '01712345602', pay: 'pay' });
+    const kg2 = await application({ name: 'গ', mobile: '01712345603', pay: 'pay' });
+    const early = await application({ name: 'ঘ', mobile: '01712345604', pay: 'pay' });
+    const unpaid = await application({ name: 'ঙ', mobile: '01712345605' });
+    await setEvaluationDay(early.id, 'evalFee', true); // 1
+    const ids = [one.id, kg2.id, early.id, kg1.id, unpaid.id];
+    const classOrder = ['N', 'KG', 'C1', 'C4'];
+    await assignEvalReceipts(cycle.cycleId, ids, classOrder);
+    await assignEvalReceipts(cycle.cycleId, ids, classOrder); // again: nothing changes
+
+    const apps = await receiptApplications(cycle.cycleId, ids, classOrder);
+    // The form's class order (KG before ১ম), then ID; the fee received earlier kept its number.
+    expect(apps.map((x) => [x.publicRef, x.evalReceiptNo])).toEqual([
+      ['KG-001', 2],
+      ['KG-002', 3],
+      ['KG-003', 1],
+      ['C1-001', 4],
+    ]);
+
+    // Printed in bulk before the fee: the original. Marked received later: same number; a reprint is a duplicate.
+    expect(await recordReceiptPrints(ids)).toEqual({ printed: expect.arrayContaining([one.id, kg1.id, kg2.id, early.id]), duplicates: [] });
+    await setEvaluationDay(kg1.id, 'evalFee', true);
+    expect((await applicationDetail(kg1.id))!.app.evalReceiptNo).toBe(2);
+    expect((await recordReceiptPrints([kg1.id])).duplicates).toEqual([kg1.id]);
+
+    // The next number continues after the bulk ones.
+    const late = await application({ name: 'চ', mobile: '01712345606', pay: 'pay' });
+    await setEvaluationDay(late.id, 'evalFee', true);
+    expect((await applicationDetail(late.id))!.app.evalReceiptNo).toBe(5);
   });
 
   it('deletes an unpaid application with its documents, never a paid one', async () => {

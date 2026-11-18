@@ -169,8 +169,9 @@ export async function setStatuses(ids: string[], status: ApplicationStatus): Pro
 
 /**
  * Evaluation day switches: attendance and the evaluation fee. The first time the fee is marked
- * received, the application gets the cycle's next receipt number (kept if the fee is switched off
- * and on again, so no number is lost or given twice). Test applications get no number.
+ * received, the application gets the cycle's next receipt number unless it has one already (from
+ * receipts printed in advance); it keeps it if the fee is switched off and on again, so no number
+ * is lost or given twice. Test applications get no number.
  */
 export async function setEvaluationDay(id: string, field: 'attended' | 'evalFee', on: boolean): Promise<boolean> {
   const db = getAdmissionsDb();
@@ -179,29 +180,43 @@ export async function setEvaluationDay(id: string, field: 'attended' | 'evalFee'
     .update(applications)
     .set({ ...column, updatedAt: new Date(), mirroredAt: null, mirrorClaimedAt: null })
     .where(and(eq(applications.id, id), isNotNull(applications.publicRef)))
-    .returning({ publicRef: applications.publicRef });
+    .returning({ publicRef: applications.publicRef, cycleId: applications.cycleId });
   if (!row) return false;
-  const receipt = field === 'evalFee' && on ? await assignEvalReceipt(id) : null;
+  if (field === 'evalFee' && on) await assignEvalReceipts(row.cycleId, [id]);
+  const receipt = field === 'evalFee' && on ? await evalReceiptOf(id) : null;
   const kind = field === 'attended' ? (on ? 'attended' : 'attended_undone') : on ? 'eval_fee' : 'eval_fee_undone';
   await logEvent(id, row.publicRef ?? id, kind, 'admin', receipt ? { receiptNo: receipt } : undefined);
   return true;
 }
 
-/** The application's receipt number ("2027/001"), handed out once: the cycle row lock keeps numbers unique. */
-async function assignEvalReceipt(id: string): Promise<string | null> {
-  const db = getAdmissionsDb();
-  await db.execute(sql`
-    WITH target AS (
-      SELECT id, cycle_id FROM applications
-      WHERE id = ${id} AND public_ref IS NOT NULL AND NOT is_test AND eval_receipt_no IS NULL
+const idList = (ids: string[]) => sql.join(ids.map((id) => sql`${id}`), sql`, `);
+
+/**
+ * Gives receipt numbers to the paid applications among `ids` that have none (tests excepted), in
+ * class order (`classOrder`: class codes in the form's order) then ID, in one statement: the cycle
+ * row lock keeps numbers unique and gapless.
+ */
+export async function assignEvalReceipts(cycleId: string, ids: string[], classOrder: string[] = []): Promise<void> {
+  if (!ids.length) return;
+  const order = classOrder.length ? sql`array_position(ARRAY[${sql.join(classOrder.map((c) => sql`${c}`), sql`, `)}]::text[], class_code), ` : sql``;
+  await getAdmissionsDb().execute(sql`
+    WITH locked AS (
+      SELECT id, class_code, serial FROM applications
+      WHERE cycle_id = ${cycleId} AND id IN (${idList(ids)}) AND public_ref IS NOT NULL AND NOT is_test AND eval_receipt_no IS NULL
       FOR UPDATE
+    ), numbered AS (
+      SELECT id, row_number() OVER (ORDER BY ${order}class_code, serial, id) AS n FROM locked
     ), bump AS (
-      UPDATE admission_cycles c SET last_eval_receipt = c.last_eval_receipt + 1
-      FROM target WHERE c.id = target.cycle_id
-      RETURNING c.last_eval_receipt
+      UPDATE admission_cycles c SET last_eval_receipt = c.last_eval_receipt + (SELECT count(*) FROM locked)
+      WHERE c.id = ${cycleId} AND EXISTS (SELECT 1 FROM locked)
+      RETURNING c.last_eval_receipt - (SELECT count(*) FROM locked) AS base
     )
-    UPDATE applications a SET eval_receipt_no = bump.last_eval_receipt FROM target, bump WHERE a.id = target.id`);
-  const [row] = await db
+    UPDATE applications a SET eval_receipt_no = bump.base + numbered.n FROM numbered, bump WHERE a.id = numbered.id`);
+}
+
+/** The application's receipt number as printed ("2027/001"), or null. */
+async function evalReceiptOf(id: string): Promise<string | null> {
+  const [row] = await getAdmissionsDb()
     .select({ no: applications.evalReceiptNo, session: admissionCycles.session })
     .from(applications)
     .innerJoin(admissionCycles, eq(admissionCycles.id, applications.cycleId))
@@ -210,26 +225,48 @@ async function assignEvalReceipt(id: string): Promise<string | null> {
 }
 
 /**
- * A print of the assessment fee receipt (fee received only). The first print is the original; the
- * result says whether this one is a duplicate. Logged either way.
+ * Prints of assessment fee receipts: applications whose fee was received or that have a receipt
+ * number (printed in advance). The first print of each is the original; the result lists those
+ * that were printed before (duplicates). Each print is logged.
  */
-export async function recordReceiptPrint(id: string): Promise<{ duplicate: boolean } | null> {
+export async function recordReceiptPrints(ids: string[]): Promise<{ printed: string[]; duplicates: string[] }> {
+  if (!ids.length) return { printed: [], duplicates: [] };
   const db = getAdmissionsDb();
-  const result = await db.execute<{ public_ref: string; eval_receipt_no: number | null; session: string; first: Date | null }>(sql`
+  const result = await db.execute<{ id: string; public_ref: string; eval_receipt_no: number | null; session: string; first: unknown }>(sql`
     WITH old AS (
-      SELECT a.id, a.eval_receipt_printed_at AS first FROM applications a
-      WHERE a.id = ${id} AND a.public_ref IS NOT NULL AND a.eval_fee_received_at IS NOT NULL
+      SELECT id, eval_receipt_printed_at AS first FROM applications
+      WHERE id IN (${idList(ids)}) AND public_ref IS NOT NULL AND (eval_fee_received_at IS NOT NULL OR eval_receipt_no IS NOT NULL)
       FOR UPDATE
     )
     UPDATE applications a SET eval_receipt_printed_at = coalesce(old.first, now())
     FROM old, admission_cycles c
     WHERE a.id = old.id AND c.id = a.cycle_id
-    RETURNING a.public_ref, a.eval_receipt_no, c.session, old.first`);
-  const row = result.rows[0];
-  if (!row) return null;
-  const duplicate = !!row.first;
-  await logEvent(id, row.public_ref, 'eval_receipt_printed', 'admin', { duplicate, ...(row.eval_receipt_no ? { receiptNo: evalReceiptRef(row.session, row.eval_receipt_no) } : {}) });
-  return { duplicate };
+    RETURNING a.id, a.public_ref, a.eval_receipt_no, c.session, old.first`);
+  const rows = result.rows;
+  if (rows.length) {
+    await db.insert(applicationEvents).values(
+      rows.map((r) => ({
+        applicationId: r.id,
+        label: r.public_ref,
+        kind: 'eval_receipt_printed',
+        actor: 'admin',
+        detail: { duplicate: !!r.first, ...(r.eval_receipt_no ? { receiptNo: evalReceiptRef(r.session, r.eval_receipt_no) } : {}) },
+      })),
+    );
+  }
+  return { printed: rows.map((r) => r.id), duplicates: rows.filter((r) => r.first).map((r) => r.id) };
+}
+
+/** Paid applications for receipts, in class order (as assignEvalReceipts) then ID. */
+export async function receiptApplications(cycleId: string, ids: string[], classOrder: string[] = []): Promise<Application[]> {
+  if (!ids.length) return [];
+  const rows = await getAdmissionsDb()
+    .select()
+    .from(applications)
+    .where(and(eq(applications.cycleId, cycleId), inArray(applications.id, ids), isNotNull(applications.publicRef)))
+    .orderBy(applications.classCode, applications.serial, applications.id);
+  const rank = (code: string | null) => (classOrder.indexOf(code ?? '') + 1 || classOrder.length + 1);
+  return rows.sort((a, b) => rank(a.classCode) - rank(b.classCode));
 }
 
 export async function addNote(id: string, text: string): Promise<boolean> {
