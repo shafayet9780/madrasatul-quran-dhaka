@@ -4,7 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { after } from 'next/server';
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
-import { addNote, adminCycle, byPublicRef, deleteUnpaid, recordReceiptPrints, setEvaluationDay, setStatuses } from '@/lib/admissions/admin';
+import { addNote, adminCycle, byPublicRef, deleteUnpaid, logReceiptReprint, printReceipts, setEvaluationDay, setStatuses } from '@/lib/admissions/admin';
 import { MAX_RECEIPTS, OFFICE_STATUSES } from '@/lib/admissions/admin-labels';
 import { parseApplicationId } from '@/lib/admissions/ids';
 import { toBengaliDigits } from '@/lib/admissions/normalise';
@@ -50,14 +50,23 @@ export async function evaluationDayAction(appId: string, field: 'attended' | 'ev
   return { ok: true };
 }
 
-/** Records prints of assessment fee receipts; returns the ones printed before (duplicates). */
-export async function receiptPrintAction(appIds: string[]): Promise<{ ok: true; duplicates: string[] } | { ok: false; error: string }> {
+export type ReceiptPrintResult = { ok: true; numbers: Record<string, string>; duplicates: string[] } | { ok: false; error: string };
+
+/**
+ * The receipt print button: gives numbers to those without one, records the print and returns the
+ * numbers and the duplicates, which the page shows before the print dialog opens (no reload).
+ * `again`: the same copy printed again right after (only logged).
+ */
+export async function receiptPrintAction(appIds: string[], again = false): Promise<ReceiptPrintResult> {
   await assertAdmin();
   if (!z.array(id).min(1).max(MAX_RECEIPTS).safeParse(appIds).success) return BAD_REQUEST as { ok: false; error: string };
-  const { printed, duplicates } = await recordReceiptPrints(appIds);
+  if (again) {
+    await logReceiptReprint(appIds);
+    return { ok: true, numbers: {}, duplicates: [] };
+  }
+  const { printed, duplicates, numbers } = await printReceipts(appIds);
   if (!printed.length) return { ok: false, error: 'অ্যাসেসমেন্ট ফি গৃহীত চিহ্নিত হলে রসিদ প্রিন্ট করা যায়।' };
-  revalidatePath('/admin/admissions', 'layout');
-  return { ok: true, duplicates };
+  return { ok: true, numbers, duplicates };
 }
 
 export async function addNoteAction(appId: string, text: string): Promise<Result> {

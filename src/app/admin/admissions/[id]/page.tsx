@@ -166,7 +166,13 @@ export default async function ApplicationPage({ params, searchParams }: Props) {
                   evalFee={!!app.evalFeeReceivedAt}
                   fee={fee}
                   attendedNote={app.attendedAt ? `চিহ্নিত, ${when(app.attendedAt)}` : 'আবেদনপত্রের QR স্ক্যান করলে এই পেজ খোলে'}
-                  feeNote={app.evalFeeReceivedAt ? `চিহ্নিত, ${when(app.evalFeeReceivedAt)}${app.evalReceiptNo ? `, রসিদ ${bn(evalReceiptRef(snapshot.settings.session, app.evalReceiptNo))}` : ''}` : 'এখনো গৃহীত হয়নি'}
+                  feeNote={[
+                    app.evalFeeReceivedAt ? `চিহ্নিত, ${when(app.evalFeeReceivedAt)}` : 'এখনো গৃহীত হয়নি',
+                    app.evalReceiptNo && `রসিদ ${bn(evalReceiptRef(snapshot.settings.session, app.evalReceiptNo))}`,
+                  ]
+                    .filter(Boolean)
+                    .join(', ')}
+                  hasReceipt={!!app.evalReceiptNo}
                 />
               </Card>
             )}

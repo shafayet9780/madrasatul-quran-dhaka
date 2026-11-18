@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import Link from 'next/link';
 import { Download, Printer } from 'lucide-react';
 import { Button } from '@/components/shadcn/button';
-import { adminCycle, applicationCounts, listApplications, type AdminCycle, type ListParams, type ListTab } from '@/lib/admissions/admin';
+import { adminCycle, applicationCounts, listApplications, receiptTargets, type AdminCycle, type ListParams, type ListTab } from '@/lib/admissions/admin';
 import { OFFICE_STATUSES, STATUS_LABEL, attemptsText, lastActive, shortDate, type ApplicationStatus } from '@/lib/admissions/admin-labels';
 import { chapterStatus, guardianSections } from '@/lib/admissions/answers';
 import { cycleClasses, loadAnsweredSnapshots, loadSnapshot } from '@/lib/admissions/cycle';
@@ -91,6 +91,14 @@ function progress(status: ApplicationStatus, snapshot: FormSnapshot | null, answ
   return `${bn(chapters.length)}টির মধ্যে ${bn(chapters.filter((c) => c.status === 'done').length)}টি ধাপ`;
 }
 
+/** The list's filters as an address query (no page, no one-off notice): for paging, back links and the bulk receipts. */
+export function listSearchParams(search: ListSearch): URLSearchParams {
+  return new URLSearchParams(Object.entries(search).filter(([k, v]) => v && k !== 'page' && k !== 'deleted' && k !== 'ids') as [string, string][]);
+}
+
+/** The class label of an application's answer (the option value), from classOptions. */
+export const classLabelOf = (classes: Awaited<ReturnType<typeof classOptions>>, value: string | null) => classes.find((c) => c.optionValue === value)?.label ?? '';
+
 /** The list's filters read from the address: shared by the list and the bulk receipts. */
 export async function listQuery(cycle: AdminCycle, tab: ListTab, search: ListSearch) {
   // The form versions answered: read once, for the class filter and the transport routes.
@@ -117,8 +125,12 @@ export async function ListPage({ tab, search }: { tab: ListTab; search: ListSear
   if (!cycle) return <NoCycle />;
   const { classes, transport, transportChoice, statuses, status, params } = await listQuery(cycle, tab, search);
   const page = Math.max(1, Number(search.page) || 1);
-  const [counts, { rows, total }] = await Promise.all([applicationCounts(cycle.cycleId), listApplications(cycle.cycleId, { ...params, page, pageSize: PAGE_SIZE })]);
-  const classLabel = (value: string | null) => classes.find((c) => c.optionValue === value)?.label ?? '';
+  const [counts, { rows, total }, receipts] = await Promise.all([
+    applicationCounts(cycle.cycleId),
+    listApplications(cycle.cycleId, { ...params, page, pageSize: PAGE_SIZE }),
+    tab === 'paid' ? receiptTargets(cycle.cycleId, params, 0) : null,
+  ]);
+  const classLabel = (value: string | null) => classLabelOf(classes, value);
   const filtered = Boolean(search.q || search.class || status || search.eval || transportChoice);
   const title = tab === 'paid' ? 'আবেদন' : 'ফি বাকি';
 
@@ -141,9 +153,9 @@ export async function ListPage({ tab, search }: { tab: ListTab; search: ListSear
   const from = total ? (page - 1) * PAGE_SIZE + 1 : 0;
   const to = Math.min(total, page * PAGE_SIZE);
   const pageHref = (p: number) => {
-    const params = new URLSearchParams(Object.entries(search).filter(([k, v]) => v && k !== 'page' && k !== 'deleted') as [string, string][]);
-    if (p > 1) params.set('page', String(p));
-    const q = params.toString();
+    const query = listSearchParams(search);
+    if (p > 1) query.set('page', String(p));
+    const q = query.toString();
     return q ? `?${q}` : '?';
   };
 
@@ -166,7 +178,7 @@ export async function ListPage({ tab, search }: { tab: ListTab; search: ListSear
           <EmptyState>{filtered ? 'এই খোঁজ বা ফিল্টারে কোনো আবেদন নেই।' : tab === 'paid' ? 'এখনো কোনো আবেদনের ফি পরিশোধ হয়নি।' : 'ফি বাকি থাকা কোনো আবেদন নেই।'}</EmptyState>
         ) : tab === 'paid' ? (
           <PaidTable
-            receipts={{ query: pageHref(1).slice(1), total }}
+            receipts={{ query: listSearchParams(search).toString(), total: receipts?.total ?? 0 }}
             rows={rows.map(
               (r): PaidRow => ({
                 id: r.id,

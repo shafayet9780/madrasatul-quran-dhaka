@@ -122,7 +122,7 @@ const MAX_PDFS = 25;
 /**
  * The paid list: select rows, then change their status, download their application PDFs or print
  * their assessment fee receipts. With nothing selected, the receipts are every application the
- * filters show (`receipts`: the filters in the address and how many match).
+ * filters show (`receipts`: the filters in the address and how many match, tests left out).
  */
 export function PaidTable({ rows, receipts }: { rows: PaidRow[]; receipts: { query: string; total: number } }) {
   const [selected, setSelected] = useState<Set<string>>(new Set());
@@ -183,7 +183,7 @@ export function PaidTable({ rows, receipts }: { rows: PaidRow[]; receipts: { que
             আবেদনপত্র PDF
           </Button>
         )}
-        {ids.length || receipts.total <= MAX_RECEIPTS ? (
+        {ids.length || (receipts.total > 0 && receipts.total <= MAX_RECEIPTS) ? (
           <Button asChild variant="outline" className="h-9 bg-white shadow-none">
             <a href={`/admin/admissions/receipts?${ids.length ? `ids=${ids.join(',')}` : receipts.query}`}>
               <Printer aria-hidden />
@@ -191,7 +191,7 @@ export function PaidTable({ rows, receipts }: { rows: PaidRow[]; receipts: { que
             </a>
           </Button>
         ) : (
-          <Button variant="outline" className="h-9 bg-white shadow-none" disabled title={`একসাথে সর্বোচ্চ ${bn(MAX_RECEIPTS)}টি: শ্রেণী বা অবস্থা দিয়ে ফিল্টার করুন`}>
+          <Button variant="outline" className="h-9 bg-white shadow-none" disabled title={receipts.total ? `একসাথে সর্বোচ্চ ${bn(MAX_RECEIPTS)}টি: শ্রেণী বা অবস্থা দিয়ে ফিল্টার করুন` : undefined}>
             <Printer aria-hidden />
             সব ফি-র রসিদ ({bn(receipts.total)}টি)
           </Button>

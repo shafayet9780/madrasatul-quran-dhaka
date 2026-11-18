@@ -58,8 +58,11 @@ export function StatusForm({ id, status }: { id: string; status: ApplicationStat
   );
 }
 
-/** Evaluation day: attendance and the cash evaluation fee (the receipt is printed from its own page). */
-export function EvaluationSwitches({ id, attended, evalFee, attendedNote, feeNote, fee }: { id: string; attended: boolean; evalFee: boolean; attendedNote: string; feeNote: string; fee: string }) {
+/**
+ * Evaluation day: attendance and the cash evaluation fee. The receipt is printed from its own page:
+ * once the fee is received, or earlier when it was given a number by a print in advance.
+ */
+export function EvaluationSwitches({ id, attended, evalFee, attendedNote, feeNote, fee, hasReceipt }: { id: string; attended: boolean; evalFee: boolean; attendedNote: string; feeNote: string; fee: string; hasReceipt: boolean }) {
   const { pending, run, line } = useAction();
   // The switches move at once; a failed save puts them back.
   const [att, setAtt] = useState(attended);
@@ -102,7 +105,7 @@ export function EvaluationSwitches({ id, attended, evalFee, attendedNote, feeNot
           }}
         />
       </div>
-      {paid && !pending && (
+      {(paid || hasReceipt) && !pending && (
         <Button asChild variant="outline" className="h-9 self-start bg-white shadow-none">
           <Link href={`/admin/admissions/${id}/receipt`}>
             <Printer aria-hidden />

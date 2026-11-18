@@ -902,6 +902,9 @@ html:has(.sv-admin) body[data-scroll-locked] {
   height: 44px;
   background: center / contain no-repeat;
 }
+.sv-admin .adm-receipt-note {
+  display: none;
+}
 .sv-admin .adm-receipt-line {
   display: inline-block;
   width: 150px;
@@ -1028,6 +1031,15 @@ html:has(.sv-admin) body[data-scroll-locked] {
     margin: 0;
     border: 0;
     border-radius: 0;
+  }
+  /* Receipts print only through the page's button (ReceiptPrint.tsx); Ctrl+P prints a note. */
+  html:not([data-receipt-print]) .sv-admin .adm-receipt {
+    display: none;
+  }
+  html:not([data-receipt-print]) .sv-admin .adm-receipt-note {
+    display: block;
+    margin: 20mm;
+    font-size: 16px;
   }
   /* One application per A4 sheet. */
   .sv-admin .adm-receipt + .adm-receipt {

@@ -85,6 +85,21 @@ test('bulk status change on selected rows', async ({ page }) => {
   await expect(idCells(page)).toHaveCount(2);
 });
 
+test('assessment fee receipts printed in advance: ticked rows, numbered at the print', async ({ page }) => {
+  await page.goto('/admin/admissions/applications');
+  await expect(page.getByRole('link', { name: /সব ফি-র রসিদ/ })).toBeVisible();
+  await page.getByRole('checkbox', { name: /সিলেক্ট$/ }).nth(1).check();
+  await page.getByRole('checkbox', { name: /সিলেক্ট$/ }).nth(2).check();
+  await page.getByRole('link', { name: 'ফি-র রসিদ', exact: true }).click();
+  await expect(page.getByText('২টি রসিদ', { exact: true })).toBeVisible();
+  await expect(page.getByRole('article')).toHaveCount(2);
+  await page.evaluate(() => (window.print = () => {}));
+  await page.getByRole('button', { name: 'সব রসিদ প্রিন্ট করুন' }).click();
+  // Both sheets, both copies, carry a number once printed.
+  await expect(page.getByText(/^২০২৭\/[০-৯]{3}$/)).toHaveCount(4);
+  await expect(page.getByText('প্রিন্ট করলে দেওয়া হবে')).toHaveCount(0);
+});
+
 test('detail: answers, documents, notes, status, evaluation day, PDF and Excel', async ({ page }) => {
   await page.goto('/admin/admissions/applications');
   const id = (await idCells(page).first().textContent())!;
@@ -111,11 +126,23 @@ test('detail: answers, documents, notes, status, evaluation day, PDF and Excel',
   // The switches start off on a fresh preview; setChecked keeps a rerun on the same server working.
   const fee = page.getByRole('switch', { name: /অ্যাসেসমেন্ট ফি/ });
   await fee.setChecked(false);
-  await page.getByPlaceholder('ঐচ্ছিক').fill('R-102');
   await fee.setChecked(true);
-  await expect(page.getByText('অ্যাসেসমেন্ট ফি গৃহীত (রসিদ R-102)').first()).toBeVisible();
+  // The system gives the receipt number (2027/001 on a fresh preview).
+  await expect(page.getByText(/অ্যাসেসমেন্ট ফি গৃহীত \(রসিদ 2027\/\d{3}\)/).first()).toBeVisible();
   await page.getByRole('switch', { name: 'উপস্থিত' }).setChecked(true);
   await expect(page.getByRole('switch', { name: 'উপস্থিত' })).toBeChecked();
+
+  // The receipt prints only through its button, which records the print; the next one is a duplicate.
+  const detailUrl = page.url();
+  await page.getByRole('link', { name: 'ফি-র রসিদ প্রিন্ট' }).click();
+  await expect(page).toHaveURL(/\/receipt$/);
+  await page.evaluate(() => (window.print = () => {}));
+  await page.getByRole('button', { name: 'রসিদ প্রিন্ট করুন' }).click();
+  await expect(page.getByRole('button', { name: 'আবার প্রিন্ট (একই কপি)' })).toBeVisible();
+  await page.getByRole('button', { name: 'রসিদ প্রিন্ট করুন' }).click();
+  await expect(page.getByText(/ডুপ্লিকেট কপি/).first()).toBeVisible();
+  await page.goto(detailUrl);
+  await expect(page.getByText(/অ্যাসেসমেন্ট ফি-র রসিদ প্রিন্ট \(2027\/\d{3}\), ডুপ্লিকেট/).first()).toBeVisible();
 
   const pdf = await page.request.get(page.url().replace(/\?.*$/, '') + '/pdf');
   expect(pdf.status()).toBe(200);

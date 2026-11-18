@@ -98,7 +98,7 @@ export function eventText(kind: string, label: string, detail: Record<string, un
     case 'eval_fee':
       return d.receiptNo ? `${eventLabel(kind)} (রসিদ ${String(d.receiptNo)})` : eventLabel(kind);
     case 'eval_receipt_printed':
-      return `${eventLabel(kind)}${d.receiptNo ? ` (${String(d.receiptNo)})` : ''}${d.duplicate ? ', ডুপ্লিকেট' : ''}`;
+      return `${eventLabel(kind)}${d.receiptNo ? ` (${String(d.receiptNo)})` : ''}${d.again ? ', আবার (একই কপি)' : d.duplicate ? ', ডুপ্লিকেট' : ''}`;
     case 'email_confirmation':
       return `আবেদনের ইমেইল পাঠানো হয়েছে${d.pdf ? ', সঙ্গে আবেদনপত্র' : ''}`;
     case 'payment_started':

@@ -99,6 +99,8 @@ export const applications = pgTable(
     evalReceiptNo: integer('eval_receipt_no'),
     /** The receipt's first print: every later print is marked ডুপ্লিকেট. */
     evalReceiptPrintedAt: ts('eval_receipt_printed_at'),
+    /** The fee date printed on the receipt, kept from its first print with the fee received. */
+    evalReceiptDate: ts('eval_receipt_date'),
 
     /** Private Blob key of the generated application PDF. */
     pdfKey: text('pdf_key'),

@@ -3,7 +3,7 @@ import { evalReceiptRef } from '@/lib/admissions/admin-labels';
 import { dateTime, taka } from '@/lib/admissions/display';
 import { formatMobile, toBengaliDigits as bn } from '@/lib/admissions/normalise';
 import type { schoolInfo } from '@/lib/admissions/pdf';
-import { DuplicateMark } from './ReceiptPrint';
+import { DuplicateMark, ReceiptNumber } from './ReceiptPrint';
 
 // The assessment fee receipt: one A4 sheet cut in half, the office's copy on top and the guardian's
 // below. Printed in advance (fee not received yet) it has a blank date line and no পরিশোধিত stamp:
@@ -21,9 +21,15 @@ export function ReceiptLogoStyle({ school }: { school: School }) {
   return <style>{`.sv-admin .adm-receipt-logo{background-image:url("${school.logo}")}`}</style>;
 }
 
+/** Printed instead of the receipts when the page is printed without its button (Ctrl+P): see admin.css. */
+export function ReceiptPrintNote() {
+  return <p className="adm-receipt-note">রসিদ প্রিন্ট করতে পেজের “রসিদ প্রিন্ট করুন” বোতাম ব্যবহার করুন: বোতাম রসিদ নম্বর দেয় ও প্রিন্টের হিসাব রাখে।</p>;
+}
+
 export function ReceiptSheet({ app, session, fee, classLabel, school, today }: { app: Application; session: string; fee: number; classLabel: string; school: School; today: string }) {
-  const receiptNo = app.evalReceiptNo ? bn(evalReceiptRef(session, app.evalReceiptNo)) : null;
-  const received = app.evalFeeReceivedAt;
+  const receiptNo = app.evalReceiptNo ? evalReceiptRef(session, app.evalReceiptNo) : null;
+  // The date of the first print with the fee received stays, even if the fee is switched off and on.
+  const received = app.evalFeeReceivedAt ? (app.evalReceiptDate ?? app.evalFeeReceivedAt) : null;
   const rows: [string, string, boolean?][] = [
     ['আবেদন আইডি', app.publicRef ?? '', true],
     ['আবেদিত শ্রেণী', classLabel],
@@ -50,7 +56,7 @@ export function ReceiptSheet({ app, session, fee, classLabel, school, today }: {
       </h2>
       <div className="adm-receipt-meta">
         <span>
-          রসিদ নং <b>{receiptNo ?? (app.isTest ? 'পরীক্ষামূলক আবেদন, নম্বর নেই' : '—')}</b>
+          রসিদ নং <ReceiptNumber id={app.id} number={receiptNo} test={app.isTest} />
         </span>
         {received ? (
           <span>

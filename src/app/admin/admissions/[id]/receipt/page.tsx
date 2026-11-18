@@ -1,24 +1,26 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { adminCycle, applicationDetail } from '@/lib/admissions/admin';
+import { applicationDetail } from '@/lib/admissions/admin';
 import { schoolInfo } from '@/lib/admissions/pdf';
 import { PageTop } from '../../../AdminShell';
 import { EmptyState, LINK, PageBody } from '../../../ui';
-import { classOptions } from '../../ListPage';
+import { classLabelOf, classOptions } from '../../ListPage';
 import { PrintReceiptButton, ReceiptPrint } from '../../ReceiptPrint';
-import { ReceiptLogoStyle, ReceiptSheet, receiptDay } from '../../ReceiptSheet';
+import { ReceiptLogoStyle, ReceiptPrintNote, ReceiptSheet, receiptDay } from '../../ReceiptSheet';
 
 export const metadata: Metadata = { title: 'অ্যাসেসমেন্ট ফি-র রসিদ' };
 export const dynamic = 'force-dynamic';
 
-// One application's receipt (fee received, or a number given when receipts were printed in advance).
+// One application's receipt: fee received, or a number given when receipts were printed in
+// advance. The session, fee and classes are the application's own (an older cycle stays as it was).
 
 export default async function ReceiptPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const [detail, cycle] = await Promise.all([applicationDetail(id), adminCycle()]);
-  if (!detail?.app.publicRef || !cycle) notFound();
-  const { app } = detail;
+  const school = schoolInfo();
+  const detail = await applicationDetail(id);
+  if (!detail?.app.publicRef) notFound();
+  const { app, snapshot } = detail;
   const crumbs = [{ label: 'ভর্তি', href: '/admin/admissions' }, { label: app.publicRef!, href: `/admin/admissions/${app.id}` }, { label: 'রসিদ' }];
 
   if (!app.evalFeeReceivedAt && !app.evalReceiptNo) {
@@ -37,7 +39,8 @@ export default async function ReceiptPage({ params }: { params: Promise<{ id: st
     );
   }
 
-  const [school, classes] = await Promise.all([schoolInfo(), classOptions(cycle)]);
+  const session = snapshot.settings.session;
+  const classes = await classOptions({ cycleId: app.cycleId, session, snapshot });
   return (
     <ReceiptPrint ids={[app.id]} printed={app.evalReceiptPrintedAt ? [app.id] : []}>
       <PageTop crumbs={crumbs} round={false} />
@@ -48,15 +51,9 @@ export default async function ReceiptPage({ params }: { params: Promise<{ id: st
           <PrintReceiptButton />
         </div>
       </div>
-      <ReceiptLogoStyle school={school} />
-      <ReceiptSheet
-        app={app}
-        session={cycle.session}
-        fee={cycle.snapshot.settings.evaluationFee}
-        classLabel={classes.find((c) => c.optionValue === app.classValue)?.label ?? ''}
-        school={school}
-        today={receiptDay(new Date())}
-      />
+      <ReceiptLogoStyle school={await school} />
+      <ReceiptPrintNote />
+      <ReceiptSheet app={app} session={session} fee={snapshot.settings.evaluationFee} classLabel={classLabelOf(classes, app.classValue)} school={await school} today={receiptDay(new Date())} />
     </ReceiptPrint>
   );
 }

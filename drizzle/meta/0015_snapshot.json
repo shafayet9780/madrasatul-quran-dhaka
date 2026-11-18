@@ -1,5 +1,5 @@
 {
-  "id": "45413737-8688-40f9-8ce9-a4c07595cd4a",
+  "id": "b0e96263-4e07-49ae-8240-9da752fb0133",
   "prevId": "75e96c3e-5868-40ef-8941-e9a61bbd0acd",
   "version": "7",
   "dialect": "postgresql",
@@ -1710,6 +1710,12 @@
         },
         "eval_receipt_printed_at": {
           "name": "eval_receipt_printed_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "eval_receipt_date": {
+          "name": "eval_receipt_date",
           "type": "timestamp with time zone",
           "primaryKey": false,
           "notNull": false

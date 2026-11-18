@@ -1,7 +1,8 @@
 ALTER TABLE "admission_cycles" ADD COLUMN "last_eval_receipt" integer DEFAULT 0 NOT NULL;--> statement-breakpoint
 ALTER TABLE "applications" ADD COLUMN "eval_receipt_no" integer;--> statement-breakpoint
 ALTER TABLE "applications" ADD COLUMN "eval_receipt_printed_at" timestamp with time zone;--> statement-breakpoint
-CREATE UNIQUE INDEX "applications_eval_receipt_uq" ON "applications" USING btree ("cycle_id","eval_receipt_no");;--> statement-breakpoint
+ALTER TABLE "applications" ADD COLUMN "eval_receipt_date" timestamp with time zone;--> statement-breakpoint
+CREATE UNIQUE INDEX "applications_eval_receipt_uq" ON "applications" USING btree ("cycle_id","eval_receipt_no");--> statement-breakpoint
 -- Fees marked received before receipts existed get numbers in the order they were received.
 WITH numbered AS (
   SELECT id, row_number() OVER (PARTITION BY cycle_id ORDER BY eval_fee_received_at, id) AS no
