@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useState, useTransition } from 'react';
-import { Mail } from 'lucide-react';
+import Link from 'next/link';
+import { Mail, Printer } from 'lucide-react';
 import { Button } from '@/components/shadcn/button';
 import { Switch } from '@/components/shadcn/switch';
 import { Textarea } from '@/components/shadcn/textarea';
@@ -57,10 +58,9 @@ export function StatusForm({ id, status }: { id: string; status: ApplicationStat
   );
 }
 
-/** Evaluation day: attendance and the cash evaluation fee (with its receipt number). */
+/** Evaluation day: attendance and the cash evaluation fee (the receipt is printed from its own page). */
 export function EvaluationSwitches({ id, attended, evalFee, attendedNote, feeNote, fee }: { id: string; attended: boolean; evalFee: boolean; attendedNote: string; feeNote: string; fee: string }) {
   const { pending, run, line } = useAction();
-  const [receipt, setReceipt] = useState('');
   // The switches move at once; a failed save puts them back.
   const [att, setAtt] = useState(attended);
   const [paid, setPaid] = useState(evalFee);
@@ -98,21 +98,17 @@ export function EvaluationSwitches({ id, attended, evalFee, attendedNote, feeNot
           disabled={pending}
           onCheckedChange={(on) => {
             setPaid(on);
-            run(() => evaluationDayAction(id, 'evalFee', on, on ? receipt : undefined), () => setReceipt(''), () => setPaid(!on));
+            run(() => evaluationDayAction(id, 'evalFee', on), undefined, () => setPaid(!on));
           }}
         />
       </div>
-      {!paid && (
-        <label className="flex items-center gap-2 text-[13px] text-muted-foreground">
-          রসিদ নং
-          <input
-            value={receipt}
-            onChange={(e) => setReceipt(e.target.value)}
-            maxLength={40}
-            placeholder="ঐচ্ছিক"
-            className="h-8 w-32 rounded-md border bg-white px-2 text-sm text-foreground [font-family:var(--font-english)]"
-          />
-        </label>
+      {paid && !pending && (
+        <Button asChild variant="outline" className="h-9 self-start bg-white shadow-none">
+          <Link href={`/admin/admissions/${id}/receipt`}>
+            <Printer aria-hidden />
+            ফি-র রসিদ প্রিন্ট
+          </Link>
+        </Button>
       )}
       {line}
     </div>

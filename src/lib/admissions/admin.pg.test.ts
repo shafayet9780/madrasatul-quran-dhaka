@@ -1,7 +1,7 @@
 // @vitest-environment node
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { eq, sql } from 'drizzle-orm';
-import { addNote, adminCycle, applicationCounts, applicationDetail, deleteUnpaid, listApplications, overview, setEvaluationDay, setStatuses, transportAreas, transportCounts } from './admin';
+import { addNote, adminCycle, applicationCounts, applicationDetail, deleteUnpaid, listApplications, overview, recordReceiptPrint, setEvaluationDay, setStatuses, transportAreas, transportCounts } from './admin';
 import { cycleClasses, idClassCodes, syncCycle, type CycleState } from './cycle';
 import { createDraft, getByToken, saveDraft, submitDraft, type Application } from './drafts';
 import { acceptHeldPayment, confirmPayment, latestPayment, startPayment } from './payments';
@@ -95,7 +95,7 @@ describe('admin queries', () => {
     expect(await setStatuses([a.id, unpaid.id], 'interview')).toBe(1);
     expect(await setStatuses([a.id], 'interview')).toBe(0);
     expect(await setEvaluationDay(a.id, 'attended', true)).toBe(true);
-    expect(await setEvaluationDay(a.id, 'evalFee', true, 'R-102')).toBe(true);
+    expect(await setEvaluationDay(a.id, 'evalFee', true)).toBe(true);
     expect(await setEvaluationDay(unpaid.id, 'attended', true)).toBe(false);
     expect(await addNote(a.id, '  পরিবহন দরকার  ')).toBe(true);
     expect(await addNote(a.id, '   ')).toBe(false);
@@ -106,9 +106,38 @@ describe('admin queries', () => {
     expect(detail.app.evalFeeReceivedAt).not.toBeNull();
     expect(detail.payments).toHaveLength(1);
     expect(detail.events.map((e) => e.kind)).toEqual(expect.arrayContaining(['note', 'eval_fee', 'attended', 'status', 'paid']));
-    expect(detail.events.find((e) => e.kind === 'eval_fee')!.detail).toEqual({ receiptNo: 'R-102' });
+    expect(detail.events.find((e) => e.kind === 'eval_fee')!.detail).toEqual({ receiptNo: '2027/001' });
     expect(detail.events.find((e) => e.kind === 'note')!.detail).toEqual({ text: 'পরিবহন দরকার' });
     expect(await applicationDetail('nope')).toBeNull();
+  });
+
+  it('numbers assessment fee receipts once each, and marks reprints as duplicates', async () => {
+    const a = await application({ name: 'আব্দুল্লাহ', mobile: '01712345678', pay: 'pay' });
+    const b = await application({ name: 'উমর', mobile: '01912345678', pay: 'pay' });
+    const test = await application({ name: 'পরীক্ষা', mobile: '01812345678', pay: 'pay' });
+    await db.update(applications).set({ isTest: true }).where(eq(applications.id, test.id));
+    const receiptNo = async (id: string) => (await applicationDetail(id))!.app.evalReceiptNo;
+
+    expect(await recordReceiptPrint(a.id)).toBeNull(); // fee not received yet
+    await setEvaluationDay(b.id, 'evalFee', true);
+    await setEvaluationDay(a.id, 'evalFee', true);
+    await setEvaluationDay(test.id, 'evalFee', true);
+    expect([await receiptNo(b.id), await receiptNo(a.id), await receiptNo(test.id)]).toEqual([1, 2, null]);
+
+    // Switched off and on again: the same number, none skipped.
+    await setEvaluationDay(a.id, 'evalFee', false);
+    expect(await recordReceiptPrint(a.id)).toBeNull();
+    await setEvaluationDay(a.id, 'evalFee', true);
+    expect(await receiptNo(a.id)).toBe(2);
+
+    expect(await recordReceiptPrint(a.id)).toEqual({ duplicate: false });
+    expect(await recordReceiptPrint(a.id)).toEqual({ duplicate: true });
+    const printed = (await applicationDetail(a.id))!.events.filter((e) => e.kind === 'eval_receipt_printed').map((e) => e.detail);
+    expect(printed).toEqual([
+      { duplicate: true, receiptNo: '2027/002' },
+      { duplicate: false, receiptNo: '2027/002' },
+    ]);
+    expect(await recordReceiptPrint(test.id)).toEqual({ duplicate: false });
   });
 
   it('deletes an unpaid application with its documents, never a paid one', async () => {

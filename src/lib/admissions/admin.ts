@@ -4,6 +4,7 @@ import type { ApplicationStatus } from './admin-labels';
 import type { FileAnswer } from './answers';
 import { loadSnapshot } from './cycle';
 import { getAdmissionsDb } from './db';
+import { evalReceiptRef } from './admin-labels';
 import { label, logEvent, type Application } from './drafts';
 import { NO_ROUTE, type FormSnapshot } from './form-config';
 import { parseApplicationId } from './ids';
@@ -166,8 +167,12 @@ export async function setStatuses(ids: string[], status: ApplicationStatus): Pro
   return changed.length;
 }
 
-/** Evaluation day switches: attendance and the evaluation fee (with the receipt number). */
-export async function setEvaluationDay(id: string, field: 'attended' | 'evalFee', on: boolean, receiptNo?: string): Promise<boolean> {
+/**
+ * Evaluation day switches: attendance and the evaluation fee. The first time the fee is marked
+ * received, the application gets the cycle's next receipt number (kept if the fee is switched off
+ * and on again, so no number is lost or given twice). Test applications get no number.
+ */
+export async function setEvaluationDay(id: string, field: 'attended' | 'evalFee', on: boolean): Promise<boolean> {
   const db = getAdmissionsDb();
   const column = field === 'attended' ? { attendedAt: on ? new Date() : null } : { evalFeeReceivedAt: on ? new Date() : null };
   const [row] = await db
@@ -176,9 +181,55 @@ export async function setEvaluationDay(id: string, field: 'attended' | 'evalFee'
     .where(and(eq(applications.id, id), isNotNull(applications.publicRef)))
     .returning({ publicRef: applications.publicRef });
   if (!row) return false;
+  const receipt = field === 'evalFee' && on ? await assignEvalReceipt(id) : null;
   const kind = field === 'attended' ? (on ? 'attended' : 'attended_undone') : on ? 'eval_fee' : 'eval_fee_undone';
-  await logEvent(id, row.publicRef ?? id, kind, 'admin', receiptNo ? { receiptNo: receiptNo.slice(0, 40) } : undefined);
+  await logEvent(id, row.publicRef ?? id, kind, 'admin', receipt ? { receiptNo: receipt } : undefined);
   return true;
+}
+
+/** The application's receipt number ("2027/001"), handed out once: the cycle row lock keeps numbers unique. */
+async function assignEvalReceipt(id: string): Promise<string | null> {
+  const db = getAdmissionsDb();
+  await db.execute(sql`
+    WITH target AS (
+      SELECT id, cycle_id FROM applications
+      WHERE id = ${id} AND public_ref IS NOT NULL AND NOT is_test AND eval_receipt_no IS NULL
+      FOR UPDATE
+    ), bump AS (
+      UPDATE admission_cycles c SET last_eval_receipt = c.last_eval_receipt + 1
+      FROM target WHERE c.id = target.cycle_id
+      RETURNING c.last_eval_receipt
+    )
+    UPDATE applications a SET eval_receipt_no = bump.last_eval_receipt FROM target, bump WHERE a.id = target.id`);
+  const [row] = await db
+    .select({ no: applications.evalReceiptNo, session: admissionCycles.session })
+    .from(applications)
+    .innerJoin(admissionCycles, eq(admissionCycles.id, applications.cycleId))
+    .where(eq(applications.id, id));
+  return row?.no ? evalReceiptRef(row.session, row.no) : null;
+}
+
+/**
+ * A print of the assessment fee receipt (fee received only). The first print is the original; the
+ * result says whether this one is a duplicate. Logged either way.
+ */
+export async function recordReceiptPrint(id: string): Promise<{ duplicate: boolean } | null> {
+  const db = getAdmissionsDb();
+  const result = await db.execute<{ public_ref: string; eval_receipt_no: number | null; session: string; first: Date | null }>(sql`
+    WITH old AS (
+      SELECT a.id, a.eval_receipt_printed_at AS first FROM applications a
+      WHERE a.id = ${id} AND a.public_ref IS NOT NULL AND a.eval_fee_received_at IS NOT NULL
+      FOR UPDATE
+    )
+    UPDATE applications a SET eval_receipt_printed_at = coalesce(old.first, now())
+    FROM old, admission_cycles c
+    WHERE a.id = old.id AND c.id = a.cycle_id
+    RETURNING a.public_ref, a.eval_receipt_no, c.session, old.first`);
+  const row = result.rows[0];
+  if (!row) return null;
+  const duplicate = !!row.first;
+  await logEvent(id, row.public_ref, 'eval_receipt_printed', 'admin', { duplicate, ...(row.eval_receipt_no ? { receiptNo: evalReceiptRef(row.session, row.eval_receipt_no) } : {}) });
+  return { duplicate };
 }
 
 export async function addNote(id: string, text: string): Promise<boolean> {

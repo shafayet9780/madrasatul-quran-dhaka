@@ -49,6 +49,7 @@ const EVENT_LABEL: Record<string, string> = {
   attended_undone: 'উপস্থিতি বাতিল',
   eval_fee: 'অ্যাসেসমেন্ট ফি গৃহীত',
   eval_fee_undone: 'অ্যাসেসমেন্ট ফি বাতিল',
+  eval_receipt_printed: 'অ্যাসেসমেন্ট ফি-র রসিদ প্রিন্ট',
   note: 'নোট',
   payment_released: 'অফিস পেমেন্ট গ্রহণ করেছে',
   deleted: 'আবেদন মুছে ফেলা হয়েছে',
@@ -78,6 +79,11 @@ export function lastActive(d: Date, now: Date = new Date()): string {
   return shortDate(d);
 }
 
+/** The assessment fee receipt number: "2027/001" (the cycle's session and the receipt's serial). */
+export function evalReceiptRef(session: string, no: number): string {
+  return `${session}/${String(no).padStart(3, '0')}`;
+}
+
 /** One line of the activity log on the detail page. */
 export function eventText(kind: string, label: string, detail: Record<string, unknown> | null): string {
   const d = detail ?? {};
@@ -88,6 +94,8 @@ export function eventText(kind: string, label: string, detail: Record<string, un
       return `পেমেন্ট যাচাই হয়েছে, আইডি ${label} দেওয়া হয়েছে`;
     case 'eval_fee':
       return d.receiptNo ? `${eventLabel(kind)} (রসিদ ${String(d.receiptNo)})` : eventLabel(kind);
+    case 'eval_receipt_printed':
+      return `${eventLabel(kind)}${d.receiptNo ? ` (${String(d.receiptNo)})` : ''}${d.duplicate ? ', ডুপ্লিকেট' : ''}`;
     case 'email_confirmation':
       return `আবেদনের ইমেইল পাঠানো হয়েছে${d.pdf ? ', সঙ্গে আবেদনপত্র' : ''}`;
     case 'payment_started':

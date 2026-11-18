@@ -4,7 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { after } from 'next/server';
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
-import { addNote, adminCycle, byPublicRef, deleteUnpaid, setEvaluationDay, setStatuses } from '@/lib/admissions/admin';
+import { addNote, adminCycle, byPublicRef, deleteUnpaid, recordReceiptPrint, setEvaluationDay, setStatuses } from '@/lib/admissions/admin';
 import { OFFICE_STATUSES } from '@/lib/admissions/admin-labels';
 import { parseApplicationId } from '@/lib/admissions/ids';
 import { toBengaliDigits } from '@/lib/admissions/normalise';
@@ -40,16 +40,24 @@ export async function changeStatusAction(ids: string[], next: string): Promise<R
   return { ok: true, message: changed ? `${toBengaliDigits(changed)}টি আবেদনের অবস্থা বদলানো হয়েছে।` : 'অবস্থা আগে থেকেই এটি ছিল।' };
 }
 
-export async function evaluationDayAction(appId: string, field: 'attended' | 'evalFee', on: boolean, receiptNo?: string): Promise<Result> {
+export async function evaluationDayAction(appId: string, field: 'attended' | 'evalFee', on: boolean): Promise<Result> {
   await assertAdmin();
-  const parsed = z
-    .object({ appId: id, field: z.enum(['attended', 'evalFee']), on: z.boolean(), receiptNo: z.string().max(40).optional() })
-    .safeParse({ appId, field, on, receiptNo: receiptNo?.trim() || undefined });
+  const parsed = z.object({ appId: id, field: z.enum(['attended', 'evalFee']), on: z.boolean() }).safeParse({ appId, field, on });
   if (!parsed.success) return BAD_REQUEST;
-  const done = await setEvaluationDay(parsed.data.appId, parsed.data.field, parsed.data.on, parsed.data.receiptNo);
+  const done = await setEvaluationDay(parsed.data.appId, parsed.data.field, parsed.data.on);
   if (!done) return { ok: false, error: 'শুধু ফি পরিশোধিত আবেদনে চিহ্ন দেওয়া যায়।' };
   refresh(appId);
   return { ok: true };
+}
+
+/** Records a print of the assessment fee receipt; later prints are duplicates. */
+export async function receiptPrintAction(appId: string): Promise<{ ok: true; duplicate: boolean } | { ok: false; error: string }> {
+  await assertAdmin();
+  if (!id.safeParse(appId).success) return BAD_REQUEST as { ok: false; error: string };
+  const printed = await recordReceiptPrint(appId);
+  if (!printed) return { ok: false, error: 'অ্যাসেসমেন্ট ফি গৃহীত চিহ্নিত হলে রসিদ প্রিন্ট করা যায়।' };
+  revalidatePath(`/admin/admissions/${appId}`);
+  return { ok: true, duplicate: printed.duplicate };
 }
 
 export async function addNoteAction(appId: string, text: string): Promise<Result> {

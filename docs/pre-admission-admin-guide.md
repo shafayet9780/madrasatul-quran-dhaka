@@ -36,7 +36,8 @@ At the bottom of the overview. **এই ডিভাইসে ফর্ম খ�
   - A document the guardian ticked "don't have it now" for (birth certificate, result card) shows **জমা দেওয়া হয়নি, সঙ্গে আনবেন**: collect it on assessment day.
   - Transport shows the stop, the route, the vehicle and the monthly charge the guardian saw when applying, or the area they typed if their area is not on any route.
 - **অবস্থা**: change and **সেভ করুন**.
-- **অ্যাসেসমেন্টের দিন**: switch on **উপস্থিত** when the child arrives, and **অ্যাসেসমেন্ট ফি গৃহীত** when the ৳500 cash fee is paid (type the receipt number first, if there is one). Both can be switched off again if pressed by mistake; every change is logged.
+- **অ্যাসেসমেন্টের দিন**: switch on **উপস্থিত** when the child arrives, and **অ্যাসেসমেন্ট ফি গৃহীত** when the ৳500 cash fee is paid. Both can be switched off again if pressed by mistake; every change is logged.
+- **ফি-র রসিদ প্রিন্ট** (once the fee is marked received): the assessment fee receipt, one A4 sheet. The top half is the office's copy, the bottom half is cut off and given to the guardian. The receipt number (২০২৭/০০১, ২০২৭/০০২, …) is given by the system the first time the fee is marked received and stays with the application, even if the switch is turned off and on again. The first print is the original; every later print (a lost receipt) says **ডুপ্লিকেট কপি** with the day it was printed. Each print is logged. Test applications get a receipt without a number.
 - **পেমেন্ট**: every attempt with its SSLCommerz transaction IDs. *যাচাই দরকার* means SSLCommerz flagged the payment as risky or the amount did not match: check the transaction in the SSLCommerz merchant panel, then tick the box and press **পেমেন্ট গ্রহণ করে আইডি দিন**. If the payment was not genuine, refund it from the SSLCommerz panel and leave the application unpaid.
 - **ইমেইল আবার পাঠান**: sends the confirmation email with the PDF again (e.g. the guardian deleted it).
 - **নোট**: office notes, visible only here.
@@ -48,7 +49,7 @@ A *দ্বিতীয়বার পরিশোধ, ফেরত দিত�
 
 The guardian brings the printed application (4 pages). Page 4 holds the two pledges and the declaration (each ticked online, with the time), the father's and mother's signatures, and the office and assessor (পরীক্ষক) section with a tick box for each thing to bring.
 
-Each application PDF has an **অফিস ব্যবহারের জন্য** QR code on page 1. Scanning it with a phone camera (logged in to the admin) opens that application directly. Without a phone, type the ID on the **অ্যাসেসমেন্টের দিন** page; a USB barcode scanner also works there. The page lists everyone marked present today and whose assessment fee was received.
+Each application PDF has an **অফিস ব্যবহারের জন্য** QR code on page 1. Scanning it with a phone camera (logged in to the admin) opens that application directly. Without a phone, type the ID on the **অ্যাসেসমেন্টের দিন** page; a USB barcode scanner also works there. The page lists everyone marked present today and whose assessment fee was received. Mark the fee received on the application's page, then press **ফি-র রসিদ প্রিন্ট** and **রসিদ প্রিন্ট করুন**.
 
 Assessment dates and times are announced only in the **WhatsApp group**. The success page, the email, the PDF and the paper form's guardian copy all carry the group's link or QR code; set the link in the Studio (*Cycle settings → WhatsApp group link*) before the form opens.
 

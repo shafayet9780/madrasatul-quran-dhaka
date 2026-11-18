@@ -4,7 +4,7 @@ import { notFound } from 'next/navigation';
 import { ArrowLeft, Download, FileText, Image as ImageIcon } from 'lucide-react';
 import { Button } from '@/components/shadcn/button';
 import { applicationDetail } from '@/lib/admissions/admin';
-import { PAYMENT_STATUS_LABEL, eventText, shortDate } from '@/lib/admissions/admin-labels';
+import { PAYMENT_STATUS_LABEL, evalReceiptRef, eventText, shortDate } from '@/lib/admissions/admin-labels';
 import { answerText } from '@/lib/admissions/answer-text';
 import { isMissingFile, isVisible, type FileAnswer } from '@/lib/admissions/answers';
 import { ageDateText, sessionAgeText } from '@/lib/admissions/age';
@@ -166,7 +166,7 @@ export default async function ApplicationPage({ params, searchParams }: Props) {
                   evalFee={!!app.evalFeeReceivedAt}
                   fee={fee}
                   attendedNote={app.attendedAt ? `চিহ্নিত, ${when(app.attendedAt)}` : 'আবেদনপত্রের QR স্ক্যান করলে এই পেজ খোলে'}
-                  feeNote={app.evalFeeReceivedAt ? `চিহ্নিত, ${when(app.evalFeeReceivedAt)}` : 'এখনো গৃহীত হয়নি'}
+                  feeNote={app.evalFeeReceivedAt ? `চিহ্নিত, ${when(app.evalFeeReceivedAt)}${app.evalReceiptNo ? `, রসিদ ${bn(evalReceiptRef(snapshot.settings.session, app.evalReceiptNo))}` : ''}` : 'এখনো গৃহীত হয়নি'}
                 />
               </Card>
             )}
