@@ -56,7 +56,7 @@ async function streamToDataUri(store: BlobStore, key: string): Promise<string | 
   return `data:${file.contentType};base64,${bytes.toString('base64')}`;
 }
 
-async function schoolInfo() {
+export async function schoolInfo() {
   try {
     const { getContentService } = await import('@/lib/content-service');
     const { urlFor } = await import('@/lib/sanity');
