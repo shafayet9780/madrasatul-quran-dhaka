@@ -28,6 +28,8 @@ export const admissionCycles = pgTable('admission_cycles', {
   id: uuid('id').primaryKey().defaultRandom(),
   session: text('session').notNull().unique(),
   currentVersion: integer('current_version').notNull().default(1),
+  /** Last assessment fee receipt number handed out (2027/001 is 1). */
+  lastEvalReceipt: integer('last_eval_receipt').notNull().default(0),
   openedAt: ts('opened_at').notNull().defaultNow(),
   updatedAt: ts('updated_at').notNull().defaultNow(),
 });
@@ -93,6 +95,12 @@ export const applications = pgTable(
     paidAt: ts('paid_at'),
     attendedAt: ts('attended_at'),
     evalFeeReceivedAt: ts('eval_fee_received_at'),
+    /** Assessment fee receipt number, given the first time the fee is marked received (not for tests). */
+    evalReceiptNo: integer('eval_receipt_no'),
+    /** The receipt's first print: every later print is marked ডুপ্লিকেট. */
+    evalReceiptPrintedAt: ts('eval_receipt_printed_at'),
+    /** The fee date printed on the receipt, kept from its first print with the fee received. */
+    evalReceiptDate: ts('eval_receipt_date'),
 
     /** Private Blob key of the generated application PDF. */
     pdfKey: text('pdf_key'),
@@ -108,6 +116,7 @@ export const applications = pgTable(
   },
   (t) => [
     uniqueIndex('applications_ref_uq').on(t.cycleId, t.publicRef),
+    uniqueIndex('applications_eval_receipt_uq').on(t.cycleId, t.evalReceiptNo),
     index('applications_status_idx').on(t.cycleId, t.status),
     index('applications_mobile_idx').on(t.primaryMobile),
     index('applications_dob_idx').on(t.dateOfBirth),

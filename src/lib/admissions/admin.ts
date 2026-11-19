@@ -2,8 +2,9 @@ import 'server-only';
 import { and, desc, eq, ilike, inArray, isNotNull, isNull, or, sql, type SQL } from 'drizzle-orm';
 import type { ApplicationStatus } from './admin-labels';
 import type { FileAnswer } from './answers';
-import { loadSnapshot } from './cycle';
+import { cycleClasses, loadSnapshot } from './cycle';
 import { getAdmissionsDb } from './db';
+import { evalReceiptRef } from './admin-labels';
 import { label, logEvent, type Application } from './drafts';
 import { NO_ROUTE, type FormSnapshot } from './form-config';
 import { parseApplicationId } from './ids';
@@ -87,11 +88,8 @@ function transportCondition(key: string, filter: NonNullable<ListParams['transpo
   return filter.routes.length ? and(sql`${stop} LIKE '%:%'`, inArray(sql`split_part(${stop}, ':', 1)`, filter.routes)) : sql`false`;
 }
 
-export async function listApplications(cycleId: string, params: ListParams): Promise<{ rows: ListRow[]; total: number }> {
-  const db = getAdmissionsDb();
-  const pageSize = params.pageSize ?? 25;
-  const page = Math.max(1, params.page ?? 1);
-  const where = and(
+function listWhere(cycleId: string, params: ListParams): SQL | undefined {
+  return and(
     eq(applications.cycleId, cycleId),
     params.tab === 'paid' ? isNotNull(applications.publicRef) : isNull(applications.publicRef),
     params.classCode ? eq(applications.classCode, params.classCode) : undefined,
@@ -100,6 +98,13 @@ export async function listApplications(cycleId: string, params: ListParams): Pro
     params.q ? searchCondition(params.q, params.classCodes ?? []) : undefined,
     params.transport ? transportCondition(params.transport.key, params.transport.filter) : undefined,
   );
+}
+
+export async function listApplications(cycleId: string, params: ListParams): Promise<{ rows: ListRow[]; total: number }> {
+  const db = getAdmissionsDb();
+  const pageSize = params.pageSize ?? 25;
+  const page = Math.max(1, params.page ?? 1);
+  const where = listWhere(cycleId, params);
   const [{ total }] = await db.select({ total: sql<number>`count(*)::int` }).from(applications).where(where);
   const rows = await db
     .select({
@@ -127,6 +132,20 @@ export async function listApplications(cycleId: string, params: ListParams): Pro
     .limit(pageSize)
     .offset((page - 1) * pageSize);
   return { rows, total };
+}
+
+/**
+ * The paid applications a bulk receipt print covers (the list's filters, tests left out): how many,
+ * and the first `limit` ids (none with limit 0, for the list's button).
+ */
+export async function receiptTargets(cycleId: string, params: ListParams, limit: number): Promise<{ ids: string[]; total: number }> {
+  const db = getAdmissionsDb();
+  const where = and(listWhere(cycleId, { ...params, tab: 'paid' }), eq(applications.isTest, false));
+  const [[{ total }], rows] = await Promise.all([
+    db.select({ total: sql<number>`count(*)::int` }).from(applications).where(where),
+    limit ? db.select({ id: applications.id }).from(applications).where(where).limit(limit) : Promise.resolve([]),
+  ]);
+  return { ids: rows.map((r) => r.id), total };
 }
 
 export async function applicationCounts(cycleId: string): Promise<{ paid: number; unpaid: number }> {
@@ -166,19 +185,148 @@ export async function setStatuses(ids: string[], status: ApplicationStatus): Pro
   return changed.length;
 }
 
-/** Evaluation day switches: attendance and the evaluation fee (with the receipt number). */
-export async function setEvaluationDay(id: string, field: 'attended' | 'evalFee', on: boolean, receiptNo?: string): Promise<boolean> {
+/**
+ * Evaluation day switches: attendance and the evaluation fee. The first time the fee is marked
+ * received, the application gets the cycle's next receipt number unless it has one already (from
+ * receipts printed in advance); it keeps it if the fee is switched off and on again, so no number
+ * is lost or given twice. Test applications get no number.
+ */
+export async function setEvaluationDay(id: string, field: 'attended' | 'evalFee', on: boolean): Promise<boolean> {
   const db = getAdmissionsDb();
   const column = field === 'attended' ? { attendedAt: on ? new Date() : null } : { evalFeeReceivedAt: on ? new Date() : null };
   const [row] = await db
     .update(applications)
     .set({ ...column, updatedAt: new Date(), mirroredAt: null, mirrorClaimedAt: null })
     .where(and(eq(applications.id, id), isNotNull(applications.publicRef)))
-    .returning({ publicRef: applications.publicRef });
+    .returning({ publicRef: applications.publicRef, cycleId: applications.cycleId });
   if (!row) return false;
+  if (field === 'evalFee' && on) await assignEvalReceipts(row.cycleId, [id]);
+  const receipt = field === 'evalFee' && on ? await evalReceiptOf(id) : null;
   const kind = field === 'attended' ? (on ? 'attended' : 'attended_undone') : on ? 'eval_fee' : 'eval_fee_undone';
-  await logEvent(id, row.publicRef ?? id, kind, 'admin', receiptNo ? { receiptNo: receiptNo.slice(0, 40) } : undefined);
+  await logEvent(id, row.publicRef ?? id, kind, 'admin', receipt ? { receiptNo: receipt } : undefined);
   return true;
+}
+
+const idList = (ids: string[]) => sql.join(ids.map((id) => sql`${id}`), sql`, `);
+
+/**
+ * Gives receipt numbers to the paid applications among `ids` that have none (tests excepted), in
+ * class order (`classOrder`: class codes in the form's order) then ID, in one statement: the cycle
+ * row lock keeps numbers unique and gapless.
+ */
+export async function assignEvalReceipts(cycleId: string, ids: string[], classOrder: string[] = []): Promise<void> {
+  if (!ids.length) return;
+  const order = classOrder.length ? sql`array_position(ARRAY[${sql.join(classOrder.map((c) => sql`${c}`), sql`, `)}]::text[], class_code), ` : sql``;
+  await getAdmissionsDb().execute(sql`
+    WITH locked AS (
+      SELECT id, class_code, serial FROM applications
+      WHERE cycle_id = ${cycleId} AND id IN (${idList(ids)}) AND public_ref IS NOT NULL AND NOT is_test AND eval_receipt_no IS NULL
+      FOR UPDATE
+    ), numbered AS (
+      SELECT id, row_number() OVER (ORDER BY ${order}class_code, serial, id) AS n FROM locked
+    ), bump AS (
+      UPDATE admission_cycles c SET last_eval_receipt = c.last_eval_receipt + (SELECT count(*) FROM locked)
+      WHERE c.id = ${cycleId} AND EXISTS (SELECT 1 FROM locked)
+      RETURNING c.last_eval_receipt - (SELECT count(*) FROM locked) AS base
+    )
+    UPDATE applications a SET eval_receipt_no = bump.base + numbered.n FROM numbered, bump WHERE a.id = numbered.id`);
+}
+
+/** The application's receipt number as printed ("2027/001"), or null. */
+async function evalReceiptOf(id: string): Promise<string | null> {
+  const [row] = await getAdmissionsDb()
+    .select({ no: applications.evalReceiptNo, session: admissionCycles.session })
+    .from(applications)
+    .innerJoin(admissionCycles, eq(admissionCycles.id, applications.cycleId))
+    .where(eq(applications.id, id));
+  return row?.no ? evalReceiptRef(row.session, row.no) : null;
+}
+
+/**
+ * A print of assessment fee receipts (the print button): applications among `ids` without a number
+ * get one now (class order of their cycle's form, then ID), then the print is recorded. Only
+ * applications whose fee was received or that have a number are printed. The first print of each
+ * is the original; the result lists those printed before (duplicates) and every printed number. A
+ * receipt printed with the fee received keeps that date from then on (eval_receipt_date), so
+ * switching the fee off and on again does not change it.
+ */
+export async function printReceipts(ids: string[]): Promise<{ printed: string[]; duplicates: string[]; numbers: Record<string, string> }> {
+  if (!ids.length) return { printed: [], duplicates: [], numbers: {} };
+  const db = getAdmissionsDb();
+  const cycles = await db
+    .selectDistinct({ id: admissionCycles.id, version: admissionCycles.currentVersion })
+    .from(applications)
+    .innerJoin(admissionCycles, eq(admissionCycles.id, applications.cycleId))
+    .where(inArray(applications.id, ids));
+  for (const cycle of cycles) {
+    const snapshot = await loadSnapshot(cycle.id, cycle.version);
+    const order = snapshot ? (await cycleClasses(cycle.id, snapshot)).map((o) => o.code!) : [];
+    await assignEvalReceipts(cycle.id, ids, order);
+  }
+  const result = await db.execute<{ id: string; public_ref: string; eval_receipt_no: number | null; session: string; first: unknown }>(sql`
+    WITH old AS (
+      SELECT id, eval_receipt_printed_at AS first FROM applications
+      WHERE id IN (${idList(ids)}) AND public_ref IS NOT NULL AND (eval_fee_received_at IS NOT NULL OR eval_receipt_no IS NOT NULL)
+      FOR UPDATE
+    )
+    UPDATE applications a SET
+      eval_receipt_printed_at = coalesce(old.first, now()),
+      eval_receipt_date = coalesce(a.eval_receipt_date, a.eval_fee_received_at)
+    FROM old, admission_cycles c
+    WHERE a.id = old.id AND c.id = a.cycle_id
+    RETURNING a.id, a.public_ref, a.eval_receipt_no, c.session, old.first`);
+  const rows = result.rows;
+  const numbers = Object.fromEntries(rows.filter((r) => r.eval_receipt_no).map((r) => [r.id, evalReceiptRef(r.session, r.eval_receipt_no!)]));
+  if (rows.length) {
+    await db.insert(applicationEvents).values(
+      rows.map((r) => ({
+        applicationId: r.id,
+        label: r.public_ref,
+        kind: 'eval_receipt_printed',
+        actor: 'admin',
+        detail: { duplicate: !!r.first, ...(numbers[r.id] ? { receiptNo: numbers[r.id] } : {}) },
+      })),
+    );
+  }
+  return { printed: rows.map((r) => r.id), duplicates: rows.filter((r) => r.first).map((r) => r.id), numbers };
+}
+
+/**
+ * "Print again, same copy" right after a print (a jam, a cancelled dialog): nothing changes, the
+ * print is only logged. Applications never printed are ignored.
+ */
+export async function logReceiptReprint(ids: string[]): Promise<number> {
+  if (!ids.length) return 0;
+  const db = getAdmissionsDb();
+  const rows = await db
+    .select({ id: applications.id, publicRef: applications.publicRef, no: applications.evalReceiptNo, session: admissionCycles.session })
+    .from(applications)
+    .innerJoin(admissionCycles, eq(admissionCycles.id, applications.cycleId))
+    .where(and(inArray(applications.id, ids), isNotNull(applications.evalReceiptPrintedAt)));
+  if (rows.length) {
+    await db.insert(applicationEvents).values(
+      rows.map((r) => ({
+        applicationId: r.id,
+        label: r.publicRef ?? r.id,
+        kind: 'eval_receipt_printed',
+        actor: 'admin',
+        detail: { again: true, ...(r.no ? { receiptNo: evalReceiptRef(r.session, r.no) } : {}) },
+      })),
+    );
+  }
+  return rows.length;
+}
+
+/** Paid applications for receipts, in class order (as assignEvalReceipts) then ID. */
+export async function receiptApplications(cycleId: string, ids: string[], classOrder: string[] = []): Promise<Application[]> {
+  if (!ids.length) return [];
+  const rows = await getAdmissionsDb()
+    .select()
+    .from(applications)
+    .where(and(eq(applications.cycleId, cycleId), inArray(applications.id, ids), isNotNull(applications.publicRef)))
+    .orderBy(applications.classCode, applications.serial, applications.id);
+  const rank = (code: string | null) => (classOrder.indexOf(code ?? '') + 1 || classOrder.length + 1);
+  return rows.sort((a, b) => rank(a.classCode) - rank(b.classCode));
 }
 
 export async function addNote(id: string, text: string): Promise<boolean> {
