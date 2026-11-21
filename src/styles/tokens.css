@@ -92,7 +92,7 @@
   --text-hero--line-height: 1.16;
   --text-hero--letter-spacing: -0.01em;
   --text-hero--font-weight: 750;
-  --text-hero-tagline: clamp(1.5rem, 2.5vw, 2.25rem); /* the homepage H1's promise, a size under the name pair: 24 → 36 */
+  --text-hero-tagline: clamp(1.5rem, 2.3vw, 2rem); /* the homepage H1's promise, a size under the name pair: 24 → 32 */
   --text-hero-tagline--line-height: 1.25;
   --text-hero-tagline--letter-spacing: -0.01em;
   --text-hero-tagline--font-weight: 750;
