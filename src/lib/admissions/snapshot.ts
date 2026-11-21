@@ -10,6 +10,7 @@ import {
   type RawSection,
   type Transport,
 } from './form-config';
+import { currentWindow, type AdmissionWindow, type WindowState } from './windows';
 
 type Bi = { bengali?: string; english?: string };
 type Keyed<T> = T & { _key?: string };
@@ -30,8 +31,10 @@ export type FormDocument = {
     session?: string;
     applicationFee?: number;
     evaluationFee?: number;
+    /** Before windows: the one window's dates (still read while Windows is empty). */
     opensAt?: string;
     closesAt?: string;
+    windows?: Partial<AdmissionWindow>[];
     whatsappUrl?: string;
     pdfInstructions?: { bengali?: string; english?: string };
     refundNote?: { bengali?: string; english?: string };
@@ -134,8 +137,10 @@ export function buildSnapshot(doc: FormDocument, takenAt: Date = new Date()): Fo
       session: c!.session,
       applicationFee: c!.applicationFee,
       evaluationFee: c!.evaluationFee,
-      opensAt: c!.opensAt,
-      closesAt: c!.closesAt,
+      // With windows, the cycle's own dates are left behind (the Studio hides them).
+      opensAt: c!.windows?.length ? undefined : c!.opensAt,
+      closesAt: c!.windows?.length ? undefined : c!.closesAt,
+      windows: c!.windows?.length ? c!.windows : undefined,
       whatsappUrl: c!.whatsappUrl,
       declaration: doc.declarationText,
       pdfInstructions: c!.pdfInstructions,
@@ -152,11 +157,9 @@ export function buildSnapshot(doc: FormDocument, takenAt: Date = new Date()): Fo
   return parsed.data;
 }
 
-export type CycleWindow = 'not_open' | 'open' | 'closed';
+export type CycleWindow = WindowState;
 
-/** Whether guardians can apply right now (the Studio on/off switch is checked separately). */
+/** Whether guardians can apply right now, in any of the cycle's windows (the Studio on/off switch is checked separately). */
 export function cycleWindow(settings: FormSnapshot['settings'], now: Date = new Date()): CycleWindow {
-  if (settings.opensAt && now < new Date(settings.opensAt)) return 'not_open';
-  if (settings.closesAt && now > new Date(settings.closesAt)) return 'closed';
-  return 'open';
+  return currentWindow(settings, now).state;
 }

@@ -72,4 +72,12 @@ describe('cycleWindow', () => {
     expect(cycleWindow(settings, new Date('2026-12-01T00:00:00Z'))).toBe('closed');
     expect(cycleWindow({ ...settings, opensAt: undefined, closesAt: undefined })).toBe('open');
   });
+  it('is open in any window, and keeps the windows in the frozen form', () => {
+    const doc = sanityDoc();
+    doc.cycle = { ...doc.cycle, opensAt: '2026-01-01T00:00:00Z', closesAt: '2026-02-01T00:00:00Z', windows: [{ kind: 'admission', opensAt: '2026-11-20T00:00:00Z' }] };
+    const { settings: withWindows } = buildSnapshot(doc);
+    expect(withWindows).toMatchObject({ opensAt: undefined, closesAt: undefined, windows: [{ kind: 'admission', opensAt: '2026-11-20T00:00:00Z' }] });
+    expect(cycleWindow(withWindows, new Date('2026-11-19T00:00:00Z'))).toBe('not_open');
+    expect(cycleWindow(withWindows, new Date('2027-03-01T00:00:00Z'))).toBe('open');
+  });
 });

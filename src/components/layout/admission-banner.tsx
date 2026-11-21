@@ -18,7 +18,7 @@ export default function AdmissionBanner() {
       <div className="page-wrap flex min-h-[46px] items-center gap-3">
         <span aria-hidden className={`size-2 shrink-0 rounded-full ${open ? 'bg-open' : 'bg-on-dark-faint'}`} />
         <p className="m-0 min-w-0 flex-1 py-2 text-15 leading-[1.35]">
-          <strong className="font-strong">{t('title', { session: cta.session })}</strong>
+          <strong className="font-strong">{cta.title}</strong>
           <span className="text-on-dark-muted"> · {cta.status}</span>
         </p>
         <ButtonLink

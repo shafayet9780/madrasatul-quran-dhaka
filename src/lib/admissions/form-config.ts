@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { WINDOW_KINDS } from './windows';
 
 // The pre-admission form as configured in Sanity (`preAdmissionForm.sections` + `cycle`) and as
 // frozen into Postgres when a cycle opens (`admission_cycles.snapshot`). Pure: imported by the
@@ -138,6 +139,8 @@ export const formSnapshotSchema = z.object({
     evaluationFee: z.number().int().nonnegative(),
     opensAt: z.string().optional(),
     closesAt: z.string().optional(),
+    /** Application windows (windows.ts); absent on a form from before them. */
+    windows: z.array(z.object({ kind: z.enum(WINDOW_KINDS), opensAt: z.string().optional(), closesAt: z.string().optional() })).optional(),
     whatsappUrl: z.string().optional(),
     declaration: text,
     pdfInstructions: optionalText,

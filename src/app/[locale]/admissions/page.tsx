@@ -4,7 +4,7 @@ import type { Locale } from '@/lib/i18n';
 import { pageMetadata } from '@/lib/page-seo';
 import { getContentService } from '@/lib/content-service';
 import { getPublishedIntake } from '@/lib/admissions/pages';
-import { intakeStatus } from '@/lib/admissions/intake';
+import { ctaStatus, ctaTitle } from '@/lib/admissions/intake';
 import { classTiles } from '@/lib/admissions/admissions-page';
 import { allBringItems } from '@/lib/admissions/bring-list';
 import { sessionStart } from '@/lib/admissions/age';
@@ -56,7 +56,8 @@ export default async function AdmissionsPage({ params }: Props) {
   // The intake's classes, steps and questions show while it is open or announced.
   const offer = snapshot && (intake.state === 'open' || intake.state === 'not_open') ? snapshot : undefined;
   const year = offer ? sessionStart(offer.settings.session).slice(0, 4) : '';
-  const fees = offer && { session: num(offer.settings.session, locale), applicationFee: taka(offer.settings.applicationFee, locale), evaluationFee: taka(offer.settings.evaluationFee, locale) };
+  const cta = await getTranslations({ locale, namespace: 'admissionCta' });
+  const fees = offer && { title: ctaTitle(intake, num(offer.settings.session, locale), cta), applicationFee: taka(offer.settings.applicationFee, locale), evaluationFee: taka(offer.settings.evaluationFee, locale) };
   const classes = offer ? classTiles(offer, locale) : [];
   // The pre-admission page's steps; step 5 lists what to bring.
   const bring = offer ? allBringItems(offer, locale).map((i) => (i.conditional ? `${i.text} ${chapter('ifApplicable')}` : i.text)) : [];
@@ -90,7 +91,7 @@ export default async function AdmissionsPage({ params }: Props) {
 
   return (
     <>
-      <AdmissionsHero locale={locale} state={intake.state} status={intakeStatus(intake, locale, intro)} facts={fees} links={links} />
+      <AdmissionsHero locale={locale} state={intake.state} status={ctaStatus(intake, locale, intro, cta)} facts={fees} links={links} />
       {classes.length > 0 && <AdmissionClasses locale={locale} classes={classes} year={year} />}
       {steps.length > 0 && <AdmissionSteps locale={locale} title={intro('stepsTitle')} steps={steps} />}
       <AdmissionsWhy locale={locale} home={home} />

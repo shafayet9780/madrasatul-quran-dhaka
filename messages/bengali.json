@@ -717,6 +717,10 @@
   },
   "admissionCta": {
     "title": "প্রি-অ্যাডমিশন {session}",
+    "titleAdmissionOpen": "{session} সালের ভর্তি চলছে",
+    "titleAdmission": "ভর্তি {session}",
+    "admissionHint": "ভর্তির জন্য প্রি-অ্যাডমিশন ফর্ম পূরণ করুন",
+    "admissionHintDeadline": "ভর্তির জন্য প্রি-অ্যাডমিশন ফর্ম পূরণ করুন, শেষ সময় {deadline}",
     "apply": "আবেদন করুন",
     "details": "বিস্তারিত দেখুন",
     "fallbackTitle": "ভর্তি তথ্য",

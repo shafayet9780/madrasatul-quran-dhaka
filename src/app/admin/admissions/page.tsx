@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { currentWindow } from '@/lib/admissions/windows';
 import Link from 'next/link';
 import { adminCycle, overview, transportAreas, transportCounts } from '@/lib/admissions/admin';
 import { loadAnsweredSnapshots, routeSeats } from '@/lib/admissions/cycle';
@@ -232,13 +233,19 @@ export default async function AdmissionsOverview() {
     ? o.heardFrom.map((h) => ({ label: h.value ? txt(heardOptions.find((x) => x.value === h.value)?.label, 'bengali') || h.value : 'উত্তর নেই', count: h.paid, started: h.started, value: h.value }))
     : [];
 
-  const closesAt = snapshot.settings.closesAt ? new Date(snapshot.settings.closesAt) : null;
+  // The window that applies now (Studio → Pre-admission form → Cycle settings → Windows).
+  const current = currentWindow(snapshot.settings, now);
+  const phase = current.kind === 'admission' ? 'ভর্তির' : 'প্রি-অ্যাডমিশনের';
+  const closesAt = current.closesAt ? new Date(current.closesAt) : null;
   const left = closesAt ? Math.ceil((closesAt.getTime() - now.getTime()) / DAY) : null;
-  const sub = !closesAt
-    ? 'শেষ সময় এখনো ঠিক করা হয়নি (স্টুডিওতে ফর্ম ও ফি)।'
-    : closesAt > now
-      ? `আবেদন চলছে। শেষ সময় ${dateTime(closesAt.toISOString(), 'bengali')}, আর ${bn(Math.max(0, left ?? 0))} দিন।`
-      : `আবেদন বন্ধ হয়েছে ${dateTime(closesAt.toISOString(), 'bengali')}।`;
+  const sub =
+    current.state === 'not_open' && current.opensAt
+      ? `${phase} আবেদন শুরু হবে ${dateTime(current.opensAt, 'bengali')}।`
+      : !closesAt
+        ? `${phase} আবেদন চলছে। শেষ সময় দেওয়া নেই: স্টুডিওতে ফর্ম বন্ধ না করা পর্যন্ত চলবে।`
+        : closesAt > now
+          ? `${phase} আবেদন চলছে। শেষ সময় ${dateTime(closesAt.toISOString(), 'bengali')}, আর ${bn(Math.max(0, left ?? 0))} দিন।`
+          : `${phase} আবেদন বন্ধ হয়েছে ${dateTime(closesAt.toISOString(), 'bengali')}।`;
 
   const tiles = [
     { label: 'পরিশোধিত আবেদন', value: o.paid, sub: `আবেদন ফি ${taka(o.paid * snapshot.settings.applicationFee, 'bengali')}`, href: '/admin/admissions/applications' },

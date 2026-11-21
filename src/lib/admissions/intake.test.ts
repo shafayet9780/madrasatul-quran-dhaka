@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { intakeFrom, intakeStatus, nextChange, sessionOrNext, type Intake } from './intake';
+import { ctaStatus, ctaTitle, intakeFrom, intakeStatus, nextChange, sessionOrNext, type Intake } from './intake';
 import type { FormDocument } from './snapshot';
 import { liveFormDocument } from './testing/live-form';
 
@@ -28,6 +28,33 @@ describe('intakeFrom', () => {
       closesAt: '2026-12-01T00:00:00Z',
     });
     expect(intakeFrom(doc({ closesAt: '2026-10-31T00:00:00Z' }), now).state).toBe('closed');
+  });
+
+  it('takes the kind and dates from the window that applies now', () => {
+    const windows = [
+      { kind: 'preAdmission' as const, opensAt: '2026-10-01T00:00:00Z', closesAt: '2026-10-20T00:00:00Z' },
+      { kind: 'admission' as const, opensAt: '2026-10-25T00:00:00Z' },
+    ];
+    expect(intakeFrom(doc({ windows }), now)).toMatchObject({ state: 'open', kind: 'admission', opensAt: '2026-10-25T00:00:00Z', closesAt: undefined });
+  });
+});
+
+describe('ctaTitle and ctaStatus', () => {
+  const intro = (key: string, values?: Record<string, string>) => `intro.${t(key, values)}`;
+  it('names the pre-admission as before', () => {
+    expect(ctaTitle({ state: 'open', kind: 'preAdmission' }, '2027', t)).toBe('title {"session":"2027"}');
+    expect(ctaTitle({ state: 'open' }, '2027', t)).toBe('title {"session":"2027"}');
+    expect(ctaStatus({ state: 'open', kind: 'preAdmission' }, 'english', intro, t, now)).toBe('intro.statusOpenNoDeadline');
+  });
+  it('says admission is open, and to fill in the pre-admission form', () => {
+    expect(ctaTitle({ state: 'open', kind: 'admission' }, '2027', t)).toBe('titleAdmissionOpen {"session":"2027"}');
+    expect(ctaTitle({ state: 'not_open', kind: 'admission' }, '2027', t)).toBe('titleAdmission {"session":"2027"}');
+    expect(ctaStatus({ state: 'open', kind: 'admission' }, 'english', intro, t, now)).toBe('admissionHint');
+    expect(ctaStatus({ state: 'open', kind: 'admission', closesAt: '2026-12-01T17:59:00Z' }, 'english', intro, t, now)).toMatch(/^admissionHintDeadline /);
+  });
+  it('counts down the admission’s last week, and announces its opening', () => {
+    expect(ctaStatus({ state: 'open', kind: 'admission', closesAt: '2026-11-05T17:59:00Z' }, 'english', intro, t, now)).toMatch(/^intro\.statusClosingSoon /);
+    expect(ctaStatus({ state: 'not_open', kind: 'admission', opensAt: '2026-11-10T04:00:00Z' }, 'english', intro, t, now)).toMatch(/^intro\.statusNotOpen /);
   });
 });
 
