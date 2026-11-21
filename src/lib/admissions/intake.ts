@@ -1,4 +1,5 @@
-import { buildSnapshot, cycleWindow, FormConfigError, type FormDocument } from './snapshot';
+import { buildSnapshot, FormConfigError, type FormDocument } from './snapshot';
+import { currentWindow, type WindowKind } from './windows';
 import { dateTime, daysLeft, num, type Locale } from './display';
 import type { FormSnapshot } from './form-config';
 
@@ -6,13 +7,14 @@ import type { FormSnapshot } from './form-config';
 // offer the form. Pure, safe in client components.
 
 export type IntakeState = 'open' | 'not_open' | 'closed' | 'off';
-export type Intake = { state: IntakeState; session?: string; opensAt?: string; closesAt?: string };
+/** The dates and kind are the window that applies now (windows.ts). */
+export type Intake = { state: IntakeState; kind?: WindowKind; session?: string; opensAt?: string; closesAt?: string; hideDeadline?: boolean };
 
 /** The intake's session, else the coming school year (while no form is published). */
 export const sessionOrNext = (session: string | undefined, now: Date = new Date()): string => session ?? String(now.getFullYear() + 1);
 
 /** What the banner and the calls to action show; null while there is nothing to offer. */
-export type AdmissionCta = { state: 'open' | 'not_open'; session: string; status: string };
+export type AdmissionCta = { state: 'open' | 'not_open'; title: string; status: string };
 
 /**
  * The intake and the form it offers (classes, fees, what to bring). Off, with no form, when the form is
@@ -23,7 +25,8 @@ export function publishedIntake(doc: FormDocument | null | undefined, now: Date 
   try {
     const snapshot = buildSnapshot(doc, now);
     const { settings } = snapshot;
-    return { intake: { state: cycleWindow(settings, now), session: settings.session, opensAt: settings.opensAt, closesAt: settings.closesAt }, snapshot };
+    const { state, kind, opensAt, closesAt, hideDeadline } = currentWindow(settings, now);
+    return { intake: { state, kind, session: settings.session, opensAt, closesAt, hideDeadline }, snapshot };
   } catch (e) {
     if (e instanceof FormConfigError) return { intake: { state: 'off' } };
     throw e;
@@ -57,4 +60,22 @@ export function intakeStatus(intake: Intake, locale: Locale, t: Translate, now: 
   if (days === 0) return t('statusLastDay', { deadline });
   if (days !== null) return t('statusClosingSoon', { days: num(days, locale), deadline });
   return t('statusOpen', { deadline });
+}
+
+/** The banner's title (`t` is the `admissionCta` translator): "Pre-admission 2027", or in the admission window "Admissions open for 2027". */
+export function ctaTitle(intake: Intake, session: string, t: Translate): string {
+  if (intake.kind !== 'admission') return t('title', { session });
+  return t(intake.state === 'open' ? 'titleAdmissionOpen' : 'titleAdmission', { session });
+}
+
+/**
+ * The banner's status sentence. In an open admission window it says to fill in the pre-admission form (with the
+ * deadline), unless the deadline is near, when the countdown says more. A window set to hide its deadline shows neither
+ * the deadline nor the countdown. `intro` is the `preAdmission.intro` translator.
+ */
+export function ctaStatus(intake: Intake, locale: Locale, intro: Translate, t: Translate, now: Date = new Date()): string {
+  const { kind, state, closesAt } = intake;
+  if (state === 'open' && intake.hideDeadline) return kind === 'admission' ? t('admissionHint') : intro('statusOpenNoDeadline');
+  if (kind !== 'admission' || state !== 'open' || (closesAt && daysLeft(closesAt, now) !== null)) return intakeStatus(intake, locale, intro, now);
+  return closesAt ? t('admissionHintDeadline', { deadline: dateTime(closesAt, locale) }) : t('admissionHint');
 }

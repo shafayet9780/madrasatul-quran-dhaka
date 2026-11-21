@@ -1,4 +1,5 @@
 import 'server-only';
+import { openDeadline } from './windows';
 import { and, desc, eq, inArray, isNotNull, isNull, lt, or } from 'drizzle-orm';
 import { getAdmissionsDb } from './db';
 import { asLocale, dateTime } from './display';
@@ -56,7 +57,7 @@ export async function sendResumeEmail(app: Application, token: string, origin: s
   if (!send) return { ok: false, reason: 'not_configured' };
   const snapshot = await loadSnapshot(app.cycleId, app.snapshotVersion);
   const locale = asLocale(app.locale);
-  const closesAt = snapshot?.settings.closesAt;
+  const closesAt = snapshot && openDeadline(snapshot.settings);
   const email = resumeEmail({
     locale,
     session: snapshot?.settings.session ?? '',

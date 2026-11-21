@@ -172,13 +172,13 @@ Rejected (owner, 2026-10-10): the austere white signage look; traditional or orn
 - **Board path:** Dakhil is the only board path; never SSC. The school runs in three stages (প্রি-হিফজ, হিফজ, আফটার হিফজ from Class 6 to Mutawassita, Dakhil inside it). After Dakhil a student goes on to Mutawassita here or to college; the Curriculum page also names Kafiya at a Qawmi madrasa, as the prospectus does. Do not mention Alim or Sanawiya.
 - **The prospectus is the source of truth** for the curriculum; the detailed curriculum PDF only adds each class's books.
 - **Punctuation:** no em dashes or en dashes in either language; use a comma, a full stop or the danda (।).
-- **No decorative Arabic** (no calligraphy as ornament, no Bismillah banners). Quranic text appears only as content, with reverence.
+- **No decorative Arabic** (no calligraphy as ornament, no Bismillah banners). Quranic text appears only as content, with reverence. The one exception is the school's Arabic name over the Bengali in the hero, as the prospectus has it.
 - **No fees on the homepage.** Fees live on the admissions page and the prospectus.
 - **Quotations are word for word.** Guardian reviews render only with the guardian's consent recorded in the CMS, exactly as written; a translation is marked (অনুবাদ) / (translated).
 - **Tone:** plain, warm, factual. Short sentences. Lead with what the school does, not with adjectives. No exclamation marks, no superlatives ("best", "leading"), no emoji.
 - **New copy needs the owner's sign-off** before it ships.
 
-Example, the hero: **মাদরাসাতুল কুরআন** / ইসলামি ও সাধারণ শিক্ষার আদর্শ সমন্বয়, with two actions only: আবেদন করুন (apply) and the prospectus download.
+Example, the hero: مَدْرَسَةُ الْقُرْآن / **মাদরাসাতুল কুরআন** / ইসলামি ও সাধারণ শিক্ষার আদর্শ সমন্বয়, with two actions only: আবেদন করুন (apply) and the prospectus download.
 
 ## Visual foundations
 
@@ -255,11 +255,12 @@ Pill links (`ButtonLink`, `src/components/site/button.tsx`): `primary` (rust) is
 
 ### Hero
 
-The homepage opener (`Hero`, `src/components/homepage/hero.tsx`): the H1 (name in `rust`, the promise in `ink`, `text-hero-tagline`: the name's size from 640px; on phones 22 under a 32 name, so its first line is as wide as the name, and it breaks where Studio has a line break, ইসলামিক ও জেনারেল শিক্ষার / একটি আদর্শ সমন্বয়), two buttons only (apply, prospectus download; on phones the download is `md` sized, so the two fit one row from about 400px), the photo mosaic and the HeroChips (three, a fourth on phones).
+The homepage opener (`Hero`, `src/components/homepage/hero.tsx`): the H1 (the Arabic name مَدْرَسَةُ الْقُرْآن in `rust`, as on the prospectus, then the Bengali name in `rust` (at 0.9 × `text-hero` on the Bengali page, so it is as wide as the Arabic; the English name already is), a short `line-bronze` rule, and the promise in `ink`; `text-hero-tagline`: 24 → 32 from 640px, a size under the name pair; on phones 22 under a 32 name, and it breaks where Studio has a line break, ইসলামিক ও জেনারেল শিক্ষার / একটি আদর্শ সমন্বয়), two buttons only (apply, prospectus download; on phones the download is `md` sized, so the two fit one row from about 400px), the photo mosaic and the HeroChips (three, a fourth on phones).
 
 - Photos: `siteSettings.heroImages` from the CMS; alt text is the image title in the page language, else its CMS alt. Three tiles (1.3fr / 1fr, the first spans two rows, `rounded-card`), `clamp(300px, 38vw, 540px)` tall.
 - Tiles take turns (`HeroGallery`): every 3 seconds (the first time 1.5 seconds after the page opens) one tile cross-fades to the next photo, the small tiles first so the first photo (the big tile) stays about 7.5 seconds; a photo on screen never comes up twice (`animate-tile-in`, after it has loaded). Paused off-screen, on hover or focus, by its pause button; still under reduced motion. Only with more photos than tiles.
 - The H1, the buttons and the first photo never animate; tiles 2 and 3 settle in (`animate-settle`).
+- The Arabic name (`ArabicName`, `src/components/homepage/arabic-name.tsx`) is the prospectus cover's lettering (Al-Qalam-Quran) taken from the PDF as one SVG outline, so no Arabic font loads. Its letters stand as tall as the Bengali name's (1.7 × `text-hero`), left-aligned with it on every screen. Hidden from screen readers; search engines get the name from the School structured data's `alternateName`.
 - Marked `data-hero`: the phone ApplyBar waits until it has scrolled away.
 
 ### HeroChip

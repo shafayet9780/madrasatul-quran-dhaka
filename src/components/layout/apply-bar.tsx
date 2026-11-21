@@ -54,7 +54,7 @@ export function ApplyBar() {
       >
         <div className="flex min-h-[68px] items-center gap-3 border-t border-line-dark px-4 pb-[env(safe-area-inset-bottom)]">
           <span className="flex min-w-0 flex-1 flex-col leading-tight">
-            <strong className="text-16 font-bold leading-tight">{t('title', { session: cta.session })}</strong>
+            <strong className="text-16 font-bold leading-tight">{cta.title}</strong>
             <span className="truncate text-13 leading-tight text-on-dark-muted">{cta.status}</span>
           </span>
           <ButtonLink href={`/${locale}/pre-admission`} variant="light" size="md" className="font-bold" onClick={() => trackAdmissionCta('apply_bar', locale)}>

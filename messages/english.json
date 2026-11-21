@@ -717,6 +717,10 @@
   },
   "admissionCta": {
     "title": "Pre-admission {session}",
+    "titleAdmissionOpen": "Admissions open for {session}",
+    "titleAdmission": "Admissions {session}",
+    "admissionHint": "To apply, fill in the pre-admission form",
+    "admissionHintDeadline": "To apply, fill in the pre-admission form by {deadline}",
     "apply": "Apply now",
     "details": "See details",
     "fallbackTitle": "Admissions",

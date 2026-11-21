@@ -63,7 +63,7 @@ export function generateSchoolStructuredData({
     '@type': 'School',
     '@id': `${origin}/#school`,
     name,
-    alternateName,
+    alternateName: [alternateName, 'مدرسة القرآن'],
     url: `${origin}/${locale}`,
     image: image ?? `${origin}${SOCIAL_IMAGE}`,
     ...(logo && { logo }),

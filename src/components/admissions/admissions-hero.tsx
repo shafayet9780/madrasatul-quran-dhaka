@@ -6,10 +6,10 @@ import { Icon } from '@/components/site/icon';
 import { OnThisPage } from '@/components/site/on-this-page';
 import { cn } from '@/lib/utils';
 
-export type IntakeFacts = { session: string; applicationFee: string; evaluationFee: string };
+export type IntakeFacts = { title: string; applicationFee: string; evaluationFee: string };
 
 /**
- * The page's opening, on `paper`: the H1, a lead and the actions, with the intake beside it (its title, status line
+ * The page's opening, on `paper`: the H1, a lead and the actions, with the intake beside it (its title for the window, status line
  * with the green dot while open, and two fees); under it, links to each section of the page. With no intake open or
  * announced (and so no site banner) the status line sits above the H1 instead.
  * While the form is open the rust button applies; while it is announced it shows the details; otherwise it points
@@ -79,7 +79,7 @@ export async function AdmissionsHero({
           {facts && (
             <div className="flex min-w-0 flex-[2_1_320px] flex-col gap-4 rounded-card border border-line bg-surface p-[clamp(20px,2.4vw,28px)]">
               <div className="flex flex-col gap-1.5">
-                <h2 className="m-0 text-h4">{cta('title', { session: facts.session })}</h2>
+                <h2 className="m-0 text-h4">{facts.title}</h2>
                 {statusLine('items-start [&>span]:mt-[0.45em]')}
               </div>
               <dl className="m-0 flex flex-col">

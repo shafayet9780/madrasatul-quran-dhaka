@@ -1,5 +1,6 @@
 import { defineArrayMember, defineField, defineType } from 'sanity'
 import { FIELD_TYPES, ROLE_SPECS, ROLES, checkBringList, checkFormConfig, type RawBringItem, type RawSection } from '../../src/lib/admissions/form-config'
+import { checkWindows, type AdmissionWindow } from '../../src/lib/admissions/windows'
 
 // The 2027 pre-admission form: one uniform field definition in every section, plus the cycle
 // settings. Lives inside the `preAdmissionForm` document (groups “Form 2027” and “Cycle 2027”).
@@ -203,6 +204,44 @@ export const admissionSection = defineType({
   preview: { select: { title: 'title.bengali', fields: 'fields' }, prepare: ({ title, fields }) => ({ title, subtitle: `${fields?.length ?? 0} fields` }) },
 })
 
+const KIND_TITLES = { preAdmission: 'Pre-admission', admission: 'Admission' }
+const dhaka = (iso?: string) => (iso ? new Date(iso).toLocaleString('en-GB', { timeZone: 'Asia/Dhaka', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' }) : '')
+
+export const admissionWindow = defineType({
+  name: 'admissionWindow',
+  title: 'Window',
+  type: 'object',
+  fields: [
+    defineField({
+      name: 'kind',
+      title: 'Kind',
+      type: 'string',
+      description: 'What the site says: Pre-admission → “প্রি-অ্যাডমিশন ২০২৭”; Admission → “২০২৭ সালের ভর্তি চলছে · ভর্তির জন্য প্রি-অ্যাডমিশন ফর্ম পূরণ করুন”. The same form takes applications in both.',
+      options: { list: Object.entries(KIND_TITLES).map(([value, title]) => ({ value, title })), layout: 'radio', direction: 'horizontal' },
+      validation: (Rule) => Rule.required(),
+    }),
+    defineField({ name: 'opensAt', title: 'Opens at', type: 'datetime', description: 'Empty: open from now.' }),
+    defineField({ name: 'closesAt', title: 'Closes at (deadline)', type: 'datetime', description: 'Empty: open until you turn off “Form open” (Form Settings).' }),
+    defineField({
+      name: 'hideDeadline',
+      title: 'Hide the deadline in the banner',
+      type: 'boolean',
+      description: 'The banner, the phone bar and the admission cards leave out “শেষ সময় …” and the countdown. The form still closes at the deadline, and the pre-admission page still shows it.',
+      initialValue: false,
+      hidden: ({ parent }) => !(parent as { closesAt?: string } | undefined)?.closesAt,
+    }),
+  ],
+  preview: {
+    select: { kind: 'kind', opensAt: 'opensAt', closesAt: 'closesAt', hideDeadline: 'hideDeadline' },
+    prepare: ({ kind, opensAt, closesAt, hideDeadline }) => ({
+      title: KIND_TITLES[kind as keyof typeof KIND_TITLES] ?? 'Choose a kind',
+      subtitle: `${opensAt ? dhaka(opensAt) : 'Now'} → ${closesAt ? dhaka(closesAt) : 'until switched off'}${closesAt && hideDeadline ? ' (not shown in the banner)' : ''}`,
+    }),
+  },
+})
+
+const hasWindows = ({ parent }: { parent?: { windows?: unknown[] } }) => !!parent?.windows?.length
+
 export const admissionCycle = defineType({
   name: 'admissionCycle',
   title: 'Admission cycle',
@@ -211,15 +250,31 @@ export const admissionCycle = defineType({
     defineField({ name: 'session', title: 'Session', type: 'string', description: 'e.g. 2027', validation: (Rule) => Rule.required() }),
     defineField({ name: 'applicationFee', title: 'Application fee (৳)', type: 'number', validation: (Rule) => Rule.required().integer().positive() }),
     defineField({ name: 'evaluationFee', title: 'Assessment fee (৳, paid in cash on the day)', type: 'number', validation: (Rule) => Rule.required().integer().min(0) }),
-    defineField({ name: 'opensAt', title: 'Opens at', type: 'datetime' }),
+    defineField({
+      name: 'windows',
+      title: 'Windows',
+      description:
+        'When the form takes applications: e.g. a Pre-admission window, then an Admission window. The site’s banner and buttons follow the window that is open now and change on their own at the dates. Windows must not overlap.',
+      type: 'array',
+      of: [defineArrayMember({ type: 'admissionWindow' })],
+      validation: (Rule) =>
+        Rule.custom((windows) => {
+          const problems = checkWindows(windows as Partial<AdmissionWindow>[] | undefined)
+          return problems.length ? problems.join('\n') : true
+        }),
+    }),
+    defineField({ name: 'opensAt', title: 'Opens at', type: 'datetime', description: 'Used only while Windows is empty.', hidden: hasWindows }),
     defineField({
       name: 'closesAt',
       title: 'Closes at (deadline)',
       type: 'datetime',
+      description: 'Used only while Windows is empty.',
+      hidden: hasWindows,
       validation: (Rule) =>
         Rule.custom((closesAt, ctx) => {
-          const opensAt = (ctx.parent as { opensAt?: string } | undefined)?.opensAt
-          return !closesAt || !opensAt || closesAt > opensAt || 'The deadline must be after the opening time.'
+          const parent = ctx.parent as { opensAt?: string; windows?: unknown[] } | undefined
+          // Hidden and unused once there are windows: an old pair must not block publishing.
+          return !closesAt || !parent?.opensAt || !!parent.windows?.length || closesAt > parent.opensAt || 'The deadline must be after the opening time.'
         }),
     }),
     defineField({ name: 'whatsappUrl', title: 'WhatsApp group link', type: 'url', validation: (Rule) => Rule.uri({ scheme: ['https'] }) }),
@@ -305,4 +360,4 @@ export const admissionFormFields = [
   }),
 ]
 
-export const admissionFormTypes = [admissionOption, admissionField, admissionGroup, admissionSection, admissionCycle]
+export const admissionFormTypes = [admissionOption, admissionField, admissionGroup, admissionSection, admissionWindow, admissionCycle]

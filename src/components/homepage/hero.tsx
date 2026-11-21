@@ -7,6 +7,7 @@ import { urlFor } from '@/lib/sanity';
 import { ButtonLink } from '@/components/site/button';
 import { Icon, type IconName } from '@/components/site/icon';
 import { cn } from '@/lib/utils';
+import { ArabicName } from './arabic-name';
 import { HeroGallery, type HeroPhoto } from './hero-gallery';
 
 /** Boxes 2 to 4's look; their text is in Studio → Homepage → Hero text. Box 4 is for phones only, where it makes the two columns even. */
@@ -41,9 +42,13 @@ export async function Hero({ locale, images, hero }: { locale: Locale; images: H
   return (
     <section data-hero className="bg-cream text-ink">
       <div className="page-wrap flex flex-wrap items-center gap-x-16 gap-y-11 pb-[clamp(3rem,6vw,5.5rem)] pt-[clamp(2rem,5vw,4.5rem)]">
-        <div className="flex min-w-0 flex-[1_1_460px] flex-col gap-[clamp(1.5rem,3vw,2.25rem)]">
+        <div className="flex min-w-0 flex-[1_1_460px] flex-col gap-[clamp(1.25rem,2.4vw,1.75rem)]">
           <h1 className="m-0 text-hero text-balance">
-            <span className="block whitespace-nowrap text-rust">{t('name')}</span>
+            {/* The Arabic name over the Bengali, as on the prospectus: the same rust, as wide as the Bengali, on the same left edge */}
+            <ArabicName className={cn('block h-[calc(var(--text-hero)*1.7)] w-auto max-w-full text-rust', locale === 'bengali' ? 'mb-[calc(var(--text-hero)*0.18)]' : 'mb-[calc(var(--text-hero)*0.22)]')} />
+            {/* The Bengali name is set a little smaller so it is as wide as the Arabic (the English already is) */}
+            <span className={cn('block whitespace-nowrap text-rust', locale === 'bengali' && 'text-[calc(var(--text-hero)*0.9)]')}>{t('name')}</span>
+            {line && <span aria-hidden className="mb-[calc(var(--text-hero)*0.4)] mt-[calc(var(--text-hero)*0.3)] block h-0.5 w-14 rounded-full bg-line-bronze max-sm:mb-4 max-sm:mt-3.5" />}
             {line && (
               <span className="block text-hero-tagline">
                 {/* Phones break the promise where Studio has a line break; wider screens join it into one line and wrap it. */}

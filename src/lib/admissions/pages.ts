@@ -9,7 +9,8 @@ import type { Application } from './drafts';
 import { allFields, type FormSnapshot } from './form-config';
 import { guardianSections } from './answers';
 import { PLEDGE_STEP, pledgeStatus } from './pledge';
-import { intakeStatus, nextChange, publishedIntake, type AdmissionCta, type Intake } from './intake';
+import { ctaStatus, ctaTitle, nextChange, publishedIntake, type AdmissionCta, type Intake } from './intake';
+import { currentWindow } from './windows';
 import { localOverrides } from './local';
 import { currentApplication } from './session';
 import { hasTestPass } from './test-pass';
@@ -66,16 +67,16 @@ export const getLandingIntake = cache(async (personal: boolean): Promise<{ intak
   }
   const cycle = await safeCurrentCycle({ testPass: personal });
   if (!cycle) return { intake: { state: 'off' } };
-  const { opensAt, closesAt } = cycle.snapshot.settings;
-  return { intake: { state: cycle.enabled ? cycle.window : 'off', session: cycle.session, opensAt, closesAt }, snapshot: cycle.snapshot };
+  const { kind, opensAt, closesAt, hideDeadline } = currentWindow(cycle.snapshot.settings);
+  return { intake: { state: cycle.enabled ? cycle.window : 'off', kind, session: cycle.session, opensAt, closesAt, hideDeadline }, snapshot: cycle.snapshot };
 });
 
 /** Null unless the form is open or announced with an opening date. */
 export async function getAdmissionCta(locale: Locale): Promise<AdmissionCta | null> {
   const intake = await getIntake();
   if (intake.state !== 'open' && intake.state !== 'not_open') return null;
-  const t = await getTranslations({ locale, namespace: 'preAdmission.intro' });
-  return { state: intake.state, session: num(intake.session ?? '', locale), status: intakeStatus(intake, locale, t) };
+  const [intro, t] = await Promise.all([getTranslations({ locale, namespace: 'preAdmission.intro' }), getTranslations({ locale, namespace: 'admissionCta' })]);
+  return { state: intake.state, title: ctaTitle(intake, num(intake.session ?? '', locale), t), status: ctaStatus(intake, locale, intro, t) };
 }
 
 export const flowPath = (locale: string, path = '') => `/${locale}/pre-admission${path}`;
