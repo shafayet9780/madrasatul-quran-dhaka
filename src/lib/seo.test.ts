@@ -17,7 +17,7 @@ describe('generateSchoolStructuredData', () => {
     expect(ld).toMatchObject({
       '@type': 'School',
       name: 'Madrasatul Quran',
-      alternateName: 'মাদরাসাতুল কুরআন',
+      alternateName: ['মাদরাসাতুল কুরআন', 'مدرسة القرآن'],
       url: `${getSiteUrl()}/english`,
       logo: 'https://cdn.sanity.io/logo.png',
       image: `${getSiteUrl()}/images/social/school.jpg`,

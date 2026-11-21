@@ -92,8 +92,8 @@
   --text-hero--line-height: 1.16;
   --text-hero--letter-spacing: -0.01em;
   --text-hero--font-weight: 750;
-  --text-hero-tagline: clamp(2.375rem, 4.2vw, 3.75rem); /* the homepage H1's second line: as the name, smaller on phones */
-  --text-hero-tagline--line-height: 1.16;
+  --text-hero-tagline: clamp(1.5rem, 2.5vw, 2.25rem); /* the homepage H1's promise, a size under the name pair: 24 → 36 */
+  --text-hero-tagline--line-height: 1.25;
   --text-hero-tagline--letter-spacing: -0.01em;
   --text-hero-tagline--font-weight: 750;
   --text-h2: clamp(1.875rem, 3.4vw, 2.875rem); /* 30 → 46 */
@@ -182,7 +182,7 @@
 /* The English hero line is set smaller: 36 → 52 */
 :root:lang(en) {
   --text-hero: clamp(2.25rem, 3.7vw, 3.25rem);
-  --text-hero-tagline: clamp(2.25rem, 3.7vw, 3.25rem);
+  --text-hero-tagline: clamp(1.375rem, 2.2vw, 2rem);
 }
 
 /* Phones (below 640px) get their own, smaller sizes; Anek Bangla reads large. From 640px the fluid roles above apply. */
