@@ -222,12 +222,20 @@ export const admissionWindow = defineType({
     }),
     defineField({ name: 'opensAt', title: 'Opens at', type: 'datetime', description: 'Empty: open from now.' }),
     defineField({ name: 'closesAt', title: 'Closes at (deadline)', type: 'datetime', description: 'Empty: open until you turn off “Form open” (Form Settings).' }),
+    defineField({
+      name: 'hideDeadline',
+      title: 'Hide the deadline in the banner',
+      type: 'boolean',
+      description: 'The banner, the phone bar and the admission cards leave out “শেষ সময় …” and the countdown. The form still closes at the deadline, and the pre-admission page still shows it.',
+      initialValue: false,
+      hidden: ({ parent }) => !(parent as { closesAt?: string } | undefined)?.closesAt,
+    }),
   ],
   preview: {
-    select: { kind: 'kind', opensAt: 'opensAt', closesAt: 'closesAt' },
-    prepare: ({ kind, opensAt, closesAt }) => ({
+    select: { kind: 'kind', opensAt: 'opensAt', closesAt: 'closesAt', hideDeadline: 'hideDeadline' },
+    prepare: ({ kind, opensAt, closesAt, hideDeadline }) => ({
       title: KIND_TITLES[kind as keyof typeof KIND_TITLES] ?? 'Choose a kind',
-      subtitle: `${opensAt ? dhaka(opensAt) : 'Now'} → ${closesAt ? dhaka(closesAt) : 'until switched off'}`,
+      subtitle: `${opensAt ? dhaka(opensAt) : 'Now'} → ${closesAt ? dhaka(closesAt) : 'until switched off'}${closesAt && hideDeadline ? ' (not shown in the banner)' : ''}`,
     }),
   },
 })

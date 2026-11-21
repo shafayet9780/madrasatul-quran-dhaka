@@ -140,7 +140,7 @@ export const formSnapshotSchema = z.object({
     opensAt: z.string().optional(),
     closesAt: z.string().optional(),
     /** Application windows (windows.ts); absent on a form from before them. */
-    windows: z.array(z.object({ kind: z.enum(WINDOW_KINDS), opensAt: z.string().optional(), closesAt: z.string().optional() })).optional(),
+    windows: z.array(z.object({ kind: z.enum(WINDOW_KINDS), opensAt: z.string().optional(), closesAt: z.string().optional(), hideDeadline: z.boolean().optional() })).optional(),
     whatsappUrl: z.string().optional(),
     declaration: text,
     pdfInstructions: optionalText,

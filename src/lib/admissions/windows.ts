@@ -4,7 +4,8 @@
 
 export const WINDOW_KINDS = ['preAdmission', 'admission'] as const;
 export type WindowKind = (typeof WINDOW_KINDS)[number];
-export type AdmissionWindow = { kind: WindowKind; opensAt?: string; closesAt?: string };
+/** `hideDeadline`: the banner and the calls to action leave the deadline out (the form still closes at it). */
+export type AdmissionWindow = { kind: WindowKind; opensAt?: string; closesAt?: string; hideDeadline?: boolean };
 export type WindowState = 'not_open' | 'open' | 'closed';
 
 type Dated = { windows?: AdmissionWindow[]; opensAt?: string; closesAt?: string };

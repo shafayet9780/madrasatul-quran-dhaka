@@ -52,6 +52,11 @@ describe('ctaTitle and ctaStatus', () => {
     expect(ctaStatus({ state: 'open', kind: 'admission' }, 'english', intro, t, now)).toBe('admissionHint');
     expect(ctaStatus({ state: 'open', kind: 'admission', closesAt: '2026-12-01T17:59:00Z' }, 'english', intro, t, now)).toMatch(/^admissionHintDeadline /);
   });
+  it('leaves the deadline and the countdown out when the window hides them', () => {
+    const near = '2026-11-05T17:59:00Z';
+    expect(ctaStatus({ state: 'open', kind: 'admission', closesAt: near, hideDeadline: true }, 'english', intro, t, now)).toBe('admissionHint');
+    expect(ctaStatus({ state: 'open', kind: 'preAdmission', closesAt: near, hideDeadline: true }, 'english', intro, t, now)).toBe('intro.statusOpenNoDeadline');
+  });
   it('counts down the admission’s last week, and announces its opening', () => {
     expect(ctaStatus({ state: 'open', kind: 'admission', closesAt: '2026-11-05T17:59:00Z' }, 'english', intro, t, now)).toMatch(/^intro\.statusClosingSoon /);
     expect(ctaStatus({ state: 'not_open', kind: 'admission', opensAt: '2026-11-10T04:00:00Z' }, 'english', intro, t, now)).toMatch(/^intro\.statusNotOpen /);

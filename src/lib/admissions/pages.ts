@@ -67,8 +67,8 @@ export const getLandingIntake = cache(async (personal: boolean): Promise<{ intak
   }
   const cycle = await safeCurrentCycle({ testPass: personal });
   if (!cycle) return { intake: { state: 'off' } };
-  const { kind, opensAt, closesAt } = currentWindow(cycle.snapshot.settings);
-  return { intake: { state: cycle.enabled ? cycle.window : 'off', kind, session: cycle.session, opensAt, closesAt }, snapshot: cycle.snapshot };
+  const { kind, opensAt, closesAt, hideDeadline } = currentWindow(cycle.snapshot.settings);
+  return { intake: { state: cycle.enabled ? cycle.window : 'off', kind, session: cycle.session, opensAt, closesAt, hideDeadline }, snapshot: cycle.snapshot };
 });
 
 /** Null unless the form is open or announced with an opening date. */

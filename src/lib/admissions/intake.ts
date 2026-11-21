@@ -8,7 +8,7 @@ import type { FormSnapshot } from './form-config';
 
 export type IntakeState = 'open' | 'not_open' | 'closed' | 'off';
 /** The dates and kind are the window that applies now (windows.ts). */
-export type Intake = { state: IntakeState; kind?: WindowKind; session?: string; opensAt?: string; closesAt?: string };
+export type Intake = { state: IntakeState; kind?: WindowKind; session?: string; opensAt?: string; closesAt?: string; hideDeadline?: boolean };
 
 /** The intake's session, else the coming school year (while no form is published). */
 export const sessionOrNext = (session: string | undefined, now: Date = new Date()): string => session ?? String(now.getFullYear() + 1);
@@ -25,8 +25,8 @@ export function publishedIntake(doc: FormDocument | null | undefined, now: Date 
   try {
     const snapshot = buildSnapshot(doc, now);
     const { settings } = snapshot;
-    const { state, kind, opensAt, closesAt } = currentWindow(settings, now);
-    return { intake: { state, kind, session: settings.session, opensAt, closesAt }, snapshot };
+    const { state, kind, opensAt, closesAt, hideDeadline } = currentWindow(settings, now);
+    return { intake: { state, kind, session: settings.session, opensAt, closesAt, hideDeadline }, snapshot };
   } catch (e) {
     if (e instanceof FormConfigError) return { intake: { state: 'off' } };
     throw e;
@@ -70,10 +70,12 @@ export function ctaTitle(intake: Intake, session: string, t: Translate): string 
 
 /**
  * The banner's status sentence. In an open admission window it says to fill in the pre-admission form (with the
- * deadline), unless the deadline is near, when the countdown says more. `intro` is the `preAdmission.intro` translator.
+ * deadline), unless the deadline is near, when the countdown says more. A window set to hide its deadline shows neither
+ * the deadline nor the countdown. `intro` is the `preAdmission.intro` translator.
  */
 export function ctaStatus(intake: Intake, locale: Locale, intro: Translate, t: Translate, now: Date = new Date()): string {
   const { kind, state, closesAt } = intake;
+  if (state === 'open' && intake.hideDeadline) return kind === 'admission' ? t('admissionHint') : intro('statusOpenNoDeadline');
   if (kind !== 'admission' || state !== 'open' || (closesAt && daysLeft(closesAt, now) !== null)) return intakeStatus(intake, locale, intro, now);
   return closesAt ? t('admissionHintDeadline', { deadline: dateTime(closesAt, locale) }) : t('admissionHint');
 }
