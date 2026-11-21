@@ -46,7 +46,8 @@ export async function Hero({ locale, images, hero }: { locale: Locale; images: H
           <h1 className="m-0 text-hero text-balance">
             {/* The Arabic name over the Bengali, as on the prospectus: its letters as tall as the Bengali's, on the same left edge */}
             <ArabicName className="mb-[calc(var(--text-hero)*0.1)] block h-[calc(var(--text-hero)*1.7)] w-auto max-w-full text-rust-deep" />
-            <span className="block whitespace-nowrap text-rust">{t('name')}</span>
+            {/* The Bengali name is set a little smaller so it is as wide as the Arabic (the English already is) */}
+            <span className={cn('block whitespace-nowrap text-rust', locale === 'bengali' && 'text-[calc(var(--text-hero)*0.9)]')}>{t('name')}</span>
             {line && <span aria-hidden className="my-[calc(var(--text-hero)*0.4)] block h-0.5 w-14 rounded-full bg-line-bronze" />}
             {line && (
               <span className="block text-hero-tagline">
