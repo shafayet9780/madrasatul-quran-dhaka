@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { currentWindow } from '@/lib/admissions/windows';
+import { openDeadline } from '@/lib/admissions/windows';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
@@ -82,7 +82,7 @@ export default async function StatusPage({ params, searchParams }: Props) {
     failed: t('status.failedLead'),
     due: configured ? t('status.submittedLead') : t('status.notConfiguredLead'),
   }[state];
-  const deadline = currentWindow(snapshot.settings).closesAt;
+  const deadline = openDeadline(snapshot.settings);
 
   return shell(
     <main className="mx-auto flex w-full max-w-[560px] flex-col gap-5 px-4 pb-10 pt-8 md:py-16">

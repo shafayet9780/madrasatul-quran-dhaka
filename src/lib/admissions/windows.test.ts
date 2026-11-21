@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { checkWindows, currentWindow, type AdmissionWindow } from './windows';
+import { checkWindows, currentWindow, openDeadline, type AdmissionWindow } from './windows';
 
 const pre: AdmissionWindow = { kind: 'preAdmission', opensAt: '2026-10-10T00:00:00Z', closesAt: '2026-11-15T18:00:00Z' };
 const adm: AdmissionWindow = { kind: 'admission', opensAt: '2026-11-25T00:00:00Z', closesAt: '2027-01-31T18:00:00Z' };
@@ -41,5 +41,13 @@ describe('checkWindows', () => {
   it('refuses overlapping windows, an open end included', () => {
     expect(checkWindows([pre, { ...adm, opensAt: '2026-11-15T00:00:00Z' }])).toEqual(['Windows 1 and 2 overlap: one must close before the other opens.']);
     expect(checkWindows([{ kind: 'preAdmission', opensAt: pre.opensAt }, adm])).toHaveLength(1);
+  });
+});
+
+describe('openDeadline', () => {
+  it('is the open window’s deadline, and none between windows', () => {
+    const settings = { windows: [pre, adm] };
+    expect(openDeadline(settings, at('2026-10-20T00:00:00Z'))).toBe(pre.closesAt);
+    expect(openDeadline(settings, at('2026-11-20T00:00:00Z'))).toBeUndefined();
   });
 });

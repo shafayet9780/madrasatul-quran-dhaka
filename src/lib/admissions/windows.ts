@@ -28,6 +28,12 @@ export function currentWindow(settings: Dated, now: Date = new Date()): Admissio
   return { ...[...windows].sort((a, b) => at(b.closesAt, Infinity) - at(a.closesAt, Infinity))[0], state: 'closed' };
 }
 
+/** The deadline while a window is open; none between windows or after the last (the next window's would mislead). */
+export function openDeadline(settings: Dated, now: Date = new Date()): string | undefined {
+  const w = currentWindow(settings, now);
+  return w.state === 'open' ? w.closesAt : undefined;
+}
+
 /** Studio checks: a kind each, each deadline after its opening, and no two windows open at once. */
 export function checkWindows(windows: Partial<AdmissionWindow>[] | undefined): string[] {
   const problems: string[] = [];

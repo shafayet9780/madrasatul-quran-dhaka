@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { currentWindow } from '@/lib/admissions/windows';
+import { openDeadline } from '@/lib/admissions/windows';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { CircleAlert } from 'lucide-react';
 import { FindForm } from '@/components/pre-admission/find-form';
@@ -25,7 +25,7 @@ export default async function FindPage({ params, searchParams }: Props) {
   const t = await getTranslations({ locale, namespace: 'preAdmission' });
   const cycle = await safeCurrentCycle();
   const settings = cycle?.snapshot.settings;
-  const deadline = settings && currentWindow(settings).closesAt;
+  const deadline = settings && openDeadline(settings);
   const session = sessionOrNext(settings?.session);
   const year = Number(/^\d{4}/.exec(session)?.[0] ?? new Date().getFullYear() + 1);
 

@@ -272,8 +272,9 @@ export const admissionCycle = defineType({
       hidden: hasWindows,
       validation: (Rule) =>
         Rule.custom((closesAt, ctx) => {
-          const opensAt = (ctx.parent as { opensAt?: string } | undefined)?.opensAt
-          return !closesAt || !opensAt || closesAt > opensAt || 'The deadline must be after the opening time.'
+          const parent = ctx.parent as { opensAt?: string; windows?: unknown[] } | undefined
+          // Hidden and unused once there are windows: an old pair must not block publishing.
+          return !closesAt || !parent?.opensAt || !!parent.windows?.length || closesAt > parent.opensAt || 'The deadline must be after the opening time.'
         }),
     }),
     defineField({ name: 'whatsappUrl', title: 'WhatsApp group link', type: 'url', validation: (Rule) => Rule.uri({ scheme: ['https'] }) }),
