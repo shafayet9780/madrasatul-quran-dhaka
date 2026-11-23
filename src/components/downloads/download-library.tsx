@@ -25,8 +25,8 @@ export function DownloadLibrary({
         title={bengali ? 'ডাউনলোড' : 'Downloads'}
         subtitle={
           bengali
-            ? 'মাদরাসাতুল কুরআনের শেয়ার করা শিক্ষাসামগ্রী'
-            : 'Shared resources from Madrasatul Quran'
+            ? 'মাদরাসাতুল কুরআন ঢাকার শেয়ার করা শিক্ষাসামগ্রী'
+            : 'Shared resources from Madrasatul Quran Dhaka'
         }
       />
       <section className="bg-gray-50 py-12 md:py-16">

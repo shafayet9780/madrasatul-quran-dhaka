@@ -1,3 +1,4 @@
+import { SCHOOL_NAME } from '@/lib/site/school-name';
 import { ageDateText, ageText, sessionAge } from './age';
 import { answerText } from './answer-text';
 import { isVisible, type Answers } from './answers';
@@ -276,6 +277,6 @@ ${page3 || conductHtml ? `<div class="page-break"></div>${page3}${conductHtml}` 
 
 /** Footer printed by Chromium on every page: school, ID, child's name, page N / M. */
 export function footerTemplate(publicRef: string, studentNameBn: string, fontCss: string, session: string): string {
-  const title = `মাদরাসাতুল কুরআন · প্রি-অ্যাডমিশন আবেদনপত্র ${bn(session)}`;
+  const title = `${SCHOOL_NAME.bengali} · প্রি-অ্যাডমিশন আবেদনপত্র ${bn(session)}`;
   return `<div style="width:100%;padding:0 13mm;display:flex;justify-content:space-between;gap:12px;font-size:9px;color:#525252;font-family:'Inter','Noto Sans Bengali',sans-serif"><style>${fontCss}</style><span>${esc(title)} · <b style="color:#171717">${esc(publicRef)}</b> · ${esc(studentNameBn)}</span><span>পৃষ্ঠা <span class="pageNumber"></span> / <span class="totalPages"></span></span></div>`;
 }

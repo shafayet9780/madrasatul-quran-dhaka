@@ -21,7 +21,7 @@ export function StudioLogo() {
         MQ
       </div>
       <Text size={2} weight="semibold">
-        Madrasatul Quran
+        Madrasatul Quran Dhaka
       </Text>
     </Flex>
   )

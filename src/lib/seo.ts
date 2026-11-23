@@ -1,3 +1,4 @@
+import { SCHOOL_NAME, SCHOOL_NAME_ARABIC, SCHOOL_SHORT_NAME } from './site/school-name';
 import { getSiteUrl } from './site-url';
 import { SOCIAL_IMAGE } from './page-metadata';
 import { SCHOOL_LOCATION } from './contact/directions';
@@ -57,13 +58,17 @@ export function generateSchoolStructuredData({
 }) {
   const origin = getSiteUrl();
   const openingHours = openingHoursFrom(hours);
-  const [name, alternateName] = locale === 'bengali' ? ['মাদরাসাতুল কুরআন', 'Madrasatul Quran'] : ['Madrasatul Quran', 'মাদরাসাতুল কুরআন'];
+  const name = SCHOOL_NAME[locale];
+  const other = locale === 'bengali' ? 'english' : 'bengali';
+  // The legal name in both languages and Arabic, and the short name people also search for.
+  const alternateName = [SCHOOL_NAME[other], SCHOOL_NAME_ARABIC, SCHOOL_SHORT_NAME[locale], SCHOOL_SHORT_NAME[other]];
   return {
     '@context': 'https://schema.org',
     '@type': 'School',
     '@id': `${origin}/#school`,
     name,
-    alternateName: [alternateName, 'مدرسة القرآن'],
+    legalName: name,
+    alternateName,
     url: `${origin}/${locale}`,
     image: image ?? `${origin}${SOCIAL_IMAGE}`,
     ...(logo && { logo }),
@@ -132,7 +137,7 @@ export function generatePersonStructuredData(
     worksFor: {
       '@type': 'EducationalOrganization',
       '@id': `${baseUrl}/#organization`,
-      name: locale === 'bengali' ? 'মাদরাসাতুল কুরআন' : 'Madrasatul Quran',
+      name: SCHOOL_NAME[locale],
     },
   };
 }

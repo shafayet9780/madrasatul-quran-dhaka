@@ -59,7 +59,7 @@ export default async function InternalPrintPage({ params, searchParams }: { para
       <article className="adm sv-print-sheet is-long flex flex-col gap-6 text-foreground" aria-label="অফিসের রিপোর্ট">
         <header className="flex items-start justify-between gap-4 border-b-2 border-foreground pb-3">
           <div className="flex flex-col">
-            <span className="text-lg font-semibold [font-family:var(--sv-font-head)]">মাদরাসাতুল কুরআন, ঢাকা</span>
+            <span className="text-lg font-semibold [font-family:var(--sv-font-head)]">মাদরাসাতুল কুরআন ঢাকা</span>
             <span className="text-[13px] text-muted-foreground">শিক্ষার্থীর পূর্ণ রিপোর্ট · শুধু অফিসের জন্য</span>
           </div>
           <div className="text-right text-[13px] text-muted-foreground">

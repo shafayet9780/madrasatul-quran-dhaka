@@ -1,4 +1,5 @@
 import 'server-only';
+import { SCHOOL_NAME } from '@/lib/site/school-name';
 import { createHash } from 'node:crypto';
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -73,9 +74,9 @@ export async function schoolInfo() {
     const phone = phones[0]?.number;
     // Every active number with its label, for the guardian's copy of the offline form.
     const contacts = phones.map((p) => ({ label: (typeof p.label === 'string' ? p.label : p.label?.bengali) ?? '', number: p.number }));
-    return { name: 'মাদরাসাতুল কুরআন', line: [address, phone].filter(Boolean).join(' · '), logo, phone: phone ?? '', phones: contacts };
+    return { name: SCHOOL_NAME.bengali, line: [address, phone].filter(Boolean).join(' · '), logo, phone: phone ?? '', phones: contacts };
   } catch {
-    return { name: 'মাদরাসাতুল কুরআন', line: '', logo: null, phone: '', phones: [] };
+    return { name: SCHOOL_NAME.bengali, line: '', logo: null, phone: '', phones: [] };
   }
 }
 

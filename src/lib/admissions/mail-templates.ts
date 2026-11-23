@@ -1,3 +1,4 @@
+import { SCHOOL_NAME } from '@/lib/site/school-name';
 import type { BringItem } from './bring-list';
 import { num, taka, type Locale } from './display';
 import { WHATSAPP_BUTTON_GREEN } from '@/lib/whatsapp-logo';
@@ -15,7 +16,7 @@ function layout(locale: Locale, title: string, body: string): string {
 <body style="margin:0;padding:0;background:#fafafa;color:#171717;font-family:${font};font-size:15px;line-height:1.6">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#fafafa"><tr><td align="center" style="padding:24px 12px">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#ffffff;border:1px solid #e5e5e5;border-radius:12px">
-<tr><td style="padding:20px 24px;border-bottom:1px solid #e5e5e5;font-weight:600">${locale === 'bengali' ? 'মাদরাসাতুল কুরআন' : 'Madrasatul Quran'}</td></tr>
+<tr><td style="padding:20px 24px;border-bottom:1px solid #e5e5e5;font-weight:600">${SCHOOL_NAME[locale]}</td></tr>
 <tr><td style="padding:24px">${body}</td></tr>
 </table></td></tr></table></body></html>`;
 }

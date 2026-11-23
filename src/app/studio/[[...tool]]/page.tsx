@@ -55,7 +55,7 @@ export default function StudioPage() {
               MQ
             </div>
           </div>
-          <div>Redirecting to Madrasatul Quran CMS...</div>
+          <div>Redirecting to Madrasatul Quran Dhaka CMS...</div>
         </div>
       </div>
     )

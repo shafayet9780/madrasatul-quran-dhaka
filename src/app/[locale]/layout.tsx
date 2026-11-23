@@ -1,3 +1,4 @@
+import { SCHOOL_NAME } from '@/lib/site/school-name';
 import type { Metadata, Viewport } from 'next';
 import { preload } from 'react-dom';
 import { hasLocale, NextIntlClientProvider } from 'next-intl';
@@ -55,9 +56,9 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     title: { template: `%s | ${t('schoolName')}`, absolute: t('schoolName') },
     description,
     keywords: ['Islamic education', 'Madrasah', 'Quran', 'Hadith', 'Dhaka', 'Bangladesh', 'Educational institution'],
-    authors: [{ name: 'Madrasatul Quran' }],
-    creator: 'Madrasatul Quran',
-    publisher: 'Madrasatul Quran',
+    authors: [{ name: SCHOOL_NAME.english }],
+    creator: SCHOOL_NAME.english,
+    publisher: SCHOOL_NAME.english,
     // Icons: served from Sanity siteSettings.favicon via /api/favicon.
     icons: {
       icon: [{ url: '/api/favicon', sizes: '32x32', type: 'image/png' }],

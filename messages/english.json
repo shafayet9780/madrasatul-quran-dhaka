@@ -1,8 +1,8 @@
 {
   "teachers": {
     "meta": {
-      "title": "Teachers | Madrasatul Quran",
-      "description": "Meet our dedicated teachers across departments — scholars and educators nurturing every student at Madrasatul Quran."
+      "title": "Teachers | Madrasatul Quran Dhaka",
+      "description": "Meet our dedicated teachers across departments — scholars and educators nurturing every student at Madrasatul Quran Dhaka."
     },
     "title": "Our Teachers",
     "subtitle": "Dedicated educators across our departments, nurturing knowledge and character."
@@ -35,11 +35,11 @@
   },
   "home": {
     "meta": {
-      "title": "Madrasatul Quran, Uttara | Islamic and general education",
-      "description": "Madrasatul Quran in Uttara, Dhaka gives Islamic and general education equal weight in one ten-year plan, with day-care hifz. Nursery to Class 11."
+      "title": "Madrasatul Quran Dhaka, Uttara | Islamic and general education",
+      "description": "Madrasatul Quran Dhaka, in Uttara, gives Islamic and general education equal weight in one ten-year plan, with day-care hifz. Nursery to Class 11."
     },
     "hero": {
-      "name": "Madrasatul Quran",
+      "name": "Madrasatul Quran Dhaka",
       "apply": "Apply now",
       "prospectus": "Download the prospectus",
       "gallery": "Photos of Madrasatul Quran",
@@ -385,7 +385,7 @@
   },
   "about": {
     "meta": {
-      "title": "About us | Madrasatul Quran",
+      "title": "About us | Madrasatul Quran Dhaka",
       "description": "The founder, board of directors and advisors of Madrasatul Quran Dhaka, an ideal blend of Islamic and general education."
     },
     "hero": {
@@ -426,14 +426,14 @@
         "twitter": "X",
         "email": "Email"
       },
-      "title": "{name}, {role} | Madrasatul Quran",
-      "description": "{name}, {role} of Madrasatul Quran in Uttara, Dhaka."
+      "title": "{name}, {role} | Madrasatul Quran Dhaka",
+      "description": "{name}, {role} of Madrasatul Quran Dhaka in Uttara."
     }
   },
   "admissions": {
     "meta": {
-      "title": "Admissions and fees | Madrasatul Quran",
-      "description": "Admission at Madrasatul Quran in Uttara, Dhaka: classes and ages, how to apply, tuition and fees, discounts and the madrasa’s own transport."
+      "title": "Admissions and fees | Madrasatul Quran Dhaka",
+      "description": "Admission at Madrasatul Quran Dhaka in Uttara: classes and ages, how to apply, tuition and fees, discounts and the madrasa’s own transport."
     },
     "page": {
       "title": "Admissions and fees",
@@ -481,7 +481,7 @@
   },
   "curriculum": {
     "meta": {
-      "title": "Curriculum | Madrasatul Quran",
+      "title": "Curriculum | Madrasatul Quran Dhaka",
       "description": "Bangla-medium NCTB (Dakhil) curriculum with our own Islamic studies: the 50-50 model, three stages, books by class and the path after Dakhil."
     },
     "hero": {
@@ -520,7 +520,7 @@
       "title": "Four strands, one plan",
       "lead": "Bangla-medium NCTB (Dakhil) curriculum with our own Islamic studies curriculum.",
       "quote": "Alongside our own Arabic, Islamic studies and hifz, we chose the NCTB (Bangla) curriculum. Arabic and Islamic studies are taught so that students can go on to a madrasa, and anyone who wishes can continue in general education.",
-      "quoteBy": "Chairman, Madrasatul Quran (translated)",
+      "quoteBy": "Chairman, Madrasatul Quran Dhaka (translated)",
       "cards": [
         {
           "title": "Quran",
@@ -620,8 +620,8 @@
   },
   "campus": {
     "meta": {
-      "title": "A day on campus | Madrasatul Quran",
-      "description": "A day on the Madrasatul Quran campus, a 3–4 minute walk from Uttara Center metro station: the madrasa van at 7:00 am, the entrance, classes, salat, lunch, play and home time at 8:30 pm."
+      "title": "A day on campus | Madrasatul Quran Dhaka",
+      "description": "A day on the Madrasatul Quran Dhaka campus, a 3–4 minute walk from Uttara Center metro station: the madrasa van at 7:00 am, the entrance, classes, salat, lunch, play and home time at 8:30 pm."
     },
     "stage": {
       "groups": {
@@ -648,8 +648,8 @@
   },
   "contact": {
     "meta": {
-      "title": "Contact | Madrasatul Quran",
-      "description": "Phone, WhatsApp, email, office hours and address of Madrasatul Quran, a 3–4 minute walk from Uttara Center metro station."
+      "title": "Contact | Madrasatul Quran Dhaka",
+      "description": "Phone, WhatsApp, email, office hours and address of Madrasatul Quran Dhaka, a 3–4 minute walk from Uttara Center metro station."
     },
     "hero": {
       "title": "Contact",
@@ -674,7 +674,7 @@
       "landmarks": "Nearby",
       "showMap": "Show the map",
       "mapNote": "Tapping loads Google Maps.",
-      "mapTitle": "Map: Madrasatul Quran"
+      "mapTitle": "Map: Madrasatul Quran Dhaka"
     },
     "more": {
       "title": "More",
@@ -728,7 +728,7 @@
     "fallbackButton": "See admissions"
   },
   "preAdmission": {
-    "brand": "Madrasatul Quran",
+    "brand": "Madrasatul Quran Dhaka",
     "title": "Pre-admission {session}",
     "back": "Back",
     "backToChapters": "Back to chapters",
@@ -744,7 +744,7 @@
     "closed": "Applications have closed, so this form can no longer be submitted. Please contact the office if you need help.",
     "intro": {
       "metaTitle": "Pre-admission application {session}",
-      "metaDescription": "Apply online for the {session} pre-admission at Madrasatul Quran, Uttara, Dhaka: the form takes about 15 minutes, and the fee is paid by bKash, Nagad or card.",
+      "metaDescription": "Apply online for the {session} pre-admission at Madrasatul Quran Dhaka, Uttara: the form takes about 15 minutes, and the fee is paid by bKash, Nagad or card.",
       "statusOpen": "Applications open until {deadline}",
       "statusOpenNoDeadline": "Applications are open",
       "statusClosingSoon": "{days} days left, closes {deadline}",
@@ -1079,8 +1079,8 @@
       "home": "Go to the home page",
       "contact": "Contact us"
     },
-    "schoolName": "Madrasatul Quran",
-    "place": "Uttara, Dhaka",
+    "schoolName": "Madrasatul Quran Dhaka",
+    "place": "Uttara",
     "navLabel": "Main",
     "nav": {
       "about": "About us",
@@ -1110,13 +1110,13 @@
       "books": "Our books",
       "privacy": "Privacy policy",
       "cookies": "Cookie policy",
-      "copyright": "© {year} Madrasatul Quran. All rights reserved."
+      "copyright": "© {year} Madrasatul Quran Dhaka. All rights reserved."
     }
   },
   "gallery": {
     "meta": {
-      "title": "Gallery: photos and videos | Madrasatul Quran",
-      "description": "Photos and videos of classes, events and days on campus at Madrasatul Quran, kept album by album."
+      "title": "Gallery: photos and videos | Madrasatul Quran Dhaka",
+      "description": "Photos and videos of classes, events and days on campus at Madrasatul Quran Dhaka, kept album by album."
     },
     "hero": {
       "eyebrow": "Gallery · Photos and videos",
@@ -1170,8 +1170,8 @@
       "apply": "Apply"
     },
     "album": {
-      "meta": "{title}: photos and videos | Madrasatul Quran",
-      "description": "{title} at Madrasatul Quran, Uttara, Dhaka: {details}.",
+      "meta": "{title}: photos and videos | Madrasatul Quran Dhaka",
+      "description": "{title} at Madrasatul Quran Dhaka, Uttara: {details}.",
       "crumbs": "You are here",
       "share": "Send on WhatsApp",
       "copy": "Copy the link",
@@ -1199,9 +1199,9 @@
   },
   "notices": {
     "meta": {
-      "title": "Notice board | Madrasatul Quran",
-      "description": "Madrasatul Quran’s official notices: admissions, holidays, exams, results and events, each with its number and date.",
-      "notice": "Notice {number}: {title} | Madrasatul Quran",
+      "title": "Notice board | Madrasatul Quran Dhaka",
+      "description": "Madrasatul Quran Dhaka’s official notices: admissions, holidays, exams, results and events, each with its number and date.",
+      "notice": "Notice {number}: {title} | Madrasatul Quran Dhaka",
       "noticeDescription": "{date}: {text}"
     },
     "board": {

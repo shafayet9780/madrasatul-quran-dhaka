@@ -16,8 +16,9 @@ describe('generateSchoolStructuredData', () => {
     });
     expect(ld).toMatchObject({
       '@type': 'School',
-      name: 'Madrasatul Quran',
-      alternateName: ['মাদরাসাতুল কুরআন', 'مدرسة القرآن'],
+      name: 'Madrasatul Quran Dhaka',
+      legalName: 'Madrasatul Quran Dhaka',
+      alternateName: ['মাদরাসাতুল কুরআন ঢাকা', 'مدرسة القرآن داکا', 'Madrasatul Quran', 'মাদরাসাতুল কুরআন'],
       url: `${getSiteUrl()}/english`,
       logo: 'https://cdn.sanity.io/logo.png',
       image: `${getSiteUrl()}/images/social/school.jpg`,
@@ -33,7 +34,7 @@ describe('generateSchoolStructuredData', () => {
 
   it('leaves out what School details does not have', () => {
     const ld = generateSchoolStructuredData({ locale: 'bengali', emails: ['a@example.com'], sameAs: [] });
-    expect(ld.name).toBe('মাদরাসাতুল কুরআন');
+    expect(ld.name).toBe('মাদরাসাতুল কুরআন ঢাকা');
     expect(ld).toMatchObject({ email: 'a@example.com' });
     for (const key of ['logo', 'address', 'openingHoursSpecification', 'telephone', 'hasMap', 'sameAs']) expect(ld).not.toHaveProperty(key);
   });

@@ -75,7 +75,7 @@ export default async function GuardianPrintPage({ params, searchParams }: { para
             </div>
             <div className="flex flex-col">
               <span className="sv-head" style={{ fontSize: 20 }}>
-                মাদরাসাতুল কুরআন, ঢাকা
+                মাদরাসাতুল কুরআন ঢাকা
               </span>
               <span style={{ fontSize: 13, color: 'var(--sv-text-muted)' }}>শিক্ষার্থীর অগ্রগতি রিপোর্ট · অভিভাবক সভা</span>
             </div>

@@ -1,3 +1,4 @@
+import { SCHOOL_NAME } from './site/school-name';
 import { MetadataRoute } from 'next';
 
 const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://madrasatul-quran.edu.bd';
@@ -166,7 +167,7 @@ export function generateImageSitemap(): string {
   const images = [
     {
       url: `${baseUrl}/images/campus-main.jpg`,
-      caption: 'Madrasatul Quran Main Campus',
+      caption: 'Madrasatul Quran Dhaka campus',
       title: 'Main Campus Building',
       license: `${baseUrl}/license`,
     },
@@ -233,7 +234,7 @@ export function generateNewsSitemap(): string {
     <loc>${article.url}</loc>
     <news:news>
       <news:publication>
-        <news:name>Madrasatul Quran</news:name>
+        <news:name>${SCHOOL_NAME.english}</news:name>
         <news:language>${article.language}</news:language>
       </news:publication>
       <news:publication_date>${article.publishedAt}</news:publication_date>

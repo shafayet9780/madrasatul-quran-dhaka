@@ -22,7 +22,7 @@ export function IntroScreen({ config, onStart }: { config: T1Config; onStart: ()
           ম
         </div>
         <div className="flex flex-col" style={{ lineHeight: 1.4 }}>
-          <span style={{ fontWeight: 600, fontSize: 15 }}>মাদরাসাতুল কুরআন, ঢাকা</span>
+          <span style={{ fontWeight: 600, fontSize: 15 }}>মাদরাসাতুল কুরআন ঢাকা</span>
           <span style={{ fontSize: 13, color: 'var(--sv-text-muted)' }}>শিক্ষকের রিভিউ · {config.label}</span>
         </div>
       </div>

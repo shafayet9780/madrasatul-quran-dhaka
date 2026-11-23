@@ -5,7 +5,7 @@ import '@/components/survey/tokens.css';
 import './survey.css';
 
 export const metadata: Metadata = {
-  title: { template: '%s · মাদরাসাতুল কুরআন', default: 'রিভিউ · মাদরাসাতুল কুরআন' },
+  title: { template: '%s · মাদরাসাতুল কুরআন ঢাকা', default: 'রিভিউ · মাদরাসাতুল কুরআন ঢাকা' },
   robots: { index: false, follow: false },
   icons: { icon: '/api/favicon' },
 };
@@ -24,7 +24,7 @@ export default function SurveyLayout({ children }: { children: React.ReactNode }
               <div className="sv-logo" aria-hidden="true">
                 ম
               </div>
-              <span style={{ fontWeight: 600, fontSize: 15 }}>মাদরাসাতুল কুরআন, ঢাকা</span>
+              <span style={{ fontWeight: 600, fontSize: 15 }}>মাদরাসাতুল কুরআন ঢাকা</span>
             </div>
           </header>
           {children}
