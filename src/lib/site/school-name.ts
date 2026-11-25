@@ -3,7 +3,7 @@
 // which must say the same (school-name.test.ts). Running text may use the short name ("কেন মাদরাসাতুল কুরআন?").
 
 export const SCHOOL_NAME = { bengali: 'মাদরাসাতুল কুরআন ঢাকা', english: 'Madrasatul Quran Dhaka' } as const;
-/** The Arabic name, as the prospectus cover writes it. */
-export const SCHOOL_NAME_ARABIC = 'مدرسة القرآن داکا';
+/** The Arabic name for search, with the standard Arabic kaf (ك) people type; the hero draws the prospectus's داکا. */
+export const SCHOOL_NAME_ARABIC = 'مدرسة القرآن داكا';
 export const SCHOOL_SHORT_NAME = { bengali: 'মাদরাসাতুল কুরআন', english: 'Madrasatul Quran' } as const;
 export const SCHOOL_SHORT_NAME_ARABIC = 'مدرسة القرآن';

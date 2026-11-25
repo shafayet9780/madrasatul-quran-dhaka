@@ -18,7 +18,7 @@ describe('generateSchoolStructuredData', () => {
       '@type': 'School',
       name: 'Madrasatul Quran Dhaka',
       legalName: 'Madrasatul Quran Dhaka',
-      alternateName: ['মাদরাসাতুল কুরআন ঢাকা', 'مدرسة القرآن داکا', 'Madrasatul Quran', 'মাদরাসাতুল কুরআন', 'مدرسة القرآن'],
+      alternateName: ['মাদরাসাতুল কুরআন ঢাকা', 'مدرسة القرآن داكا', 'Madrasatul Quran', 'মাদরাসাতুল কুরআন', 'مدرسة القرآن'],
       url: `${getSiteUrl()}/english`,
       logo: 'https://cdn.sanity.io/logo.png',
       image: `${getSiteUrl()}/images/social/school.jpg`,
