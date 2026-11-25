@@ -19,9 +19,10 @@ export async function SiteHeader({ locale, siteSettings }: { locale: Locale; sit
   return (
     <header className="relative border-b border-line bg-paper text-ink">
       <div className="page-wrap flex items-center gap-x-3 min-[1180px]:gap-x-9">
-        <Link href={`/${locale}`} className="flex min-h-[60px] shrink-0 items-center gap-2.5 text-ink no-underline sm:min-h-[72px] sm:gap-3">
-          {logo && <Image src={logo} alt="" width={42} height={42} priority className="size-9 sm:size-[42px]" />}
-          <span className="flex flex-col leading-[1.15]">
+        <Link href={`/${locale}`} className="flex min-h-[60px] min-w-0 shrink items-center gap-2.5 py-1.5 text-ink no-underline sm:min-h-[72px] sm:shrink-0 sm:gap-3 sm:py-0">
+          {logo && <Image src={logo} alt="" width={42} height={42} priority className="size-9 shrink-0 sm:size-[42px]" />}
+          {/* On the narrowest phones the name wraps rather than push the menu button off the screen */}
+          <span className="flex min-w-0 flex-col leading-[1.15]">
             <span className="text-16 font-bold leading-[1.15] sm:text-18">{t('schoolName')}</span>
             <span className="text-13 leading-[1.15] text-ink-muted">{t('place')}</span>
           </span>

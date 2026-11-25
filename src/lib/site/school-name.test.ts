@@ -11,6 +11,10 @@ describe('the school’s name', () => {
     expect(english.site.schoolName).toBe(SCHOOL_NAME.english);
     expect(bengali.home.hero.name).toBe(SCHOOL_NAME.bengali);
     expect(english.home.hero.name).toBe(SCHOOL_NAME.english);
+    for (const [messages, locale] of [[bengali, 'bengali'], [english, 'english']] as const) {
+      expect(messages.preAdmission.brand).toBe(SCHOOL_NAME[locale]);
+      expect(messages.site.footer.copyright).toContain(SCHOOL_NAME[locale]);
+    }
   });
 
   it('ends every page title in the legal name, written without a comma', () => {

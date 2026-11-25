@@ -12,7 +12,7 @@ import { OpenRoundAction } from './sanity/actions/OpenRoundAction';
 
 export default defineConfig({
   name: 'madrasatul-quran-website',
-  title: 'Madrasatul Quran Website',
+  title: 'Madrasatul Quran Dhaka Website',
 
   projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID!,
   dataset: process.env.NEXT_PUBLIC_SANITY_DATASET!,

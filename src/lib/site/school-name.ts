@@ -6,3 +6,4 @@ export const SCHOOL_NAME = { bengali: 'মাদরাসাতুল কুর�
 /** The Arabic name, as the prospectus cover writes it. */
 export const SCHOOL_NAME_ARABIC = 'مدرسة القرآن داکا';
 export const SCHOOL_SHORT_NAME = { bengali: 'মাদরাসাতুল কুরআন', english: 'Madrasatul Quran' } as const;
+export const SCHOOL_SHORT_NAME_ARABIC = 'مدرسة القرآن';

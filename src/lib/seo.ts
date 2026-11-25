@@ -1,4 +1,4 @@
-import { SCHOOL_NAME, SCHOOL_NAME_ARABIC, SCHOOL_SHORT_NAME } from './site/school-name';
+import { SCHOOL_NAME, SCHOOL_NAME_ARABIC, SCHOOL_SHORT_NAME, SCHOOL_SHORT_NAME_ARABIC } from './site/school-name';
 import { getSiteUrl } from './site-url';
 import { SOCIAL_IMAGE } from './page-metadata';
 import { SCHOOL_LOCATION } from './contact/directions';
@@ -60,8 +60,8 @@ export function generateSchoolStructuredData({
   const openingHours = openingHoursFrom(hours);
   const name = SCHOOL_NAME[locale];
   const other = locale === 'bengali' ? 'english' : 'bengali';
-  // The legal name in both languages and Arabic, and the short name people also search for.
-  const alternateName = [SCHOOL_NAME[other], SCHOOL_NAME_ARABIC, SCHOOL_SHORT_NAME[locale], SCHOOL_SHORT_NAME[other]];
+  // The legal name in both languages and Arabic, and the short names people also search for.
+  const alternateName = [SCHOOL_NAME[other], SCHOOL_NAME_ARABIC, SCHOOL_SHORT_NAME[locale], SCHOOL_SHORT_NAME[other], SCHOOL_SHORT_NAME_ARABIC];
   return {
     '@context': 'https://schema.org',
     '@type': 'School',

@@ -50,7 +50,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   const [t, home, seo] = await Promise.all([getTranslations({ locale, namespace: 'site' }), getTranslations({ locale, namespace: 'home.meta' }), getContentService(false).getSeoSettings()]);
   const title = seo?.pages?.home?.title?.[locale]?.trim() || home('title');
   const description = seo?.description?.[locale]?.trim() || SITE_DESCRIPTION;
-  const share = sharePicture(seo, locale) ?? { url: SOCIAL_IMAGE, alt: 'Madrasatul Quran school building' };
+  const share = sharePicture(seo, locale) ?? { url: SOCIAL_IMAGE, alt: locale === 'bengali' ? 'মাদরাসাতুল কুরআন ঢাকার ভবন' : 'Madrasatul Quran Dhaka school building' };
   return {
     metadataBase: new URL(getSiteUrl()),
     title: { template: `%s | ${t('schoolName')}`, absolute: t('schoolName') },
