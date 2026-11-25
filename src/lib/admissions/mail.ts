@@ -1,4 +1,5 @@
 import 'server-only';
+import { SCHOOL_NAME } from '@/lib/site/school-name';
 import { openDeadline } from './windows';
 import { and, desc, eq, inArray, isNotNull, isNull, lt, or } from 'drizzle-orm';
 import { getAdmissionsDb } from './db';
@@ -19,7 +20,7 @@ export type MailMessage = { to: string; subject: string; html: string; text: str
 export type MailResult = { ok: true; id?: string } | { ok: false; reason: string };
 export type Mailer = (message: MailMessage) => Promise<MailResult>;
 
-export const DEFAULT_FROM = 'Madrasatul Quran <admissions@madrasatulquranbd.com>';
+export const DEFAULT_FROM = `${SCHOOL_NAME.english} <admissions@madrasatulquranbd.com>`;
 
 /** The local preview's outbox, or Resend when configured; null when email is not set up. */
 export function mailer(): Mailer | null {

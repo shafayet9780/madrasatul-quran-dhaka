@@ -26,7 +26,7 @@ function StatePage({ icon, title, children }: { icon: React.ReactNode; title: st
         <div className="sv-logo" aria-hidden="true">
           ম
         </div>
-        <div style={{ fontWeight: 600, fontSize: 15 }}>মাদরাসাতুল কুরআন, ঢাকা</div>
+        <div style={{ fontWeight: 600, fontSize: 15 }}>মাদরাসাতুল কুরআন ঢাকা</div>
       </div>
       <div className="flex flex-col items-center justify-center gap-4 text-center" style={{ flex: 1, padding: '0 28px 80px' }}>
         <div

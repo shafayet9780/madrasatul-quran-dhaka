@@ -24,7 +24,7 @@ export default async function RoutinePage({ searchParams }: { searchParams: Prom
     <>
       <PageTop crumbs={[{ label: 'রুটিন' }]} round={false} />
       <PageBody className="rt-print">
-        <p className="sv-print-only m-0 text-lg font-bold">মাদরাসাতুল কুরআন, ঢাকা · ক্লাস রুটিন {data?.routine.name}</p>
+        <p className="sv-print-only m-0 text-lg font-bold">মাদরাসাতুল কুরআন ঢাকা · ক্লাস রুটিন {data?.routine.name}</p>
         {!data ? (
           <NoRoutine />
         ) : (

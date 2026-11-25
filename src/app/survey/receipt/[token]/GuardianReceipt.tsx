@@ -47,7 +47,7 @@ export function GuardianReceipt({ receipt }: { receipt: Receipt }) {
 
       <article className="flex flex-col gap-3" style={{ margin: '18px 16px 0', background: '#fff', border: '1px solid var(--sv-hairline)', borderRadius: 18, padding: '16px 18px' }}>
         <div className="flex flex-col" style={{ lineHeight: 1.45 }}>
-          <span style={{ fontWeight: 600, fontSize: 15 }}>মাদরাসাতুল কুরআন, ঢাকা</span>
+          <span style={{ fontWeight: 600, fontSize: 15 }}>মাদরাসাতুল কুরআন ঢাকা</span>
           <span style={{ fontSize: 13.5, color: 'var(--sv-text-muted)' }}>
             {template.title} · {round.label}
           </span>

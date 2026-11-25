@@ -105,7 +105,7 @@ export async function SchoolDay({ locale, routine, routes, van, plan }: { locale
             {routes.length > 0 && (
               <div className="grid grid-cols-2 gap-x-6 gap-y-6 sm:grid-cols-[repeat(auto-fill,minmax(180px,1fr))] sm:gap-x-8">
                 {routes.map((r) => (
-                  <RouteLine key={r.name} route={r} school={t('hero.name')} />
+                  <RouteLine key={r.name} route={r} school={t('campus.route.map.school')} />
                 ))}
               </div>
             )}

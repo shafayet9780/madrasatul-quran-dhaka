@@ -148,7 +148,7 @@ export async function AdmissionFees({ locale, settings }: { locale: Locale; sett
               const route = { name: txt(r.name, locale), stops: r.stops.map((s) => txt(s.name, locale)) };
               return (
                 <li key={r.key} className="rounded-card border border-line bg-surface px-5 pb-6 pt-5">
-                  <RouteLine route={route} school={home('hero.name')}>
+                  <RouteLine route={route} school={home('campus.route.map.school')}>
                     <p className="-mt-1.5 mb-1 text-15 text-ink-muted">
                       {vehicle && `${txt(vehicle.name, locale)}, `}
                       {vehicle?.monthly != null ? (

@@ -1,3 +1,4 @@
+import { SCHOOL_NAME } from '@/lib/site/school-name';
 import type { Metadata, Viewport } from 'next';
 import { preload } from 'react-dom';
 import { hasLocale, NextIntlClientProvider } from 'next-intl';
@@ -49,15 +50,15 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   const [t, home, seo] = await Promise.all([getTranslations({ locale, namespace: 'site' }), getTranslations({ locale, namespace: 'home.meta' }), getContentService(false).getSeoSettings()]);
   const title = seo?.pages?.home?.title?.[locale]?.trim() || home('title');
   const description = seo?.description?.[locale]?.trim() || SITE_DESCRIPTION;
-  const share = sharePicture(seo, locale) ?? { url: SOCIAL_IMAGE, alt: 'Madrasatul Quran school building' };
+  const share = sharePicture(seo, locale) ?? { url: SOCIAL_IMAGE, alt: locale === 'bengali' ? 'মাদরাসাতুল কুরআন ঢাকার ভবন' : 'Madrasatul Quran Dhaka school building' };
   return {
     metadataBase: new URL(getSiteUrl()),
     title: { template: `%s | ${t('schoolName')}`, absolute: t('schoolName') },
     description,
     keywords: ['Islamic education', 'Madrasah', 'Quran', 'Hadith', 'Dhaka', 'Bangladesh', 'Educational institution'],
-    authors: [{ name: 'Madrasatul Quran' }],
-    creator: 'Madrasatul Quran',
-    publisher: 'Madrasatul Quran',
+    authors: [{ name: SCHOOL_NAME.english }],
+    creator: SCHOOL_NAME.english,
+    publisher: SCHOOL_NAME.english,
     // Icons: served from Sanity siteSettings.favicon via /api/favicon.
     icons: {
       icon: [{ url: '/api/favicon', sizes: '32x32', type: 'image/png' }],

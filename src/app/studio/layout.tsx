@@ -1,8 +1,8 @@
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Madrasatul Quran CMS Studio',
-  description: 'Content Management System for Madrasatul Quran Website',
+  title: 'Madrasatul Quran Dhaka CMS Studio',
+  description: 'Content Management System for the Madrasatul Quran Dhaka website',
   robots: {
     index: false, // Don't index the studio in search engines
     follow: false,

@@ -1,3 +1,4 @@
+import { SCHOOL_NAME } from '@/lib/site/school-name';
 import { num, taka, txt } from './display';
 import { CHOICE_TYPES, NO_ROUTE, allFields, type FormField, type FormSection, type FormSnapshot } from './form-config';
 
@@ -294,7 +295,7 @@ ${pledgeSection}
 
 /** Repeated on pages 2–4: the school and form, and the application ID line the office fills in (e.g. KG-P01). */
 export function offlineHeaderTemplate(session: string, fontCss: string): string {
-  return `<div style="width:100%;padding:0 13mm;display:flex;justify-content:space-between;align-items:flex-end;gap:12px;font-size:9.5px;color:#000;font-family:'Inter','Noto Sans Bengali',sans-serif"><style>${fontCss}</style><span>মাদরাসাতুল কুরআন · প্রি-অ্যাডমিশন ফর্ম ${bn(session)}</span><span>আবেদন আইডি (অফিস পূরণ করবে) <span style="display:inline-block;width:42mm;border-bottom:1px solid #000"></span></span></div>`;
+  return `<div style="width:100%;padding:0 13mm;display:flex;justify-content:space-between;align-items:flex-end;gap:12px;font-size:9.5px;color:#000;font-family:'Inter','Noto Sans Bengali',sans-serif"><style>${fontCss}</style><span>${SCHOOL_NAME.bengali} · প্রি-অ্যাডমিশন ফর্ম ${bn(session)}</span><span>আবেদন আইডি (অফিস পূরণ করবে) <span style="display:inline-block;width:42mm;border-bottom:1px solid #000"></span></span></div>`;
 }
 
 /** The student's name line and the page number; `total` is given when page 1 is printed on its own. */

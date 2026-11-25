@@ -1,3 +1,4 @@
+import { SCHOOL_NAME } from './site/school-name';
 import type { Metadata } from 'next';
 import type { Locale } from './i18n';
 import { getSiteUrl } from './site-url';
@@ -5,7 +6,7 @@ import { getSiteUrl } from './site-url';
 export const SOCIAL_IMAGE = '/images/social/school.jpg';
 /** The site's default description, until Studio → Search & sharing has one. */
 export const SITE_DESCRIPTION =
-  'At Madrasatul Quran in Uttara, Dhaka, Islamic and general education are given equal weight in one ten-year plan. Day-care hifz with general study alongside. Nursery to Class 11.';
+  'At Madrasatul Quran Dhaka, in Uttara, Islamic and general education are given equal weight in one ten-year plan. Day-care hifz with general study alongside. Nursery to Class 11.';
 
 export function generatePageMetadata({
   title,
@@ -45,7 +46,7 @@ export function generatePageMetadata({
       title,
       description,
       url,
-      siteName: locale === 'bengali' ? 'মাদরাসাতুল কুরআন' : 'Madrasatul Quran',
+      siteName: SCHOOL_NAME[locale],
       locale: locale === 'bengali' ? 'bn_BD' : 'en_US',
       alternateLocale: [locale === 'bengali' ? 'en_US' : 'bn_BD'],
       images: [
@@ -56,8 +57,8 @@ export function generatePageMetadata({
           alt:
             share?.alt ??
             (locale === 'bengali'
-              ? 'মাদরাসাতুল কুরআনের ভবন'
-              : 'Madrasatul Quran school building'),
+              ? 'মাদরাসাতুল কুরআন ঢাকার ভবন'
+              : 'Madrasatul Quran Dhaka school building'),
         },
       ],
     },
